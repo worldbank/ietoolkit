@@ -14,7 +14,7 @@ duplicates differ
 
 {phang2}
 {cmdab:iecompdup}
-{it:varname}
+{it:idvariable}
 , {cmdab:id(}{it:string}{cmd:)} [{cmdab:didi:fference} {cmdab:keepdiff:erence} 
 {cmdab:keepoth:er(}{it:varlist}{cmd:)} {cmdab:more2ok}]
 
