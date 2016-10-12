@@ -16,9 +16,10 @@ help for {hi:iebaltab}
 [
 {cmdab:co:ntrol(}{it:groupcode}{cmd:)} {cmdab:or:der(}{it:groupcodelist}{cmd:)} {cmdab:tot:al} {cmdab:grpc:odes} 
 {cmdab:grpl:abels(}{it:codetitlestring}{cmd:)} {cmdab:totall:abel(}{it:string}{cmd:)} {cmdab:rowv:arlabels} 
-{cmdab:rowl:abels(}{it:nametitlestring}{cmd:)} {cmdab:missz:ero} {cmdab:missr:egzero} {cmdab:vce:(}{it:{help vce_option:vce_types}}{cmd:)}
-{cmdab:fix:edeffect(}{it:varname}{cmd:)} {cmdab:cov:ariates(}{it:{help varlist}}{cmd:)} {cmd:covarmissok} {cmdab:covmissz:ero}
-{cmdab:covmissr:egzero} {cmdab:ft:est} {cmdab:fm:issok} {cmd:fnoobs} {cmdab:pt:test} {cmdab:pf:test} {cmdab:pb:oth} 
+{cmdab:rowl:abels(}{it:nametitlestring}{cmd:)} {cmdab:balmiss:(}{it:string}{cmd:)} {cmdab:balmissr:eg(}{it:string}{cmd:)} 
+{cmdab:missmin:mean(}{it:{help numlist:numlist}}{cmd:)} {cmdab:vce:(}{it:{help vce_option:vce_types}}{cmd:)}
+{cmdab:fix:edeffect(}{it:varname}{cmd:)} {cmdab:cov:ariates(}{it:{help varlist}}{cmd:)} {cmd:covarmissok} {cmdab:covmiss:(}{it:string}{cmd:)}
+{cmdab:covmissr:eg(}{it:string}{cmd:)} {cmdab:ft:est} {cmdab:fm:issok} {cmd:fnoobs} {cmdab:pt:test} {cmdab:pf:test} {cmdab:pb:oth} 
 {cmdab:star:levels(}{it:{help numlist:numlist}}{cmd:)} {cmdab:starsno:add} {cmdab:form:at(}{it:{help format:%fmt}}{cmd:)} 
 {cmdab:tbln:ote(}{it:string}{cmd:)} {cmdab:notec:ombine} {cmdab:tblnon:ote} {cmd:replace} {cmdab:savebr:owse}
 ]
@@ -56,14 +57,15 @@ used in grpvar({it:varname}), {it:codetitlestring} is a string of group codes wi
 {synopt :{cmdab:rowl:abels(}{it:nametitlestring}{cmd:)}}Manually set the row titles{p_end}
 
 {pstd}{it:    Statistics and data modification:}{p_end}
-{synopt :{cmdab:missz:ero}}Treat missing values in balance variables as zeros{p_end}
-{synopt :{cmdab:missr:egzero}}Similar to {cmd:misszero} but treats {help missing:extended missing values} as missing{p_end}
+{synopt :{cmdab:balmiss:(}{it:string}{cmd:)}}Replaces missing values in balance variables with either zeros, the mean or the group mean.{p_end}
+{synopt :{cmdab:balmissr:eg(}{it:string}{cmd:)}}Similar to {cmd:misszero} but treats {help missing:extended missing values} still as missing{p_end}
+{synopt :{cmdab:missmin:mean(}{it:{help numlist:numlist}}{cmd:)}}Sets a minimum number of observations that a mean or group mean must be based on in {cmd:balmiss()}, {cmd:balmissreg()}, {cmd:covmiss()} and {cmd:covmissreg()}{p_end}
 {synopt :{cmdab:vce:(}{it:{help vce_option:vce_types}}{cmd:)}}Options for variance estimation. Robust, cluster or bootstrap{p_end}
 {synopt :{cmdab:fix:edeffect(}{it:varname}{cmd:)}}Include fixed effects in the regressions for t-tests (and for F-tests if applicable){p_end}
 {synopt :{cmdab:cov:ariates(}{it:{help varlist}}{cmd:)}}Include covariates (control variables) in the regressions for t-tests (and for F-tests if applicable){p_end}
 {synopt :{cmd:covarmissok}}Allows for observations to be dropped due to missing values in covariate variables{p_end}
-{synopt :{cmdab:covmissz:ero}}Treat missing values in covariate variables as zeros{p_end}
-{synopt :{cmdab:covmissr:egzero}}Similar to {cmd:covmisszero} but treats {help missing:extended missing values} as missing{p_end}
+{synopt :{cmdab:covmiss:(}{it:string}{cmd:)}}Replaces missing values in covariate variables with either zeros, the mean or the group mean.{p_end}
+{synopt :{cmdab:covmissr:eg(}{it:string}{cmd:)}}Similar to {cmd:covmisszero} but treats {help missing:extended missing values} still as missing{p_end}
 
 {pstd}{it:    F-test:}{p_end}
 {synopt :{cmdab:ft:est}}Include an F-test for joint significance{p_end}
@@ -245,14 +247,23 @@ in the {it:nametitlestring}. The title can consist of several words. Everything 
 
 {pstd}{it:    Statistics and data modification:}{p_end}
 
-{phang}{cmdab:missz:ero} makes the command treat all missing values in balance variables as zeros. Stata always drops observations with 
+{phang}{cmdab:balmiss:(}{it:string}{cmd:)} makes the command replace all missing values in balance variables with either zeros, the mean or the group 
+mean of the variable. The string can eitehr be {it:zero}, {it:mean} or {it:groupmean}. {it:Zero} makes the command replace all missing values with a zero. {it:Mean} makes
+the command replace all missing values with the mean value of this variable. {it:Groupmean} makes the command replace all missing values with the mean 
+value in each group in {cmd:grpvar(}{it:varname}{cmd:)} of this variable. Stata always drops observations with 
 missing values in the dependent variable or in any of the independent variables when estimating a regression. This option tells this 
-command to interpret all missing values in the balance variables as zero. That will make it possible to include the observations with 
+command to replace all missing values in the balance variables with a non-missing value. That will make it possible to include the observations with 
 missing values in the balance table. WARNING: while technically possible it is far from certain this option generates a valid result. 
-There is no guarantee that a missing value can correctly be assumed to be zero without making the interpretation of the balance table invalid.{p_end}
+There is no guarantee that a missing value can correctly be assumed to be zero without making the interpretation of the balance table invalid. Best 
+practice is most certainly to manually replace or omitt these values manually before running this command. This option is only included to enable 
+quick balance tables on raw data before the data has been cleaned.{p_end}
 
-{phang}{cmdab:missr:egzero} makes the command treat all regular missing values in balance variables as zeros. See {cmd:misszero} for details and warning. 
-The difference is that this option still treats {help missing:extended missing values} as missing, but regular missing values are assumed to be zero.{p_end}
+{phang}{cmdab:balmissr:eg(}{it:string}{cmd:)} makes the command replace all regular missing values in balance variables with either zeros, the mean or 
+the group mean of the variable. See {cmd:misszero} for details and warning. 
+The difference is that this option still treats {help missing:extended missing values} as missing, but regular missing values will be replaced.{p_end}
+
+{phang}{cmdab:missmin:mean(}{it:{help numlist:numlist}}{cmd:)} sets a minimum number of observations that a mean or group mean must be based 
+on in {cmd:balmiss()}, {cmd:balmissreg()}, {cmd:covmiss()} and {cmd:covmissreg()}. The arbitrary default is 10.{p_end}
 
 {phang}{cmdab:vce:(}{it:{help vce_option:vce_types}{cmd:)}} sets the type of variance estimator to be used in all regressions for this 
 command. See {help vce_option:vce_types} for more details. The only vce types allowed in this command are robust, cluster or bootstrap.{p_end}
@@ -271,12 +282,12 @@ with missing values in at least one the variables used in a regression. This com
 values in any of the variables specified in {cmd:covariates()}. To suppress that error, use this option and therby accept that some observations 
 are excluded from the balance table. Also see {cmd:covmisszero} and {cmd:covmissregzero} for other solutions to this issue.{p_end}
 
-{phang}{cmdab:covmissz:ero} makes the command treat all missing values in covariate variables as zeros. See {cmd:misszero} for more
+{phang}{cmdab:covmiss:} makes the command replace all missing values in covariate variables with either zeros, the mean or the group mean of the variable. See {cmd:balmiss} for more
 details and the warning that applies to this command as well.{p_end}
 
-{phang}{cmdab:covmissr:egzero} makes the command treat all regular missing values in covariate variables as zeros. See {cmd:misszero} for more
+{phang}{cmdab:covmissr:eg} makes the command replace all regular missing values in covariate variables with either zeros, the mean or the group mean of the variable. See {cmd:balmiss} for more
 details and the warning that applies to this command as well. The difference from {cmd:covmisszero} that this option still treat {help missing:extended missing values} as 
-missing, but regular missing values are assumed to be zero.{p_end}
+missing, but regular missing values will be replaced.{p_end}
 
 {pstd}{it:    F-test:}{p_end}
 
