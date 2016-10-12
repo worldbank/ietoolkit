@@ -27,10 +27,11 @@
 				COVariates(varlist)											///
 				COVAMISSOK													///
 				vce(string) 												///
-				MISSZero 													///
-				MISSRegzero 												///
-				COVMISSZero 												///
-				COVMISSRegzero 												///				
+				BALMISS(string) 											///
+				BALMISSReg(string)											///
+				COVMISS(string) 											///
+				COVMISSReg(string)											///	
+				MISSMINmean(numlist min=1 max=1 >0)							///
 																			///
 				/*F-test*/													///
 				FTest 														///
@@ -166,21 +167,25 @@ qui {
 		if "`vce'" 				== "" local VCE_USED = 0 
 		if "`vce'" 				!= "" local VCE_USED = 1 
 	
-		*Is option misszero used:
-		if "`misszero'" 		== "" local MISSZERO_USED = 0 
-		if "`misszero'" 		!= "" local MISSZERO_USED = 1 
+		*Is option balmiss() used:
+		if "`balmiss'" 			== "" local BALMISS_USED = 0 
+		if "`balmiss'" 			!= "" local BALMISS_USED = 1 
 		
-		*Is option missregzero used:
-		if "`missregzero'" 		== "" local MISSREGZERO_USED = 0 
-		if "`missregzero'" 		!= "" local MISSREGZERO_USED = 1 		
+		*Is option missreg() used:
+		if "`balmissreg'" 		== "" local BALMISSREG_USED = 0 
+		if "`balmissreg'" 		!= "" local BALMISSREG_USED = 1 		
 		
-		*Is option covmisszero used:		
-		if "`covmisszero'" 		== "" local COVMISSZERO_USED = 0 
-		if "`covmisszero'" 		!= "" local COVMISSZERO_USED = 1 
+		*Is option covmiss() used:		
+		if "`covmiss'" 			== "" local COVMISS_USED = 0 
+		if "`covmiss'" 			!= "" local COVMISS_USED = 1 
 		
-		*Is option covmissregzero used:
-		if "`covmissregzero'" 	== "" local COVMISSREGZERO_USED = 0 
-		if "`covmissregzero'" 	!= "" local COVMISSREGZERO_USED = 1 			
+		*Is option covmissreg() used:
+		if "`covmissreg'" 		== "" local COVMISSREG_USED = 0 
+		if "`covmissreg'" 		!= "" local COVMISSREG_USED = 1 			
+		
+		*Is option missminmean() used:
+		if "`missminmean'" 		== "" local MISSMINMEAN_USED = 0 
+		if "`missminmean'" 		!= "" local MISSMINMEAN_USED = 1 			
 		
 		
 		*Is option starlevels() used:
@@ -497,19 +502,24 @@ qui {
 		
 		
 		*Error for misszero incorrectly used together with missregzero
-		if `MISSZERO_USED' & `MISSREGZERO_USED' {
+		if `BALMISS_USED' & `BALMISSREG_USED' {
 			*Error for misszero and missregzero incorrectly used together
 			noi display as error "{phang}Option misszero may not be used in combination with option missregzero"
 			error 197
 		}	
 		
-		if `COVMISSZERO_USED' & `COVMISSREGZERO_USED' {
+		if `COVMISS_USED' & `COVMISSREG_USED' {
 			*Error for misszero and missregzero incorrectly used together
 			noi display as error "{phang}Option covmisszero may not be used in combination with option covmissregzero"
 			error 197
 		}			
 		
-
+		*Testing input in these for options. See function at the end of this command
+		if `BALMISS_USED' == 1 		iereplacestringtest "balmiss" 		"`balmiss'"
+		if `BALMISSREG_USED' == 1 	iereplacestringtest "balmissreg" 	"`balmissreg'"
+		if `COVMISS_USED' == 1 		iereplacestringtest "covmiss" 		"`covmiss'"
+		if `COVMISSREG_USED' == 1 	iereplacestringtest "covmissreg" 	"`covmissreg'"
+		
 			
 		if `FIX_EFFECT_USED' == 1 {
 			
@@ -528,15 +538,23 @@ qui {
 			
 			foreach covar of local covariates {
 				
-				if `COVMISSZERO_USED' == 1 {
-					
-					replace `covar' = 0 if `covar' >= .
+				*Create option string
+				local replaceoptions 
 				
-				}
-				if `COVMISSREGZERO_USED' == 1 {
+				*Sopecify differently based on all missing or only regualr missing
+				if `COVMISS_USED' 					local replaceoptions `" `replaceoptions' replacetype("`covmiss'") "'
+				if `COVMISSREG_USED' 				local replaceoptions `" `replaceoptions' replacetype("`covmissreg'") regonly "'
 				
-					replace `covar' = 0 if `covar' == .
-				}			
+				*Add group variable if the replace type is group mean
+				if "`covmiss'" 		== "groupmean" 	local replaceoptions `" `replaceoptions' groupvar(`grpvar') groupcodes("`GRP_CODE_LEVELS'") "'
+				if "`covmissreg'" 	== "groupmean" 	local replaceoptions `" `replaceoptions' groupvar(`grpvar') groupcodes("`GRP_CODE_LEVELS'") "'
+				
+				*Set the minimum number of observations to allow means to be set from
+				if `MISSMINMEAN_USED' == 1			local replaceoptions `" `replaceoptions' minobsmean(`missminmean') "'
+				if `MISSMINMEAN_USED' == 0			local replaceoptions `" `replaceoptions' minobsmean(10) "'
+				
+				*Excute the command. Code is found at the bottom of this ado file
+				if (`COVMISS_USED' | `COVMISSREG_USED')  iereplacemiss `covancevar', `replaceoptions'		
 				
 				if `COVARMISSOK_USED' != 1 {
 				
@@ -1005,6 +1023,10 @@ qui {
 			*Start the tableRow string with the label defined
 			local tableRow `""`row_label'""' 
 			
+			
+			
+			*** Replacing missing value
+			
 			** This option can be used to get a uniform N across all 
 			*  variables even if the variable is missing for some 
 			*  observations. When specifying this option, a dummy is 
@@ -1014,17 +1036,26 @@ qui {
 			*  differences in means, the dummy is included as a control.
 			*  Note that this will slightly distort the mean as well.
 			
-			if `MISSZERO_USED' {
-				
-				*Change variable to 0 if variable is missing
-				replace `balancevar' = 0 if `balancevar' >= .	
-			}
-			if `MISSREGZERO_USED' {
-				
-				*Change variable to 0 if variable is missing
-				replace `balancevar' = 0 if `balancevar' == .	
-			}
+			*Create option string
+			local replaceoptions 
 			
+			*Sopecify differently based on all missing or only regualr missing
+			if `BALMISS_USED' 					local replaceoptions `" `replaceoptions' replacetype("`balmiss'") "'
+			if `BALMISSREG_USED' 				local replaceoptions `" `replaceoptions' replacetype("`balmissreg'") regonly "'
+			
+			*Add group variable if the replace type is group mean
+			if "`balmiss'" 		== "groupmean" 	local replaceoptions `" `replaceoptions' groupvar(`grpvar') groupcodes("`GRP_CODE_LEVELS'") "'
+			if "`balmissreg'" 	== "groupmean" 	local replaceoptions `" `replaceoptions' groupvar(`grpvar') groupcodes("`GRP_CODE_LEVELS'") "'
+			
+			*Set the minimum number of observations to allow means to be set from
+			if `MISSMINMEAN_USED' == 1			local replaceoptions `" `replaceoptions' minobsmean(`missminmean') "'
+			if `MISSMINMEAN_USED' == 0			local replaceoptions `" `replaceoptions' minobsmean(10) "'
+			
+			*Excute the command. Code is found at the bottom of this ado file
+			if (`BALMISS_USED' | `BALMISSREG_USED')  iereplacemiss `balancevar', `replaceoptions'
+
+			
+			*** Run the regressions
 		
 			forvalues groupNumber = 1/`GRPVAR_NUM_GROUPS' {
 			
@@ -1510,22 +1541,22 @@ qui {
 	}	
 
 	
-	if `MISSZERO_USED' == 1 | `MISSREGZERO_USED' == 1 {
+	if `BALMISS_USED' == 1 | `BALMISSREG_USED' == 1 {
 		
-		if `MISSZERO_USED' 		== 1 	local misszero_note "All missing values in balance variables are treated as zero."
-		if `MISSREGZERO_USED'  	== 1 	local misszero_note "Regular missing values in balance variables are treated as zero,  {help missing:extended missing values} are still treated as missing."
+		if `BALMISS_USED' 		== 1 	local balmiss_note "All missing values in balance variables are treated as zero."
+		if `BALMISSREG_USED'  	== 1 	local balmiss_note "Regular missing values in balance variables are treated as zero,  {help missing:extended missing values} are still treated as missing."
 		
-		local MISSZERO_USED = 1
+		local BALMISS_USED = 1
 	}
 	
 	
 	
-	if `COVMISSZERO_USED' == 1 | `COVMISSREGZERO_USED' == 1 {
+	if `COVMISS_USED' == 1 | `COVMISSREG_USED' == 1 {
 		
-		if `COVMISSZERO_USED'		== 1	local covmisszero_note "All missing values in covariate varaibles are treated as zero."
-		if `COVMISSREGZERO_USED'  	== 1	local covmisszero_note "Regular missing values in covariate varaibles are treated as zero, {help missing:extended missing values} are still treated as missing."
+		if `COVMISS_USED'		== 1	local covmiss_note "All missing values in covariate varaibles are treated as zero."
+		if `COVMISSREG_USED'  	== 1	local covmiss_note "Regular missing values in covariate varaibles are treated as zero, {help missing:extended missing values} are still treated as missing."
 		
-		local COVMISSZERO_USED = 1
+		local COVMISS_USED = 1
 	}
 	
 	
@@ -1541,8 +1572,8 @@ qui {
 		if `VCE_USED'			== 0	local error_est_note	""
 		if `FIX_EFFECT_USED'	== 0	local fixed_note		""
 		if `COVARIATES_USED'	== 0	local covar_note		""
-		if `MISSZERO_USED'		== 0	local misszero_note 	""
-		if `COVMISSZERO_USED'	== 0	local covmisszero_note 	""
+		if `BALMISS_USED'		== 0	local balmiss_note 		""
+		if `COVMISS_USED'		== 0	local covmiss_note 		""
 		if `STARSNOADD_USED'	== 1	local stars_note		""
 		
 
@@ -1550,7 +1581,7 @@ qui {
 		*Write to file
 		file open  `textfile' using `textfile'.txt, text write append
 		
-			file write `textfile' "`tblnote' `ttest_note'`ftest_note'`error_est_note'`fixed_note'`covar_note'`misszero_note'`covmisszero_note'`stars_note'" _n
+			file write `textfile' "`tblnote' `ttest_note'`ftest_note'`error_est_note'`fixed_note'`covar_note'`balmiss_note'`covmiss_note'`stars_note'" _n
 			
 		file close `textfile'
 		
@@ -1576,8 +1607,8 @@ qui {
 			if  `VCE_USED'			file write `textfile' "`error_est_note'" 	_n	
 			if  `FIX_EFFECT_USED' 	file write `textfile' "`fixed_note'" 		_n
 			if  `COVARIATES_USED' 	file write `textfile' "`covar_note'" 		_n
-			if  `MISSZERO_USED'		file write `textfile' "`misszero_note'"		_n	
-			if  `COVMISSZERO_USED'	file write `textfile' "`covmisszero_note'"	_n			
+			if  `BALMISS_USED'		file write `textfile' "`balmiss_note'"		_n	
+			if  `COVMISS_USED'		file write `textfile' "`covmiss_note'"		_n			
 			if !`STARSNOADD_USED'	file write `textfile' "`stars_note'" 		_n
 		file close `textfile'
 		
@@ -1615,8 +1646,87 @@ qui {
 }	
 
 end
-	
 
+
+cap program drop iereplacestringtest
+program define iereplacestringtest
+
+	args optionname replacetypestring
+	
+	if !("`replacetypestring'" == "zero" | "`replacetypestring'" == "mean" |  "`replacetypestring'" == "groupmean") {
+	
+		noi display as error  "{phang}The string entered in option `optionname'(`replacetypestring') is not a valid replace type string. Only zero, mean and groupmean is allowed. See {help iebaltab:help iebaltab} for more details.{p_end}"
+		error 198
+	}
+
+end 
+
+cap program drop iereplacemiss
+program define iereplacemiss
+	
+	syntax varname, replacetype(string) [minobsmean(numlist) regonly groupvar(varname) groupcodes(string)]
+		
+		*Which missing values to change
+		if "`regonly'" == "" {
+			local misstype "`varlist' >= ." 
+		}
+		else {
+			local misstype "`varlist' == ." 
+		}
+		
+		
+		*Which missing values to change
+		if "`minobsmean'" == "" {
+			local minobs 10
+		}
+		else {
+			local minobs `minobsmean'
+		}
+		
+		
+		*Change the missing values
+		if "`replacetype'" == "zero" {
+				
+			replace `varlist' = 0 if `misstype'
+			
+		}
+		else if "`replacetype'" == "mean" {
+		
+			sum		`varlist' 
+			
+			*Test that there are enough observations to base the mean on
+			if `r(N)' < `minobs' {
+				noi display as error  "{phang}Not enough observations. There are less than `minobs' observations with a non missing value in `varlist'. Missing values can therefore not be set to the mean. Click {stata tab `varlist', missing} for detailed information.{p_end}"
+				error 2001
+			}
+			
+			
+			replace `varlist' = `r(mean)' if `misstype'
+			
+		}
+		else if  "`replacetype'" == "groupmean" {
+			
+			foreach code of local groupcodes {
+				sum		`varlist' if `groupvar' == `code'
+				
+				*Test that there are enough observations to base the mean on
+				if `r(N)' == 0 {
+				
+					noi display as error  "{phang}No observations. All values are missing in variable `varlist' for group `code' in variable `groupvar' and missing values can therefore not be set to the group mean. Click {stata tab `varlist' if `groupvar' == `code', missing} for detailed information.{p_end}"
+					error 2000
+				}
+				if `r(N)' < `minobs' {
+				
+					noi display as error  "{phang}Not enough observations. There are less than `minobs' observations in group `code' in variable `groupvar' with a non missing value in `varlist'. Missing values can therefore not be set to the group mean. Click {stata tab `varlist' if `groupvar' == `code', missing} for detailed information.{p_end}"
+					error 2001
+				
+				}					
+				replace `varlist' = `r(mean)' if `misstype' & `groupvar' == `code'
+			}
+		
+		}
+
+end
 
 qui {
 noi di ""
