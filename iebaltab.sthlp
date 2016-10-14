@@ -60,7 +60,7 @@ used in grpvar({it:varname}), {it:codetitlestring} is a string of group codes wi
 {synopt :{cmdab:balmiss:(}{it:string}{cmd:)}}Replaces missing values in balance variables with either zeros, the mean or the group mean.{p_end}
 {synopt :{cmdab:balmissr:eg(}{it:string}{cmd:)}}Similar to {cmd:misszero} but treats {help missing:extended missing values} still as missing{p_end}
 {synopt :{cmdab:missmin:mean(}{it:{help numlist:numlist}}{cmd:)}}Sets a minimum number of observations that a mean or group mean must be based on in {cmd:balmiss()}, {cmd:balmissreg()}, {cmd:covmiss()} and {cmd:covmissreg()}{p_end}
-{synopt :{cmdab:vce:(}{it:{help vce_option:vce_types}}{cmd:)}}Options for variance estimation. Robust, cluster or bootstrap{p_end}
+{synopt :{cmdab:vce:(}{it:{help vce_option:vce_types}}{cmd:)}}Options for variance estimation. {hi:Robust}, {hi:cluster} {it:clustervar} or {hi:bootstrap}{p_end}
 {synopt :{cmdab:fix:edeffect(}{it:varname}{cmd:)}}Include fixed effects in the regressions for t-tests (and for F-tests if applicable){p_end}
 {synopt :{cmdab:cov:ariates(}{it:{help varlist}}{cmd:)}}Include covariates (control variables) in the regressions for t-tests (and for F-tests if applicable){p_end}
 {synopt :{cmd:covarmissok}}Allows for observations to be dropped due to missing values in covariate variables{p_end}
@@ -266,7 +266,7 @@ The difference is that this option still treats {help missing:extended missing v
 on in {cmd:balmiss()}, {cmd:balmissreg()}, {cmd:covmiss()} and {cmd:covmissreg()}. The arbitrary default is 10.{p_end}
 
 {phang}{cmdab:vce:(}{it:{help vce_option:vce_types}{cmd:)}} sets the type of variance estimator to be used in all regressions for this 
-command. See {help vce_option:vce_types} for more details. The only vce types allowed in this command are robust, cluster or bootstrap.{p_end}
+command. See {help vce_option:vce_types} for more details. The only vce types allowed in this command are {hi:robust}, {hi:cluster} {it:clustervar} or {hi:bootstrap}.{p_end}
 
 {phang}{cmdab:fix:edeffect(}{it:varname}{cmd:)}includes the variable specified as fixed effects in the regressions for t-tests (and 
 for F-tests if applicable). See the description section above for details on how the fixed effects are included in the estimation regressions. 
