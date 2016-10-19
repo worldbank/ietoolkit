@@ -190,9 +190,15 @@ data set using char.
 	
 {title:Author}
 
-{phang}Kristoffer Bjärkefur, The World Bank, DECIE{break}
-         Please email bug-reports, suggestions and requests for clarifications 
-		 writing "ietools ieboilsave" in the subject line to:{break}
+{phang}Kristoffer Bjärkefur, The World Bank, DECIE
+
+{phang}Please send bug-reports, suggestions and requests for clarifications 
+		 writing "ietools iebaltab" in the subject line to:{break}
 		 kbjarkefur@worldbank.org
+		 
+{phang}You can also see the code, make comments to the code, see the version 
+		 history of the code, and submit additions or edits to the code through
+		 the github repository of ietoolkit:{break}
+		 {browse "https://github.com/worldbank/ietoolkit"}
 
 
