@@ -289,7 +289,7 @@ of code to be added to the dofile this command creates.{p_end}
 {phang}Kristoffer Bjärkefur, The World Bank, DECIE
 
 {phang}Please send bug-reports, suggestions and requests for clarifications 
-		 writing "ietools iebaltab" in the subject line to:{break}
+		 writing "ietools ieboilstart" in the subject line to:{break}
 		 kbjarkefur@worldbank.org
 		 
 {phang}You can also see the code, make comments to the code, see the version 

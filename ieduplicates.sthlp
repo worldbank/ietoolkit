@@ -286,7 +286,7 @@ observation. One is kept and one is dropped, usually it does not matter which yo
 {phang}Kristoffer Bjärkefur, The World Bank, DECIE
 
 {phang}Please send bug-reports, suggestions and requests for clarifications 
-		 writing "ietools iebaltab" in the subject line to:{break}
+		 writing "ietools ieduplicates" in the subject line to:{break}
 		 kbjarkefur@worldbank.org
 		 
 {phang}You can also see the code, make comments to the code, see the version 
