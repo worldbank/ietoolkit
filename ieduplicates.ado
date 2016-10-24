@@ -16,8 +16,6 @@
 		*	version 1, 2 . If the command is run on only version 1. Then values 
 		*	for keeepvars in version 2 and 3 are dropped and not reloaded as those 
 		*	obs are not in current memory
-		
-		*  Option nodaily, and refer to that if the the folder Daily does not exist
 
 		preserve
 			
@@ -250,7 +248,7 @@
 					Section 3.3.2
 					Make sure string input is yes or y
 				******************/		
-				di 3.32
+				
 				* Make string input lower case and change "y" to "yes"
 				replace correct = lower(correct)
 				replace drop 	= lower(drop)
@@ -315,7 +313,7 @@
 					Section 3.4
 					Throw errors if any of the tests were not passed
 				******************/		
-				di 3.4
+				
 				*Was any error detected
 				if `local_multiInp' == 1 | `local_inputNotYes' == 1 | `local_notDrop' == 1 | `local_multiCorr' == 1  {
 				
@@ -356,6 +354,7 @@
 						}                                                                              
 					}
 				
+				*Same error for any incorrect input
 				error 119
 				exit
 				}
@@ -379,7 +378,7 @@
 			
 			************************************************************************
 			***********************************************************************/				
-			di 4
+			
 
 			*Re-load original
 			use `restart', clear 
@@ -422,7 +421,7 @@
 			
 			************************************************************************
 			***********************************************************************/				
-			di 5
+			
 			tempvar id_string allDup  
 			
 			/******************
