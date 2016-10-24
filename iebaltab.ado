@@ -59,10 +59,9 @@
 
 				
 		***************TODO***************
-		* 1. check that all errros has smcl markup
-		* 2. test that misszero and missregzero works well together
 		* 3. When errors with click Stata code, find a way to apply all conditions for sample to output
 		* 4. stdev as well as se
+		* 5. Include option for latex
 
 		
 		********POTENTIAL UPDATES*********
@@ -273,7 +272,7 @@ qui {
 	/***********************************************
 	************************************************/
 	
-		di "KBKB Testing that options to dmtab is correctly specified and make initial operations based on these commands"
+		*Testing that options to dmtab is correctly specified and make initial operations based on these commands
 	
 	/*************************************************
 	************************************************/	
@@ -691,7 +690,7 @@ qui {
 	/***********************************************
 	************************************************/
 	
-		di "KBKB Manage order in levels of grpvar()"
+		*Manage order in levels of grpvar()
 	
 	/*************************************************
 	************************************************/	
@@ -718,7 +717,7 @@ qui {
 	/***********************************************
 	************************************************/
 
-		di "KBKB Manage lables to be used for the groups in groupvar"
+		*Manage lables to be used for the groups in groupvar
 
 	/*************************************************
 	************************************************/	
@@ -769,7 +768,7 @@ qui {
 	/***********************************************
 	************************************************/
 
-		di "KBKB Manage lables to be used as rowtitels"
+		*Manage lables to be used as rowtitels
 
 	/*************************************************
 	************************************************/
@@ -825,7 +824,7 @@ qui {
 	/***********************************************
 	************************************************/
 	
-		di "KBKB Creating title rows"
+		*Creating title rows
 	
 	/*************************************************
 	************************************************/
@@ -967,7 +966,8 @@ qui {
 	/***********************************************
 	***********************************************/
 	
-		di "KBKB Running an areg for each variable in varlist"
+		*Running the regrssion for the t-test 
+		*for each variable in varlist
 	
 	/************************************************
 	************************************************/		
@@ -1120,25 +1120,36 @@ qui {
 			*di "`ttest_pairs'" 
 			foreach ttest_pair of local ttest_pairs {
 				
+				*Create a local for each group in the test 
+				*pair from the test_pair local created above
 				local undscr_pos   = strpos("`ttest_pair'","_")
 				local first_group  = substr("`ttest_pair'",1,`undscr_pos'-1)
 				local second_group = substr("`ttest_pair'",  `undscr_pos'+1,.)
 				
+				*Create the local with the difference to be displayed in the table
 				local diff_`ttest_pair' =  `mean_`first_group'' - `mean_`second_group'' //means from section above
 
-				
+				*Create a temporary varaible used as the dummy to indicate 
+				*which observation is in the first and in the second group 
+				*in the test pair. Since all other observations are mission, 
+				*this variable also exculde all observations in neither of 
+				*the groups from the test regression
 				tempvar tempvar_thisGroupInPair
-				
-				gen 	`tempvar_thisGroupInPair' = .
+				gen 	`tempvar_thisGroupInPair' = .	//default is missing, and obs not in this pair will remain missing
 				replace `tempvar_thisGroupInPair' = 0 if `groupOrder' == `first_group'
 				replace `tempvar_thisGroupInPair' = 1 if `groupOrder' == `second_group'
-
+				
+				*The command mean is used to test that there is variation 
+				*in the balance var across these two groups. The regression 
+				*that includes fixed effects and covariaties might run without 
+				*error evern if there is no variance across the two groups. The 
+				*local varloc will determine if an error or a warning will be 
+				*thrown or if the test results will be replaced with an "N/A".
 				mean `balancevar', over(`tempvar_thisGroupInPair') `error_estm'
 				mat var = e(V)
 				local varloc = max(var[1,1],var[2,2])				
 				
-				di "KBKBxi `ttest_pair'"
-				
+				*This is the regression where we test differences.
 				reg `balancevar' `tempvar_thisGroupInPair' `covariates' i.`fixedeffect' , `error_estm'
 				
 				
@@ -1185,7 +1196,7 @@ qui {
 				}
 			}
 			
-			
+			*Write the row for this balance var to file.
 			file open  `textfile' using `textfile'.txt, text write append
 			file write `textfile' ///
 				`tableRow' _n			
@@ -1193,8 +1204,13 @@ qui {
 			
 		}
 		
-	di "KBKB Start f test : `FTEST_USED'"	
-	*** Create row for joint significance f-test
+	/***********************************************
+	***********************************************/
+	
+		*Running the regrssion for the F-tests
+	
+	/************************************************
+	************************************************/
 	
 	if `FTEST_USED' == 1 {
 		
@@ -1226,16 +1242,17 @@ qui {
 		local warn_joint_robus_num	0			
 		local fmiss_error 			0
 		
+		*Run the F-test on each pair
 		foreach ttest_pair of local ttest_pairs {
 				
-			
-				
+			*Create a local for each group in the test 
+			*pair from the test_pair local created above			
 			local undscr_pos   = strpos("`ttest_pair'","_")
 			local first_group  = substr("`ttest_pair'",1,`undscr_pos'-1)
 			local second_group = substr("`ttest_pair'",  `undscr_pos'+1,.)
 		
+			*Create the local with the difference to be displayed in the table
 			tempvar tempvar_thisGroupInPair miss
-				
 			gen 	`tempvar_thisGroupInPair' = .
 			replace `tempvar_thisGroupInPair' = 0 if `groupOrder' == `first_group'
 			replace `tempvar_thisGroupInPair' = 1 if `groupOrder' == `second_group'		
@@ -1275,15 +1292,12 @@ qui {
 			
 			********** 
 			* Run the regression for f-test
-			
-			di "KBKBxi"
 			reg `tempvar_thisGroupInPair' `balancevars' `covariates' i.`fixedeffect' ,  `error_estm'
 			
 			*This F is calculated using fixed effects as well
 			local reg_F 	"`e(F)'"
 			local reg_F_N 	"`e(N)'"
 			
-	
 			*Test all balance variables for joint significance
 			cap testparm `balancevars'
 			local test_F 	"`r(F)'"
@@ -1383,7 +1397,7 @@ qui {
 	/***********************************************
 	************************************************/
 	
-		di "KBKB Compile and display warnings (as opposed to errors in relation to t and f tests.)"
+		*Compile and display warnings (as opposed to errors in relation to t and f tests.)
 	
 	/*************************************************
 	************************************************/
@@ -1474,7 +1488,7 @@ qui {
 	/***********************************************
 	************************************************/
 	
-		di "KBKB Add notes to the bottom of the table"
+		*Add notes to the bottom of the table
 		
 	/*************************************************
 	************************************************/
@@ -1618,7 +1632,7 @@ qui {
 	/***********************************************
 	************************************************/
 	
-		di "KBKB Export and restore data unless other specified"
+		*Export and restore data unless other specified
 	
 	/*************************************************
 	************************************************/
@@ -1647,7 +1661,9 @@ qui {
 
 end
 
-
+*This function is used to test the input in the options 
+*that replace missing values. Only three strings are allowed 
+*as arguemnts
 cap program drop iereplacestringtest
 program define iereplacestringtest
 
@@ -1661,12 +1677,14 @@ program define iereplacestringtest
 
 end 
 
+*This function replaces zeros in balance variables 
+*or covariates according to the users specifications.
 cap program drop iereplacemiss
 program define iereplacemiss
 	
 	syntax varname, replacetype(string) [minobsmean(numlist) regonly groupvar(varname) groupcodes(string)]
 		
-		*Which missing values to change
+		*Which missing values to change. Standard or extended.
 		if "`regonly'" == "" {
 			local misstype "`varlist' >= ." 
 		}
@@ -1675,23 +1693,28 @@ program define iereplacemiss
 		}
 		
 		
-		*Which missing values to change
+		*Set the minimum number of observations 
+		*a mean is allowed to be based on.
 		if "`minobsmean'" == "" {
-			local minobs 10
+			local minobs 10 	//10 is the default
 		}
 		else {
-			local minobs `minobsmean'
+			*setting it to a user defiend value
+			local minobs `minobsmean' 
 		}
 		
 		
-		*Change the missing values
+		*Change the missing values accord 
+		*to the users specifications
 		if "`replacetype'" == "zero" {
-				
+			
+			*Missing is set to zero
 			replace `varlist' = 0 if `misstype'
 			
 		}
 		else if "`replacetype'" == "mean" {
-		
+			
+			*Generate the mean for all observations in the table
 			sum		`varlist' 
 			
 			*Test that there are enough observations to base the mean on
@@ -1700,13 +1723,16 @@ program define iereplacemiss
 				error 2001
 			}
 			
-			
+			*Missing values are set to the mean
 			replace `varlist' = `r(mean)' if `misstype'
 			
 		}
 		else if  "`replacetype'" == "groupmean" {
 			
+			*Loop over each group code
 			foreach code of local groupcodes {
+				
+				*Generate the mean for all observations in the group
 				sum		`varlist' if `groupvar' == `code'
 				
 				*Test that there are enough observations to base the mean on
@@ -1720,7 +1746,9 @@ program define iereplacemiss
 					noi display as error  "{phang}Not enough observations. There are less than `minobs' observations in group `code' in variable `groupvar' with a non missing value in `varlist'. Missing values can therefore not be set to the group mean. Click {stata tab `varlist' if `groupvar' == `code', missing} for detailed information.{p_end}"
 					error 2001
 				
-				}					
+				}
+				
+				*Missing values are set to the mean of the group
 				replace `varlist' = `r(mean)' if `misstype' & `groupvar' == `code'
 			}
 		
