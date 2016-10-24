@@ -1,4 +1,4 @@
-	*! version 1.3 11Aug2016  Kristoffer Bjarkefur kbjarkefur@worldbank.org
+	*! version 2.0 24Oct2016  Kristoffer Bjarkefur kbjarkefur@worldbank.org
 
 	capture program drop ieboilstart2
 	program ieboilstart2 , rclass

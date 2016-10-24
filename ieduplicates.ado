@@ -1,5 +1,5 @@
-	*! version 1.2 22Jun2016  Kristoffer Bjarkefur kbjarkefur@worldbank.org
-
+	*! version 2.0 24Oct2016  Kristoffer Bjarkefur kbjarkefur@worldbank.org
+	
 	capture program drop ieduplicates
 	program ieduplicates , rclass
 	
