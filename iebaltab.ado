@@ -1756,16 +1756,3 @@ program define iereplacemiss
 
 end
 
-qui {
-noi di ""
-noi di "This is a cat that says meow"
-			noi di"     /\___/\"
-	noi di"    (  o o  )  meow!"
-				noi di"    /   *   \"
-	  noi di"    \__\_/__/" 
-		   noi di"      /   \"
-	noi di"     / ___ \"
-	   noi di"     \/_|_\/"
-		}
-
-		
