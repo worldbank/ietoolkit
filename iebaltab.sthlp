@@ -369,7 +369,7 @@ only this manually entered note will be added to the table.{p_end}
 {title:Acknowledgements}
 
 {phang}I would like to acknowledge the help in testing and proofreading I received in relation to this command and help file from (in alphabetic order):{p_end}
-{pmore}John Dundas{break}
+{pmore}John Dundas{break}Seungmin Lee{break}
 	
 {title:Author}
 
