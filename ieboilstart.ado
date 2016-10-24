@@ -7,6 +7,7 @@
 	
 		syntax using ,  Versionnumber(string) [noclear maxvar(numlist) matsize(numlist) QUIetdo CUSTom(string) ]
 		
+		*Potentional updates
 		*set trace on
 		*set scrollbufsize #
 		
