@@ -387,7 +387,26 @@
 			* Merge original data with imported Excel file (if Excel file exists)
 			if `fileExists'  {
 				
-				merge 1:1 `varlist' `uniquevars' using `imputfile_merge', nogen
+				*Create a tempvar for merging results
+				tempvar iedup_merge
+				
+				*Merge the corrections with the data set
+				merge 1:1 `varlist' `uniquevars' using `imputfile_merge', generate(`iedup_merge')
+				
+				*Make sure that obsrevations listed in the duplicate report is still in the data set
+				cap assert `iedup_merge' != 2
+				
+				
+				if !_rc {
+				
+					display as error "{phang}{p_end}"
+					error 9
+					exit
+					
+				
+				}
+				
+				drop `iedup_merge'
 				
 			}
 		
