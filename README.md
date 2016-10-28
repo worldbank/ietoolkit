@@ -5,6 +5,8 @@
 ### **Install and Update**
 To install **ietoolkit**, type **`ssc install ietoolkit`** in Stata. If you see anything mentioned here (in the master branch) that you do not see reflected in the commands in ietoolkit in Stata on your computer, then you might not have the latest version of **ietoolkit** installed. To update all files associated with **ietoolkit** type **`adoupdate ietoolkit, update`** in Stata. (It is wise to be in the habit of regularly checking if any of your .ado files installed in Stata need updates by typing **`adoupdate`**.)
 
+Stata version 11 or later is reauired for this command.
+
 ### **Background**
 These commands are developed by people that work at or with the unit for Development Impact Evaluations (DIME) at the The World Bank. While the commands are developed with best practices for impact evaluations in mind, we still hope and think that these commands can be useful outside our field as well.
 
@@ -27,7 +29,9 @@ If you are not familiar with GitHub see the **Bug reports and feature requests**
 
 GitHub is a wonderful tool for collaboration on code. We appreciate contributions directly to the code and will of course give credit to anyone providing contributions that we merge to the master branch.
 
-Please make your "fork and pull requests" from the `master` branch unless you want to contribute to something that currently only exists in another branch. Feel free to check out the `develop` branch to see what future updates we are currently working on. If you want to make a contribution by making a "fork and pull request" but are not exactly sure how to do so, feel free to send an email to kbjarkefur@worldbank.com.
+Please make your "fork and pull requests" from the `master` branch unless you want to contribute to something that currently only exists in another branch. The Stata files on the `master` branch are the files most recently submitted to the SSC server. README, LICENSE and similar files are updated directly to `master`. All Stata files not published yet on SSC, or more recent versions of the Stata files then the version published on SSC, are found in `develop` branches. 
+
+Feel free to check out any of the `develop` branches (if there are any) to see what future updates we are currently working on. If you want to make a contribution by making a "fork and pull request" but are not exactly sure how to do so, feel free to send an email to kbjarkefur@worldbank.com.
 
 ### **License**
 **ietoolkit** is developed under MIT license. See http://adampritchard.mit-license.org/ or see [the `LICENSE` file](https://github.com/worldbank/ietoolkit/blob/master/LICENSE) for details.
