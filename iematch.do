@@ -8,82 +8,200 @@
 	cap program drop 	iematch
 	    program define	iematch
 		
-		syntax  , GRPdummy(varname) MATCHcont(varname) [idvar(varname)]
+		syntax  [if] [in] , ///
+			GRPdummy(varname) 		///
+			MATCHcont(varname) 		///
+			[						///
+			idvar(varname)			///
+			matchidname(string)	///
+			matchdiffname(string)	///
+			
+			]
 		
 
 		
 		qui {
 		
-		if "`idvar'" == "" {
-			
-			gen _ID = _n
-			
-			local idvar _ID
+		********************************
+		*
+		*	Checking ID var
+		*
+		********************************
 		
-		}		
+		
+		*Checking set-up for the ID var used for _matchID
+		if "`idvar'" == "" {
+
+			*Copy this name 
+			local idvar _ID		
+		
+			*Make sure that the default name _ID is not already used
+			cap confirm variable `idvar'
+			if _rc == 0 {
+			
+				di as error "A variable with name `idvar' is already defined. Either drop this variable or specify a variable using idvar() that fully and uniquely identifies the data set."
+				error 110
+			
+			}
+			
+			*Generate the ID var from row number
+			gen `idvar' = _n
+			
+
+		
+		} else {
+		
+			isid `idvar'
+			di as error "Variable `idvar' specified in idvar() does not fully and uniquely identify the observations in the data set. Meaning that `idvar' is not allowed to have any duplicates or missing values. Make `idvar' uniquly and fully idnetifying or exclude the varaibleas using if or in."
+			error 450
+			
+		}
+		
+		********************************
+		*
+		*	Checking and generating the MatchID and the MatchDiff var
+		*
+		********************************		
+		
+		
+		*See function below
+		iematchMatchVarCheck `matchidname' _matchID
+		local matchIDname "`r(validVarName)'"
+		gen  `matchIDname' = .
+		
+		iematchMatchVarCheck `matchdiffname' _matchDiff
+		local matchDiffName "`r(validVarName)'"
+		gen matchDiffName = .
 		
 
+		
+		********************************
+		*
+		*	Creating tempvar used
+		*
+		********************************
+		
 		tempvar hi_diff lo_diff pref match newMatch
 	
 
 		gen `hi_diff' = .
 		gen `lo_diff' = .
-		gen _matchDiff = .
+		
 		gen `pref' = .
 		gen byte `match' = 0
 		gen byte `newMatch' = 0
-		gen _matchID = .
 		
 
 		
-		*order `idvar' , after(`pref')
-		
-		
-		
-		**match loop
+		********************************
+		*
+		*	Start matching
+		*
+		********************************		
 		
 		count if `grpdummy' == 1 & `match' == 0
-		local left2Match = `r(N)'
+		local left2Match = `r(N)'		
+
+		while (`left2Match' > 0) {
 		
-		pause on
+			sort `match' `matchcont'
 			
+			replace `lo_diff' 	= .
+			replace `hi_diff' 	= .
+			replace `pref'		= . if `match' == 0
+			replace `newMatch' 	= 0
 			
+			replace `lo_diff' = abs(`matchcont' - `matchcont'[_n-1]) if `match' == 0 & `grpdummy' != `grpdummy'[_n-1] 
+			replace `hi_diff' = abs(`matchcont' - `matchcont'[_n+1]) if `match' == 0 & `grpdummy' != `grpdummy'[_n+1]
 			
-			while (`left2Match' > 0) {
+			replace `pref' = `idvar'[_n-1] if `match' == 0 & `lo_diff' <  `hi_diff'
+			replace `pref' = `idvar'[_n+1] if `match' == 0 & `lo_diff' >= `hi_diff'
 			
-				sort `match' `matchcont'
-				
-				replace `lo_diff' 	= .
-				replace `hi_diff' 	= .
-				replace `pref'		= . if `match' == 0
-				replace `newMatch' 	= 0
-				
-				replace `lo_diff' = abs(`matchcont' - `matchcont'[_n-1]) if `match' == 0 & `grpdummy' != `grpdummy'[_n-1] 
-				replace `hi_diff' = abs(`matchcont' - `matchcont'[_n+1]) if `match' == 0 & `grpdummy' != `grpdummy'[_n+1]
-				
-				replace `pref' = `idvar'[_n-1] if `match' == 0 & `lo_diff' <  `hi_diff'
-				replace `pref' = `idvar'[_n+1] if `match' == 0 & `lo_diff' >= `hi_diff'
-				
-				replace `newMatch' = 1 if `match' == 0 & `pref' == `idvar'[_n-1] & `pref'[_n-1] == `idvar'
-				replace `newMatch' = 1 if `match' == 0 & `pref' == `idvar'[_n+1] & `pref'[_n+1] == `idvar'
-				
-				replace `match' = 1 							if `newMatch' == 1
-				replace _matchDiff = min(`lo_diff', `hi_diff') 	if `newMatch' == 1
-				replace _matchID = `idvar' 						if `newMatch' == 1 & `grpdummy' == 1
-				replace _matchID = `pref' 						if `newMatch' == 1 & `grpdummy' == 0
-				
-				*order _match* , last
-				
-			noi	count if `grpdummy' == 1 & `match' == 0
-				local left2Match = `r(N)'
-				
-				*pause
-				
-			}
+			replace `newMatch' = 1 if `match' == 0 & `pref' == `idvar'[_n-1] & `pref'[_n-1] == `idvar'
+			replace `newMatch' = 1 if `match' == 0 & `pref' == `idvar'[_n+1] & `pref'[_n+1] == `idvar'
+			
+			replace `match' = 1 							if `newMatch' == 1
+			replace matchDiffName = min(`lo_diff', `hi_diff') 	if `newMatch' == 1
+			replace `matchIDname' = `idvar' 						if `newMatch' == 1 & `grpdummy' == 1
+			replace `matchIDname' = `pref' 						if `newMatch' == 1 & `grpdummy' == 0
+			
+			*order _match* , last
+			
+		noi	count if `grpdummy' == 1 & `match' == 0
+			local left2Match = `r(N)'
+			
+			*pause
+			
 		}
+	}
 	
 	end
 	
+	iematchMatchVarCheck optionName defaultName	
+	
+	cap program drop 	iematchMatchVarCheck 
+		program define 	iematchMatchVarCheck 
+			
+		args optionName defaultName	
+		
+		
+		*Testing that the option name is not the same as the other variable's default name.
+		if "`defaultName'" == "_matchID" & "`optionName'" == "_matchDiff" {
+		
+			di as error "The new name specified in matchidname() is not allowed to be _matchDiff"
+			error 198
+		}
+		if "`defaultName'" == "_matchDiff" & "`optionName'" == "_matchID" {
+		
+			di as error "The new name specified in matchdiffname() is not allowed to be _matchID"
+			error 198
+		}		
+		
+		
+		*Checking set-up for the ID var used for _matchID
+		if "``optionName''" == "" {
+			
+			*CSet the default name
+			local validMatchVarname `defaultName'	
+		
+			*Make sure that the default name _ID is not already used
+			cap confirm variable `validMatchVarname'
+			if _rc == 0 {
+			
+				di as error "A variable with name `validMatchVarname' is already defined. Either drop this variable or specify a new variable name using `optionName'()."
+				error 110
+			
+			}
+
+		} else {
+		
+			*CSet the default name
+			local validMatchVarname `optionName'	
+		
+			*Make sure that the default name _ID is not already used
+			cap confirm variable `validMatchVarname'
+			if _rc == 0 {
+			
+				di as error "The variable name `validMatchVarname' specified in `optionName'() is already defined in the data set. Either drop this variable or specify a another variable name using `optionName'()."
+				error 110
+			
+			}
+			
+		}
+		
+		*Testing that the new name is valid by creating a variable that is dropped immedeatly afterwards
+		cap gen `validMatchVarname' = .
+		if _rc != 0 {
+			
+			di as error "The variable name specified is not a valid variable name."
+			error _rc
+		
+		}
+		drop `validMatchVarname'
+		
+		return local validVarName 	"`validMatchVarname'"
+		
+	end
 	
 
 	set seed 1235324
