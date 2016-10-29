@@ -8,17 +8,21 @@
 	cap program drop 	iematch
 	    program define	iematch
 		
-		syntax  [if] [in] , ///
+		syntax    , ///
 			GRPdummy(varname) 		///
 			MATCHcont(varname) 		///
 			[						///
 			idvar(varname)			///
-			matchidname(string)	///
+			matchidname(string)		///
 			matchdiffname(string)	///
-			
-			]
+			]						
 		
-
+		*****
+		*1. [if] [in]
+		*2 make match only on obs with group
+		*3 m:1 match
+		
+		noi di "Syntax OK!"
 		
 		qui {
 		
@@ -47,14 +51,17 @@
 			*Generate the ID var from row number
 			gen `idvar' = _n
 			
-
-		
-		} else {
-		
-			isid `idvar'
-			di as error "Variable `idvar' specified in idvar() does not fully and uniquely identify the observations in the data set. Meaning that `idvar' is not allowed to have any duplicates or missing values. Make `idvar' uniquly and fully idnetifying or exclude the varaibleas using if or in."
-			error 450
+		} 
+		else {
 			
+			*Make sure that user specified ID is uniquely and fully identifying the observations
+			cap isid `idvar'
+			if _rc != 0 {
+			
+				di as error "Variable `idvar' specified in idvar() does not fully and uniquely identify the observations in the data set. Meaning that `idvar' is not allowed to have any duplicates or missing values. Make `idvar' uniquly and fully idnetifying or exclude the varaibleas using if or in."
+				error 450
+			
+			}
 		}
 		
 		********************************
@@ -63,7 +70,6 @@
 		*
 		********************************		
 		
-		
 		*See function below
 		iematchMatchVarCheck `matchidname' _matchID
 		local matchIDname "`r(validVarName)'"
@@ -71,8 +77,7 @@
 		
 		iematchMatchVarCheck `matchdiffname' _matchDiff
 		local matchDiffName "`r(validVarName)'"
-		gen matchDiffName = .
-		
+		gen `matchDiffName' = .
 
 		
 		********************************
@@ -92,7 +97,6 @@
 		gen byte `newMatch' = 0
 		
 
-		
 		********************************
 		*
 		*	Start matching
@@ -121,7 +125,7 @@
 			replace `newMatch' = 1 if `match' == 0 & `pref' == `idvar'[_n+1] & `pref'[_n+1] == `idvar'
 			
 			replace `match' = 1 							if `newMatch' == 1
-			replace matchDiffName = min(`lo_diff', `hi_diff') 	if `newMatch' == 1
+			replace `matchDiffName' = min(`lo_diff', `hi_diff') 	if `newMatch' == 1
 			replace `matchIDname' = `idvar' 						if `newMatch' == 1 & `grpdummy' == 1
 			replace `matchIDname' = `pref' 						if `newMatch' == 1 & `grpdummy' == 0
 			
@@ -137,26 +141,24 @@
 	
 	end
 	
-	iematchMatchVarCheck optionName defaultName	
 	
+	*Cheack matchVar input
 	cap program drop 	iematchMatchVarCheck 
-		program define 	iematchMatchVarCheck 
-			
-		args optionName defaultName	
+		program define 	iematchMatchVarCheck  , rclass
 		
+		args defaultName optionName 	
 		
 		*Testing that the option name is not the same as the other variable's default name.
 		if "`defaultName'" == "_matchID" & "`optionName'" == "_matchDiff" {
 		
-			di as error "The new name specified in matchidname() is not allowed to be _matchDiff"
+			noi di as error "The new name specified in matchidname() is not allowed to be _matchDiff"
 			error 198
 		}
 		if "`defaultName'" == "_matchDiff" & "`optionName'" == "_matchID" {
 		
-			di as error "The new name specified in matchdiffname() is not allowed to be _matchID"
+			noi di as error "The new name specified in matchdiffname() is not allowed to be _matchID"
 			error 198
 		}		
-		
 		
 		*Checking set-up for the ID var used for _matchID
 		if "``optionName''" == "" {
@@ -168,13 +170,15 @@
 			cap confirm variable `validMatchVarname'
 			if _rc == 0 {
 			
-				di as error "A variable with name `validMatchVarname' is already defined. Either drop this variable or specify a new variable name using `optionName'()."
+				noi di as error "A variable with name `validMatchVarname' is already defined. Either drop this variable or specify a new variable name using `optionName'()."
 				error 110
 			
 			}
 
-		} else {
+		} 
 		
+		else {
+			
 			*CSet the default name
 			local validMatchVarname `optionName'	
 		
@@ -182,7 +186,7 @@
 			cap confirm variable `validMatchVarname'
 			if _rc == 0 {
 			
-				di as error "The variable name `validMatchVarname' specified in `optionName'() is already defined in the data set. Either drop this variable or specify a another variable name using `optionName'()."
+				noi di as error "The variable name `validMatchVarname' specified in `optionName'() is already defined in the data set. Either drop this variable or specify a another variable name using `optionName'()."
 				error 110
 			
 			}
@@ -191,9 +195,10 @@
 		
 		*Testing that the new name is valid by creating a variable that is dropped immedeatly afterwards
 		cap gen `validMatchVarname' = .
+		
 		if _rc != 0 {
 			
-			di as error "The variable name specified is not a valid variable name."
+			noi di as error "The variable name specified is not a valid variable name."
 			error _rc
 		
 		}
@@ -219,4 +224,4 @@
 	
 	gen p_hat = uniform()
 	
-	iematch   , grp(tmt) match(p_hat) idvar(id)
+	iematch if id < 5532  , grp(tmt) match(p_hat) idvar(id)
