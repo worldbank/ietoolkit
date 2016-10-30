@@ -28,6 +28,21 @@
 		
 		********************************
 		*
+		*	Checking groupvar
+		*
+		********************************
+		
+		*Test that the group dummy is 1, 0 or missing
+		cap assert inlist(`grpdummy', 1, 0, .) | `grpdummy' > .
+		
+		if _rc != 0 {
+		
+			di as error "The variable in grpdummy(`grpdummy') is not a dummy variable. The variable is only allowed to have the values 1, 0 or missing. Observations with missing varaibles in the grpdummy are ignored by this command."
+			error _rc
+		}
+		
+		********************************
+		*
 		*	Checking ID var
 		*
 		********************************
@@ -208,8 +223,10 @@
 		
 	end
 	
-
-	set seed 1235324
+	clear
+	
+*	set seed 1235324
+	
 	
 	set obs 10000
 	
@@ -218,6 +235,8 @@
 	gen rand1 = uniform()
 	
 	gen tmt = (rand1 < .40)
+	replace tmt = . if (rand1 < .2)
+	replace tmt = .a if (rand1 < .1)
 	
 	drop rand1
 	tab tmt
