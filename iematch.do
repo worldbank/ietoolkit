@@ -28,7 +28,7 @@
 		
 		********************************
 		*
-		*	Checking groupvar
+		*	Checking group dummy
 		*
 		********************************
 		
@@ -40,7 +40,9 @@
 			di as error "The variable in grpdummy(`grpdummy') is not a dummy variable. The variable is only allowed to have the values 1, 0 or missing. Observations with missing varaibles in the grpdummy are ignored by this command."
 			error _rc
 		}
-		
+	
+
+	
 		********************************
 		*
 		*	Checking ID var
@@ -101,7 +103,7 @@
 		*
 		********************************
 		
-		tempvar hi_diff lo_diff pref match newMatch
+		tempvar hi_diff lo_diff pref match newMatch rand
 	
 
 		gen `hi_diff' = .
@@ -110,6 +112,10 @@
 		gen `pref' = .
 		gen byte `match' = 0
 		gen byte `newMatch' = 0
+		
+		** Generate random variable that seperate two obs 
+		*  with the same value in the continuos variable
+		gen `rand' = uniform()
 		
 
 		********************************
@@ -123,7 +129,7 @@
 
 		while (`left2Match' > 0) {
 		
-			sort `match' `matchcont'
+			sort `match' `matchcont' `rand' 
 			
 			replace `lo_diff' 	= .
 			replace `hi_diff' 	= .
