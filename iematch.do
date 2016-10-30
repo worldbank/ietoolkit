@@ -24,156 +24,198 @@
 		
 		noi di "Syntax OK!"
 		
+		pause on
+		
 		qui {
 		
 		********************************
 		*
-		*	Checking group dummy
+		*	Gen temp sort and merge var
 		*
-		********************************
+		********************************		
 		
-		*Test that the group dummy is 1, 0 or missing
-		cap assert inlist(`grpdummy', 1, 0, .) | `grpdummy' > .
+		tempvar originalSort
 		
-		if _rc != 0 {
+		gen `originalSort' = _n
 		
-			di as error "The variable in grpdummy(`grpdummy') is not a dummy variable. The variable is only allowed to have the values 1, 0 or missing. Observations with missing varaibles in the grpdummy are ignored by this command."
-			error _rc
-		}
-	
-		
-		********************************
-		*
-		*	Checking match continous var
-		*
-		********************************
-		
-		*Test that the continous is numeric
-		cap confirm numeric variable `matchcont'
-		if _rc != 0 {
+		preserve
 			
-			di as error "The variable to match on specified in matchcont(`matchcont') is not a numeric variable."
-			error 109
-		
-		}
-		
-	
-		********************************
-		*
-		*	Checking ID var
-		*
-		********************************
-		
-		
-		*Checking set-up for the ID var used for _matchID
-		if "`idvar'" == "" {
-
-			*Copy this name 
-			local idvar _ID		
-		
-			*Make sure that the default name _ID is not already used
-			cap confirm variable `idvar'
-			if _rc == 0 {
+			if "`if'`in'" != "" keep `if'`in'
 			
-				di as error "A variable with name `idvar' is already defined. Either drop this variable or specify a variable using idvar() that fully and uniquely identifies the data set."
-				error 110
+			********************************
+			*
+			*	Checking group dummy
+			*
+			********************************
 			
-			}
-			
-			*Generate the ID var from row number
-			gen `idvar' = _n
-			
-		} 
-		else {
-			
-			*Make sure that user specified ID is uniquely and fully identifying the observations
-			cap isid `idvar'
+			*Test that the group dummy is 1, 0 or missing
+			cap assert inlist(`grpdummy', 1, 0, .) | `grpdummy' > .
 			if _rc != 0 {
 			
-				di as error "Variable `idvar' specified in idvar() does not fully and uniquely identify the observations in the data set. Meaning that `idvar' is not allowed to have any duplicates or missing values. Make `idvar' uniquly and fully idnetifying or exclude the varaibleas using if or in."
-				error 450
+				di as error "The variable in grpdummy(`grpdummy') is not a dummy variable. The variable is only allowed to have the values 1, 0 or missing. Observations with missing varaibles in the grpdummy are ignored by this command."
+				error _rc
+			}
+			
+			*Exclude obs with missing value in groupdummy
+			drop if `grpdummy' > .
+		
+			
+			********************************
+			*
+			*	Checking match continous var
+			*
+			********************************
+			
+			*Test that the continous is numeric
+			cap confirm numeric variable `matchcont'
+			if _rc != 0 {
+				
+				di as error "The variable to match on specified in matchcont(`matchcont') is not a numeric variable."
+				error 109
 			
 			}
-		}
+			
 		
-		********************************
-		*
-		*	Checking and generating the MatchID and the MatchDiff var
-		*
-		********************************		
-		
-		*See function below
-		iematchMatchVarCheck `matchidname' _matchID
-		local matchIDname "`r(validVarName)'"
-		gen  `matchIDname' = .
-		
-		iematchMatchVarCheck `matchdiffname' _matchDiff
-		local matchDiffName "`r(validVarName)'"
-		gen `matchDiffName' = .
+			********************************
+			*
+			*	Checking ID var
+			*
+			********************************
+			
+			
+			*Checking set-up for the ID var used for _matchID
+			if "`idvar'" == "" {
 
-		
-		********************************
-		*
-		*	Creating tempvar used
-		*
-		********************************
-		
-		*Initiate the temporary variables used by this command
-		tempvar hi_diff lo_diff pref match newMatch rand
-	
-		
-		gen `hi_diff' = .
-		gen `lo_diff' = .
-		
-		gen `pref' = .
-		gen byte `match' = 0
-		gen byte `newMatch' = 0
-		
-		** Generate random variable that seperate two obs 
-		*  with the same value in the continuos variable
-		gen `rand' = uniform()
-		
+				*Copy this name 
+				local idvar _ID		
+			
+				*Make sure that the default name _ID is not already used
+				cap confirm variable `idvar'
+				if _rc == 0 {
+				
+					di as error "A variable with name `idvar' is already defined. Either drop this variable or specify a variable using idvar() that fully and uniquely identifies the data set."
+					error 110
+				
+				}
+				
+				*Generate the ID var from row number
+				gen `idvar' = _n
+				
+			} 
+			else {
+				
+				*Make sure that user specified ID is uniquely and fully identifying the observations
+				cap isid `idvar'
+				if _rc != 0 {
+				
+					di as error "Variable `idvar' specified in idvar() does not fully and uniquely identify the observations in the data set. Meaning that `idvar' is not allowed to have any duplicates or missing values. Make `idvar' uniquly and fully idnetifying or exclude the varaibleas using if or in."
+					error 450
+				
+				}
+			}
+			
+			********************************
+			*
+			*	Checking and generating the MatchID and the MatchDiff var
+			*
+			********************************		
+			
+			*See function below
+			iematchMatchVarCheck `matchidname' _matchID
+			local matchIDname "`r(validVarName)'"
+			gen  `matchIDname' = .
+			
+			iematchMatchVarCheck `matchdiffname' _matchDiff
+			local matchDiffName "`r(validVarName)'"
+			gen `matchDiffName' = .
 
-		********************************
-		*
-		*	Start matching
-		*
-		********************************		
+			
+			********************************
+			*
+			*	Creating tempvar used
+			*
+			********************************
+			
+			*Initiate the temporary variables used by this command
+			tempvar hi_diff lo_diff pref match newMatch rand
 		
-		count if `grpdummy' == 1 & `match' == 0
-		local left2Match = `r(N)'		
+			
+			gen `hi_diff' = .
+			gen `lo_diff' = .
+			
+			gen `pref' = .
+			gen byte `match' = 0
+			gen byte `newMatch' = 0
+			
+			** Generate random variable that seperate two obs 
+			*  with the same value in the continuos variable
+			gen `rand' = uniform()
+			
 
-		while (`left2Match' > 0) {
-		
-			sort `match' `matchcont' `rand' 
+			********************************
+			*
+			*	Start matching
+			*
+			********************************		
 			
-			replace `lo_diff' 	= .
-			replace `hi_diff' 	= .
-			replace `pref'		= . if `match' == 0
-			replace `newMatch' 	= 0
+			count if `grpdummy' == 1 & `match' == 0
+			local left2Match = `r(N)'		
+
+			while (`left2Match' > 0) {
 			
-			replace `lo_diff' = abs(`matchcont' - `matchcont'[_n-1]) if `match' == 0 & `grpdummy' != `grpdummy'[_n-1] 
-			replace `hi_diff' = abs(`matchcont' - `matchcont'[_n+1]) if `match' == 0 & `grpdummy' != `grpdummy'[_n+1]
+				sort `match' `matchcont' `rand' 
+				
+				replace `lo_diff' 	= .
+				replace `hi_diff' 	= .
+				replace `pref'		= . if `match' == 0
+				replace `newMatch' 	= 0
+				
+				replace `lo_diff' = abs(`matchcont' - `matchcont'[_n-1]) if `match' == 0 & `grpdummy' != `grpdummy'[_n-1] 
+				replace `hi_diff' = abs(`matchcont' - `matchcont'[_n+1]) if `match' == 0 & `grpdummy' != `grpdummy'[_n+1]
+				
+				replace `pref' = `idvar'[_n-1] if `match' == 0 & `lo_diff' <  `hi_diff'
+				replace `pref' = `idvar'[_n+1] if `match' == 0 & `lo_diff' >= `hi_diff'
+				
+				replace `newMatch' = 1 if `match' == 0 & `pref' == `idvar'[_n-1] & `pref'[_n-1] == `idvar'
+				replace `newMatch' = 1 if `match' == 0 & `pref' == `idvar'[_n+1] & `pref'[_n+1] == `idvar'
+				
+				replace `match' = 1 							if `newMatch' == 1
+				replace `matchDiffName' = min(`lo_diff', `hi_diff') 	if `newMatch' == 1
+				replace `matchIDname' = `idvar' 						if `newMatch' == 1 & `grpdummy' == 1
+				replace `matchIDname' = `pref' 						if `newMatch' == 1 & `grpdummy' == 0
+				
+				*order _match* , last
+				
+			noi	count if `grpdummy' == 1 & `match' == 0
+				local left2Match = `r(N)'
+				
+				
+				
+			}
 			
-			replace `pref' = `idvar'[_n-1] if `match' == 0 & `lo_diff' <  `hi_diff'
-			replace `pref' = `idvar'[_n+1] if `match' == 0 & `lo_diff' >= `hi_diff'
+
+			replace `matchIDname' 	= .c if `match' == 0 & `grpdummy' == 0
+			replace `matchDiffName' = .c if `match' == 0 & `grpdummy' == 0
+
+			keep `matchIDname' `matchDiffName' `idvar' `originalSort'
 			
-			replace `newMatch' = 1 if `match' == 0 & `pref' == `idvar'[_n-1] & `pref'[_n-1] == `idvar'
-			replace `newMatch' = 1 if `match' == 0 & `pref' == `idvar'[_n+1] & `pref'[_n+1] == `idvar'
+			tempfile mergefile
 			
-			replace `match' = 1 							if `newMatch' == 1
-			replace `matchDiffName' = min(`lo_diff', `hi_diff') 	if `newMatch' == 1
-			replace `matchIDname' = `idvar' 						if `newMatch' == 1 & `grpdummy' == 1
-			replace `matchIDname' = `pref' 						if `newMatch' == 1 & `grpdummy' == 0
-			
-			*order _match* , last
-			
-		noi	count if `grpdummy' == 1 & `match' == 0
-			local left2Match = `r(N)'
+			save `mergefile'
 			
 			*pause
 			
-		}
+		restore
+		
+		tempvar mergevar
+		
+		merge 1:1  `originalSort' using `mergefile', gen(`mergevar')
+		
+		replace `matchIDname' 	= .m if `mergevar' == 1
+		replace `matchDiffName' = .m if `mergevar' == 1
+		
+		sort `originalSort'
+		
 	}
 	
 	end
@@ -250,7 +292,7 @@
 *	set seed 1235324
 	
 	
-	set obs 100000
+	set obs 50000
 	
 	gen id = _n
 	
@@ -263,4 +305,5 @@
 	
 	gen p_hat = uniform()
 	
-	iematch if id < 5532  , grp(tmt) match(p_hat) idvar(id)
+	iematch  , grp(tmt) match(p_hat) idvar(id)
+
