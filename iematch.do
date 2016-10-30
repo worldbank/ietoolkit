@@ -8,7 +8,7 @@
 	cap program drop 	iematch
 	    program define	iematch
 		
-		syntax    , ///
+		syntax  [if] [in]  , ///
 			GRPdummy(varname) 		///
 			MATCHcont(varname) 		///
 			[						///
@@ -18,8 +18,8 @@
 			]						
 		
 		*****
-		*1. [if] [in]
-		*2 make match only on obs with group
+		*1. if in implemantation
+		*2 make match only on obs with value in group dummy
 		*3 m:1 match
 		
 		noi di "Syntax OK!"
@@ -41,7 +41,22 @@
 			error _rc
 		}
 	
-
+		
+		********************************
+		*
+		*	Checking match continous var
+		*
+		********************************
+		
+		*Test that the continous is numeric
+		cap confirm numeric variable `matchcont'
+		if _rc != 0 {
+			
+			di as error "The variable to match on specified in matchcont(`matchcont') is not a numeric variable."
+			error 109
+		
+		}
+		
 	
 		********************************
 		*
@@ -103,9 +118,10 @@
 		*
 		********************************
 		
+		*Initiate the temporary variables used by this command
 		tempvar hi_diff lo_diff pref match newMatch rand
 	
-
+		
 		gen `hi_diff' = .
 		gen `lo_diff' = .
 		
@@ -234,15 +250,13 @@
 *	set seed 1235324
 	
 	
-	set obs 10000
+	set obs 100000
 	
 	gen id = _n
 	
 	gen rand1 = uniform()
 	
 	gen tmt = (rand1 < .40)
-	replace tmt = . if (rand1 < .2)
-	replace tmt = .a if (rand1 < .1)
 	
 	drop rand1
 	tab tmt
