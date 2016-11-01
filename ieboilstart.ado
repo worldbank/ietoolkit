@@ -1,7 +1,7 @@
 	*! version 2.0 24Oct2016  Kristoffer Bjarkefur kbjarkefur@worldbank.org
 
-	capture program drop ieboilstart
-	program ieboilstart , rclass
+	capture program drop ieboilstart2
+	program ieboilstart2 , rclass
 		
 	qui {
 	
