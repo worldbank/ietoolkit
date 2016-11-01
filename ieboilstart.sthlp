@@ -281,7 +281,7 @@ of code to be added to the dofile this command creates.{p_end}
 
 {phang}I would like to acknowledge the help in testing and proofreading and suggestions I 
 	received in relation to this command and help file from (in alphabetic order):{p_end}
-{pmore}Michell Dong{break}John Dundas{break}Paula Gonzales{break}Srujith Lingala{break}William Lisowski
+{pmore}Michell Dong{break}John Dundas{break}Paula Gonzales{break}Seungmin Lee{break}Srujith Lingala{break}William Lisowski
 
 
 {title:Author}
