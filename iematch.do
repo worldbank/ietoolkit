@@ -1,5 +1,5 @@
 
-	clear 
+	clear all
 
 	
 	
@@ -15,10 +15,11 @@
 			idvar(varname)			///
 			matchidname(string)		///
 			matchdiffname(string)	///
+			matchnoname(string)		///
 			]						
 		
 		*****
-		*1. if in implemantation
+		*1 format errors as smcl
 		*2 make match only on obs with value in group dummy
 		*3 m:1 match
 		
@@ -57,7 +58,7 @@
 			}
 			
 			*Exclude obs with missing value in groupdummy
-			drop if `grpdummy' > .
+			drop if missing(`grpdummy')
 		
 			
 			********************************
@@ -74,7 +75,27 @@
 				error 109
 			
 			}
+
+			********************************
+			*
+			*	Checking duplicates in varaible names in options
+			*
+			********************************			
+		
+			*Create a local of all varnames used in any option
+			local allnewvars `idvar' `matchidname' `matchdiffname' `matchnoname'
 			
+			*Check if there are any duplicates in the local of all varnames in options
+			local dupnewvars : list dups allnewvars
+			
+			*Throw error if there were any duplicates
+			if "`dupnewvars'" != "" {
+			
+				di as error "The same variable name was used twice or more in the options. Go back and check syntax"
+				error 198
+
+			}
+		
 		
 			********************************
 			*
@@ -119,17 +140,27 @@
 			*	Checking and generating the MatchID and the MatchDiff var
 			*
 			********************************		
-			
-			*See function below
-			iematchMatchVarCheck `matchidname' _matchID
-			local matchIDname "`r(validVarName)'"
-			gen  `matchIDname' = .
-			
-			iematchMatchVarCheck `matchdiffname' _matchDiff
-			local matchDiffName "`r(validVarName)'"
-			gen `matchDiffName' = .
 
 			
+			*Test input from user or test if deafault value is valiable			
+			iematchMatchVarCheck _matchID `matchidname' 
+			local matchIDname "`r(validVarName)'"
+			gen  `matchIDname' = .
+	
+			iematchMatchVarCheck _matchDiff `matchdiffname' 
+			local matchDiffName "`r(validVarName)'"
+			gen `matchDiffName' = .
+			
+			iematchMatchVarCheck _matchOrReason `matchnoname' 
+			local noMatchReasonName "`r(validVarName)'"
+			gen `noMatchReasonName' = .			
+
+			*Create a label for missing values that explains no match
+			label define matchLabel .c "Target obs not matched" .m "Matched" .n "Obs not included in match" 
+			
+			*Apply the label
+			label value `noMatchReasonName' matchLabel
+		
 			********************************
 			*
 			*	Creating tempvar used
@@ -139,7 +170,6 @@
 			*Initiate the temporary variables used by this command
 			tempvar hi_diff lo_diff pref match newMatch rand
 		
-			
 			gen `hi_diff' = .
 			gen `lo_diff' = .
 			
@@ -194,10 +224,9 @@
 			}
 			
 
-			replace `matchIDname' 	= .c if `match' == 0 & `grpdummy' == 0
-			replace `matchDiffName' = .c if `match' == 0 & `grpdummy' == 0
+			replace `noMatchReasonName' = .c if `match' == 0 & `grpdummy' == 0
 
-			keep `matchIDname' `matchDiffName' `idvar' `originalSort'
+			keep `matchIDname' `matchDiffName' `idvar' `originalSort' `noMatchReasonName'
 			
 			tempfile mergefile
 			
@@ -209,10 +238,11 @@
 		
 		tempvar mergevar
 		
-		merge 1:1  `originalSort' using `mergefile', gen(`mergevar')
+		noi merge 1:1  `originalSort' using `mergefile', gen(`mergevar')
 		
-		replace `matchIDname' 	= .m if `mergevar' == 1
-		replace `matchDiffName' = .m if `mergevar' == 1
+		replace `noMatchReasonName' = .n if `mergevar' == 1
+		
+		replace `noMatchReasonName' = .m if `noMatchReasonName' == .
 		
 		sort `originalSort'
 		
@@ -225,22 +255,33 @@
 	cap program drop 	iematchMatchVarCheck 
 		program define 	iematchMatchVarCheck  , rclass
 		
-		args defaultName optionName 	
+		args defaultName userName
+		
+		if "`defaultName'" == "_matchID" 		local optionName matchidname
+		if "`defaultName'" == "_matchDiff" 		local optionName matchdiffname
+		if "`defaultName'" == "_matchOrReason" 	local optionName matchnoname
+		
+		*All the default names
+		local dfltNms _noMatchReason _matchDiff _matchOrReason
+		
+		*The other two default names
+		local othDfltNms : list dfltNms - defaultName
+		
+		*Creating two locals with the deafult name in each local
+		local Oth1 : word 1 of `othDfltNms'
+		local Oth2 : word 2 of `othDfltNms'
 		
 		*Testing that the option name is not the same as the other variable's default name.
-		if "`defaultName'" == "_matchID" & "`optionName'" == "_matchDiff" {
-		
-			noi di as error "The new name specified in matchidname() is not allowed to be _matchDiff"
+		if ("`defaultName'" == "_matchID" & ("`userName'" == "`Oth1'" | "`userName'" == "`Oth2'" | "`userName'" == "_ID"))  {
+			
+			noi di as error `" ("`defaultName'" == "_matchID" & ("`userName'" == "`Oth1'" | "`userName'" == "`Oth2'" | "`userName'" == "_ID")) "'
+			
+			noi di as error "The new name specified in `optionName'() is not allowed to be _ID, `Oth1', nor `Oth2'"
 			error 198
 		}
-		if "`defaultName'" == "_matchDiff" & "`optionName'" == "_matchID" {
-		
-			noi di as error "The new name specified in matchdiffname() is not allowed to be _matchID"
-			error 198
-		}		
-		
+	
 		*Checking set-up for the ID var used for _matchID
-		if "``optionName''" == "" {
+		if "`userName'" == "" {
 			
 			*CSet the default name
 			local validMatchVarname `defaultName'	
@@ -259,13 +300,13 @@
 		else {
 			
 			*CSet the default name
-			local validMatchVarname `optionName'	
+			local validMatchVarname `userName'	
 		
 			*Make sure that the default name _ID is not already used
 			cap confirm variable `validMatchVarname'
 			if _rc == 0 {
 			
-				noi di as error "The variable name `validMatchVarname' specified in `optionName'() is already defined in the data set. Either drop this variable or specify a another variable name using `optionName'()."
+				noi di as error "The variable name specified in `optionName'(`userName') is already defined in the data set. Either drop this variable or specify a another variable name using `optionName'()."
 				error 110
 			
 			}
@@ -277,7 +318,7 @@
 		
 		if _rc != 0 {
 			
-			noi di as error "The variable name specified is not a valid variable name."
+			noi di as error "The variable name specified in `optionName'(`userName') is not a valid variable name."
 			error _rc
 		
 		}
@@ -300,10 +341,12 @@
 	
 	gen tmt = (rand1 < .40)
 	
+	replace tmt = . if (rand1 < .05)
+	
 	drop rand1
 	tab tmt
 	
 	gen p_hat = uniform()
 	
-	iematch  , grp(tmt) match(p_hat) idvar(id)
+	iematch  , grp(tmt) match(p_hat) idvar(id) matchidname(kalle)
 
