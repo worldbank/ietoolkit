@@ -156,7 +156,7 @@
 			gen `noMatchReasonName' = .			
 
 			*Create a label for missing values that explains no match
-			label define matchLabel .c "Target obs not matched" .m "Matched" .n "Obs not included in match" 
+			label define matchLabel 0 "Not Matched" 1 "Matched" .n "Obs not included in match" 
 			
 			*Apply the label
 			label value `noMatchReasonName' matchLabel
@@ -224,7 +224,7 @@
 			}
 			
 
-			replace `noMatchReasonName' = .c if `match' == 0 & `grpdummy' == 0
+			replace `noMatchReasonName' = 0 if `match' == 0 & `grpdummy' == 0
 
 			keep `matchIDname' `matchDiffName' `idvar' `originalSort' `noMatchReasonName'
 			
@@ -242,7 +242,7 @@
 		
 		replace `noMatchReasonName' = .n if `mergevar' == 1
 		
-		replace `noMatchReasonName' = .m if `noMatchReasonName' == .
+		replace `noMatchReasonName' = 1 if `noMatchReasonName' == .
 		
 		sort `originalSort'
 		
