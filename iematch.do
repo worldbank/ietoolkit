@@ -1,4 +1,5 @@
-
+	
+	pause
 	clear all
 
 	
@@ -57,7 +58,15 @@
 				error _rc
 			}
 			
-			*Exclude obs with missing value in groupdummy
+			**Exclude obs with missing value in groupdummy
+			
+			*Count number of obs to be dropped and and output that number if more than zero
+			count if missing(`grpdummy')
+			if `r(N)' > 0 {
+				*This is not an error just outputting the number
+				noi di "`r(N)' observation(s) were excluded due to missing value in group dummy"
+			}
+			*Drop obs with missing
 			drop if missing(`grpdummy')
 		
 			
@@ -76,6 +85,17 @@
 			
 			}
 
+			**Exclude obs with missing value in groupdummy
+		
+			*Count number of obs to be dropped and and output that number if more than zero
+			count if missing(`matchcont')
+			if `r(N)' > 0 {
+				*This is not an error just outputting the number
+				noi di "`r(N)' observation(s) were excluded due to missing value in match varaible"
+			}
+			*Drop obs with missing
+			drop if missing(`matchcont')			
+			
 			********************************
 			*
 			*	Checking duplicates in varaible names in options
@@ -190,7 +210,8 @@
 			
 			count if `grpdummy' == 1 & `match' == 0
 			local left2Match = `r(N)'		
-
+					
+			
 			while (`left2Match' > 0) {
 			
 				sort `match' `matchcont' `rand' 
@@ -216,10 +237,10 @@
 				
 				*order _match* , last
 				
-			noi	count if `grpdummy' == 1 & `match' == 0
+				noi count if `grpdummy' == 1 & `match' == 0
 				local left2Match = `r(N)'
 				
-				
+				pause
 				
 			}
 			
@@ -238,11 +259,13 @@
 		
 		tempvar mergevar
 		
-		noi merge 1:1  `originalSort' using `mergefile', gen(`mergevar')
+		merge 1:1  `originalSort' using `mergefile', gen(`mergevar')
 		
 		replace `noMatchReasonName' = .n if `mergevar' == 1
 		
 		replace `noMatchReasonName' = 1 if `noMatchReasonName' == .
+		
+		noi tab `noMatchReasonName' `grpdummy', m
 		
 		sort `originalSort'
 		
@@ -333,7 +356,7 @@
 *	set seed 1235324
 	
 	
-	set obs 50000
+	set obs 40000
 	
 	gen id = _n
 	
@@ -348,5 +371,7 @@
 	
 	gen p_hat = uniform()
 	
-	iematch  , grp(tmt) match(p_hat) idvar(id) matchidname(kalle)
+	replace p_hat = . if p_hat < .01
+	
+	iematch  , grp(tmt) match(p_hat) idvar(id) // matchidname(Kallefille)
 
