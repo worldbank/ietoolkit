@@ -1,5 +1,4 @@
 	
-	pause
 	clear all
 
 	
@@ -207,10 +206,11 @@
 			*	Start matching
 			*
 			********************************		
-			
+			noi di ""
+			noi di "{pstd}Observations left to match: {p_end}"
 			count if `grpdummy' == 1 & `match' == 0
 			local left2Match = `r(N)'		
-					
+			noi di "{pstd}`left2Match' " _c		
 			
 			while (`left2Match' > 0) {
 			
@@ -237,11 +237,9 @@
 				
 				*order _match* , last
 				
-				noi count if `grpdummy' == 1 & `match' == 0
+				count if `grpdummy' == 1 & `match' == 0
 				local left2Match = `r(N)'
-				
-				pause
-				
+				noi di "`left2Match' " _c	
 			}
 			
 
@@ -252,9 +250,7 @@
 			tempfile mergefile
 			
 			save `mergefile'
-			
-			*pause
-			
+
 		restore
 		
 		tempvar mergevar
@@ -265,6 +261,7 @@
 		
 		replace `noMatchReasonName' = 1 if `noMatchReasonName' == .
 		
+		noi di "{p_end}" _c
 		noi tab `noMatchReasonName' `grpdummy', m
 		
 		sort `originalSort'
@@ -356,7 +353,7 @@
 *	set seed 1235324
 	
 	
-	set obs 40000
+	set obs 400000
 	
 	gen id = _n
 	
@@ -364,14 +361,14 @@
 	
 	gen tmt = (rand1 < .40)
 	
-	replace tmt = . if (rand1 < .05)
+	*replace tmt = . if (rand1 < .05)
 	
 	drop rand1
 	tab tmt
 	
 	gen p_hat = uniform()
 	
-	replace p_hat = . if p_hat < .01
+	*replace p_hat = . if p_hat < .01
 	
 	iematch  , grp(tmt) match(p_hat) idvar(id) // matchidname(Kallefille)
 
