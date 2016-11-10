@@ -16,12 +16,14 @@
 			matchidname(string)		///
 			matchdiffname(string)	///
 			matchnoname(string)		///
+			maxdiff(numlist max = 1 min = 1) ///
 			]						
 		
 		*****
 		*1 format errors as smcl
 		*2 make match only on obs with value in group dummy
 		*3 m:1 match
+		*4 option to disable countdown
 		
 		noi di "Syntax OK!"
 		
@@ -175,7 +177,7 @@
 			gen `noMatchReasonName' = .			
 
 			*Create a label for missing values that explains no match
-			label define matchLabel 0 "Not Matched" 1 "Matched" .n "Obs not included in match" 
+			label define matchLabel 0 "Not Matched" 1 "Matched" .n "Obs not included in match" .m "No match within maxdiff" 
 			
 			*Apply the label
 			label value `noMatchReasonName' matchLabel
@@ -187,7 +189,7 @@
 			********************************
 			
 			*Initiate the temporary variables used by this command
-			tempvar hi_diff lo_diff pref match newMatch rand
+			tempvar hi_diff lo_diff pref match newMatch rand maxDiffObs maxDiffNow
 		
 			gen `hi_diff' = .
 			gen `lo_diff' = .
@@ -200,7 +202,10 @@
 			*  with the same value in the continuos variable
 			gen `rand' = uniform()
 			
-
+			
+			if "`maxdiff'" != ""  gen byte `maxDiffObs' = 0
+			if "`maxdiff'" != ""  gen `maxDiffNow' = 0
+			
 			********************************
 			*
 			*	Start matching
@@ -221,25 +226,42 @@
 				replace `pref'		= . if `match' == 0
 				replace `newMatch' 	= 0
 				
+				
 				replace `lo_diff' = abs(`matchcont' - `matchcont'[_n-1]) if `match' == 0 & `grpdummy' != `grpdummy'[_n-1] 
 				replace `hi_diff' = abs(`matchcont' - `matchcont'[_n+1]) if `match' == 0 & `grpdummy' != `grpdummy'[_n+1]
 				
 				replace `pref' = `idvar'[_n-1] if `match' == 0 & `lo_diff' <  `hi_diff'
 				replace `pref' = `idvar'[_n+1] if `match' == 0 & `lo_diff' >= `hi_diff'
 				
+				if "`maxdiff'" != "" {
+				
+					
+					replace `maxDiffObs' 	= 0
+					replace `maxDiffNow'	= 0
+					replace `maxDiffNow'	= min(`lo_diff', `hi_diff') if min(`lo_diff', `hi_diff') < .
+				
+					replace `maxDiffObs' 	= 1 if `maxDiffNow' > `maxdiff' & `match' == 0 & `grpdummy' == 1 
+					
+					replace `match' = 1					if `maxDiffObs'  == 1
+					replace `pref'  = .					if `maxDiffObs'  == 1
+					replace `noMatchReasonName' = .m 	if `maxDiffObs'  == 1
+					
+				}
+				
 				replace `newMatch' = 1 if `match' == 0 & `pref' == `idvar'[_n-1] & `pref'[_n-1] == `idvar'
 				replace `newMatch' = 1 if `match' == 0 & `pref' == `idvar'[_n+1] & `pref'[_n+1] == `idvar'
 				
-				replace `match' = 1 							if `newMatch' == 1
-				replace `matchDiffName' = min(`lo_diff', `hi_diff') 	if `newMatch' == 1
-				replace `matchIDname' = `idvar' 						if `newMatch' == 1 & `grpdummy' == 1
+				replace `match' = 1 								if `newMatch' == 1
+				replace `matchDiffName' = min(`lo_diff', `hi_diff') if `newMatch' == 1
+				replace `matchIDname' = `idvar' 					if `newMatch' == 1 & `grpdummy' == 1
 				replace `matchIDname' = `pref' 						if `newMatch' == 1 & `grpdummy' == 0
 				
-				*order _match* , last
-				
+
 				count if `grpdummy' == 1 & `match' == 0
 				local left2Match = `r(N)'
 				noi di "`left2Match' " _c	
+				
+				
 			}
 			
 
@@ -353,7 +375,7 @@
 *	set seed 1235324
 	
 	
-	set obs 400000
+	set obs 40000
 	
 	gen id = _n
 	
@@ -361,14 +383,16 @@
 	
 	gen tmt = (rand1 < .40)
 	
-	*replace tmt = . if (rand1 < .05)
+	replace tmt = . if (rand1 < .05)
 	
 	drop rand1
 	tab tmt
 	
 	gen p_hat = uniform()
 	
+	replace p_hat = p_hat + .01 if tmt == 1
+	
 	*replace p_hat = . if p_hat < .01
 	
-	iematch  , grp(tmt) match(p_hat) idvar(id) // matchidname(Kallefille)
+	iematch  , grp(tmt) match(p_hat) idvar(id)  maxdiff(.01) // matchidname(Kallefille)
 
