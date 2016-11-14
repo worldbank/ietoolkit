@@ -190,7 +190,7 @@ of code to be added to the dofile this command creates.{p_end}
 	practice is to keep the same version number throughout a project, unless there is something specific 
 	to a newer version that is required for any dofile. Only major and recent 
 	versions are allowed in order to reduce errors and complexity. The valid versions 
-	are 10.0, 10.1, 11.0, 11.1, 11.2, 12.0, 12.1, 13.0, 13.1, 14.0 and 14.1. All
+	are 11.0, 11.1, 11.2, 12.0, 12.1, 13.0, 13.1, 14.0 and 14.1. All
 	versions of Stata can be set to run any older version of Stata but not a 
 	newer. It is recommended to use a .1 over a .0 version. .1 is free of charge
 	if you already have the corresponding .0 and .1 includes bug fixes to the 
