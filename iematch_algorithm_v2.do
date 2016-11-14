@@ -4,7 +4,7 @@
 	
 	
 	cap program drop 	updateDiffID
-		program define 	updateDiffID
+		program define 	updateMatchID
 		
 		args updo grpvl diff idvar grpvar matched
 		
@@ -56,7 +56,9 @@
 		*Create one varaible common for both groups with ID downwards
 		replace IDdo = dum1_IDdo if `grpvar' == 1 
 		replace IDdo = dum0_IDdo if `grpvar' == 0 
-			
+		
+		replace pref = IDdo if `matched' == 0 & diffdo <= diffup
+		replace pref = IDup if `matched' == 0 & diffdo >  diffup	
 		
 	end
 
@@ -129,11 +131,10 @@
 		
 		while (`left2match' > 0) {
 			
-			*Calculate possible 
+			**For all observations still to be matched, assign the preferred 
+			* match among the other unmatched observations
 			updateAllDiffID p_hat invsort id tmt matched rand invrand
-			
-			replace pref = IDdo if matched == 0 & diffdo <= diffup
-			replace pref = IDup if matched == 0 & diffdo >  diffup	
+		
 			
 			replace matched = 1 if matched == 0 & pref == id[_n-1] & pref[_n-1] == id
 			replace matched = 1 if matched == 0 & pref == id[_n+1] & pref[_n+1] == id

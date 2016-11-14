@@ -10,7 +10,7 @@
 		
 		syntax  [if] [in]  , ///
 			GRPdummy(varname) 		///
-			MATCHcont(varname) 		///
+			MATCHvar(varname) 		///
 			[						///
 			idvar(varname)			///
 			matchidname(string)		///
@@ -42,7 +42,10 @@
 		gen `originalSort' = _n
 		
 		preserve
-			
+		
+*Testing input
+if 1 {		
+		
 			if "`if'`in'" != "" keep `if'`in'
 			
 			********************************
@@ -65,7 +68,7 @@
 			count if missing(`grpdummy')
 			if `r(N)' > 0 {
 				*This is not an error just outputting the number
-				noi di "`r(N)' observation(s) were excluded due to missing value in group dummy"
+				noi di "{pstd}`r(N)' observation(s) were excluded due to missing value in group dummy{p_end}"
 			}
 			*Drop obs with missing
 			drop if missing(`grpdummy')
@@ -78,10 +81,10 @@
 			********************************
 			
 			*Test that the continous is numeric
-			cap confirm numeric variable `matchcont'
+			cap confirm numeric variable `matchvar'
 			if _rc != 0 {
 				
-				di as error "The variable to match on specified in matchcont(`matchcont') is not a numeric variable."
+				di as error "The variable to match on specified in matchvar(`matchvar') is not a numeric variable."
 				error 109
 			
 			}
@@ -89,13 +92,13 @@
 			**Exclude obs with missing value in groupdummy
 		
 			*Count number of obs to be dropped and and output that number if more than zero
-			count if missing(`matchcont')
+			count if missing(`matchvar')
 			if `r(N)' > 0 {
 				*This is not an error just outputting the number
-				noi di "`r(N)' observation(s) were excluded due to missing value in match varaible"
+				noi di "{pstd}`r(N)' observation(s) were excluded due to missing value in match varaible{p_end}"
 			}
 			*Drop obs with missing
-			drop if missing(`matchcont')			
+			drop if missing(`matchvar')
 			
 			********************************
 			*
@@ -182,6 +185,9 @@
 			*Apply the label
 			label value `noMatchReasonName' matchLabel
 		
+}		
+		
+		
 			********************************
 			*
 			*	Creating tempvar used
@@ -189,22 +195,34 @@
 			********************************
 			
 			*Initiate the temporary variables used by this command
-			tempvar hi_diff lo_diff pref match newMatch rand maxDiffObs maxDiffNow
+			tempvar prefID prefDiff matched  
 		
-			gen `hi_diff' = .
-			gen `lo_diff' = .
-			
-			gen `pref' = .
-			gen byte `match' = 0
-			gen byte `newMatch' = 0
-			
-			** Generate random variable that seperate two obs 
-			*  with the same value in the continuos variable
-			gen `rand' = uniform()
+			gen `prefID' 		= .
+			gen `prefDiff' 		= .
+			gen byte `matched' 	= 0
 			
 			
-			if "`maxdiff'" != ""  gen byte `maxDiffObs' = 0
-			if "`maxdiff'" != ""  gen `maxDiffNow' = 0
+			** Generate the inverse of the matchvar to sort descending (gsort is too slow),
+			*  a random var to seperate two values with the same match var, and the inverse 
+			*  of the random var for when sorting descending.
+			tempvar rand invsort invrand
+			
+			sort `matchvar'
+			gen  `invsort' = -1 * `matchvar'
+			
+			gen    `rand' = uniform()
+			gen `invrand' = -1 * `rand'
+
+			
+			
+			tempvar					diffup diffdo valUp_0 valDo_0 valUp_1 valDo_1 IDup IDdo IDup_0 IDdo_0 IDup_1 IDdo_1			
+			local 	 updownTempVars `diffup' `diffdo' `valUp_0' `valDo_0' `valUp_1' `valDo_1' `IDup' `IDdo' `IDup_0' `IDdo_0' `IDup_1' `IDdo_1'
+			
+			foreach tempVar of local updownTempVars {
+			
+				gen `tempVar' = .
+			
+			}
 			
 			********************************
 			*
@@ -213,60 +231,51 @@
 			********************************		
 			noi di ""
 			noi di "{pstd}Observations left to match: {p_end}"
-			count if `grpdummy' == 1 & `match' == 0
+			count if `grpdummy' == 1 & `matched' == 0
 			local left2Match = `r(N)'		
 			noi di "{pstd}`left2Match' " _c		
 			
 			while (`left2Match' > 0) {
+				
+				
 			
-				sort `match' `matchcont' `rand' 
-				
-				replace `lo_diff' 	= .
-				replace `hi_diff' 	= .
-				replace `pref'		= . if `match' == 0
-				replace `newMatch' 	= 0
-				
-				
-				replace `lo_diff' = abs(`matchcont' - `matchcont'[_n-1]) if `match' == 0 & `grpdummy' != `grpdummy'[_n-1] 
-				replace `hi_diff' = abs(`matchcont' - `matchcont'[_n+1]) if `match' == 0 & `grpdummy' != `grpdummy'[_n+1]
-				
-				replace `pref' = `idvar'[_n-1] if `match' == 0 & `lo_diff' <  `hi_diff'
-				replace `pref' = `idvar'[_n+1] if `match' == 0 & `lo_diff' >= `hi_diff'
-				
+				**For all observations still to be matched, assign the preferred 
+				* match among the other unmatched observations
+				qui updatePrefDiffPreffID `prefID' `prefDiff' `matchvar' `invsort' `idvar' `grpdummy' `matched' `rand' `invrand' `updownTempVars'
+							
 				if "`maxdiff'" != "" {
 				
-					
-					replace `maxDiffObs' 	= 0
-					replace `maxDiffNow'	= 0
-					replace `maxDiffNow'	= min(`lo_diff', `hi_diff') if min(`lo_diff', `hi_diff') < .
-				
-					replace `maxDiffObs' 	= 1 if `maxDiffNow' > `maxdiff' & `match' == 0 & `grpdummy' == 1 
-					
-					replace `match' = 1					if `maxDiffObs'  == 1
-					replace `pref'  = .					if `maxDiffObs'  == 1
-					replace `noMatchReasonName' = .m 	if `maxDiffObs'  == 1
-					
+					replace `matched' 			= 1		if `prefDiff' > `maxdiff' & `grpdummy' == 1
+					replace `prefID'			= .		if `prefDiff' > `maxdiff'  
+					replace `noMatchReasonName' = .m 	if `prefDiff' > `maxdiff' & `grpdummy' == 1
 				}
 				
-				replace `newMatch' = 1 if `match' == 0 & `pref' == `idvar'[_n-1] & `pref'[_n-1] == `idvar'
-				replace `newMatch' = 1 if `match' == 0 & `pref' == `idvar'[_n+1] & `pref'[_n+1] == `idvar'
+				replace `matched' = 1 if `matched' == 0 & `prefID' == `idvar'[_n-1] & `prefID'[_n-1] == `idvar'
+				replace `matched' = 1 if `matched' == 0 & `prefID' == `idvar'[_n+1] & `prefID'[_n+1] == `idvar'
 				
-				replace `match' = 1 								if `newMatch' == 1
-				replace `matchDiffName' = min(`lo_diff', `hi_diff') if `newMatch' == 1
-				replace `matchIDname' = `idvar' 					if `newMatch' == 1 & `grpdummy' == 1
-				replace `matchIDname' = `pref' 						if `newMatch' == 1 & `grpdummy' == 0
 				
-
-				count if `grpdummy' == 1 & `match' == 0
+				
+				count if `grpdummy' == 1 & `matched' == 0
 				local left2Match = `r(N)'
 				noi di "`left2Match' " _c	
 				
 				
+				
 			}
+			noi di "{p_end}" _c
 			
+			
+			
+			
+			*Return vars
+			replace `matchDiffName' 	= `prefDiff'	if `matched' == 1
+			replace `matchIDname' 		= `idvar' 		if `matched' == 1 & `grpdummy' == 0 
+			replace `matchIDname' 		= `prefID' 		if `matched' == 1 & `grpdummy' == 1			
+			
+			*Target obs not used
+			replace `noMatchReasonName' = 0 if `matched' == 0 & `grpdummy' == 0
 
-			replace `noMatchReasonName' = 0 if `match' == 0 & `grpdummy' == 0
-
+			*only keep output vars
 			keep `matchIDname' `matchDiffName' `idvar' `originalSort' `noMatchReasonName'
 			
 			tempfile mergefile
@@ -283,7 +292,6 @@
 		
 		replace `noMatchReasonName' = 1 if `noMatchReasonName' == .
 		
-		noi di "{p_end}" _c
 		noi tab `noMatchReasonName' `grpdummy', m
 		
 		sort `originalSort'
@@ -291,8 +299,9 @@
 	}
 	
 	end
-	
-	
+
+*Testing input (functions)
+ if 1 {
 	*Cheack matchVar input
 	cap program drop 	iematchMatchVarCheck 
 		program define 	iematchMatchVarCheck  , rclass
@@ -369,13 +378,98 @@
 		return local validVarName 	"`validMatchVarname'"
 		
 	end
+}
+	
+
+	
+	
+*Matching functions
+if 1 {
+
+	
+	** This function is called to assign the preferred match for all unmatched 
+	*  observations to any other unmatched observation. Returns a variable pref that is the 
+	cap program drop 	updatePrefDiffPreffID
+		program define 	updatePrefDiffPreffID
+		
+		args prefID prefDiff matchvar invsort idvar grpvar matched rand invrand diffup diffdo valUp_0 valDo_0 valUp_1 valDo_1 IDup IDdo IDup_0 IDdo_0 IDup_1 IDdo_1
+		
+		*****************
+		*Update possible matches with higher rank value
+		sort `matched' `matchvar' `rand'
+		
+		updateBestValID 0 `matchvar' `idvar' `grpvar' `matched' `valUp_0' `IDup_0'
+		updateBestValID 1 `matchvar' `idvar' `grpvar' `matched' `valUp_1' `IDup_1'
+
+		*****************
+		*Update possible matches with lower rank value
+		sort `matched' `invsort' `invrand'
+		
+		updateBestValID 0 `matchvar' `idvar' `grpvar' `matched' `valDo_0' `IDdo_0'
+		updateBestValID 1 `matchvar' `idvar' `grpvar' `matched' `valDo_1' `IDdo_1'
+
+		*****************
+		*Create one varaible common for both groups with diff upwards
+		replace `diffup' 	= abs(`matchvar' - `valUp_1') if `grpvar' == 1
+		replace `diffup' 	= abs(`matchvar' - `valUp_0') if `grpvar' == 0 
+		
+		*Create one varaible common for both groups with diff downwards
+		replace `diffdo' 	= abs(`matchvar' - `valDo_1') if `grpvar' == 1 
+		replace `diffdo' 	= abs(`matchvar' - `valDo_0') if `grpvar' == 0 
+		
+		*Create one varaible common for both groups with ID upwards
+		replace `IDup' 		= `IDup_1' 	if `grpvar' == 1
+		replace `IDup' 		= `IDup_0' 	if `grpvar' == 0 
+		
+		*Create one varaible common for both groups with ID downwards
+		replace `IDdo' 		= `IDdo_1' 	if `grpvar' == 1 
+		replace `IDdo' 		= `IDdo_0' 	if `grpvar' == 0 
+		
+		replace `prefID' 	= `IDdo' 	if `matched' == 0 & `diffdo' <= `diffup'
+		replace `prefID' 	= `IDup' 	if `matched' == 0 & `diffdo' >  `diffup'	
+
+		replace `prefDiff' 	= `diffdo' 	if `matched' == 0 & `diffdo' <= `diffup'
+		replace `prefDiff' 	= `diffup' 	if `matched' == 0 & `diffdo' >  `diffup'			
+		
+	end
+
+	
+	** This function goes through the observatioins from top to down and copying 
+	*  the match value of the closest observation of the other group above to 
+	*  (bestVal) and the ccoprresponding ID to (bestID) for obe group at the time. 
+	*  To go from bottuom to top sort with invsort and apply this command.
+	cap program drop 	updateBestValID
+		program define 	updateBestValID
+		
+		args grpvl matchval idvar grpvar matched bestVal bestID
+
+		*Reset all values
+		replace `bestVal' 	= .
+		replace `bestID' 	= .
+		
+		*Set the match value and ID of observations that are in the other group
+		replace `bestVal'   = `matchval' 		if `grpvar' != `grpvl' & `matched' == 0
+		replace `bestID'  	= `idvar' 			if `grpvar' != `grpvl' & `matched' == 0
+		
+		*Fill in that value from the observation in the other group until getting to another observation of the other group
+		replace `bestVal'   = `bestVal'[_n-1]	if `bestVal' == . & `matched' == 0
+		replace `bestID'  	= `bestID'[_n-1] 	if `bestID'	 == . & `matched' == 0
+		
+	end
+	
+}	
+	
+
+	
+	
+	
 	
 	clear
 	
-*	set seed 1235324
+	set seed 125345324
 	
 	
-	set obs 40000
+	set obs 300000
 	
 	gen id = _n
 	
@@ -383,16 +477,16 @@
 	
 	gen tmt = (rand1 < .40)
 	
-	replace tmt = . if (rand1 < .05)
+	*replace tmt = . if (rand1 < .45)
 	
 	drop rand1
 	tab tmt
 	
 	gen p_hat = uniform()
 	
-	replace p_hat = p_hat + .01 if tmt == 1
+	*replace p_hat = p_hat + .03 if tmt == 1
 	
-	*replace p_hat = . if p_hat < .01
+	*replace p_hat = . if p_hat < .2
 	
-	iematch  , grp(tmt) match(p_hat) idvar(id)  maxdiff(.01) // matchidname(Kallefille)
+	iematch  , grp(tmt) match(p_hat) idvar(id)  maxdiff(.01) //matchidname(Kallefille)
 
