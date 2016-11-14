@@ -6,7 +6,7 @@
 	
 	qui {
 
-		syntax varname ,  FOLder(string) UNIQUEvars(varlist) [ KEEPvars(varlist) MINprecision(numlist >0) tostringok droprest nodaily]
+		syntax varname ,  FOLder(string) UNIQUEvars(varlist) [ KEEPvars(varlist) MINprecision(numlist >0) tostringok droprest nodaily SUFfix(string)]
 		
 		version 11.0
 		
@@ -89,12 +89,14 @@
 			************************************************************************
 			***********************************************************************/				
 
+			local suffix _`suffix'
+			
 			/******************
 				Section 3.1
 				Check if earlier report exists.
 			******************/		
 			
-			cap confirm file "`folder'/iedupreport.xlsx"
+			cap confirm file "`folder'/iedupreport`suffix'.xlsx"
 			
 			if !_rc {
 				local fileExists 1
@@ -111,7 +113,7 @@
 			if `fileExists' {
 				
 				*Load excel file. Load all vars as string and use meta data from Section 1 
-				import excel "`folder'/iedupreport.xlsx"	, clear firstrow allstring
+				import excel "`folder'/iedupreport`suffix'.xlsx"	, clear firstrow allstring
 								
 				*dupListID is always numeric
 				destring dupListID, replace
@@ -614,7 +616,7 @@
 
 					if "`daily'" == "" { 
 							
-						cap export excel using "`folder'/Daily/iedupreport_`date'.xlsx"	, firstrow(variables) replace nolabel 
+						cap export excel using "`folder'/Daily/iedupreport`suffix'_`date'.xlsx"	, firstrow(variables) replace nolabel 
 						if _rc {
 							
 							display as error "{phang}There is no folder named Daily in `folder'. Either create that folder or see option nodaily{p_end}"	
@@ -625,11 +627,11 @@
 						
 						local daily_output "and a daily copy have been saved to the Daily folder"
 					}
-					export excel using "`folder'/iedupreport.xlsx"					, firstrow(variables) replace  nolabel 
+					export excel using "`folder'/iedupreport`suffix'.xlsx"					, firstrow(variables) replace  nolabel 
 					
 					
 					
-					noi di `"{phang}Excel file created at: {browse "`folder'/iedupreport.xlsx":`folder'/iedupreport.xlsx} `daily_output'{p_end}"'
+					noi di `"{phang}Excel file created at: {browse "`folder'/iedupreport`suffix'.xlsx":`folder'/iedupreport`suffix'.xlsx} `daily_output'{p_end}"'
 					noi di ""
 				}
 			}

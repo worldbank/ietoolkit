@@ -16,7 +16,7 @@ an Excel file that also can be used to correct the duplicates
 {it:ID_varname}
 , {cmdab:fol:der(}{it:string}{cmd:)} {cmdab:unique:vars(}{it:varlist}{cmd:)} 
 [{cmdab:keep:vars(}{it:varlist}{cmd:)} {cmdab:tostringok} {cmdab:droprest}  
-{cmdab:nodaily} {cmdab:min:precision(}{it:numlist}{cmd:)]}
+{cmdab:nodaily} {cmdab:suf:fix(}{it:string}{cmd:)} {cmdab:min:precision(}{it:numlist}{cmd:)]}
 
 {phang2}where {it:ID_varname} is the variable that will be controlled for duplicates
 
@@ -29,6 +29,7 @@ an Excel file that also can be used to correct the duplicates
 {synopt :{cmdab:keep:vars(}{it:varlist}{cmd:)}}variables used to be included in the Excel report in addition to {it:ID_varname} and {cmdab:unique:vars()} {p_end}
 {synopt :{cmdab:tostringok}}allows {it:ID_varname} to be recasted to string if required{p_end}
 {synopt :{cmdab:droprest}}disables the requirement that duplicates must be explicitly deleted{p_end}
+{synopt :{cmdab:suf:fix(}{it:string}{cmd:)}}allows the user to add a suffix to the filename of the Excel report{p_end}
 {synopt :{cmdab:nodaily}}disables daily back-up copies of the Excel report{p_end}
 {synopt :{cmdab:min:precision(}{it:numlist}{cmd:)}}({it:rarely used}) manually set the precision when exporting and importing time variables to and from the Excel file{p_end}
 {synoptline}
@@ -113,6 +114,17 @@ will cause an error in case if {cmdab:droprest} is not specified and the other
 two observations are not explicitly indicated to be dropped. It is recommended 
 to not use {cmdab:droprest} and to manually indicate all deletions to avoid 
 mistakes, but this option exist for cases when that might be very inconvenient.
+
+{phang}{cmdab:suf:fix(}{it:string}{cmd:)} allows the user to set a unique file name suffix to 
+the Excel report. This is meant to be used when a project has multiple data sets that are 
+checked for duplicates seperately. The command will not work as intended (most liekly even 
+crash) if the duplicate report for one data set is used when checking for duplicates in 
+another data set. To prevent this, the Excel report must either be exported to seperate folders or 
+be assigned different file names using this option. If the string in suffix() is, for example, "AAA", 
+then the report exported will be "iedupreport_AAA.xlsx". Any characters allowed in file names in 
+Excel and in Stata are allowed in suffix(). Note, that if suffix() is added after the first report is outputted, 
+then the name of the outputted report must be updated manually. The command will otherwise not 
+apply any changes already entered in the original report.  
 
 {phang}{cmdab:nodaily} disables the generation of daily back-up copies of the 
 Excel report. The default is that the command saves dated copies of the Excel 
