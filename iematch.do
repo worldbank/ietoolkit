@@ -13,17 +13,19 @@
 			MATCHvar(varname) 		///
 			[						///
 			idvar(varname)			///
+			m1						///
 			matchidname(string)		///
 			matchdiffname(string)	///
 			matchnoname(string)		///
+			matchcount(string)		///
 			maxdiff(numlist max = 1 min = 1) ///
 			]						
 		
 		*****
 		*1 format errors as smcl
-		*2 make match only on obs with value in group dummy
-		*3 m:1 match
-		*4 option to disable countdown
+		*2 option to disable countdown
+		*3 test not matchcount without m1
+		*4 test that tmt are not more than ctrl if one to one
 		
 		noi di "Syntax OK!"
 		
@@ -171,21 +173,32 @@ if 1 {
 			local matchIDname "`r(validVarName)'"
 			gen  `matchIDname' = .
 	
+			if "`m1'" != "" {
+			
+				iematchMatchVarCheck _matchCount `matchcount' 
+				local matchCountName "`r(validVarName)'"
+				gen `matchCountName' = .	
+				
+			}	
+	
 			iematchMatchVarCheck _matchDiff `matchdiffname' 
 			local matchDiffName "`r(validVarName)'"
 			gen `matchDiffName' = .
 			
 			iematchMatchVarCheck _matchOrReason `matchnoname' 
-			local noMatchReasonName "`r(validVarName)'"
-			gen `noMatchReasonName' = .			
+			local matchReasonName "`r(validVarName)'"
+			gen `matchReasonName' = .	
+			
+
 
 			*Create a label for missing values that explains no match
 			label define matchLabel 0 "Not Matched" 1 "Matched" .n "Obs not included in match" .m "No match within maxdiff" 
 			
 			*Apply the label
-			label value `noMatchReasonName' matchLabel
+			label value `matchReasonName' matchLabel
 		
 }		
+
 		
 		
 			********************************
@@ -215,7 +228,7 @@ if 1 {
 
 			
 			
-			tempvar					diffup diffdo valUp_0 valDo_0 valUp_1 valDo_1 IDup IDdo IDup_0 IDdo_0 IDup_1 IDdo_1			
+			tempvar					 diffup   diffdo   valUp_0   valDo_0   valUp_1   valDo_1   IDup   IDdo   IDup_0   IDdo_0   IDup_1   IDdo_1
 			local 	 updownTempVars `diffup' `diffdo' `valUp_0' `valDo_0' `valUp_1' `valDo_1' `IDup' `IDdo' `IDup_0' `IDdo_0' `IDup_1' `IDdo_1'
 			
 			foreach tempVar of local updownTempVars {
@@ -224,47 +237,75 @@ if 1 {
 			
 			}
 			
-			********************************
-			*
-			*	Start matching
-			*
-			********************************		
-			noi di ""
-			noi di "{pstd}Observations left to match: {p_end}"
-			count if `grpdummy' == 1 & `matched' == 0
-			local left2Match = `r(N)'		
-			noi di "{pstd}`left2Match' " _c		
 			
-			while (`left2Match' > 0) {
+			
+		********************************
+		*	Start matching
+		********************************		
+						
+			***************************
+			*
+			*	One to one match
+			*
+			***************************
+			
+			if "`m1'" == "" {
+			
+				noi di ""
+				noi di "{pstd}Observations left to match: {p_end}"
+				count if `grpdummy' == 1 & `matched' == 0
+				local left2Match = `r(N)'		
+				noi di "{pstd}`left2Match' " _c		
+				
+				while (`left2Match' > 0) {
+					
+					**For all observations still to be matched, assign the preferred 
+					* match among the other unmatched observations
+					qui updatePrefDiffPreffID `prefID' `prefDiff' `matchvar' `invsort' `idvar' `grpdummy' `matched' `rand' `invrand' `updownTempVars'
+								
+					if "`maxdiff'" != "" {
+					
+						replace `matched' 			= 1		if `prefDiff' > `maxdiff' & `grpdummy' == 1
+						replace `prefID'			= .		if `prefDiff' > `maxdiff'  
+						replace `matchReasonName' 	= .m 	if `prefDiff' > `maxdiff' & `grpdummy' == 1
+					}
+					
+					replace `matched' = 1 if `matched' == 0 & `prefID' == `idvar'[_n-1] & `prefID'[_n-1] == `idvar'
+					replace `matched' = 1 if `matched' == 0 & `prefID' == `idvar'[_n+1] & `prefID'[_n+1] == `idvar'
+					
+					count if `grpdummy' == 1 & `matched' == 0
+					local left2Match = `r(N)'
+					noi di "`left2Match' " _c	
+					
+				}
+				noi di "{p_end}" _c
+			
+			}
+			
+			***************************
+			*
+			*	Many to one match
+			*
+			***************************
+			else {
 				
 				
-			
-				**For all observations still to be matched, assign the preferred 
-				* match among the other unmatched observations
-				qui updatePrefDiffPreffID `prefID' `prefDiff' `matchvar' `invsort' `idvar' `grpdummy' `matched' `rand' `invrand' `updownTempVars'
-							
+				updatePrefDiffPreffID `prefID' `prefDiff' `matchvar' `invsort' `idvar' `grpdummy' `matched' `rand' `invrand' `updownTempVars'
+				
 				if "`maxdiff'" != "" {
 				
 					replace `matched' 			= 1		if `prefDiff' > `maxdiff' & `grpdummy' == 1
 					replace `prefID'			= .		if `prefDiff' > `maxdiff'  
-					replace `noMatchReasonName' = .m 	if `prefDiff' > `maxdiff' & `grpdummy' == 1
+					replace `matchReasonName' 	= .m 	if `prefDiff' > `maxdiff' & `grpdummy' == 1
 				}
 				
-				replace `matched' = 1 if `matched' == 0 & `prefID' == `idvar'[_n-1] & `prefID'[_n-1] == `idvar'
-				replace `matched' = 1 if `matched' == 0 & `prefID' == `idvar'[_n+1] & `prefID'[_n+1] == `idvar'
-				
-				
-				
-				count if `grpdummy' == 1 & `matched' == 0
-				local left2Match = `r(N)'
-				noi di "`left2Match' " _c	
-				
-				
-				
+				replace `prefID'			=  `idvar' if `grpdummy' == 0
+				bys 	`prefID' 			:   replace `matchCountName' = _N
+				replace `prefID' 			= . if  	`matchCountName' == 1
+				replace  `matchCountName'	= . if  	`matchCountName' == 1
+
+				replace `matched' = 1 if !missing(`prefID')				
 			}
-			noi di "{p_end}" _c
-			
-			
 			
 			
 			*Return vars
@@ -273,10 +314,10 @@ if 1 {
 			replace `matchIDname' 		= `prefID' 		if `matched' == 1 & `grpdummy' == 1			
 			
 			*Target obs not used
-			replace `noMatchReasonName' = 0 if `matched' == 0 & `grpdummy' == 0
+			replace `matchReasonName' = 0 if `matched' == 0 & `grpdummy' == 0
 
 			*only keep output vars
-			keep `matchIDname' `matchDiffName' `idvar' `originalSort' `noMatchReasonName'
+			keep `matchIDname' `matchDiffName' `idvar' `originalSort' `matchReasonName' `matchCountName' 
 			
 			tempfile mergefile
 			
@@ -288,11 +329,11 @@ if 1 {
 		
 		merge 1:1  `originalSort' using `mergefile', gen(`mergevar')
 		
-		replace `noMatchReasonName' = .n if `mergevar' == 1
+		replace `matchReasonName' = .n if `mergevar' == 1
 		
-		replace `noMatchReasonName' = 1 if `noMatchReasonName' == .
+		replace `matchReasonName' = 1 if `matchReasonName' == .
 		
-		noi tab `noMatchReasonName' `grpdummy', m
+		noi tab `matchReasonName' `grpdummy', m
 		
 		sort `originalSort'
 		
@@ -311,9 +352,10 @@ if 1 {
 		if "`defaultName'" == "_matchID" 		local optionName matchidname
 		if "`defaultName'" == "_matchDiff" 		local optionName matchdiffname
 		if "`defaultName'" == "_matchOrReason" 	local optionName matchnoname
+		if "`defaultName'" == "_matchCount" 	local optionName matchcount
 		
 		*All the default names
-		local dfltNms _noMatchReason _matchDiff _matchOrReason
+		local dfltNms _noMatchReason _matchDiff _matchOrReason _matchCount
 		
 		*The other two default names
 		local othDfltNms : list dfltNms - defaultName
@@ -321,13 +363,12 @@ if 1 {
 		*Creating two locals with the deafult name in each local
 		local Oth1 : word 1 of `othDfltNms'
 		local Oth2 : word 2 of `othDfltNms'
+		local Oth3 : word 3 of `othDfltNms'
 		
 		*Testing that the option name is not the same as the other variable's default name.
-		if ("`defaultName'" == "_matchID" & ("`userName'" == "`Oth1'" | "`userName'" == "`Oth2'" | "`userName'" == "_ID"))  {
+		if ("`userName'" == "`Oth1'" | "`userName'" == "`Oth2'" | "`userName'" == "`Oth3'" | "`userName'" == "_ID")  {
 			
-			noi di as error `" ("`defaultName'" == "_matchID" & ("`userName'" == "`Oth1'" | "`userName'" == "`Oth2'" | "`userName'" == "_ID")) "'
-			
-			noi di as error "The new name specified in `optionName'() is not allowed to be _ID, `Oth1', nor `Oth2'"
+			noi di as error "{phang}The new name specified in `optionName'(`userName') is not allowed to be _ID, `Oth1', `Oth2', or `Oth3'{p_end}"
 			error 198
 		}
 	
@@ -463,13 +504,12 @@ if 1 {
 	
 	
 	
-	
 	clear
 	
 	set seed 125345324
 	
 	
-	set obs 300000
+	set obs 30000
 	
 	gen id = _n
 	
@@ -488,5 +528,5 @@ if 1 {
 	
 	*replace p_hat = . if p_hat < .2
 	
-	iematch  , grp(tmt) match(p_hat) idvar(id)  maxdiff(.01) //matchidname(Kallefille)
+	iematch  , grp(tmt) match(p_hat) idvar(id)   maxdiff(.01)  //matchidname(Kallefille)
 
