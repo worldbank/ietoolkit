@@ -285,9 +285,6 @@ qui {
 			error 108
 		} 
 		else {
-			** Testing that groupvar is a categorical variable. Int() rounds to 
-			* integer, and if any values are non-integers then (int(`grpvar') == `grpvar) is
-			* not true
 			cap assert ( int(`grpvar') == `grpvar' )
 			if _rc == 9 {
 				noi display as error  "{phang}The variable in grpvar(`grpvar') is not a categorical variable. The variable may only include integers where each integer indicates which group each observation belongs to. See tabulation of `grpvar' below:{p_end}"
@@ -1086,9 +1083,7 @@ qui {
 				}
 				
 				* Add three columns for each balance var (one balance var per loop)
-				local 	tableRow  		`"`tableRow' _tab "`N_`groupNumber''" _tab "`di_mean_`groupNumber''" _tab "`di_var_`groupNumber''" "'
-				
-				
+				local 	tableRow  `"`tableRow' _tab "`N_`groupNumber''" _tab "`di_mean_`groupNumber''" _tab "`di_var_`groupNumber''" "'
 			}
 			
 			if `TOTAL_USED' {
