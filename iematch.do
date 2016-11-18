@@ -8,24 +8,28 @@
 	cap program drop 	iematch
 	    program define	iematch
 		
-		syntax  [if] [in]  , ///
-			GRPdummy(varname) 		///
-			MATCHvar(varname) 		///
-			[						///
-			idvar(varname)			///
-			m1						///
-			matchidname(string)		///
-			matchdiffname(string)	///
-			matchnoname(string)		///
-			matchcount(string)		///
-			maxdiff(numlist max = 1 min = 1) ///
+		syntax  [if] [in]  , 					///
+			GRPdummy(varname) 					///
+			MATCHvar(varname) 					///
+			[									///
+			IDvar(varname)						///
+			m1									///
+			maxdiff(numlist max = 1 min = 1) 	///
+			seed(max = 1 min = 1 ) 		///
+			MATCHIDname(string)					///
+			MATCHDIffname(string)				///
+			MATCHREsultname(string)				///
+			MATCHCOuntname(string)				///
 			]						
 		
 		*****
 		*1 format errors as smcl
 		*2 option to disable countdown
 		*3 test not matchcount without m1
-		*4 test that tmt are not more than ctrl if one to one
+		*4 test that tmt are not more obs than ctrl if one to one
+		*5 a table woth results outputted
+		*6 seed. give option for seed
+		*6 seed. test that is is large enoug
 		
 		noi di "Syntax OK!"
 		
@@ -109,7 +113,7 @@ if 1 {
 			********************************			
 		
 			*Create a local of all varnames used in any option
-			local allnewvars `idvar' `matchidname' `matchdiffname' `matchnoname'
+			local allnewvars `idvar' `matchidname' `matchdiffname' `matchresult'
 			
 			*Check if there are any duplicates in the local of all varnames in options
 			local dupnewvars : list dups allnewvars
@@ -185,7 +189,7 @@ if 1 {
 			local matchDiffName "`r(validVarName)'"
 			gen `matchDiffName' = .
 			
-			iematchMatchVarCheck _matchOrReason `matchnoname' 
+			iematchMatchVarCheck _matchOrReason `matchresult' 
 			local matchReasonName "`r(validVarName)'"
 			gen `matchReasonName' = .	
 			
@@ -351,7 +355,7 @@ if 1 {
 		
 		if "`defaultName'" == "_matchID" 		local optionName matchidname
 		if "`defaultName'" == "_matchDiff" 		local optionName matchdiffname
-		if "`defaultName'" == "_matchOrReason" 	local optionName matchnoname
+		if "`defaultName'" == "_matchOrReason" 	local optionName matchresult
 		if "`defaultName'" == "_matchCount" 	local optionName matchcount
 		
 		*All the default names
