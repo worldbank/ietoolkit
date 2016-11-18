@@ -2,7 +2,9 @@
 
 	capture program drop ieboilstart2
 	program ieboilstart2 , rclass
-		
+	
+	noi di "Syntax works!"
+	
 	qui {
 	
 		syntax using ,  Versionnumber(string) [noclear maxvar(numlist) matsize(numlist) QUIetdo CUSTom(string) ]
@@ -170,8 +172,13 @@
 			local return_string `return_string' set min_memory	0 ;
 			local return_string `return_string' set max_memory	. ;
 			
-			if c(bit) == 64 { 
-				local return_string `return_string' set segmentsize	32m ;
+			if c(stata_version) >= 12 {
+				if c(bit) == 64 { 
+					local return_string `return_string' set segmentsize	32m ;
+				}
+				else {
+					local return_string `return_string' set segmentsize	16m ;
+				}
 			}
 			else {
 				local return_string `return_string' set segmentsize	16m ;
