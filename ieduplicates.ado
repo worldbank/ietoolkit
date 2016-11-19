@@ -16,6 +16,10 @@
 		*	version 1, 2 . If the command is run on only version 1. Then values 
 		*	for keeepvars in version 2 and 3 are dropped and not reloaded as those 
 		*	obs are not in current memory
+		
+		**Test that observations have not been deleted from the report before readind 
+		* it. Deleted in a way that the report does not make sense. Provide an error 
+		* message to this that is more informative.
 
 		preserve
 			
