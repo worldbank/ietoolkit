@@ -7,7 +7,7 @@
 	
 	qui {
 	
-		syntax using ,  Versionnumber(string) [noclear maxvar(numlist) matsize(numlist) QUIetdo CUSTom(string) ]
+		syntax using ,  Versionnumber(string) [noclear maxvar(numlist) matsize(numlist) QUIetdo CUSTom(string)]
 		
 		*Potentional updates
 		*set trace on
@@ -71,6 +71,17 @@
 		}
 		
 		
+		
+		if 	!(c(MP) == 1 | c(SE) == 1)	{
+		
+			
+			//If using IC test that maxvar and maxsize is not used
+		
+		
+		}
+
+		
+		
 		/*********************************
 		
 			Check input for maxvar and matsize 
@@ -79,39 +90,24 @@
 		
 		*********************************/			
 		
-		local stata_types ic se mp
+		
 		foreach maxlocal in maxvar matsize {
 			
+	
+			
 			if "`maxlocal'" == "maxvar" {
-				if c(MP) == 1 | c(SE) == 1 {
-					local max 32767
-					local min 2048
-				}
-				else {
-					local max 2047
-					local min 2047	
-				}
+		
+				local max 32767
+				local min 2048
 			}
 			
 			if "`maxlocal'" == "matsize" {
-				if c(MP) == 1 | c(SE) == 1 {
-					local max 11000
-					local min 10
-				}
-				else {
-					local max 800
-					local min 10	
-				}				
-			}
-			
-			if c(MP) == 1 | c(SE) == 1 {
-				local vusing "Stata SE and Stata MP"
-			}
-			else {
-				local vusing "Stata IC"
-			}		
-			
-			
+	
+				local max 11000
+				local min 10
+			}	
+		
+
 			*Test if user set maxvar
 			if "``maxlocal''" != "" {
 			
@@ -121,7 +117,7 @@
 				}
 				else {
 					
-					di as error "{phang}`maxlocal' must be between `min' and `max' (inclusive) if you are using `vusing'. You entered ``maxlocal''.{p_end}"
+					di as error "{phang}`maxlocal' must be between `min' and `max' (inclusive) if you are using Stata SE and Stata MP. You entered ``maxlocal''.{p_end}"
 					if ``maxlocal'' < `min' {
 						di ""
 						error 910
@@ -134,11 +130,26 @@
 				}
 			}
 			else {
+			
+				*User did not specify value, use ieboilstart's defaults	
+				if "`maxlocal'" == "maxvar" {
+					
+					*Set maxvar to max value allowed as this is often an issue when working with large survey data 
+					local `maxlocal' 32767
+
+				}
 				
-				*User did not specify value, use max value allowed
-				local `maxlocal' `max'
+				if "`maxlocal'" == "matsize" {
+					
+					*Set to the default as the maximum is rarely requered.
+					local `maxlocal' 400
+					
+				}						
 			}
 		}
+		
+		
+
 
 		/*********************************
 		
@@ -146,54 +157,66 @@
 			
 		*********************************/			
 		
-		local return_string ""
+		*******************
+		*Maxvar and matsize
+		
+		local return_string1 ""
 		
 		*Set verison number 
-		local return_string `return_string' version `versionnumber' ;
+		local return_string1 `return_string1' version `versionnumber' ;
 		
 		*Set basic memory limits
 		if "`clear'" == "" {
-			local return_string `return_string' clear all ;
-			local return_string `return_string' if !(c(MP) == 1 | c(SE) == 1) { ;
-			local return_string `return_string' set maxvar 	`maxvar' ;
-			local return_string `return_string' } ;
+			local return_string1 `return_string1' clear all ;
+			local return_string1 `return_string1' if (c(MP) == 1 | c(SE) == 1) { ;
+			local return_string1 `return_string1' set maxvar 	`maxvar' ;
+			local return_string1 `return_string1' } ;
 		} 
 
-		local return_string `return_string'  set matsize 	`matsize' ;
+		local return_string1 `return_string1'  set matsize 	`matsize' ;
+		
+		*******
+		*Memory		
+		
+		local return_string2 ""
 		
 		*Settings that were introduced in Stata 12
-		local return_string `return_string'  if c(stata_version) < 12 { ;
+		local return_string2 `return_string2'  if c(stata_version) > 12 { ;
 		 
 		*Set advanced memory limits
-		local return_string `return_string' set niceness	5 ;
+		local return_string2 `return_string2' set niceness	5 ;
 				
 		if "`clear'" == "" {
 			*These settings cannot be modified with data in memory
-			local return_string `return_string' set min_memory	0 ;
-			local return_string `return_string' set max_memory	. ;
+			local return_string2 `return_string2' set min_memory	0 ;
+			local return_string2 `return_string2' set max_memory	. ;
 			
 			if c(stata_version) >= 12 {
 				if c(bit) == 64 { 
-					local return_string `return_string' set segmentsize	32m ;
+					local return_string2 `return_string2' set segmentsize	32m ;
 				}
 				else {
-					local return_string `return_string' set segmentsize	16m ;
+					local return_string2 `return_string2' set segmentsize	16m ;
 				}
 			}
 			else {
-				local return_string `return_string' set segmentsize	16m ;
+				local return_string2 `return_string2' set segmentsize	16m ;
 			}
 		}
+
 		
-		local return_string `return_string'  } ;
-		local return_string `return_string'  else { ;
-		local return_string `return_string'  set memory 200m ;
-		local return_string `return_string'  } ;
+		local return_string2 `return_string2'  } ;
+		local return_string2 `return_string2'  else { ;
+		local return_string2 `return_string2'  set memory 200m ;
+		local return_string2 `return_string2'  } ;
+
 		
-		*Set default options
-		local return_string `return_string' set more 		off ;
-		local return_string `return_string' pause 			on 	;
-		local return_string `return_string' set varabbrev 	off ;
+		*********************
+		*Set default settings			
+		local return_string2 `return_string2' set more 			off ;
+		local return_string2 `return_string2' pause 			on 	;
+		local return_string2 `return_string2' set varabbrev 	off ;
+
 		
 		/*********************************
 		
@@ -203,16 +226,21 @@
 		
 		if "`custom'" != "" {
 		
+			local return_string3 ""	
+		
 			*Add a comment that list where 
-			local return_string `return_string' ** The lines of code below was added manually when iboilstart ;
-			local return_string `return_string' *  was used to create  this do-file. If there are any issues ;
-			local return_string `return_string' *  with the code below, please reconfigure ieboilstart and ;
-			local return_string `return_string' *  generate a new do-file. ;
-
+			local return_string3 `return_string3' **The code below was added manually by the user to iboilstart. If ;
+			local return_string3 `return_string3' * there are any issues please reconfigure ieboilstart. There is a ;
+			local return_string3 `return_string3' * limit of less than 244 characters in the code in version 11, and ;
+			local return_string3 `return_string3' * 512 in later versions.;
+			
+			di "`return_string3'"
+			di `=strlen("`return_string3'")'
 		
 			*Create a local with the rowlabel input to be tokenized
 			local custom_code_lines `custom'
-
+			local return_string4 ""	
+			
 			while "`custom_code_lines'" != "" {
 				
 				*Parsing name and label pair
@@ -221,7 +249,7 @@
 				*Removing leadning or trailing spaces
 				local code_line = trim("`code_line'")
 				
-				local return_string `return_string' `code_line';
+				local return_string4 `return_string4' `code_line';
 				
 				*Parse char is not removed by gettoken
 				local custom_code_lines = subinstr("`custom_code_lines'" ,"@","",1)
@@ -259,18 +287,30 @@
 																				_n ///																		
 			"	*See help file for ieboilstart for details on these settings"	_n ///	
 			_n 
-
-		** Write each setting prepared above to the do-file.
-		while ("`return_string'" != "") { 
 		
-			*Tokenize the first setting
-			gettoken setting return_string : return_string, parse(";")
+		
+		*Repeat through the possible 4 strings above
+		forvalues strNum = 1/4 {
 			
-			*Write it to file
-			file write settingsfile "	`setting'" _n
-			
-			*Remove the parse character
-			local return_string = subinstr("`return_string'",";","",1)
+			** Write each setting prepared above to the do-file.
+			while ("`return_string`strNum''" != "") { 
+				
+				*noi di `=strlen("`return_string`strNum''")'
+				*noi di "`return_string`strNum''"
+				
+				local tempstring `return_string`strNum''
+				
+				di "`return_string'
+				
+				*Tokenize the first setting
+				gettoken setting tempstring : tempstring, parse(";")
+				
+				*Write it to file
+				file write settingsfile "	`setting'" _n
+				
+				*Remove the parse character
+				local return_string`strNum' = subinstr("`tempstring'",";","",1)
+			}
 		}
 		
 		if "`quietdo'" != "" file write settingsfile "}" _n
