@@ -68,7 +68,7 @@
 		/*********************************
 		
 			Check settings related to older
-			versions and Stata 11
+			versions and Stata IC
 			
 		*********************************/		
 		
