@@ -36,7 +36,12 @@ help for {hi:iematch}
 
 {title:Description}
 
-{pstd}{cmdab:iematch} matches base observations towards base observations in terms of nearest value in {cmd:matchvar()}. Base observations are observations with value 1 in {cmd:grpdummy()} and target observations are observations with value 0.
+{pstd}{cmdab:iematch} matches base observations towards base observations in terms 
+	of nearest value in {cmd:matchvar()}. Base observations are observations with
+	value 1 in {cmd:grpdummy()} and target observations are observations with value 
+	0. In a regular p-score match for example, base observations are treatment and target 
+	is control, however, there are many other examples of mathcing where it could 
+	be different.
 
 
 
