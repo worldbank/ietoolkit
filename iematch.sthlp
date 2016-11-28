@@ -6,7 +6,7 @@ help for {hi:iematch}
 
 {title:Title}
 
-{phang2}{cmdab:iematch} {hline 2} Match observations in one group towards observations in another group based on a single continous variable.
+{phang2}{cmdab:iematch} {hline 2} Matching base observations towards target observations using on a single continous variable.
 
 {title:Syntax}
 
@@ -19,26 +19,40 @@ help for {hi:iematch}
 ]
 
 {marker opts}{...}
-{synoptset 28}{...}
+{synoptset 22}{...}
 {synopthdr:options}
 {synoptline}
-{synopt :{cmdab:grp:dummy(}{it:varname}{cmd:)}}The group variable. Obs with 1 is mathced towards obs with 0{p_end}
-{synopt :{cmdab:match:var(}{it:varname}{cmd:)}}The variable with a continous value to mathc on{p_end}
-{synopt :{cmdab:id:var(}{it:varlist}{cmd:)}}The uniquely and fully identifying ID varaible. Used to indicate which observation is matched with which. If omitted an ID variable will be created.{p_end}
-{synopt :{cmdab:m1}}Allows many-to-one matches. The default is to only allow one-to-one matches{p_end}
-{synopt :{cmdab:maxdiff(}{it:numlist}{cmd:)}}Set a maximum difference allowed in {cmdab:matchvar()}. If not match exist within this difference then the observation will remain unmatched{p_end}
-{synopt :{cmdab:maxdiff(}{it:numlist}{cmd:)}}If two observations have the same value in {cmdab:matchvar()}, then they will be orderd randomly. If seed is not set already, then provide a seed so that the randomziation is stable. {p_end}
-{synopt :{cmdab:matchid:name(}{it:string}{cmd:)}}Manually set the name of the variable that indicates which other observation the observations are matched with. The default is _matchID{p_end}
-{synopt :{cmdab:matchdi:ffname(}{it:string}{cmd:)}}Manually set the name of the variable that indicates the differnece in {cmdab:matchvar()} in the match. The default is _matchDiff{p_end}
-{synopt :{cmdab:matchre:sultname(}{it:string}{cmd:)}}Manually set the name of the variable that indicates if an observation was matched, or provide a reason if it was not. The default is _matchOrReason{p_end}
-{synopt :{cmdab:matchco:untname(}{it:string}{cmd:)}}Manually set the name of the variable that indicates how many observations an obsersvation is matched with in a many-to-one match. The default is _matchCount{p_end}
+{synopt :{cmdab:grp:dummy(}{it:varname}{cmd:)}}The group dummy variable where 1 indicates base observations and 0 target observations{p_end}
+{synopt :{cmdab:match:var(}{it:varname}{cmd:)}}The variable with a continous value to match on{p_end}
+{synopt :{cmdab:id:var(}{it:varlist}{cmd:)}}The uniquely and fully identifying ID varaible. Used to indicate which target observation a base observation is match with. If omitted an ID variable will be created.{p_end}
+{synopt :{cmdab:m1}}Allows many-to-one matches. The default is to allow only one-to-one matches{p_end}
+{synopt :{cmdab:maxdiff(}{it:numlist}{cmd:)}}Set a maximum difference allowed in {cmdab:matchvar()}. If a base observation has no match within this difference then it will remain unmatched{p_end}
+{synopt :{cmdab:seed(}{it:numlist}{cmd:)}}If seed is not set outside the command (recommended), then this option can be used to set the seed to make matches stable even when multiple observations have the same value in {cmdab:matchvar()}{p_end}
+{synopt :{cmdab:matchid:name(}{it:string}{cmd:)}}Manually sets the name of the variable that indicates which target observation each base observation is matched with. The default is _matchID{p_end}
+{synopt :{cmdab:matchdi:ffname(}{it:string}{cmd:)}}Manually sets the name of the variable that indicates the differnece in {cmdab:matchvar()} in each match pair/group. The default is _matchDiff{p_end}
+{synopt :{cmdab:matchre:sultname(}{it:string}{cmd:)}}Manually sets the name of the variable that indicates if an observation was matched, or provide a reason why it was not. The default is _matchOrReason{p_end}
+{synopt :{cmdab:matchco:untname(}{it:string}{cmd:)}}Manually sets the name of the variable that indicates how many observations a target obsersvation is matched with in a many-to-one matches. The default is _matchCount{p_end}
 {synoptline}
 
 {title:Description}
 
-{pstd}{cmdab:iematch} matches observations with the value 1 in the variable in {cmd:grpdummy()} towards observations with value 0. Observations with missing values will be excluded frmo the matching. 
+{pstd}{cmdab:iematch} matches base observations towards base observations in terms of nearest value in {cmd:matchvar()}. Base observations are observations with value 1 in {cmd:grpdummy()} and target observations are observations with value 0.
 
-{pstd}{cmdab:iematch} uses the Stable Marriage algorithm when performing a one-to-one match. This algorthm always have a solution and is stable in terms of replication.
+
+
+. Observations with missing 
+	values will be excluded frmo the matching. 
+
+{pstd}The algorithm used in {cmdab:iematch} when performing a one-to-one match is 
+	based on the Stable Marriage algorithm. The algorithm startes by evaluating which 
+	observation from the other group in {cmd:grpdummy()} is closest in terms of the 
+	variable in {cmd:matchvar()}. If two observations in differnt groups prefer each 
+	other, then they are a match and they are removed from the data set. The process 
+	is repeated until all observations with value 1 in group dummy are mathced. This 
+	algorthm always has a solution and it is implemented to keep the matches stable 
+	even when mutiple observations share value in {cmd:matchvar()}.
+	
+{pstd}When performing a many-to-one match the algorithm does the first step in the one-to-one algorithm, and assign all observations with value 1
 
 {pstd}For example,
 
@@ -56,13 +70,13 @@ help for {hi:iematch}
 
 {phang}{cmdab:seed(}{it:numlist}{cmd:)}
 
-{phang}{cmdab:matchid:name(}{it:string}{cmd:)}
+{phang}{cmdab:matchid:name(}{it:string}{cmd:)} The names _ID, _matchDiff, _matchOrReason and _matchCount are not allowed.
 
-{phang}{cmdab:matchdi:ffname(}{it:string}{cmd:)}
+{phang}{cmdab:matchdi:ffname(}{it:string}{cmd:)} The names _ID, _matchID, _matchOrReason and _matchCount are not allowed.
 
-{phang}{cmdab:matchre:sultname(}{it:string}{cmd:)} 
+{phang}{cmdab:matchre:sultname(}{it:string}{cmd:)} The names _ID, _matchID, _matchDiff and _matchCount are not allowed.
 
-{phang}{cmdab:matchco:untname(}{it:string}{cmd:)}
+{phang}{cmdab:matchco:untname(}{it:string}{cmd:)} The names _ID, _matchID, _matchDiff and _matchOrReason are not allowed.
 
 
 
