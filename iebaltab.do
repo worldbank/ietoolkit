@@ -53,11 +53,21 @@
 				TBLNONote													///
 																			///
 				/*Export and restore*/										///
-				SAVE(string)  												///
+				SAVEExcel(string)  											///
+																			///
 				BROWSE														///
 				SAVEBRowse													///
 				REPLACE														///
 				]
+				
+				/*KBTEX:
+				
+					-Add option latex
+						-SAVETex(string)
+						
+					-full or slim
+				
+				*/
 	
 	noi di "Syntax ok!"
 				
@@ -227,9 +237,11 @@ qui {
 		if "`format'" 			== "" local FORMAT_USED = 0 
 		if "`format'" 			!= "" local FORMAT_USED = 1 		
 	
-		*Is option save() used:
-		if "`save'" 			== "" local SAVE_USED = 0 
+		*Is option save() used: KBTEX: update if we decide to change to saveexcel()
+		if "`save'" 			== "" local SAVE_USED = 0  
 		if "`save'" 			!= "" local SAVE_USED = 1 
+		
+		*KBTEX: add options added for LATEX
 		
 		*Is option browse() used:
 		if "`browse'" 			== "" local BROWSE_USED = 0 
@@ -248,8 +260,8 @@ qui {
 		if "`tblnote'" 			!= "" local NOTE_USED = 1 	
 		
 		*Is option notecombine() used:
-		if "`notecombine'" 	== "" local NOTECOMBINE_USED = 0 
-		if "`notecombine'" 	!= "" local NOTECOMBINE_USED = 1 	
+		if "`notecombine'" 		== "" local NOTECOMBINE_USED = 0 
+		if "`notecombine'" 		!= "" local NOTECOMBINE_USED = 1 	
 		
 		*Is option notablenote() used:
 		if "`tblnonote'" 		== "" local NONOTE_USED = 0 
@@ -690,6 +702,8 @@ qui {
 			error 198
 		}
 		
+		*KBTEX: Do last: Test input for TEX options
+		
 		*Exactly only one of save and browse may be used
 		if (`SAVE_USED' + `BROWSE_USED' != 1) {
 			
@@ -849,6 +863,16 @@ qui {
 		local titlerow3 `""Variable""'
 		
 		
+		*KBTEX: update the strings
+		** The titles consist of three rows across all 
+		*  columns of the table. Each row is one local
+		local texrow1 ""
+		local texrow2 ""
+		local texrow3 `""Variable""'
+		
+		
+		
+		
 								local variance_type "SE"
 		if `STDEV_USED' == 1 	local variance_type "SD"
 	
@@ -879,6 +903,8 @@ qui {
 				local titlerow1  `"`titlerow1' _tab "" 	_tab " (`groupOrderNum') " 	"'
 				local titlerow2  `"`titlerow2' _tab ""  _tab "`groupLabel'"   		"'
 				local titlerow3  `"`titlerow3' _tab "N" _tab "Mean/`variance_type'" "'
+				
+				local texrow1 
 			
 			}
 			else {
@@ -921,6 +947,8 @@ qui {
 			
 			}
 		}
+		
+	
 	
 		
 	************************************************
@@ -985,6 +1013,14 @@ qui {
 			}
 		}
 		
+		
+			*KBTEX: Dont writ ttest header until here, count items in local ttest_pairs
+			*ttest pairs looks like this 1_2 1_3 2_3
+			
+			local testPairCount : list sizeof ttest_pairs
+			
+			*use the count for ulticolumn{3}{c}{T-test} and \multicolumn{3}{c}{Difference}
+			*local texrow1 "texrow  \multicolumn{`testPairCount'}{c}{T-test} "
 
 	
 	
@@ -993,8 +1029,9 @@ qui {
 		
 		*Create a temporary textfile
 		tempname 	textfile_name
-		local 		textfile `textfile_name'		
-			
+		local 		textfile `textfile_name'	
+		
+		
 		*Write the title rows defined above	
 		capture file close `textfile'
 		file open  `textfile' using `textfile'.txt, text write replace
@@ -1005,6 +1042,23 @@ qui {
 						
 		file close `textfile'
 	
+		*KBTEX create latexfile
+		*Create a temporary textfile
+		tempname 	texfile_name
+		local 		texfile `texfile_name'
+		
+		*latexheader command //tex file created here, therefore append below instead of replace
+		
+		*Write the title rows defined above	
+		capture file close `texfile'
+		file open  `texfile' using `texfile'.txt, text write append
+		file write `texfile' ///
+						`texrow1' _n ///
+						`texrow2' _n ///
+						`texrow3' _n 
+						
+		file close `texfile'
+		
 		
 	/***********************************************
 	***********************************************/
@@ -1067,6 +1121,9 @@ qui {
 			local tableRowUp `""`row_label'""' 
 			local tableRowDo `" "' 
 			
+			*KBTEX: create tex rows, this is the first column
+			local texRowUp `""`row_label'""' 
+			local texRowDo `" "' 
 			
 			
 			*** Replacing missing value
@@ -1137,7 +1194,7 @@ qui {
 				
 					local 	tableRowUp  	`"`tableRowUp' _tab "`N_`groupNumber''" _tab "`di_mean_`groupNumber''"  "'
 					local 	tableRowDo  	`"`tableRowDo' _tab " " 				_tab "[`di_var_`groupNumber'']"  "'
-				
+					*KBTEX add texrows
 				}
 				else {
 					
@@ -1157,6 +1214,7 @@ qui {
 					*Either this is the first balance var or num obs are identical, so write columns
 					local 	tableRowUp  	`"`tableRowUp' _tab "`di_mean_`groupNumber''"  "'
 					local 	tableRowDo  	`"`tableRowDo' _tab "[`di_var_`groupNumber'']"  "'	
+					*KBTEX add texrows
 				}
 			}
 			
@@ -1310,6 +1368,8 @@ qui {
 				`tableRowDo' _n	
 			file close `textfile'
 			
+			*KBTEX: add tex rows using file open etc, only need to change local names
+			
 		}
 
 
@@ -1320,6 +1380,7 @@ qui {
 		
 		*Variable column i.e. row title
 		local tableRowN `""N""' 
+		*KBTEX: add texrow
 		
 		*Loop over all groups
 		forvalues groupOrderNum = 1/`GRPVAR_NUM_GROUPS' {
@@ -1340,6 +1401,10 @@ qui {
 			`tableRowN' _n		
 		file close `textfile'
 	}
+	
+	
+	*KBTEX: Add cluster row
+	*KB will look how to best get this scalar
 		
 	/***********************************************
 	***********************************************/
@@ -1353,12 +1418,15 @@ qui {
 		
 		if `PFTEST_USED' == 1 {
 			local Fstat_row `" "F-test of joint significance (p-value)"  "'
+			*KBTEX: add ftexrow
 		}
 		else {
 			local Fstat_row `" "F-test of joint significance (F-stat)"  "'
+			*KBTex
 		
 		}
 		local Fobs_row  `" "F-test, number of observations"  "'
+		*KBTEX
 
 		*Create empty cells for all the group columns
 		forvalues groupIteration = 1/`GRPVAR_NUM_GROUPS' {
@@ -1516,6 +1584,7 @@ qui {
 				*Store the f-stat value with stars to the f-stat row
 				local Fstat_row   `" `Fstat_row' _tab "`ftest_output'"  "'
 				local Fobs_row    `" `Fobs_row'  _tab "`reg_F_N'"  		"'
+				*KBTEX
 			}
 		}
 		
@@ -1539,6 +1608,8 @@ qui {
 								file write `textfile' `Fstat_row' _n
 			if !`F_NO_OBS' 		file write `textfile' `Fobs_row'  _n
 		file close `textfile'
+		
+		*KBTEX
 		
 	}
 	
@@ -1776,7 +1847,9 @@ qui {
 		file close `textfile'
 		
 	}
-			
+	
+	*KBTEX : write footer of latex file
+	
 			
 	/***********************************************
 	************************************************/
@@ -1905,3 +1978,39 @@ program define iereplacemiss
 
 end
 
+texheader `texfile_name' d b e
+
+*KBTEX: TEX header
+cap program drop texheader
+program define 	texheader
+	
+	args filename columstring textextwidth texlabel texcaption  
+
+		*Everyhting here is the tex headers
+		*Write the title rows defined above	
+		capture file close `filename'
+		file open  `filename' using `filename'.txt, text write replace
+		file write `filename' `texheader' _n
+		"%% \documentclass{article}" _n
+		"%% \usepackage[utf8]{inputenc}" _n
+		%% \usepackage{adjustbox}
+
+		%% \title{iebaltab}
+		%% \author{ }
+		%% \date{November 2016}
+
+		%% \begin{document}
+
+		% Table created by stargazer v.5.2 by Marek Hlavac, Harvard University. E-mail: hlavac at fas.harvard.edu
+
+		\begin{table}[!htbp] 
+		\centering
+
+		`"% \caption{`add_caption'}"' _n
+		% \label{`add_label'}
+		% \begin{adjustbox}{max width=\textwidth}
+		\begin{tabular}{@{\extracolsep{5pt}}`columstring'} 
+		\\[-1.8ex]\hline 
+		"\hline \\[-1.8ex]"			
+		file close `filename'
+end
