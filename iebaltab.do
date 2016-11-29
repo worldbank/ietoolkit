@@ -22,6 +22,7 @@
 				TOTALLabel(string)											///
 				ROWVarlabels												///
 				ROWLabels(string)											///
+				onerown														///
 																			///
 				/*Statistics and data manipulation*/						///
 				FIXedeffect(varname)										///
@@ -136,7 +137,11 @@ qui {
 		
 		*Is option totallable() used:
 		if "`rowlabels'" 		== "" local ROWLABEL_USED = 0 
-		if "`rowlabels'" 		!= "" local ROWLABEL_USED = 1 		
+		if "`rowlabels'" 		!= "" local ROWLABEL_USED = 1 
+		
+		*Is option totallable() used:
+		if "`onerown'" 			== "" local ONEROWN_USED = 0 
+		if "`onerown'" 			!= "" local ONEROWN_USED = 1 		
 			
 
 	** Stats Options
@@ -861,13 +866,28 @@ qui {
 			*Get the code and label corresponding to the group
 			local groupLabel : word `groupOrderNum' of `grpLabels_final'
 			local groupCode  : word `groupOrderNum' of `ORDER_OF_GROUPS'
+			
+			*Prepare a row to store onerowN values for each group
+			if `ONEROWN_USED' == 1 local onerowN_`groupOrderNum' ""
 	
 			*Assign the group order to observations that belong to this group
 			replace `groupOrder' = `groupOrderNum' if `grpvar' == `groupCode'
-	 
-			local titlerow1  `"`titlerow1' _tab "" 	_tab " (`groupOrderNum') " 	"'
-			local titlerow2  `"`titlerow2' _tab ""  _tab "`groupLabel'"   		"'
-			local titlerow3  `"`titlerow3' _tab "N" _tab "Mean/`variance_type'" "'
+			
+			*Create one more column for N if N is displayesd in column instead of row
+			if `ONEROWN_USED' == 0 {
+			
+				local titlerow1  `"`titlerow1' _tab "" 	_tab " (`groupOrderNum') " 	"'
+				local titlerow2  `"`titlerow2' _tab ""  _tab "`groupLabel'"   		"'
+				local titlerow3  `"`titlerow3' _tab "N" _tab "Mean/`variance_type'" "'
+			
+			}
+			else {
+			
+				local titlerow1  `"`titlerow1' _tab " (`groupOrderNum') " 	"'
+				local titlerow2  `"`titlerow2' _tab "`groupLabel'"   		"'
+				local titlerow3  `"`titlerow3' _tab "Mean/`variance_type'" "'			
+				
+			}
 			
 		}
 		
@@ -876,14 +896,30 @@ qui {
 	
 		if `TOTAL_USED' {
 			
+			*Add one more column group
 			local totalColNumber = `GRPVAR_NUM_GROUPS' + 1
+			
+			*If onerowN used, then add a local to store the total num obs
+			if `ONEROWN_USED' == 1 local onerowN_tot ""
 			
 			local tot_label Total
 			if `TOTALLABEL_USED' local tot_label `totallabel'
+
+			*Create one more column for N if N is displayesd in column instead of row
+			if `ONEROWN_USED' == 0 {
+						
+				local titlerow1  `"`titlerow1' _tab ""	_tab " (`totalColNumber') "	"'
+				local titlerow2  `"`titlerow2' _tab "" 	_tab "`tot_label'" 			"'
+				local titlerow3  `"`titlerow3' _tab "N"	_tab "Mean/`variance_type'" "'
+			}
 			
-			local titlerow1  `"`titlerow1' _tab ""	_tab " (`totalColNumber') "	"'
-			local titlerow2  `"`titlerow2' _tab "" 	_tab "`tot_label'" 			"'
-			local titlerow3  `"`titlerow3' _tab "N"	_tab "Mean/`variance_type'" "'
+			else {
+			
+				local titlerow1  `"`titlerow1' _tab " (`totalColNumber') "	"'
+				local titlerow2  `"`titlerow2' _tab "`tot_label'" 			"'
+				local titlerow3  `"`titlerow3' _tab "Mean/`variance_type'" "'			
+			
+			}
 		}
 	
 		
@@ -1095,11 +1131,33 @@ qui {
 				local 	di_mean_`groupNumber' 	=trim("`di_mean_`groupNumber''")
 				local 	di_var_`groupNumber' 	=trim("`di_var_`groupNumber''")
 				
-				* Add two columns for each balance var (one balance var per loop)
-				local 	tableRowUp  	`"`tableRowUp' _tab "`N_`groupNumber''" _tab "`di_mean_`groupNumber''"  "'
-				local 	tableRowDo  	`"`tableRowDo' _tab " " 				_tab "[`di_var_`groupNumber'']"  "'
 				
+				*Test that N is the same for each group across all vars
+				if `ONEROWN_USED' == 0 {
 				
+					local 	tableRowUp  	`"`tableRowUp' _tab "`N_`groupNumber''" _tab "`di_mean_`groupNumber''"  "'
+					local 	tableRowDo  	`"`tableRowDo' _tab " " 				_tab "[`di_var_`groupNumber'']"  "'
+				
+				}
+				else {
+					
+					*Test if the first balance var
+					if "`onerowN_`groupNumber''" == "" {
+						*Store the obs num
+						local onerowN_`groupNumber' = `N_`groupNumber''
+					}
+					*If not, then check that the obs num is the same as before
+					else if !(`onerowN_`groupNumber'' == `N_`groupNumber'') {
+						
+						*option onerowN not allowed if N is different
+						noi display as error  "{phang}The number of observations for all groups are not the same for `balancevar' compare to at least one other balance variables. Run the command without the option onerown to see which group does not have the same number of observations with non-missing values across all balance variables.{p_end}"
+						error 198
+					}
+					
+					*Either this is the first balance var or num obs are identical, so write columns
+					local 	tableRowUp  	`"`tableRowUp' _tab "`di_mean_`groupNumber''"  "'
+					local 	tableRowDo  	`"`tableRowDo' _tab "[`di_var_`groupNumber'']"  "'	
+				}
 			}
 			
 			if `TOTAL_USED' {
@@ -1133,10 +1191,33 @@ qui {
 				local 	mean_tot 	=trim("`mean_tot'")
 				local 	var_tot 	=trim("`var_tot'")
 				
-				* Add the columns for total			
-				local 	tableRowUp  	`"`tableRowUp' _tab "`N_tot'" 	_tab "`mean_tot'" "'
-				local 	tableRowDo  	`"`tableRowDo' _tab " " 		_tab "[`var_tot']"  "'				
+
 				
+				*Test that N is the same for each group across all vars
+				if `ONEROWN_USED' == 0 {
+				
+					local 	tableRowUp  	`"`tableRowUp' _tab "`N_tot'" _tab "`mean_tot'"  "'
+					local 	tableRowDo  	`"`tableRowDo' _tab " " 	  _tab "[`var_tot']"  "'
+				}
+				else {
+					
+					*Test if the first balance var
+					if "`onerowN_tot'" == "" {
+						*Store the obs num
+						local onerowN_tot = `N_tot'
+					}
+					*If not, then check that the obs num is the same as before
+					else if !(`onerowN_tot' == `N_tot') {
+						
+						*option onerowN not allowed if N is different
+						noi display as error  "{phang}The number of observations for all groups are not the same for `balancevar' compare to at least one other balance variables. Run the command without the option onerown to see which group does not have the same number of observations with non-missing values across all balance variables. This happened in the total column which can be an indication of a serious bug. Please email this erro message to kbjarkefur@worldbank.org{p_end}"
+						error 198
+					}
+					
+					*Either this is the first balance var or num obs are identical, so write columns
+					local 	tableRowUp  	`"`tableRowUp' _tab "`mean_tot'"  "'
+					local 	tableRowDo  	`"`tableRowDo' _tab "[`var_tot']"  "'	
+				}
 			}
 	
 	*** Create the columns with t-tests for this row
@@ -1230,6 +1311,35 @@ qui {
 			file close `textfile'
 			
 		}
+
+
+			
+	***Write N row if onerowN used
+
+	if `ONEROWN_USED' == 1 {	
+		
+		*Variable column i.e. row title
+		local tableRowN `""N""' 
+		
+		*Loop over all groups
+		forvalues groupOrderNum = 1/`GRPVAR_NUM_GROUPS' {
+			
+			*Prepare the row based on the numbers from above
+			local tableRowN `" `tableRowN' _tab "`onerowN_`groupOrderNum''" "'
+		}
+		
+		if `TOTAL_USED' {
+		
+			*Prepare the row based on the numbers from above
+			local tableRowN `" `tableRowN' _tab "`onerowN_tot'" "'		
+		}
+	
+		*Write the N prepared above
+		file open  `textfile' using `textfile'.txt, text write append
+		file write `textfile' 	///
+			`tableRowN' _n		
+		file close `textfile'
+	}
 		
 	/***********************************************
 	***********************************************/
@@ -1252,15 +1362,27 @@ qui {
 
 		*Create empty cells for all the group columns
 		forvalues groupIteration = 1/`GRPVAR_NUM_GROUPS' {
-
-			local Fstat_row   `" `Fstat_row' _tab "" _tab "" "'
-			local Fobs_row    `" `Fobs_row'  _tab "" _tab "" "'
+			
+			local Fstat_row   `" `Fstat_row' _tab "" "'
+			local Fobs_row    `" `Fobs_row'  _tab "" "'
+			
+			*Add one more column if onerowN is not used
+			if `ONEROWN_USED' == 0 {
+				local Fstat_row   `" `Fstat_row' _tab "" "'
+				local Fobs_row    `" `Fobs_row'  _tab "" "'			
+			}
 		}
 		
 		*Create empty cells for total columns if total is used
 		if `TOTAL_USED' {
-			local Fstat_row   `" `Fstat_row' _tab "" _tab "" "'
-			local Fobs_row    `" `Fobs_row'  _tab "" _tab "" "'
+			local Fstat_row   `" `Fstat_row' _tab "" "'
+			local Fobs_row    `" `Fobs_row'  _tab "" "'
+	
+			*Add one more column if onerowN is not used
+			if `ONEROWN_USED' == 0 {
+				local Fstat_row   `" `Fstat_row' _tab "" "'
+				local Fobs_row    `" `Fobs_row'  _tab "" "'			
+			}			
 		}
 		
 		*Local used to count number of f-test that trigered warnings
