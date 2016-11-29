@@ -42,22 +42,24 @@ help for {hi:iematch}
 	0. In a regular p-score match for example, base observations are treatment and target 
 	is control, however, there are many other examples of mathcing where it could 
 	be different.
-
-
-
-. Observations with missing 
-	values will be excluded frmo the matching. 
+	
+{pstd}In a one-to-one match there have to be at least as many target obsrevations as 
+	there are base observation. In a many-to-one match there may be more base observations
+	than target observations.
 
 {pstd}The algorithm used in {cmdab:iematch} when performing a one-to-one match is 
 	based on the Stable Marriage algorithm. The algorithm startes by evaluating which 
-	observation from the other group in {cmd:grpdummy()} is closest in terms of the 
+	target observation each base observation 
+	
+	from the other group in {cmd:grpdummy()} is closest in terms of the 
 	variable in {cmd:matchvar()}. If two observations in differnt groups prefer each 
 	other, then they are a match and they are removed from the data set. The process 
 	is repeated until all observations with value 1 in group dummy are mathced. This 
 	algorthm always has a solution and it is implemented to keep the matches stable 
 	even when mutiple observations share value in {cmd:matchvar()}.
 	
-{pstd}When performing a many-to-one match the algorithm does the first step in the one-to-one algorithm, and assign all observations with value 1
+{pstd}When performing a many-to-one match the algorithm does the first step in the
+	one-to-one algorithm, and assign all observations with value 1
 
 {pstd}For example,
 
