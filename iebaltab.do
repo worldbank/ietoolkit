@@ -256,11 +256,14 @@ qui {
 		
 		*Is option notecombine() used:
 		if "`notecombine'" 		== "" local NOTECOMBINE_USED = 0 
-		if "`notecombine'" 		!= "" local NOTECOMBINE_USED = 1 	
+		if "`notecombine'" 		!= "" local NOTECOMBINE_USED = 1 		
 		
 		*Is option notablenote() used:
 		if "`tblnonote'" 		== "" local NONOTE_USED = 0 
 		if "`tblnonote'" 		!= "" local NONOTE_USED = 1 			
+		
+		*Use notecombine for latex documents:
+		if `SAVE_TEX_USED' & `NONOTE_USED' == 1 local NOTECOMBINE_USED = 1 
 		
 	/***********************************************
 	************************************************
@@ -1089,10 +1092,9 @@ qui {
 		tempname 	texfile_name
 		local 		texfile `texfile_name'
 		
-		noi di "got to texheader"
 		*Write texheader
 		texheader `texfile' `colstring'
-		noi di "passed texheader"
+	
 		*Write the title rows defined above	
 		capture file close `texfile'
 		file open  `texfile' using `texfile'.txt, text write append
@@ -1101,7 +1103,6 @@ qui {
 						`texrow2' " \\" _n ///
 						`texrow3' " \\" _n
 		file close `texfile'
-		
 		
 	/***********************************************
 	***********************************************/
@@ -1720,7 +1721,6 @@ qui {
 		file close `texfile'
 	}
 	
-	
 	/***********************************************
 	************************************************/
 
@@ -1814,7 +1814,7 @@ qui {
 	
 	/***********************************************
 	************************************************/
-	
+
 		*Add notes to the bottom of the table
 
 	/*************************************************
@@ -1901,7 +1901,6 @@ qui {
 	}
 	
 	
-	
 	*** Write notes to file according to specificiation
 	
 	if `NOTECOMBINE_USED' == 1 {
@@ -1955,9 +1954,56 @@ qui {
 		
 	}
 	
-	*KBTEX : write footer of latex file
+	local totalColNo = strlen("`colstring'") 
 	
+	file open  `texfile' using `texfile'.txt, text write append
+		
+		file write `texfile' ///
+			"\hline" _n ///
+			"\hline \\" _n
 			
+		*** Write notes to file according to specificiation
+		if `NONOTE_USED' {
+		
+			*Nonote used. Only add manually entered note
+			if `NOTE_USED' 			file write `texfile' ///
+					"[-1.8ex] \multicolumn{`totalColNo'}{@{}" _n  ///
+					"%%% This is the note. If it does not have the correct margins, edit text below to fit to table size." _n ///
+					`" "%p{`textextwidth'\textwidth}" "' _n ///
+					"}" _n ///
+					`" "{\textit{Notes}: `tblnote'}" "' _n
+		}
+
+		else {
+
+			*Combine all notes used to one line
+			*Delete the locals corresponding to options not used
+			if `FTEST_USED'			== 0	local ftest_note		""
+			if `VCE_USED'			== 0	local error_est_note	""
+			if `FIX_EFFECT_USED'	== 0	local fixed_note		""
+			if `COVARIATES_USED'	== 0	local covar_note		""
+			if `BALMISS_USED'		== 0	local balmiss_note 		""
+			if `COVMISS_USED'		== 0	local covmiss_note 		""
+			if `STARSNOADD_USED'	== 1	local stars_note		""
+		
+			*Write to file
+			file write `texfile' ///
+				`" "[-1.8ex] \multicolumn{`totalColNo'}{@{}" "' _n  ///
+				"%%% This is the note. If it does not have the correct margins, edit text below to fit to table size." _n ///
+				`" "% p{`textextwidth'\textwidth}" "'_n ///
+				"}" _n ///
+				`" "{\textit{Notes}: `tblnote' `ttest_note'`ftest_note'`error_est_note'`fixed_note'`covar_note'`balmiss_note'`covmiss_note'`stars_note'}" "' _n
+		}
+	
+		file write `texfile' ///	
+			"\end{tabular}" _n ///
+			"%%% Uncomment the next line to fit the table to page size using the adjustbox package." _n ///
+			"% \end{adjustbox}" _n ///
+			"\end{table}" _n ///
+			"% \end{document}" _n
+			
+		file close `texfile'
+	
 	/***********************************************
 	************************************************/
 		noi di "export file:"	
@@ -2107,20 +2153,22 @@ program define 	texheader
 		file open  `filename' using `filename'.txt, text write replace
 		file write `filename' ///
 			"%%% Table created in Stata by iebaltab" _n ///
+			"%" _n ///
 			"% \documentclass{article}" _n ///
+			"%" _n ///
+			"% ----- Preamble " _n ///
 			"% \usepackage[utf8]{inputenc}" _n ///
 			"%%% We suggest using the adjustbox package to fit the table to page size. To do so, uncomment the next line." _n ///
 			"% \usepackage{adjustbox}" _n ///
-			"% \title{}" _n ///
-			"% \author{}" _n ///
-			"% \date{}" _n /// 
-			"& ----------------" _n ///
+			"% ----- End of preamble " _n ///
+			"%" _n ///
 			"% \begin{document}" _n ///
+			"%" _n ///
 			"\begin{table}[!htbp]" _n /// 
 			"\centering" _n ///
-			"%%% Uncomment the next line to fit the table to page size using the adjustbox package" _n ///
+			"%%% Uncomment the next line to fit the table to page size using the adjustbox package." _n ///
 			"% \begin{adjustbox}{max width=\textwidth}" _n ///
-			`" \begin{tabular}{@{\extracolsep{5pt}}`colstring'} "' _n ///
+			`" "\begin{tabular}{@{\extracolsep{5pt}}`colstring'}" "' _n ///
 			"\\[-1.8ex]\hline" _n ///
 			"\hline \\[-1.8ex]" _n	
 			
