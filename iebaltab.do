@@ -55,6 +55,7 @@
 				/*Export and restore*/										///
 				SAVE(string)  												///
 				SAVETex(string)												///
+				texnotewidth(numlist min=1 max=1)							///
 				BROWSE														///
 				SAVEBRowse													///
 				REPLACE														///
@@ -238,6 +239,11 @@ qui {
 		if "`savetex'" 			== "" local SAVE_TEX_USED = 0  
 		if "`savetex'" 			!= "" local SAVE_TEX_USED = 1 
 		
+		*Is option texnotewidth() used:
+		if "`texnotewidth'"		== "" local NOTEWIDTH_USED = 0
+		if "`texnotewidth'"		!= "" local NOTEWIDTH_USED = 1
+		*LATeX: write texnotewidth checks
+		
 		*Is option browse() used:
 		if "`browse'" 			== "" local BROWSE_USED = 0 
 		if "`browse'" 			!= "" local BROWSE_USED = 1		
@@ -262,8 +268,6 @@ qui {
 		if "`tblnonote'" 		== "" local NONOTE_USED = 0 
 		if "`tblnonote'" 		!= "" local NONOTE_USED = 1 			
 		
-		*Use notecombine for latex documents:
-		if `SAVE_TEX_USED' & `NONOTE_USED' == 1 local NOTECOMBINE_USED = 1 
 		
 	/***********************************************
 	************************************************
@@ -285,7 +289,10 @@ qui {
 		*Static dummy for grpvar() has no label
 		if "`GRPVAR_VALUE_LABEL'" == "" local GRPVAR_HAS_VALUE_LABEL = 0
 		if "`GRPVAR_VALUE_LABEL'" != "" local GRPVAR_HAS_VALUE_LABEL = 1
-			
+		
+		*Number of columns for Latex
+		local NUM_COL_GRP_TOT = `GRPVAR_NUM_GROUPS' + `TOTAL_USED'
+		
 
 	/***********************************************
 	************************************************/
@@ -704,7 +711,6 @@ qui {
 		
 		*KBTEX: Do last: Test input for TEX options
 		
-		*LATeX: Change this check
 		*Exactly only one of save and browse may be used
 		if (`SAVE_USED' + `BROWSE_USED' + `SAVE_TEX_USED' != 1) {
 			
@@ -865,7 +871,6 @@ qui {
 		local titlerow3 `""Variable""'
 		
 		
-		*KBTEX: update the strings
 		** The titles consist of three rows across all 
 		*  columns of the table. Each row is one local
 		local texrow1 ""
@@ -1032,17 +1037,17 @@ qui {
 		}
 		
 		
-			local testPairCount : list sizeof ttest_pairs
-			
-			local texrow1 	`" `texrow1' " & \multicolumn{`testPairCount'}{c}{T-test}" "'
-			
-			if `PTTEST_USED' == 1 {
-				local texrow2 `"`texrow2' " & \multicolumn{`testPairCount'}{c}{P-value}" "'
-			}
-			else {
-				local texrow2 `"`texrow2' " & \multicolumn{`testPairCount'}{c}{Difference}" "'
-			}
-
+		local testPairCount : list sizeof ttest_pairs
+		
+		local texrow1 	`" `texrow1' " & \multicolumn{`testPairCount'}{c}{T-test}" "'
+		
+		if `PTTEST_USED' == 1 {
+			local texrow2 `"`texrow2' " & \multicolumn{`testPairCount'}{c}{P-value}" "'
+		}
+		else {
+			local texrow2 `"`texrow2' " & \multicolumn{`testPairCount'}{c}{Difference}" "'
+		}
+		*texrow3 created in loop above
 	
 	
 	****************************
@@ -1063,30 +1068,29 @@ qui {
 						
 		file close `textfile'
 
+	********************
+	*texfile
+		
 		*Count number of columns in table
 		local 		colstring	l
 		
-		if `ONEROWN_USED' == 0 {
-			forvalues repeat = 1/`GRPVAR_NUM_GROUPS' {
-				local	colstring	"`colstring'cc"
+		forvalues repeat = 1/`NUM_COL_GRP_TOT' {
+			
+			*Add at least one column per group and for total if used
+			local	colstring	"`colstring'c"
+			*Add another columns if N is displyaed in column and not row
+			if `ONEROWN_USED' == 0 { 
+				local	colstring	"`colstring'c"
 			}
 		}
-		else {
-			forvalues repeat = 1/`GRPVAR_NUM_GROUPS' {
-				local	colstring	`colstring'c
-			}
-		}
-		if `TOTAL_USED' {
-			if `ONEROWN_USED' == 0 {
-				local	colstring	`colstring'cc
-			}
-			else {
-				local	colstring	`colstring'c
-			}
-		}
+		
+		*Add one column per test pair
 		forvalues repeat = 1/`testPairCount' {
 			local	colstring	`colstring'c
 		}
+		
+		
+		
 		
 		*Create a temporary texfile
 		tempname 	texfile_name
@@ -1101,9 +1105,14 @@ qui {
 		file write `texfile' ///
 						`texrow1' " \\" _n ///
 						`texrow2' " \\" _n ///
-						`texrow3' " \\" _n
+						`texrow3' " \\" _n ///
+						"\hline \\[-1.8ex] " _n
 		file close `texfile'
-		
+	
+	
+	
+	
+	
 	/***********************************************
 	***********************************************/
 	
@@ -1239,7 +1248,7 @@ qui {
 					local 	tableRowDo  `"`tableRowDo' _tab " " 				_tab "[`di_var_`groupNumber'']"  "'
 
 					local 	texRowUp  	`"`texRowUp' " & `N_`groupNumber'' & `di_mean_`groupNumber''"  "'
-					local 	texRowDo  	`"`texRowDo' " &  & [`di_var_`groupNumber'']"  "'
+					local 	texRowDo  	`"`texRowDo' " &  & (`di_var_`groupNumber'')"  "'
 
 				}
 				else {
@@ -1262,7 +1271,7 @@ qui {
 					local 	tableRowDo  `"`tableRowDo' _tab "[`di_var_`groupNumber'']"  "'	
 					
 					local 	texRowUp  	`"`texRowUp' " & `di_mean_`groupNumber''"  "'
-					local 	texRowDo  	`"`texRowDo' " & [`di_var_`groupNumber'']"  "'	
+					local 	texRowDo  	`"`texRowDo' " & (`di_var_`groupNumber'')"  "'	
 				}
 			}
 			
@@ -1306,7 +1315,7 @@ qui {
 					local 	tableRowDo  `"`tableRowDo' _tab " " 	  _tab "[`var_tot']"  "'
 					
 					local 	texRowUp  	`"`texRowUp' " & `N_tot' & `mean_tot'"  "'
-					local 	texRowDo  	`"`texRowDo' " &    & [`var_tot']"  "'
+					local 	texRowDo  	`"`texRowDo' " &    & (`var_tot')"  "'
 				}
 				else {
 					
@@ -1328,7 +1337,7 @@ qui {
 					local 	tableRowDo  `"`tableRowDo' _tab "[`var_tot']"  "'	
 					
 					local 	texRowUp  	`"`texRowUp' " & `mean_tot'"  "'
-					local 	texRowDo  	`"`texRowDo' " & [`var_tot']"  "'	
+					local 	texRowDo  	`"`texRowDo' " & (`var_tot')"  "'	
 				}
 			}
 	
@@ -1382,7 +1391,7 @@ qui {
 					local tableRowUp	`" `tableRowUp' _tab "N/A" "'
 					local tableRowDo	`" `tableRowDo' _tab " " "'
 					
-					local texRowUp 		`" `texRowUp' " & " "'
+					local texRowUp 		`" `texRowUp' " & "N/A"'
 					local texRowDo		`" `texRowDo' " & " "'
 					
 				}
@@ -1468,7 +1477,6 @@ qui {
 			`tableRowN' _n		
 		file close `textfile'
 		
-		*LATeX: add blank columns for t-tests
 		file open  `texfile' using `texfile'.txt, text write append
 		file write `texfile' 	///
 			`texRowN' " \\" _n 		
@@ -1490,18 +1498,16 @@ qui {
 	if `FTEST_USED' == 1 {
 	
 		if `ONEROWN_USED' == 0 {
-			local ftestMulticol = 1 + (2*`GRPVAR_NUM_GROUPS')
+			local ftestMulticol = 1 + (2*`NUM_COL_GRP_TOT')
 		}
 		else {
-			local ftestMulticol = 1 + `GRPVAR_NUM_GROUPS'
+			local ftestMulticol = 1 + `NUM_COL_GRP_TOT'
 		}
-		if `TOTAL_USED' {
-			local ftestMulticol = `GRPVAR_NUM_GROUPS' + 1
-		}
+
 		
 		if `PFTEST_USED' == 1 {
 			local Fstat_row 	`" "F-test of joint significance (p-value)"  "'
-			local Fstat_texrow 	`" "\multicolumn{`ftestMulticol'}{@{} l}{F-test of joint significance (F-stat)}"  "'
+			local Fstat_texrow 	`" "\multicolumn{`ftestMulticol'}{@{} l}{F-test of joint significance (p-value)}"  "'
 		}
 		else {
 			local Fstat_row 	`" "F-test of joint significance (F-stat)"  "'
@@ -1517,16 +1523,10 @@ qui {
 			local Fstat_row   	`" `Fstat_row' _tab "" "'
 			local Fobs_row    	`" `Fobs_row'  _tab "" "'
 			
-			local Fstat_texrow  `" `Fstat_texrow' " &  "  "'
-			local Fobs_texrow   `" `Fobs_texrow'  " &  "  "'
-			
 			*Add one more column if onerowN is not used
 			if `ONEROWN_USED' == 0 {
 				local Fstat_row   	`" `Fstat_row' _tab "" "'
 				local Fobs_row    	`" `Fobs_row'  _tab "" "'			
-				
-				local Fstat_texrow  `" `Fstat_texrow' " & " "'
-				local Fobs_texrow   `" `Fobs_texrow'  " & " "'
 			
 			}
 		}
@@ -1536,18 +1536,12 @@ qui {
 			local Fstat_row   	`" `Fstat_row' _tab "" "'
 			local Fobs_row   	`" `Fobs_row'  _tab "" "'
 			
-			local Fstat_texrow  `" `Fstat_texrow' " & " "'
-			local Fobs_texrow   `" `Fobs_texrow'  " & " "'
-			
 	
 			*Add one more column if onerowN is not used
 			if `ONEROWN_USED' == 0 {
 				local Fstat_row   	`" `Fstat_row' _tab "" "'
 				local Fobs_row    	`" `Fobs_row'  _tab "" "'			
 				
-				local Fstat_texrow  `" `Fstat_texrow' " & " "'
-				local Fobs_texrow   `" `Fobs_texrow'  " & " "'
-			
 			}			
 		}
 		
@@ -1630,8 +1624,8 @@ qui {
 				local Fstat_row   	`" `Fstat_row' _tab "N/A"  "'
 				local Fobs_row   	`" `Fobs_row'  _tab "N/A"  "'
 				
-				local Fstat_texrow  `" `Fstat_texrow' " & " "'
-				local Fobs_texrow   `" `Fobs_texrow'  " & " "'
+				local Fstat_texrow  `" `Fstat_texrow' " & "N/A"'
+				local Fobs_texrow   `" `Fobs_texrow'  " & "N/A"'
 			}
 			
 			* Collinearity between one balance variable and the dependent treatment dummy
@@ -1643,8 +1637,8 @@ qui {
 				local Fstat_row   	`" `Fstat_row' _tab "N/A"  "'
 				local Fobs_row    	`" `Fobs_row'  _tab "N/A"  "'
 				
-				local Fstat_texrow  `" `Fstat_texrow' " & " "'
-				local Fobs_texrow   `" `Fobs_texrow'  " & " "'
+				local Fstat_texrow  `" `Fstat_texrow' " & "N/A"'
+				local Fobs_texrow   `" `Fobs_texrow'  " & "N/A"'
 			}
 			
 			* F-test is incorreclty specified, error in this code
@@ -1716,6 +1710,8 @@ qui {
 		file close `textfile'
 		
 		file open  `texfile' using `texfile'.txt, text write append
+								file write `texfile' "\\[-1.8ex]" _n
+								file write `texfile' "\hline \\[-1.8ex]" _n
 								file write `texfile' `Fstat_texrow' " \\" _n
 			if !`F_NO_OBS' 		file write `texfile' `Fobs_texrow'  " \\" _n
 		file close `texfile'
@@ -1917,13 +1913,13 @@ qui {
 		if `STARSNOADD_USED'	== 1	local stars_note		""
 		
 
-		
-		*Write to file
-		file open  `textfile' using `textfile'.txt, text write append
-		
-			file write `textfile' "`tblnote' `ttest_note'`ftest_note'`error_est_note'`fixed_note'`covar_note'`balmiss_note'`covmiss_note'`stars_note'" _n
+			*Write to file
+			file open  `textfile' using `textfile'.txt, text write append
 			
-		file close `textfile'
+				file write `textfile' "`tblnote' `ttest_note'`ftest_note'`error_est_note'`fixed_note'`covar_note'`balmiss_note'`covmiss_note'`stars_note'" _n
+				
+			file close `textfile'
+
 		
 	}
 	else if `NONOTE_USED' == 1 {
@@ -1954,7 +1950,24 @@ qui {
 		
 	}
 	
-	local totalColNo = strlen("`colstring'") 
+	*** Write tex footer
+	
+	*Latex is always combnote, so prep for that
+	*Delete the locals corresponding to options not used
+	if `FTEST_USED'			== 0	local ftest_note		""
+	if `VCE_USED'			== 0	local error_est_note	""
+	if `FIX_EFFECT_USED'	== 0	local fixed_note		""
+	if `COVARIATES_USED'	== 0	local covar_note		""
+	if `BALMISS_USED'		== 0	local balmiss_note 		""
+	if `COVMISS_USED'		== 0	local covmiss_note 		""
+	if `STARSNOADD_USED'	== 1	local stars_note		""
+	
+	
+	*Calculate total number of columns
+	local totalColNo = strlen("`colstring'")
+	
+	*Set default tex note width
+	if `NOTEWIDTH_USED' == 0 	local texnotewidth = 1
 	
 	file open  `texfile' using `texfile'.txt, text write append
 		
@@ -1962,37 +1975,22 @@ qui {
 			"\hline" _n ///
 			"\hline \\" _n
 			
-		*** Write notes to file according to specificiation
+		** Write notes to file according to specificiation
 		if `NONOTE_USED' {
 		
-			*Nonote used. Only add manually entered note
-			if `NOTE_USED' 			file write `texfile' ///
-					"[-1.8ex] \multicolumn{`totalColNo'}{@{}" _n  ///
-					"%%% This is the note. If it does not have the correct margins, edit text below to fit to table size." _n ///
-					`" "%p{`textextwidth'\textwidth}" "' _n ///
-					"}" _n ///
-					`" "{\textit{Notes}: `tblnote'}" "' _n
+			file write `texfile' ///
+				"%%% This is the note. If it does not have the correct margins, use texnotewidth() option or change the number before '\textwidth' in line below to fit it to table size." _n ///
+				"[-1.8ex] \multicolumn{`totalColNo'}{@{} p{`texnotewidth'\textwidth}}" _n ///
+				`" "{\textit{Notes}: `tblnote'}" "' _n
 		}
 
 		else {
-
-			*Combine all notes used to one line
-			*Delete the locals corresponding to options not used
-			if `FTEST_USED'			== 0	local ftest_note		""
-			if `VCE_USED'			== 0	local error_est_note	""
-			if `FIX_EFFECT_USED'	== 0	local fixed_note		""
-			if `COVARIATES_USED'	== 0	local covar_note		""
-			if `BALMISS_USED'		== 0	local balmiss_note 		""
-			if `COVMISS_USED'		== 0	local covmiss_note 		""
-			if `STARSNOADD_USED'	== 1	local stars_note		""
 		
 			*Write to file
 			file write `texfile' ///
-				`" "[-1.8ex] \multicolumn{`totalColNo'}{@{}" "' _n  ///
 				"%%% This is the note. If it does not have the correct margins, edit text below to fit to table size." _n ///
-				`" "% p{`textextwidth'\textwidth}" "'_n ///
-				"}" _n ///
-				`" "{\textit{Notes}: `tblnote' `ttest_note'`ftest_note'`error_est_note'`fixed_note'`covar_note'`balmiss_note'`covmiss_note'`stars_note'}" "' _n
+				"[-1.8ex] \multicolumn{`totalColNo'}{@{}p{`texnotewidth'\textwidth}}" _n ///
+				`"{\textit{Notes}: `tblnote' `ttest_note'`ftest_note'`error_est_note'`fixed_note'`covar_note'`balmiss_note'`covmiss_note'`stars_note'}"' _n
 		}
 	
 		file write `texfile' ///	
@@ -2011,7 +2009,8 @@ qui {
 	
 	/*************************************************
 	************************************************/
-		
+	
+	*Restore from orginial preserve at top of command
 	restore
 	
 	
@@ -2030,11 +2029,9 @@ qui {
 		
 		if `SAVE_TEX_USED' {
 		
-			import delimited using `texfile'.txt, clear delimiters("\t")
-		
-			export delimited using `"`savetex'.tex"', delimiter("") `replace' novarnames
+			copy `texfile'.txt `"`savetex'.tex"', `replace'
 			
-			noi di as result `"{phang}Balance table saved to: {browse "`savetex'":`savetex'} "'
+			noi di as result `"{phang}Balance table saved to: {browse "`savetex'":`savetex'.tex} "'
 		}
 		
 	
@@ -2145,7 +2142,7 @@ cap program drop texheader
 program define 	texheader
 	
 	args filename colstring
-	*LATeX: add option textextwidth texlabel texcaption  
+	*LATeX: add option texlabel texcaption  
 	
 		*Everyhting here is the tex headers
 		capture file close `filename'
@@ -2168,7 +2165,7 @@ program define 	texheader
 			"\centering" _n ///
 			"%%% Uncomment the next line to fit the table to page size using the adjustbox package." _n ///
 			"% \begin{adjustbox}{max width=\textwidth}" _n ///
-			`" "\begin{tabular}{@{\extracolsep{5pt}}`colstring'}" "' _n ///
+			"\begin{tabular}{@{\extracolsep{5pt}}`colstring'}" _n ///
 			"\\[-1.8ex]\hline" _n ///
 			"\hline \\[-1.8ex]" _n	
 			
