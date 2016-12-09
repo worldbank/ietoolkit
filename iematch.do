@@ -1,13 +1,10 @@
 
-	clear all
-
-
-
-	*command starts here
 
 	cap program drop 	iematch
 	    program define	iematch
-
+		
+		noi di "Command OK!"
+		
 		syntax  [if] [in]  , 					///
 			GRPdummy(varname) 					///
 			MATCHvar(varname) 					///
@@ -15,7 +12,7 @@
 			IDvar(varname)						///
 			m1									///
 			maxdiff(numlist max = 1 min = 1) 	///
-			seed(max = 1 min = 1 ) 		///
+			seed(numlist max = 1 min = 1 ) 		///
 			MATCHIDname(string)					///
 			MATCHDIffname(string)				///
 			MATCHREsultname(string)				///
@@ -31,7 +28,6 @@
 		*6 seed. give option for seed
 		*6 seed. test that is is large enoug
 		*7 test that matchvar has value for all observations with 1 or 0 in group dummy
-		*8 allow for string ID var
 
 		noi di "Syntax OK!"
 
@@ -153,6 +149,9 @@ if 1 {
 
 				*Generate the ID var from row number
 				gen `idvar' = _n
+				
+				*Store local indicating ID var generated has type numeric
+				local IDtypeNumeric 1
 
 			}
 			else {
@@ -164,6 +163,19 @@ if 1 {
 					di as error "Variable `idvar' specified in idvar() does not fully and uniquely identify the observations in the data set. Meaning that `idvar' is not allowed to have any duplicates or missing values. Make `idvar' uniquly and fully idnetifying or exclude the varaibleas using if or in."
 					error 450
 
+				}
+				
+				*Test if ID var is string or numeric
+				cap confirm numeric variable `idvar'
+				if _rc == 0 {
+					
+					*Store local indicating ID var type is numeric
+					local IDtypeNumeric 1
+				}
+				else {
+				
+					*Store local indicating ID var type is numeric
+					local IDtypeNumeric 0			
 				}
 			}
 
@@ -177,14 +189,20 @@ if 1 {
 			*Test input from user or test if deafault value is valiable
 			iematchMatchVarCheck _matchID `matchidname'
 			local matchIDname "`r(validVarName)'"
-			gen  `matchIDname' = .
+			
+			*Allow the ID var used to be string
+			if `IDtypeNumeric' == 1 {
+				gen  `matchIDname' = .
+			}
+			else {
+				gen  `matchIDname' = ""
+			}
 
+			*If many-to-one match used
 			if "`m1'" != "" {
-
 				iematchMatchVarCheck _matchCount `matchcount'
 				local matchCountName "`r(validVarName)'"
 				gen `matchCountName' = .
-
 			}
 
 			iematchMatchVarCheck _matchDiff `matchdiffname'
@@ -216,10 +234,17 @@ if 1 {
 			*Initiate the temporary variables used by this command
 			tempvar prefID prefDiff matched
 
-			gen `prefID' 		= .
 			gen `prefDiff' 		= .
 			gen byte `matched' 	= 0
 
+			*Allow the ID var used to be string
+			if `IDtypeNumeric' == 1 {
+				gen  `prefID' = .
+			}
+			else {
+				gen  `prefID' = ""
+			}			
+			
 
 			** Generate the inverse of the matchvar to sort descending (gsort is too slow),
 			*  a random var to seperate two values with the same match var, and the inverse
@@ -232,19 +257,35 @@ if 1 {
 			gen    `rand' = uniform()
 			gen `invrand' = -1 * `rand'
 
+			***********
+			*Tempvars for matching
 
-
-			tempvar					 diffup   diffdo   valUp_0   valDo_0   valUp_1   valDo_1   IDup   IDdo   IDup_0   IDdo_0   IDup_1   IDdo_1
-			local 	 updownTempVars `diffup' `diffdo' `valUp_0' `valDo_0' `valUp_1' `valDo_1' `IDup' `IDdo' `IDup_0' `IDdo_0' `IDup_1' `IDdo_1'
+			*Diffvars, they are always numeric
+			tempvar					 diffup   diffdo   valUp_0   valDo_0   valUp_1   valDo_1   
+			local 	 updownTempVars `diffup' `diffdo' `valUp_0' `valDo_0' `valUp_1' `valDo_1'
 
 			foreach tempVar of local updownTempVars {
 
 				gen `tempVar' = .
-
 			}
+			
+			*ID vars, allowed to be both numeric and string
+			tempvar					  	IDup   IDdo   IDup_0   IDdo_0   IDup_1   IDdo_1
+			local 	 updownIDTempVars  `IDup' `IDdo' `IDup_0' `IDdo_0' `IDup_1' `IDdo_1'
 
+			foreach tempVar of local updownIDTempVars {
+				
+				*Allow the ID var used to be string
+				if `IDtypeNumeric' == 1 {
+					gen  `tempVar' = .
+				}
+				else {
+					gen  `tempVar' = ""
+				}					
+			}			
 
-
+			
+			
 		********************************
 		*	Start matching
 		********************************
@@ -258,27 +299,48 @@ if 1 {
 			if "`m1'" == "" {
 
 				noi di ""
-				noi di "{pstd}Observations left to match: {p_end}"
+				noi di "{pstd}Base observations left to match: {p_end}"
 				count if `grpdummy' == 1 & `matched' == 0
 				local left2Match = `r(N)'
 				noi di "{pstd}`left2Match' " _c
-
+				
+				*di "`idvar'"
+				*di "`IDtypeNumeric'"
+				*pause on
+				*pause 
+				
+				
 				while (`left2Match' > 0) {
-
+					
+					*noi di 0
+					
 					**For all observations still to be matched, assign the preferred
 					* match among the other unmatched observations
-					qui updatePrefDiffPreffID `prefID' `prefDiff' `matchvar' `invsort' `idvar' `grpdummy' `matched' `rand' `invrand' `updownTempVars'
-
+					qui updatePrefDiffPreffID `prefID' `prefDiff' `matchvar' `invsort' `idvar' `grpdummy' `matched' `rand' `invrand' `updownTempVars' `updownIDTempVars'
+					
+					*noi di 1
+					
 					if "`maxdiff'" != "" {
 
 						replace `matched' 			= 1		if `prefDiff' > `maxdiff' & `grpdummy' == 1
-						replace `prefID'			= .		if `prefDiff' > `maxdiff'
 						replace `matchReasonName' 	= .m 	if `prefDiff' > `maxdiff' & `grpdummy' == 1
+						
+						*Allow the ID var used to be string
+						if `IDtypeNumeric' == 1 {
+							replace `prefID'		= .		if `prefDiff' > `maxdiff'
+						}
+						else {
+							replace `prefID'		= ""	if `prefDiff' > `maxdiff'
+						}	
 					}
-
+					
+					*noi di 2
+					
 					replace `matched' = 1 if `matched' == 0 & `prefID' == `idvar'[_n-1] & `prefID'[_n-1] == `idvar'
 					replace `matched' = 1 if `matched' == 0 & `prefID' == `idvar'[_n+1] & `prefID'[_n+1] == `idvar'
-
+					
+					*noi di 3
+					
 					count if `grpdummy' == 1 & `matched' == 0
 					local left2Match = `r(N)'
 					noi di "`left2Match' " _c
@@ -296,21 +358,43 @@ if 1 {
 			else {
 
 
-				updatePrefDiffPreffID `prefID' `prefDiff' `matchvar' `invsort' `idvar' `grpdummy' `matched' `rand' `invrand' `updownTempVars'
+				updatePrefDiffPreffID `prefID' `prefDiff' `matchvar' `invsort' `idvar' `grpdummy' `matched' `rand' `invrand' `updownTempVars' `updownIDTempVars'
 
 				if "`maxdiff'" != "" {
 
 					replace `matched' 			= 1		if `prefDiff' > `maxdiff' & `grpdummy' == 1
-					replace `prefID'			= .		if `prefDiff' > `maxdiff'
 					replace `matchReasonName' 	= .m 	if `prefDiff' > `maxdiff' & `grpdummy' == 1
+					
+					*Allow the ID var used to be string
+					if `IDtypeNumeric' == 1 {
+						replace `prefID'		= .		if `prefDiff' > `maxdiff'
+					}
+					else {
+						replace `prefID'		= ""	if `prefDiff' > `maxdiff'
+					}	
+			
 				}
 
 				replace `prefID'			=  `idvar' if `grpdummy' == 0
 				bys 	`prefID' 			:   replace `matchCountName' = _N
-				replace `prefID' 			= . if  	`matchCountName' == 1
-				replace  `matchCountName'	= . if  	`matchCountName' == 1
+			
 
-				replace `matched' = 1 if !missing(`prefID')
+				**Replace prefID to missing for target obs that had no base 
+				* obs matched to it. T
+				if `IDtypeNumeric' == 1 { 
+					*Id var is numeric
+					replace `prefID'		= .		if `matchCountName' == 1
+				}
+				else {
+					*id var is string
+					replace `prefID'		= ""	if `matchCountName' == 1
+				}					
+				
+				*Only target obs with base obs prefering it are matched
+				replace	 `matched' 			= 1		if `matchCountName' != 1 
+			
+				*Remove values for target obs that were not matched
+				replace  `matchCountName'	= . 	if `matchCountName' == 1
 			}
 
 
@@ -336,9 +420,13 @@ if 1 {
 		merge 1:1  `originalSort' using `mergefile', gen(`mergevar')
 
 		replace `matchReasonName' = .n if `mergevar' == 1
-
 		replace `matchReasonName' = 1 if `matchReasonName' == .
-
+		
+		*comress the variables generated
+		compress  `matchIDname' `matchDiffName' `matchReasonName' `matchCountName'
+		
+		
+		*Output result to user
 		noi tab `matchReasonName' `grpdummy', m
 
 		sort `originalSort'
@@ -489,49 +577,28 @@ if 1 {
 		program define 	updateBestValID
 
 		args grpvl matchval idvar grpvar matched bestVal bestID
-
+		
+		*Test if ID var is string or numeric		
+		local IDNumeric 0
+		cap confirm numeric variable `idvar'					
+		if _rc == 0 local IDNumeric 1
+		
+		
 		*Reset all values
 		replace `bestVal' 	= .
-		replace `bestID' 	= .
+		if `IDNumeric' == 1 replace `bestID' 	= .
+		if `IDNumeric' == 0 replace `bestID' 	= ""
 
 		*Set the match value and ID of observations that are in the other group
 		replace `bestVal'   = `matchval' 		if `grpvar' != `grpvl' & `matched' == 0
 		replace `bestID'  	= `idvar' 			if `grpvar' != `grpvl' & `matched' == 0
 
 		*Fill in that value from the observation in the other group until getting to another observation of the other group
-		replace `bestVal'   = `bestVal'[_n-1]	if `bestVal' == . & `matched' == 0
-		replace `bestID'  	= `bestID'[_n-1] 	if `bestID'	 == . & `matched' == 0
+							replace `bestVal'   = `bestVal'[_n-1]	if `bestVal' == .  & `matched' == 0
+		if `IDNumeric' == 1 replace `bestID'  	= `bestID'[_n-1] 	if `bestID'	 == .  & `matched' == 0
+		if `IDNumeric' == 0 replace `bestID'  	= `bestID'[_n-1] 	if `bestID'	 == "" & `matched' == 0
 
 	end
 
 }
 
-
-
-
-
-	clear
-
-	set seed 125345324
-
-
-	set obs 30000
-
-	gen id = _n
-
-	gen rand1 = uniform()
-
-	gen tmt = (rand1 < .40)
-
-	*replace tmt = . if (rand1 < .45)
-
-	drop rand1
-	tab tmt
-
-	gen p_hat = uniform()
-
-	*replace p_hat = p_hat + .03 if tmt == 1
-
-	*replace p_hat = . if p_hat < .2
-
-	iematch  , grp(tmt) match(p_hat) idvar(id)   maxdiff(.01)  //matchidname(Kallefille)
