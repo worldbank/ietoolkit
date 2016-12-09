@@ -27,7 +27,6 @@
 		*5 a table woth results outputted
 		*6 seed. give option for seed
 		*6 seed. test that is is large enoug
-		*7 test that matchvar has value for all observations with 1 or 0 in group dummy
 
 		noi di "Syntax OK!"
 
@@ -93,20 +92,18 @@ if 1 {
 
 			}
 
-			**Exclude obs with missing value in groupdummy
-
-			*Count number of obs to be dropped and and output that number if more than zero
+			**All variables with value 1 or 0 in the group dummy and 
+			* not excluded by if/in must have a value in matchvar 
 			count if missing(`matchvar')
 			if `r(N)' > 0 {
-				*This is not an error just outputting the number
-				noi di "{pstd}`r(N)' observation(s) were excluded due to missing value in match varaible{p_end}"
+				noi di "{pstd}`r(N)' observation(s) with either value 1 or 0 in grpdummy(`grpdummy') do not have a non-missing value in matchvar(`matchvar'). Either update the match variable or exclude those observations using {inp:if} or {inp:in}.{p_end}"
+				error 416
 			}
-			*Drop obs with missing
-			drop if missing(`matchvar')
+			
 
 			********************************
 			*
-			*	Checking duplicates in varaible names in options
+			*	Checking duplicates in variable names in options
 			*
 			********************************
 
