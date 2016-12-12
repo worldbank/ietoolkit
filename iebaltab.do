@@ -56,6 +56,8 @@
 				SAVE(string)  												///
 				SAVETex(string)												///
 				texnotewidth(numlist min=1 max=1)							///
+				texcaption(string)											///
+				texlabel(string)											///
 				BROWSE														///
 				SAVEBRowse													///
 				REPLACE														///
@@ -242,7 +244,14 @@ qui {
 		*Is option texnotewidth() used:
 		if "`texnotewidth'"		== "" local NOTEWIDTH_USED = 0
 		if "`texnotewidth'"		!= "" local NOTEWIDTH_USED = 1
-		*LATeX: write texnotewidth checks
+		
+		*Is option texnotewidth() used:
+		if "`texcaption'"		== "" local CAPTION_USED = 0
+		if "`texcaption'"		!= "" local CAPTION_USED = 1
+		
+		*Is option texnotewidth() used:
+		if "`texlabel'"			== "" local LABEL_USED = 0
+		if "`texlabel'"			!= "" local LABEL_USED = 1
 		
 		*Is option browse() used:
 		if "`browse'" 			== "" local BROWSE_USED = 0 
@@ -709,15 +718,55 @@ qui {
 			error 198
 		}
 		
-		*KBTEX: Do last: Test input for TEX options
+	
+		if `SAVE_TEX_USED' {
 		
-		*Exactly only one of save and browse may be used
-		if (`SAVE_USED' + `BROWSE_USED' + `SAVE_TEX_USED' != 1) {
+			*Find index for where the file type suffix start
+			local tex_dot_index 	= strpos("`savetex'",".")
+			
+			*Extract the file index
+			local tex_file_suffix 	= substr("`savetex'", `tex_dot_index', .)
+
+			*If no file format suffix is specified, use the default .tex
+			if "`tex_file_suffix'" == "" {
+			
+				local savetex `"`savetex'.tex"'
+			}
+			
+			*If a file format suffix is specified make sure that it is one of the two allowed.
+			else if !("`tex_file_suffix'" == ".tex" | "`tex_file_suffix'" == ".txt") {
+			
+				noi display as error "{phang}The file format specified in savetex(`savetex') is other than .tex or .txt. Only those two formats are allowed. If no format is specified .tex is the default.{p_end}"
+				error 198
+			}
+		}
+		
+		if `NOTEWIDTH_USED' {
+		
+			if `texnotewidth' <= 0 {
+			
+				noi display as error `"{phang}The value specified in texnotewidth(`texnotewidth') is non-positive. Only positive numbers are allowed. For more information, {net "from http://en.wikibooks.org/wiki/LaTeX/Lengths.smcl":check LaTeX lengths manual}.{p_end}"'
+				error 198
+			}
+		}
+		
+		if `LABEL_USED' {
+		
+			local label_words : word count `texlabel'
+			
+			if `label_words' != 1 {
+				
+				noi display as error `"{phang}The value specified in texlabel(`texlabel') is not allowed. For more information, {browse "https://en.wikibooks.org/wiki/LaTeX/Labels_and_Cross-referencing":check LaTeX labels manual}.{p_end}"'
+				error 198
+			}
+		}
+		
+		*At least one of save and browse may be used
+		if (`SAVE_USED' + `BROWSE_USED' + `SAVE_TEX_USED' < 1) {
 			
 			*Error for incorrectly using both save() and browse
-			noi display as error "{phang}Either option save() or option browse or option savetex() must be used and they are not allowed to be used together. Note that option browse drops all data in memory and it is not possible to restore it afterwards. Use preserve/restore, tempfiles or save data to disk before using the otion browse."
-			error 197
-		
+			noi display as error "{phang}Either option save() or option browse or option savetex() must be used. Note that option browse drops all data in memory and it is not possible to restore it afterwards. Use preserve/restore, tempfiles or save data to disk before using the otion browse."
+			error		
 		}
 	/***********************************************
 	************************************************/
@@ -1039,13 +1088,16 @@ qui {
 		
 		local testPairCount : list sizeof ttest_pairs
 		
-		local texrow1 	`" `texrow1' " & \multicolumn{`testPairCount'}{c}{T-test}" "'
-		
-		if `PTTEST_USED' == 1 {
-			local texrow2 `"`texrow2' " & \multicolumn{`testPairCount'}{c}{P-value}" "'
-		}
-		else {
-			local texrow2 `"`texrow2' " & \multicolumn{`testPairCount'}{c}{Difference}" "'
+		if `testPairCount' > 0 {
+			
+			local texrow1 	`" `texrow1' " & \multicolumn{`testPairCount'}{c}{T-test}" "'
+			
+			if `PTTEST_USED' == 1 {
+				local texrow2 `"`texrow2' " & \multicolumn{`testPairCount'}{c}{P-value}" "'
+			}
+			else {
+				local texrow2 `"`texrow2' " & \multicolumn{`testPairCount'}{c}{Difference}" "'
+			}
 		}
 		*texrow3 created in loop above
 	
@@ -1089,16 +1141,54 @@ qui {
 			local	colstring	`colstring'c
 		}
 		
-		
-		
-		
 		*Create a temporary texfile
 		tempname 	texfile_name
 		local 		texfile `texfile_name'
 		
-		*Write texheader
-		texheader `texfile' `colstring'
-	
+		****Write texheader
+		*Everyhting here is the tex headers
+		capture file close `texfile'
+		
+		file open  `texfile' using `texfile'.txt, text write replace
+		file write `texfile' ///
+			"%%% Table created in Stata by iebaltab" _n ///
+			"%" _n ///
+			"% \documentclass{article}" _n ///
+			"%" _n ///
+			"% ----- Preamble " _n ///
+			"% \usepackage[utf8]{inputenc}" _n ///
+			"%%% We suggest using the adjustbox package to fit the table to page size. To do so, uncomment the next line." _n ///
+			"% \usepackage{adjustbox}" _n ///
+			"% ----- End of preamble " _n ///
+			"%" _n ///
+			"% \begin{document}" _n ///
+			"%" _n ///
+			"\begin{table}[!htbp]" _n /// 
+			"\centering" _n
+		file close `texfile'	
+			
+		if `CAPTION_USED' {
+			file open  `texfile' using `texfile'.txt, text write append
+			file write `texfile' `"\caption{`texcaption'}"' _n
+			file close `texfile'
+		}
+		
+		if `LABEL_USED' {
+			file open  `texfile' using `texfile'.txt, text write append
+			file write `texfile' `"\label{`texlabel'}"' _n
+			file close `texfile'
+		}
+		
+		file open  `texfile' using `texfile'.txt, text write append
+		file write `texfile' ///
+			"%%% Uncomment the next line to fit the table to page size using the adjustbox package." _n ///
+			"% \begin{adjustbox}{max width=\textwidth}" _n ///
+			"\begin{tabular}{@{\extracolsep{5pt}}`colstring'}" _n ///
+			"\\[-1.8ex]\hline" _n ///
+			"\hline \\[-1.8ex]" _n	
+			
+		file close `texfile'
+		
 		*Write the title rows defined above	
 		capture file close `texfile'
 		file open  `texfile' using `texfile'.txt, text write append
@@ -1239,8 +1329,7 @@ qui {
 				local 	N_`groupNumber' 		=trim("`N_`groupNumber''")
 				local 	di_mean_`groupNumber' 	=trim("`di_mean_`groupNumber''")
 				local 	di_var_`groupNumber' 	=trim("`di_var_`groupNumber''")
-				
-				
+								
 				*Test that N is the same for each group across all vars
 				if `ONEROWN_USED' == 0 {
 				
@@ -1249,10 +1338,10 @@ qui {
 
 					local 	texRowUp  	`"`texRowUp' " & `N_`groupNumber'' & `di_mean_`groupNumber''"  "'
 					local 	texRowDo  	`"`texRowDo' " &  & (`di_var_`groupNumber'')"  "'
-
+				
 				}
 				else {
-					
+
 					*Test if the first balance var
 					if "`onerowN_`groupNumber''" == "" {
 						*Store the obs num
@@ -1260,12 +1349,12 @@ qui {
 					}
 					*If not, then check that the obs num is the same as before
 					else if !(`onerowN_`groupNumber'' == `N_`groupNumber'') {
-						
+									
 						*option onerowN not allowed if N is different
 						noi display as error  "{phang}The number of observations for all groups are not the same for `balancevar' compare to at least one other balance variables. Run the command without the option onerown to see which group does not have the same number of observations with non-missing values across all balance variables.{p_end}"
 						error 198
 					}
-					
+							
 					*Either this is the first balance var or num obs are identical, so write columns
 					local 	tableRowUp  `"`tableRowUp' _tab "`di_mean_`groupNumber''"  "'
 					local 	tableRowDo  `"`tableRowDo' _tab "[`di_var_`groupNumber'']"  "'	
@@ -1273,6 +1362,7 @@ qui {
 					local 	texRowUp  	`"`texRowUp' " & `di_mean_`groupNumber''"  "'
 					local 	texRowDo  	`"`texRowDo' " & (`di_var_`groupNumber'')"  "'	
 				}
+				
 			}
 			
 			if `TOTAL_USED' {
@@ -1340,12 +1430,14 @@ qui {
 					local 	texRowDo  	`"`texRowDo' " & (`var_tot')"  "'	
 				}
 			}
-	
+			
+			
+					
 	*** Create the columns with t-tests for this row
+			
 
-			*di "`ttest_pairs'" 
 			foreach ttest_pair of local ttest_pairs {
-				
+
 				*Create a local for each group in the test 
 				*pair from the test_pair local created above
 				local undscr_pos   = strpos("`ttest_pair'","_")
@@ -1368,7 +1460,7 @@ qui {
 				*The command mean is used to test that there is variation 
 				*in the balance var across these two groups. The regression 
 				*that includes fixed effects and covariaties might run without 
-				*error evern if there is no variance across the two groups. The 
+				*error even if there is no variance across the two groups. The 
 				*local varloc will determine if an error or a warning will be 
 				*thrown or if the test results will be replaced with an "N/A".
 				mean `balancevar', over(`tempvar_thisGroupInPair') `error_estm'
@@ -1378,7 +1470,7 @@ qui {
 				*This is the regression where we test differences.
 				reg `balancevar' `tempvar_thisGroupInPair' `covariates' i.`fixedeffect' , `error_estm'
 				
-				
+
 				*Testing result and if valid, write to file with or without stars
 				if `varloc' == 0 {
 					
@@ -1391,10 +1483,11 @@ qui {
 					local tableRowUp	`" `tableRowUp' _tab "N/A" "'
 					local tableRowDo	`" `tableRowDo' _tab " " "'
 					
-					local texRowUp 		`" `texRowUp' " & "N/A"'
-					local texRowDo		`" `texRowDo' " & " "'
+					local texRowUp 		`" `texRowUp' " & N/A" "'
+					local texRowDo		`" `texRowDo' " &  " "'
 					
 				}
+		
 				else {
 					
 					*Perform the t-test and store p-value in pttest
@@ -1424,38 +1517,38 @@ qui {
 					
 					*Print row
 					local tableRowUp `" `tableRowUp' _tab "`ttest_output'" "'
-					local tableRowDo `" `tableRowDo' _tab "`ttest_output'" "'
+					local tableRowDo `" `tableRowDo' _tab " " "'
 					
 					local texRowUp 	 `" `texRowUp' " & `ttest_output'" "'
-					local texRowDo 	 `" `texRowDo' " & `ttest_output'" "'
+					local texRowDo 	 `" `texRowDo' " &  " "'
 				}
 			}
-				
+	
 			*Write the row for this balance var to file.
 			file open  `textfile' using `textfile'.txt, text write append
 			file write `textfile' 	///
 				`tableRowUp' _n		///
 				`tableRowDo' _n	
 			file close `textfile'
-			
+
 			file open  `texfile' using `texfile'.txt, text write append
 			file write `texfile' 	///
 				`texRowUp' " \\" _n		///
 				`texRowDo' " \\" _n	
 			file close `texfile'
-			
+
 		}
 
-
+	
 			
 	***Write N row if onerowN used
-
+				
 	if `ONEROWN_USED' == 1 {	
-		
+			
 		*Variable column i.e. row title
 		local tableRowN `""N""' 
 		local texRowN 	`""N""' 
-		
+	
 		*Loop over all groups
 		forvalues groupOrderNum = 1/`GRPVAR_NUM_GROUPS' {
 			
@@ -1463,14 +1556,14 @@ qui {
 			local tableRowN `" `tableRowN' _tab "`onerowN_`groupOrderNum''" "'
 			local texRowN 	`" `texRowN' " & `onerowN_`groupOrderNum''" "'
 		}
-		
+
 		if `TOTAL_USED' {
 		
 			*Prepare the row based on the numbers from above
 			local tableRowN `" `tableRowN' _tab "`onerowN_tot'" "'
 			local texRowN 	`" `texRowN' " & `onerowN_tot'" "'
 		}
-		
+
 		*Write the N prepared above
 		file open  `textfile' using `textfile'.txt, text write append
 		file write `textfile' 	///
@@ -1504,7 +1597,7 @@ qui {
 			local ftestMulticol = 1 + `NUM_COL_GRP_TOT'
 		}
 
-		
+	
 		if `PFTEST_USED' == 1 {
 			local Fstat_row 	`" "F-test of joint significance (p-value)"  "'
 			local Fstat_texrow 	`" "\multicolumn{`ftestMulticol'}{@{} l}{F-test of joint significance (p-value)}"  "'
@@ -1516,7 +1609,7 @@ qui {
 		
 		local Fobs_row  		`" "F-test, number of observations"  "'
 		local Fobs_texrow 		`" "\multicolumn{`ftestMulticol'}{@{} l}{F-test, number of observations}"  "'
-
+	
 		*Create empty cells for all the group columns
 		forvalues groupIteration = 1/`GRPVAR_NUM_GROUPS' {
 			
@@ -1530,7 +1623,7 @@ qui {
 			
 			}
 		}
-		
+
 		*Create empty cells for total columns if total is used
 		if `TOTAL_USED' {
 			local Fstat_row   	`" `Fstat_row' _tab "" "'
@@ -1544,7 +1637,7 @@ qui {
 				
 			}			
 		}
-		
+
 		*Local used to count number of f-test that trigered warnings
 		local warn_joint_novar_num	0
 		local warn_joint_lovar_num	0
@@ -1553,7 +1646,7 @@ qui {
 		
 		*Run the F-test on each pair
 		foreach ttest_pair of local ttest_pairs {
-				
+								
 			*Create a local for each group in the test 
 			*pair from the test_pair local created above			
 			local undscr_pos   = strpos("`ttest_pair'","_")
@@ -1624,10 +1717,10 @@ qui {
 				local Fstat_row   	`" `Fstat_row' _tab "N/A"  "'
 				local Fobs_row   	`" `Fobs_row'  _tab "N/A"  "'
 				
-				local Fstat_texrow  `" `Fstat_texrow' " & "N/A"'
-				local Fobs_texrow   `" `Fobs_texrow'  " & "N/A"'
+				local Fstat_texrow  `" `Fstat_texrow' " & N/A" "'
+				local Fobs_texrow   `" `Fobs_texrow'  " & N/A" "'
 			}
-			
+	
 			* Collinearity between one balance variable and the dependent treatment dummy
 			else if "`test_F'" == "." {
 				
@@ -1637,10 +1730,10 @@ qui {
 				local Fstat_row   	`" `Fstat_row' _tab "N/A"  "'
 				local Fobs_row    	`" `Fobs_row'  _tab "N/A"  "'
 				
-				local Fstat_texrow  `" `Fstat_texrow' " & "N/A"'
-				local Fobs_texrow   `" `Fobs_texrow'  " & "N/A"'
+				local Fstat_texrow  `" `Fstat_texrow' " & N/A" "'
+				local Fobs_texrow   `" `Fobs_texrow'  " & N/A" "'
 			}
-			
+					
 			* F-test is incorreclty specified, error in this code
 			else if _rc != 0 {
 				noi di as error "F-test not valid. Please report this error to kbjarkefur@worldbank.org"
@@ -1687,7 +1780,7 @@ qui {
 				local Fobs_texrow   `" `Fobs_texrow'  " & `reg_F_N'"  	  "'
 			}
 		}
-		
+	
 		*******
 		* Throw missing values in f-test warning
 		if `fmiss_error' == 1 {
@@ -1700,7 +1793,7 @@ qui {
 		}
 		
 		
-		
+			
 		*******
 		* Write the f-test row to file
 		
@@ -1708,7 +1801,8 @@ qui {
 								file write `textfile' `Fstat_row' _n
 			if !`F_NO_OBS' 		file write `textfile' `Fobs_row'  _n
 		file close `textfile'
-		
+
+
 		file open  `texfile' using `texfile'.txt, text write append
 								file write `texfile' "\\[-1.8ex]" _n
 								file write `texfile' "\hline \\[-1.8ex]" _n
@@ -1716,6 +1810,7 @@ qui {
 			if !`F_NO_OBS' 		file write `texfile' `Fobs_texrow'  " \\" _n
 		file close `texfile'
 	}
+
 	
 	/***********************************************
 	************************************************/
@@ -1977,11 +2072,12 @@ qui {
 			
 		** Write notes to file according to specificiation
 		if `NONOTE_USED' {
-		
-			file write `texfile' ///
-				"%%% This is the note. If it does not have the correct margins, use texnotewidth() option or change the number before '\textwidth' in line below to fit it to table size." _n ///
-				"[-1.8ex] \multicolumn{`totalColNo'}{@{} p{`texnotewidth'\textwidth}}" _n ///
-				`" "{\textit{Notes}: `tblnote'}" "' _n
+			if `NOTE_USED' {
+				file write `texfile' ///
+					"%%% This is the note. If it does not have the correct margins, use texnotewidth() option or change the number before '\textwidth' in line below to fit it to table size." _n ///
+					"[-1.8ex] \multicolumn{`totalColNo'}{@{} p{`texnotewidth'\textwidth}}" _n ///
+					`"{\textit{Notes}: `tblnote'}"' _n
+			}
 		}
 
 		else {
@@ -2004,7 +2100,7 @@ qui {
 	
 	/***********************************************
 	************************************************/
-		noi di "export file:"	
+
 		*Export and restore data unless other specified
 	
 	/*************************************************
@@ -2029,9 +2125,9 @@ qui {
 		
 		if `SAVE_TEX_USED' {
 		
-			copy `texfile'.txt `"`savetex'.tex"', `replace'
+			copy `texfile'.txt `"`savetex'"', `replace'
 			
-			noi di as result `"{phang}Balance table saved to: {browse "`savetex'":`savetex'.tex} "'
+			noi di as result `"{phang}Balance table saved to: {browse "`savetex'":`savetex'} "'
 		}
 		
 	
@@ -2134,41 +2230,5 @@ program define iereplacemiss
 			}
 		
 		}
-
-end
-
-
-cap program drop texheader
-program define 	texheader
-	
-	args filename colstring
-	*LATeX: add option texlabel texcaption  
-	
-		*Everyhting here is the tex headers
-		capture file close `filename'
-		
-		file open  `filename' using `filename'.txt, text write replace
-		file write `filename' ///
-			"%%% Table created in Stata by iebaltab" _n ///
-			"%" _n ///
-			"% \documentclass{article}" _n ///
-			"%" _n ///
-			"% ----- Preamble " _n ///
-			"% \usepackage[utf8]{inputenc}" _n ///
-			"%%% We suggest using the adjustbox package to fit the table to page size. To do so, uncomment the next line." _n ///
-			"% \usepackage{adjustbox}" _n ///
-			"% ----- End of preamble " _n ///
-			"%" _n ///
-			"% \begin{document}" _n ///
-			"%" _n ///
-			"\begin{table}[!htbp]" _n /// 
-			"\centering" _n ///
-			"%%% Uncomment the next line to fit the table to page size using the adjustbox package." _n ///
-			"% \begin{adjustbox}{max width=\textwidth}" _n ///
-			"\begin{tabular}{@{\extracolsep{5pt}}`colstring'}" _n ///
-			"\\[-1.8ex]\hline" _n ///
-			"\hline \\[-1.8ex]" _n	
-			
-		file close `filename'
 
 end
