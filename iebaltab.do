@@ -55,9 +55,9 @@
 				/*Export and restore*/										///
 				SAVE(string)  												///
 				SAVETex(string)												///
-				texnotewidth(numlist min=1 max=1)							///
-				texcaption(string)											///
-				texlabel(string)											///
+				TEXNotewidth(numlist min=1 max=1)							///
+				TEXCaption(string)											///
+				TEXLabel(string)											///
 				BROWSE														///
 				SAVEBRowse													///
 				REPLACE														///
@@ -68,9 +68,6 @@
 			
 		***************TODO***************
 		* 3. When errors with click Stata code, find a way to apply all conditions for sample to output
-		* 4. stdev as well as se
-		* 5. Include option for latex
-
 		
 		********POTENTIAL UPDATES*********
 		*2. Implement option for bootstrap
@@ -306,7 +303,7 @@ qui {
 	/***********************************************
 	************************************************/
 	
-		*Testing that options to dmtab is correctly specified and make initial operations based on these commands
+		*Testing that options to iebaltab is correctly specified and make initial operations based on these commands
 	
 	/*************************************************
 	************************************************/	
@@ -691,26 +688,49 @@ qui {
 			error 197
 		}
 	
-		if `SAVE_USED' {
+		if `SAVE_USED' | `SAVE_TEX_USED' {
+			if `SAVE_USED' {
+				*Find index for where the file type suffix start
+				local dot_index 	= strpos("`save'",".")
+				
+				*Extract the file index
+				local file_suffix 	= substr("`save'", `dot_index', .)
+				
+				*If no file format suffix is specified, use the default .xlsx
+				if "`file_suffix'" == "" {
+				
+					local save `"`save'.xlsx"'
+				}
+				
+				*If a file format suffix is specified make sure that it is one of the two allowed.
+				else if !("`file_suffix'" == ".xls" | "`file_suffix'" == ".xlsx") {
+				
+					noi display as error "{phang}The file format specified in save(`save') is other than .xls or .xlsx. Only those two formats are allowed. If no format is specified .xlsx is the default.{p_end}"
+					error 198
+				}
+			}
+			if `SAVE_TEX_USED' {
 		
-			*Find index for where the file type suffix start
-			local dot_index 	= strpos("`save'",".")
-			
-			*Extract the file index
-			local file_suffix 	= substr("`save'", `dot_index', .)
-			
-			*If no file format suffix is specified, use the default .xlsx
-			if "`file_suffix'" == "" {
-			
-				local save `"`save'.xlsx"'
+				*Find index for where the file type suffix start
+				local tex_dot_index 	= strpos("`savetex'",".")
+				
+				*Extract the file index
+				local tex_file_suffix 	= substr("`savetex'", `tex_dot_index', .)
+
+				*If no file format suffix is specified, use the default .tex
+				if "`tex_file_suffix'" == "" {
+				
+					local savetex `"`savetex'.tex"'
+				}
+				
+				*If a file format suffix is specified make sure that it is one of the two allowed.
+				else if !("`tex_file_suffix'" == ".tex" | "`tex_file_suffix'" == ".txt") {
+				
+					noi display as error "{phang}The file format specified in savetex(`savetex') is other than .tex or .txt. Only those two formats are allowed. If no format is specified .tex is the default.{p_end}"
+					error 198
+				}
 			}
 			
-			*If a file format suffix is specified make sure that it is one of the two allowed.
-			else if !("`file_suffix'" == ".xls" | "`file_suffix'" == ".xlsx") {
-			
-				noi display as error "{phang}The file format specified in save(`save') is other than .xls or .xlsx. Only those two formats are allowed. If no format is specified .xlsx is the default.{p_end}"
-				error 198
-			}
 		}
 		else if `SAVE_BROWSE_USED' {
 		
@@ -718,54 +738,46 @@ qui {
 			error 198
 		}
 		
-	
+		* Check tex options
 		if `SAVE_TEX_USED' {
 		
-			*Find index for where the file type suffix start
-			local tex_dot_index 	= strpos("`savetex'",".")
+			* Note width must be positive
+			if `NOTEWIDTH_USED' {
 			
-			*Extract the file index
-			local tex_file_suffix 	= substr("`savetex'", `tex_dot_index', .)
-
-			*If no file format suffix is specified, use the default .tex
-			if "`tex_file_suffix'" == "" {
-			
-				local savetex `"`savetex'.tex"'
-			}
-			
-			*If a file format suffix is specified make sure that it is one of the two allowed.
-			else if !("`tex_file_suffix'" == ".tex" | "`tex_file_suffix'" == ".txt") {
-			
-				noi display as error "{phang}The file format specified in savetex(`savetex') is other than .tex or .txt. Only those two formats are allowed. If no format is specified .tex is the default.{p_end}"
-				error 198
-			}
-		}
-		
-		if `NOTEWIDTH_USED' {
-		
-			if `texnotewidth' <= 0 {
-			
-				noi display as error `"{phang}The value specified in texnotewidth(`texnotewidth') is non-positive. Only positive numbers are allowed. For more information, {net "from http://en.wikibooks.org/wiki/LaTeX/Lengths.smcl":check LaTeX lengths manual}.{p_end}"'
-				error 198
-			}
-		}
-		
-		if `LABEL_USED' {
-		
-			local label_words : word count `texlabel'
-			
-			if `label_words' != 1 {
+				if `texnotewidth' <= 0 {
 				
-				noi display as error `"{phang}The value specified in texlabel(`texlabel') is not allowed. For more information, {browse "https://en.wikibooks.org/wiki/LaTeX/Labels_and_Cross-referencing":check LaTeX labels manual}.{p_end}"'
-				error 198
+					noi display as error `"{phang}The value specified in texnotewidth(`texnotewidth') is non-positive. Only positive numbers are allowed. For more information, {net "from http://en.wikibooks.org/wiki/LaTeX/Lengths.smcl":check LaTeX lengths manual}.{p_end}"'
+					error 198
+				}
+			}
+			
+			* Tex label must be a single word
+			if `LABEL_USED' {
+			
+				local label_words : word count `texlabel'
+				
+				if `label_words' != 1 {
+					
+					noi display as error `"{phang}The value specified in texlabel(`texlabel') is not allowed. For more information, {browse "https://en.wikibooks.org/wiki/LaTeX/Labels_and_Cross-referencing":check LaTeX labels manual}.{p_end}"'
+					error 198
+				}
 			}
 		}
+		
+		* Error for incorrectly using tex options
+		else if `NOTEWIDTH_USED' | `LABEL_USED' | `CAPTION_USED'{
+	
+			noi display as error "{phang}Options texnotewidth, texlabel and texcaption may only be used in combination with option savetex(){p_end}"
+			error 198
+		
+		}
+		
 		
 		*At least one of save and browse may be used
 		if (`SAVE_USED' + `BROWSE_USED' + `SAVE_TEX_USED' < 1) {
 			
 			*Error for incorrectly using both save() and browse
-			noi display as error "{phang}Either option save() or option browse or option savetex() must be used. Note that option browse drops all data in memory and it is not possible to restore it afterwards. Use preserve/restore, tempfiles or save data to disk before using the otion browse."
+			noi display as error "{phang}Either option save() or option savetex() or option browse must be used. Note that option browse drops all data in memory and it is not possible to restore it afterwards. Use preserve/restore, tempfiles or save data to disk before using the otion browse."
 			error		
 		}
 	/***********************************************
@@ -928,7 +940,8 @@ qui {
 		
 		
 		
-		
+		** Set titlw SE if standard errors are used (default)
+		*  or SD if standard deviation is used
 								local variance_type "SE"
 		if `STDEV_USED' == 1 	local variance_type "SD"
 	
@@ -1166,13 +1179,15 @@ qui {
 			"\begin{table}[!htbp]" _n /// 
 			"\centering" _n
 		file close `texfile'	
-			
+		
+		* Write tex caption if specified
 		if `CAPTION_USED' {
 			file open  `texfile' using `texfile'.txt, text write append
 			file write `texfile' `"\caption{`texcaption'}"' _n
 			file close `texfile'
 		}
 		
+		* Write tex label if specified
 		if `LABEL_USED' {
 			file open  `texfile' using `texfile'.txt, text write append
 			file write `texfile' `"\label{`texlabel'}"' _n
@@ -2061,7 +2076,8 @@ qui {
 	*Calculate total number of columns
 	local totalColNo = strlen("`colstring'")
 	
-	*Set default tex note width
+	*Set default tex note width (note width is a multiple of text width.
+	*if none is manually specified, default is text width)
 	if `NOTEWIDTH_USED' == 0 	local texnotewidth = 1
 	
 	file open  `texfile' using `texfile'.txt, text write append
@@ -2071,16 +2087,15 @@ qui {
 			"\hline \\" _n
 			
 		** Write notes to file according to specificiation
-		if `NONOTE_USED' {
-			if `NOTE_USED' {
-				file write `texfile' ///
-					"%%% This is the note. If it does not have the correct margins, use texnotewidth() option or change the number before '\textwidth' in line below to fit it to table size." _n ///
-					"[-1.8ex] \multicolumn{`totalColNo'}{@{} p{`texnotewidth'\textwidth}}" _n ///
-					`"{\textit{Notes}: `tblnote'}"' _n
-			}
+		*If no automatic notes are used, write only manual notes
+		if `NONOTE_USED' & `NOTE_USED' {
+			file write `texfile' ///
+				"%%% This is the note. If it does not have the correct margins, use texnotewidth() option or change the number before '\textwidth' in line below to fit it to table size." _n ///
+				"[-1.8ex] \multicolumn{`totalColNo'}{@{} p{`texnotewidth'\textwidth}}" _n ///
+				`"{\textit{Notes}: `tblnote'}"' _n
 		}
 
-		else {
+		else if ! `NONOTE_USED' {
 		
 			*Write to file
 			file write `texfile' ///
