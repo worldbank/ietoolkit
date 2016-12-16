@@ -373,25 +373,25 @@ if 1 {
 				}
 
 				replace `prefID'			=  `idvar' if `grpdummy' == 0
-				bys 	`prefID' 			:   replace `matchCountName' = _N
+				bys 	`prefID' 			:   replace `matchCountName' = _N - 1
 			
 
 				**Replace prefID to missing for target obs that had no base 
 				* obs matched to it. T
 				if `IDtypeNumeric' == 1 { 
 					*Id var is numeric
-					replace `prefID'		= .		if `matchCountName' == 1
+					replace `prefID'		= .		if `matchCountName' == 0
 				}
 				else {
 					*id var is string
-					replace `prefID'		= ""	if `matchCountName' == 1
+					replace `prefID'		= ""	if `matchCountName' == 0
 				}					
 				
 				*Only target obs with base obs prefering it are matched
-				replace	 `matched' 			= 1		if `matchCountName' != 1 
+				replace	 `matched' 			= 1		if `matchCountName' != 0
 			
 				*Remove values for target obs that were not matched
-				replace  `matchCountName'	= . 	if `matchCountName' == 1
+				replace  `matchCountName'	= . 	if `matchCountName' == 0
 			}
 
 

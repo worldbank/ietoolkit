@@ -8,13 +8,13 @@
 	
 	set seed 125345324
 	
-	set obs 3000000
+	set obs 300000
 
 	gen id = _n
 
 	gen rand1 = uniform()
 
-	gen tmt = (rand1 < .40)
+	gen tmt = (rand1 > .40)
 
 	*replace tmt = . if (rand1 < .45)
 
@@ -29,4 +29,4 @@
 
 	*tostring id, replace
 	
-	iematch   , grp(tmt)  match(p_hat) idvar(id)   //maxdiff(.01)  //matchidname(Kallefille)
+	iematch   , grp(tmt)  m1 match(p_hat) idvar(id)   //maxdiff(.01)  //matchidname(Kallefille)
