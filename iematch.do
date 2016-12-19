@@ -23,7 +23,6 @@
 		*1 format errors as smcl
 		*2 option to disable countdown
 		*3 test not matchcount without m1
-		*4 test that tmt are not more obs than ctrl if one to one
 		*5 a table with results outputted
 
 		noi di "Syntax OK!"
@@ -101,11 +100,14 @@ if 1 {
 
 			********************************
 			*
-			*	Checking match var and group dummy are unique			*
+			*	Checking match var and group dummy are unique
+			*
 			********************************			
 			
 			if "`seedok'" == "" {
 				
+				**test that there are no duplicates in match 
+				* var within each type of observation
 				cap isid `matchvar' `grpdummy'
 				
 				if _rc != 0 {
@@ -116,7 +118,33 @@ if 1 {
 				}
 			}
 			
+
+			********************************
+			*
+			*	Checking that there are more target 
+			*	obs than base obs in a 1-to-1 match
+			*
+			********************************			
 			
+			if "`m1'" == "" {
+				
+				*Count number of base vars
+				count if `grpdummy' == 1
+				local numBaseObs `r(N)'
+				
+				*Count number of target vars
+				count if `grpdummy' == 0
+				local numTrgtObs `r(N)'
+				
+				*Test that there are more target
+				cap assert `numTrgtObs' >= `numBaseObs' 
+				
+				if _rc != 0 {
+					
+					noi di as error "{pstd}There are more base observations than target observations. This is not allowed in a one-to-one match. See option {inp:m1} for an alternaitve matching where it is allowed to have more base observations than target ovbservations.{p_end}"
+					error _rc
+				}
+			}			
 			
 			********************************
 			*
@@ -133,7 +161,7 @@ if 1 {
 			*Throw error if there were any duplicates
 			if "`dupnewvars'" != "" {
 
-				di as error "The same variable name was used twice or more in the options. Go back and check syntax"
+				di as error "The same new variable name was used twice or more in the options generating a new variable. Go back and check syntax"
 				error 198
 
 			}
