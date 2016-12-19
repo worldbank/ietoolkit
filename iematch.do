@@ -12,7 +12,7 @@
 			IDvar(varname)						///
 			m1									///
 			maxdiff(numlist max = 1 min = 1) 	///
-			seed(numlist max = 1 min = 1 ) 		///
+			seedok						 		///
 			MATCHIDname(string)					///
 			MATCHDIffname(string)				///
 			MATCHREsultname(string)				///
@@ -24,9 +24,7 @@
 		*2 option to disable countdown
 		*3 test not matchcount without m1
 		*4 test that tmt are not more obs than ctrl if one to one
-		*5 a table woth results outputted
-		*6 seed. give option for seed
-		*6 seed. test that is is large enoug
+		*5 a table with results outputted
 
 		noi di "Syntax OK!"
 
@@ -87,7 +85,7 @@ if 1 {
 			cap confirm numeric variable `matchvar'
 			if _rc != 0 {
 
-				di as error "The variable to match on specified in matchvar(`matchvar') is not a numeric variable."
+				noi di as error "The variable to match on specified in matchvar(`matchvar') is not a numeric variable."
 				error 109
 
 			}
@@ -96,11 +94,30 @@ if 1 {
 			* not excluded by if/in must have a value in matchvar 
 			count if missing(`matchvar')
 			if `r(N)' > 0 {
-				noi di "{pstd}`r(N)' observation(s) with either value 1 or 0 in grpdummy(`grpdummy') do not have a non-missing value in matchvar(`matchvar'). Either update the match variable or exclude those observations using {inp:if} or {inp:in}.{p_end}"
+				noi di as error  "{pstd}`r(N)' observation(s) with either value 1 or 0 in grpdummy(`grpdummy') do not have a non-missing value in matchvar(`matchvar'). Either update the match variable or exclude those observations using {inp:if} or {inp:in}.{p_end}"
 				error 416
 			}
 			
 
+			********************************
+			*
+			*	Checking match var and group dummy are unique			*
+			********************************			
+			
+			if "`seedok'" == "" {
+				
+				cap isid `matchvar' `grpdummy'
+				
+				if _rc != 0 {
+					
+					noi di as error "{pstd}There are base observations or target observations with duplicate values in matchvar(`matchvar'). To guarantee a replicable match you must {help seed:set a seed}. To supress this error message after you have set a the seed, or if a replicable match is not important to you, use option {inp:seedok}{p_end}"
+					error _rc
+				
+				}
+			}
+			
+			
+			
 			********************************
 			*
 			*	Checking duplicates in variable names in options
@@ -157,7 +174,7 @@ if 1 {
 				cap isid `idvar'
 				if _rc != 0 {
 
-					di as error "Variable `idvar' specified in idvar() does not fully and uniquely identify the observations in the data set. Meaning that `idvar' is not allowed to have any duplicates or missing values. Make `idvar' uniquly and fully idnetifying or exclude the varaibleas using if or in."
+					di as error "Variable `idvar' specified in idvar() does not fully and uniquely identify the observations in the data set. Meaning that `idvar' is not allowed to have any duplicates or missing values. Make `idvar' uniquly and fully idnetifying or exclude the varaibleas using {inp:if} or {inp:in}."
 					error 450
 
 				}
@@ -220,7 +237,9 @@ if 1 {
 
 }
 
-
+		********************************
+		*	Start matching
+		********************************
 
 			********************************
 			*
@@ -280,12 +299,6 @@ if 1 {
 					gen  `tempVar' = ""
 				}					
 			}			
-
-			
-			
-		********************************
-		*	Start matching
-		********************************
 
 			***************************
 			*
