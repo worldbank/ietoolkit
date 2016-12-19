@@ -1,5 +1,5 @@
 {smcl}
-{* 1 Nov 2016}{...}
+{* 19 Dec 2016}{...}
 {hline}
 help for {hi:iebaltab}
 {hline}
@@ -12,16 +12,17 @@ help for {hi:iebaltab}
 
 {phang2}
 {cmdab:iebaltab} {it:balancevarlist} [{help if:if}] [{help in:in}]
-, {cmdab:grpv:ar(}{it:varname}{cmd:)} {c -(} {cmdab:save(}{it:{help filename}}{cmd:)} | {cmdab:browse} {c )-} 
+, {cmdab:grpv:ar(}{it:varname}{cmd:)} {c -(} {cmdab:save(}{it:{help filename}}{cmd:)} | {cmdab:savet:ex(}{it:{help filename}}{cmd:)} | {cmdab:browse} {c )-} 
 [
 {cmdab:co:ntrol(}{it:groupcode}{cmd:)} {cmdab:or:der(}{it:groupcodelist}{cmd:)} {cmdab:tot:al} {cmdab:grpc:odes} 
 {cmdab:grpl:abels(}{it:codetitlestring}{cmd:)} {cmdab:totall:abel(}{it:string}{cmd:)} {cmdab:rowv:arlabels} 
-{cmdab:rowl:abels(}{it:nametitlestring}{cmd:)} {cmdab:balmiss:(}{it:string}{cmd:)} {cmdab:balmissr:eg(}{it:string}{cmd:)} 
+{cmdab:rowl:abels(}{it:nametitlestring}{cmd:)} {cmdab:onerown}  {cmdab:balmiss:(}{it:string}{cmd:)} {cmdab:balmissr:eg(}{it:string}{cmd:)} 
 {cmdab:missmin:mean(}{it:{help numlist:numlist}}{cmd:)} {cmdab:vce:(}{it:{help vce_option:vce_types}}{cmd:)}
 {cmdab:fix:edeffect(}{it:varname}{cmd:)} {cmdab:cov:ariates(}{it:{help varlist}}{cmd:)} {cmd:covarmissok} {cmdab:covmiss:(}{it:string}{cmd:)}
 {cmdab:covmissr:eg(}{it:string}{cmd:)} {cmdab:ft:est} {cmdab:fm:issok} {cmd:fnoobs} {cmdab:pt:test} {cmdab:pf:test} {cmdab:pb:oth} 
 {cmdab:star:levels(}{it:{help numlist:numlist}}{cmd:)} {cmdab:starsno:add} {cmdab:form:at(}{it:{help format:%fmt}}{cmd:)} 
-{cmdab:tbln:ote(}{it:string}{cmd:)} {cmdab:notec:ombine} {cmdab:tblnon:ote} {cmd:replace} {cmdab:savebr:owse}
+{cmdab:tbln:ote(}{it:string}{cmd:)} {cmdab:notec:ombine} {cmdab:tblnon:ote} {cmd:replace} {cmdab:savebr:owse} 
+{cmdab:texn:otewidth(}{it:{help numlist:numlist}}{cmd:)} {cmdab:texc:aption(}{it:string}{cmd:)} {cmdab:texl:abel(}{it:string}{cmd:)}
 ]
 
 {phang2}where {it:balancevarlist} is one or several variables (from here on called balance variables) for which the command 
@@ -38,8 +39,9 @@ used in grpvar({it:varname}), {it:codetitlestring} is a string of group codes wi
 
 {synopt :{cmdab:grpv:ar(}{it:varname}{cmd:)}}Variable indicating groups (or treatment arms){p_end}
 
-{pstd}{it:One of these options must be used but they are not allowed to be used in combination:}{p_end}
-{synopt :{cmdab:save(}{it:{help filename}}{cmd:)}}Save table to file on disk. {p_end}
+{pstd}{it:One of these options must be used:}{p_end}
+{synopt :{cmdab:save(}{it:{help filename}}{cmd:)}}Save table to Excel file on disk {p_end}
+{synopt :{cmdab:savet:ex(}{it:{help filename}}{cmd:)}}Save table to LaTeX file on disk {p_end}
 {synopt :{cmdab:browse}}View the table in the data browser{p_end}
 
 {pstd}{it:    {ul:{hi:Optional options}}}{p_end}
@@ -55,6 +57,7 @@ used in grpvar({it:varname}), {it:codetitlestring} is a string of group codes wi
 {synopt :{cmdab:totall:abel(}{it:string}{cmd:)}}Manually set the total column title{p_end}
 {synopt :{cmdab:rowv:arlabels}}Use the variable labels instead of variable name as row titles{p_end}
 {synopt :{cmdab:rowl:abels(}{it:nametitlestring}{cmd:)}}Manually set the row titles{p_end}
+{synopt :{cmdab:onerown}}Write number of observations in one row{p_end}
 
 {pstd}{it:    Statistics and data modification:}{p_end}
 {synopt :{cmdab:balmiss:(}{it:string}{cmd:)}}Replaces missing values in balance variables with either zeros, the mean or the group mean.{p_end}
@@ -86,6 +89,9 @@ used in grpvar({it:varname}), {it:codetitlestring} is a string of group codes wi
 {pstd}{it:    Export and browse options:}{p_end}
 {synopt :{cmd:replace}}Replace file on disk if the file already exists{p_end}
 {synopt :{cmdab:savebr:owse}}View the table in the browser window also after saving the table to file{p_end}
+{synopt :{cmdab:texn:otewidth(}{it:{help numlist:numlist}}{cmd:)}}Manually adjust width of note{p_end}
+{synopt :{cmdab:texc:aption(}{it:string}{cmd:)}}Specify TeX table caption{p_end}
+{synopt :{cmdab:texl:abel(}{it:string}{cmd:)}}Specify TeX label{p_end}
 
 {synoptline}
 
@@ -191,11 +197,14 @@ for more details.
 {phang}{cmdab:grpv:ar(}{it:varname}{cmd:)} specifies the variable indicating groups (or treatment arms) across which 
 	the command will test for difference in mean of the balance var. The group variable can only be one variable and 
 	it must be numeric and may only hold integers. See {help egen:egen group} for help on creating a single variable with
-	an integer representing each category from string varaibles and/or multiple variables. Observations with missing values
+	an integer representing each category from string varibles and/or multiple variables. Observations with missing values
 	in this variable will be excluded when running this command.
 
-{phang}{cmdab:save(}{it:{help filename}}{cmd:)} saves the balance table to file on disk using {it:filename}. This 
+{phang}{cmdab:save(}{it:{help filename}}{cmd:)} saves the balance table to an Excel file on disk using {it:filename}. This 
 	command cannot be used in combinaton with {cmd:browse}. {p_end}
+	
+{phang}{cmdab:savetex(}{it:{help filename}}{cmd:)} saves the balance table to a LaTeX file on disk using {it:filename}. This 
+	command cannot be used in combinaton with {cmd:browse}.
 
 {phang}{cmdab:browse} displays the table in the browse window instead of saving it to file. This command cannot be 
 	used in combinaton with {cmd:save()}. WARNING: Note that this option clears the data currently in working memory. Either
@@ -239,11 +248,15 @@ variable name. For variables with no variable label defined, the variable name i
 
 {phang}{cmdab:rowl:abels(}{it:nametitlestring}{cmd:)} manually sets the row titles for each of the balance variables in the 
 table. {it:nametitlestring} is a string in the following format {it:"name1 title1 @ name2 title2 @ name3 title3"} etc. where
- name1, name2 etc. are variable names and title1, title2 etc. are the corresponding row titles. The character "@" may not 
- be used in any of the titles. Variables omitted from this option are assigned a row title as if this option was not used. This option
+name1, name2 etc. are variable names and title1, title2 etc. are the corresponding row titles. The character "@" may not 
+be used in any of the titles. Variables omitted from this option are assigned a row title as if this option was not used. This option
 has precedence over {cmd:rowvarlabels} when used together, meaning that variable labels are only used for variables that are not included
 in the {it:nametitlestring}. The title can consist of several words. Everything that follows the variable name until the end
- of a string or a "@" will be included in the title.{p_end}
+of a string or a "@" will be included in the title.{p_end}
+ 
+{phang}{cmdab:onerown} displays the number of observations in additional row at the bottom of the table if each group has the same
+number of observations for all variables in {it:balancevarlist}. If not specified, the number of observations per variable per group
+is display in additional column besides the mean value.{p_end}
 
 {pstd}{it:    Statistics and data modification:}{p_end}
 
@@ -335,6 +348,12 @@ only this manually entered note will be added to the table.{p_end}
 
 {phang}{cmdab:savebr:owse} views the table in the browser window similarly to {cmd:browse} after saving the table to file using {cmd:save}.{p_end}
 
+{phang}{cmdab:texn:otewidth(}{it:{help numlist:numlist}}{cmd:)} manually adjusts the width of the note to fit the size of the table.
+The note width is a multiple of text width. If not specified, default width is text width.{p_end}
+
+{phang}{cmdab:texc:aption(}{it:string}{cmd:)} writes table's caption in LaTeX file.{p_end}
+
+{phang}{cmdab:texl:abel(}{it:string}{cmd:)} specifies table's label, used for meta-reference across TeX file.{p_end}
 	
 {title:Examples}
 
@@ -368,15 +387,16 @@ only this manually entered note will be added to the table.{p_end}
 
 {title:Acknowledgements}
 
-{phang}I would like to acknowledge the help in testing and proofreading I received in relation to this command and help file from (in alphabetic order):{p_end}
+{phang}We would like to acknowledge the help in testing and proofreading we received in relation to this command and help file from (in alphabetic order):{p_end}
 {pmore}John Dundas{break}Seungmin Lee{break}
 	
 {title:Author}
 
-{phang}Kristoffer Bjärkefur, The World Bank, DECIE
+{phang}Luiza Cardoso De Andrade, The World Bank, DECIE{p_end}
+{phang}Kristoffer Bjärkefur, The World Bank, DECIE{p_end}
 
 {phang}Please send bug-reports, suggestions and requests for clarifications 
-		 writing "ietools iebaltab" in the subject line to:{break}
+		 writing "ietoolkit iebaltab" in the subject line to:{break}
 		 kbjarkefur@worldbank.org
 		 
 {phang}You can also see the code, make comments to the code, see the version 
