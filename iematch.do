@@ -58,7 +58,7 @@ if 1 {
 			cap assert inlist(`grpdummy', 1, 0, .) | `grpdummy' > .
 			if _rc != 0 {
 
-				di as error "The variable in grpdummy(`grpdummy') is not a dummy variable. The variable is only allowed to have the values 1, 0 or missing. Observations with missing varaibles in the grpdummy are ignored by this command."
+				di as error "{pstd}The variable in grpdummy(`grpdummy') is not a dummy variable. The variable is only allowed to have the values 1, 0 or missing. Observations with missing varaibles in the grpdummy are ignored by this command.{p_end}"
 				error _rc
 			}
 
@@ -84,7 +84,7 @@ if 1 {
 			cap confirm numeric variable `matchvar'
 			if _rc != 0 {
 
-				noi di as error "The variable to match on specified in matchvar(`matchvar') is not a numeric variable."
+				noi di as error "{pstd}The variable to match on specified in matchvar(`matchvar') is not a numeric variable.{p_end}"
 				error 109
 
 			}
@@ -161,7 +161,7 @@ if 1 {
 			*Throw error if there were any duplicates
 			if "`dupnewvars'" != "" {
 
-				di as error "The same new variable name was used twice or more in the options generating a new variable. Go back and check syntax"
+				di as error "{pstd}The same new variable name was used twice or more in the options generating a new variable. Go back and check syntax.{p_end}"
 				error 198
 
 			}
@@ -184,7 +184,7 @@ if 1 {
 				cap confirm variable `idvar'
 				if _rc == 0 {
 
-					di as error "A variable with name `idvar' is already defined. Either drop this variable or specify a variable using idvar() that fully and uniquely identifies the data set."
+					di as error "{pstd}A variable with name `idvar' is already defined. Either drop this variable or specify a variable using idvar() that fully and uniquely identifies the data set.{p_end}"
 					error 110
 
 				}
@@ -202,7 +202,7 @@ if 1 {
 				cap isid `idvar'
 				if _rc != 0 {
 
-					di as error "Variable `idvar' specified in idvar() does not fully and uniquely identify the observations in the data set. Meaning that `idvar' is not allowed to have any duplicates or missing values. Make `idvar' uniquly and fully idnetifying or exclude the varaibleas using {inp:if} or {inp:in}."
+					di as error "{pstd}Variable `idvar' specified in idvar() does not fully and uniquely identify the observations in the data set. Meaning that `idvar' is not allowed to have any duplicates or missing values. Make `idvar' uniquly and fully idnetifying or exclude the varaibleas using {inp:if} or {inp:in}.{p_end}"
 					error 450
 
 				}
@@ -242,16 +242,26 @@ if 1 {
 
 			*If many-to-one match used
 			if "`m1'" != "" {
-				iematchMatchVarCheck _matchCount `matchcount'
+				iematchMatchVarCheck _matchCount `matchcountname'
 				local matchCountName "`r(validVarName)'"
 				gen `matchCountName' = .
 			}
+			else {
+				
+				*Option match count name is not allowed if it is a one-to-one match
+				if "`matchcountname'" != "" {
+				
+					di as error "{pstd}Option {inp:matchcountname()} is only allowed in combination with option {inp:m1}.{p_end}"
+					error 198
+				}
+			}
+			
 
 			iematchMatchVarCheck _matchDiff `matchdiffname'
 			local matchDiffName "`r(validVarName)'"
 			gen `matchDiffName' = .
 
-			iematchMatchVarCheck _matchOrReason `matchresult'
+			iematchMatchVarCheck _matchOrReason `matchresultname'
 			local matchReasonName "`r(validVarName)'"
 			gen `matchReasonName' = .
 
