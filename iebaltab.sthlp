@@ -1,5 +1,5 @@
 {smcl}
-{* 1 Nov 2016}{...}
+{* 19 Dec 2016}{...}
 {hline}
 help for {hi:iebaltab}
 {hline}
@@ -387,15 +387,16 @@ The note width is a multiple of text width. If not specified, default width is t
 
 {title:Acknowledgements}
 
-{phang}I would like to acknowledge the help in testing and proofreading I received in relation to this command and help file from (in alphabetic order):{p_end}
+{phang}We would like to acknowledge the help in testing and proofreading we received in relation to this command and help file from (in alphabetic order):{p_end}
 {pmore}John Dundas{break}Seungmin Lee{break}
 	
 {title:Author}
 
-{phang}Kristoffer Bjärkefur, The World Bank, DECIE
+{phang}Luiza Cardoso De Andrade, The World Bank, DECIE{p_end}
+{phang}Kristoffer Bjärkefur, The World Bank, DECIE{p_end}
 
 {phang}Please send bug-reports, suggestions and requests for clarifications 
-		 writing "ietools iebaltab" in the subject line to:{break}
+		 writing "ietoolkit iebaltab" in the subject line to:{break}
 		 kbjarkefur@worldbank.org
 		 
 {phang}You can also see the code, make comments to the code, see the version 
