@@ -22,7 +22,6 @@
 		*****
 		*1 format errors as smcl
 		*2 option to disable countdown
-		*3 test not matchcount without m1
 		*5 a table with results outputted
 
 		noi di "Syntax OK!"
@@ -37,7 +36,7 @@
 		*
 		********************************
 
-		tempvar originalSort
+		tempvar originalSort ifinvar
 
 		gen `originalSort' = _n
 
@@ -46,8 +45,26 @@
 *Testing input
 if 1 {
 
-			if "`if'`in'" != "" keep `if'`in'
-
+			local obsexcludstring ""
+	
+			*Deal with if and in and display info. 
+			if "`if'`in'" != "" {
+				
+				gen `ifinvar' = 1 `if'`in'
+				
+				count if `ifinvar' != 1
+				if `r(N)' > 0 {
+					
+					*This is not an error just outputting the number
+					local obsexcludstring "`obsexcludstring'`r(N)' observation(s) were excluded in {inp:if}/{inp:in}: (`if'`in').{break}"
+					
+				}
+				
+				keep `if'`in'
+			}
+			
+			
+			
 			********************************
 			*
 			*	Checking group dummy
@@ -67,8 +84,9 @@ if 1 {
 			*Count number of obs to be dropped and and output that number if more than zero
 			count if missing(`grpdummy')
 			if `r(N)' > 0 {
+			
 				*This is not an error just outputting the number
-				noi di "{pstd}`r(N)' observation(s) were excluded due to missing value in group dummy{p_end}"
+				local obsexcludstring  "`obsexcludstring'`r(N)' observation(s) were excluded due to missing value in  grpdummy(`grpdummy').{break}"
 			}
 			*Drop obs with missing
 			drop if missing(`grpdummy')
@@ -93,11 +111,13 @@ if 1 {
 			* not excluded by if/in must have a value in matchvar 
 			count if missing(`matchvar')
 			if `r(N)' > 0 {
-				noi di as error  "{pstd}`r(N)' observation(s) with either value 1 or 0 in grpdummy(`grpdummy') do not have a non-missing value in matchvar(`matchvar'). Either update the match variable or exclude those observations using {inp:if} or {inp:in}.{p_end}"
-				error 416
+				local obsexcludstring  "`obsexcludstring'`r(N)' observation(s) were excluded due to missing value in matchvar(`matchvar').{break}"
+				
 			}
+			*Drop obs with missing
+			drop if missing(`matchvar')
+		
 			
-
 			********************************
 			*
 			*	Checking match var and group dummy are unique
@@ -112,8 +132,12 @@ if 1 {
 				
 				if _rc != 0 {
 					
-					noi di as error "{pstd}There are base observations or target observations with duplicate values in matchvar(`matchvar'). To guarantee a replicable match you must {help seed:set a seed}. To supress this error message after you have set a the seed, or if a replicable match is not important to you, use option {inp:seedok}{p_end}"
-					error _rc
+					noi di as error "{pstd}There are base observations or target observations {...}"
+					noi di as error "with duplicate values in matchvar(`matchvar'). To guarantee {...}"
+					noi di as error "a replicable match you must {help seed:set a seed}. To supress {...}"
+					noi di as error "this error message after you have set a the seed, or if a {...}"
+					noi di as error "replicable match is not important to you, use option {inp:seedok}{p_end}"
+					error 198
 				
 				}
 			}
@@ -261,19 +285,35 @@ if 1 {
 			local matchDiffName "`r(validVarName)'"
 			gen `matchDiffName' = .
 
-			iematchMatchVarCheck _matchOrReason `matchresultname'
+			iematchMatchVarCheck _matchResult `matchresultname'
 			local matchReasonName "`r(validVarName)'"
 			gen `matchReasonName' = .
 
 
 
 			*Create a label for missing values that explains no match
-			label define matchLabel 0 "Not Matched" 1 "Matched" .n "Obs not included in match" .m "No match within maxdiff"
+			label define matchLabel 0 "Not Matched" 1 "Matched" .i "Obs excluded due to if/in" .g "Missing value in `grpdummy'" .m "Missing value in `matchvar'" .d "No match within maxdiff"
 
 			*Apply the label
 			label value `matchReasonName' matchLabel
 
 }
+
+			********************************
+			*
+			*	Output exclude string
+			*
+			********************************				
+			
+			if "`obsexcludstring'" != "" {
+				
+				noi di ""
+				noi di "{hline}"
+				noi di ""
+				noi di "{pstd}{ul:Observations are excluded from the matching for the following reasons:}{break}"
+				noi di "`obsexcludstring'{p_end}"
+
+			}
 
 		********************************
 		*	Start matching
@@ -347,7 +387,8 @@ if 1 {
 			if "`m1'" == "" {
 
 				noi di ""
-				noi di "{pstd}Base observations left to match: {p_end}"
+				noi di "{hline}{break}"
+				noi di "{pstd}{ul:Matching one-to-one. Base observations left to match:}{p_end}"
 				count if `grpdummy' == 1 & `matched' == 0
 				local left2Match = `r(N)'
 				noi di "{pstd}`left2Match' " _c
@@ -371,7 +412,7 @@ if 1 {
 					if "`maxdiff'" != "" {
 
 						replace `matched' 			= 1		if `prefDiff' > `maxdiff' & `grpdummy' == 1
-						replace `matchReasonName' 	= .m 	if `prefDiff' > `maxdiff' & `grpdummy' == 1
+						replace `matchReasonName' 	= .d 	if `prefDiff' > `maxdiff' & `grpdummy' == 1
 						
 						*Allow the ID var used to be string
 						if `IDtypeNumeric' == 1 {
@@ -411,7 +452,7 @@ if 1 {
 				if "`maxdiff'" != "" {
 
 					replace `matched' 			= 1		if `prefDiff' > `maxdiff' & `grpdummy' == 1
-					replace `matchReasonName' 	= .m 	if `prefDiff' > `maxdiff' & `grpdummy' == 1
+					replace `matchReasonName' 	= .d 	if `prefDiff' > `maxdiff' & `grpdummy' == 1
 					
 					*Allow the ID var used to be string
 					if `IDtypeNumeric' == 1 {
@@ -463,21 +504,28 @@ if 1 {
 
 		restore
 
-		tempvar mergevar
+		tempvar mergevar ifinvar
 
 		merge 1:1  `originalSort' using `mergefile', gen(`mergevar')
 
-		replace `matchReasonName' = .n if `mergevar' == 1
+		replace `matchReasonName' = .m if missing(`matchvar')
+		replace `matchReasonName' = .g if missing(`grpdummy')
+		
+		if "`if'`in'" != "" {
+			
+			gen `ifinvar' = 1 `if'`in'
+			replace `matchReasonName' = .i if `ifinvar' != 1
+		}
+		
+		
 		replace `matchReasonName' = 1 if `matchReasonName' == .
 		
 		*comress the variables generated
 		compress  `matchIDname' `matchDiffName' `matchReasonName' `matchCountName'
-		
-		
-		*Output result to user
-		noi tab `matchReasonName' `grpdummy', m
 
-		sort `originalSort'
+		noi outputTable `matchReasonName' `grpdummy'
+		
+		sort `originalSort'		
 
 	}
 
@@ -493,11 +541,11 @@ if 1 {
 
 		if "`defaultName'" == "_matchID" 		local optionName matchidname
 		if "`defaultName'" == "_matchDiff" 		local optionName matchdiffname
-		if "`defaultName'" == "_matchOrReason" 	local optionName matchresult
+		if "`defaultName'" == "_matchResult" 	local optionName matchresult
 		if "`defaultName'" == "_matchCount" 	local optionName matchcount
 
 		*All the default names
-		local dfltNms _noMatchReason _matchDiff _matchOrReason _matchCount
+		local dfltNms _noMatchReason _matchDiff _matchResult _matchCount
 
 		*The other two default names
 		local othDfltNms : list dfltNms - defaultName
@@ -649,4 +697,138 @@ if 1 {
 	end
 
 }
+
+	** This function goes through the observatioins from top to down and copying
+	*  the match value of the closest observation of the other group above to
+	*  (bestVal) and the ccoprresponding ID to (bestID) for obe group at the time.
+	*  To go from bottuom to top sort with invsort and apply this command.
+	cap program drop 	outputTable
+		program define 	outputTable	
+		
+		qui {
+			args resultVar grpdum 
+
+			local maxResultLen 16
+
+			local allResults 1 0 .d .i .g .m
+
+			levelsof `resultVar' , missing local(resultsUsed)  
+			
+			foreach result of local resultsUsed {
+				
+				if `result' == 1  local thisLen 7
+				if `result' == 0  local thisLen 11
+				if `result' == .d local thisLen 25
+				if `result' == .i local thisLen 18
+				if `result' == .g local thisLen 18
+				if `result' == .m local thisLen 18
+
+				local maxResultLen = max(`maxResultLen' , `thisLen')
+			}
+			
+			local missingGrpDum 0
+			count if missing(`grpdum')
+			if `r(N)' > 0 local missingGrpDum 1
+			
+			local R1 "{col 4}{c |}"
+			
+			local col1width = `maxResultLen' + 3 //28
+			local hli1 "{hline `col1width'}" 
+			local cen1 "{center `col1width':"
+			
+			local col2border = `maxResultLen' + 8 //33
+			local R2  "{col `col2border'}{c |}"
+			local R2a "{col `col2border'}"
+
+			local col3border = `maxResultLen' + 19 //44
+			local R3 "{col `col3border'}{c |}"
+
+			local col4border = `maxResultLen' + 32 //57
+			local R4 "{col `col4border'}{c |}"		
+			
+			local grpdumCentre 23
+			
+			local lastT  	"{c RT}"
+			local lastTdown	"{c RT}"
+			local lastC  	"{c BRC}"
+			
+			if `missingGrpDum' {
+				
+				local lastT 		"{c +}{hline 9}{c RT}"
+				local lastTdown 	"{c BT}{hline 9}{c RT}"
+				local lastC 		"{c BT}{hline 9}{c BRC}"
+				local missTitle 	"  missing "
+				local grpdumCentre 	33
+				
+			}
+			
+			noi di ""
+			noi di ""
+			noi di "{hline}"
+			noi di ""
+			noi di "{pstd}{ul:Output of Matching Result:}{p_end}"
+			noi di ""
+			noi di "{col 5}`cen1'`resultVar'}`R2a' {centre `grpdumCentre':tmt }" 
+			noi di "{col 4}{c LT}`hli1'{c +}{hline `grpdumCentre'}{c RT}"
+			noi di "`R1'`cen1'value and result}`R2' 1 (base)   0 (target) `missTitle'{c |}"
+			noi di "{col 4}{c LT}`hli1'{c +}{hline 10}{c +}{hline 12}`lastT'"
+			
+			foreach result of local allResults {
+				
+				if `:list result in resultsUsed' {
+					
+					qui count if `resultVar' == `result' & `grpdum' == 1
+					local numBase : display %9.0gc `r(N)'
+					
+					qui count if `resultVar' == `result' & `grpdum' == 0
+					local numTarg : display %9.0gc `r(N)'				
+					
+					if `missingGrpDum' {
+					
+						qui count if `resultVar' == `result' & missing(`grpdum')
+						local numMiss `r(N)'
+						
+						local missCol "{ralign 9 :`numMiss' }{c |}"
+					
+					}
+					
+					local numCols "`R2'{ralign 10 :`numBase' }`R3'{ralign 12 :`numTarg' }`R4'`missCol'"
+					
+					if `result' == 1  noi di "`R1' 1 Matched`numCols'"
+					if `result' == 0  noi di "`R1' 0 Not matched`numCols'"
+					if `result' == .d noi di "`R1'.d No match within maxdiff()`numCols'"
+					if `result' == .i noi di "`R1'.i Excl. using if/in`numCols'"
+					if `result' == .g noi di "`R1'.g Missing grpdummy()`numCols'"
+					if `result' == .m noi di "`R1'.m Missing matchvar()`numCols'"
+				}	
+			}
+			noi di "{col 4}{c LT}`hli1'{c +}{hline 10}{c +}{hline 12}`lastT'"
+			
+			qui count if `grpdum' == 1
+			local numBase : display %9.0gc `r(N)'
+			
+			qui count if `grpdum' == 0
+			local numTarg : display %9.0gc `r(N)'
+			
+			if `missingGrpDum' {
+			
+				qui count if missing(`grpdum')
+				local numMiss : display %9.0gc `r(N)'
+				
+				local missCol "{ralign 9 :`numMiss' }{c |}"
+			
+			}			
+			
+			noi di "`R1'`cen1'N per group}`R2'{ralign 10 :`numBase' }`R3'{ralign 12 :`numTarg' }`R4'`missCol'"
+			noi di "{col 4}{c LT}`hli1'{c +}{hline 10}{c BT}{hline 12}`lastTdown'"
+			
+			qui count
+			local numTot : display %9.0gc `r(N)'
+			
+			noi di "`R1'`cen1'Total N}`R2'{centre `grpdumCentre':`numTot'}`R4'"
+			noi di "{col 4}{c BLC}`hli1'{c BT}{hline `grpdumCentre'}{c BRC}"
+		}
+	end
+
+
 
