@@ -20,9 +20,6 @@
 			]
 
 		*****
-		*1 format errors as smcl
-		*2 option to disable countdown
-		*5 a table with results outputted
 
 		noi di "Syntax OK!"
 
@@ -778,15 +775,15 @@ if 1 {
 				if `:list result in resultsUsed' {
 					
 					qui count if `resultVar' == `result' & `grpdum' == 1
-					local numBase : display %9.0gc `r(N)'
+					local numBase = trim("`: display %16.0gc  `r(N)''")
 					
 					qui count if `resultVar' == `result' & `grpdum' == 0
-					local numTarg : display %9.0gc `r(N)'				
+					local numTarg = trim("`: display %16.0gc  `r(N)''")			
 					
 					if `missingGrpDum' {
 					
 						qui count if `resultVar' == `result' & missing(`grpdum')
-						local numMiss `r(N)'
+						local numMiss = trim("`: display %16.0gc  `r(N)''")
 						
 						local missCol "{ralign 9 :`numMiss' }{c |}"
 					
@@ -805,15 +802,15 @@ if 1 {
 			noi di "{col 4}{c LT}`hli1'{c +}{hline 10}{c +}{hline 12}`lastT'"
 			
 			qui count if `grpdum' == 1
-			local numBase : display %9.0gc `r(N)'
+			local numBase = trim("`: display %16.0gc  `r(N)''")
 			
 			qui count if `grpdum' == 0
-			local numTarg : display %9.0gc `r(N)'
+			local numTarg = trim("`: display %16.0gc  `r(N)''")
 			
 			if `missingGrpDum' {
 			
 				qui count if missing(`grpdum')
-				local numMiss : display %9.0gc `r(N)'
+				local numMiss = trim("`: display %16.0gc  `r(N)''")
 				
 				local missCol "{ralign 9 :`numMiss' }{c |}"
 			
@@ -823,7 +820,8 @@ if 1 {
 			noi di "{col 4}{c LT}`hli1'{c +}{hline 10}{c BT}{hline 12}`lastTdown'"
 			
 			qui count
-			local numTot : display %9.0gc `r(N)'
+			local numTot = trim("`: display %16.0gc  `r(N)''")
+			
 			
 			noi di "`R1'`cen1'Total N}`R2'{centre `grpdumCentre':`numTot'}`R4'"
 			noi di "{col 4}{c BLC}`hli1'{c BT}{hline `grpdumCentre'}{c BRC}"
