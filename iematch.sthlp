@@ -37,15 +37,15 @@ help for {hi:iematch}
 {synopt :{cmd:seedok}}Supresses the error maessage thrown when there are duplicates 
 	in {cmd:matchvar()}. When there are duplicates, the seed needs to be set in order 
 	to have a replicable match. The {help seed} should be set before this command.{p_end}
+{synopt :{cmdab:matchre:sultname(}{it:string}{cmd:)}}Manually sets the name of 
+	the variable that indicates if an observation was matched, or provide a reason why
+	it was not. The default is _matchOrReason{p_end}
 {synopt :{cmdab:matchid:name(}{it:string}{cmd:)}}Manually sets the name of the 
 	variable that indicates which target observation each base observation is 
 	matched with. The default is _matchID{p_end}
 {synopt :{cmdab:matchdi:ffname(}{it:string}{cmd:)}}Manually sets the name of the
 	variable that indicates the differnece in {cmdab:matchvar()} in each match 
 	pair/group. The default is _matchDiff{p_end}
-{synopt :{cmdab:matchre:sultname(}{it:string}{cmd:)}}Manually sets the name of 
-	the variable that indicates if an observation was matched, or provide a reason why
-	it was not. The default is _matchOrReason{p_end}
 {synopt :{cmdab:matchco:untname(}{it:string}{cmd:)}}Manually sets the name of the
 	variable that indicates how many observations a target obsersvation is matched 
 	with in a many-to-one matches. The default is _matchCount{p_end}
@@ -61,58 +61,67 @@ help for {hi:iematch}
 	target is control, however, there are many other examples of matching where it could
 	be different.
 
-{pstd}{cmdab:iematch} base its matching algorithm on the Stable Marriage algorithm.
-	This algorithm was chosen because it always a solution and because it was possible
-	to implement a stable matching even if multiple observations has identical match 
-	values (see {cmd:seed()} option for more details). One disadvantage is of this 
-	algorithm is that it only take local efficiency into account and not global. This 
+{pstd}{cmdab:iematch} bases its matching algorithm on the Stable Marriage algorithm.
+	This algorithm was chosen because it always provides a solution and allows stable 
+	matching even if multiple observations have identical match 
+	values (see {cmd:seed()} option for more details). One disadvantage of this 
+	algorithm is that it takes into account local efficiency only, and not global efficiency. This 
 	means that it is possible that other matching algorithms might generate a more 
 	efficient match in terms of the sum of the difference of all matched pairs/groups.
 
 {pstd}{hi:{ul:One-to-one matching algorithm}}{break}
 	The algorithm used in a one-to-one match starts by evaluating which
-	target observation each base observation is closest to and vice versa for 
-	target observations. If a base and a target observation pair mutually prefer 
-	each other, then those two observations are a match. The algorithm then repeats
-	these two steps but excludes observations after they are matched until all base 
-	observations are either matched or excluded due to the option {cmdab:maxdiff()}. 
+	target observation each base observation is closest to and vice versa for each
+	target observations. If a base and target observation pair mutually prefer 
+	each other, then these two observations are matched. The algorithm then repeats
+	the initial two evaluation steps, and excludes observations after they are matched,
+	until all base observations are either matched or excluded due to the option {cmdab:maxdiff()}. 
 	Matched observations ends up in pairs of exactly one base observation and one 
 	target observation.
 
-{pstd}In a one-to-one match there have to be at least as many target observations 
-	as there are base observation. A one-to-one match returns three variables. One 
-	variable indicates the result of the matching for each observation. For example, 
-	matched, not matched, no match within the max difference etc. The other two variables 
-	hold info on the matched pair. One variable is the ID of the target observation 
-	in the match pair, and the other variable is the difference in {cmd:matchvar()} 
-	between the two observation in the match pair. See the below in this section 
+{pstd}In a one-to-one match, there has to be at least as many target observations 
+	as there are base observations. A one-to-one match returns three variables. One 
+	variable indicates the result of the matching for each observation, such as, 
+	matched, not matched, no match within the max difference, etc. The other two variables 
+	hold information on the matched pair. One variable is the ID of the target observation 
+	in the matched pair, and the other variable is the difference in {cmd:matchvar()} 
+	between the two observations in the match pair. See the below in this section 
 	for more details on the variables generated.
 
 {pstd}{hi:{ul:Many-to-one matching algorithm}}{break}
-	The algorithm used here is the same as in a one-to-one match. But instead 
-	of matching only when there is mutual preference, all base observations are 
+	The algorithm used for many-to-one matching is the same as in a one-to-one match. But instead 
+	of matching only when there is a mutual preference, all base observations are 
 	matched towards their preferred target observation in the first step, as long 
 	as the match is within the max-value if {cmdab:maxdff()} is used. Matched observations 
 	end up in groups in which there is exactly one target observation but where there are 
 	either one or several base observations.
 
-{pstd}In a many-to-one match there is no restriction in terms of the number of 
-	target observations in relation to base observations. The many-to-one matching 
-	results in four variables. Three of the variables are the same as in a one-to-one 
-	match. The fourth variable indicates how many base observations that were matched 
+{pstd}In a many-to-one match, there is no restriction in terms of the number of 
+	base observations in relation to target observations. The many-to-one matching 
+	yields four variables. Three of the variables are the same as in one-to-one 
+	matching, and only the variable listing the difference  The fourth variable indicates how many base observations that were matched 
 	towards each target observation. See the below in this section for more details on
 	the variables generated.
 
 {pstd}{hi:{ul:Variables generated}}{break}	
 	This section explains the variables that are generated by this command. All variables 
 	will be referred to by their default names, but those names can be manually set to somthing 
-	else using the corresponding options. 
+	else (see the options for this command).
 
+{pstd}{hi:_matchOrReason}{break}
+	This variable indicates the result of the match for all observations. Observations 
+	that ended up in a match pair/group has the value 1. Target observations not matched have the
+	value 0. Base observations without a valid match due to {cmdab:maxdff()} are 
+	assigned the value .d. Observations excluded from the match using {inp:if}/{inp:in} are
+	assigned the value .i. Observations excluded from the match due to missing value in {cmd:grpdummy()} are
+	assigned the value .g. Observations excluded from the match due to missing value in {cmd:matchvar()} are
+	assigned the value .m. All values have descreptive value labels.	
+	
 {pstd}{hi:_matchID}{break}	
-	This variable indicates the ID if the target observations in each match pair/group. For matched 
-	target observations, the value in this variable will be the same value as in teh ID 
+	This variable indicates the ID of the target observations in each match pair/group. For matched 
+	target observations, the value in _matchID will be equal to the value in the ID 
 	variable. Since the values in the ID varaible are unique and there is exactly one target 
-	observation in each matched pair/group, this variable function as a unique pair/group ID. 
+	observation in each matched pair/group, this variable functions as a unique pair/group ID. 
 	In addition to indicating which observations are included in the same pair/group, this 
 	varaible can be used to include a pair/group fixed effect in a regression.
 
@@ -121,20 +130,12 @@ help for {hi:iematch}
 	and target observations. In a one-to-one match this value is the identical for 
 	both the base observation and the target observation in each matched pair. 
 	In a many-to-one match, this value is only indicated for base observations. It is 
-	missing for target observations as there are potentially multiple matches,. and 
-	then there are not one single difference. 
-
-{pstd}{hi:_matchOrReason}{break}	
-	This variable indicates the result of the match for all observations. Observations 
-	that ended up in a match pair or group has the value 1. Target observations 
-	not matched has the value 0. Any base observation without a valid match due to {cmdab:maxdff()} are 
-	assigned the value .n with a descriptive label. Any observations excluded from the match completely, 
-	either by having a missing value in {cmd:grpdummy()} or by using {inp:if} or {inp:in} are 
-	assigned the value .m and a descriptive label.
+	missing for target observations as there are potentially multiple matches, and 
+	subsequently multiple differences. 
 
 {pstd}{hi:_matchCount}{break}	
-	In a many-to-one match, this variable indicates how many target observations were 
-	matched towards each matched base observation. This variable can be used as regression 
+	In a many-to-one match, this variable indicates how many base observations were 
+	matched towards each matched target observation. This variable can be used as regression 
 	weights when controlling for the fact that some observations are matched towards multiple 
 	observations.
 	
@@ -176,6 +177,11 @@ help for {hi:iematch}
 	be used to supress the error message. Duplicates between base observations and 
 	target observations are allowed.
 
+{phang}{cmdab:matchre:sultname(}{it:string}{cmd:)} allows the user to manually set the 
+	name of the variable that indicates the result of the match for each observation. 
+	If omitted, the default name is {inp:_matchOrReason}. The names {inp:_ID}, 
+	{inp:_matchID}, {inp:_matchDiff} and {inp:_matchCount} are not allowed.	
+	
 {phang}{cmdab:matchid:name(}{it:string}{cmd:)} allows the user to manually set the 
 	name of the variable that indicates the target observations in each match pair/group.
 	If omitted, the default name is {inp:_matchID}. The names {inp:_ID}, {inp:_matchDiff}, {inp:_matchOrReason} 
@@ -187,11 +193,6 @@ help for {hi:iematch}
 	names {inp:_ID}, {inp:_matchID}, {inp:_matchOrReason} and {inp:_matchCount} are 
 	not allowed.
 
-{phang}{cmdab:matchre:sultname(}{it:string}{cmd:)} allows the user to manually set the 
-	name of the variable that indicates the result of the match for each observation. 
-	If omitted, the default name is {inp:_matchOrReason}. The names {inp:_ID}, 
-	{inp:_matchID}, {inp:_matchDiff} and {inp:_matchCount} are not allowed.
-
 {phang}{cmdab:matchco:untname(}{it:string}{cmd:)} allows the user to manually set the 
 	name of the variable that indicates the number of base observations that has 
 	been matched towards each matched matcehd target observation. This option may 
@@ -199,10 +200,14 @@ help for {hi:iematch}
 	name is {inp:_matchCount}. The names {inp:_ID}, {inp:_matchID}, {inp:_matchDiff} 
 	and {inp:_matchOrReason} are not allowed.
 
+{title:Acknowledgements}
+
+{phang}I would like to acknowledge the help in testing and proofreading I received in relation to this command and help file from (in alphabetic order):{p_end}
+{pmore}Mrijan Rimal{break}	
 
 {title:Author}
 
-{phang}Kristoffer Bj�rkefur, The World Bank, DECIE
+{phang}Kristoffer Bjarkefur, The World Bank, DECIE
 
 {phang}Please send bug-reports, suggestions and requests for clarifications
 		 writing "ietools iematch" in the subject line to:{break}
