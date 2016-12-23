@@ -283,8 +283,8 @@ if 1 {
 			gen `matchDiffName' = .
 
 			iematchMatchVarCheck _matchResult `matchresultname'
-			local matchReasonName "`r(validVarName)'"
-			gen `matchReasonName' = .
+			local matchResultName "`r(validVarName)'"
+			gen `matchResultName' = .
 
 
 
@@ -292,7 +292,7 @@ if 1 {
 			label define matchLabel 0 "Not Matched" 1 "Matched" .i "Obs excluded due to if/in" .g "Missing value in `grpdummy'" .m "Missing value in `matchvar'" .d "No match within maxdiff"
 
 			*Apply the label
-			label value `matchReasonName' matchLabel
+			label value `matchResultName' matchLabel
 
 }
 
@@ -409,7 +409,7 @@ if 1 {
 					if "`maxdiff'" != "" {
 
 						replace `matched' 			= 1		if `prefDiff' > `maxdiff' & `grpdummy' == 1
-						replace `matchReasonName' 	= .d 	if `prefDiff' > `maxdiff' & `grpdummy' == 1
+						replace `matchResultName' 	= .d 	if `prefDiff' > `maxdiff' & `grpdummy' == 1
 						
 						*Allow the ID var used to be string
 						if `IDtypeNumeric' == 1 {
@@ -449,7 +449,7 @@ if 1 {
 				if "`maxdiff'" != "" {
 
 					replace `matched' 			= 1		if `prefDiff' > `maxdiff' & `grpdummy' == 1
-					replace `matchReasonName' 	= .d 	if `prefDiff' > `maxdiff' & `grpdummy' == 1
+					replace `matchResultName' 	= .d 	if `prefDiff' > `maxdiff' & `grpdummy' == 1
 					
 					*Allow the ID var used to be string
 					if `IDtypeNumeric' == 1 {
@@ -490,10 +490,10 @@ if 1 {
 			replace `matchIDname' 		= `prefID' 		if `matched' == 1 & `grpdummy' == 1
 
 			*Target obs not used
-			replace `matchReasonName' = 0 if `matched' == 0 & `grpdummy' == 0
+			replace `matchResultName' = 0 if `matched' == 0 & `grpdummy' == 0
 
 			*only keep output vars
-			keep `matchIDname' `matchDiffName' `idvar' `originalSort' `matchReasonName' `matchCountName'
+			keep `matchIDname' `matchDiffName' `idvar' `originalSort' `matchResultName' `matchCountName'
 
 			tempfile mergefile
 
@@ -505,22 +505,22 @@ if 1 {
 
 		merge 1:1  `originalSort' using `mergefile', gen(`mergevar')
 
-		replace `matchReasonName' = .m if missing(`matchvar')
-		replace `matchReasonName' = .g if missing(`grpdummy')
+		replace `matchResultName' = .m if missing(`matchvar')
+		replace `matchResultName' = .g if missing(`grpdummy')
 		
 		if "`if'`in'" != "" {
 			
 			gen `ifinvar' = 1 `if'`in'
-			replace `matchReasonName' = .i if `ifinvar' != 1
+			replace `matchResultName' = .i if `ifinvar' != 1
 		}
 		
 		
-		replace `matchReasonName' = 1 if `matchReasonName' == .
+		replace `matchResultName' = 1 if `matchResultName' == .
 		
 		*comress the variables generated
-		compress  `matchIDname' `matchDiffName' `matchReasonName' `matchCountName'
+		compress  `matchIDname' `matchDiffName' `matchResultName' `matchCountName'
 
-		noi outputTable `matchReasonName' `grpdummy'
+		noi outputTable `matchResultName' `grpdummy'
 		
 		sort `originalSort'		
 
@@ -794,7 +794,7 @@ if 1 {
 					if `result' == 1  noi di "`R1' 1 Matched`numCols'"
 					if `result' == 0  noi di "`R1' 0 Not matched`numCols'"
 					if `result' == .d noi di "`R1'.d No match within maxdiff()`numCols'"
-					if `result' == .i noi di "`R1'.i Excl. using if/in`numCols'"
+					if `result' == .i noi di "`R1'.i Excluded using if/in`numCols'"
 					if `result' == .g noi di "`R1'.g Missing grpdummy()`numCols'"
 					if `result' == .m noi di "`R1'.m Missing matchvar()`numCols'"
 				}	

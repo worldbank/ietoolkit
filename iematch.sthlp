@@ -39,7 +39,7 @@ help for {hi:iematch}
 	to have a replicable match. The {help seed} should be set before this command.{p_end}
 {synopt :{cmdab:matchre:sultname(}{it:string}{cmd:)}}Manually sets the name of 
 	the variable that indicates if an observation was matched, or provide a reason why
-	it was not. The default is _matchOrReason{p_end}
+	it was not. The default is _matchResult{p_end}
 {synopt :{cmdab:matchid:name(}{it:string}{cmd:)}}Manually sets the name of the 
 	variable that indicates which target observation each base observation is 
 	matched with. The default is _matchID{p_end}
@@ -108,7 +108,7 @@ help for {hi:iematch}
 	will be referred to by their default names, but those names can be manually set to somthing 
 	else (see the options for this command).
 
-{pstd}{hi:_matchOrReason}{break}
+{pstd}{hi:_matchResult}{break}
 	This variable indicates the result of the match for all observations. Observations 
 	that ended up in a match pair/group has the value 1. Target observations not matched have the
 	value 0. Base observations without a valid match due to {cmdab:maxdff()} are 
@@ -145,61 +145,79 @@ help for {hi:iematch}
 {phang}{cmdab:grp:dummy(}{it:varname}{cmd:)} is the dummy variable that indicates if an observation
 	is a base or target observation. This variable, must be numeric and is only allowed to have
 	the values 1, 0 or missing. 1 indicates a base observation, 0 indicates a target observation, 
-	and observations with a missing value will be excluded from the missing.
+	and observations with a missing value will be excluded from the matching.
 
-{phang}{cmdab:match:var(}{it:varname}{cmd:)} is the convariable used in the 
+{phang}{cmdab:match:var(}{it:varname}{cmd:)} is the variable used to compare observations when 
 	matching. This must be a numeric variable, and it is typically a continuous 
-	variable. This variable must not be missing for any observations that has 
-	either the value 1 or 0 in the group dummy variable.
+	variable. Observations with a missing value will be excluded from the matching.
 
 {phang}{cmdab:id:var(}{it:varlist}{cmd:)} indicates the variable that uniquely 
 	and fully identifies the data set. The values in this variable is the values 
 	that will be used in the variable that indicates which target observation each
-	base observations matched against. 
+	base observations matched against. If this option is omitted, a variable called 
+	_ID will be generated. The observation in the first row is given the value 1, 
+	the second row value 2 and so fourth.
 
-{phang}{cmdab:m1} set the match to a many-to-one match. This allows multiple base 
-	observations to be matched towards a single target observation. The default is 
-	a one-to-one match when each matched target observation only is mathced towards 
-	a single base observation. This option allows the number of base observations 
-	to be larger then the number of target observations. See {help iematch##desc:description} 
-	section for more details.
+{phang}{cmdab:m1} sets the match to a many-to-one match (see {help iematch##desc:description}). 
+	This allows multiple base observations to be matched towards a single target observation. 
+	The default is the one-to-one match where a maximum one base observation is matched towards 
+	each target observation. This option allows the number of base observations 
+	to be larger then the number of target observations.
 
 {phang}{cmdab:maxdiff(}{it:numlist}{cmd:)} sets a maximum allowed difference between 
 	a base observation and a target observation for a match to be valid. Any base 
-	observation without a match within this difference will end up unmatched.
+	observation without a valid match within this difference will end up unmatched.
 
-{phang}{cmd:seedok} supresses the error maessage thrown when there are duplicates among 
+{phang}{cmd:seedok} supresses the error message throwned when there are duplicates among 
 	the base observations or the target observations in {cmd:matchvar()}. When there 
 	are duplicates a random variable is used to distinguish which variable to match. 
-	Setting the seed makes this randomization replicable meaning that the matching 
-	is replicable. The {help seed} should be set before this command by the user. When the 
+	Setting the seed makes this randomization replicable and thereby making the matching 
+	also replicable. The {help seed} should be set before this command by the user. When the 
 	seed is set, or if replicable matching is not important, then the option {cmd:seedok} can
-	be used to supress the error message. Duplicates between base observations and 
-	target observations are allowed.
+	be used to supress the error message. Duplicate pairs where one observation is a base 
+	observation and the other is a target observations are allowed.
 
-{phang}{cmdab:matchre:sultname(}{it:string}{cmd:)} allows the user to manually set the 
-	name of the variable that indicates the result of the match for each observation. 
-	If omitted, the default name is {inp:_matchOrReason}. The names {inp:_ID}, 
+{phang}{cmdab:matchre:sultname(}{it:string}{cmd:)} manually sets the 
+	name of the variable that reports the matching result for each observation. 
+	If omitted, the default name is {inp:_matchResult}. The names {inp:_ID}, 
 	{inp:_matchID}, {inp:_matchDiff} and {inp:_matchCount} are not allowed.	
 	
-{phang}{cmdab:matchid:name(}{it:string}{cmd:)} allows the user to manually set the 
-	name of the variable that indicates the target observations in each match pair/group.
-	If omitted, the default name is {inp:_matchID}. The names {inp:_ID}, {inp:_matchDiff}, {inp:_matchOrReason} 
+{phang}{cmdab:matchid:name(}{it:string}{cmd:)} manually sets the 
+	name of the variable that list the ID of the target observations in each match pair/group.
+	If omitted, the default name is {inp:_matchID}. The names {inp:_ID}, {inp:_matchDiff}, {inp:_matchResult} 
 	and {inp:_matchCount} are not allowed.
 
-{phang}{cmdab:matchdi:ffname(}{it:string}{cmd:)} allows the user to manually set 
-	the name of the variable that indicates the difference between the matched base observations 
+{phang}{cmdab:matchdi:ffname(}{it:string}{cmd:)} manually sets the name of the variable
+	that indicates the difference between the matched base observations 
 	and target observations. If omitted, the default name is {inp:_matchDiff}. The 
-	names {inp:_ID}, {inp:_matchID}, {inp:_matchOrReason} and {inp:_matchCount} are 
+	names {inp:_ID}, {inp:_matchID}, {inp:_matchResult} and {inp:_matchCount} are 
 	not allowed.
 
-{phang}{cmdab:matchco:untname(}{it:string}{cmd:)} allows the user to manually set the 
+{phang}{cmdab:matchco:untname(}{it:string}{cmd:)} manually sets the 
 	name of the variable that indicates the number of base observations that has 
-	been matched towards each matched matcehd target observation. This option may 
+	been matched towards each matched matched target observation. This option may 
 	only be used in combination with option {cmd:m1}. If omitted, the default 
 	name is {inp:_matchCount}. The names {inp:_ID}, {inp:_matchID}, {inp:_matchDiff} 
-	and {inp:_matchOrReason} are not allowed.
+	and {inp:_matchResult} are not allowed.
 
+{title:Examples}
+
+{pstd} {hi:Example 1.}
+
+{pmore}{inp:iematch , grpdummy({it:tmt}) matchvar({it:p_hat})}
+
+{pmore}In the example above, the observations with value 1 in {it:tmt} will be matched 
+	towards the nearest, in terms of {it:p_hat}, observations with value 0 in {it:tmt}.
+	
+{pstd} {hi:Example 2.}
+
+{pmore}{inp:iematch if {it:baseline} == 1  , grpdummy({it:tmt}) matchvar({it:p_hat}) maxdiff(.001)}
+	
+{pmore}In the example above, the observations with value 1 in {it:tmt} will be matched 
+	towards the nearest, in terms of {it:p_hat}, observations with value 0 in {it:tmt} as
+	long as the difference in {it:p_hat} is less than .001. Only observations that has the 
+	value 1 in variable {it:baseline} will be included in the match.
+	
 {title:Acknowledgements}
 
 {phang}I would like to acknowledge the help in testing and proofreading I received in relation to this command and help file from (in alphabetic order):{p_end}
