@@ -141,12 +141,12 @@ help for {hi:iematch}
 {marker optslong}
 {title:Options}
 
-{phang}{cmdab:grp:dummy(}{it:varname}{cmd:)} indicates which variable is the group 
-	dummy. This variable, must be numeric and is only allowed to have the values 1, 
-	0 or missing. 1 indicates a base observation, 0 indicates a target observation, 
+{phang}{cmdab:grp:dummy(}{it:varname}{cmd:)} is the dummy variable that indicates if an observation
+	is a base or target observation. This variable, must be numeric and is only allowed to have
+	the values 1, 0 or missing. 1 indicates a base observation, 0 indicates a target observation, 
 	and observations with a missing value will be excluded from the missing.
 
-{phang}{cmdab:match:var(}{it:varname}{cmd:)} indicates the variable used in the 
+{phang}{cmdab:match:var(}{it:varname}{cmd:)} is the convariable used in the 
 	matching. This must be a numeric variable, and it is typically a continuous 
 	variable. This variable must not be missing for any observations that has 
 	either the value 1 or 0 in the group dummy variable.
