@@ -3,13 +3,13 @@
 	capture program drop ieboilstart2
 	program ieboilstart2 , rclass
 	
-	noi di "command works!"
+	*noi di "command works!"
 	
 	qui {
 			
-		syntax ,  Versionnumber(string) [noclear maxvar(numlist) matsize(numlist) QUIetly veryquietly CUSTom(string) setmem(string) ]
+		syntax ,  Versionnumber(string) [noclear maxvar(numlist) matsize(numlist) Quietly veryquietly Custom(string) setmem(string) ]
 	
-		noi di "syntax works!"
+	*noi di "syntax works!"
 	
 		version 11.0
 		
