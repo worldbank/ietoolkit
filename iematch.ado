@@ -31,7 +31,9 @@
 		********************************
 		
 		tempvar originalSort ifinvar
-
+		
+		**Generate a variable that is used 
+		* to restore original sort.
 		gen `originalSort' = _n
 
 		preserve
@@ -66,7 +68,7 @@
 			*
 			********************************
 			
-			*only keep input vars
+			*Keep only input vars
 			keep  `grpdummy' `idvar' `matchvar'	`originalSort'			
 			
 			********************************
@@ -82,17 +84,19 @@
 				di as error "{pstd}The variable in grpdummy(`grpdummy') is not a dummy variable. The variable is only allowed to have the values 1, 0 or missing. Observations with missing varaibles in the grpdummy are ignored by this command.{p_end}"
 				error _rc
 			}
-
+			
+			**********
 			**Exclude obs with missing value in groupdummy
 
 			*Count number of obs to be dropped and and output that number if more than zero
 			count if missing(`grpdummy')
 			if `r(N)' > 0 {
 			
-				*This is not an error just outputting the number
+				*Prepare the local to be outputted with info on observations excluded
 				local obsexcludstring  "`obsexcludstring'`r(N)' observation(s) were excluded due to missing value in  grpdummy(`grpdummy').{break}"
 			}
-			*Drop obs with missing
+			
+			*Drop obs with missing value in groupvar
 			drop if missing(`grpdummy')
 
 
@@ -108,17 +112,18 @@
 
 				noi di as error "{pstd}The variable to match on specified in matchvar(`matchvar') is not a numeric variable.{p_end}"
 				error 109
-
 			}
 
 			**All variables with value 1 or 0 in the group dummy and 
 			* not excluded by if/in must have a value in matchvar 
 			count if missing(`matchvar')
 			if `r(N)' > 0 {
-				local obsexcludstring  "`obsexcludstring'`r(N)' observation(s) were excluded due to missing value in matchvar(`matchvar').{break}"
 				
+				*Prepare the local to be outputted with info on observations excluded
+				local obsexcludstring  "`obsexcludstring'`r(N)' observation(s) were excluded due to missing value in matchvar(`matchvar').{break}"	
 			}
-			*Drop obs with missing
+			
+			*Drop obs with missing values in match var
 			drop if missing(`matchvar')
 		
 			
@@ -136,6 +141,7 @@
 				
 				if _rc != 0 {
 					
+					*Output the error message
 					noi di as error "{pstd}There are base observations or target observations {...}"
 					noi di as error "with duplicate values in matchvar(`matchvar'). To guarantee {...}"
 					noi di as error "a replicable match you must {help seed:set a seed}. To supress {...}"
@@ -191,7 +197,6 @@
 
 				di as error "{pstd}The same new variable name was used twice or more in the options generating a new variable. Go back and check syntax.{p_end}"
 				error 198
-
 			}
 
 
@@ -214,7 +219,6 @@
 
 					di as error "{pstd}A variable with name `idvar' is already defined. Either drop this variable or specify a variable using idvar() that fully and uniquely identifies the data set.{p_end}"
 					error 110
-
 				}
 
 				*Generate the ID var from row number
@@ -232,7 +236,6 @@
 
 					di as error "{pstd}Variable `idvar' specified in idvar() does not fully and uniquely identify the observations in the data set. Meaning that `idvar' is not allowed to have any duplicates or missing values. Make `idvar' uniquly and fully idnetifying or exclude the varaibleas using {inp:if} or {inp:in}.{p_end}"
 					error 450
-
 				}
 				
 				*Test if ID var is string or numeric
@@ -255,7 +258,7 @@
 			*
 			********************************
 			
-			
+			*******
 			* Result var
 			
 			iematchMatchVarCheck _matchResult `matchresultname'
@@ -268,7 +271,7 @@
 			*Apply the label
 			label value `matchResultName' matchLabel
 			
-			
+			*******
 			*ID var
 			
 			iematchMatchVarCheck _matchID `matchidname'
@@ -282,14 +285,14 @@
 				gen  `matchIDname' = ""
 			}
 			
-			
+			*******
 			*Diff var
 			
 			iematchMatchVarCheck _matchDiff `matchdiffname'
 			local matchDiffName "`r(validVarName)'"
 			gen `matchDiffName' = .
 
-			
+			*******
 			*Count var
 			
 			*If many-to-one match used
@@ -327,145 +330,100 @@
 
 			}
 
+	********************************
+	*	Start matching
+	********************************
+		
+		
 		********************************
-		*	Start matching
+		*
+		*	Creating tempvar used in matching
+		*
 		********************************
+
+		*Initiate the temporary variables used by this command
+		tempvar prefID prefDiff matched
+
+		gen `prefDiff' 		= .
+		gen byte `matched' 	= 0
+
+		*Allow the ID var used to be string
+		if `IDtypeNumeric' == 1 {
+			gen  `prefID' = .
+		}
+		else {
+			gen  `prefID' = ""
+		}			
+		
+
+		** Generate the inverse of the matchvar to sort descending (gsort is too slow),
+		*  a random var to seperate two values with the same match var, and the inverse
+		*  of the random var for when sorting descending.
+		tempvar rand invsort invrand
+
+		sort `matchvar'
+		gen  `invsort' = -1 * `matchvar'
+
+		gen    `rand' = uniform()
+		gen `invrand' = -1 * `rand'
+
+		***********
+		*Tempvars for matching
+
+		*Diffvars, they are always numeric
+		tempvar					 diffup   diffdo   valUp_0   valDo_0   valUp_1   valDo_1   
+		local 	 updownTempVars `diffup' `diffdo' `valUp_0' `valDo_0' `valUp_1' `valDo_1'
+
+		foreach tempVar of local updownTempVars {
+
+			gen `tempVar' = .
+		}
+		
+		*ID vars, allowed to be both numeric and string
+		tempvar					  	IDup   IDdo   IDup_0   IDdo_0   IDup_1   IDdo_1
+		local 	 updownIDTempVars  `IDup' `IDdo' `IDup_0' `IDdo_0' `IDup_1' `IDdo_1'
+
+		foreach tempVar of local updownIDTempVars {
 			
-
-			
-			********************************
-			*
-			*	Creating tempvar used
-			*
-			********************************
-
-			*Initiate the temporary variables used by this command
-			tempvar prefID prefDiff matched
-
-			gen `prefDiff' 		= .
-			gen byte `matched' 	= 0
-
 			*Allow the ID var used to be string
 			if `IDtypeNumeric' == 1 {
-				gen  `prefID' = .
+				gen  `tempVar' = .
 			}
 			else {
-				gen  `prefID' = ""
-			}			
+				gen  `tempVar' = ""
+			}					
+		}			
+
+		***************************
+		*
+		*	One to one match
+		*
+		***************************
+
+		if "`m1'" == "" {
+
+			*Start outputting the countdown
+			noi di ""
+			noi di "{hline}{break}"
+			noi di "{pstd}{ul:Matching one-to-one. Base observations left to match:}{p_end}"
+			count if `grpdummy' == 1 & `matched' == 0
 			
-
-			** Generate the inverse of the matchvar to sort descending (gsort is too slow),
-			*  a random var to seperate two values with the same match var, and the inverse
-			*  of the random var for when sorting descending.
-			tempvar rand invsort invrand
-
-			sort `matchvar'
-			gen  `invsort' = -1 * `matchvar'
-
-			gen    `rand' = uniform()
-			gen `invrand' = -1 * `rand'
-
-			***********
-			*Tempvars for matching
-
-			*Diffvars, they are always numeric
-			tempvar					 diffup   diffdo   valUp_0   valDo_0   valUp_1   valDo_1   
-			local 	 updownTempVars `diffup' `diffdo' `valUp_0' `valDo_0' `valUp_1' `valDo_1'
-
-			foreach tempVar of local updownTempVars {
-
-				gen `tempVar' = .
-			}
+			*Create local to display "obs left to match" and to use in while loop
+			local left2Match = `r(N)'
+			noi di "{pstd}`left2Match' " _c
 			
-			*ID vars, allowed to be both numeric and string
-			tempvar					  	IDup   IDdo   IDup_0   IDdo_0   IDup_1   IDdo_1
-			local 	 updownIDTempVars  `IDup' `IDdo' `IDup_0' `IDdo_0' `IDup_1' `IDdo_1'
-
-			foreach tempVar of local updownIDTempVars {
+			*Match until no more observations to match.
+			while (`left2Match' > 0) {
 				
-				*Allow the ID var used to be string
-				if `IDtypeNumeric' == 1 {
-					gen  `tempVar' = .
-				}
-				else {
-					gen  `tempVar' = ""
-				}					
-			}			
-
-			***************************
-			*
-			*	One to one match
-			*
-			***************************
-
-			if "`m1'" == "" {
-
-				*Start outputting the countdown
-				noi di ""
-				noi di "{hline}{break}"
-				noi di "{pstd}{ul:Matching one-to-one. Base observations left to match:}{p_end}"
-				count if `grpdummy' == 1 & `matched' == 0
-				
-				*Create local to display "obs left to match" and to use in while loop
-				local left2Match = `r(N)'
-				noi di "{pstd}`left2Match' " _c
-				
-				*Match until no more observations to match.
-				while (`left2Match' > 0) {
-					
-					**For all observations still to be matched, assign the preferred
-					* match among the other unmatched observations
-					qui updatePrefDiffPreffID `prefID' `prefDiff' `matchvar' `invsort' `idvar' `grpdummy' `matched' `rand' `invrand' `updownTempVars' `updownIDTempVars'
-					
-					*Restrict matches to within maxdiff() if that option is used.
-					if "`maxdiff'" != "" {
-						
-						*Omit base observation from matching if diff is to big
-						replace `matched' 			= 1		if `prefDiff' > `maxdiff' & `grpdummy' == 1
-						
-						*Indicate in result var that this obs did not have valid match within maxdiff()
-						replace `matchResultName' 	= .d 	if `prefDiff' > `maxdiff' & `grpdummy' == 1
-						
-						*Removed preferred match
-						if `IDtypeNumeric' == 1 {
-							*IDvar is numeric
-							replace `prefID'		= .		if `prefDiff' > `maxdiff'
-						}
-						else {
-							*IDvar is string
-							replace `prefID'		= ""	if `prefDiff' > `maxdiff'
-						}	
-					}
-					
-					*If two observations mutually prefer each other, then indicate both of them as matched.
-					replace `matched' = 1 if `matched' == 0 & `prefID' == `idvar'[_n-1] & `prefID'[_n-1] == `idvar'
-					replace `matched' = 1 if `matched' == 0 & `prefID' == `idvar'[_n+1] & `prefID'[_n+1] == `idvar'
-
-					*Update local to display "obs left to match" and to use in while loop
-					count if `grpdummy' == 1 & `matched' == 0
-					local left2Match = `r(N)'
-					noi di "`left2Match' " _c
-
-				}
-				
-				*End formatting for the "base obs left to matchj
-				noi di "{p_end}" _c
-
-			}
-
-			***************************
-			*
-			*	Many to one match
-			*
-			***************************
-			else {
-
-				**For all observations to be matched, assign the preferred
+				**For all observations still to be matched, assign the preferred
 				* match among the other unmatched observations
-				updatePrefDiffPreffID `prefID' `prefDiff' `matchvar' `invsort' `idvar' `grpdummy' `matched' `rand' `invrand' `updownTempVars' `updownIDTempVars'
-
+				qui updatePrefDiffPreffID `prefID' `prefDiff' `matchvar' `invsort' `idvar' `grpdummy' `matched' `rand' `invrand' `updownTempVars' `updownIDTempVars'
+				
 				*Restrict matches to within maxdiff() if that option is used.
 				if "`maxdiff'" != "" {
+					
+					*Omit base observation from matching if diff is to big
+					replace `matched' 			= 1		if `prefDiff' > `maxdiff' & `grpdummy' == 1
 					
 					*Indicate in result var that this obs did not have valid match within maxdiff()
 					replace `matchResultName' 	= .d 	if `prefDiff' > `maxdiff' & `grpdummy' == 1
@@ -481,97 +439,140 @@
 					}	
 				}
 				
-				*Assign it's own ID as pref ID for all target vars
-				replace `prefID'			=  `idvar' if `grpdummy' == 0
-				
-				* Replace the _matchCount var with number of base observations in each 
-				* match group. Each group is all base observation plus the target 
-				* observation, therefore (_N - 1)
-				bys 	`prefID' 			:   replace `matchCountName' = _N - 1
-			
+				*If two observations mutually prefer each other, then indicate both of them as matched.
+				replace `matched' = 1 if `matched' == 0 & `prefID' == `idvar'[_n-1] & `prefID'[_n-1] == `idvar'
+				replace `matched' = 1 if `matched' == 0 & `prefID' == `idvar'[_n+1] & `prefID'[_n+1] == `idvar'
 
-				**Replace prefID to missing for target obs that had no base 
-				* obs matched to it. T
-				if `IDtypeNumeric' == 1 { 
+				*Update local to display "obs left to match" and to use in while loop
+				count if `grpdummy' == 1 & `matched' == 0
+				local left2Match = `r(N)'
+				noi di "`left2Match' " _c
+
+			}
+			
+			*End formatting for the "base obs left to match"
+			noi di "{p_end}" _c
+		}
+
+		***************************
+		*
+		*	Many to one match
+		*
+		***************************
+		else {
+
+			**For all observations to be matched, assign the preferred
+			* match among the other unmatched observations
+			updatePrefDiffPreffID `prefID' `prefDiff' `matchvar' `invsort' `idvar' `grpdummy' `matched' `rand' `invrand' `updownTempVars' `updownIDTempVars'
+
+			*Restrict matches to within maxdiff() if that option is used.
+			if "`maxdiff'" != "" {
+				
+				*Indicate in result var that this obs did not have valid match within maxdiff()
+				replace `matchResultName' 	= .d 	if `prefDiff' > `maxdiff' & `grpdummy' == 1
+				
+				*Removed preferred match
+				if `IDtypeNumeric' == 1 {
 					*IDvar is numeric
-					replace `prefID'		= .		if `matchCountName' == 0
+					replace `prefID'		= .		if `prefDiff' > `maxdiff'
 				}
 				else {
 					*IDvar is string
-					replace `prefID'		= ""	if `matchCountName' == 0
-				}					
-				
-				*Only target obs with base obs prefering it are matched
-				replace	 `matched' 			= 1		if `matchCountName' != 0
-			
-				*Remove values for target obs that were not matched
-				replace  `matchCountName'	= . 	if `matchCountName' == 0
+					replace `prefID'		= ""	if `prefDiff' > `maxdiff'
+				}	
 			}
-
-
-			*Update all return vars
-			replace `matchDiffName' 	= `prefDiff'	if `matched' == 1
-			replace `matchIDname' 		= `idvar' 		if `matched' == 1 & `grpdummy' == 0
-			replace `matchIDname' 		= `prefID' 		if `matched' == 1 & `grpdummy' == 1
 			
-			*Matched observations are give value 1 in result var
-			replace `matchResultName' = 1 				if `matched' == 1 & `matchResultName' != .d
+			*Assign it's own ID as pref ID for all target vars
+			replace `prefID'			=  `idvar' if `grpdummy' == 0
 			
-			*Target obs not used
-			replace `matchResultName' = 0 if `matched' == 0 & `grpdummy' == 0
-
-			*only keep output vars
-			keep `matchIDname' `matchDiffName' `originalSort' `matchResultName' `matchCountName'
-
-			*Merge the results back to the original data set
-			tempfile mergefile
-			save 	`mergefile'
-
-		restore
-
+			* Replace the _matchCount var with number of base observations in each 
+			* match group. Each group is all base observation plus the target 
+			* observation, therefore (_N - 1)
+			bys 	`prefID' 			:   replace `matchCountName' = _N - 1
 		
-		tempvar mergevar ifinvar
-		
-		*Merge the results with the original data
-		merge 1:1  `originalSort' using `mergefile', gen(`mergevar')
 
-		
-		***************************
-		*
-		*	Assign remaining missing 
-		*	values to the result var
-		*
-		***************************		
-	
-		*They are listed in ascending order of importance. Meaning that if a 
-		*variable is both .m and .i then it will be .i as it is assigned 
-		*afterwards below.
-	
-		*Missing matching var
-		replace `matchResultName' = .m if missing(`matchvar')
-		
-		*Msising dummy var
-		replace `matchResultName' = .g if missing(`grpdummy')
-		
-		*Excluded in if/in
-		if "`if'`in'" != "" {
+			**Replace prefID to missing for target obs that had no base 
+			* obs matched to it. T
+			if `IDtypeNumeric' == 1 { 
+				*IDvar is numeric
+				replace `prefID'		= .		if `matchCountName' == 0
+			}
+			else {
+				*IDvar is string
+				replace `prefID'		= ""	if `matchCountName' == 0
+			}					
 			
-			gen `ifinvar' = 1 `if'`in'
-			replace `matchResultName' = .i if `ifinvar' != 1
+			*Only target obs with base obs prefering it are matched
+			replace	 `matched' 			= 1		if `matchCountName' != 0
+		
+			*Remove values for target obs that were not matched
+			replace  `matchCountName'	= . 	if `matchCountName' == 0
 		}
-		
-		*comress the variables generated
-		compress  `matchIDname' `matchDiffName' `matchResultName' `matchCountName'
 
-		*Output result table
-		noi outputTable `matchResultName' `grpdummy'
-		
-		*Restore the oridinal sort
-		sort `originalSort'		
 
+		*Update all return vars
+		replace `matchDiffName' 	= `prefDiff'	if `matched' == 1
+		replace `matchIDname' 		= `idvar' 		if `matched' == 1 & `grpdummy' == 0
+		replace `matchIDname' 		= `prefID' 		if `matched' == 1 & `grpdummy' == 1
+		
+		*Matched observations are give value 1 in result var
+		replace `matchResultName' = 1 				if `matched' == 1 & `matchResultName' != .d
+		
+		*Target obs not used
+		replace `matchResultName' = 0 if `matched' == 0 & `grpdummy' == 0
+
+		*only keep output vars
+		keep `matchIDname' `matchDiffName' `originalSort' `matchResultName' `matchCountName'
+
+		*Merge the results back to the original data set
+		tempfile mergefile
+		save 	`mergefile'
+
+	restore
+
+	***************************
+	*
+	*	Merge match results to 
+	*	original data and assign
+	*	remaining missing values
+	*	to the result var
+	*
+	***************************		
+
+	*Merge the results with the original data
+	tempvar mergevar 
+	merge 1:1  `originalSort' using `mergefile', gen(`mergevar')	
+	
+	*remaining missing values are listed in ascending order of importance. 
+	*Meaning that if a variable is both .m and .i then it will be .i as it
+	*is assigned afterwards below.
+
+	*Missing matching var
+	replace `matchResultName' = .m if missing(`matchvar')
+	
+	*Msising dummy var
+	replace `matchResultName' = .g if missing(`grpdummy')
+	
+	*Excluded in if/in
+	if "`if'`in'" != "" {
+		
+		tempvar  ifinvar
+		gen 	`ifinvar' = 1 `if'`in'
+		replace `matchResultName' = .i if `ifinvar' != 1
 	}
+	
+	*comress the variables generated
+	compress  `matchIDname' `matchDiffName' `matchResultName' `matchCountName'
 
-	end
+	*Output result table
+	noi outputTable `matchResultName' `grpdummy'
+	
+	*Restore the oridinal sort
+	sort `originalSort'		
+
+}
+
+end
 
 	*Check manually entered names for the return vars.
 	cap program drop 	iematchMatchVarCheck

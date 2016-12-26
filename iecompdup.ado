@@ -7,7 +7,7 @@
 		
 		syntax varname ,  id(string) [DIDIfference KEEPDIFFerence KEEPOTHer(varlist) more2ok]
 		
-		version 10.0
+		version 11.0
 		
 		preserve
 			

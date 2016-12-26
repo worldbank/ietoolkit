@@ -11,7 +11,7 @@
 			
 			local origversion "`c(version)'"
 			
-			version 10.0
+			version 11.0
 	
 			//Checking that only one id variable is listed
 			if `:list sizeof idvarname' > 1 {
