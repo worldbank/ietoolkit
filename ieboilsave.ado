@@ -1,4 +1,4 @@
-	*! version 2.1 1Nov2016  Kristoffer Bjarkefur kbjarkefur@worldbank.org
+	*! version 3.0 26DEC2016  Kristoffer Bjarkefur kbjarkefur@worldbank.org
 	
 	capture program drop ieboilsave 
 	program ieboilsave , rclass
@@ -11,7 +11,7 @@
 			
 			local origversion "`c(version)'"
 			
-			version 10.0
+			version 11.0
 	
 			//Checking that only one id variable is listed
 			if `:list sizeof idvarname' > 1 {
