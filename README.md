@@ -41,5 +41,9 @@ If you wish to make a contribution by making a "fork and pull request" but are n
 ### **License**
 **ietoolkit** is developed under MIT license. See http://adampritchard.mit-license.org/ or see [the `LICENSE` file](https://github.com/worldbank/ietoolkit/blob/master/LICENSE) for details.
 
-### **Main Author**
+### **Main Contact**
 Kristoffer Bjärkefur (kbjarkefur@worldbank.com)
+
+### **Authors**
+Kristoffer Bjärkefur (kbjarkefur@worldbank.com)
+Luiza Cardoso de Andrade (lcardosodeandrad@worldbank.com)
