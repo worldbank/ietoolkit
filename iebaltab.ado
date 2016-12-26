@@ -1,5 +1,5 @@
-	*! version 2.2 19Dec2016  Kristoffer Bjarkefur kbjarkefur@worldbank.org
-
+	*! version 3.0 26DEC2016  Kristoffer Bjarkefur kbjarkefur@worldbank.org
+	
 	capture program drop iebaltab
 	program iebaltab
 	
