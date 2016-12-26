@@ -45,5 +45,4 @@ If you wish to make a contribution by making a "fork and pull request" but are n
 Kristoffer Bjärkefur (kbjarkefur@worldbank.com)
 
 ### **Authors**
-Kristoffer Bjärkefur (kbjarkefur@worldbank.com)
-Luiza Cardoso de Andrade (lcardosodeandrad@worldbank.com)
+Kristoffer Bjärkefur and Luiza Cardoso de Andrade.
