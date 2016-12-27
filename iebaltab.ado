@@ -20,7 +20,7 @@
 				TOTALLabel(string)											///
 				ROWVarlabels												///
 				ROWLabels(string)											///
-				onerown														///
+				onenrow														///
 																			///
 				/*Statistics and data manipulation*/						///
 				FIXedeffect(varname)										///
@@ -62,11 +62,10 @@
 				]
 			
 		***************TODO***************
-		* 1. When errors with click Stata code, find a way to apply all conditions for sample to output
-		* 2. Add number of clusters
+		* 1. Add number of clusters
 		
 		********POTENTIAL UPDATES*********
-		*2. Implement option for bootstrap
+		*1. Implement option for bootstrap
 		
 		********HELPFILE TODO*********
 		*1. Explain difference in se between group by itself and the standard errors used in the t-test
@@ -93,8 +92,6 @@ qui {
 		
 	*************************************************
 	************************************************/
-		
-		di "START"
 		
 		*Create local for balance vars with more descriptive name
 		local balancevars `varlist'
@@ -138,8 +135,8 @@ qui {
 		if "`rowlabels'" 		!= "" local ROWLABEL_USED = 1 
 		
 		*Is option totallable() used:
-		if "`onerown'" 			== "" local ONEROWN_USED = 0 
-		if "`onerown'" 			!= "" local ONEROWN_USED = 1 		
+		if "`onenrow'" 			== "" local ONENROW_USED = 0 
+		if "`onenrow'" 			!= "" local ONENROW_USED = 1 		
 			
 
 	** Stats Options
@@ -784,7 +781,7 @@ qui {
 	
 	/*************************************************
 	************************************************/	
-		
+	
 		
 		*Changed to value used in control() if control() is 
 		*specified but order() is not, 
@@ -956,14 +953,14 @@ qui {
 			local groupLabel : word `groupOrderNum' of `grpLabels_final'
 			local groupCode  : word `groupOrderNum' of `ORDER_OF_GROUPS'
 			
-			*Prepare a row to store onerowN values for each group
-			if `ONEROWN_USED' == 1 local onerowN_`groupOrderNum' ""
+			*Prepare a row to store onenrow values for each group
+			if `ONENROW_USED' == 1 local onenrow_`groupOrderNum' ""
 	
 			*Assign the group order to observations that belong to this group
 			replace `groupOrder' = `groupOrderNum' if `grpvar' == `groupCode'
 			
 			*Create one more column for N if N is displayesd in column instead of row
-			if `ONEROWN_USED' == 0 {
+			if `ONENROW_USED' == 0 {
 			
 				local titlerow1 `"`titlerow1' _tab "" 	_tab " (`groupOrderNum') " "'
 				local titlerow2 `"`titlerow2' _tab ""  _tab "`groupLabel'"   	   "'
@@ -996,14 +993,14 @@ qui {
 			*Add one more column group
 			local totalColNumber = `GRPVAR_NUM_GROUPS' + 1
 			
-			*If onerowN used, then add a local to store the total num obs
-			if `ONEROWN_USED' == 1 local onerowN_tot ""
+			*If onenrow used, then add a local to store the total num obs
+			if `ONENROW_USED' == 1 local onenrow_tot ""
 			
 			local tot_label Total
 			if `TOTALLABEL_USED' local tot_label `totallabel'
 
 			*Create one more column for N if N is displayesd in column instead of row
-			if `ONEROWN_USED' == 0 {
+			if `ONENROW_USED' == 0 {
 						
 				local titlerow1 `"`titlerow1' _tab ""	_tab " (`totalColNumber') "	"'
 				local titlerow2 `"`titlerow2' _tab "" 	_tab "`tot_label'" 			"'
@@ -1026,9 +1023,6 @@ qui {
 			
 			}
 		}
-		
-	
-	
 		
 	************************************************
 	*Generating titles for each test of diff in mean
@@ -1113,22 +1107,21 @@ qui {
 	
 	****************************
 	*Writing titles to textfile
-		
+	
 		*Create a temporary textfile
-		tempname 	textfile_name
-		local 		textfile `textfile_name'	
-		
+		tempname 	textname
+		tempfile	textfile
 		
 		*Write the title rows defined above	
-		capture file close `textfile'
-		file open  `textfile' using `textfile'.txt, text write replace
-		file write `textfile' ///
-						`titlerow1' _n ///
-						`titlerow2' _n ///
-						`titlerow3' _n 
-						
-		file close `textfile'
-
+		cap file close 	`textname'
+		file open  		`textname' using "`textfile'", text write replace
+		file write  	`textname' ///
+							`titlerow1' _n ///
+							`titlerow2' _n ///
+							`titlerow3' _n 			
+		file close 		`textname'
+			
+		
 	********************
 	*texfile
 		
@@ -1140,7 +1133,7 @@ qui {
 			*Add at least one column per group and for total if used
 			local	colstring	"`colstring'c"
 			*Add another columns if N is displyaed in column and not row
-			if `ONEROWN_USED' == 0 { 
+			if `ONENROW_USED' == 0 { 
 				local	colstring	"`colstring'c"
 			}
 		}
@@ -1151,16 +1144,16 @@ qui {
 		}
 		
 		*Create a temporary texfile
-		tempname 	texfile_name
-		local 		texfile `texfile_name'
+		tempname 	texname
+		tempfile	texfile
 		
 		****Write texheader
 		*Everyhting here is the tex headers
-		capture file close `texfile'
+		capture file close `texname'
 		
-		file open  `texfile' using `texfile'.txt, text write replace
-		file write `texfile' ///
-			"%%% Table created in Stata by iebaltab" _n ///
+		file open  `texname' using "`texfile'", text write replace
+		file write `texname' ///
+			"%%% Table created in Stata by iebaltab (https://github.com/worldbank/ietoolkit)" _n ///
 			"%" _n ///
 			"% \documentclass{article}" _n ///
 			"%" _n ///
@@ -1174,41 +1167,41 @@ qui {
 			"%" _n ///
 			"\begin{table}[!htbp]" _n /// 
 			"\centering" _n
-		file close `texfile'	
+		file close `texname'	
 		
 		* Write tex caption if specified
 		if `CAPTION_USED' {
-			file open  `texfile' using `texfile'.txt, text write append
-			file write `texfile' `"\caption{`texcaption'}"' _n
-			file close `texfile'
+			file open  `texname' using "`texfile'", text write append
+			file write `texname' `"\caption{`texcaption'}"' _n
+			file close `texname'
 		}
 		
 		* Write tex label if specified
 		if `LABEL_USED' {
-			file open  `texfile' using `texfile'.txt, text write append
-			file write `texfile' `"\label{`texlabel'}"' _n
-			file close `texfile'
+			file open  `texname' using "`texfile'", text write append
+			file write `texname' `"\label{`texlabel'}"' _n
+			file close `texname'
 		}
 		
-		file open  `texfile' using `texfile'.txt, text write append
-		file write `texfile' ///
+		file open  `texname' using "`texfile'", text write append
+		file write `texname' ///
 			"%%% Uncomment the next line to fit the table to page size using the adjustbox package." _n ///
 			"% \begin{adjustbox}{max width=\textwidth}" _n ///
 			"\begin{tabular}{@{\extracolsep{5pt}}`colstring'}" _n ///
 			"\\[-1.8ex]\hline" _n ///
 			"\hline \\[-1.8ex]" _n	
 			
-		file close `texfile'
+		file close `texname'
 		
 		*Write the title rows defined above	
-		capture file close `texfile'
-		file open  `texfile' using `texfile'.txt, text write append
-		file write `texfile' ///
+		capture file close `texname'
+		file open  `texname' using "`texfile'", text write append
+		file write `texname' ///
 						`texrow1' " \\" _n ///
 						`texrow2' " \\" _n ///
 						`texrow3' " \\" _n ///
 						"\hline \\[-1.8ex] " _n
-		file close `texfile'
+		file close `texname'
 	
 	
 	
@@ -1342,7 +1335,7 @@ qui {
 				local 	di_var_`groupNumber' 	=trim("`di_var_`groupNumber''")
 								
 				*Test that N is the same for each group across all vars
-				if `ONEROWN_USED' == 0 {
+				if `ONENROW_USED' == 0 {
 				
 					local 	tableRowUp  `"`tableRowUp' _tab "`N_`groupNumber''" _tab "`di_mean_`groupNumber''"  "'
 					local 	tableRowDo  `"`tableRowDo' _tab " " 				_tab "[`di_var_`groupNumber'']"  "'
@@ -1354,15 +1347,15 @@ qui {
 				else {
 
 					*Test if the first balance var
-					if "`onerowN_`groupNumber''" == "" {
+					if "`onenrow_`groupNumber''" == "" {
 						*Store the obs num
-						local onerowN_`groupNumber' = `N_`groupNumber''
+						local onenrow_`groupNumber' = `N_`groupNumber''
 					}
 					*If not, then check that the obs num is the same as before
-					else if !(`onerowN_`groupNumber'' == `N_`groupNumber'') {
+					else if !(`onenrow_`groupNumber'' == `N_`groupNumber'') {
 									
-						*option onerowN not allowed if N is different
-						noi display as error  "{phang}The number of observations for all groups are not the same for `balancevar' compare to at least one other balance variables. Run the command without the option onerown to see which group does not have the same number of observations with non-missing values across all balance variables.{p_end}"
+						*option onenrow not allowed if N is different
+						noi display as error  "{phang}The number of observations for all groups are not the same for `balancevar' compare to at least one other balance variables. Run the command without the option onenrow to see which group does not have the same number of observations with non-missing values across all balance variables.{p_end}"
 						error 198
 					}
 							
@@ -1410,7 +1403,7 @@ qui {
 
 				
 				*Test that N is the same for each group across all vars
-				if `ONEROWN_USED' == 0 {
+				if `ONENROW_USED' == 0 {
 				
 					local 	tableRowUp  `"`tableRowUp' _tab "`N_tot'" _tab "`mean_tot'"  "'
 					local 	tableRowDo  `"`tableRowDo' _tab " " 	  _tab "[`var_tot']"  "'
@@ -1421,15 +1414,15 @@ qui {
 				else {
 					
 					*Test if the first balance var
-					if "`onerowN_tot'" == "" {
+					if "`onenrow_tot'" == "" {
 						*Store the obs num
-						local onerowN_tot = `N_tot'
+						local onenrow_tot = `N_tot'
 					}
 					*If not, then check that the obs num is the same as before
-					else if !(`onerowN_tot' == `N_tot') {
+					else if !(`onenrow_tot' == `N_tot') {
 						
-						*option onerowN not allowed if N is different
-						noi display as error  "{phang}The number of observations for all groups are not the same for `balancevar' compare to at least one other balance variables. Run the command without the option onerown to see which group does not have the same number of observations with non-missing values across all balance variables. This happened in the total column which can be an indication of a serious bug. Please email this erro message to kbjarkefur@worldbank.org{p_end}"
+						*option onenrow not allowed if N is different
+						noi display as error  "{phang}The number of observations for all groups are not the same for `balancevar' compare to at least one other balance variables. Run the command without the option onenrow to see which group does not have the same number of observations with non-missing values across all balance variables. This happened in the total column which can be an indication of a serious bug. Please email this erro message to kbjarkefur@worldbank.org{p_end}"
 						error 198
 					}
 					
@@ -1474,7 +1467,8 @@ qui {
 				*error even if there is no variance across the two groups. The 
 				*local varloc will determine if an error or a warning will be 
 				*thrown or if the test results will be replaced with an "N/A".
-				mean `balancevar', over(`tempvar_thisGroupInPair') `error_estm'
+				if "`error_estm'" != "vce(robust)" 				local mean_error_estm `error_estm' //Robust not allowed in mean, but mean here is used to test something else
+				mean `balancevar', over(`tempvar_thisGroupInPair') 	 `mean_error_estm'
 				mat var = e(V)
 				local varloc = max(var[1,1],var[2,2])				
 				
@@ -1536,25 +1530,25 @@ qui {
 			}
 	
 			*Write the row for this balance var to file.
-			file open  `textfile' using `textfile'.txt, text write append
-			file write `textfile' 	///
+			file open  `textname' using "`textfile'", text write append
+			file write `textname' 	///
 				`tableRowUp' _n		///
 				`tableRowDo' _n	
-			file close `textfile'
+			file close `textname'
 
-			file open  `texfile' using `texfile'.txt, text write append
-			file write `texfile' 	///
+			file open  `texname' using "`texfile'", text write append
+			file write `texname' 	///
 				`texRowUp' " \\" _n		///
 				`texRowDo' " \\" _n	
-			file close `texfile'
+			file close `texname'
 
 		}
 
 	
 			
-	***Write N row if onerowN used
+	***Write N row if onenrow used
 				
-	if `ONEROWN_USED' == 1 {	
+	if `ONENROW_USED' == 1 {	
 			
 		*Variable column i.e. row title
 		local tableRowN `""N""' 
@@ -1564,27 +1558,27 @@ qui {
 		forvalues groupOrderNum = 1/`GRPVAR_NUM_GROUPS' {
 			
 			*Prepare the row based on the numbers from above
-			local tableRowN `" `tableRowN' _tab "`onerowN_`groupOrderNum''" "'
-			local texRowN 	`" `texRowN' " & `onerowN_`groupOrderNum''" "'
+			local tableRowN `" `tableRowN' _tab "`onenrow_`groupOrderNum''" "'
+			local texRowN 	`" `texRowN' " & `onenrow_`groupOrderNum''" "'
 		}
 
 		if `TOTAL_USED' {
 		
 			*Prepare the row based on the numbers from above
-			local tableRowN `" `tableRowN' _tab "`onerowN_tot'" "'
-			local texRowN 	`" `texRowN' " & `onerowN_tot'" "'
+			local tableRowN `" `tableRowN' _tab "`onenrow_tot'" "'
+			local texRowN 	`" `texRowN' " & `onenrow_tot'" "'
 		}
 
 		*Write the N prepared above
-		file open  `textfile' using `textfile'.txt, text write append
-		file write `textfile' 	///
+		file open  `textname' using "`textfile'", text write append
+		file write `textname' 	///
 			`tableRowN' _n		
-		file close `textfile'
+		file close `textname'
 		
-		file open  `texfile' using `texfile'.txt, text write append
-		file write `texfile' 	///
+		file open  `texname' using "`texfile'", text write append
+		file write `texname' 	///
 			`texRowN' " \\" _n 		
-		file close `texfile'
+		file close `texname'
 	}
 		
 	/***********************************************
@@ -1597,7 +1591,7 @@ qui {
 		
 	if `FTEST_USED' == 1 {
 	
-		if `ONEROWN_USED' == 0 {
+		if `ONENROW_USED' == 0 {
 			local ftestMulticol = 1 + (2*`NUM_COL_GRP_TOT')
 		}
 		else {
@@ -1623,8 +1617,8 @@ qui {
 			local Fstat_row   	`" `Fstat_row' _tab "" "'
 			local Fobs_row    	`" `Fobs_row'  _tab "" "'
 			
-			*Add one more column if onerowN is not used
-			if `ONEROWN_USED' == 0 {
+			*Add one more column if onenrow is not used
+			if `ONENROW_USED' == 0 {
 				local Fstat_row   	`" `Fstat_row' _tab "" "'
 				local Fobs_row    	`" `Fobs_row'  _tab "" "'			
 			
@@ -1637,8 +1631,8 @@ qui {
 			local Fobs_row   	`" `Fobs_row'  _tab "" "'
 			
 	
-			*Add one more column if onerowN is not used
-			if `ONEROWN_USED' == 0 {
+			*Add one more column if onenrow is not used
+			if `ONENROW_USED' == 0 {
 				local Fstat_row   	`" `Fstat_row' _tab "" "'
 				local Fobs_row    	`" `Fobs_row'  _tab "" "'			
 				
@@ -1804,18 +1798,18 @@ qui {
 		*******
 		* Write the f-test row to file
 		
-		file open  `textfile' using `textfile'.txt, text write append
-								file write `textfile' `Fstat_row' _n
-			if !`F_NO_OBS' 		file write `textfile' `Fobs_row'  _n
-		file close `textfile'
+		file open  `textname' using "`textfile'", text write append
+								file write `textname' `Fstat_row' _n
+			if !`F_NO_OBS' 		file write `textname' `Fobs_row'  _n
+		file close `textname'
 
 
-		file open  `texfile' using `texfile'.txt, text write append
-								file write `texfile' "\\[-1.8ex]" _n
-								file write `texfile' "\hline \\[-1.8ex]" _n
-								file write `texfile' `Fstat_texrow' " \\" _n
-			if !`F_NO_OBS' 		file write `texfile' `Fobs_texrow'  " \\" _n
-		file close `texfile'
+		file open  `texname' using "`texfile'", text write append
+								file write `texname' "\\[-1.8ex]" _n
+								file write `texname' "\hline \\[-1.8ex]" _n
+								file write `texname' `Fstat_texrow' " \\" _n
+			if !`F_NO_OBS' 		file write `texname' `Fobs_texrow'  " \\" _n
+		file close `texname'
 	}
 
 	
@@ -2016,11 +2010,11 @@ qui {
 		
 
 			*Write to file
-			file open  `textfile' using `textfile'.txt, text write append
+			file open  `textname' using "`textfile'", text write append
 			
-				file write `textfile' "`tblnote' `ttest_note'`ftest_note'`error_est_note'`fixed_note'`covar_note'`balmiss_note'`covmiss_note'`stars_note'" _n
+				file write `textname' "`tblnote' `ttest_note'`ftest_note'`error_est_note'`fixed_note'`covar_note'`balmiss_note'`covmiss_note'`stars_note'" _n
 				
-			file close `textfile'
+			file close `textname'
 
 		
 	}
@@ -2028,27 +2022,27 @@ qui {
 		
 		*Nonote used. Only add manually entered note
 		
-		file open  `textfile' using `textfile'.txt, text write append
+		file open  `textname' using "`textfile'", text write append
 		
-			if `NOTE_USED' 			file write `textfile' "`tblnote'" _n
+			if `NOTE_USED' 			file write `textname' "`tblnote'" _n
 			
-		file close `textfile'
+		file close `textname'
 		
 	}
 	else {
 	
-		file open  `textfile' using `textfile'.txt, text write append
+		file open  `textname' using "`textfile'", text write append
 		
-			if  `NOTE_USED' 		file write `textfile' "`tblnote'" 			_n
-									file write `textfile' "`ttest_note'" 		_n
-			if 	`FTEST_USED'		file write `textfile' "`ftest_note'" 		_n
-			if  `VCE_USED'			file write `textfile' "`error_est_note'" 	_n	
-			if  `FIX_EFFECT_USED' 	file write `textfile' "`fixed_note'" 		_n
-			if  `COVARIATES_USED' 	file write `textfile' "`covar_note'" 		_n
-			if  `BALMISS_USED'		file write `textfile' "`balmiss_note'"		_n	
-			if  `COVMISS_USED'		file write `textfile' "`covmiss_note'"		_n			
-			if !`STARSNOADD_USED'	file write `textfile' "`stars_note'" 		_n
-		file close `textfile'
+			if  `NOTE_USED' 		file write `textname' "`tblnote'" 			_n
+									file write `textname' "`ttest_note'" 		_n
+			if 	`FTEST_USED'		file write `textname' "`ftest_note'" 		_n
+			if  `VCE_USED'			file write `textname' "`error_est_note'" 	_n	
+			if  `FIX_EFFECT_USED' 	file write `textname' "`fixed_note'" 		_n
+			if  `COVARIATES_USED' 	file write `textname' "`covar_note'" 		_n
+			if  `BALMISS_USED'		file write `textname' "`balmiss_note'"		_n	
+			if  `COVMISS_USED'		file write `textname' "`covmiss_note'"		_n			
+			if !`STARSNOADD_USED'	file write `textname' "`stars_note'" 		_n
+		file close `textname'
 		
 	}
 	
@@ -2072,16 +2066,16 @@ qui {
 	*if none is manually specified, default is text width)
 	if `NOTEWIDTH_USED' == 0 	local texnotewidth = 1
 	
-	file open  `texfile' using `texfile'.txt, text write append
+	file open  `texname' using "`texfile'", text write append
 		
-		file write `texfile' ///
+		file write `texname' ///
 			"\hline" _n ///
 			"\hline \\" _n
 			
 		** Write notes to file according to specificiation
 		*If no automatic notes are used, write only manual notes
 		if `NONOTE_USED' & `NOTE_USED' {
-			file write `texfile' ///
+			file write `texname' ///
 				"%%% This is the note. If it does not have the correct margins, use texnotewidth() option or change the number before '\textwidth' in line below to fit it to table size." _n ///
 				"[-1.8ex] \multicolumn{`totalColNo'}{@{} p{`texnotewidth'\textwidth}}" _n ///
 				`"{\textit{Notes}: `tblnote'}"' _n
@@ -2090,20 +2084,20 @@ qui {
 		else if ! `NONOTE_USED' {
 		
 			*Write to file
-			file write `texfile' ///
+			file write `texname' ///
 				"%%% This is the note. If it does not have the correct margins, edit text below to fit to table size." _n ///
 				"[-1.8ex] \multicolumn{`totalColNo'}{@{}p{`texnotewidth'\textwidth}}" _n ///
 				`"{\textit{Notes}: `tblnote' `ttest_note'`ftest_note'`error_est_note'`fixed_note'`covar_note'`balmiss_note'`covmiss_note'`stars_note'}"' _n
 		}
 	
-		file write `texfile' ///	
+		file write `texname' ///	
 			"\end{tabular}" _n ///
 			"%%% Uncomment the next line to fit the table to page size using the adjustbox package." _n ///
 			"% \end{adjustbox}" _n ///
 			"\end{table}" _n ///
 			"% \end{document}" _n
 			
-		file close `texfile'
+		file close `texname'
 	
 	/***********************************************
 	************************************************/
@@ -2121,7 +2115,7 @@ qui {
 	
 	if !( `BROWSE_USED' | `SAVE_BROWSE_USED' ) preserve
 	
-		import delimited using `textfile'.txt, clear delimiters("\t")
+		import delimited using "`textfile'", clear delimiters("\t")
 		
 		if `SAVE_USED' {
 		
@@ -2132,7 +2126,7 @@ qui {
 		
 		if `SAVE_TEX_USED' {
 		
-			copy `texfile'.txt `"`savetex'"', `replace'
+			copy "`texfile'" `"`savetex'"', `replace'
 			
 			noi di as result `"{phang}Balance table saved to: {browse "`savetex'":`savetex'} "'
 		}
