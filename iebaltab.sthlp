@@ -14,25 +14,16 @@ help for {hi:iebaltab}
 {cmdab:iebaltab} {it:balancevarlist} [{help if:if}] [{help in:in}]
 , {cmdab:grpv:ar(}{it:varname}{cmd:)} {c -(} {cmdab:save(}{it:{help filename}}{cmd:)} | {cmdab:savet:ex(}{it:{help filename}}{cmd:)} | {cmdab:browse} {c )-}
 [
-{cmdab:co:ntrol(}{it:groupcode}{cmd:)} {cmdab:or:der(}{it:groupcodelist}{cmd:)} {cmdab:tot:al} {cmdab:grpc:odes}
-{cmdab:grpl:abels(}{it:codetitlestring}{cmd:)} {cmdab:totall:abel(}{it:string}{cmd:)} {cmdab:rowv:arlabels}
-{cmdab:rowl:abels(}{it:nametitlestring}{cmd:)} {cmdab:onerown}  {cmdab:balmiss:(}{it:string}{cmd:)} {cmdab:balmissr:eg(}{it:string}{cmd:)}
-{cmdab:missmin:mean(}{it:{help numlist:numlist}}{cmd:)} {cmdab:vce:(}{it:{help vce_option:vce_types}}{cmd:)}
-{cmdab:fix:edeffect(}{it:varname}{cmd:)} {cmdab:cov:ariates(}{it:{help varlist}}{cmd:)} {cmd:covarmissok} {cmdab:covmiss:(}{it:string}{cmd:)}
-{cmdab:covmissr:eg(}{it:string}{cmd:)} {cmdab:ft:est} {cmdab:fm:issok} {cmd:fnoobs} {cmdab:pt:test} {cmdab:pf:test} {cmdab:pb:oth}
-{cmdab:star:levels(}{it:{help numlist:numlist}}{cmd:)} {cmdab:starsno:add} {cmdab:form:at(}{it:{help format:%fmt}}{cmd:)}
-{cmdab:tbln:ote(}{it:string}{cmd:)} {cmdab:notec:ombine} {cmdab:tblnon:ote} {cmd:replace} {cmdab:savebr:owse}
-{cmdab:texn:otewidth(}{it:{help numlist:numlist}}{cmd:)} {cmdab:texc:aption(}{it:string}{cmd:)} {cmdab:texl:abel(}{it:string}{cmd:)}
+{it:{help ieboilstart##columnoptions:column_options} {help ieboilstart##labeloptions:label_options}} 
+{it:{help ieboilstart##statsoptions:stats_options} {help ieboilstart##ftestoptions:ftest_options}} 
+{it: {help ieboilstart##display:display_options} {help ieboilstart##exportoptions:export_options}}  
 ]
 
 {phang2}where {it:balancevarlist} is one or several variables (from here on called balance variables) for which the command
-will test for differences across the catagories in grpvar({it:varname}), {it:groupcode}
-is a value used in grpvar({it:varname}), {it:groupcodelist} is a list of one or many values
-used in grpvar({it:varname}), {it:codetitlestring} is a string of group codes with corresponding column title and
-{it:nametitlestring} is a string of variable names with corresponding row title.
+will test for differences across the catagories in grpvar({it:varname}).
 
 {marker opts}{...}
-{synoptset 26}{...}
+{synoptset 21}{...}
 {synopthdr:options}
 {synoptline}
 {pstd}{it:    {ul:{hi:Required options:}}}{p_end}
@@ -46,35 +37,40 @@ used in grpvar({it:varname}), {it:codetitlestring} is a string of group codes wi
 
 {pstd}{it:    {ul:{hi:Optional options}}}{p_end}
 
+{marker columnoptions}{...}
 {pstd}{it:    Columns and order of columns options:}{p_end}
 {synopt :{cmdab:co:ntrol(}{it:groupcode}{cmd:)}}One group is tested against all other groups in t-tests and F-tests. Default is all groups against each other.{p_end}
-{synopt :{cmdab:or:der(}{it:groupcodelist}{cmd:)}}Manually set the group column order in the table {p_end}
+{synopt :{cmdab:or:der(}{it:groupcodelist}{cmd:)}}Manually set the group column order in the table. Default is ascending. See details on {it:groupcodelist} below.{p_end}
 {synopt :{cmdab:tot:al}}Include descriptive stats on all groups combined{p_end}
 
+{marker labeloptions}{...}
 {pstd}{it:    Column and row labels:}{p_end}
 {synopt :{cmdab:grpc:odes}}Use the treatment arm codes as group column titles{p_end}
-{synopt :{cmdab:grpl:abels(}{it:codetitlestring}{cmd:)}}Manually set the group column titles{p_end}
+{synopt :{cmdab:grpl:abels(}{it:codetitles}{cmd:)}}Manually set the group column titles. See details on {it:codetitels} below.{p_end}
 {synopt :{cmdab:totall:abel(}{it:string}{cmd:)}}Manually set the total column title{p_end}
 {synopt :{cmdab:rowv:arlabels}}Use the variable labels instead of variable name as row titles{p_end}
-{synopt :{cmdab:rowl:abels(}{it:nametitlestring}{cmd:)}}Manually set the row titles{p_end}
+{synopt :{cmdab:rowl:abels(}{it:nametitles}{cmd:)}}Manually set the row titles. See details on {it:nametitles} below.{p_end}
 {synopt :{cmdab:onerown}}Write number of observations in one row{p_end}
 
+{marker statsoptions}{...}
 {pstd}{it:    Statistics and data modification:}{p_end}
-{synopt :{cmdab:balmiss:(}{it:string}{cmd:)}}Replaces missing values in balance variables with either zeros, the mean or the group mean.{p_end}
-{synopt :{cmdab:balmissr:eg(}{it:string}{cmd:)}}Similar to {cmd:misszero} but treats {help missing:extended missing values} still as missing{p_end}
-{synopt :{cmdab:missmin:mean(}{it:{help numlist:numlist}}{cmd:)}}Sets a minimum number of observations that a mean or group mean must be based on in {cmd:balmiss()}, {cmd:balmissreg()}, {cmd:covmiss()} and {cmd:covmissreg()}{p_end}
+{synopt :{cmdab:balmiss:(}{it:reptype}{cmd:)}}Replaces missing values in balance variables with either zeros, the mean or the group mean. See details on {it:reptype} below.{p_end}
+{synopt :{cmdab:balmissr:eg(}{it:reptype}{cmd:)}}Similar to {cmd:misszero} but treats {help missing:extended missing values} still as missing.  See details on {it:reptype} below.{p_end}
 {synopt :{cmdab:vce:(}{it:{help vce_option:vce_types}}{cmd:)}}Options for variance estimation. {hi:Robust}, {hi:cluster} {it:clustervar} or {hi:bootstrap}{p_end}
 {synopt :{cmdab:fix:edeffect(}{it:varname}{cmd:)}}Include fixed effects in the regressions for t-tests (and for F-tests if applicable){p_end}
 {synopt :{cmdab:cov:ariates(}{it:{help varlist}}{cmd:)}}Include covariates (control variables) in the regressions for t-tests (and for F-tests if applicable){p_end}
 {synopt :{cmd:covarmissok}}Allows for observations to be dropped due to missing values in covariate variables{p_end}
-{synopt :{cmdab:covmiss:(}{it:string}{cmd:)}}Replaces missing values in covariate variables with either zeros, the mean or the group mean.{p_end}
-{synopt :{cmdab:covmissr:eg(}{it:string}{cmd:)}}Similar to {cmd:covmisszero} but treats {help missing:extended missing values} still as missing{p_end}
+{synopt :{cmdab:covmiss:(}{it:reptype}{cmd:)}}Replaces missing values in covariate variables with either zeros, the mean or the group mean. See details on {it:reptype} below.{p_end}
+{synopt :{cmdab:covmissr:eg(}{it:reptype}{cmd:)}}Similar to {cmd:covmisszero} but treats {help missing:extended missing values} still as missing. See details on {it:reptype} below.{p_end}
+{synopt :{cmdab:missmin:mean(}{it:{help numlist:numlist}}{cmd:)}}Sets a minimum number of observations that a mean or group mean must be based on in options requiring {it:reptype}.{p_end}
 
+{marker ftestoptions}{...}
 {pstd}{it:    F-test:}{p_end}
 {synopt :{cmdab:ft:est}}Include an F-test for joint significance{p_end}
 {synopt :{cmdab:fm:issok}}Suppress the error caused by missing values in F-test{p_end}
 {synopt :{cmd:fnoobs}}Do not display number of observations from the F-test regressions{p_end}
 
+{marker displayoptions}{...}
 {pstd}{it:    Table display options:}{p_end}
 {synopt :{cmdab:pt:test}}Show p-values instead of difference-in-mean between the groups in the column for t-tests{p_end}
 {synopt :{cmdab:pf:test}}Show p-values instead of F-statistics in the row for F-tests{p_end}
@@ -86,6 +82,7 @@ used in grpvar({it:varname}), {it:codetitlestring} is a string of group codes wi
 {synopt :{cmdab:notec:ombine}}Combine all notes (manually entered or automatically generated) to one row{p_end}
 {synopt :{cmdab:tblnon:ote}}Disable any notes automatically generated by the command{p_end}
 
+{marker exportoptions}{...}
 {pstd}{it:    Export and browse options:}{p_end}
 {synopt :{cmd:replace}}Replace file on disk if the file already exists{p_end}
 {synopt :{cmdab:savebr:owse}}View the table in the browser window also after saving the table to file{p_end}
@@ -220,7 +217,7 @@ are tested against for difference in means and where {it:groupcode} is an intege
 The default is that all groups are tested against each other. The control group will be listed first
 (leftmost) in the table unless another order is specified in {cmd:order()}.{p_end}
 
-{phang}{cmdab:or:der(}{it:groupcodelist}{cmd:)} manually sets the column order of the groups in the table. {it:groupcodelist} is
+{phang}{cmdab:or:der(}{it:codetitels}{cmd:)} manually sets the column order of the groups in the table. {it:codetitels} is
  a list of integers used in {cmd:grpvar(}{it:varname}{cmd:)}. The default order is ascending order of the group
  codes in {cmdab:grpv:ar(}{it:varname}{cmd:)}. Any groups omitted from this option will, in ascending order,
  follow the groups included.{p_end}
@@ -233,7 +230,7 @@ The default is that all groups are tested against each other. The control group 
 is to use the value labels used in {cmdab:grpv:ar(}{it:varname}{cmd:)}. If no value labels are used, then this option does
 not make a difference.{p_end}
 
-{phang}{cmdab:grpl:abels(}{it:codetitlestring}{cmd:)} manually sets the group column titles. {it:codetitlestring} is a string
+{phang}{cmdab:grpl:abels(}{it:codetitels}{cmd:)} manually sets the group column titles. {it:codetitels} is a string
 on the following format {it:"code1 title1 @ code2 title2 @ code3 title3"} etc. where code1, code2 etc. are group codes used
 in {cmd:grpvar(}{it:varname}{cmd:)} and title1, title2 etc. are the corresponding titles. The character "@" may not be used
 in any of the titles. Codes omitted from this option will be assigned a column title as if this option was not used. This option
@@ -246,8 +243,8 @@ or a "@" will be included in the title.{p_end}
 {phang}{cmdab:rowv:arlabels} use the variable labels instead of variable name as row titles. The default is to use the
 variable name. For variables with no variable label defined, the variable name is used regerdless.{p_end}
 
-{phang}{cmdab:rowl:abels(}{it:nametitlestring}{cmd:)} manually sets the row titles for each of the balance variables in the
-table. {it:nametitlestring} is a string in the following format {it:"name1 title1 @ name2 title2 @ name3 title3"} etc. where
+{phang}{cmdab:rowl:abels(}{it:nametitles}{cmd:)} manually sets the row titles for each of the balance variables in the
+table. {it:nametitles} is a string in the following format {it:"name1 title1 @ name2 title2 @ name3 title3"} etc. where
 name1, name2 etc. are variable names and title1, title2 etc. are the corresponding row titles. The character "@" may not
 be used in any of the titles. Variables omitted from this option are assigned a row title as if this option was not used. This option
 has precedence over {cmd:rowvarlabels} when used together, meaning that variable labels are only used for variables that are not included
@@ -260,9 +257,9 @@ is display in additional column besides the mean value.{p_end}
 
 {pstd}{it:    Statistics and data modification:}{p_end}
 
-{phang}{cmdab:balmiss:(}{it:string}{cmd:)} makes the command replace all missing values in balance variables with either zeros, the mean or the group
-mean of the variable. The string can eitehr be {it:zero}, {it:mean} or {it:groupmean}. {it:Zero} makes the command replace all missing values with a zero. {it:Mean} makes
-the command replace all missing values with the mean value of this variable. {it:Groupmean} makes the command replace all missing values with the mean
+{phang}{cmdab:balmiss:(}{it:reptype}{cmd:)} makes the command replace all missing values in balance variables with either zeros, the mean or the group
+mean of the variable. {it:reptype} can either be {it:zero}, {it:mean} or {it:groupmean}. {it:zero} makes the command replace all missing values with a zero. {it:mean} makes
+the command replace all missing values with the mean value of this variable. {it:groupmean} makes the command replace all missing values with the mean
 value in each group in {cmd:grpvar(}{it:varname}{cmd:)} of this variable. Stata always drops observations with
 missing values in the dependent variable or in any of the independent variables when estimating a regression. This option tells this
 command to replace all missing values in the balance variables with a non-missing value. That will make it possible to include the observations with
@@ -271,7 +268,7 @@ There is no guarantee that a missing value can correctly be assumed to be zero w
 practice is most certainly to manually replace or omitt these values manually before running this command. This option is only included to enable
 quick balance tables on raw data before the data has been cleaned.{p_end}
 
-{phang}{cmdab:balmissr:eg(}{it:string}{cmd:)} makes the command replace all regular missing values in balance variables with either zeros, the mean or
+{phang}{cmdab:balmissr:eg(}{it:reptype}{cmd:)} makes the command replace all regular missing values in balance variables with either zeros, the mean or
 the group mean of the variable. See {cmd:misszero} for details and warning.
 The difference is that this option still treats {help missing:extended missing values} as missing, but regular missing values will be replaced.{p_end}
 
@@ -295,10 +292,10 @@ with missing values in at least one the variables used in a regression. This com
 values in any of the variables specified in {cmd:covariates()}. To suppress that error, use this option and therby accept that some observations
 are excluded from the balance table. Also see {cmd:covmisszero} and {cmd:covmissregzero} for other solutions to this issue.{p_end}
 
-{phang}{cmdab:covmiss:} makes the command replace all missing values in covariate variables with either zeros, the mean or the group mean of the variable. See {cmd:balmiss} for more
+{phang}{cmdab:covmiss(}{it:reptype}{cmd:)} makes the command replace all missing values in covariate variables with either zeros, the mean or the group mean of the variable. See {cmd:balmiss} for more
 details and the warning that applies to this command as well.{p_end}
 
-{phang}{cmdab:covmissr:eg} makes the command replace all regular missing values in covariate variables with either zeros, the mean or the group mean of the variable. See {cmd:balmiss} for more
+{phang}{cmdab:covmissr:eg(}{it:reptype}{cmd:)} makes the command replace all regular missing values in covariate variables with either zeros, the mean or the group mean of the variable. See {cmd:balmiss} for more
 details and the warning that applies to this command as well. The difference from {cmd:covmisszero} that this option still treat {help missing:extended missing values} as
 missing, but regular missing values will be replaced.{p_end}
 
@@ -393,7 +390,7 @@ The note width is a multiple of text width. If not specified, default width is t
 {title:Author}
 
 {phang}Luiza Cardoso De Andrade, The World Bank, DECIE{p_end}
-{phang}Kristoffer Bj�rkefur, The World Bank, DECIE{p_end}
+{phang}Kristoffer Bjarkefur, The World Bank, DECIE{p_end}
 
 {phang}Please send bug-reports, suggestions and requests for clarifications
 		 writing "ietoolkit iebaltab" in the subject line to:{break}
