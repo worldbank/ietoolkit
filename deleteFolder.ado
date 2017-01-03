@@ -12,12 +12,12 @@
 	
 	
 	foreach file of local flist {
-		
+		noi di "`folder'\\`file'"
 		if "`c(os)'" == "Windows" erase "`folder'\\`file'"
 		if "`c(os)'" != "Windows" rm 	"`folder'\\`file'"
 	}
 	foreach file of local olist {
-		
+		noi di "`folder'\\`file'"
 		if "`c(os)'" == "Windows" erase "`folder'\\`file'"
 		if "`c(os)'" != "Windows" rm 	"`folder'\\`file'"
 	}	
