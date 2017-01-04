@@ -22,6 +22,7 @@ An easy but still very efficient way to provide any feedback on these commands i
 
  - **ieduplicates** and **iecompdup** are useful tools to identify and correct for duplicates, particulary in primary survey data
  - **iebaltab** is a tool for multiple treatment arm balance tables
+ - **iematch** is an algortihm for matching observations in one group to "the most similar" observations in another group
  - **ieboilstart** standardizes the boilerplate code at the top of all do-files
  - **ieboilsave** performs checks before saving a data set
 
