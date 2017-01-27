@@ -722,6 +722,14 @@ qui {
 					noi display as error "{phang}The file format specified in savetex(`savetex') is other than .tex or .txt. Only those two formats are allowed. If no format is specified .tex is the default.{p_end}"
 					error 198
 				}
+				
+				if `CAPTION_USED' {
+				
+				* If there's an underscore in the caption, make sure it will appear as such.
+				local texcaption = subinstr("`texcaption'", "_", "\_",.)
+				local texcaption = subinstr("`texcaption'", "\\_", "\_",.)		// Just in case the user had already thought of adding the bar
+				
+				}
 			}
 			
 		}
