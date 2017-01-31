@@ -1,16 +1,15 @@
 {smcl}
-{* 26 Dec 2016}{...}
+{* 31 Jan 2017}{...}
 {hline}
 help for {hi:ieboilstart}
 {hline}
 
 {title:Title}
 
-{phang}{cmdab:ieboilstart} {hline 2} Creates a dofile that harmonizes the settings
-accross team members in the same project to the longest extent technically possible.
+{phang}{cmdab:ieboilstart} {hline 2} Harmonizes settings across team members in the same project to the longest extent technically possible.
 
 
-{phang}{hi:DISCLAIMER} {hline 1} Due to technical reasons why it is
+{phang}{hi:DISCLAIMER} {hline 1} Due to technical reasons, it is
 impossible to guarantee that different types of Stata (version number, Small/IC/SE/MP
 or PC/Mac/Linux) work exactly the same in every possible context. This command does not
 guarantee against any version discrepancies, it is solely a collection of common practices
@@ -51,7 +50,7 @@ details {help ieboilstart##comp:below}.
 	reminder to include "`r(version)'".{p_end}
 {synopt :{cmdab:setmem(}{it:string}{cmd:)}}manually sets the memory for	Stata 11 users.{p_end}
 {synopt :{cmdab:c:ustom(}{it:string}{cmd:)}}allows the user to enter custom lines
-	of code to be added to the dofile this command creates.{p_end}
+	of code to be added.{p_end}
 {synoptline}
 
 {marker desc}{...}
@@ -88,7 +87,7 @@ details {help ieboilstart##comp:below}.
 	in Stata 14 and not necessarily the other way around. Setting the version is still best practice and perhaps the most important setting in {cmdab:ieboilstart}. Read the {help ieboilstart##synt:syntax section} on the extra step required for {cmdab:ieboilstart} to set the version.{p_end}
 
 {pstd}{hi:Warning:} Any dofiles containing randomization {ul:{hi:MUST}} set the version number
-	as Stata occasionally makes updates to it's randomization algorithm between versions. A dofile including random assignment
+	as Stata occasionally makes updates to its randomization algorithm between versions. A dofile including random assignment
 	or random sampling is therefore not necessarily stable across different versions of Stata,
 	unless the dofile has a version number explicitly set in the beginning of the file.{p_end}
 
@@ -101,7 +100,7 @@ details {help ieboilstart##comp:below}.
 	regardless if required it or not. Stata would crash if it went over that fixed limit
 	when for example increasing the data set or running a complex calculation. In Stata
 	12 and more recent versions, this is done dynamically, meaning that Stata is assigned
-	a little bit of memory when it is started and assigned additional memory dynamically
+	a little bit of memory when it is starts and assigned additional memory dynamically
 	as needed. The only memory limit is the hardware limits on the computer it is running
 	on.
 
@@ -136,8 +135,7 @@ details {help ieboilstart##comp:below}.
 {pstd}{hi:{ul:Other Settings:}}{break}The other settings are included as they are either very
 	commonly preferred or reduces the risk of errors for users that do not yet fully understand
 	the implication of setting these settings to other values than what is recommended. These
-	settings can be reverted to personal preferences after running the dofile created
-	by {cmdab:ieboilstart} or by using the {cmd:custom()} option.{p_end}
+	settings can be reverted to personal preferences after running {cmdab:ieboilstart} or by using the {cmd:custom()} option.{p_end}
 {p2colset 5 24 26 2}
 {p2col : Other Settings}Short explanation{p_end}
 {p2line}
@@ -164,19 +162,19 @@ details {help ieboilstart##comp:below}.
 
 {phang}{cmdab:v:ersionnumber(}{it:string}{cmd:)} sets a stable version of Stata
 	for all users. Stata does not (for good reasons) allow a user written command
-	to alter the version setting form insida a command. Therefore, this option does
+	to alter the version setting from inside a command. Therefore, this option does
 	{ul:nothing} unless "`r(version)'" is included as described in the
 	{help ieboilstart##synt:syntax section}. While the version number cannot be set
 	inside the command code, {cmd:ieboilstart} does two things. First it reminds
 	the user to set the version since it is a required command. Second, it makes
 	sure that the version number used is not too old. A too old version might
-	risk that there are far to big differences in too many commands. Best
+	risk that there are far too big a difference in many commands. Best
 	practice is therefore to keep the same version number throughout a project,
 	unless there is something specific to a newer version that is required for any
 	dofile. Only major and recent	versions are allowed in order to reduce errors and
 	complexity. The valid versions	are 11.0, 11.1, 11.2, 12.0, 12.1, 13.0, 13.1,
 	14.0 and 14.1. All versions of Stata can be set to run any older version of Stata
-	but not a	newer. It is recommended to use a .1 over a .0 version. .1 is free
+	but not a newer. It is recommended to use a .1 over a .0 version. .1 is free
 	of charge	if you already have the corresponding .0 and .1 includes bug fixes to the
 	functions introduced in .0.{p_end}
 
@@ -211,8 +209,7 @@ details {help ieboilstart##comp:below}.
 
 {phang}{cmd:veryquietly} suppresses the third output this commands generates in the result window in addition to the two that {cmd:quietly} is suppressing. The third output is a reminder to set the version number using "`r(version)'" after running the command.
 
-{phang}{cmdab:c:ustom(}{it:string}{cmd:)} allows the user to add one or multiple custom lines of code
-	to the do-file. Each line of code should be seperated with a "@". See example 4
+{phang}{cmdab:c:ustom(}{it:string}{cmd:)} allows the user to add one or multiple custom lines of code. Each line of code should be seperated with a "@". See example 4
 	below for more details.{p_end}
 
 {phang}{cmdab:c:ustom(}{it:string}{cmd:)}This option is only relevant for users of Stata 11. This value must be an integer followed by the letter B, K, M or G. The default if omitted is 50M. Cannot be used if
@@ -227,7 +224,7 @@ details {help ieboilstart##comp:below}.
 
 {pmore}After running the two lines of code above all users will run their version
  of Stata as if the version was  11.1. That means that anyone who bought or
- upgraded Stata after June 2010 can use this dofile and all commands will behave
+ upgraded Stata after June 2010 can use the command and all commands will behave
   identically for all those users. All other settings have been set to common
 	best practice values.
 
@@ -236,7 +233,7 @@ details {help ieboilstart##comp:below}.
 {pmore}{inp:ieboilstart, versionnumber(12.1) custom(ssc install estout @ ssc install winsor)}
 {break}`r(version)'
 
-{pmore}In the example above, the version is set to 12.1. When running this command it also makes sure that the user has the two commands {inp:estout} and {inp:winsor} installed.
+{pmore}In the example above, the version is set to 12.1. When running this command, it also makes sure that the user has the two commands {inp:estout} and {inp:winsor} installed.
 
 {title:Acknowledgements}
 
