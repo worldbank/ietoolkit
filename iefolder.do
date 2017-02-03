@@ -4,6 +4,8 @@
 	
 	
 	global box 		"C:\Users\wb462869\Box Sync"
+	global box		"C:\Users\Kristoffer\Box Sync"
+	
 	global ief 		"$box\Stata\Stata work\Commands\iefolder"
 	global testdir	"$ief\ief_test"
 	
@@ -20,7 +22,7 @@
 	global projectfolder "$testdir/`maindirname'"
 	
 	
-	local surveyRounds baseline endline florence
+	local surveyRounds baseline endline kristoffer kewinowens
 	
 	
 	
@@ -85,7 +87,7 @@
 	file write  	`newHandle' "count" _n 			
 	file close 		`newHandle'
 	
-	copy "`newTextFile'"  "$maindir/testMasterDofile.do"
+	copy "`newTextFile'"  "$projectfolder/testMasterDofile.do"
 
-	doedit "$maindir\testMasterDofile.do" 
+	doedit "$projectfolder\testMasterDofile.do" 
 	

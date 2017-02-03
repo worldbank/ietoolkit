@@ -102,10 +102,10 @@
 		*di 3.1
 		
 		*Round Data sub-folder
-		createFolderWriteGlobal "Import Dofiles"		"`rnd'_do" 		"`rnd'_doImp" 	`file_name'
-		createFolderWriteGlobal "Cleaning Dofiles"		"`rnd'_do" 		"`rnd'_doCln" 	`file_name'
-		createFolderWriteGlobal "Construct Dofiles"		"`rnd'_do" 		"`rnd'_doCon" 	`file_name'
-		createFolderWriteGlobal "Analyse Dofiles"		"`rnd'_do" 		"`rnd'_doAnl" 	`file_name'
+		createFolderWriteGlobal "Dofiles Import "		"`rnd'_do" 		"`rnd'_doImp" 	`file_name'
+		createFolderWriteGlobal "Dofiles Cleaning "		"`rnd'_do" 		"`rnd'_doCln" 	`file_name'
+		createFolderWriteGlobal "Dofiles Construct "	"`rnd'_do" 		"`rnd'_doCon" 	`file_name'
+		createFolderWriteGlobal "Dofiles Analyze "		"`rnd'_do" 		"`rnd'_doAnl" 	`file_name'
 		
 		*di 4
 		
@@ -114,7 +114,14 @@
 		
 		*Round Survey Documentation folder
 		createFolderWriteGlobal "Survey Documentation" "`rnd'"	 		"`rnd'_doc"	
+
+		*Questionnaire
+		createFolderWriteGlobal "Questionnaire" 		"`rnd'"	 		"`rnd'_quest"		
 		
+		*Questionnaire subfolders
+		createFolderWriteGlobal "Programming Questionnaire" 	"`rnd'_quest"	 	"`rnd'_questPro"			
+		createFolderWriteGlobal "Final Questionnaire" 			"`rnd'_quest"	 	"`rnd'_questFin"	
+		createFolderWriteGlobal "Preload Data"	 				"`rnd'_quest"	 	"`rnd'_preload"	
 		
 	end
 	
@@ -127,7 +134,7 @@
 			if !("`textfile'" == "" & "`textname'" == "") {
 				
 				file open  		`textname' using "`textfile'", text write append
-				file write  	`textname' _tab `"global `globalName'"' _col(36) `""\$`parentGlobal'/`folderName'" "' _n 
+				file write  	`textname' _col(4) `"global `globalName'"' _col(34) `""\$`parentGlobal'/`folderName'" "' _n 
 				file close 		`textname'
 
 				

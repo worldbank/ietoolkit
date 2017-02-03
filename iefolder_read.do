@@ -4,6 +4,7 @@
 	
 	
 	global box 		"C:\Users\wb462869\Box Sync"
+	global box		"C:\Users\Kristoffer\Box Sync"
 	global ief 		"$box\Stata\Stata work\Commands\iefolder"
 	global testdir	"$ief\ief_test"
 	
@@ -81,6 +82,6 @@
 	file close `oldfile'
 	
 	
-	copy "`newtextfile'"  "$maindir/testMasterDofile2.do" , replace
+	copy "`newtextfile'"  "`maindir'/testMasterDofile2.do" , replace
 	
-	doedit "$maindir\testMasterDofile2.do" 
+	doedit "`maindir'\testMasterDofile2.do" 
