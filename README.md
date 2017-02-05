@@ -15,13 +15,13 @@ If you are familiar with GitHub go to the **Contributions** section below for ad
 
 An easy but still very efficient way to provide any feedback on these commands is to create an *issue* in GitHub. You can read *issues* submitted by other users or create a new *issue* in the top menu below [ worldbank**/ietoolkit**](https://github.com/worldbank/ietoolkit) at [https://github.com/worldbank/ietoolkit](https://github.com/worldbank/ietoolkit). While the word *issue* has a negative connotation outside GitHub, it can be used for any kind of feedback. If you have an idea for a new command, or a new feature on an existing command, creating an *issue* is a great tool for suggesting that. Please read already existing *issues* to check whether someone else has made the same suggestion or reported the same error before creating a new *issue*.
 
-
 ### **Content**
 
 **ietoolkit** provides a set of commands that address different aspects of data management and data analysis in relation to Impact Evaluations. The list of commands will be extended continuously, and suggestions for new commands are greatly appreciated. Some of the commands are related to standardized best practices developed at DIME (The World Bank’s unit for Impact Evaluations). For these commands, the corresponding help files provide justifications for the standardized best practices applied. 
 
  - **ieduplicates** and **iecompdup** are useful tools to identify and correct for duplicates, particulary in primary survey data
  - **iebaltab** is a tool for multiple treatment arm balance tables
+ - **iematch** is an algortihm for matching observations in one group to "the most similar" observations in another group
  - **ieboilstart** standardizes the boilerplate code at the top of all do-files
  - **ieboilsave** performs checks before saving a data set
 
@@ -41,5 +41,8 @@ If you wish to make a contribution by making a "fork and pull request" but are n
 ### **License**
 **ietoolkit** is developed under MIT license. See http://adampritchard.mit-license.org/ or see [the `LICENSE` file](https://github.com/worldbank/ietoolkit/blob/master/LICENSE) for details.
 
-### **Main Author**
+### **Main Contact**
 Kristoffer Bjärkefur (kbjarkefur@worldbank.com)
+
+### **Authors**
+Kristoffer Bjärkefur and Luiza Cardoso de Andrade.
