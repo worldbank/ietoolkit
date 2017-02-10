@@ -7,10 +7,14 @@ cap	program drop	ieimpgraph
 	
 	mat list e(b)
 	
+    local counter =0
+    
 	foreach var of local varlist {
 	
 	
-		local beta = _b[`var']
+		local counter = `counter' + 1
+        
+        local beta_`counter' = _b[`var']
 		
 		di "`beta'"
 	
