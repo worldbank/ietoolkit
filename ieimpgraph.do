@@ -3,7 +3,7 @@
 cap	program drop	ieimpgraph
 	program define 	ieimpgraph
 	
-	syntax varlist
+	syntax ganything
 	
 	mat list e(b)
 	
