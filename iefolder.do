@@ -44,12 +44,7 @@ cap program drop 	iefolder
 	tempfile	newTextFile
 	
 	cap file close 	`newHandle'	
-	file open  		`newHandle' using "`newTextFile'", text write replace
-	file write  	`newHandle' "*Intro to text" _n 	
-	file close 		`newHandle'
-	
-	cap file close 	`newHandle'	
-	file open  		`newHandle' using "`newTextFile'", text write append	
+		file open  	`newHandle' using "`newTextFile'", text write append	
 	
 	
 	*Creating a new project
@@ -105,18 +100,8 @@ cap program drop 	iefolder
 		
 		di "THIS: round"
 		
-	
-		local roundCount 5
-			
-		local rndAbb 	`rndName'
+		iefolder_updateMaster `newHandle' baseline BL
 		
-		*local ++roundCount
-		
-		iefolder_updateMaster 5 baseline BL
-		
-		
-	
-	
 	}
 	else {
 		di "THIS: No item"
@@ -133,7 +118,7 @@ end
 cap program drop 	iefolder_updateMaster
 	program define	iefolder_updateMaster
 
-	args roundCount rndName rndAbb 
+	args subHandle rndName rndAbb 
 	
 	*Old file reference
 	tempname 	newHandle oldHandle
@@ -141,9 +126,7 @@ cap program drop 	iefolder_updateMaster
 	local 		oldTextFile 	"$projectfolder/testMasterDofile.do"
 	tempfile	newTextFile
 	
-	file open  		`newHandle' using "`newTextFile'", text write replace
-	file close 		`newHandle'	
-	
+	local sectionNum = 0
 	
 	
 	local linenum = 0
@@ -160,6 +143,8 @@ cap program drop 	iefolder_updateMaster
 		parseReadLine `"`line'"'
 		
 		if `r(ief_line)' {
+			
+			*Output the the result of each line that is not a devisor
 			di  `"`line'"'
 			
 			return list 
@@ -173,22 +158,22 @@ cap program drop 	iefolder_updateMaster
 		
 		if `r(ief_line)' == 0 {
 			
-			file open  		`newHandle' using "`newTextFile'", text write append
-			file write		`newHandle' `"`line' new 1"' _n
-			file close 		`newHandle'	
+			*Line that should only be copies
+			file write		`subHandle' `"`line' new 1"' _n
 		
 		}
 		else if `r(ief_end)' == 1 {
 				
-			file open  		`newHandle' using "`newTextFile'", text write append
-			
+
 			di "`r(partName)'"
 			
 			if "`r(partName)'" == "End_Globals" {
 				
-				di "hit"
+				
 			
-				writeDevisor 			`newTextFile' `newHandle' 1 Globals `roundCount' `rndName' `rndAbb' 
+				local ++sectionNum
+			
+				writeDevisor 			`newHandle' 1 Globals `sectionNum' `rndName' `rndAbb' 
 				
 				
 				di "yes man 1"
@@ -206,9 +191,9 @@ cap program drop 	iefolder_updateMaster
 		}
 		else {
 			
-			file open  		`newHandle' using "`newTextFile'", text write append
 			file write		`newHandle' `"`line' new 3"' _n
-			file close 		`newHandle'	
+			
+			local sectionNum = `r(sectionNum)'
 		
 		}
 		
