@@ -60,46 +60,43 @@ cap program drop 	iefolder
 		mkdir "`projectfolder'/DataWork"
 	
 		global projectfolder "`projectfolder'/DataWork"
-
-		di 1
 		
-		*Write the title rows defined above	
+		******************************
+		*Writing master do file header
+		******************************
 		
+		*Write intro part and standardize section header
 		masterDofilePart0 `newHandle'
 		
+		*Write devisor starting standardize section
 		writeDevisor  `newHandle' 0 Standardize 
 		
+		*Write section with ssc install and ieboilstart
 		masterDofilePart0a `newHandle'
 		
+		*Write devisor ending standardize section
 		writeDevisor `newHandle' 0 End_Standardize
 		
-
-
-		
-		
-
-		
+		*Write globals section header
 		masterDofilePart1 `newHandle'
 		
+		*Write devisor starting globals section
 		writeDevisor  `newHandle' 1 Globals
 		
-		
-
+		*Write section with root folder
 		masterDofilePart1a `newHandle'	"$projectfolder"
 		
+		*Write sub devisor starting master and monitor data section section
 		writeDevisor `newHandle' 1 Globals 1 MastMon
 		
-
-		
+		*Create master data folder and add global to folder in master do file
 		createFolderWriteGlobal "Master Data"  "projectfolder"  mastData  `newHandle'
+		
+		*Create monitor data folder and add global to folder in master do file
 		createFolderWriteGlobal "Monitor Data" "projectfolder"  moniData  `newHandle'	
 		
+		*Write devisor ending globals section
 		writeDevisor `newHandle' 1 End_Globals
-
-		file close 		`newHandle'
-		copy "`newTextFile'"  "$projectfolder/testMasterDofile.do", replace			
-		di "Yes Man"
-		asdf
 		
 	}
 	
@@ -125,8 +122,8 @@ cap program drop 	iefolder
 		di "THIS: No item"
 	}
 	
-	file close 		`newHandle'
 	
+	file close 		`newHandle'
 	copy "`newTextFile'"  "$projectfolder/testMasterDofile.do"
 	
 	
