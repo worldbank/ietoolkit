@@ -85,14 +85,14 @@
 		*di 2
 		
 		*Round Data folder
-		createFolderWriteGlobal "Data" 			 		"`rnd'" 		"`rnd'_dt" 		//`file_name'
+		createFolderWriteGlobal "DataSets" 			 	"`rnd'" 		"`rnd'_dt" 		//`file_name'
 		
 		*di 2.1
 		
 		*Round Data sub-folder
-		createFolderWriteGlobal "Raw Data"  			"`rnd'_dt" 		"`rnd'_dtRaw" 	`file_name'
-		createFolderWriteGlobal "Intermediate Data" 	"`rnd'_dt" 		"`rnd'_dtInt" 	`file_name'
-		createFolderWriteGlobal "Final Data"  			"`rnd'_dt" 		"`rnd'_dtFinal" `file_name'
+		createFolderWriteGlobal "Raw"  					"`rnd'_dt" 		"`rnd'_dtRaw" 	`file_name'
+		createFolderWriteGlobal "Intermediate" 			"`rnd'_dt" 		"`rnd'_dtInt" 	`file_name'
+		createFolderWriteGlobal "Final"  				"`rnd'_dt" 		"`rnd'_dtFinal" `file_name'
 		
 		*di 3
 		
@@ -119,9 +119,9 @@
 		createFolderWriteGlobal "Questionnaire" 		"`rnd'"	 		"`rnd'_quest"		
 		
 		*Questionnaire subfolders
-		createFolderWriteGlobal "Programming Questionnaire" 	"`rnd'_quest"	 	"`rnd'_questPro"			
-		createFolderWriteGlobal "Final Questionnaire" 			"`rnd'_quest"	 	"`rnd'_questFin"	
-		createFolderWriteGlobal "Preload Data"	 				"`rnd'_quest"	 	"`rnd'_preload"	
+		createFolderWriteGlobal "QuestionnaireProgramming" 	"`rnd'_quest"	 	"`rnd'_questPro"			
+		createFolderWriteGlobal "FinalQuestionnaire" 			"`rnd'_quest"	 	"`rnd'_questFin"	
+		createFolderWriteGlobal "PreloadData"	 				"`rnd'_quest"	 	"`rnd'_preload"	
 		
 	end
 	
@@ -129,38 +129,39 @@
 	cap program drop 	createFolderWriteGlobal 
 		program define	createFolderWriteGlobal 
 		
-		args  folderName parentGlobal globalName textfile textname
+		args  folderName parentGlobal globalName subHandle
 			
-			if !("`textfile'" == "" & "`textname'" == "") {
+			di "createFolderWriteGlobal start `folderName'"
+			
+			if ("`subHandle'" != "") {
 				
-				file open  		`textname' using "`textfile'", text write append
-				file write  	`textname' _col(4) `"global `globalName'"' _col(34) `""\$`parentGlobal'/`folderName'" "' _n 
-				file close 		`textname'
+				file write  `subHandle' ///
+					_col(4) `"global `globalName'"' _col(34) ///
+					`"""' _char(36)`"`parentGlobal'/`folderName'" "' _n 
 
-				
-				
-				
 			}
 			
 			global `globalName' "$`parentGlobal'/`folderName'"
 			
-			*noi di `"mkdir "${`parentGlobal'}\\`folderName'""'
+			noi di `"mkdir "${`parentGlobal'}\\`folderName'""'
 			
 			mkdir "${`parentGlobal'}\\`folderName'"
 			
-		
+			di "createFolderWriteGlobal end `folderName'"
 	end
 	
 	
 	cap program drop 	writeDevisor 
-	program define		writeDevisor 
+	program define		writeDevisor , rclass
 		
-		args  textfile textname partNum partName sectionNum sectionName sectionAbb
-			
-		file open  		`textname' using "`textfile'", text write append
-		file write  	`textname' 	_n "*iefolder wont work properly if the line below is edited" ///
-									_n "*iefolder*`partNum'*`partName'*`sectionNum'*`sectionName'*`sectionAbb'****************************" _n _n
-		file close 		`textname'
+		args  subHandle partNum partName sectionNum sectionName sectionAbb
+		
+		di "devisor start"
+		
+		file write  `subHandle' _n "*iefolder*`partNum'*`partName'*`sectionNum'*`sectionName'*`sectionAbb'****************************" 
+		file write  `subHandle' _n "*iefolder wont work properly if the line above is edited"  _n _n
+		
+		di "devisor end"
 		
 	end
 	

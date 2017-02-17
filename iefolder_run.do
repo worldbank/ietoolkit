@@ -31,4 +31,7 @@
 	iefolder new project , projectfolder("$testProject")
 	
 	
-	*iefolder new round baseline , projectfolder("$testProject") abb("BL")
+	iefolder new round baseline , projectfolder("$testProject") abb("BL")
+	
+	doedit "$projectfolder\testMasterDofile.do" 
+	doedit "$projectfolder\testMasterDofile2.do" 
