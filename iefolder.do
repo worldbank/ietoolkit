@@ -60,26 +60,23 @@ cap program drop 	iefolder
 		*Writing master do file header
 		******************************
 		
-		*Write intro part and standardize section header
+		*Write intro part with description of project
 		masterDofilePart0 `newHandle'
-		
+	
 		*Write devisor starting standardize section
-		writeDevisor  `newHandle' 0 Standardize 
-		
+		writeDevisor  `newHandle' 0 Standardize 	
+	
 		*Write section with ssc install and ieboilstart
 		masterDofilePart0a `newHandle'
 		
 		*Write devisor ending standardize section
 		writeDevisor `newHandle' 0 End_Standardize
 		
-		*Write globals section header
-		masterDofilePart1 `newHandle'
-		
 		*Write devisor starting globals section
 		writeDevisor  `newHandle' 1 Globals
 		
-		*Write section with root folder
-		masterDofilePart1a `newHandle'	"$projectfolder"
+		*Write globals section header and the root folders
+		masterDofilePart1 `newHandle' "$projectfolder"
 		
 		*Write sub devisor starting master and monitor data section section
 		writeDevisor `newHandle' 1 Globals 1 MastMon
@@ -93,6 +90,9 @@ cap program drop 	iefolder
 		*Write devisor ending globals section
 		writeDevisor `newHandle' 1 End_Globals
 		
+		file close 		`newHandle'
+		copy "`newTextFile'"  "$projectfolder/testMasterDofile.do"
+		
 	}
 	
 	*Creating a new round
@@ -100,16 +100,15 @@ cap program drop 	iefolder
 		
 		di "THIS: round"
 		
-		iefolder_updateMaster `newHandle' baseline BL
+		iefolder_updateMaster `newHandle' "`itemName'" "`abb'"
+		
+		file close 		`newHandle'
+		copy "`newTextFile'"  "$projectfolder/testMasterDofile.do" , replace
 		
 	}
 	else {
 		di "THIS: No item"
 	}
-	
-	
-	file close 		`newHandle'
-	copy "`newTextFile'"  "$projectfolder/testMasterDofile.do"
 	
 	
 end 	
@@ -121,15 +120,14 @@ cap program drop 	iefolder_updateMaster
 	args subHandle rndName rndAbb 
 	
 	*Old file reference
-	tempname 	newHandle oldHandle
-	
+	tempname 	oldHandle
 	local 		oldTextFile 	"$projectfolder/testMasterDofile.do"
-	tempfile	newTextFile
+
 	
 	local sectionNum = 0
-	
-	
 	local linenum = 0
+	
+	
 	file open `oldHandle' using `"`oldTextFile'"', read
 	file read `oldHandle' line
 	
@@ -141,8 +139,9 @@ cap program drop 	iefolder_updateMaster
 		local line : subinstr local line "\`"  "\\`"
 		
 		parseReadLine `"`line'"'
+	
 		
-		if `r(ief_line)' {
+		if `r(ief_line)' == 1 | 0 {
 			
 			*Output the the result of each line that is not a devisor
 			di  `"`line'"'
@@ -153,59 +152,48 @@ cap program drop 	iefolder_updateMaster
 			di ""
 			di "********************************"
 		}
-		
-		
+
 		
 		if `r(ief_line)' == 0 {
 			
+			
+			
 			*Line that should only be copies
-			file write		`subHandle' `"`line' new 1"' _n
+			file write	`subHandle' `"`line'"' _n
 		
 		}
 		else if `r(ief_end)' == 1 {
-				
-
+			
 			di "`r(partName)'"
 			
 			if "`r(partName)'" == "End_Globals" {
 				
-				
-			
 				local ++sectionNum
 			
-				writeDevisor 			`newHandle' 1 Globals `sectionNum' `rndName' `rndAbb' 
+				writeDevisor 			`subHandle' 1 Globals `sectionNum' `rndName' `rndAbb' 
+				newRndFolderAndGlobals 	`rndName' `rndAbb' "projectfolder" `subHandle'
 				
-				
-				di "yes man 1"
-				newRndFolderAndGlobals 	`rndName' `rndAbb' "projectfolder" `newTextFile' `newHandle'
-				
-				di "yes man 2"
 			}
 			
-			di "no man 2"
-			
-			file write		`newHandle' `"`line'  line 2"' _n
-			
-			file close 		`newHandle'	
+			file write		`subHandle' `"`line'"' _n	
 		
 		}
 		else {
 			
-			file write		`newHandle' `"`line' new 3"' _n
+			file write		`subHandle' `"`line'"' _n
 			
-			local sectionNum = `r(sectionNum)'
+			if "`r(sectionNum)'" != "*" {
+			
+				local sectionNum = `r(sectionNum)'
+				
+			} 
 		
 		}
-		
-		
-		
+	
 		file read `oldHandle' line
-		
 		
 	}
 	file close `oldHandle'
-	
-	
-	copy "`newTextFile'"  "$projectfolder/testMasterDofile2.do" , replace
+
 	
 end

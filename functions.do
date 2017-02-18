@@ -1,14 +1,12 @@
 	
-	do "$ief\masterdofile_functions.do"
-	
 	cap program drop 	parseReadLine 
 	program define		parseReadLine, rclass
 		
-		*di "Command ok"
+	
 		
 		args line
 		
-		*di "Args ok"
+		di `"parseReadLine start:  `line' "'
 		
 		tokenize  `"`line'"' , parse("*")
 		
@@ -62,6 +60,8 @@
 		
 		}
 		
+		*di "parseReadLine end"
+		
 	end
 	
 	
@@ -69,48 +69,46 @@
 	cap program drop 	newRndFolderAndGlobals 
 	program define		newRndFolderAndGlobals 
 		
-		args rndName rnd dtfld_glb textfile textname
-		
-		local file_name `textfile' `textname'
+		args rndName rnd dtfld_glb subHandle
 		
 		*KBKB: test if new fodler can be written - use "cap cd"
 		
 		*di 1
 		
 		*Round main folder
-	di `"createFolderWriteGlobal "`rndName'" 	 		"`dtfld_glb'"  "`rnd'" 		`file_name'"'	
+	di `"createFolderWriteGlobal "`rndName'" 	 		"`dtfld_glb'"  "`rnd'" 		`subHandle'"'	
 		
-		createFolderWriteGlobal "`rndName'" 	 		"`dtfld_glb'"  "`rnd'" 		`file_name'
+		createFolderWriteGlobal "`rndName'" 	 		"`dtfld_glb'"  "`rnd'" 		`subHandle'
 		
 		*di 2
 		
 		*Round Data folder
-		createFolderWriteGlobal "DataSets" 			 	"`rnd'" 		"`rnd'_dt" 		//`file_name'
+		createFolderWriteGlobal "DataSets" 			 	"`rnd'" 		"`rnd'_dt" 		//`subHandle'
 		
 		*di 2.1
 		
 		*Round Data sub-folder
-		createFolderWriteGlobal "Raw"  					"`rnd'_dt" 		"`rnd'_dtRaw" 	`file_name'
-		createFolderWriteGlobal "Intermediate" 			"`rnd'_dt" 		"`rnd'_dtInt" 	`file_name'
-		createFolderWriteGlobal "Final"  				"`rnd'_dt" 		"`rnd'_dtFinal" `file_name'
+		createFolderWriteGlobal "Raw"  					"`rnd'_dt" 		"`rnd'_dtRaw" 	`subHandle'
+		createFolderWriteGlobal "Intermediate" 			"`rnd'_dt" 		"`rnd'_dtInt" 	`subHandle'
+		createFolderWriteGlobal "Final"  				"`rnd'_dt" 		"`rnd'_dtFinal" `subHandle'
 		
 		*di 3
 		
 		*Round dofile folder
-		createFolderWriteGlobal "Dofiles" 				"`rnd'"			"`rnd'_do" 		`file_name'
+		createFolderWriteGlobal "Dofiles" 				"`rnd'"			"`rnd'_do" 		`subHandle'
 		
 		*di 3.1
 		
 		*Round Data sub-folder
-		createFolderWriteGlobal "Dofiles Import "		"`rnd'_do" 		"`rnd'_doImp" 	`file_name'
-		createFolderWriteGlobal "Dofiles Cleaning "		"`rnd'_do" 		"`rnd'_doCln" 	`file_name'
-		createFolderWriteGlobal "Dofiles Construct "	"`rnd'_do" 		"`rnd'_doCon" 	`file_name'
-		createFolderWriteGlobal "Dofiles Analyze "		"`rnd'_do" 		"`rnd'_doAnl" 	`file_name'
+		createFolderWriteGlobal "Dofiles Import "		"`rnd'_do" 		"`rnd'_doImp" 	`subHandle'
+		createFolderWriteGlobal "Dofiles Cleaning "		"`rnd'_do" 		"`rnd'_doCln" 	`subHandle'
+		createFolderWriteGlobal "Dofiles Construct "	"`rnd'_do" 		"`rnd'_doCon" 	`subHandle'
+		createFolderWriteGlobal "Dofiles Analyze "		"`rnd'_do" 		"`rnd'_doAnl" 	`subHandle'
 		
 		*di 4
 		
 		*Round Output folder
-		createFolderWriteGlobal "Output" 				"`rnd'"			"`rnd'_Out"		`file_name'
+		createFolderWriteGlobal "Output" 				"`rnd'"			"`rnd'_Out"		`subHandle'
 		
 		*Round Survey Documentation folder
 		createFolderWriteGlobal "Survey Documentation" "`rnd'"	 		"`rnd'_doc"	
@@ -197,3 +195,165 @@
 		rmdir "`folder'"
 
 	end 
+
+	/*
+	
+		The functions below are all related to write the mostly 
+		static part of the master do file
+
+	*/
+	
+	
+	cap program drop 	masterDofilePart0
+	program define		masterDofilePart0 
+		
+		args subHandle	
+		
+		di "start masterDofilePart0"
+		
+		file write  `subHandle' ///
+				_col(4)"* ******************************************************************** *" _n ///
+				_col(4)"* ******************************************************************** *" _n ///
+				_col(4)"*" _col(75) "*" _n ///
+				_col(4)"*" _col(20) "your_project_name" _col(75) "*" _n ///
+				_col(4)"*" _col(20) "MASTER DO_FILE" _col(75) "*" _n ///
+				_col(4)"*" _col(75) "*" _n ///
+				_col(4)"* ******************************************************************** *" _n ///
+				_col(4)"* ******************************************************************** *" _n ///
+				_n
+				
+		file write  `subHandle'	/// 
+				_col(8)"/*" _n ///
+				_col(8)"** PURPOSE:" _col(25) "Write intro to project here" _n ///
+				_n ///					
+				_col(8)"** OUTLINE:" _col(25) "PART 0: Configure settings for memory etc." _n ///
+				_col(25) "PART 1: Set globals for dynamic file paths" _n ///
+				_col(25) "PART 2: Set globals for constants and varlist" _n ///
+				_col(32) "used across the project. Intall custom" _n ///
+				_col(32) "commands needed." _n ///
+				_col(25) "PART 3: Call the task specific master do-files " _n ///
+				_col(32) "that call all do-files needed for that " _n ///
+				_col(32) "tas. Do not include Part 0-2 in a task" _n ///
+				_col(32) "specific master do-file" _n ///
+				_n _n
+		
+		file write  `subHandle'	/// 
+				_col(8)"** REQUIRES:" _col(25) "List all data sets using the globals that you " _n ///
+				_col(25) "define below to indicate what data you will need" _n ///
+				_n ///					
+				_col(25) "Example:" _n ///
+				_col(25) _char(36)"BL_dtRaw/baseline_survey_v1.csv" _n ///
+				_col(25) _char(36)"BL_dtRaw/baseline_survey_v2.csv" _n ///
+				_col(25) _char(36)"moniData/monitor2016_data.xlsx" _n ///
+				_n 
+				
+		file write  `subHandle'	/// 		
+				_col(8)"** CREATES:" _col(25) "List all data sets using the globals that you " _n ///
+				_col(25) "define below to indicate what data set are " _n ///
+				_col(25) "created by the do-files this master do-file calls" _n ///
+				_n ///					
+				_col(25) "Example:" _n ///
+				_col(25) _char(36)"BL_dtFinal/baseline_clean.dta" _n ///
+				_col(25) _char(36)"BL_dtFinal/baseline_constructs.dta" _n ///
+				_col(25) "Multiple tables and grahps in \$BL_Out" _n ///
+				_n
+				
+		file write  `subHandle'	/// 
+				_col(8)"** IDS VAR:" _col(25) "list_ID_var_here		//Uniquely identifies households (update for your proejct)" _n ///
+				_n	///				  
+				_col(8)"** NOTES:" _n /// 	  
+				_n ///				  
+				_col(8)"** WRITEN BY:" _col(25) "names_of_contributors" _n ///
+				_n ///
+				_col(8)"** Last date modified:" _n /// 
+				_n ///
+				_col(8)"*/" _n
+		
+		di "masterDofilePart0 end"
+		
+	end
+				
+	cap program drop 	masterDofilePart0a
+	program define		masterDofilePart0a
+		
+		args subHandle	
+		
+		di "start masterDofilePart0"			
+				
+				
+		file write  `subHandle'	/// 		
+				_col(4)"* ******************************************************************** *" _n ///
+				_col(4)"*" _n ///
+				_col(4)"*" _col(12) "PART 0:  Install packages and standardizer settings" _n ///
+				_col(4)"*" _n ///
+				_col(4)"*" _col(16) "-Install packages needed to run all dofiles called" _n ///
+				_col(4)"*" _col(17) "by this master dofile." _n ///
+				_col(4)"*" _col(16) "-Use ieboilstart to harmonize settings" _n ///
+				_col(4)"*" _n ///								
+				_col(4)"* ******************************************************************** *" _n  
+
+
+		
+		file write  `subHandle' 	///							
+							_col(8)"*Install all packages that this project requires:" _n ///
+							_col(8)"ssc install ietoolkit" _n ///
+							_n	 ///
+							_n	 ///
+							_col(8)"*Standardize settings accross users" _n ///
+							_col(8)"ieboilstart, version(12.1)" _col(40) "//Set the version number to the oldes version used by anyone in the project team" _n ///
+							_col(8) _char(96)"r(version)'" 				_col(40) "//This line is needed to actually set the version from the command above" _n
+							
+		
+		di "masterDofilePart0a end"
+		
+	end
+
+
+cap program drop 	masterDofilePart1
+	program define	masterDofilePart1
+		
+		args   subHandle projectDir
+
+		di "masterDofilePart1 start"
+		
+		file write  `subHandle' 	///
+							_col(4)"* ******************************************************************** *" _n ///
+							_col(4)"*" _n ///	
+							_col(4)"*" _col(12) "PART 1:  PREPARING FOLDER PATH GLOBALS" _n ///
+							_col(4)"*" _n ///			
+							_col(4)"*" _col(16) "-Set the global box to point to the project folder" _n ///
+							_col(4)"*" _col(17) "on each collaborators computer." _n /// 
+							_col(4)"*" _col(16) "-Set other locals that point to other folders of interest." _n /// 
+							_col(4)"*" _n ///	
+							_col(4)"* ******************************************************************** *" _n
+							
+		file write  `subHandle' ///							
+							_col(4)"* Users" _n ///
+							_col(4)"* -----------" _n ///
+							_n ///
+							_col(4)"*User Number:" _n ///
+							_col(4)"* You" _col(30) "1" _col(35) `"//Replace "You" with your name"' _n ///
+							_col(4)"* Next User" _col(30) "2" _col(35) "//Assign a user number to each additional collaborator of this code" _n ///
+							_n ///
+							_col(4)"*Set this value to the user currently using this file" _n ///
+							_col(4)"global user  1" _n ///
+							_n ///
+							_col(4)"* Root folder globals" _n ///
+							_col(4)"* ---------------------" _n ///
+							_n ///	
+							_col(4)"if "_char(36)"user == 1 {" _n ///
+							_col(8)`"global projectfolder "`projectDir'""' _n ///
+							_col(4)"}" _n ///	
+							_n ///		
+							_col(4)"if "_char(36)"user == 2 {" _n ///
+							_col(8)`"global projectfolder ""  //Enter the file path to the projectfolder of next user here"' _n ///
+							_col(4)"}" _n ///
+							_n ///
+							_n ///
+							_col(4)"* Project folder globals" _n ///
+							_col(4)"* ---------------------" _n 
+							
+		di "masterDofilePart1a end"
+		
+	end	
+
