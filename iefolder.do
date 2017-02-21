@@ -5,11 +5,16 @@ cap program drop 	iefolder
 	
 	syntax anything, projectfolder(string) [abb(string)]
 	
+	
+	/***************************************************
+	
+		Parse input
+	
+	***************************************************/	
+	
 	gettoken subcommand item : anything
 	
 	gettoken itemType itemName : item
-	
-	
 	
 	local subcomand = trim("`subcommand'")
 	local itemType 	= trim("`itemType'")
@@ -18,7 +23,12 @@ cap program drop 	iefolder
 	di "SubCommand 	`subcommand'"
 	di "ItemType 	`itemType'"
 	di "ItemName	`itemName'"	
+
+	/***************************************************
 	
+		Test input
+	
+	***************************************************/	
 	
 	local sub_commands "new rename"
 	local itemTypes "project round master admin monitor "
@@ -45,8 +55,12 @@ cap program drop 	iefolder
 	
 	}
 	
-
-
+	
+	/***************************************************
+	
+		Start making updates to the project folder
+	
+	***************************************************/
 	
 
 	*Create a temporary textfile
@@ -56,55 +70,43 @@ cap program drop 	iefolder
 	cap file close 	`newHandle'	
 		file open  	`newHandle' using "`newTextFile'", text write append	
 	
-	
-	*Creating a new project
-	if "`itemType'" == "project" {
-		
-		di "THIS: Project"
-		iefolder_newProject "`projectfolder'" `newHandle'
+	if "`sub_commands'" == "new" {
+		*Creating a new project
+		if "`itemType'" == "project" {
+			
+			di "THIS: Project"
+			iefolder_newProject "`projectfolder'" `newHandle'
+		}
+		*Creating a new round
+		else if "`itemType'" == "round" {
+			
+			*Use the full item name if abbrevaition was not specified
+			if "`abb'" == "" local abb "`itemName'"
+			
+			di "THIS: round"
+			iefolder_newRound `newHandle' "`itemName'" "`abb'"	
+		}
+		*Creating a new master data set
+		else if "`itemType'" == "master" {
+			
+			di "THIS: master"
+			iefolder_newMaster	
+		}
+		*Creating a new admin
+		else if "`itemType'" == "admin" {
+			
+			di "THIS: admin"
+			iefolder_newAdmin 	
+		}
+		*Creating a new monitor
+		else if "`itemType'" == "monitor" {
+			
+			di "THIS: monitor"
+			iefolder_newMonitor		
+		}
 	}
 	
-	*Creating a new round
-	else if "`itemType'" == "round" {
-		
-		*Use the full item name if abbrevaition was not specified
-		if "`abb'" == "" local abb "`itemName'"
-		
-		di "THIS: round"
-		iefolder_newRound `newHandle' "`itemName'" "`abb'"
-		
-	}
-	
-	*Creating a new master data set
-	else if "`itemType'" == "master" {
-		
-		di "THIS: round"
-		iefolder_newMaster
-		
-	}
-	
-	*Creating a new admin
-	else if "`itemType'" == "admin" {
-		
-		di "THIS: round"
-		iefolder_newAdmin 
-		
-	}
-	
-	*Creating a new monitor
-	else if "`itemType'" == "monitor" {
-		
-		di "THIS: round"
-		iefolder_newMonitor
-		
-	}
-	
-	else {
-		di "THIS: No item"
-	}
-	
-	
-	
+
 	*Closing the new main master dofile handle
 	file close 		`newHandle'
 	
@@ -114,11 +116,12 @@ cap program drop 	iefolder
 	
 end 	
 
-/* 
-
-	The functions below deal with each seperate combination of subcommand and item type
-
-*/
+	/***************************************************
+	
+		Here are all functions for combination of 
+		subcommand and item type
+	
+	***************************************************/
 
 cap program drop 	iefolder_newProject
 	program define	iefolder_newProject
