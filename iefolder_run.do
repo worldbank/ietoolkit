@@ -36,5 +36,9 @@
 	*di `"   iefolder new round endline 	, projectfolder("$testProject") abb("EL")"'
 	iefolder new round endline 	, projectfolder("$testProject") abb("EL")
 
-	*doedit "$projectfolder\testMasterDofile.do" 
-	*doedit "$projectfolder\testMasterDofile2.do" 
+	*di `"   iefolder new round endline 	, projectfolder("$testProject") abb("EL")"'
+	*iefolder new round kristobal 	, projectfolder("$testProject") 	
+	*iefolder new round kristoball 	, projectfolder("$testProject") 
+	*iefolder new round kristoballl , projectfolder("$testProject") 
+	*doedit "$projectfolder\mainMasterDofile.do" 
+

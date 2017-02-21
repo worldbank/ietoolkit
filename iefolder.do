@@ -5,6 +5,10 @@ cap program drop 	iefolder
 	
 	syntax anything, projectfolder(string) [abb(string)]
 	
+	***Todo
+	*Test that a folder called DataWork already exist (unless new project)
+	*Test that old master do file exist
+	*allow to specifiy other place for master do file
 	
 	/***************************************************
 	
@@ -114,7 +118,7 @@ cap program drop 	iefolder
 	file close 		`newHandle'
 	
 	*Copy the new master dofile from the tempfile to the original position
-	copy "`newTextFile'"  "$projectfolder/testMasterDofile.do" , replace
+	copy "`newTextFile'"  "$projectfolder/mainMasterDofile.do" , replace
 	
 	
 end 	
@@ -197,7 +201,7 @@ cap program drop 	iefolder_newRound
 	
 	*Old file reference
 	tempname 	oldHandle
-	local 		oldTextFile 	"$projectfolder/testMasterDofile.do"
+	local 		oldTextFile 	"$projectfolder/mainMasterDofile.do"
 
 	file open `oldHandle' using `"`oldTextFile'"', read
 	file read `oldHandle' line
@@ -270,6 +274,31 @@ cap program drop 	iefolder_newRound
 					
 					*Write the globals to the master do file and create the folders
 					newRndFolderAndGlobals 	`rndName' `rndAbb' "projectfolder" `subHandle'
+					
+					*Write an empty line before the end devisor
+					file write		`subHandle' "" _n	
+					
+				}
+				
+				*Test if it is an end of globals section as we are writing a new 
+				if "`r(partName)'" == "End_RunDofiles" {
+					
+					*Increment the section number for the new section
+					local ++sectionNum
+					
+					*Write devisor for this section
+					writeDevisor 			`subHandle' 3 RunDofiles `sectionNum' `rndName' `rndAbb' 
+					
+					
+					
+					
+					file write  `subHandle' ///
+						_col(4)"if (0) { //Change the 0 to 1 to run the `rndName' master dofile" _n ///
+						_col(8) `"do ""' _char(36) `"`rndAbb'/`rndAbb'_master_dofile.do" "' _n ///
+						_col(4)"}" ///
+						_n
+					
+					
 					
 					*Write an empty line before the end devisor
 					file write		`subHandle' "" _n	

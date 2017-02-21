@@ -397,16 +397,6 @@ cap program drop 	masterDofilePart3
 		
 	end	
 		
-	
-	*******************************************************************************************************************************************
-*										(the do-files here is just an example)
-*
-*										This section should run all dofiles needed from raw 
-*										data to analysis to outputs. This section should be 
-*										written in a way that anyone new to the project should
-*										still be able to follow what is going on in the data folder.
-*******************************************************************************************************************************************	 
-	
-	
+
 	
 
