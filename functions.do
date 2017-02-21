@@ -2,11 +2,7 @@
 	cap program drop 	parseReadLine 
 	program define		parseReadLine, rclass
 		
-	
-		
 		args line
-		
-		di `"parseReadLine start:  `line' "'
 		
 		tokenize  `"`line'"' , parse("*")
 		
@@ -76,7 +72,7 @@
 		*di 1
 		
 		*Round main folder
-	di `"createFolderWriteGlobal "`rndName'" 	 		"`dtfld_glb'"  "`rnd'" 		`subHandle'"'	
+	*di `"createFolderWriteGlobal "`rndName'" 	 		"`dtfld_glb'"  "`rnd'" 		`subHandle'"'	
 		
 		createFolderWriteGlobal "`rndName'" 	 		"`dtfld_glb'"  "`rnd'" 		`subHandle'
 		
@@ -129,7 +125,7 @@
 		
 		args  folderName parentGlobal globalName subHandle
 			
-			di "createFolderWriteGlobal start `folderName'"
+			*di "createFolderWriteGlobal start `folderName'"
 			
 			if ("`subHandle'" != "") {
 				
@@ -141,11 +137,11 @@
 			
 			global `globalName' "$`parentGlobal'/`folderName'"
 			
-			noi di `"mkdir "${`parentGlobal'}\\`folderName'""'
+			*noi di `"mkdir "${`parentGlobal'}\\`folderName'""'
 			
 			mkdir "${`parentGlobal'}\\`folderName'"
 			
-			di "createFolderWriteGlobal end `folderName'"
+			*di "createFolderWriteGlobal end `folderName'"
 	end
 	
 	
@@ -154,47 +150,18 @@
 		
 		args  subHandle partNum partName sectionNum sectionName sectionAbb
 		
-		di "devisor start"
+		*di "devisor start"
 		
 		file write  `subHandle' _n "*iefolder*`partNum'*`partName'*`sectionNum'*`sectionName'*`sectionAbb'****************************" 
 		file write  `subHandle' _n "*iefolder wont work properly if the line above is edited"  _n _n
 		
-		di "devisor end"
+		*di "devisor end"
 		
 	end
 	
 	
 	
-	cap program drop   deleteFolder
-		program define deleteFolder
-	
-		args folder
-		
-		noi di "`folder'"
-		
-		local flist : dir `"`folder'"' files "*"
-		local dlist : dir `"`folder'"' dirs "*" 
-		local olist : dir `"`folder'"' other "*"
-		
-		
-		foreach file of local flist {
-			noi di "`folder'\\`file'"
-			if "`c(os)'" == "Windows" erase "`folder'\\`file'"
-			if "`c(os)'" != "Windows" rm 	"`folder'\\`file'"
-		}
-		foreach file of local olist {
-			noi di "`folder'\\`file'"
-			if "`c(os)'" == "Windows" erase "`folder'\\`file'"
-			if "`c(os)'" != "Windows" rm 	"`folder'\\`file'"
-		}	
-		foreach dir of local dlist {
-			
-			deleteFolder "`folder'\\`dir'"	
-		}	
-		
-		rmdir "`folder'"
 
-	end 
 
 	/*
 	
@@ -209,7 +176,7 @@
 		
 		args subHandle	
 		
-		di "start masterDofilePart0"
+		*di "start masterDofilePart0"
 		
 		file write  `subHandle' ///
 				_col(4)"* ******************************************************************** *" _n ///
@@ -269,7 +236,7 @@
 				_n ///
 				_col(8)"*/" _n
 		
-		di "masterDofilePart0 end"
+		*di "masterDofilePart0 end"
 		
 	end
 				
@@ -278,7 +245,7 @@
 		
 		args subHandle	
 		
-		di "start masterDofilePart0"			
+		*di "start masterDofilePart0"			
 				
 				
 		file write  `subHandle'	/// 		
@@ -304,7 +271,7 @@
 							_col(8) _char(96)"r(version)'" 				_col(40) "//This line is needed to actually set the version from the command above" _n
 							
 		
-		di "masterDofilePart0a end"
+		*di "masterDofilePart0a end"
 		
 	end
 
@@ -314,7 +281,7 @@ cap program drop 	masterDofilePart1
 		
 		args   subHandle projectDir
 
-		di "masterDofilePart1 start"
+		*di "masterDofilePart1 start"
 		
 		file write  `subHandle' 	///
 							_col(4)"* ******************************************************************** *" _n ///
@@ -353,7 +320,7 @@ cap program drop 	masterDofilePart1
 							_col(4)"* Project folder globals" _n ///
 							_col(4)"* ---------------------" _n 
 							
-		di "masterDofilePart1a end"
+		*di "masterDofilePart1a end"
 		
 	end	
 

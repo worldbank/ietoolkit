@@ -6,10 +6,11 @@
 	*global box			"C:\Users\Kristoffer\Box Sync"
 	
 	global ief 			"$box\Stata\Stata work\Commands\ietoolkit"
-	global testProject	"$ief\test\testOutput\ProjectTest"
+	global testProject	"$ief\test\testOutput\Project ABC Uganda"
 	
 	do "$ief\functions.do"
 	do "$ief\iefolder.do"
+	do "$ief\deletefolder.do"
 	
 	cd "$ief\test\cdjunk"
 	
@@ -18,19 +19,25 @@
 	********************************
 	
 
-	local surveyRounds baseline endline kristoffer kewinowens
+	*local surveyRounds baseline endline kristoffer kewinowens
 	
 	
 	
 	********************************
 	
-	cap noi deleteFolder "$testProject"
+	cap noi deleteFolder "$testProject\DataWork"
 	
-	mkdir "$testProject"
-
+	*di `"   iefolder new project 		, projectfolder("$testProject")"'
 	iefolder new project 		, projectfolder("$testProject")
-	iefolder new round baseline , projectfolder("$testProject") abb("BL")
-	iefolder new round endline 	, projectfolder("$testProject") abb("EL")
+	
+	*di `"   iefolder new round baseline , projectfolder("$testProject") abb("BL")"'
+	iefolder new round  , projectfolder("$testProject") abb("BL")
+	
+	*di `"   iefolder new round endline 	, projectfolder("$testProject") abb("EL")"'
+	iefolder new round endline 	, projectfolder("$testProject") abb("BL")
+	
+	di `"   iefolder new round name 	, projectfolder("$testProject") abb("MR")"'
+	iefolder new round  	, projectfolder("$testProject") abb("MR")
 	
 	*doedit "$projectfolder\testMasterDofile.do" 
 	*doedit "$projectfolder\testMasterDofile2.do" 
