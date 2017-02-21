@@ -31,13 +31,10 @@
 	iefolder new project 		, projectfolder("$testProject")
 	
 	*di `"   iefolder new round baseline , projectfolder("$testProject") abb("BL")"'
-	iefolder new round  , projectfolder("$testProject") abb("BL")
+	iefolder new round baseline , projectfolder("$testProject") abb("BL")
 	
 	*di `"   iefolder new round endline 	, projectfolder("$testProject") abb("EL")"'
-	iefolder new round endline 	, projectfolder("$testProject") abb("BL")
-	
-	di `"   iefolder new round name 	, projectfolder("$testProject") abb("MR")"'
-	iefolder new round  	, projectfolder("$testProject") abb("MR")
-	
+	iefolder new round endline 	, projectfolder("$testProject") abb("EL")
+
 	*doedit "$projectfolder\testMasterDofile.do" 
 	*doedit "$projectfolder\testMasterDofile2.do" 

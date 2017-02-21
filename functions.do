@@ -294,7 +294,8 @@ cap program drop 	masterDofilePart1
 							_col(4)"*" _n ///	
 							_col(4)"* ******************************************************************** *" _n
 							
-		file write  `subHandle' ///							
+		file write  `subHandle' ///
+							_n ///	
 							_col(4)"* Users" _n ///
 							_col(4)"* -----------" _n ///
 							_n ///
@@ -323,4 +324,89 @@ cap program drop 	masterDofilePart1
 		*di "masterDofilePart1a end"
 		
 	end	
+
+	
+cap program drop 	masterDofilePart2
+	program define	masterDofilePart2
+		
+		args   subHandle 
+
+		di "masterDofilePart2 start"
+		
+		file write  `subHandle' 	///
+							_col(4)"* ******************************************************************** *" _n ///
+							_col(4)"*" _n ///	
+							_col(4)"*" _col(12) "PART 2: - SET STANDARDIZATION GLOBALS AND OTHER CONSTANTS" _n ///
+							_col(4)"*" _n ///			
+							_col(4)"*" _col(16) "-Set globals with numbers or lists of " _n ///
+							_col(4)"*" _col(17) "variables that is supposed to stay the" _n /// 
+							_col(4)"*" _col(17) "same across the project." _n /// 
+							_col(4)"*" _n ///	
+							_col(4)"* ******************************************************************** *" _n
+							
+		file write  `subHandle' ///
+							_n ///	
+							_col(4)"* Set all conversion rates used in unit standardization " _n ///
+							_col(4)"* accross the whole project here. " _n ///
+							_n ///
+							_col(4)"**Example. Expand this section with globals for all constant" _n ///
+							_col(4)"* scalars used in this project. Reference these globals instead" _n ///
+							_col(4)"* of hardcode values each time constant converstion rates are used." _n ///
+							_col(4)"*Standardizing to meters" _n ///
+							_n ///	
+							_col(4)"global foot" _col(20) "= 0.3048" _n ///
+							_col(4)"global mile" _col(20) "= 1609.34" _n ///
+							_col(4)"global km" 	 _col(20) "= 1000" _n ///
+							_n /// 
+							_col(4)"**Other examples to be included here could be regression controls" _n ///
+							_col(4)"* used across the project. Everything that is constant may be" _n ///
+							_col(4)"* included here. One example of something not constant that should" _n ///
+							_col(4)"* be included here is exchange rates. It is best practice to have one" _n ///
+							_col(4)"* global with the exchange rate here, and reference this each time a" _n ///
+							_col(4)"* currency conversion is done. If the currency exchange reate needs to be" _n ///
+							_col(4)"* updated, then it only has to be done at one place for the whole project." _n ///
+							_n
+							
+		di "masterDofilePart2 end"
+		
+	end	
+	
+	
+cap program drop 	masterDofilePart3
+	program define	masterDofilePart3
+		
+		args   subHandle 
+
+		di "masterDofilePart3 start"
+		
+		file write  `subHandle' 	///
+							_col(4)"* ******************************************************************** *" _n ///
+							_col(4)"*" _n ///	
+							_col(4)"*" _col(12) "PART 3: - RUN ROUND SPECIFIC MASTER DOFILES " _n ///
+							_col(4)"*" _n ///			
+							_col(4)"*" _col(16) "-When survey rounds are added, this section will" _n ///
+							_col(4)"*" _col(17) "link to the master dofile for that round." _n /// 
+							_col(4)"*" _col(16) "-The dofiles for the master data set is not" _n ///
+							_col(4)"*" _col(17) "linked to by default, as the master data set" _n ///
+							_col(4)"*" _col(17) "should be updated with great care." _n /// 
+							_col(4)"*" _n ///	
+							_col(4)"* ******************************************************************** *" _n
+							
+						
+		di "masterDofilePart3 end"
+		
+	end	
+		
+	
+	*******************************************************************************************************************************************
+*										(the do-files here is just an example)
+*
+*										This section should run all dofiles needed from raw 
+*										data to analysis to outputs. This section should be 
+*										written in a way that anyone new to the project should
+*										still be able to follow what is going on in the data folder.
+*******************************************************************************************************************************************	 
+	
+	
+	
 
