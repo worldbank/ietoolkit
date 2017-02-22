@@ -8,21 +8,31 @@ cap	program drop	ieimpgraph
 	local counter = 0
 	local textfile = "Mrijan"
 	local date = "$S_DATE"
+qui{
 
 foreach var of local varlist{
-		local `counter' = `counter' + 1
+		local counter = `counter' + 1
 		di `counter'
+		
 		scalar beta_`var' = _b[`var'] 
 		noi display beta_`var'
 
 		scalar coeff_se_`var' = _se[`var']
-		display coeff_se_`var'
+		noi display coeff_se_`var'
 
 		scalar obs_`var' = r(N)
 		display obs_`var'
 
-		display `counter'
 	} 
+global count: word count `varlist'  
+tokenize "`varlist'"
+noi di $count
+noi sum `e(depvar)' if e(sample) == 1
+scalar ctl_N		= r(N)
+scalar ctl_mean	  	= r(mean)
+scalar ctl_mean_sd 	= r(sd)	
 
+
+}
 end
 
