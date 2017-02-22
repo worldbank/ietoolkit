@@ -4,60 +4,55 @@
 		
 		args line
 		
+		*Tokenize each line 
 		tokenize  `"`line'"' , parse("*")
 		
+		**Parse the beginning of the line to 
+		* test if this line is an iefolder line
+		local divisorStar  		"`1'"
+		local divisorIefoldeer  "`2'"
+
+		if `"`divisorStar'`divisorIefoldeer'"' != "*iefolder" {
+			
+			*This is not a iefolder divisor
+			return scalar ief_line 	= 0
+			return scalar ief_end 	= 0
+		}
+		else {
 		
-		if `"`1'"' == "*" & `"`2'"' == "iefolder" {
+			*This is a iefolder divisor, 
+			return scalar ief_line 	= 1		
 			
-			*di 1
-			
+			*parse the rest of the line (from tokenize above)
 			local partNum  		"`4'"
 			local partName 		"`6'"
 			local sectionNum 	"`8'"
 			local sectionName 	"`10'"
 			local sectionAbb 	"`12'"
-
-			return scalar ief_line 	= 1			
 			
+			*Return the part name and number. All iefolder divisor lines has this
 			return local partNum  "`partNum'"
 			return local partName "`partName'" 			
 			
-			*di 2
-			
+			*Get the prefix of the section name
 			local sectPrefix = substr("`partName'",1,4)
 			
+			*Test if it is an end of section divisor
 			if "`sectPrefix'" == "End_" {
 			
-				*di 3
-			
 				return scalar ief_end 	= 1
-				
-
-				
 			}
 			else {
-			
-				*di 4
-			
+				
 				return scalar ief_end 	= 0
-				 
+				
+				*These are returned empty if they do not apply
 				return local sectionNum 	"`sectionNum'" 
 				return local sectionName	"`sectionName'" 
 				return local sectionAbb 	"`sectionAbb'" 
-		
 			}
-		
 		}
-		else {
-		
-			*di 5 
-			return scalar ief_line 	= 0
-			return scalar ief_end 	= 0
-		
-		}
-		
 		*di "parseReadLine end"
-		
 	end
 	
 	
