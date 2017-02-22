@@ -162,16 +162,25 @@ cap program drop 	iefolder_newProject
 		masterDofilePart1 `newHandle' "$projectfolder"
 		
 		*Write sub devisor starting master and monitor data section section
-		writeDevisor `newHandle' 1 FolderGlobals 1 MastMon
+		writeDevisor `newHandle' 1 MasterGlobals 
 		
 		*Create master data folder and add global to folder in master do file
-		createFolderWriteGlobal "Master Data"  "projectfolder"  mastData  `newHandle'
+		createFolderWriteGlobal "MasterData"  "projectfolder"  mastData  `newHandle'
+
+		*Write sub devisor starting master and monitor data section section
+		writeDevisor `newHandle' 1 End_MasterGlobals 
+
+		*Write sub devisor starting master and monitor data section section
+		writeDevisor `newHandle' 1 MonitorGlobals 
+
+		*Write sub devisor starting master and monitor data section section
+		writeDevisor `newHandle' 1 End_MonitorGlobals 		
 		
-		*Create monitor data folder and add global to folder in master do file
-		createFolderWriteGlobal "Monitor Data" "projectfolder"  moniData  `newHandle'	
-		
-		*Write devisor ending globals section
-		writeDevisor `newHandle' 1 End_FolderGlobals
+		*Write sub devisor starting master and monitor data section section
+		writeDevisor `newHandle' 1 RoundGlobals 
+
+		*Write sub devisor starting master and monitor data section section
+		writeDevisor `newHandle' 1 End_RoundGlobals 
 		
 		*Write devisor starting standardization globals section
 		writeDevisor  `newHandle' 2 StandardGlobals		
@@ -264,13 +273,13 @@ cap program drop 	iefolder_newRound
 			else if `r(ief_end)' == 1 {
 				
 				*Test if it is an end of globals section as we are writing a new 
-				if "`r(partName)'" == "End_FolderGlobals" {
+				if "`r(partName)'" == "End_RoundGlobals" {
 					
 					*Increment the section number for the new section
 					local ++sectionNum
 					
 					*Write devisor for this section
-					writeDevisor 			`subHandle' 1 FolderGlobals `sectionNum' `rndName' `rndAbb' 
+					writeDevisor 			`subHandle' 1 RoundGlobals `sectionNum' `rndName' `rndAbb' 
 					
 					*Write the globals to the master do file and create the folders
 					newRndFolderAndGlobals 	`rndName' `rndAbb' "projectfolder" `subHandle'
@@ -289,16 +298,12 @@ cap program drop 	iefolder_newRound
 					*Write devisor for this section
 					writeDevisor 			`subHandle' 3 RunDofiles `sectionNum' `rndName' `rndAbb' 
 					
-					
-					
-					
+					*Write the 
 					file write  `subHandle' ///
 						_col(4)"if (0) { //Change the 0 to 1 to run the `rndName' master dofile" _n ///
 						_col(8) `"do ""' _char(36) `"`rndAbb'/`rndAbb'_master_dofile.do" "' _n ///
 						_col(4)"}" ///
 						_n
-					
-					
 					
 					*Write an empty line before the end devisor
 					file write		`subHandle' "" _n	
