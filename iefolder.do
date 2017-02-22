@@ -35,7 +35,7 @@ cap program drop 	iefolder
 	***************************************************/	
 	
 	local sub_commands "new rename"
-	local itemTypes "project round master admin monitor "
+	local itemTypes "project round master monitor "
 	
 	*Test if subcommand is valid
 	if `:list subcommand in sub_commands' == 0 {
@@ -99,12 +99,6 @@ cap program drop 	iefolder
 			di "ItemType: master"
 			iefolder_newMaster	
 		}
-		*Creating a new admin
-		else if "`itemType'" == "admin" {
-			
-			di "ItemType: admin"
-			iefolder_newAdmin 	
-		}
 		*Creating a new monitor
 		else if "`itemType'" == "monitor" {
 			
@@ -143,17 +137,8 @@ cap program drop 	iefolder_newProject
 		*Writing master do file header
 		******************************
 		
-		*Write intro part with description of project
+		*Write intro part with description of project, 
 		masterDofilePart0 `newHandle'
-	
-		*Write devisor starting setting standardize section
-		writeDevisor  `newHandle' 0 StandardSettings 	
-	
-		*Write section with ssc install and ieboilstart
-		masterDofilePart0a `newHandle'
-		
-		*Write devisor ending setting standardize section
-		writeDevisor `newHandle' 0 End_StandardSettings
 		
 		*Write devisor starting globals section
 		writeDevisor  `newHandle' 1 FolderGlobals
@@ -162,43 +147,30 @@ cap program drop 	iefolder_newProject
 		masterDofilePart1 `newHandle' "$projectfolder"
 		
 		*Write sub devisor starting master and monitor data section section
-		writeDevisor `newHandle' 1 MasterGlobals 
+		writeDevisor `newHandle' 1 FolderGlobals 1 master
 		
 		*Create master data folder and add global to folder in master do file
 		createFolderWriteGlobal "MasterData"  "projectfolder"  mastData  `newHandle'
 
 		*Write sub devisor starting master and monitor data section section
-		writeDevisor `newHandle' 1 End_MasterGlobals 
+		writeDevisor `newHandle' 1 FolderGlobals 2 rounds
 
 		*Write sub devisor starting master and monitor data section section
-		writeDevisor `newHandle' 1 MonitorGlobals 
+		writeDevisor `newHandle' 1 FolderGlobals 3 monitor			
 
 		*Write sub devisor starting master and monitor data section section
-		writeDevisor `newHandle' 1 End_MonitorGlobals 		
+		writeDevisor `newHandle' 1 End_FolderGlobals			
 		
-		*Write sub devisor starting master and monitor data section section
-		writeDevisor `newHandle' 1 RoundGlobals 
-
-		*Write sub devisor starting master and monitor data section section
-		writeDevisor `newHandle' 1 End_RoundGlobals 
 		
-		*Write devisor starting standardization globals section
-		writeDevisor  `newHandle' 2 StandardGlobals		
 		
 		*Write globals section header and the root folders
 		masterDofilePart2 `newHandle'
 		
-		*Write devisor ending standardization globals section
-		writeDevisor  `newHandle' 2 End_StandardGlobals		
-		
-		*Write devisor starting the section running sub-master dofiles
-		writeDevisor  `newHandle' 3 RunDofiles		
-		
-		*Write run sub-master 
+	
+		*Write section that runs sub-master dofiles
 		masterDofilePart3 `newHandle'
 
-		*Write devisor ending the section running sub-master dofiles
-		writeDevisor  `newHandle' 3 End_RunDofiles			
+					
 		
 end 
 
@@ -247,39 +219,14 @@ cap program drop 	iefolder_newRound
 			* but we test that there is no confict with previous names
 			if `r(ief_end)' == 0 {
 				
-				*Test that the folder name about to be used is not already in use 
-				if "`r(sectionName)'" == "`rndName'" {
-					di as error "{phang}The new round name `rndName' is already in use. No new folders are creaetd and the master do-files has not been changed.{p_end}"
-					error 507
-				}
-				
-				*Test that the folder name about to be used is not already in use 
-				if "`r(sectionAbb)'" == "`rndAbb'" {
-					di as error "{phang}The new round abbreviation `rndAbb' is already in use. No new folders are creaetd and the master do-files has not been changed.{p_end}"
-					error 507
-				}
-				
-				*Copy the line as is
-				file write		`subHandle' `"`line'"' _n
-				
-				*Update the section counter
-				if "`r(sectionNum)'" != "*" {
-					local sectionNum = `r(sectionNum)'
-				} 
-			}
-			
-			**This is an end of section line. We will add the new content here 
-			* before writing the end of section line
-			else if `r(ief_end)' == 1 {
-				
-				*Test if it is an end of globals section as we are writing a new 
-				if "`r(partName)'" == "End_RoundGlobals" {
+					*Test if it is an end of globals section as we are writing a new 
+					if "`r(sectionName)'" == "monitor" {
 					
 					*Increment the section number for the new section
 					local ++sectionNum
 					
 					*Write devisor for this section
-					writeDevisor 			`subHandle' 1 RoundGlobals `sectionNum' `rndName' `rndAbb' 
+					writeDevisor 			`subHandle' 1 RoundGlobals 2 rounds `rndName' `rndAbb' 
 					
 					*Write the globals to the master do file and create the folders
 					newRndFolderAndGlobals 	`rndName' `rndAbb' "projectfolder" `subHandle'
@@ -288,6 +235,29 @@ cap program drop 	iefolder_newRound
 					file write		`subHandle' "" _n	
 					
 				}
+				else {
+				
+					*Test that the folder name about to be used is not already in use 
+					if "`r(itemName)'" == "`rndName'" {
+						di as error "{phang}The new round name `rndName' is already in use. No new folders are creaetd and the master do-files has not been changed.{p_end}"
+						error 507
+					}
+					
+					*Test that the folder name about to be used is not already in use 
+					if "`r(itemAbb)'" == "`rndAbb'" {
+						di as error "{phang}The new round abbreviation `rndAbb' is already in use. No new folders are creaetd and the master do-files has not been changed.{p_end}"
+						error 507
+					}
+					
+				}
+				
+				*Copy the line as is
+				file write		`subHandle' `"`line'"' _n
+			}
+			
+			**This is an end of section line. We will add the new content here 
+			* before writing the end of section line
+			else if `r(ief_end)' == 1 {
 				
 				*Test if it is an end of globals section as we are writing a new 
 				if "`r(partName)'" == "End_RunDofiles" {

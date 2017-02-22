@@ -17,11 +17,8 @@
 	*use cd to test if folder can be created
 
 	********************************
-	
 
 	*local surveyRounds baseline endline kristoffer kewinowens
-	
-	
 	
 	********************************
 	
