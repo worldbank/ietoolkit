@@ -11,6 +11,9 @@ cap	program drop	ieimpgraph
 qui{
 
 foreach var of local varlist{
+		
+		//Test that var is dummy (i.e. 0 or 1 or missing)
+			
 		local counter = `counter' + 1
 		di `counter'
 		
@@ -19,15 +22,22 @@ foreach var of local varlist{
 
 		scalar coeff_se_`var' = _se[`var']
 		noi display coeff_se_`var'
-
+		
+		count if e(sample) == 1 & `var' == 1 //Count one tmt group at the time
 		scalar obs_`var' = r(N)
-		display obs_`var'
+		noi display obs_`var'
 
 	} 
-global count: word count `varlist'  
+local count: word count `varlist'  
 tokenize "`varlist'"
-noi di $count
-noi sum `e(depvar)' if e(sample) == 1
+noi di `count'
+
+//Make all vars tempvars (maybe do later)
+//Make sure that missing is properly handled
+gen anyTMT = rowmax(`varlist') if e(sample) == 1
+gen control = (anyTmt == 0) if !missing(anyTMT)
+
+noi sum `e(depvar)' if e(sample) == 1 & control == 1
 scalar ctl_N		= r(N)
 scalar ctl_mean	  	= r(mean)
 scalar ctl_mean_sd 	= r(sd)	
