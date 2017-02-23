@@ -11,3 +11,9 @@ replace weight2 = 0 if weight2 == .
 
 reg price foreign weight2 
 ieimpgraph foreign weight2
+tab rep78, gen(newvar1_)
+
+drop newvar1_1
+
+regress price newvar1_*
+ieimpgraph newvar1_*

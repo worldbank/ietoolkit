@@ -82,7 +82,6 @@ cap	program drop	ieimpgraph
 		"order" 	_tab "xLabeled"	_tab "mean" _tab "coeff" _tab "conf_int_min" _tab "conf_int_max" _tab "obs" _tab "star" _n 	///
 		%9.3f (1) _tab "Control"  _tab %9.3f (ctl_mean)      _tab  		 			_tab 		 			  	  _tab 			 				_tab %9.3f (ctl_N) 	   _tab			  	  _n 
 	file close `newHandle'
-
 	tempvar newCounter 
 	gen `newCounter' = 2
 	foreach var in `varlist' {
@@ -97,28 +96,15 @@ cap	program drop	ieimpgraph
 	
 	insheet using mainMasterDofile.txt, clear
 	
-	/*local graphname	gph_new
-		graph twoway (bar mean order if order == 1, color("215 25 28")	 ) ///
-			(bar mean order if order == 2 , color("253 174 97") 		) ///
-			(bar mean order if order == 3 , color("255 255 191" ) 		 ) ///
-			(rcap conf_int_max conf_int_min order, lc(gs) 						) ///
-			(scatter  mean order, msym(none) mlab() mlabs(medium) mlabpos(10) mlabcolor(black))	, ///
-			legend(order(1 2 3 4) lab(1 ) lab(2 xLabeled) lab(3 "Shared Demo Treatment")) ///
-			 plotregion(margin(b+3 t+3)) ///
-			xlabel(	1 `" (N = `obs_ctrl') "' ///
-					2 `" "(N = `obs_reg')" " `star_reg' " "' ///
-					3 `" "(N = `obs_sdp')" " `star_sdp' " "' , noticks labsize(medsmall)) ///
-			graphregion( lcolor("182 222 255") fcolor("182 222 255")) ///
-			plotregion(fcolor("247 247 247") ) ///
-		   	xtitle("")   ///
-			title("`title'") saving(`graphname'.gph, replace)
-			graph export `graphname'.png, replace  */
 	tempname  newHandle2
 	tempfile newTextFile2
 	cap file close `newHandle2'	
 	file open  	`newHandle2' using "`newTextFile2'", text write append
+	
+	file write `newHandle2' "di 123" _n
+	
 	file write `newHandle2' "local graphname gph_new" _n "graph twoway  "
-	forval x = 1/`count' {
+	forval x = 1/6 {
 	
 		local colour
 		
@@ -130,16 +116,18 @@ cap	program drop	ieimpgraph
 		if `colorNum' == 4 local colour = "171 217 233"
 		if `colorNum' == 0 local colour = "43 123 182"
 		
-		file write `newHandle2'  `"(bar mean order if order == `x', color("`colour'")  ///"' _n
+		file write `newHandle2'  `"(bar mean order if order == `x', color("`colour'"))  ///"' _n
 	}
 	file write `newHandle2' "(rcap conf_int_max conf_int_min order, lc(gs)) ///" _n "(scatter  mean order, msym(none) mlab() mlabs(medium) mlabpos(10) mlabcolor(black))	, ///" _n "legend(order("
 	forval y = 1(1)`count'{
 		file write `newHandle2' "`y' "
 	}
-	file write `newHandle2' ")"	
+	file write `newHandle2' ")) ///"	_n `"saving("newfile.gph", replace)"' _n "graph export graphname.png, replace"
 	file close `newHandle2'	
 	copy "`newTextFile2'"  "mainMasterDofile2.txt" , replace
-			
+	
+	di 312
+	do `newTextFile2'		
 }
 restore
 end
