@@ -1,6 +1,6 @@
 cap	program drop	ieimpgraph
 	program define 	ieimpgraph
-	
+	preserve
 	syntax varlist
 	
 	mat beta_ = e(b)
@@ -37,7 +37,7 @@ cap	program drop	ieimpgraph
 
 	} 
 	
-	//local count: word count `varlist'  
+	local count: word count `varlist'  
 	//tokenize "`varlist'"
 	//noi di `count'
 
@@ -57,7 +57,7 @@ cap	program drop	ieimpgraph
 			scalar  conf_int_min_`var'   =	coeff_`var'-(1.96*coeff_se_`var') + ctl_mean
 			scalar  conf_int_max_`var'   =	coeff_`var'+(1.96*coeff_se_`var') + ctl_mean
 			
-			noi test `var' 
+			test `var' 
 			local star_`var'
 
 			scalar  pvalue =r(p)
@@ -97,7 +97,7 @@ cap	program drop	ieimpgraph
 	
 	insheet using mainMasterDofile.txt, clear
 	
-	local graphname	gph_new
+	/*local graphname	gph_new
 		graph twoway (bar mean order if order == 1, color("215 25 28")	 ) ///
 			(bar mean order if order == 2 , color("253 174 97") 		) ///
 			(bar mean order if order == 3 , color("255 255 191" ) 		 ) ///
@@ -112,9 +112,36 @@ cap	program drop	ieimpgraph
 			plotregion(fcolor("247 247 247") ) ///
 		   	xtitle("")   ///
 			title("`title'") saving(`graphname'.gph, replace)
-			graph export `graphname'.png, replace 
+			graph export `graphname'.png, replace  */
+	tempname  newHandle2
+	tempfile newTextFile2
+	cap file close `newHandle2'	
+	file open  	`newHandle2' using "`newTextFile2'", text write append
+	file write `newHandle2' "local graphname gph_new" _n "graph twoway  "
+	forval x = 1/`count' {
+	
+		local colour
+		
+		local colorNum = mod(`x', 5 )
+		
+		if `colorNum' == 1 local colour = "215 25 28"
+		if `colorNum' == 2 local colour = "253 174 93"
+		if `colorNum' == 3 local colour = "255 255 191"
+		if `colorNum' == 4 local colour = "171 217 233"
+		if `colorNum' == 0 local colour = "43 123 182"
+		
+		file write `newHandle2'  `"(bar mean order if order == `x', color("`colour'")  ///"' _n
+	}
+	file write `newHandle2' "(rcap conf_int_max conf_int_min order, lc(gs)) ///" _n "(scatter  mean order, msym(none) mlab() mlabs(medium) mlabpos(10) mlabcolor(black))	, ///" _n "legend(order("
+	forval y = 1(1)`count'{
+		file write `newHandle2' "`y' "
+	}
+	file write `newHandle2' ")"	
+	file close `newHandle2'	
+	copy "`newTextFile2'"  "mainMasterDofile2.txt" , replace
 			
 }
+restore
 end
 
 
