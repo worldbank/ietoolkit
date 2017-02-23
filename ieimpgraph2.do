@@ -37,9 +37,9 @@ cap	program drop	ieimpgraph
 
 	} 
 	
-	local count: word count `varlist'  
-	tokenize "`varlist'"
-	noi di `count'
+	//local count: word count `varlist'  
+	//tokenize "`varlist'"
+	//noi di `count'
 
 	//Make all vars tempvars (maybe do later)
 	//Make sure that missing is properly handled
@@ -74,16 +74,48 @@ cap	program drop	ieimpgraph
 			scalar tmt_mean_`var' = ctl_mean + coeff_`var'
 		}
 	
-	
-	
 	tempname 	newHandle	
 	tempfile	newTextFile
 	cap file close 	`newHandle'	
 	file open  	`newHandle' using "`newTextFile'", text write append
 	file write `newHandle' ///
-		"Variable" 	_tab "Tmt-Status"	_tab "mean" _tab "coeff" _tab "conf_int_min" _tab "conf_int_max" _tab "obs" _tab "star" _n 	
+		"order" 	_tab "xLabeled"	_tab "mean" _tab "coeff" _tab "conf_int_min" _tab "conf_int_max" _tab "obs" _tab "star" _n 	///
+		%9.3f (1) _tab "Control"  _tab %9.3f (ctl_mean)      _tab  		 			_tab 		 			  	  _tab 			 				_tab %9.3f (ctl_N) 	   _tab			  	  _n 
 	file close `newHandle'
+
+	tempvar newCounter 
+	gen `newCounter' = 2
+	foreach var in `varlist' {
+		file open  	`newHandle' using "`newTextFile'", text write append
+		file write `newHandle' ///
+		%9.3f (`newCounter') _tab "`var'" _tab %9.3f (tmt_mean_`var') _tab  %9.3f (coeff_`var')  _tab %9.3f (conf_int_min_`var') _tab %9.3f (conf_int_max_`var') _tab %9.3f (obs_`var')   _tab "`star_`var''"  _n 
+		file close `newHandle'	
+		replace `newCounter' = `newCounter' + 1
+		}
+	
 	copy "`newTextFile'"  "mainMasterDofile.txt" , replace
+	
+	insheet using mainMasterDofile.txt, clear
+	
+	local graphname	gph_new
+		graph twoway (bar mean order if order == 1, color("215 25 28")	 ) ///
+			(bar mean order if order == 2 , color("253 174 97") 		) ///
+			(bar mean order if order == 3 , color("255 255 191" ) 		 ) ///
+			(rcap conf_int_max conf_int_min order, lc(gs) 						) ///
+			(scatter  mean order, msym(none) mlab() mlabs(medium) mlabpos(10) mlabcolor(black))	, ///
+			legend(order(1 2 3 4) lab(1 ) lab(2 xLabeled) lab(3 "Shared Demo Treatment")) ///
+			 plotregion(margin(b+3 t+3)) ///
+			xlabel(	1 `" (N = `obs_ctrl') "' ///
+					2 `" "(N = `obs_reg')" " `star_reg' " "' ///
+					3 `" "(N = `obs_sdp')" " `star_sdp' " "' , noticks labsize(medsmall)) ///
+			graphregion( lcolor("182 222 255") fcolor("182 222 255")) ///
+			plotregion(fcolor("247 247 247") ) ///
+		   	xtitle("")   ///
+			title("`title'") saving(`graphname'.gph, replace)
+			graph export `graphname'.png, replace 
+			
 }
 end
+
+
 
