@@ -37,7 +37,8 @@ cap	program drop	ieimpgraph
 
 	} 
 	
-	local count: word count `varlist'  
+	local count: word count `varlist' 
+	local graphCount = `count' + 1
 	//tokenize "`varlist'"
 	//noi di `count'
 
@@ -104,7 +105,7 @@ cap	program drop	ieimpgraph
 	file write `newHandle2' "di 123" _n
 	
 	file write `newHandle2' "local graphname gph_new" _n "graph twoway  "
-	forval x = 1/6 {
+	forval x = 1/`graphCount' {
 	
 		local colour
 		
