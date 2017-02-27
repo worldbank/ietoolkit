@@ -1,6 +1,6 @@
 cap	program drop	ieimpgraph
 	program define 	ieimpgraph
-	preserve
+*	preserve
 	syntax varlist
 	
 	mat beta_ = e(b)
@@ -97,40 +97,70 @@ cap	program drop	ieimpgraph
 	
 	insheet using mainMasterDofile.txt, clear
 	
-	tempname  newHandle2
-	tempfile newTextFile2
-	cap file close `newHandle2'	
-	file open  	`newHandle2' using "`newTextFile2'", text write append
+	if order == 1 local obsControl = obs
+	local starOption `" xlabel(1 (N=`obsControl') "'
+	noi di "`starOption'"
+	forval x = 2/`graphCount' {
 	
-	file write `newHandle2' "di 123" _n
+	if order == `x' local obsTreat = obs 
+	if order == `x' local starTreat = star
 	
-	file write `newHandle2' "local graphname gph_new" _n "graph twoway  "
-	forval x = 1/`graphCount' {
+	local starOption `" "`starOption'" `x' `obsTreat' "`starTreat'" "'
 	
+	}
+	noi di "`starOption'" 
+	
+	local graphname gph_new 
+	local colourOption ""
+	
+	forval colourLoop = 1/`graphCount' {
+		
 		local colour
 		
-		local colorNum = mod(`x', 5 )
+		noi di 0
 		
-		if `colorNum' == 1 local colour = "215 25 28"
-		if `colorNum' == 2 local colour = "253 174 93"
-		if `colorNum' == 3 local colour = "255 255 191"
-		if `colorNum' == 4 local colour = "171 217 233"
-		if `colorNum' == 0 local colour = "43 123 182"
+		local colourNum = mod(`colourLoop', 5)
 		
-		file write `newHandle2'  `"(bar mean order if order == `x', color("`colour'"))  ///"' _n
+		if `colourNum' == 1 local colour = "215 25 28"
+		if `colourNum' == 2 local colour = "253 174 93"
+		if `colourNum' == 3 local colour = "255 255 191"
+		if `colourNum' == 4 local colour = "171 217 233"
+		if `colourNum' == 0 local colour = "43 123 182"
+		
+		noi di 1
+		
+		local colourOption `"`colourOption' (bar mean order if order == `colourLoop', color("`colour'")) "' 
+		
+		noi di 2
+		
+		noi di `"`colourOption'"'
+		
+		
 	}
-	file write `newHandle2' "(rcap conf_int_max conf_int_min order, lc(gs)) ///" _n "(scatter  mean order, msym(none) mlab() mlabs(medium) mlabpos(10) mlabcolor(black))	, ///" _n "legend(order("
-	forval y = 1(1)`count'{
-		file write `newHandle2' "`y' "
-	}
-	file write `newHandle2' ")) ///"	_n `"saving("newfile.gph", replace)"' _n "graph export graphname.png, replace"
-	file close `newHandle2'	
-	copy "`newTextFile2'"  "mainMasterDofile2.txt" , replace
 	
-	di 312
-	do `newTextFile2'		
+	noi di 3
+	
+	local confIntGraph = "(rcap conf_int_max conf_int_min order, lc(gs)) (scatter mean order, msym(none)  mlabs(medium) mlabpos(10) mlabcolor(black)), "
+	
+	local orderOption = "legend(order("
+	
+	forval y = 1(1)`graphCount'{
+		local orderOption  "`orderOption' `y'"
+	}
+	
+	local orderOption "`orderOption' ))"
+	
+	noi di 4
+	
+	noi di `" graph twoway `colourOption' `confIntGraph' `orderOption' "'
+	
+	graph twoway `colourOption' `confIntGraph' `orderOption' saving("newfile.gph", replace) 
+	
+	noi di 5
+	
+	graph export graphname.png, replace	
 }
-restore
+*restore
 end
 
 
