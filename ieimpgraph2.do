@@ -1,7 +1,7 @@
 cap	program drop	ieimpgraph
 	program define 	ieimpgraph
 *	preserve
-	syntax varlist, [TITle(string)]
+	syntax varlist, [TItle(string)]
 	
 	mat beta_ = e(b)
 
@@ -79,6 +79,7 @@ cap	program drop	ieimpgraph
 	tempfile	newTextFile
 	cap file close 	`newHandle'	
 	
+	
 	file open  	`newHandle' using "`newTextFile'", text write append
 	file write `newHandle' ///
 		"order" 	_tab "xLabeled"	_tab "mean" _tab "coeff" _tab "conf_int_min" _tab "conf_int_max" _tab "obs" _tab "star" _n 	///
@@ -88,31 +89,35 @@ cap	program drop	ieimpgraph
 	
 	tempvar newCounter 
 	gen `newCounter' = 2
-	foreach var in `varlist' {
-		file open  	`newHandle' using "`newTextFile'", text write append
-		file write `newHandle' ///
-		%9.3f (`newCounter') _tab "`var'" _tab %9.3f (tmt_mean_`var') _tab  %9.3f (coeff_`var')  _tab %9.3f (conf_int_min_`var') _tab %9.3f (conf_int_max_`var') _tab %9.3f (obs_`var')   _tab "`star_`var''"  _n 
-		file close `newHandle'	
-		replace `newCounter' = `newCounter' + 1
-		}
+		foreach var in `varlist' {
+			file open  	`newHandle' using "`newTextFile'", text write append
+			file write `newHandle' ///
+			%9.3f (`newCounter') _tab "`var'" _tab %9.3f (tmt_mean_`var') _tab  %9.3f (coeff_`var')  _tab %9.3f (conf_int_min_`var') _tab %9.3f (conf_int_max_`var') _tab %9.3f (obs_`var')   _tab "`star_`var''"  _n 
+			file close `newHandle'	
+			replace `newCounter' = `newCounter' + 1
+			}
 	
-	copy "`newTextFile'"  "mainMasterDofile.txt" , replace
+		copy "`newTextFile'"  "mainMasterDofile.txt" , replace
+		
+		insheet using mainMasterDofile.txt, clear
 	
-	insheet using mainMasterDofile.txt, clear
-	
-	if order == 1 local obsControl = obs
-	local obsLabelControl = xlabeled[1]
-	local starOption `" xlabel(1 " `obsLabelControl'(N=`obsControl')" "'
-	*noi di "`starOption'" /
+		if order == 1 local obsControl = obs
+		local obsLabelControl = xlabeled[1]
+		
+		local starOption `" xlabel(1 " `obsLabelControl'(N=`obsControl')" "'
+		*noi di "`starOption'" /
 	
 	forval x = 2/`graphCount' {
-			noi di "Hello"
+	
+			
 			list obs if order == `x'
 			local obsTreat = obs[`x'] 
+			
 			local starTreat = star[`x']
 			local starLabel = xlabeled[`x']
+			
 			local starOption `" `starOption' `x' " `starLabel' (N= `obsTreat')  `starTreat'" "'
-			noi di "Hello2"
+						
 		}
 	
 	local starOption `" `starOption' , noticks labsize(medsmall) ) "'
@@ -139,7 +144,7 @@ cap	program drop	ieimpgraph
 		
 		noi di 1
 		
-		local colourOption `"`colourOption' (bar mean order if order == `colourLoop', color("`colour'")) "' 
+		local colourOption `"`colourOption' (bar mean order if order == `colourLoop', color("`colour'") yscale(range(0)) ) "' 
 		
 		noi di 2
 		
@@ -150,7 +155,7 @@ cap	program drop	ieimpgraph
 	
 	noi di 3
 	
-	local confIntGraph = "(rcap conf_int_max conf_int_min order, lc(gs)) (scatter mean order, msym(none)  mlabs(medium) mlabpos(10) mlabcolor(black)), "
+	local confIntGraph = "(rcap conf_int_max conf_int_min order, yscale(range(0)) lc(gs)) (scatter mean order,  msym(none)  mlabs(medium) mlabpos(10) mlabcolor(black)), "
 	
 	local orderOption = "legend(order("
 	
