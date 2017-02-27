@@ -1,7 +1,7 @@
 cap	program drop	ieimpgraph
 	program define 	ieimpgraph
 *	preserve
-	syntax varlist
+	syntax varlist, [TITle(string)]
 	
 	mat beta_ = e(b)
 
@@ -78,11 +78,14 @@ cap	program drop	ieimpgraph
 	tempname 	newHandle	
 	tempfile	newTextFile
 	cap file close 	`newHandle'	
+	
 	file open  	`newHandle' using "`newTextFile'", text write append
 	file write `newHandle' ///
 		"order" 	_tab "xLabeled"	_tab "mean" _tab "coeff" _tab "conf_int_min" _tab "conf_int_max" _tab "obs" _tab "star" _n 	///
 		%9.3f (1) _tab "Control"  _tab %9.3f (ctl_mean)      _tab  		 			_tab 		 			  	  _tab 			 				_tab %9.3f (ctl_N) 	   _tab			  	  _n 
 	file close `newHandle'
+	
+	
 	tempvar newCounter 
 	gen `newCounter' = 2
 	foreach var in `varlist' {
@@ -98,7 +101,8 @@ cap	program drop	ieimpgraph
 	insheet using mainMasterDofile.txt, clear
 	
 	if order == 1 local obsControl = obs
-	local starOption `" xlabel(1 "(N=`obsControl')" "'
+	local obsLabelControl = xlabeled[1]
+	local starOption `" xlabel(1 " `obsLabelControl'(N=`obsControl')" "'
 	*noi di "`starOption'" /
 	
 	forval x = 2/`graphCount' {
@@ -106,7 +110,8 @@ cap	program drop	ieimpgraph
 			list obs if order == `x'
 			local obsTreat = obs[`x'] 
 			local starTreat = star[`x']
-			local starOption `" `starOption' `x' "(N= `obsTreat')  `starTreat'" "'
+			local starLabel = xlabeled[`x']
+			local starOption `" `starOption' `x' " `starLabel' (N= `obsTreat')  `starTreat'" "'
 			noi di "Hello2"
 		}
 	
@@ -159,7 +164,7 @@ cap	program drop	ieimpgraph
 	
 	noi di `" graph twoway `colourOption' `confIntGraph' `orderOption' "'
 	
-	graph twoway `colourOption' `confIntGraph' `orderOption' `starOption' saving("newfile.gph", replace) 
+	graph twoway `colourOption' `confIntGraph' `orderOption' `starOption' saving("newfile.gph", replace) title("`title'") 
 	
 	noi di 5
 	
