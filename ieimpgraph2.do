@@ -59,7 +59,7 @@ cap	program drop	ieimpgraph
 			scalar  conf_int_max_`var'   =	coeff_`var'+(1.96*coeff_se_`var') + ctl_mean
 			
 			test `var' 
-			local star_`var'
+			local star_`var' " "
 
 			scalar  pvalue =r(p)
 			if pvalue < 0.10 {
@@ -98,18 +98,23 @@ cap	program drop	ieimpgraph
 	insheet using mainMasterDofile.txt, clear
 	
 	if order == 1 local obsControl = obs
-	local starOption `" xlabel(1 (N=`obsControl') "'
-	noi di "`starOption'"
+	local starOption `" xlabel(1 "(N=`obsControl')" "'
+	*noi di "`starOption'" /
+	
 	forval x = 2/`graphCount' {
+			noi di "Hello"
+			list obs if order == `x'
+			local obsTreat = obs[`x'] 
+			local starTreat = star[`x']
+			local starOption `" `starOption' `x' "(N= `obsTreat')  `starTreat'" "'
+			noi di "Hello2"
+		}
 	
-	if order == `x' local obsTreat = obs 
-	if order == `x' local starTreat = star
-	
-	local starOption `" "`starOption'" `x' `obsTreat' "`starTreat'" "'
-	
-	}
-	noi di "`starOption'" 
-	
+	local starOption `" `starOption' , noticks labsize(medsmall) ) "'
+	/* noi di "Mrijan rimal"
+	noi di `" "`starOption'"  "'
+	noi di "Mrijan rimal" */
+
 	local graphname gph_new 
 	local colourOption ""
 	
@@ -154,7 +159,7 @@ cap	program drop	ieimpgraph
 	
 	noi di `" graph twoway `colourOption' `confIntGraph' `orderOption' "'
 	
-	graph twoway `colourOption' `confIntGraph' `orderOption' saving("newfile.gph", replace) 
+	graph twoway `colourOption' `confIntGraph' `orderOption' `starOption' saving("newfile.gph", replace) 
 	
 	noi di 5
 	
