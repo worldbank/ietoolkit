@@ -10,9 +10,9 @@
 		gen weight2 = 1 if weight >= 3019.5
 		replace weight2 = 0 if weight2 == .
 
-		reg price weight2  foreign
-		ieimpgraph weight2   foreign , title(Treatment effect on overall price)
-			
+		reg price  weight2
+		ieimpgraph weight2, title(Treatment effect on overall price)
+
 		
 		tab rep78, gen(n1_)
 		drop n1_1

@@ -140,15 +140,15 @@ cap	program drop	ieimpgraph
 		if `colourNum' == 4 local colour = "171 217 233"
 		if `colourNum' == 0 local colour = "43 123 182"
 		
-		local colourOption `"`colourOption' (bar mean order if order == `colourLoop', color("`colour'") yscale(range(0)) ytick(0)) "' 
+		local colourOption `"`colourOption' (bar mean order if order == `colourLoop', color("`colour'")) "' 
 		
 	
 		
 	}
 	
-	local confIntGraph = "(rcap conf_int_max conf_int_min order, yscale(range(0)) lc(gs)) (scatter mean order,  msym(none)  mlabs(medium) mlabpos(10) mlabcolor(black)), "
+	local confIntGraph = `"(rcap conf_int_max conf_int_min order, lc(gs)) (scatter mean order,  msym(none)  mlabs(medium) mlabpos(10) mlabcolor(black)), xtitle("") "'
 	
-	local orderOption = "legend(order("
+	local orderOption = `"legend(order("'
 	
 	forval y = 1(1)`graphCount'{
 		local orderOption  "`orderOption' `y'"
