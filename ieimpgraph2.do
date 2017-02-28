@@ -1,6 +1,6 @@
 cap	program drop	ieimpgraph
 	program define 	ieimpgraph
-*	preserve
+	preserve
 	syntax varlist, [TItle(string)]
 	
 	mat beta_ = e(b)
@@ -26,14 +26,14 @@ cap	program drop	ieimpgraph
 		di `counter'
 		
 		scalar coeff_`var' = _b[`var'] 
-		noi display coeff_`var'
+		//noi display coeff_`var'
 
 		scalar coeff_se_`var' = _se[`var']
-		noi display coeff_se_`var'
+		//noi display coeff_se_`var'
 		
 		count if e(sample) == 1 & `var' == 1 //Count one tmt group at the time
 		scalar obs_`var' = r(N)
-		noi display obs_`var'
+		//noi display obs_`var'
 
 	} 
 	
@@ -49,7 +49,7 @@ cap	program drop	ieimpgraph
 	tempvar control
 	gen `control' = (`anyTMT' == 0) if !missing(`anyTMT')
 
-	noi sum `e(depvar)' if e(sample) == 1 & `control' == 1
+	sum `e(depvar)' if e(sample) == 1 & `control' == 1
 	scalar ctl_N		= r(N)
 	scalar ctl_mean	  	= r(mean)
 	scalar ctl_mean_sd 	= r(sd)	
@@ -132,8 +132,6 @@ cap	program drop	ieimpgraph
 		
 		local colour
 		
-		noi di 0
-		
 		local colourNum = mod(`colourLoop', 5)
 		
 		if `colourNum' == 1 local colour = "215 25 28"
@@ -142,18 +140,11 @@ cap	program drop	ieimpgraph
 		if `colourNum' == 4 local colour = "171 217 233"
 		if `colourNum' == 0 local colour = "43 123 182"
 		
-		noi di 1
+		local colourOption `"`colourOption' (bar mean order if order == `colourLoop', color("`colour'") yscale(range(0)) ytick(0)) "' 
 		
-		local colourOption `"`colourOption' (bar mean order if order == `colourLoop', color("`colour'") yscale(range(0)) ) "' 
-		
-		noi di 2
-		
-		noi di `"`colourOption'"'
-		
+	
 		
 	}
-	
-	noi di 3
 	
 	local confIntGraph = "(rcap conf_int_max conf_int_min order, yscale(range(0)) lc(gs)) (scatter mean order,  msym(none)  mlabs(medium) mlabpos(10) mlabcolor(black)), "
 	
@@ -165,17 +156,13 @@ cap	program drop	ieimpgraph
 	
 	local orderOption "`orderOption' ))"
 	
-	noi di 4
-	
-	noi di `" graph twoway `colourOption' `confIntGraph' `orderOption' "'
+	//noi di `" graph twoway `colourOption' `confIntGraph' `orderOption' "'
 	
 	graph twoway `colourOption' `confIntGraph' `orderOption' `starOption' saving("newfile.gph", replace) title("`title'") 
 	
-	noi di 5
-	
 	graph export graphname.png, replace	
 }
-*restore
+restore
 end
 
 
