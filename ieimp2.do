@@ -19,12 +19,12 @@
 	
 	*open an example data set and create a mock dummy
 	sysuse auto, clear
-	gen dummy = (weight >= 3019.5)
+	gen Treatment = (weight >= 3019.5)
 	
 	*Run the impact regression
-	reg price  dummy
+	reg price  Treatment
 	*Create the graph
-	ieimpgraph dummy, title("Treatment effect on price") save("$testOuput/Graph1.gph")
+	ieimpgraph Treatment, title("Treatment effect on price") save("$testOuput/Graph1.gph")
 	
 	
 	**********************
