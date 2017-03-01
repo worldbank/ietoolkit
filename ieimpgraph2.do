@@ -1,7 +1,7 @@
 cap	program drop	ieimpgraph
 	program define 	ieimpgraph
 	preserve
-	syntax varlist, [TItle(string)]
+	syntax varlist, [TItle(string) save(string)]
 	
 	mat beta_ = e(b)
 
@@ -71,7 +71,7 @@ cap	program drop	ieimpgraph
 			if pvalue < 0.01 {
 				local star_`var' "***"
 			}
-			noi display "`star_`var''"
+			*noi display "`star_`var''"
 			scalar tmt_mean_`var' = ctl_mean + coeff_`var'
 		}
 	
@@ -104,7 +104,7 @@ cap	program drop	ieimpgraph
 		if order == 1 local obsControl = obs
 		local obsLabelControl = xlabeled[1]
 		
-		local starOption `" xlabel(1 " `obsLabelControl'(N=`obsControl')" "'
+		local starOption `" xlabel(1 " `obsLabelControl' (N=`obsControl')" "'
 		*noi di "`starOption'" /
 	
 	forval x = 2/`graphCount' {
@@ -156,13 +156,19 @@ cap	program drop	ieimpgraph
 	
 	local orderOption "`orderOption' ))"
 	
+	if "`save'" != "" {
+		
+		local saveOption saving("`save'", replace)
+	
+	}
+	
 	//noi di `" graph twoway `colourOption' `confIntGraph' `orderOption' "'
 	
-	graph twoway `colourOption' `confIntGraph' `orderOption' `starOption' saving("newfile.gph", replace) title("`title'") 
+	graph twoway `colourOption' `confIntGraph' `orderOption' `starOption' `saveOption' title("`title'") 
 	
-	graph export graphname.png, replace	
+	restore
 }
-restore
+
 end
 
 
