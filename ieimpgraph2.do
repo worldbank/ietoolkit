@@ -118,16 +118,9 @@ cap	program drop	ieimpgraph
 		************
 		*Create the bar for this group
 		
-		local colour
-		local colourNum = mod(`tmtGroupCount', 5)
+		colorPicker `tmtGroupCount' `graphCount' 
 		
-		if `colourNum' == 1 local colour = "215 25 28"
-		if `colourNum' == 2 local colour = "253 174 93"
-		if `colourNum' == 3 local colour = "255 255 191"
-		if `colourNum' == 4 local colour = "171 217 233"
-		if `colourNum' == 0 local colour = "43 123 182"
-		
-		local tmtGroupBars `"`tmtGroupBars' (bar mean order if order == `tmtGroupCount', color("`colour'")) "' 
+		local tmtGroupBars `"`tmtGroupBars' (bar mean order if order == `tmtGroupCount', color("`r(color)'")) "' 
 		
 		************
 		*Create labels etc. for this group	
@@ -165,5 +158,40 @@ cap	program drop	ieimpgraph
 
 end
 
+cap	program drop	colorPicker
+	program define 	colorPicker , rclass
+	
+	args groupCount totalNumGroups 
+	
+	if `totalNumGroups' == 2 {
+		
+		if `groupCount' == 1 return local color "215 25 28"
+		if `groupCount' == 2 return local color "43 123 182"
+	}
+	else if `totalNumGroups' == 3 {
 
-
+		if `groupCount' == 1 return local color "215 25 28"
+		if `groupCount' == 2 return local color "255 255 191"
+		if `groupCount' == 3 return local color "43 123 182"
+	}
+	else if `totalNumGroups' == 4 {
+	
+		if `groupCount' == 1 return local color "215 25 28"
+		if `groupCount' == 2 return local color "255 255 191"
+		if `groupCount' == 3 return local color "171 217 233"
+		if `groupCount' == 4 return local color "43 123 182"
+	}
+	else {
+		
+		*For five or more colors we repeat the same pattern
+		
+		local colourNum = mod(`groupCount', 5)
+		if `colourNum' == 1 return local color "215 25 28"
+		if `colourNum' == 2 return local color "253 174 93"
+		if `colourNum' == 3 return local color "255 255 191"
+		if `colourNum' == 4 return local color "171 217 233"
+		if `colourNum' == 0 return local color "43 123 182"
+		
+	}
+	
+end
