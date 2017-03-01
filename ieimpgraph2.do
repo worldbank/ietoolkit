@@ -78,61 +78,48 @@ cap	program drop	ieimpgraph
 	tempname 	newHandle	
 	tempfile	newTextFile
 	cap file close 	`newHandle'	
-	
-	
 	file open  	`newHandle' using "`newTextFile'", text write append
+	
+	*Write headers and control value
 	file write `newHandle' ///
 		"order" 	_tab "xLabeled"	_tab "mean" _tab "coeff" _tab "conf_int_min" _tab "conf_int_max" _tab "obs" _tab "star" _n 	///
 		%9.3f (1) _tab "Control"  _tab %9.3f (ctl_mean)      _tab  		 			_tab 		 			  	  _tab 			 				_tab %9.3f (ctl_N) 	   _tab			  	  _n 
-	file close `newHandle'
-	
-	
-	tempvar newCounter 
-	gen `newCounter' = 2
-		foreach var in `varlist' {
-			file open  	`newHandle' using "`newTextFile'", text write append
-			file write `newHandle' ///
-			%9.3f (`newCounter') _tab "`var'" _tab %9.3f (tmt_mean_`var') _tab  %9.3f (coeff_`var')  _tab %9.3f (conf_int_min_`var') _tab %9.3f (conf_int_max_`var') _tab %9.3f (obs_`var')   _tab "`star_`var''"  _n 
-			file close `newHandle'	
-			replace `newCounter' = `newCounter' + 1
-			}
-	
-		copy "`newTextFile'"  "mainMasterDofile.txt" , replace
-		
-		insheet using mainMasterDofile.txt, clear
-	
-		if order == 1 local obsControl = obs
-		local obsLabelControl = xlabeled[1]
-		
-		local starOption `" xlabel(1 " `obsLabelControl' (N=`obsControl')" "'
-		*noi di "`starOption'" /
-	
-	forval x = 2/`graphCount' {
-	
-			
-			list obs if order == `x'
-			local obsTreat = obs[`x'] 
-			
-			local starTreat = star[`x']
-			local starLabel = xlabeled[`x']
-			
-			local starOption `" `starOption' `x' " `starLabel' (N= `obsTreat')  `starTreat'" "'
-						
-		}
-	
-	local starOption `" `starOption' , noticks labsize(medsmall) ) "'
-	/* noi di "Mrijan rimal"
-	noi di `" "`starOption'"  "'
-	noi di "Mrijan rimal" */
 
-	local graphname gph_new 
-	local colourOption ""
+	tempvar newCounter 
+	gen `newCounter' = 2  //First tmt group starts at 2 (1 is control)
 	
-	forval colourLoop = 1/`graphCount' {
+	foreach var in `varlist' {
+
+		file write `newHandle' ///
+			%9.3f (`newCounter') _tab "`var'" _tab %9.3f (tmt_mean_`var') _tab  %9.3f (coeff_`var')  _tab %9.3f (conf_int_min_`var') _tab %9.3f (conf_int_max_`var') _tab %9.3f (obs_`var')   _tab "`star_`var''"  _n 
+		
+		replace `newCounter' = `newCounter' + 1
+	}
+	
+	file close `newHandle'	
+	
+	copy "`newTextFile'"  "mainMasterDofile.txt" , replace
+	
+	/*************************************
+	
+		Create the graph
+	
+	*************************************/
+	
+	insheet using mainMasterDofile.txt, clear
+
+	local tmtGroupBars 	""
+	local xAxisLabels 	`"xlabel( "'
+	local legendLabels	`"lab(1 "`obsLabelControl'")"'
+	local legendNumbers	""
+	
+	forval tmtGroupCount = 1/`graphCount' {
+	
+		************
+		*Create the bar for this group
 		
 		local colour
-		
-		local colourNum = mod(`colourLoop', 5)
+		local colourNum = mod(`tmtGroupCount', 5)
 		
 		if `colourNum' == 1 local colour = "215 25 28"
 		if `colourNum' == 2 local colour = "253 174 93"
@@ -140,31 +127,38 @@ cap	program drop	ieimpgraph
 		if `colourNum' == 4 local colour = "171 217 233"
 		if `colourNum' == 0 local colour = "43 123 182"
 		
-		local colourOption `"`colourOption' (bar mean order if order == `colourLoop', color("`colour'")) "' 
+		local tmtGroupBars `"`tmtGroupBars' (bar mean order if order == `tmtGroupCount', color("`colour'")) "' 
 		
-	
+		************
+		*Create labels etc. for this group	
+
+		local obs 			= obs[`tmtGroupCount'] 
+		local stars 		= star[`tmtGroupCount']
+		local legendLabel 	= xlabeled[`tmtGroupCount']
 		
+		local xAxisLabels 	`"`xAxisLabels' `tmtGroupCount' "(N = `obs') `stars'" "'
+		local legendLabels 	`"`legendLabels' lab(`tmtGroupCount' "`legendLabel'") "'
+		local legendNumbers	`"`legendNumbers' `tmtGroupCount'"' 
 	}
 	
-	local confIntGraph = `"(rcap conf_int_max conf_int_min order, lc(gs)) (scatter mean order,  msym(none)  mlabs(medium) mlabpos(10) mlabcolor(black)), xtitle("") "'
+	*Close or comple some strings
+	local xAxisLabels `"`xAxisLabels' ,noticks labsize(medsmall)) "'
+	local legendOption `"legend(order(`legendNumbers') `legendLabels')"'
+
+
+	*local graphname gph_new 
+
+	*Create the confidence interval bars
+	local confIntGraph = `"(rcap conf_int_max conf_int_min order, lc(gs)) (scatter mean order,  msym(none)  mlabs(medium) mlabpos(10) mlabcolor(black)), xtitle("") ytitle("`e(depvar)'")  "'
 	
-	local orderOption = `"legend(order("'
-	
-	forval y = 1(1)`graphCount'{
-		local orderOption  "`orderOption' `y'"
-	}
-	
-	local orderOption "`orderOption' ))"
-	
+
 	if "`save'" != "" {
-		
 		local saveOption saving("`save'", replace)
-	
 	}
 	
-	//noi di `" graph twoway `colourOption' `confIntGraph' `orderOption' "'
+	noi di `" graph twoway `tmtGroupBars' `confIntGraph' `legendOption' `xAxisLabels' `saveOption' title("`title'")   "'
 	
-	graph twoway `colourOption' `confIntGraph' `orderOption' `starOption' `saveOption' title("`title'") 
+	graph twoway `tmtGroupBars' `confIntGraph' `legendOption' `xAxisLabels' `saveOption' title("`title'") 
 	
 	restore
 }
