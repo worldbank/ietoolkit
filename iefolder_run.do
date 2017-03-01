@@ -1,41 +1,42 @@
+
+	*Set standardized settings
 	ieboilstart, v(11.1)
 	`r(version)'
 	
-	
+	*Folder globals
 	global box 			"C:\Users\wb462869\Box Sync"
-	*global box			"C:\Users\Kristoffer\Box Sync"
-	
 	global ief 			"$box\Stata\Stata work\Commands\ietoolkit"
-	global testProject	"$ief\test\testOutput\Project ABC Uganda"
 	
+	*Load the command
 	do "$ief\functions.do"
 	do "$ief\iefolder.do"
-	do "$ief\deletefolder.do"
 	
+	*Set cd folder to catch and cd leakage
 	cd "$ief\test\cdjunk"
 	
-	*use cd to test if folder can be created
+	*Clean up the folder fomr last run
+	do "$ief\deletefolder.do"
+	cap deleteFolder "$projectABC\DataWork"
+	
+******************************************************************************
+	
+	*Global to the project fodler in box
+	global projectABC	"$ief\test\testOutput\Project ABC Uganda"
+	
+	*Creat a new project
+	iefolder new project , projectfolder("$projectABC")
+	
+	*Create a new folder called baseline
+	iefolder new round baseline , projectfolder("$projectABC")
+	
+	*Create a new folder for endline with abbreviation EL
+	iefolder new round endline 	, projectfolder("$projectABC") abb("EL")
 
-	********************************
-
-	*local surveyRounds baseline endline kristoffer kewinowens
+	*Show example of test for imput
+	iefolder new round baseline , projectfolder("$projectABC") 
 	
-	********************************
+	*Show that it is scalabe
+	iefolder new round test1 , projectfolder("$projectABC") 	
+	iefolder new round test2 , projectfolder("$projectABC") 
+	iefolder new round test3 , projectfolder("$projectABC") 
 	
-	cap noi deleteFolder "$testProject\DataWork"
-	
-	*di `"   iefolder new project 		, projectfolder("$testProject")"'
-	iefolder new project 		, projectfolder("$testProject")
-	
-	*di `"   iefolder new round baseline , projectfolder("$testProject") abb("BL")"'
-	iefolder new round baseline , projectfolder("$testProject") abb("BL")
-	
-	*di `"   iefolder new round endline 	, projectfolder("$testProject") abb("EL")"'
-	iefolder new round endline 	, projectfolder("$testProject") abb("EL")
-
-	*di `"   iefolder new round endline 	, projectfolder("$testProject") abb("EL")"'
-	*iefolder new round kristobal 	, projectfolder("$testProject") 	
-	*iefolder new round kristoball 	, projectfolder("$testProject") 
-	*iefolder new round kristoballl , projectfolder("$testProject") 
-	*doedit "$projectfolder\mainMasterDofile.do" 
-
