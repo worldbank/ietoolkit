@@ -7,8 +7,8 @@
 
 ###Graph Stats Display
 - Confidence interval
-  - [] Remove all
-  - [] Remove for specific treatments
+  - [ ] Remove all
+  - [ ] Remove for specific treatments
 
 ###Graph Formatting
 - Y-axis
