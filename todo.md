@@ -13,9 +13,13 @@
 ###Graph Formatting
 - Y-axis
   - [ ] Decide where the y-axis start. 0 or something else. If something else, test that all bars and conf.int. bars are inside that range
-  - [ ] Dynamically set the ticks on the X axis
+  - [ ] Dynamically set the ticks on the Y axis
+  - [ ] Manually set the title of the Y axis
 - Legend
   - [ ] Allow the user to set the labels in the legends
+- [ ] Test that "anything" works when passing any graph twoway options to our command
+- Check out cibar and other commands for fomratting inspiration
+  - [ ] cibar
   
   
 ###Output graph
