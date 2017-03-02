@@ -5,13 +5,17 @@
   - [ ] Test basic case. Any number of dummies. No obs has value 1 in more than one dummy. Some obs (controls) has 0 in all dummies.
   - [ ] Test diff-diff. Exactly three dummies. One of the dummies is a product of the other two. There is at least one (or some) observations in each combination of the dummies
 
+###Graph Stats Display
+- Confidence interval
+  - [] Remove all
+  - [] Remove for specific treatments
+
 ###Graph Formatting
 - Y-axis
   - [ ] Decide where the y-axis start. 0 or something else. If something else, test that all bars and conf.int. bars are inside that range
   - [ ] Dynamically set the ticks on the X axis
 - Legend
   - [ ] Allow the user to set the labels in the legends
-- Test format
   
   
 ###Output graph
