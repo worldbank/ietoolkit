@@ -509,7 +509,7 @@
 			* Replace the _matchCount var with number of base observations in each 
 			* match group. Each group is all base observation plus the target 
 			* observation, therefore (_N - 1)
-			bys 	`prefID' 			:   replace `matchCountName' = _N - 1
+			bys 	`prefID' 			:   replace `matchCountName' = _N - 1 if !missing(`prefID')
 		
 
 			**Replace prefID to missing for target obs that had no base 
@@ -535,6 +535,9 @@
 		replace `matchDiffName' 	= `prefDiff'	if `matched' == 1
 		replace `matchIDname' 		= `idvar' 		if `matched' == 1 & `grpdummy' == 0
 		replace `matchIDname' 		= `prefID' 		if `matched' == 1 & `grpdummy' == 1
+		
+		*Remove the best match value in obs that did not have a match within maxdiff()
+		replace `matchDiffName'  == . 				if `matchResultName' == .d
 		
 		*Matched observations are give value 1 in result var
 		replace `matchResultName' = 1 				if `matched' == 1 & `matchResultName' != .d
