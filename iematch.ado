@@ -254,7 +254,9 @@
 
 			********************************
 			*
-			*	Checking and generating the MatchID and the MatchDiff var
+			*	Checking user defined names
+			*	and then create the result
+			*	varaibles
 			*
 			********************************
 			
@@ -262,8 +264,9 @@
 			* Result var
 			
 			iematchMatchVarCheck _matchResult `matchresultname'
-			local matchResultName "`r(validVarName)'"
-			gen `matchResultName' = .
+			local 	 		 matchResultName "`r(validVarName)'"
+			gen 			`matchResultName' = .
+			label variable	`matchResultName' "Matched obs = 1, not mathched = 0, all other different missing values"
 			
 			*Create a label for missing values that explains no match
 			label define matchLabel 0 "Not Matched" 1 "Matched" .i "Obs excluded due to if/in" .g "Missing value in `grpdummy'" .m "Missing value in `matchvar'" .d "No match within maxdiff"
@@ -285,21 +288,39 @@
 				gen  `matchIDname' = ""
 			}
 			
+			*This variable is slightly differnt between a many-one and one-one match
+			if "`m1'" != "" {
+				label variable	`matchIDname' "The ID of the target var in each matched group"
+			}
+			else {
+				label variable	`matchIDname' "The ID of the target var in each matched pair"
+			}
+			
 			*******
 			*Diff var
 			
 			iematchMatchVarCheck _matchDiff `matchdiffname'
-			local matchDiffName "`r(validVarName)'"
-			gen `matchDiffName' = .
-
+			local 	 matchDiffName "`r(validVarName)'"
+			gen 	`matchDiffName' = .
+			
+			*This variable is slightly differnt between a many-one and one-one match
+			if "`m1'" != "" {
+				label variable	`matchDiffName' "The difference in matchvar() between base obs and the target obs it matched with"
+			}
+			else {
+				label variable	`matchDiffName' "The difference in matchvar() between base and target obs in each pair"
+			}
+			
 			*******
 			*Count var
 			
 			*If many-to-one match used
 			if "`m1'" != "" {
 				iematchMatchVarCheck _matchCount `matchcountname'
-				local matchCountName "`r(validVarName)'"
-				gen `matchCountName' = .
+				local 			 matchCountName "`r(validVarName)'"
+				gen 			`matchCountName' = .
+				label variable	`matchDiffName' "The number of base obs this target obs matched with"
+				
 			}
 			else {
 				
