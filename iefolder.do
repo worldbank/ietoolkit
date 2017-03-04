@@ -19,6 +19,8 @@ cap program drop 	iefolder
 	gettoken subcommand item : anything
 	
 	gettoken itemType itemName : item
+    
+    gettoken itemName nothing : itemName
 	
 	local subcomand = trim("`subcommand'")
 	local itemType 	= trim("`itemType'")
@@ -26,9 +28,14 @@ cap program drop 	iefolder
 	
 	di "SubCommand 	`subcommand'"
 	di "ItemType 	`itemType'"
-	di "ItemName	`itemName'"	
-
-	/***************************************************
+	di "ItemName	`itemName'"
+    
+    if "`itemType'" != "" {
+    
+      di as error "you have specified to many words"
+      error 198
+    }
+	 /***************************************************
 	
 		Test input
 	
