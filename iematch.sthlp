@@ -13,7 +13,7 @@ help for {hi:iematch}
 {phang2}
 {cmdab:iematch} {ifin} 
 , {cmdab:grp:dummy(}{it:varname}{cmd:)} {cmdab:match:var(}{it:varname}{cmd:)}
-[{cmdab:id:var(}{it:varlist}{cmd:)} {cmdab:m1} {cmdab:maxdiff(}{it:numlist}{cmd:)} {cmd:seedok}
+[{cmdab:id:var(}{it:varname}{cmd:)} {cmdab:m1} {cmdab:maxdiff(}{it:numlist}{cmd:)} {cmd:seedok}
 {cmdab:matchid:name(}{it:string}{cmd:)} {cmdab:matchdi:ffname(}{it:string}{cmd:)}
 {cmdab:matchre:sultname(}{it:string}{cmd:)} {cmdab:matchco:untname(}{it:string}{cmd:)}
 ]
@@ -26,9 +26,9 @@ help for {hi:iematch}
 	indicates base observations and 0 target observations{p_end}
 {synopt :{cmdab:match:var(}{it:varname}{cmd:)}}The variable with a continous value
 	to match on{p_end}
-{synopt :{cmdab:id:var(}{it:varlist}{cmd:)}}The uniquely and fully identifying ID
+{synopt :{cmdab:id:var(}{it:varname}{cmd:)}}The uniquely and fully identifying ID
 	varaible. Used to indicate which target observation a base observation is match
-	with. If omitted an ID variable will be created.{p_end}
+	with. If omitted an ID variable will be created. See below if you have multiple ID vars.{p_end}
 {synopt :{cmdab:m1}}Allows many-to-one matches. The default is to allow only
 	one-to-one matches. See the {help iematch##desc:description} section.{p_end}
 {synopt :{cmdab:maxdiff(}{it:numlist}{cmd:)}}Set a maximum difference allowed in
@@ -151,12 +151,30 @@ help for {hi:iematch}
 	matching. This must be a numeric variable, and it is typically a continuous
 	variable. Observations with a missing value will be excluded from the matching.
 
-{phang}{cmdab:id:var(}{it:varlist}{cmd:)} indicates the variable that uniquely
+{phang}{cmdab:id:var(}{it:varname}{cmd:)} indicates the variable that uniquely
 	and fully identifies the data set. The values in this variable is the values
 	that will be used in the variable that indicates which target observation each
 	base observations matched against. If this option is omitted, a variable called
 	_ID will be generated. The observation in the first row is given the value 1,
-	the second row value 2 and so fourth.
+	the second row value 2 and so fourth. 
+	
+{pmore}This command assumes only one ID variable as that is the best practice this command 
+	follows (see next paragraph for the exception of panel data sets). Here follows two 
+	suggested solutions if a data set this command will be used on has more than one ID 
+	variable. {bf:1.} Do not use the {cmd:idvar()} option and after the mathcing copy the mutliple
+	ID variables yourself. {bf:2.} Combine your ID variables into one ID variable. Here are two 
+	examples on how that can be done (the examples below work just as well when combining more 
+	than two ID variables to one.):
+	
+{pmore2}{inp:egen }{it:new_ID_var }{inp:= group(}{it:old_ID_var1 old_ID_var2}{inp:)}
+
+{pmore2}{inp:gen}{space 2}{it:new_ID_var }{inp:= }{it:old_ID_var1 }{inp:+ "_" + }{it:old_ID_var2}{space 4}//Works only with string vars
+
+{pmore}Panel data sets are one of the few cases where multiple ID variables is good practice. However, 
+	in the case of matching it is unlikely that it is correct to include multiple time rounds for 
+	the same observation. That would lead to some base observations being matched to 
+	one target observation in the first round, and one another in the second. In impact 
+	evaluations, matchings are almost exclusively done only on the baseline data.
 
 {phang}{cmdab:m1} sets the match to a many-to-one match (see {help iematch##desc:description}).
 	This allows multiple base observations to be matched towards a single target observation.
