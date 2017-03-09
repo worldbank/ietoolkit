@@ -6,8 +6,8 @@ cap	program drop	ieimpgraph
 	mat beta_ = e(b)
 
 	local counter = 0
-	local textfile = "Mrijan"
-	local date = "$S_DATE"
+	//local textfile = "Mrijan"
+	//local date = "$S_DATE"
 	
 	qui{
 

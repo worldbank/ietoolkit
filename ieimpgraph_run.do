@@ -4,8 +4,8 @@
 	`r(version)'
 	
 	*Create filepaths
-	*global ietoolkit "C:\Users\wb503680\Box Sync\DIME WOrk\GitFolder\ietoolkit"
-	global ietoolkit "C:\Users\wb462869\Box Sync\Stata\Stata work\Commands\ietoolkit"
+	global ietoolkit "C:\Users\wb503680\Box Sync\DIME WOrk\GitFolder\ietoolkit"
+	*global ietoolkit "C:\Users\wb462869\Box Sync\Stata\Stata work\Commands\ietoolkit"
 	global testOuput "$ietoolkit/test/ieimpgraphOutput"
 	
 	*Set cd folder to catch and cd leakage
