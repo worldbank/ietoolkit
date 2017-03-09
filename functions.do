@@ -67,56 +67,76 @@
 		
 		*KBKB: test if new fodler can be written - use "cap cd"
 		
-		*di 1
+		*Write title to the folder globals to this round
+		file write  `subHandle'	_col(4)"*`rndName' folder globals" _n
 		
-		*Round main folder
-	*di `"createFolderWriteGlobal "`rndName'" 	 		"`dtfld_glb'"  "`rnd'" 		`subHandle'"'	
+		*Round main folder	
+		createFolderWriteGlobal "`rndName'" 	 		"`dtfld_glb'"  	"`rnd'" 		`subHandle'
 		
-		createFolderWriteGlobal "`rndName'" 	 		"`dtfld_glb'"  "`rnd'" 		`subHandle'
-		
-		*di 2
-		
-		*Round Data folder
-		createFolderWriteGlobal "DataSets" 			 	"`rnd'" 		"`rnd'_dt" 		//`subHandle'
-		
-		*di 2.1
-		
-		*Round Data sub-folder
-		createFolderWriteGlobal "Raw"  					"`rnd'_dt" 		"`rnd'_dtRaw" 	`subHandle'
-		createFolderWriteGlobal "Intermediate" 			"`rnd'_dt" 		"`rnd'_dtInt" 	`subHandle'
-		createFolderWriteGlobal "Final"  				"`rnd'_dt" 		"`rnd'_dtFinal" `subHandle'
-		
-		*di 3
-		
-		*Round dofile folder
+		*Sub folders
+		createFolderWriteGlobal "DataSets" 				"`rnd'" 		"`rnd'_dt" 		`subHandle'
 		createFolderWriteGlobal "Dofiles" 				"`rnd'"			"`rnd'_do" 		`subHandle'
-		
-		*di 3.1
-		
-		*Round Data sub-folder
-		createFolderWriteGlobal "Dofiles Import "		"`rnd'_do" 		"`rnd'_doImp" 	`subHandle'
-		createFolderWriteGlobal "Dofiles Cleaning "		"`rnd'_do" 		"`rnd'_doCln" 	`subHandle'
-		createFolderWriteGlobal "Dofiles Construct "	"`rnd'_do" 		"`rnd'_doCon" 	`subHandle'
-		createFolderWriteGlobal "Dofiles Analyze "		"`rnd'_do" 		"`rnd'_doAnl" 	`subHandle'
-		
-		*di 4
-		
-		*Round Output folder
-		createFolderWriteGlobal "Output" 				"`rnd'"			"`rnd'_Out"		`subHandle'
-		
-		*Round Survey Documentation folder
-		createFolderWriteGlobal "Survey Documentation" "`rnd'"	 		"`rnd'_doc"	
-
-		*Questionnaire
+		createFolderWriteGlobal "Output" 				"`rnd'"			"`rnd'_out"		`subHandle'
+		createFolderWriteGlobal "Documentation" 		"`rnd'"	 		"`rnd'_doc"	
 		createFolderWriteGlobal "Questionnaire" 		"`rnd'"	 		"`rnd'_quest"		
 		
-		*Questionnaire subfolders
-		createFolderWriteGlobal "QuestionnaireProgramming" 	"`rnd'_quest"	 	"`rnd'_questPro"			
-		createFolderWriteGlobal "FinalQuestionnaire" 			"`rnd'_quest"	 	"`rnd'_questFin"	
-		createFolderWriteGlobal "PreloadData"	 				"`rnd'_quest"	 	"`rnd'_preload"	
+		*Create round master dofile
+		createRoundMasterDofile "$projectfolder/`rndName'" "`rndName'" "`rnd'"
 		
 	end
 	
+	cap program drop 	createRoundMasterDofile 
+		program define	createRoundMasterDofile 	
+		
+		args roundfolder rndName rnd
+		
+		*Create a temporary textfile
+		tempname 	roundHandle
+		tempfile	roundTextFile
+		
+		file open  	`roundHandle' using "`roundTextFile'", text write replace	
+		
+		*Write intro part with description of round, 
+		mdofle_p0 		`roundHandle' round
+		mdofle_p1_round `roundHandle' `rndName'
+		
+		*DataSets sub-folder
+		file write  `roundHandle'		_col(4)"*DataSets sub-folder globals" _n
+		createFolderWriteGlobal "Raw"  							"`rnd'_dt" 		"`rnd'_dtRaw" 	`roundHandle'
+		createFolderWriteGlobal "Intermediate" 					"`rnd'_dt" 		"`rnd'_dtInt" 	`roundHandle'
+		createFolderWriteGlobal "Final"  						"`rnd'_dt" 		"`rnd'_dtFin" 	`roundHandle'
+		
+		*Dofile sub-folder
+		file write  `roundHandle' _n	_col(4)"*Dofile sub-folder globals" _n
+		createFolderWriteGlobal "Dofiles Import "				"`rnd'_do" 		"`rnd'_doImp" 	`roundHandle'
+		createFolderWriteGlobal "Dofiles Cleaning "				"`rnd'_do" 		"`rnd'_doCln" 	`roundHandle'
+		createFolderWriteGlobal "Dofiles Construct "			"`rnd'_do" 		"`rnd'_doCon" 	`roundHandle'
+		createFolderWriteGlobal "Dofiles Analyze "				"`rnd'_do" 		"`rnd'_doAnl" 	`roundHandle'
+		
+		*Output subfolders
+		file write  `roundHandle' _n	_col(4)"*Output sub-folder globals" _n
+		createFolderWriteGlobal "Raw" 							"`rnd'_out"	 	"`rnd'_outRaw"	`roundHandle'		
+		createFolderWriteGlobal "Final" 						"`rnd'_out"	 	"`rnd'_outFin"	`roundHandle'
+	
+		*Questionnaire subfolders
+		file write  `roundHandle' _n	_col(4)"*Questionnaire sub-folder globals" _n
+		createFolderWriteGlobal "Questionnaire Develop" 		"`rnd'_quest"	 "`rnd'_qstDev"	`roundHandle'		
+		createFolderWriteGlobal "Questionnaire Final" 			"`rnd'_quest"	 "`rnd'_qstFin"	`roundHandle'
+		createFolderWriteGlobal "PreloadData"	 				"`rnd'_quest"	 "`rnd'_prld"	`roundHandle'
+		createFolderWriteGlobal "Questionnaire Documentation"	"`rnd'_quest"	 "`rnd'_doc"	`roundHandle'
+		
+		*Write sub devisor starting master and monitor data section section
+		writeDevisor 	`roundHandle' 1 End_FolderGlobals	
+		
+		mdofle_p3 `roundHandle' round `rndName'
+		
+		*Closing the new main master dofile handle
+		file close 		`roundHandle'
+
+		*Copy the new master dofile from the tempfile to the original position
+		copy "`roundTextFile'"  "`roundfolder'//`rndName'_MasterDofile.do" , replace
+	
+	end
 	
 	cap program drop 	createFolderWriteGlobal 
 		program define	createFolderWriteGlobal 
@@ -180,10 +200,10 @@
 	*/
 	
 	
-	cap program drop 	masterDofilePart0
-	program define		masterDofilePart0 
+	cap program drop 	mdofle_p0
+	program define		mdofle_p0 
 		
-		args subHandle	
+		args subHandle itemType
 		
 		*di "start masterDofilePart0"
 		
@@ -191,48 +211,63 @@
 			_col(4)"* ******************************************************************** *" _n ///
 			_col(4)"* ******************************************************************** *" _n ///
 			_col(4)"*" _col(75) "*" _n ///
-			_col(4)"*" _col(20) "your_project_name" _col(75) "*" _n ///
+			_col(4)"*" _col(20) "your_`itemType'_name" _col(75) "*" _n ///
 			_col(4)"*" _col(20) "MASTER DO_FILE" _col(75) "*" _n ///
 			_col(4)"*" _col(75) "*" _n ///
 			_col(4)"* ******************************************************************** *" _n ///
 			_col(4)"* ******************************************************************** *" _n ///
-			_n
-				
-		file write  `subHandle'	/// 
-			_col(8)"/*" _n ///
-			_col(8)"** PURPOSE:" _col(25) "Write intro to project here" _n ///
-			_n ///					
-			_col(8)"** OUTLINE:" _col(25) "PART 0: Configure settings for memory etc." _n ///
-			_col(25) "PART 1: Set globals for dynamic file paths" _n ///
-			_col(25) "PART 2: Set globals for constants and varlist" _n ///
-			_col(32) "used across the project. Intall custom" _n ///
-			_col(32) "commands needed." _n ///
-			_col(25) "PART 3: Call the task specific master do-files " _n ///
-			_col(32) "that call all do-files needed for that " _n ///
-			_col(32) "tas. Do not include Part 0-2 in a task" _n ///
-			_col(32) "specific master do-file" _n ///
-			_n _n
+			_n _col(8)"/*" _n 
 		
-		file write  `subHandle'	/// 
-			_col(8)"** REQUIRES:" _col(25) "List all data sets using the globals that you " _n ///
-			_col(25) "define below to indicate what data you will need" _n ///
-			_n ///					
-			_col(25) "Example:" _n ///
-			_col(25) _char(36)"BL_dtRaw/baseline_survey_v1.csv" _n ///
-			_col(25) _char(36)"BL_dtRaw/baseline_survey_v2.csv" _n ///
-			_col(25) _char(36)"moniData/monitor2016_data.xlsx" _n ///
-			_n 
-				
-		file write  `subHandle'	/// 		
-			_col(8)"** CREATES:" _col(25) "List all data sets using the globals that you " _n ///
-			_col(25) "define below to indicate what data set are " _n ///
-			_col(25) "created by the do-files this master do-file calls" _n ///
-			_n ///					
-			_col(25) "Example:" _n ///
-			_col(25) _char(36)"BL_dtFinal/baseline_clean.dta" _n ///
-			_col(25) _char(36)"BL_dtFinal/baseline_constructs.dta" _n ///
-			_col(25) "Multiple tables and grahps in \$BL_Out" _n ///
-			_n
+		if "`itemType'" == "project" { 
+		
+			file write  `subHandle'	/// 
+				_col(8)"** PURPOSE:" _col(25) "Write intro to project here" _n ///
+				_n ///					
+				_col(8)"** OUTLINE:" _col(25) "PART 0: Standardize settings and install paackages" _n ///
+				_col(25) "PART 1: Set globals for dynamic file paths" _n ///
+				_col(25) "PART 2: Set globals for constants and varlist" _n ///
+				_col(32) "used across the project. Intall custom" _n ///
+				_col(32) "commands needed." _n ///
+				_col(25) "PART 3: Call the task specific master do-files " _n ///
+				_col(32) "that call all do-files needed for that " _n ///
+				_col(32) "tas. Do not include Part 0-2 in a task" _n ///
+				_col(32) "specific master do-file" _n ///
+				_n _n
+			
+			/*
+			file write  `subHandle'	/// 
+				_col(8)"** REQUIRES:" _col(25) "List all data sets using the globals that you " _n ///
+				_col(25) "define below to indicate what data you will need" _n ///
+				_n ///					
+				_col(25) "Example:" _n ///
+				_col(25) _char(36)"BL_dtRaw/baseline_survey_v1.csv" _n ///
+				_col(25) _char(36)"BL_dtRaw/baseline_survey_v2.csv" _n ///
+				_col(25) _char(36)"moniData/monitor2016_data.xlsx" _n ///
+				_n 
+					
+			file write  `subHandle'	/// 		
+				_col(8)"** CREATES:" _col(25) "List all data sets using the globals that you " _n ///
+				_col(25) "define below to indicate what data set are " _n ///
+				_col(25) "created by the do-files this master do-file calls" _n ///
+				_n ///					
+				_col(25) "Example:" _n ///
+				_col(25) _char(36)"BL_dtFinal/baseline_clean.dta" _n ///
+				_col(25) _char(36)"BL_dtFinal/baseline_constructs.dta" _n ///
+				_col(25) "Multiple tables and grahps in \$BL_Out" _n ///
+				_n
+			*/
+		} 
+		else if "`itemType'" == "round" {
+			
+			file write  `subHandle'	/// 
+				_col(8)"** PURPOSE:" _col(25) "Write intro to round here" _n ///
+				_n ///					
+				_col(8)"** OUTLINE:" _col(25) "PART 0: Standardize settings and install paackages" _n ///
+				_col(25) "PART 1:" _n _col(25) "PART 2:" _n ///
+				_col(25) "PART 3:" _n _col(25) "PART 4:" _n ///
+				_n _n
+		
+		}
 				
 		file write  `subHandle'	/// 
 			_col(8)"** IDS VAR:" _col(25) "list_ID_var_here		//Uniquely identifies households (update for your proejct)" _n ///
@@ -252,11 +287,11 @@
 		file write  `subHandle'	/// 		
 			_col(4)"* ******************************************************************** *" _n ///
 			_col(4)"*" _n ///
-			_col(4)"*" _col(12) "PART 0:  Install packages and standardizer settings" _n ///
+			_col(4)"*" _col(12) "PART 0:  INSTALL PACKAGES AND STANDARDIZE SETTINGS" _n ///
 			_col(4)"*" _n ///
 			_col(4)"*" _col(16) "-Install packages needed to run all dofiles called" _n ///
 			_col(4)"*" _col(17) "by this master dofile." _n ///
-			_col(4)"*" _col(16) "-Use ieboilstart to harmonize settings" _n ///
+			_col(4)"*" _col(16) "-Use ieboilstart to harmonize settings across users" _n ///
 			_col(4)"*" _n ///								
 			_col(4)"* ******************************************************************** *" _n  
 
@@ -270,19 +305,21 @@
 			_n	 ///
 			_col(8)"*Standardize settings accross users" _n ///
 			_col(8)"ieboilstart, version(12.1)" _col(40) "//Set the version number to the oldes version used by anyone in the project team" _n ///
-			_col(8) _char(96)"r(version)'" 				_col(40) "//This line is needed to actually set the version from the command above" _n
+			_col(8) _char(96)"r(version)'" 		_col(40) "//This line is needed to actually set the version from the command above" _n
 			
-		
 		*di "masterDofilePart0a end"
 		
 	end
 
 
-cap program drop 	masterDofilePart1
-	program define	masterDofilePart1
+cap program drop 	mdofle_p1
+	program define	mdofle_p1
 		
-		args   subHandle projectDir
-
+		args   subHandle projectDir 
+		
+		*Write devisor starting globals section
+		writeDevisor  `subHandle' 1 FolderGlobals
+		
 		*di "masterDofilePart1 start"
 		
 		file write  `subHandle' 	///
@@ -322,14 +359,49 @@ cap program drop 	masterDofilePart1
 			_n ///
 			_col(4)"* Project folder globals" _n ///
 			_col(4)"* ---------------------" _n 
+		
+		*Write sub devisor starting master and monitor data section section
+		writeDevisor `subHandle' 1 FolderGlobals 1 master	
+		
+		*Create master data folder and add global to folder in master do file
+		createFolderWriteGlobal "MasterData"  "projectfolder"  mastData  `subHandle'
+
+		*Write sub devisor starting master and monitor data section section
+		writeDevisor `subHandle' 1 FolderGlobals 3 monitor			
+
+		*Write sub devisor starting master and monitor data section section
+		writeDevisor `subHandle' 1 End_FolderGlobals	
+			
 			
 		*di "masterDofilePart1a end"
 		
 	end	
 
+cap program drop 	mdofle_p1_round
+	program define	mdofle_p1_round
+		
+		args   subHandle rndName
+		
+		local rndName_caps = upper("`rndName'")
+		
+		*Write devisor starting globals section
+		writeDevisor  `subHandle' 1 FolderGlobals
+		
+		file write  `subHandle' 	///
+			_col(4)"* ******************************************************************** *" _n ///
+			_col(4)"*" _n ///	
+			_col(4)"*" _col(12) "PART 1:  PREPARING `rndName_caps' FOLDER PATH GLOBALS" _n ///
+			_col(4)"*" _n ///			
+			_col(4)"*" _col(16) "-Set global to point to the `rndName' folders" _n ///
+			_col(4)"*" _col(16) "-Add to these globals as you need" _n ///
+			_col(4)"*" _n ///	
+			_col(4)"* ******************************************************************** *" _n _n
+		
+	end	
 	
-cap program drop 	masterDofilePart2
-	program define	masterDofilePart2
+	
+cap program drop 	mdofle_p2
+	program define	mdofle_p2
 		
 		args   subHandle 
 
@@ -380,28 +452,64 @@ cap program drop 	masterDofilePart2
 	end	
 	
 	
-cap program drop 	masterDofilePart3
-	program define	masterDofilePart3
+cap program drop 	mdofle_p3
+	program define	mdofle_p3
 		
-		args   subHandle 
+		args   subHandle itemType rndName
 
 		di "masterDofilePart3 start"
 
 		*Write devisor starting the section running sub-master dofiles
 		writeDevisor  `subHandle' 3 RunDofiles	
 		
-		file write  `subHandle' 	///
-			_col(4)"* ******************************************************************** *" _n ///
-			_col(4)"*" _n ///	
-			_col(4)"*" _col(12) "PART 3: - RUN ROUND SPECIFIC MASTER DOFILES " _n ///
-			_col(4)"*" _n ///			
-			_col(4)"*" _col(16) "-When survey rounds are added, this section will" _n ///
-			_col(4)"*" _col(17) "link to the master dofile for that round." _n /// 
-			_col(4)"*" _col(16) "-The dofiles for the master data set is not" _n ///
-			_col(4)"*" _col(17) "linked to by default, as the master data set" _n ///
-			_col(4)"*" _col(17) "should be updated with great care." _n /// 
-			_col(4)"*" _n ///	
-			_col(4)"* ******************************************************************** *" _n
+			file write  `subHandle' 	///
+				_col(4)"* ******************************************************************** *" _n ///
+				_col(4)"*" _n ///	
+				_col(4)"*" _col(12) "PART 3: - RUN DOFILES CALLED BY THIS MASTER DO FILE" _n ///
+				_col(4)"*" _n 
+				
+			if "`itemType'" == "project" {	
+				file write  `subHandle' 	///
+					_col(4)"*" _col(16) "-When survey rounds are added, this section will" _n ///
+					_col(4)"*" _col(17) "link to the master dofile for that round." _n /// 
+					_col(4)"*" _col(16) "-The default is that these dofiles are set to not"  _n ///
+					_col(4)"*" _col(17) "run. It is rare that all round specfic master dofiles"  _n ///
+					_col(4)"*" _col(17) "are called at the same time, the round specifc master"  _n ///
+					_col(4)"*" _col(17) "dofiles are almost always called individually. The"  _n ///
+					_col(4)"*" _col(17) "excpetion is when reviewing or replicating a full project." _n 
+			} 
+			else if "`itemType'" == "round" {	
+				file write  `subHandle' 	///
+					_col(4)"*" _col(16) "-A task master dofile has been created for each high"  _n ///
+					_col(4)"*" _col(17) "level task (import, cleaning, construct, analyze). By "  _n ///
+					_col(4)"*" _col(17) "running all of them all data work associated with the "  _n ///
+					_col(4)"*" _col(17) "`rndName' should be replciaetd, including output of "  _n ///
+					_col(4)"*" _col(17) "tablets, graphs, etc." _n /// 
+					_col(4)"*" _col(16) "-Feel free to add to this list if you have other high"  _n /// 
+					_col(4)"*" _col(17) "level tasks relevant to your project." _n 
+			}
+			
+			file write  `subHandle' 	///
+				_col(4)"*" _n ///	
+				_col(4)"* ******************************************************************** *" _n
+		
+		if "`itemType'" == "round" {	
+			
+			file write  `subHandle' 	_n ///
+			_col(4)"*Set the locals corresponding to the taks you want"
+			_col(4)"run to 1. To not run a task, set the local to 0." _n ///
+			_col(4)"local importDo" _col(25) "1" _n ///
+			_col(4)"local cleaningDo" _col(25) "1" _n ///
+			_col(4)"local constructDo" _col(25) "1" _n ///
+			_col(4)"local analyzeDo" _col(25) "1" _n ///
+			
+			*Create the references to the high level task 
+			highLevelTask `subHandle'  "`rndName'" "Import"
+			highLevelTask `subHandle'  "`rndName'" "Cleaning"
+			highLevelTask `subHandle'  "`rndName'" "Construct"
+			highLevelTask `subHandle'  "`rndName'" "Analyze"
+		
+		}
 		
 		*Write devisor ending the section running sub-master dofiles
 		writeDevisor  `subHandle' 3 End_RunDofiles
@@ -410,6 +518,32 @@ cap program drop 	masterDofilePart3
 		
 	end	
 		
-
+	cap program drop 	highLevelTask 
+		program define	highLevelTask
+			
+			args roundHandle rndName task
+			
+			di "highLevelTaskMasterDofile start"
+			
+			*Write the round dofile
+			
+			*Create the task dofiles
+			highLevelTaskMasterDofile rndName task
+		
+	end
+		
+	cap program drop 	highLevelTaskMasterDofile
+		program define	highLevelTaskMasterDofile
+			
+			di "highLevelTaskMasterDofile start"
+			
+			args rndName task
+			
+			*Write the round dofile
+			
+	
+		
+	end		
+		
 	
 

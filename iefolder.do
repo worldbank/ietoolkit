@@ -16,12 +16,16 @@ cap program drop 	iefolder
 	
 	***************************************************/	
 	
+	*Parse out the sub-command
 	gettoken subcommand item : anything
 	
+	*Parse out the item type and the item name
 	gettoken itemType itemName : item
     
-    gettoken itemName nothing : itemName
+	*Make sure that the item name is only one word
+	gettoken itemName rest : itemName
 	
+	*Clean up the input
 	local subcomand = trim("`subcommand'")
 	local itemType 	= trim("`itemType'")
 	local itemName 	= trim("`itemName'")
@@ -29,12 +33,15 @@ cap program drop 	iefolder
 	di "SubCommand 	`subcommand'"
 	di "ItemType 	`itemType'"
 	di "ItemName	`itemName'"
-    
-    if "`itemType'" != "" {
-    
-      di as error "you have specified to many words"
-      error 198
-    }
+
+	
+	if "`rest'" != "" {
+
+		di as error "You have specified to many words. Spaces are not allowed."
+		error 198
+	}
+ 
+
 	 /***************************************************
 	
 		Test input
@@ -145,37 +152,16 @@ cap program drop 	iefolder_newProject
 		******************************
 		
 		*Write intro part with description of project, 
-		masterDofilePart0 `newHandle'
-		
-		*Write devisor starting globals section
-		writeDevisor  `newHandle' 1 FolderGlobals
+		mdofle_p0 `newHandle' project
 		
 		*Write flolder globals section header and the root folders
-		masterDofilePart1 `newHandle' "$projectfolder"
-		
-		*Write sub devisor starting master and monitor data section section
-		writeDevisor `newHandle' 1 FolderGlobals 1 master
-		
-		*Create master data folder and add global to folder in master do file
-		createFolderWriteGlobal "MasterData"  "projectfolder"  mastData  `newHandle'
-
-		*Write sub devisor starting master and monitor data section section
-		writeDevisor `newHandle' 1 FolderGlobals 2 rounds
-
-		*Write sub devisor starting master and monitor data section section
-		writeDevisor `newHandle' 1 FolderGlobals 3 monitor			
-
-		*Write sub devisor starting master and monitor data section section
-		writeDevisor `newHandle' 1 End_FolderGlobals			
-		
-		
+		mdofle_p1 `newHandle' "$projectfolder"
 		
 		*Write globals section header and the root folders
-		masterDofilePart2 `newHandle'
+		mdofle_p2 `newHandle'
 		
-	
 		*Write section that runs sub-master dofiles
-		masterDofilePart3 `newHandle'
+		mdofle_p3 `newHandle' project
 
 					
 		
@@ -278,7 +264,7 @@ cap program drop 	iefolder_newRound
 					*Write the 
 					file write  `subHandle' ///
 						_col(4)"if (0) { //Change the 0 to 1 to run the `rndName' master dofile" _n ///
-						_col(8) `"do ""' _char(36) `"`rndAbb'/`rndAbb'_master_dofile.do" "' _n ///
+						_col(8) `"do ""' _char(36) `"`rndAbb'/`rndName'_master_dofile.do" "' _n ///
 						_col(4)"}" ///
 						_n
 					
