@@ -128,13 +128,13 @@
 		*Write sub devisor starting master and monitor data section section
 		writeDevisor 	`roundHandle' 1 End_FolderGlobals	
 		
-		mdofle_p3 `roundHandle' round `rndName'
+		mdofle_p3 `roundHandle' round `rndName' `rnd'
 		
 		*Closing the new main master dofile handle
 		file close 		`roundHandle'
 
 		*Copy the new master dofile from the tempfile to the original position
-		copy "`roundTextFile'"  "`roundfolder'//`rndName'_MasterDofile.do" , replace
+		copy "`roundTextFile'"  "`roundfolder'/`rndName'_MasterDofile.do" , replace
 	
 	end
 	
@@ -455,7 +455,7 @@ cap program drop 	mdofle_p2
 cap program drop 	mdofle_p3
 	program define	mdofle_p3
 		
-		args   subHandle itemType rndName
+		args   subHandle itemType rndName rnd
 
 		di "masterDofilePart3 start"
 
@@ -496,18 +496,18 @@ cap program drop 	mdofle_p3
 		if "`itemType'" == "round" {	
 			
 			file write  `subHandle' 	_n ///
-			_col(4)"*Set the locals corresponding to the taks you want"
-			_col(4)"run to 1. To not run a task, set the local to 0." _n ///
-			_col(4)"local importDo" _col(25) "1" _n ///
-			_col(4)"local cleaningDo" _col(25) "1" _n ///
-			_col(4)"local constructDo" _col(25) "1" _n ///
-			_col(4)"local analyzeDo" _col(25) "1" _n ///
+				_col(4)"**Set the locals corresponding to the taks you want" _n ///
+				_col(4)"* run to 1. To not run a task, set the local to 0." _n ///
+				_col(4)"local importDo" _col(25) "1" _n ///
+				_col(4)"local cleaningDo" _col(25) "1" _n ///
+				_col(4)"local constructDo" _col(25) "1" _n ///
+				_col(4)"local analyzeDo" _col(25) "1" _n ///
 			
 			*Create the references to the high level task 
-			highLevelTask `subHandle'  "`rndName'" "Import"
-			highLevelTask `subHandle'  "`rndName'" "Cleaning"
-			highLevelTask `subHandle'  "`rndName'" "Construct"
-			highLevelTask `subHandle'  "`rndName'" "Analyze"
+			highLevelTask `subHandle'  "`rndName'" "`rnd'" "import"
+			highLevelTask `subHandle'  "`rndName'" "`rnd'" "cleaning"
+			highLevelTask `subHandle'  "`rndName'" "`rnd'" "construct"
+			highLevelTask `subHandle'  "`rndName'" "`rnd'" "analyze"
 		
 		}
 		
@@ -521,11 +521,15 @@ cap program drop 	mdofle_p3
 	cap program drop 	highLevelTask 
 		program define	highLevelTask
 			
-			args roundHandle rndName task
+			args roundHandle rndName rnd task  
 			
-			di "highLevelTaskMasterDofile start"
+			di "highLevelTask start"
 			
-			*Write the round dofile
+			*Write section where task master files are called
+			file write  `roundHandle' 	_n ///
+				_col(4)"if (" _char(96) "`task'' == 1) { //Change the local above to run or not to run this file" _n ///
+				_col(8) `"do ""' _char(36) `"`rnd'_do/`task'_MasterDofile.do" "' _n ///
+				_col(4)"}" _n
 			
 			*Create the task dofiles
 			highLevelTaskMasterDofile rndName task
@@ -538,6 +542,21 @@ cap program drop 	mdofle_p3
 			di "highLevelTaskMasterDofile start"
 			
 			args rndName task
+			
+			local suffix 
+			if "`task'" == "import" {
+				local suffix _doImp
+			}
+			if "`task'" == "cleaning" {
+				local suffix _doCln
+			}
+			if "`task'" == "construct" {
+				local suffix _doCon
+			}
+			if "`task'" == "analyze" {
+				local suffix _doAnl
+			}
+			   
 			
 			*Write the round dofile
 			
