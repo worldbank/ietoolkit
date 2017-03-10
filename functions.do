@@ -93,8 +93,7 @@
 		*Create a temporary textfile
 		tempname 	roundHandle
 		tempfile	roundTextFile
-		
-		file open  	`roundHandle' using "`roundTextFile'", text write replace	
+		file open  `roundHandle' using "`roundTextFile'", text write replace	
 		
 		*Write intro part with description of round, 
 		mdofle_p0 		`roundHandle' round
@@ -108,10 +107,10 @@
 		
 		*Dofile sub-folder
 		file write  `roundHandle' _n	_col(4)"*Dofile sub-folder globals" _n
-		createFolderWriteGlobal "Dofiles Import "				"`rnd'_do" 		"`rnd'_doImp" 	`roundHandle'
-		createFolderWriteGlobal "Dofiles Cleaning "				"`rnd'_do" 		"`rnd'_doCln" 	`roundHandle'
-		createFolderWriteGlobal "Dofiles Construct "			"`rnd'_do" 		"`rnd'_doCon" 	`roundHandle'
-		createFolderWriteGlobal "Dofiles Analyze "				"`rnd'_do" 		"`rnd'_doAnl" 	`roundHandle'
+		createFolderWriteGlobal "Dofiles Import"				"`rnd'_do" 		"`rnd'_doImp" 	`roundHandle'
+		createFolderWriteGlobal "Dofiles Cleaning"				"`rnd'_do" 		"`rnd'_doCln" 	`roundHandle'
+		createFolderWriteGlobal "Dofiles Construct"				"`rnd'_do" 		"`rnd'_doCon" 	`roundHandle'
+		createFolderWriteGlobal "Dofiles Analysis"				"`rnd'_do" 		"`rnd'_doAnl" 	`roundHandle'
 		
 		*Output subfolders
 		file write  `roundHandle' _n	_col(4)"*Output sub-folder globals" _n
@@ -203,7 +202,7 @@
 	cap program drop 	mdofle_p0
 	program define		mdofle_p0 
 		
-		args subHandle itemType
+		args subHandle itemType rndName task
 		
 		*di "start masterDofilePart0"
 		
@@ -263,10 +262,8 @@
 				_col(8)"** PURPOSE:" _col(25) "Write intro to round here" _n ///
 				_n ///					
 				_col(8)"** OUTLINE:" _col(25) "PART 0: Standardize settings and install paackages" _n ///
-				_col(25) "PART 1:" _n _col(25) "PART 2:" _n ///
-				_col(25) "PART 3:" _n _col(25) "PART 4:" _n ///
-				_n _n
-		
+				_col(25) "PART 1: Preparing folder path globals" _n ///
+				_col(25) "PART 2: Run the master do files for each high level task" _n _n 
 		}
 				
 		file write  `subHandle'	/// 
@@ -276,8 +273,7 @@
 			_n ///				  
 			_col(8)"** WRITEN BY:" _col(25) "names_of_contributors" _n ///
 			_n ///
-			_col(8)"** Last date modified:" _n /// 
-			_n ///
+			_col(8)"** Last date modified: `c(current_date)'" _n /// 
 			_col(8)"*/" _n
 		
 		*Write devisor starting setting standardize section
@@ -302,7 +298,6 @@
 			_col(8)"*Install all packages that this project requires:" _n ///
 			_col(8)"ssc install ietoolkit" _n ///
 			_n	 ///
-			_n	 ///
 			_col(8)"*Standardize settings accross users" _n ///
 			_col(8)"ieboilstart, version(12.1)" _col(40) "//Set the version number to the oldes version used by anyone in the project team" _n ///
 			_col(8) _char(96)"r(version)'" 		_col(40) "//This line is needed to actually set the version from the command above" _n
@@ -310,7 +305,7 @@
 		*di "masterDofilePart0a end"
 		
 	end
-
+	
 
 cap program drop 	mdofle_p1
 	program define	mdofle_p1
@@ -459,13 +454,16 @@ cap program drop 	mdofle_p3
 
 		di "masterDofilePart3 start"
 
+		if "`itemType'" == "project" 	local partNum = 3
+		if "`itemType'" == "round"		local partNum = 2
+		
 		*Write devisor starting the section running sub-master dofiles
-		writeDevisor  `subHandle' 3 RunDofiles	
+		writeDevisor  `subHandle' `partNum' RunDofiles	
 		
 			file write  `subHandle' 	///
 				_col(4)"* ******************************************************************** *" _n ///
 				_col(4)"*" _n ///	
-				_col(4)"*" _col(12) "PART 3: - RUN DOFILES CALLED BY THIS MASTER DO FILE" _n ///
+				_col(4)"*" _col(12) "PART `partNum': - RUN DOFILES CALLED BY THIS MASTER DO FILE" _n ///
 				_col(4)"*" _n 
 				
 			if "`itemType'" == "project" {	
@@ -501,18 +499,18 @@ cap program drop 	mdofle_p3
 				_col(4)"local importDo" _col(25) "1" _n ///
 				_col(4)"local cleaningDo" _col(25) "1" _n ///
 				_col(4)"local constructDo" _col(25) "1" _n ///
-				_col(4)"local analyzeDo" _col(25) "1" _n ///
+				_col(4)"local analysisDo" _col(25) "1" _n ///
 			
 			*Create the references to the high level task 
 			highLevelTask `subHandle'  "`rndName'" "`rnd'" "import"
 			highLevelTask `subHandle'  "`rndName'" "`rnd'" "cleaning"
 			highLevelTask `subHandle'  "`rndName'" "`rnd'" "construct"
-			highLevelTask `subHandle'  "`rndName'" "`rnd'" "analyze"
+			highLevelTask `subHandle'  "`rndName'" "`rnd'" "analysis"
 		
 		}
 		
 		*Write devisor ending the section running sub-master dofiles
-		writeDevisor  `subHandle' 3 End_RunDofiles
+		writeDevisor  `subHandle' `partNum' End_RunDofiles
 						
 		di "masterDofilePart3 end"
 		
@@ -532,7 +530,7 @@ cap program drop 	mdofle_p3
 				_col(4)"}" _n
 			
 			*Create the task dofiles
-			highLevelTaskMasterDofile rndName task
+			highLevelTaskMasterDofile `rndName' `task' `rnd'
 		
 	end
 		
@@ -541,28 +539,79 @@ cap program drop 	mdofle_p3
 			
 			di "highLevelTaskMasterDofile start"
 			
-			args rndName task
-			
-			local suffix 
-			if "`task'" == "import" {
-				local suffix _doImp
-			}
-			if "`task'" == "cleaning" {
-				local suffix _doCln
-			}
-			if "`task'" == "construct" {
-				local suffix _doCon
-			}
-			if "`task'" == "analyze" {
-				local suffix _doAnl
-			}
-			   
+			args rndName task rnd
 			
 			*Write the round dofile
 			
-	
-		
+			*Create a temporary textfile
+			tempname 	taskHandle
+			tempfile	taskTextFile
+			file open  `taskHandle' using "`taskTextFile'", text write replace
+			
+			mdofle_task `taskHandle' task `rndName' `task' 
+			
+			*Closing the new main master dofile handle
+			file close 		`taskHandle'
+
+			*Copy the new master dofile from the tempfile to the original position
+			
+			di ":`rnd'_do: `task'"
+			di `"copy "`taskTextFile'"  "${`rnd'_do}/`rndName'_MasterDofile.do" , replace"'
+			copy "`taskTextFile'"  "${`rnd'_do}/`rnd'_`task'_Master.do" , replace
+			
+			
 	end		
 		
-	
+	cap program drop 	mdofle_task
+	program define	mdofle_task
+		
+		args subHandle itemType rndName task
+		
+		local caps = upper("`rndName' `task'")
+		
+		local suffix 
+		if "`task'" == "import" {
+			local suffix "_doImp"
+		}
+		if "`task'" == "cleaning" {
+			local suffix "_doCln"
+		}
+		if "`task'" == "construct" {
+			local suffix "_doCon"
+		}
+		if "`task'" == "analysis" {
+			local suffix "_doAnl"
+		}
+			   
+		
+		*di "start masterDofilePart0"
+		
+		file write  `subHandle' ///
+			_col(4)"* ******************************************************************** *" _n ///
+			_col(4)"* ******************************************************************** *" _n ///
+			_col(4)"*" _col(75) "*" _n ///
+			_col(4)"*" _col(20) "`caps' MASTER DO_FILE" _col(75) "*" _n ///
+			_col(4)"*" _col(20) "This master dofile calls all dofiles related" _col(75) "*" _n ///
+			_col(4)"*" _col(20) "to `task' in the `rndName' round." _col(75) "*" _n ///
+			_col(4)"*" _col(75) "*" _n ///
+			_col(4)"* ******************************************************************** *" _n ///
+			_col(4)"* ******************************************************************** *" _n ///
+			_n _col(8)"/*" _n 	/// 
+			_col(4)"** IDS VAR:" _col(25) "list_ID_var_here		//Uniquely identifies households (update for your proejct)" _n ///			  
+			_col(4)"** NOTES:" _n /// 	  			  
+			_col(4)"** WRITEN BY:" _col(25) "names_of_contributors" _n ///
+			_col(4)"** Last date modified: `c(current_date)'" _n /// 
+			_col(4)"*/" _n _n ///
+			_col(4)"*Standardize settings accross users" _n ///
+			_col(4)"ieboilstart, version(12.1)" _col(40) "//Set the version number to the oldes version used by anyone in the project team" _n ///
+			_col(4) _char(96)"r(version)'" 		_col(40) "//This line is needed to actually set the version from the command above" _n ///
+			_n ///
+			_col(4)"* ***************************************************** *" _n ///
+			_col(4)"*" _col(60) "*" _n ///
+			
+			
+		*di "masterDofilePart0a end"
+		
+	end
+
 
