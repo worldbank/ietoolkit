@@ -126,7 +126,7 @@ cap program drop 	iefolder
 	file close 		`newHandle'
 	
 	*Copy the new master dofile from the tempfile to the original position
-	copy "`newTextFile'"  "$projectfolder/mainMasterDofile.do" , replace
+	copy "`newTextFile'"  "$projectfolder/Project_MasterDofile.do" , replace
 	
 	
 end 	
@@ -175,7 +175,7 @@ cap program drop 	iefolder_newRound
 	
 	*Old file reference
 	tempname 	oldHandle
-	local 		oldTextFile 	"$projectfolder/mainMasterDofile.do"
+	local 		oldTextFile 	"$projectfolder/Project_MasterDofile.do"
 
 	file open `oldHandle' using `"`oldTextFile'"', read
 	file read `oldHandle' line

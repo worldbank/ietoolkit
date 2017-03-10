@@ -27,16 +27,16 @@
 	iefolder new project , projectfolder("$projectABC")
 	
 	*Create a new folder called baseline
-	iefolder new round baseline , projectfolder("$projectABC")
+	iefolder new round baseline  , projectfolder("$projectABC")
 	
 	*Create a new folder for endline with abbreviation EL
 	iefolder new round endline 	, projectfolder("$projectABC") abb("EL")
 
 	*Show example of test for imput
-	iefolder new round baseline , projectfolder("$projectABC") 
+	*iefolder new round baseline , projectfolder("$projectABC") 
 	
 	*Show that it is scalabe
-	iefolder new round test1 , projectfolder("$projectABC") 	
-	iefolder new round test2 , projectfolder("$projectABC") 
-	iefolder new round test3 , projectfolder("$projectABC") 
+	*iefolder new round midline_studnets , projectfolder("$projectABC") 	abb("ML_stud")
+	*iefolder new round midline_teachers , projectfolder("$projectABC") 
+	*iefolder new round midline_schools , projectfolder("$projectABC") 
 	
