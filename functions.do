@@ -554,24 +554,21 @@ cap program drop 	mdofle_p3
 			tempfile	taskTextFile
 			file open  `taskHandle' using "`taskTextFile'", text write replace
 			
-			mdofle_task `taskHandle' task `rndName' `task' 
+			mdofle_task `taskHandle' `rndName' `rnd' `task' 
 			
 			*Closing the new main master dofile handle
 			file close 		`taskHandle'
 
 			*Copy the new master dofile from the tempfile to the original position
-			
-			di ":`rnd'_do: `task'"
-			di `"copy "`taskTextFile'"  "${`rnd'_do}/`rndName'_MasterDofile.do" , replace"'
 			copy "`taskTextFile'"  "${`rnd'_do}/`rnd'_`task'_Master.do" , replace
 			
 			
 	end		
 		
-	cap program drop 	mdofle_task
+cap program drop 	mdofle_task
 	program define	mdofle_task
 		
-		args subHandle itemType rndName task
+		args subHandle rndName rnd task
 		
 		local caps = upper("`rndName' `task'")
 		
@@ -615,9 +612,39 @@ cap program drop 	mdofle_p3
 			_col(4)"* ***************************************************** *" _n ///
 			_col(4)"*" _col(60) "*" _n ///
 			
-			
+		
+		mdofle_task_dosection `subHandle' "`rnd'" "`task'" 1
+		mdofle_task_dosection `subHandle' "`rnd'" "`task'" 2
+		mdofle_task_dosection `subHandle' "`rnd'" "`task'" 3
+
 		*di "masterDofilePart0a end"
+		
+		
+	file write  `subHandle' ///
+		_col(4)"* ************************************" _n ///
+		_col(4)"*" _col(8) "Keep adding sections for all additional dofiles needed" _n ///
+		
 		
 	end
 
-
+cap program drop 	mdofle_task_dosection
+	program define	mdofle_task_dosection
+	
+	args subHandle rnd task number
+	
+	file write  `subHandle' ///
+		_col(4)"* ***************************************************** *" _n ///
+		_col(4)"*" _n ///
+		_col(4)"*" _col(8) "`task' dofile `number'" _n ///
+		_col(4)"*" _n ///
+		_col(4)"*" _col(8) "The purpose of this dofiles is:" _n ///
+		_col(4)"*" _col(10) "(The list below are examples on what to include here)" _n ///
+		_col(4)"*" _col(11) "-what additional data sets does this file require" _n ///
+		_col(4)"*" _col(11) "-what variables are created" _n ///
+		_col(4)"*" _col(11) "-what corrections are made" _n ///
+		_col(4)"*" _n ///
+		_col(4)"* ***************************************************** *"  _n ///
+		_n ///
+		_col(8) `"*do ""' _char(36) `"`rnd'`suffix'/dofile`number'.do" //Give your dofile a more infomrative name, this is just a place holder name"' _n _n
+		
+	end
