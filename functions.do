@@ -359,8 +359,14 @@ cap program drop 	mdofle_p1
 		writeDevisor `subHandle' 1 FolderGlobals 1 master	
 		
 		*Create master data folder and add global to folder in master do file
-		createFolderWriteGlobal "MasterData"  "projectfolder"  mastData  `subHandle'
+		createFolderWriteGlobal "MasterData"  "projectfolder"  	mastData	 	`subHandle' 
 
+		*Create master data subfolders
+		createFolderWriteGlobal "MasterDataSets"  	"mastData"  masterDataSets	 `subHandle'
+		createFolderWriteGlobal "Dofiles"  			"mastData"  mastDataDo
+		createFolderWriteGlobal "Sampling"  		"mastData"  mastDataSamp
+		createFolderWriteGlobal "Treatment"  		"mastData"  mastDataTreat			
+		
 		*Write sub devisor starting master and monitor data section section
 		writeDevisor `subHandle' 1 FolderGlobals 3 monitor			
 
