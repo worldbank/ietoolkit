@@ -6,22 +6,22 @@
 	*Folder globals
 	global box 			"C:\Users\wb462869\Box Sync"
 	global ief 			"$box\Stata\Stata work\Commands\ietoolkit"
+	global ief 			"C:\Users\Kristoffer\Documents\GitHub\ietoolkit"
 	
 	*Load the command
 	do "$ief\functions.do"
 	do "$ief\iefolder.do"
-	
 	*Set cd folder to catch and cd leakage
 	cd "$ief\test\cdjunk"
+	
+	*Global to the project fodler in box
+	global projectABC	"$ief\test\testOutput\Project ABC Uganda"	
 	
 	*Clean up the folder fomr last run
 	do "$ief\deletefolder.do"
 	cap deleteFolder "$projectABC\DataWork"
 	
 ******************************************************************************
-	
-	*Global to the project fodler in box
-	global projectABC	"$ief\test\testOutput\Project ABC Uganda"
 	
 	*Creat a new project
 	iefolder new project , projectfolder("$projectABC")
