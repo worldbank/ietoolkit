@@ -7,8 +7,7 @@ cap	program drop	ieimpgraph
 
 	local counter = 0
 	//local textfile = "Mrijan"
-	//local date = "$S_DATE"
-	
+		
 	qui{
 		
 		if "`confbars'" 			!= "" {
@@ -18,8 +17,7 @@ cap	program drop	ieimpgraph
 		local CONFINT_BAR 	= 1 
 		}
 		
-		noi di "`CONFINT_BAR'"
-			
+
 		foreach var of local varlist{
 			cap assert inlist(`var',0,1) | missing(`var')
 				if _rc {
@@ -147,10 +145,7 @@ cap	program drop	ieimpgraph
 	local legendOption `"legend(order(`legendNumbers') `legendLabels')"'
 
 
-	*local graphname gph_new 
-
 	*Create the confidence interval bars
-	noi di "`CONFINT_BAR'"
 	if `CONFINT_BAR' == 0 {
 	//local confIntGraph == `"(scatter mean order,  msym(none)  mlabs(medium) mlabpos(10) mlabcolor(black)), xtitle("") ytitle("`e(depvar)'") "'
 	local confIntGraph = `", xtitle("") ytitle("`e(depvar)'") "'
