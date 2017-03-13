@@ -12,10 +12,10 @@ cap	program drop	ieimpgraph
 	qui{
 		
 		if "`confbars'" 			!= "" {
-		local CONFINT_BAR 	= 1 
+		local CONFINT_BAR 	= 0 
 		}
 		else if "`confbars'" 			== "" {
-		local CONFINT_BAR 	= 0 
+		local CONFINT_BAR 	= 1 
 		}
 		
 		noi di "`CONFINT_BAR'"
