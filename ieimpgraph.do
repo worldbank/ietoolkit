@@ -1,7 +1,7 @@
 cap	program drop	ieimpgraph
 	program define 	ieimpgraph
 	preserve
-	syntax varlist, [TItle(string) save(string)]
+	syntax varlist, [noconfbars TItle(string) save(string) ]
 	
 	mat beta_ = e(b)
 
@@ -10,17 +10,25 @@ cap	program drop	ieimpgraph
 	//local date = "$S_DATE"
 	
 	qui{
-
 		
-	foreach var of local varlist{
-		cap assert inlist(`var',0,1) | missing(`var')
-			if _rc {
-				noi display as error "{phang} The variable `var' is not a dummy. Treatment variable needs to be a dummy(0 or 1) variable. {p_end}"
-				noi display ""
-				error 149
-				}
-			else {
-				}
+		if "`confbars'" 			!= "" {
+		local CONFINT_BAR 	= 1 
+		}
+		else if "`confbars'" 			== "" {
+		local CONFINT_BAR 	= 0 
+		}
+		
+		noi di "`CONFINT_BAR'"
+			
+		foreach var of local varlist{
+			cap assert inlist(`var',0,1) | missing(`var')
+				if _rc {
+					noi display as error "{phang} The variable `var' is not a dummy. Treatment variable needs to be a dummy(0 or 1) variable. {p_end}"
+					noi display ""
+					error 149
+					}
+				else {
+					}
 					
 		local counter = `counter' + 1
 		di `counter'
@@ -142,16 +150,24 @@ cap	program drop	ieimpgraph
 	*local graphname gph_new 
 
 	*Create the confidence interval bars
+	noi di "`CONFINT_BAR'"
+	if `CONFINT_BAR' == 0 {
+	//local confIntGraph == `"(scatter mean order,  msym(none)  mlabs(medium) mlabpos(10) mlabcolor(black)), xtitle("") ytitle("`e(depvar)'") "'
+	local confIntGraph = `", xtitle("") ytitle("`e(depvar)'") "'
+	} 
+	else if `CONFINT_BAR' == 1 {
 	local confIntGraph = `"(rcap conf_int_max conf_int_min order, lc(gs)) (scatter mean order,  msym(none)  mlabs(medium) mlabpos(10) mlabcolor(black)), xtitle("") ytitle("`e(depvar)'")  "'
+	}
 	
+	 
 
 	if "`save'" != "" {
 		local saveOption saving("`save'", replace)
 	}
 	
 	noi di `" graph twoway `tmtGroupBars' `confIntGraph' `legendOption' `xAxisLabels' `saveOption' title("`title'")   "'
-	
 	graph twoway `tmtGroupBars' `confIntGraph' `legendOption' `xAxisLabels' `saveOption' title("`title'") 
+	//noi di 	`"graph twoway `tmtGroupBars' `legendOption' (scatter mean order,  msym(none)  mlabs(medium) mlabpos(10) mlabcolor(black))), xtitle("") ytitle("`e(depvar)'") `xAxisLabels' `saveOption' title("`title'")  "'
 	
 	restore
 }
