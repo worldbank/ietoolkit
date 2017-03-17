@@ -7,8 +7,8 @@
 
 ###Graph Stats Display
 - Confidence interval
-  - [ ] Remove all
-  - [ ] Remove for specific treatments
+  - [X] Remove all
+  - [X] Remove for specific treatments
 
 ###Graph Formatting
 - Y-axis
@@ -17,11 +17,11 @@
   - [ ] Manually set the title of the Y axis
 - Legend
   - [ ] Allow the user to set the labels in the legends
-- [ ] Test that "anything" works when passing any graph twoway options to our command
-- Check out cibar and other commands for fomratting inspiration
+- [ ] Test that "anything" works when passing any graph two-way options to our command
+- Check out cibar and other commands for formatting inspiration
   - [ ] cibar
   
   
 ###Output graph
 - [x] manually set where to save to disk
-- [ ] manually name the graph (i.e. save in workign memory)
+- [ ] manually name the graph (i.e. save in working memory)

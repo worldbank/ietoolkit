@@ -1,26 +1,39 @@
 cap	program drop	ieimpgraph
 	program define 	ieimpgraph
 	preserve
-	syntax varlist, [TItle(string) save(string)]
+	syntax varlist, [noconfbars TItle(string) save(string) confbarsnone(varlist) ]
 	
 	mat beta_ = e(b)
 
 	local counter = 0
-	local textfile = "Mrijan"
-	local date = "$S_DATE"
-	
-	qui{
-
+	//local textfile = "Mrijan"
 		
-	foreach var of local varlist{
-		cap assert inlist(`var',0,1) | missing(`var')
-			if _rc {
-				noi display as error "{phang} The variable `var' is not a dummy. Treatment variable needs to be a dummy(0 or 1) variable. {p_end}"
-				noi display ""
-				error 149
+	qui{
+		
+		if "`confbars'" 			!= "" {
+		local CONFINT_BAR 	= 0 
+		}
+		else if "`confbars'" 			== "" {
+		local CONFINT_BAR 	= 1 
+		}
+		
+		local varTest : list confbarsnone in varlist
+		
+		if `varTest' == 0 {
+		noi display as error "{phang} Variables defined in confbarsnone cannot be found in the graph variable list. {p_end}"
+		noi display ""
+		error 111
 				}
-			else {
-				}
+		
+		foreach var of local varlist{
+			cap assert inlist(`var',0,1) | missing(`var')
+				if _rc {
+					noi display as error "{phang} The variable `var' is not a dummy. Treatment variable needs to be a dummy(0 or 1) variable. {p_end}"
+					noi display ""
+					error 149
+					}
+				else {
+					}
 					
 		local counter = `counter' + 1
 		di `counter'
@@ -89,11 +102,18 @@ cap	program drop	ieimpgraph
 	gen `newCounter' = 2  //First tmt group starts at 2 (1 is control)
 	
 	foreach var in `varlist' {
-
+	     if `: list var in confbarsnone' { 
+		file write `newHandle' ///
+			%9.3f (`newCounter') _tab "`var'" _tab %9.3f (tmt_mean_`var') _tab  %9.3f (coeff_`var')  _tab %9.3f  _tab _tab %9.3f (obs_`var')   _tab "`star_`var''"  _n 
+		
+		replace `newCounter' = `newCounter' + 1	
+			}
+		else {	
 		file write `newHandle' ///
 			%9.3f (`newCounter') _tab "`var'" _tab %9.3f (tmt_mean_`var') _tab  %9.3f (coeff_`var')  _tab %9.3f (conf_int_min_`var') _tab %9.3f (conf_int_max_`var') _tab %9.3f (obs_`var')   _tab "`star_`var''"  _n 
 		
 		replace `newCounter' = `newCounter' + 1
+		}
 	}
 	
 	file close `newHandle'	
@@ -139,19 +159,24 @@ cap	program drop	ieimpgraph
 	local legendOption `"legend(order(`legendNumbers') `legendLabels')"'
 
 
-	*local graphname gph_new 
-
 	*Create the confidence interval bars
-	local confIntGraph = `"(rcap conf_int_max conf_int_min order, lc(gs)) (scatter mean order,  msym(none)  mlabs(medium) mlabpos(10) mlabcolor(black)), xtitle("") ytitle("`e(depvar)'")  "'
+	if `CONFINT_BAR' == 0 {
+		//local confIntGraph == `"(scatter mean order,  msym(none)  mlabs(medium) mlabpos(10) mlabcolor(black)), xtitle("") ytitle("`e(depvar)'") "'
+		local confIntGraph = `", xtitle("") ytitle("`e(depvar)'") "'
+	} 
+		else if `CONFINT_BAR' == 1 {
+		local confIntGraph = `"(rcap conf_int_max conf_int_min order, lc(gs)) (scatter mean order,  msym(none)  mlabs(medium) mlabpos(10) mlabcolor(black)), xtitle("") ytitle("`e(depvar)'")  "'
+	}
 	
+	 
 
 	if "`save'" != "" {
 		local saveOption saving("`save'", replace)
 	}
 	
 	noi di `" graph twoway `tmtGroupBars' `confIntGraph' `legendOption' `xAxisLabels' `saveOption' title("`title'")   "'
-	
 	graph twoway `tmtGroupBars' `confIntGraph' `legendOption' `xAxisLabels' `saveOption' title("`title'") 
+	//noi di 	`"graph twoway `tmtGroupBars' `legendOption' (scatter mean order,  msym(none)  mlabs(medium) mlabpos(10) mlabcolor(black))), xtitle("") ytitle("`e(depvar)'") `xAxisLabels' `saveOption' title("`title'")  "'
 	
 	restore
 }
