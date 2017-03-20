@@ -162,20 +162,20 @@ cap	program drop	ieimpgraph
 	*Create the confidence interval bars
 	if `CONFINT_BAR' == 0 {
 		//local confIntGraph == `"(scatter mean order,  msym(none)  mlabs(medium) mlabpos(10) mlabcolor(black)), xtitle("") ytitle("`e(depvar)'") "'
-		local confIntGraph = `", xtitle("") ytitle("`e(depvar)'") "'
+		local confIntGraph = ""
 	} 
 		else if `CONFINT_BAR' == 1 {
-		local confIntGraph = `"(rcap conf_int_max conf_int_min order, lc(gs)) (scatter mean order,  msym(none)  mlabs(medium) mlabpos(10) mlabcolor(black)), xtitle("") ytitle("`e(depvar)'")  "'
+		local confIntGraph = `"(rcap conf_int_max conf_int_min order, lc(gs)) (scatter mean order,  msym(none)  mlabs(medium) mlabpos(10) mlabcolor(black))"'
 	}
 	
-	 
+	local titleOption `" , xtitle("") ytitle("`e(depvar)'") "'
 
 	if "`save'" != "" {
 		local saveOption saving("`save'", replace)
 	}
 	
-	noi di `" graph twoway `tmtGroupBars' `confIntGraph' `legendOption' `xAxisLabels' `saveOption' title("`title'")   "'
-	graph twoway `tmtGroupBars' `confIntGraph' `legendOption' `xAxisLabels' `saveOption' title("`title'") 
+	noi di `" graph twoway `tmtGroupBars' `confIntGraph' `titleOption' `legendOption' `xAxisLabels' `saveOption' title("`title'")   "'
+	graph twoway `tmtGroupBars' `confIntGraph' `titleOption' `legendOption' `xAxisLabels' `saveOption' title("`title'") 
 	//noi di 	`"graph twoway `tmtGroupBars' `legendOption' (scatter mean order,  msym(none)  mlabs(medium) mlabpos(10) mlabcolor(black))), xtitle("") ytitle("`e(depvar)'") `xAxisLabels' `saveOption' title("`title'")  "'
 	
 	restore
