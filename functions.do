@@ -181,7 +181,7 @@
 		}
 		
 		file write  `subHandle' _n "`devisor'" `addedStars'
-		file write  `subHandle' _n "*iefolder wont work properly if the line above is edited"  _n _n
+		file write  `subHandle' _n "*iefolder will not work properly if the line above is edited"  _n _n
 		
 		*di "devisor end"
 		
@@ -222,7 +222,7 @@
 			file write  `subHandle'	/// 
 				_col(8)"** PURPOSE:" _col(25) "Write intro to project here" _n ///
 				_n ///					
-				_col(8)"** OUTLINE:" _col(25) "PART 0: Standardize settings and install paackages" _n ///
+				_col(8)"** OUTLINE:" _col(25) "PART 0: Standardize settings and install packages" _n ///
 				_col(25) "PART 1: Set globals for dynamic file paths" _n ///
 				_col(25) "PART 2: Set globals for constants and varlist" _n ///
 				_col(32) "used across the project. Intall custom" _n ///
@@ -259,15 +259,15 @@
 		else if "`itemType'" == "round" {
 			
 			file write  `subHandle'	/// 
-				_col(8)"** PURPOSE:" _col(25) "Write intro to round here" _n ///
+				_col(8)"** PURPOSE:" _col(25) "Write intro to survey round here" _n ///
 				_n ///					
-				_col(8)"** OUTLINE:" _col(25) "PART 0: Standardize settings and install paackages" _n ///
+				_col(8)"** OUTLINE:" _col(25) "PART 0: Standardize settings and install packages" _n ///
 				_col(25) "PART 1: Preparing folder path globals" _n ///
 				_col(25) "PART 2: Run the master do files for each high level task" _n _n 
 		}
 				
 		file write  `subHandle'	/// 
-			_col(8)"** IDS VAR:" _col(25) "list_ID_var_here		//Uniquely identifies households (update for your proejct)" _n ///
+			_col(8)"** IDS VAR:" _col(25) "list_ID_var_here		//Uniquely identifies households (update for your project)" _n ///
 			_n	///				  
 			_col(8)"** NOTES:" _n /// 	  
 			_n ///				  
@@ -299,7 +299,7 @@
 			_col(8)"ssc install ietoolkit" _n ///
 			_n	 ///
 			_col(8)"*Standardize settings accross users" _n ///
-			_col(8)"ieboilstart, version(12.1)" _col(40) "//Set the version number to the oldes version used by anyone in the project team" _n ///
+			_col(8)"ieboilstart, version(12.1)" _col(40) "//Set the version number to the oldest version used by anyone in the project team" _n ///
 			_col(8) _char(96)"r(version)'" 		_col(40) "//This line is needed to actually set the version from the command above" _n
 			
 		*di "masterDofilePart0a end"
@@ -441,7 +441,7 @@ cap program drop 	mdofle_p2
 			_col(4)"* included here. One example of something not constant that should" _n ///
 			_col(4)"* be included here is exchange rates. It is best practice to have one" _n ///
 			_col(4)"* global with the exchange rate here, and reference this each time a" _n ///
-			_col(4)"* currency conversion is done. If the currency exchange reate needs to be" _n ///
+			_col(4)"* currency conversion is done. If the currency exchange rate needs to be" _n ///
 			_col(4)"* updated, then it only has to be done at one place for the whole project." _n ///
 			_n
 		
@@ -487,7 +487,7 @@ cap program drop 	mdofle_p3
 					_col(4)"*" _col(16) "-A task master dofile has been created for each high"  _n ///
 					_col(4)"*" _col(17) "level task (import, cleaning, construct, analyze). By "  _n ///
 					_col(4)"*" _col(17) "running all of them all data work associated with the "  _n ///
-					_col(4)"*" _col(17) "`rndName' should be replciaetd, including output of "  _n ///
+					_col(4)"*" _col(17) "`rndName' should be replicated, including output of "  _n ///
 					_col(4)"*" _col(17) "tablets, graphs, etc." _n /// 
 					_col(4)"*" _col(16) "-Feel free to add to this list if you have other high"  _n /// 
 					_col(4)"*" _col(17) "level tasks relevant to your project." _n 
@@ -600,13 +600,13 @@ cap program drop 	mdofle_task
 			_col(4)"* ******************************************************************** *" _n ///
 			_col(4)"* ******************************************************************** *" _n ///
 			_n _col(8)"/*" _n 	/// 
-			_col(4)"** IDS VAR:" _col(25) "list_ID_var_here		//Uniquely identifies households (update for your proejct)" _n ///			  
+			_col(4)"** IDS VAR:" _col(25) "list_ID_var_here		//Uniquely identifies households (update for your project)" _n ///			  
 			_col(4)"** NOTES:" _n /// 	  			  
 			_col(4)"** WRITEN BY:" _col(25) "names_of_contributors" _n ///
 			_col(4)"** Last date modified: `c(current_date)'" _n /// 
 			_col(4)"*/" _n _n ///
 			_col(4)"*Standardize settings accross users" _n ///
-			_col(4)"ieboilstart, version(12.1)" _col(40) "//Set the version number to the oldes version used by anyone in the project team" _n ///
+			_col(4)"ieboilstart, version(12.1)" _col(40) "//Set the version number to the oldest version used by anyone in the project team" _n ///
 			_col(4) _char(96)"r(version)'" 		_col(40) "//This line is needed to actually set the version from the command above" _n ///
 			_n ///
 			_col(4)"* ***************************************************** *" _n ///
@@ -645,6 +645,6 @@ cap program drop 	mdofle_task_dosection
 		_col(4)"*" _n ///
 		_col(4)"* ***************************************************** *"  _n ///
 		_n ///
-		_col(8) `"*do ""' _char(36) `"`rnd'`suffix'/dofile`number'.do" //Give your dofile a more infomrative name, this is just a place holder name"' _n _n
+		_col(8) `"*do ""' _char(36) `"`rnd'`suffix'/dofile`number'.do" //Give your dofile a more informative name, this is just a place holder name"' _n _n
 		
 	end
