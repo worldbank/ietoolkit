@@ -6,7 +6,7 @@
 	*Folder globals
 	global box 			"C:\Users\wb462869\Box Sync"
 	global ief 			"$box\Stata\Stata work\Commands\ietoolkit"
-	global ief 			"C:\Users\Kristoffer\Documents\GitHub\ietoolkit"
+	*global ief 			"C:\Users\Kristoffer\Documents\GitHub\ietoolkit"
 	
 	*Load the command
 	do "$ief\functions.do"
@@ -36,7 +36,7 @@
 	*iefolder new round baseline , projectfolder("$projectABC") 
 	
 	*Show that it is scalabe
-	*iefolder new round midline_studnets , projectfolder("$projectABC") 	abb("ML_stud")
-	*iefolder new round midline_teachers , projectfolder("$projectABC") 
-	*iefolder new round midline_schools , projectfolder("$projectABC") 
+	iefolder new round midline_studnets , projectfolder("$projectABC") 	abb("ML_stud")
+	iefolder new round midline_teachers , projectfolder("$projectABC") 	abb("ML_tch") 
+	iefolder new round midline_schools , projectfolder("$projectABC")  	abb("ML_schl")
 	
