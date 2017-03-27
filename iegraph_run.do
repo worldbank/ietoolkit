@@ -12,7 +12,7 @@
 	cd "$ietoolkit\test\cdjunk"
 	
 	*Load the command
-	do "$ietoolkit\ieimpgraph.do"
+	do "$ietoolkit\iegraph.do"
 
 	**********************
 	*Graph 1 - single treatment
