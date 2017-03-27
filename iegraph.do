@@ -1,5 +1,5 @@
-cap	program drop	ieimpgraph
-	program define 	ieimpgraph
+cap	program drop	iegraph
+	program define 	iegraph
 	preserve
 	syntax varlist, [noconfbars TItle(string) save(string) confbarsnone(varlist) ]
 	

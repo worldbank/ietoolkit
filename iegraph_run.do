@@ -24,8 +24,8 @@
 	*Run the impact regression
 	reg price  Treatment
 	*Create the graph
-	ieimpgraph Treatment, noconfbars title("Treatment effect on price") save("$testOuput/Graph1.gph")
-	ieimpgraph Treatment, title("Treatment effect on price") save("$testOuput/Graph1.gph")
+	iegraph Treatment, noconfbars title("Treatment effect on price") save("$testOuput/Graph1.gph")
+	iegraph Treatment, title("Treatment effect on price") save("$testOuput/Graph1.gph")
 		
 	**********************
 	*Graph 2 - multiple treatment	
@@ -37,8 +37,8 @@
 	*Run the impact regression
 	reg price  d_2 d_3 d_4 d_5 weight length gear_ratio
 	*Create the graph
-	ieimpgraph d_2 d_3 d_4 d_5,  title("Treatment effect on price") save("$testOuput/Graph2.gph")
-	ieimpgraph d_2 d_3 d_4 d_5,  noconfbars title("Treatment effect on price") save("$testOuput/Graph2.gph")
+	iegraph d_2 d_3 d_4 d_5,  title("Treatment effect on price") save("$testOuput/Graph2.gph")
+	iegraph d_2 d_3 d_4 d_5,  noconfbars title("Treatment effect on price") save("$testOuput/Graph2.gph")
 
 
 
