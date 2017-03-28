@@ -6,7 +6,7 @@ help for {hi:iegraph}
 
 {title:Title}
 
-{phang2}{cmdab:iegraph} {hline 2} Generating graphs based on regressions done during typical impact evaluation. 
+{phang2}{cmdab:iegraph} {hline 2} Generates graphs based on regressions done during typical impact evaluation. 
 
 {title:Syntax}
 
@@ -117,69 +117,26 @@ help for {hi:iegraph}
 {marker optslong}
 {title:Options}
 
-{phang}{cmdab:grp:dummy(}{it:varname}{cmd:)} is the dummy variable that indicates if an observation
-	is a base or target observation. This variable, must be numeric and is only allowed to have
-	the values 1, 0 or missing. 1 indicates a base observation, 0 indicates a target observation,
-	and observations with a missing value will be excluded from the matching.
+{phang}{cmd:noconfbars}Removes the confidence interval bars from graphs for all 
+	treatments.{p_end}
 
-{phang}{cmdab:match:var(}{it:varname}{cmd:)} is the variable used to compare observations when
-	matching. This must be a numeric variable, and it is typically a continuous
-	variable. Observations with a missing value will be excluded from the matching.
+{phang}{cmdab:TI:tle(}{it:string}{cmd:)}Manually sets the title of the graph.{p_end}
 
-{phang}{cmdab:id:var(}{it:varlist}{cmd:)} indicates the variable that uniquely
-	and fully identifies the data set. The values in this variable is the values
-	that will be used in the variable that indicates which target observation each
-	base observations matched against. If this option is omitted, a variable called
-	_ID will be generated. The observation in the first row is given the value 1,
-	the second row value 2 and so fourth.
+{phang}{cmdab:save(}{it:string}{cmd:)}Sets the filename and the directory to which
+	the graph will be set.{p_end}
 
-{phang}{cmdab:m1} sets the match to a many-to-one match (see {help iematch##desc:description}).
-	This allows multiple base observations to be matched towards a single target observation.
-	The default is the one-to-one match where a maximum one base observation is matched towards
-	each target observation. This option allows the number of base observations
-	to be larger then the number of target observations.
+{phang}{cmdab:confbarsnone(}{it:varlist}{cmd:)}Removes confidence interval bars 
+	from only the {it:varlist} listed. The remaining variables in the graphs which 
+	have not been specified in {cmdab:confbarsnone} will still have the confidence
+	interval bars. {p_end}
 
-{phang}{cmdab:maxdiff(}{it:numlist}{cmd:)} sets a maximum allowed difference between
-	a base observation and a target observation for a match to be valid. Any base
-	observation without a valid match within this difference will end up unmatched.
 
-{phang}{cmd:seedok} supresses the error message throwned when there are duplicates among
-	the base observations or the target observations in {cmd:matchvar()}. When there
-	are duplicates a random variable is used to distinguish which variable to match.
-	Setting the seed makes this randomization replicable and thereby making the matching
-	also replicable. The {help seed} should be set before this command by the user. When the
-	seed is set, or if replicable matching is not important, then the option {cmd:seedok} can
-	be used to supress the error message. Duplicate pairs where one observation is a base
-	observation and the other is a target observations are allowed.
-
-{phang}{cmdab:matchre:sultname(}{it:string}{cmd:)} manually sets the
-	name of the variable that reports the matching result for each observation.
-	If omitted, the default name is {inp:_matchResult}. The names {inp:_ID},
-	{inp:_matchID}, {inp:_matchDiff} and {inp:_matchCount} are not allowed.
-
-{phang}{cmdab:matchid:name(}{it:string}{cmd:)} manually sets the
-	name of the variable that list the ID of the target observations in each match pair/group.
-	If omitted, the default name is {inp:_matchID}. The names {inp:_ID}, {inp:_matchDiff}, {inp:_matchResult}
-	and {inp:_matchCount} are not allowed.
-
-{phang}{cmdab:matchdi:ffname(}{it:string}{cmd:)} manually sets the name of the variable
-	that indicates the difference between the matched base observations
-	and target observations. If omitted, the default name is {inp:_matchDiff}. The
-	names {inp:_ID}, {inp:_matchID}, {inp:_matchResult} and {inp:_matchCount} are
-	not allowed.
-
-{phang}{cmdab:matchco:untname(}{it:string}{cmd:)} manually sets the
-	name of the variable that indicates the number of base observations that has
-	been matched towards each matched matched target observation. This option may
-	only be used in combination with option {cmd:m1}. If omitted, the default
-	name is {inp:_matchCount}. The names {inp:_ID}, {inp:_matchID}, {inp:_matchDiff}
-	and {inp:_matchResult} are not allowed.
 
 {title:Examples}
 
 {pstd} {hi:Example 1.}
 
-{pmore}{inp:iematch , grpdummy({it:tmt}) matchvar({it:p_hat})}
+{pmore}{inp:iegraph treatmentVar1 treatmentvar2 , title({it:string})}
 
 {pmore}In the example above, the observations with value 1 in {it:tmt} will be matched
 	towards the nearest, in terms of {it:p_hat}, observations with value 0 in {it:tmt}.
