@@ -6,49 +6,24 @@ help for {hi:iegraph}
 
 {title:Title}
 
-{phang2}{cmdab:iematch} {hline 2} Matching base observations towards target observations using on a single continous variable.
+{phang2}{cmdab:iegraph} {hline 2} Generating graphs based on regressions done during typical impact evaluation. 
 
 {title:Syntax}
 
 {phang2}
-{cmdab:iematch} {ifin} 
-, {cmdab:grp:dummy(}{it:varname}{cmd:)} {cmdab:match:var(}{it:varname}{cmd:)}
-[{cmdab:id:var(}{it:varlist}{cmd:)} {cmdab:m1} {cmdab:maxdiff(}{it:numlist}{cmd:)} {cmd:seedok}
-{cmdab:matchid:name(}{it:string}{cmd:)} {cmdab:matchdi:ffname(}{it:string}{cmd:)}
-{cmdab:matchre:sultname(}{it:string}{cmd:)} {cmdab:matchco:untname(}{it:string}{cmd:)}
+{cmdab:iegraph} {varlist} 
+, [{cmd:noconfbars} {cmdab:TI:tle(}{it:string}{cmd:)}
+{cmdab:save(}{it:string}{cmd:)} {cmdab:confbarsnone(}{it:varlist}{cmd:)}
 ]
 
 {marker opts}{...}
 {synoptset 22}{...}
 {synopthdr:options}
 {synoptline}
-{synopt :{cmdab:grp:dummy(}{it:varname}{cmd:)}}The group dummy variable where 1
-	indicates base observations and 0 target observations{p_end}
-{synopt :{cmdab:match:var(}{it:varname}{cmd:)}}The variable with a continous value
-	to match on{p_end}
-{synopt :{cmdab:id:var(}{it:varlist}{cmd:)}}The uniquely and fully identifying ID
-	varaible. Used to indicate which target observation a base observation is match
-	with. If omitted an ID variable will be created.{p_end}
-{synopt :{cmdab:m1}}Allows many-to-one matches. The default is to allow only
-	one-to-one matches. See the {help iematch##desc:description} section.{p_end}
-{synopt :{cmdab:maxdiff(}{it:numlist}{cmd:)}}Set a maximum difference allowed in
-	{cmdab:matchvar()}. If a base observation has no match within this difference
- then it will remain unmatched{p_end}
-{synopt :{cmd:seedok}}Supresses the error maessage thrown when there are duplicates
-	in {cmd:matchvar()}. When there are duplicates, the seed needs to be set in order
-	to have a replicable match. The {help seed} should be set before this command.{p_end}
-{synopt :{cmdab:matchre:sultname(}{it:string}{cmd:)}}Manually sets the name of
-	the variable that indicates if an observation was matched, or provide a reason why
-	it was not. The default is _matchResult{p_end}
-{synopt :{cmdab:matchid:name(}{it:string}{cmd:)}}Manually sets the name of the
-	variable that indicates which target observation each base observation is
-	matched with. The default is _matchID{p_end}
-{synopt :{cmdab:matchdi:ffname(}{it:string}{cmd:)}}Manually sets the name of the
-	variable that indicates the differnece in {cmdab:matchvar()} in each match
-	pair/group. The default is _matchDiff{p_end}
-{synopt :{cmdab:matchco:untname(}{it:string}{cmd:)}}Manually sets the name of the
-	variable that indicates how many observations a target obsersvation is matched
-	with in a many-to-one matches. The default is _matchCount{p_end}
+{synopt :{cmd:noconfbars}}Removes the confidence interval bars from graphs for all treatments.{p_end}
+{synopt :{cmdab:TI:tle(}{it:string}{cmd:)}}Manually sets the title of the graph.{p_end}
+{synopt :{cmdab:save(}{it:string}{cmd:)}}Sets the filename and the directory to which the graph will be set.{p_end}
+{synopt :{cmdab:confbarsnone(}{it:varlist}{cmd:)}}Removes confidence interval bars from only the {it:varlist} listed.{p_end}
 {synoptline}
 
 {marker desc}
@@ -221,7 +196,7 @@ help for {hi:iegraph}
 {title:Acknowledgements}
 
 {phang}I would like to acknowledge the help in testing and proofreading I received in relation to this command and help file from (in alphabetic order):{p_end}
-{pmore}Michael Orebvo{break}
+{pmore}{break}
 
 {title:Author}
 

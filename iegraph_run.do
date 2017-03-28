@@ -37,7 +37,10 @@
 	*Run the impact regression
 	reg price  d_2 d_3 d_4 d_5 weight length gear_ratio
 	*Create the graph
-	iegraph d_2 d_3 d_4 d_5,  title("Treatment effect on price") save("$testOuput/Graph2.gph")
+	iegraph d_2 d_3,  title("Treatment effect on price") save("$testOuput/Graph2.gph")
+	iegraph d_2 d_3 d_4,  title("Treatment effect on price") save("$testOuput/Graph3.gph")
+	iegraph d_2 d_3 d_4 d_5,  title("Treatment effect on price") save("$testOuput/Graph4.gph")
+	
 	iegraph d_2 d_3 d_4 d_5,  noconfbars title("Treatment effect on price") save("$testOuput/Graph2.gph")
 
 
