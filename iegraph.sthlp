@@ -55,10 +55,11 @@ help for {hi:iegraph}
 
 {pstd} {hi:Example 1.}
 
-{pmore}{inp:iegraph treatmentVar1 treatmentvar2 , title({it:string})}
+{pmore}{inp:iegraph treatmentVar1 treatmentVar2 , title({it:string})}
 
-{pmore}In the example above, the observations with value 1 in {it:tmt} will be matched
-	towards the nearest, in terms of {it:p_hat}, observations with value 0 in {it:tmt}.
+{pmore}In the example above, graphs comparing the effects of {it:treatmentVar1} and 
+		{it:treatmentVar2} to the mean of the control will be generated. The option 
+		title({it:string}) gives the graph the title that the user puts in the string.
 
 {pstd} {hi:Example 2.}
 
