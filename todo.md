@@ -24,8 +24,9 @@
   
 ###Output graph
 - [x] manually set where to save to disk
-- [ ] manually name the graph (i.e. save in working memory)
-- [ ] Print and check that all comination of colors looks good in printed balck and white
+- [x] manually name the graph (i.e. save in working memory)
+- [ ] Print and check that all comination of colors looks good in printed balck and white 
+    - The yellow doesn't print properly on paper. It's too light.
 - [ ] Include note at bottom of graph with the syntax as specified by the user
   - [ ] For later: make that note nice and more readable
   - [ ] Make it possible to disable this note
