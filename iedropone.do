@@ -7,7 +7,7 @@
 		
 		*noi di "command OK!"
 		
-		syntax [if] ,  [multivar(varname) multical(string)]
+		syntax [if] ,  [multivar(varname) multical(string) zerook numobs(int)]
 	
 		*noi di "syntax OK!"
 	
