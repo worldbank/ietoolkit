@@ -7,7 +7,7 @@
 		
 		*noi di "command OK!"
 		
-		syntax [if] ,  [mvar(varname) mval(string) zerook numobs(numlist int min=1 max=1 >0)]
+		syntax [if] ,  [Numobs(numlist int min=1 max=1 >0) mvar(varname) mval(string) zerook]
 	
 		*noi di "syntax OK!"
 		
@@ -87,7 +87,7 @@
 		
 			noi di "iedropone_test_match `if' , numobs(`numobs') zero_used(`ZEROOK_USED')"
 			
-			iedropone_test_match `if' , numobs(`numobs') zero_used(`ZEROOK_USED')
+			iedropone_test_match `if' , numobs(`numobs') zero_used(`ZEROOK_USED') multi_used(`MULTI_USED')
 			local num_obs_dropped `r(numtodrop)'
 
 		}
@@ -100,8 +100,8 @@
 				if `IF_USED' == 1	noi di "iedropone_test_match `if' & `mvar' == `mvalue' , numobs(`numobs') zero_used(`ZEROOK_USED')"
 				if `IF_USED' == 0	noi di "iedropone_test_match  if 	`mvar' == `mvalue' , numobs(`numobs') zero_used(`ZEROOK_USED')"
 				
-				if `IF_USED' == 1 	iedropone_test_match `if' & `mvar' == `mvalue' , numobs(`numobs') zero_used(`ZEROOK_USED')
-				if `IF_USED' == 0	iedropone_test_match  if 	`mvar' == `mvalue' , numobs(`numobs') zero_used(`ZEROOK_USED')
+				if `IF_USED' == 1 	iedropone_test_match `if' & `mvar' == `mvalue' , numobs(`numobs') zero_used(`ZEROOK_USED') multi_used(`MULTI_USED')
+				if `IF_USED' == 0	iedropone_test_match  if 	`mvar' == `mvalue' , numobs(`numobs') zero_used(`ZEROOK_USED') multi_used(`MULTI_USED')
 								
 				local num_obs_dropped = `num_obs_dropped' + `r(numtodrop)'
 			}
@@ -144,7 +144,9 @@
 			program define 	iedropone_test_match , rclass
 		
 		
-		syntax [if] , numobs(int) zero_used(int)
+		syntax [if] , numobs(int) zero_used(int) multi_used(int)
+		
+		
 		
 		*Count how many obs fits this 
 		count `if'
@@ -153,19 +155,20 @@
 		
 		if `count_match' == 0 & `zero_used' == 0 {
 				
-			noi di as error "{pstd}No observation matches the drop criteria. Use option zerook to surpress this error"
+			noi di as error `"{pstd}No observation matches the drop condition " `if'". Consider using option zerook to surpress this error. No observations dropped."'
 			error 2000
 		}
 		
 		else if `count_match' < `numobs' {
-				
-			noi di as error  "{pstd}There are less than exactly `numobs' observation(s) that match the drop condition"
+			
+			noi di as error  `"{pstd}There are less than exactly `numobs' observations that match the drop condition " `if'". No observations dropped."'
 			error 910
 				
 		} 
 		else if `count_match' > `numobs' {
 			
-			noi di as error  "{pstd}There are more than exactly `numobs' observation(s) that match the drop condition"
+			if `numobs' == 1  noi di as error  `"{pstd}There are more than exactly `numobs' observation that match the drop condition " `if'". No observations dropped."'
+			if `numobs' >  1  noi di as error  `"{pstd}There are more than exactly `numobs' observations that match the drop condition " `if'". No observations dropped."'
 			error 912
 			
 		}
