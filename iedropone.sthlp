@@ -31,7 +31,7 @@ help for {hi:iedropone}
 {pstd}{cmdab:iedropone} has the identical purpose as {help drop} when dropping 
 	observations. However, {cmdab:iedropone} safeguards that no additional 
 	observations are unintentionally dropped, or that changes are made to the 
-	data so that the observations that are suppoed to be dropped are no longer dropped. 
+	data so that the observations that are supposed to be dropped are no longer dropped. 
 	
 {pstd}{cmdab:iedropone} checks that no more or fewer observations than intended are 
 	dropped. For example, in the case that one observation has been identified to
@@ -40,13 +40,13 @@ help for {hi:iedropone}
 	set or changed in any other way. 
 
 {pstd}While the default is 1, {cmdab:iedropone} allows the user to set another number
-	of observation that should exactly be dropped. It also alows for dropping an exact
+	of observation that should exactly be dropped. It also allows for dropping an exact
 	number of observations for multiple values in a variable.
 
 {marker optslong}
 {title:Options}
 
-{phang}{cmdab:n:umobs(}{it:integer}{cmd:)}} this allows the user to set the 
+{phang}{cmdab:n:umobs(}{it:integer}{cmd:)} this allows the user to set the 
 	number of observation that should be dropped. The default is 1 but any 
 	positive integer can be used. The command throws an error if any other number
 	of observations are dropped.
@@ -55,16 +55,16 @@ help for {hi:iedropone}
 	
 {phang}{cmdab:mvar(}{it:varname}{cmd:)} and {cmdab:mval(}{it:list of values}{cmd:)} allows 
 	that multiple values in one variable are dropped. These two option must be used together. 
-	The command loops over the values in {cmd:mval()} and drop the observations that has the 
+	If the variable in {cmd:mvar()} is a string variable and some of the values in {cmd:mval()} 
+	includes spaces, then all values in {cmd:mval()} must be listed exactly as in example 4 below. The 
+	command loops over the values in {cmd:mval()} and drop the observations that has the 
 	looped value in {cmd:mvar()} and satisfies the {it:if} condition. For example:{p_end}
 	
-{pmore}{inp:iedroponce if village == 100 , mvar(household_id) mval(21 22 23)}
+{pmore}{inp:iedropone if village == 100 , mvar(household_id) mval(21 22 23)}
 	
-{pmore}is identical to: 
+{pmore}is identical to:
 	
-{pmore}{inp:iedroponce if village == 100 & household_id == 21}{break}
-{inp:iedroponce if village == 100 & household_id == 22}{break}
-{inp:iedroponce if village == 100 & household_id == 23}{break}
+{pmore}{inp:iedropone if village == 100 & household_id == 21}{break}{inp:iedropone if village == 100 & household_id == 22}{break}{inp:iedropone if village == 100 & household_id == 23}
 
 {pmore}The default is that exactly one observation should be dropped for each 
 	value in {cmd:mval()} unless {cmd:numobs()} or {cmd:zerook} is used. If those 
@@ -72,7 +72,6 @@ help for {hi:iedropone}
 
 {phang}{cmdab:mval(}{it:list of values}{cmd:)}, see {cmdab:mvar(}{it:varname}{cmd:)} above.
 	
-
 {title:Examples}
 
 {pstd} {hi:Example 1.}
@@ -108,13 +107,21 @@ help for {hi:iedropone}
 	exactly both of them, then we can use the option {cmd:numobs()} like above. 
 	The command will now throw an error if not exactly two observations have the 
 	household ID 712047.
+	
+{pstd} {hi:Example 4.}
+
+{pmore}{inp:iedropone if village == 100, mvar(household_head) mvar(`" "Bob Smith" "Ann Davitt" "Blessing Johnson" "')}
+
+{pmore}If the values in {cmd:mvar()} are strings with empty spaces then then each 
+	value have to be enclosed in double qoutes and the full list needs to start 
+	with {inp:`"} and end with {inp:"'}.
 
 {title:Acknowledgements}
 
 {phang}I would like to acknowledge the help in testing and proofreading I 
 	received in relation to this command and help file from (in alphabetic
 	order):{p_end}
-{pmore}Seungmin Lee{break}Mrijan Rimal{break}
+{pmore}Paula Gonzalez-Martinez{break}Seungmin Lee{break}Mrijan Rimal{break}
 
 {title:Author}
 
