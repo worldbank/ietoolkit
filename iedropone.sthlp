@@ -20,18 +20,18 @@ help for {hi:iedropone}
 {synopthdr:options}
 {synoptline}
 {synopt :{cmdab:n:umobs(}{it:integer}{cmd:)}}Number of observations that is allowed to be dropped. Default is 1.{p_end}
+{synopt :{cmd:zerook}}Allows that no observation is dropped.{p_end}
 {synopt :{cmdab:mvar(}{it:varname}{cmd:)}}Variable for which multiple values should be dropped. Must be used together with {cmdab:mval()}.{p_end}
 {synopt :{cmdab:mval(}{it:list of values}{cmd:)}}The list of values in {cmdab:mvar()} that should be dropped. Must be used together with {cmdab:mvar()}.{p_end}
-{synopt :{cmd:zerook}}Allows that no observation is dropped.{p_end}
 {synoptline}
 
 {marker desc}
 {title:Description}
 
-{pstd}{cmdab:iedropone} has the identical purpose as {drop help} when dropping 
+{pstd}{cmdab:iedropone} has the identical purpose as {help drop} when dropping 
 	observations. However, {cmdab:iedropone} safeguards that no additional 
-	observations are unintentionally dropped, or that changes are made to that 
-	data that observations that are suppoed to be dropped are no longer dropped. 
+	observations are unintentionally dropped, or that changes are made to the 
+	data so that the observations that are suppoed to be dropped are no longer dropped. 
 	
 {pstd}{cmdab:iedropone} checks that no more or fewer observations than intended are 
 	dropped. For example, in the case that one observation has been identified to
@@ -51,34 +51,69 @@ help for {hi:iedropone}
 	positive integer can be used. The command throws an error if any other number
 	of observations are dropped.
 
-{phang}{cmdab:mvar(}{it:varname}{cmd:)} indicates a variables where multiple 
-	values should be dropped. It must be exactly one observation for each value that is dropped, unless {cmd:
-
-{phang}{cmdab:mval(}{it:list of values}{cmd:)} 
+{phang}{cmd:zerook} allows that no observations are dropped. The default is that an error is thrown if no observations are dropped.	
 	
-{pmore}{cmd:zerook} allows that no observations are dropped. The default is that an error is thrown if no observations are dropped.
+{phang}{cmdab:mvar(}{it:varname}{cmd:)} and {cmdab:mval(}{it:list of values}{cmd:)} allows 
+	that multiple values in one variable are dropped. These two option must be used together. 
+	The command loops over the values in {cmd:mval()} and drop the observations that has the 
+	looped value in {cmd:mvar()} and satisfies the {it:if} condition. For example:{p_end}
+	
+{pmore}{inp:iedroponce if village == 100 , mvar(household_id) mval(21 22 23)}
+	
+{pmore}is identical to: 
+	
+{pmore}{inp:iedroponce if village == 100 & household_id == 21}{break}
+{inp:iedroponce if village == 100 & household_id == 22}{break}
+{inp:iedroponce if village == 100 & household_id == 23}{break}
+
+{pmore}The default is that exactly one observation should be dropped for each 
+	value in {cmd:mval()} unless {cmd:numobs()} or {cmd:zerook} is used. If those 
+	options are used then, then they apply to all values in {cmd:mval()} seperately.
+
+{phang}{cmdab:mval(}{it:list of values}{cmd:)}, see {cmdab:mvar(}{it:varname}{cmd:)} above.
+	
 
 {title:Examples}
 
 {pstd} {hi:Example 1.}
 
-{pmore}{inp:iematch , grpdummy({it:tmt}) matchvar({it:p_hat})}
+{pmore}{inp:iedropone if household_id == 712047}
 
-{pmore}In the example above, the observations with value 1 in {it:tmt} will be matched
-	towards the nearest, in terms of {it:p_hat}, observations with value 0 in {it:tmt}.
+{pmore}Let's say that we have identified the household with the ID 712047 to be 
+	incorrect and it should be dropped. Identical to {inp:drop if household_id == 712047} 
+	but it will test that exactly one observation is dropped each time the do-file runs. 
+	This guarantees that we will get an error message that no observation is dropped 
+	if someone makes a change to the ID. Otherwise we would unknowingly keep this 
+	incorrect observation in our data set.
+	
+	Similarly, if a new observation is added that is the correct household with ID 712047, 
+	then both observation would be dropped without warning if we would have 
+	used {inp:drop if household_id == 712047}. {cmd:iedropone} will make sure that 
+	our drop condition are applied as intended even if the data set is changed.
+	
 
 {pstd} {hi:Example 2.}
 
-{pmore}{inp:iematch if {it:baseline} == 1  , grpdummy({it:tmt}) matchvar({it:p_hat}) maxdiff(.001)}
+{pmore}{inp:iedropone if household_id == 712047 & household_head == "Bob Smith"}
 
-{pmore}In the example above, the observations with value 1 in {it:tmt} will be matched
-	towards the nearest, in terms of {it:p_hat}, observations with value 0 in {it:tmt} as
-	long as the difference in {it:p_hat} is less than .001. Only observations that has the
-	value 1 in variable {it:baseline} will be included in the match.
+{pmore}Let's say we have added a new houshold with the ID 712047. In order to 
+	drop only one of those observations we must expand the if condition to 
+	indicate which one of them we want to drop.
+	
+{pstd} {hi:Example 3.}
+
+{pmore}{inp:iedropone if household_id == 712047, numobs(2)}
+
+{pmore}Let's say we added a new houshold with the ID 712047 but we want to drop 
+	exactly both of them, then we can use the option {cmd:numobs()} like above. 
+	The command will now throw an error if not exactly two observations have the 
+	household ID 712047.
 
 {title:Acknowledgements}
 
-{phang}I would like to acknowledge the help in testing and proofreading I received in relation to this command and help file from (in alphabetic order):{p_end}
+{phang}I would like to acknowledge the help in testing and proofreading I 
+	received in relation to this command and help file from (in alphabetic
+	order):{p_end}
 {pmore}Mrijan Rimal{break}
 
 {title:Author}
@@ -86,7 +121,7 @@ help for {hi:iedropone}
 {phang}Kristoffer Bjarkefur, The World Bank, DECIE
 
 {phang}Please send bug-reports, suggestions and requests for clarifications
-		 writing "ietools iematch" in the subject line to:{break}
+		 writing "ietools iedropone" in the subject line to:{break}
 		 kbjarkefur@worldbank.org
 
 {phang}You can also see the code, make comments to the code, see the version
