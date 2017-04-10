@@ -1,7 +1,7 @@
 cap	program drop	iegraph
 	program define 	iegraph
 	preserve
-	syntax varlist, [noconfbars TItle(string) save(string) confbarsnone(varlist) ]
+	syntax varlist, [noconfbars TItle(string) save(string) confbarsnone(varlist) *]
 	
 	mat beta_ = e(b)
 
@@ -9,7 +9,6 @@ cap	program drop	iegraph
 	//local textfile = "Mrijan"
 		
 	qui{
-		
 		if "`confbars'" 			!= "" {
 		local CONFINT_BAR 	= 0 
 		}
@@ -174,8 +173,8 @@ cap	program drop	iegraph
 		local saveOption saving("`save'", replace)
 	}
 	
-	noi di `" graph twoway `tmtGroupBars' `confIntGraph' `titleOption' `legendOption' `xAxisLabels' `saveOption' title("`title'")   "'
-	graph twoway `tmtGroupBars' `confIntGraph' `titleOption' `legendOption' `xAxisLabels' `saveOption' title("`title'") 
+	noi di `" graph twoway `tmtGroupBars' `confIntGraph' `titleOption' `options' `legendOption' `xAxisLabels' `saveOption' title("`title'")   "'
+	graph twoway `tmtGroupBars' `confIntGraph' `titleOption' `options' `legendOption' `xAxisLabels' `saveOption' title("`title'") 
 	//noi di 	`"graph twoway `tmtGroupBars' `legendOption' (scatter mean order,  msym(none)  mlabs(medium) mlabpos(10) mlabcolor(black))), xtitle("") ytitle("`e(depvar)'") `xAxisLabels' `saveOption' title("`title'")  "'
 	
 	restore
