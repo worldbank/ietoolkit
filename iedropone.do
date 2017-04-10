@@ -158,6 +158,12 @@
 			noi di as error `"{pstd}No observation matches the drop condition " `if'". Consider using option zerook to surpress this error. No observations dropped."'
 			error 2000
 		}
+		else if `count_match' == 0 & `zero_used' == 1 {
+			
+			*No observation dropped but that is allowed byt zero_used
+			return scalar numtodrop	= `count_match'
+			
+		}
 		
 		else if `count_match' < `numobs' {
 			
