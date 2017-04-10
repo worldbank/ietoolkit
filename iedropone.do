@@ -5,16 +5,9 @@
 	
 	qui {
 		
-		*noi di "command OK!"
-		
 		syntax [if] ,  [Numobs(numlist int min=1 max=1 >0) mvar(varname) mval(string) zerook]
-	
-		*noi di "syntax OK!"
-		
-		*noi di "`if'"
 		
 		version 11.0
-		
 
 		/***********************************
 		
@@ -45,19 +38,19 @@
 		*Test that mvar() and mval() was used in combination
 		if ("`mvar'" != "" & "`mval'" == "") {
 			
-			di as error "{pstd}The options mval() is required when using the option mvar()"
+			di as error "{pstd}The option mval() is required when using the option mvar()"
 			error 197
 		}
 		if ("`mvar'" == "" & "`mval'" != "") {
 		
-			di as error "{pstd}The options mvar() is required when using the option mval()"
+			di as error "{pstd}The option mvar() is required when using the option mval()"
 			error 197
 		}
 		
 		*Test that either an if condition was specified or of the multi values option was used 
 		if `IF_USED' == 0 & `MULTI_USED' == 0 {
 			
-			di as error "{pstd}An {it:if} condition is required unless mvar() and mval() is used."
+			di as error "{pstd}An {it:if} condition is required when mvar() and mval() is not used."
 			error 197
 		}
 		
@@ -68,12 +61,20 @@
 		
 		***********************************/		
 		
-		*If number of drops is not set, tehn use the default which is 1
+		*If number of obs to drop is not set, then use the default which is 1
 		if "`numobs'" == "" {
 	
 			local numobs = 1
 		}
 		
+		*Test if the var in mvar() is string or not
+		if `MULTI_USED' == 1 {
+	
+			cap confirm string variable `mvar'
+			
+			if _rc == 0	local MULTI_STRING 1
+			if _rc != 0	local MULTI_STRING 0
+		}	
 		
 		/***********************************
 		
@@ -81,28 +82,52 @@
 		
 		***********************************/		
 		
-		*noi di "Test the number of obs matching"
+		*Subfunction options
+		local subfunc_opts "nobs(`numobs') zero(`ZEROOK_USED')"
 		
 		if `MULTI_USED' == 0 { 
-		
-			noi di "iedropone_test_match `if' , numobs(`numobs') zero_used(`ZEROOK_USED')"
 			
-			iedropone_test_match `if' , numobs(`numobs') zero_used(`ZEROOK_USED') multi_used(`MULTI_USED')
+			** Use the functon iedropone_test_match to 
+			*  test if the number of observations to drop
+			*  is correct
+			iedropone_test_match `if' , `subfunc_opts'
 			local num_obs_dropped `r(numtodrop)'
 
 		}
 		else {
 			
+			**Create a counter that will noitify 
+			* the user how many observations were 
+			* dropped
 			local num_obs_dropped = 0
 			
-			foreach mvalue in `mval' {
+			*Loop over all values in mval()
+			foreach mvalue of local mval {
 				
-				if `IF_USED' == 1	noi di "iedropone_test_match `if' & `mvar' == `mvalue' , numobs(`numobs') zero_used(`ZEROOK_USED')"
-				if `IF_USED' == 0	noi di "iedropone_test_match  if 	`mvar' == `mvalue' , numobs(`numobs') zero_used(`ZEROOK_USED')"
+				*Run the sub-function that test number of observation to be dropped is OK
 				
-				if `IF_USED' == 1 	iedropone_test_match `if' & `mvar' == `mvalue' , numobs(`numobs') zero_used(`ZEROOK_USED') multi_used(`MULTI_USED')
-				if `IF_USED' == 0	iedropone_test_match  if 	`mvar' == `mvalue' , numobs(`numobs') zero_used(`ZEROOK_USED') multi_used(`MULTI_USED')
-								
+				*Is mvar() is numeric
+				if `MULTI_STRING' == 0 {
+				
+					
+					** Use the functon iedropone_test_match to 
+					*  test if the number of observations to drop
+					*  is correct
+					if `IF_USED' == 1 	iedropone_test_match `if' & `mvar' == `mvalue'   , `subfunc_opts'
+					if `IF_USED' == 0	iedropone_test_match  if 	`mvar' == `mvalue'   , `subfunc_opts'
+				}
+				*Is mvar() is numeric
+				else {
+					
+					** Use the functon iedropone_test_match to 
+					*  test if the number of observations to drop
+					*  is correct
+					if `IF_USED' == 1 	iedropone_test_match `if' & `mvar' == "`mvalue'" , `subfunc_opts'
+					if `IF_USED' == 0	iedropone_test_match  if 	`mvar' == "`mvalue'" , `subfunc_opts'	
+
+				}
+				
+				*Add to teh counter how many observations will be dropped
 				local num_obs_dropped = `num_obs_dropped' + `r(numtodrop)'
 			}
 		}
@@ -113,82 +138,99 @@
 		
 		***********************************/	
 		
-		*noi di "Drop observation(s)"
 		
+		*Test if multivars are used
 		if `MULTI_USED' == 0 { 
-		
+			
+			*The observations to be dropped
 			drop `if'
+			
 		}
 		else {
-			foreach mvalue in `mval' {
 			
-				if `IF_USED' == 1 	drop `if' & `mvar' == `mvalue'
-				if `IF_USED' == 0	drop  if 	`mvar' == `mvalue' 
+			*Loop over all values in mval and drop observations
+			foreach mvalue of local mval {
+			
+				if `MULTI_STRING' == 0 {
+					if `IF_USED' == 1 	drop `if' & `mvar' == `mvalue'
+					if `IF_USED' == 0	drop  if 	`mvar' == `mvalue' 
+				}
+				else {
+					if `IF_USED' == 1 	drop `if' & `mvar' == "`mvalue'"
+					if `IF_USED' == 0	drop  if 	`mvar' == "`mvalue'" 
+				}
 			}
 		}
 		
-		if `num_obs_dropped' == 1 {
-			
-			noi di "`num_obs_dropped' observation was dropped"
-		}
-		else {
-			noi di "`num_obs_dropped' observations were dropped"
-		}
+		*Output to user how many observations were dropped
+		if `num_obs_dropped' == 1 noi di "`num_obs_dropped' observation was dropped"
+		if `num_obs_dropped' != 1 noi di "`num_obs_dropped' observations were dropped"
+		
 	}
 
 	end
 	
-	
+	**Sub function that checks that the number of obswervations 
+	* to drop is correct and it returns the number of obsevations 
+	* that will be dropped.
 	
 	capture program drop 	iedropone_test_match
 			program define 	iedropone_test_match , rclass
 		
 		
-		syntax [if] , numobs(int) zero_used(int) multi_used(int)
+		syntax [if] , nobs(int) zero(int)
 		
 		
-		
-		*Count how many obs fits this 
+		**Count how many obs fits the drop condition (this 
+		* function is called once for each value in mval)
 		count `if'
-		
 		local count_match `r(N)' 
 		
-		if `count_match' == 0 & `zero_used' == 0 {
-				
+		*Test if no match and zerook not used
+		if `count_match' == 0 & `zero' == 0 {
+			
+			*Return error message
 			noi di as error `"{pstd}No observation matches the drop condition " `if'". Consider using option zerook to surpress this error. No observations dropped."'
 			error 2000
 		}
-		else if `count_match' == 0 & `zero_used' == 1 {
+		*Test if no match but zerook used
+		else if `count_match' == 0 & `zero' == 1 {
 			
-			*No observation dropped but that is allowed byt zero_used
+			*No observation dropped but that is allowed byt zero_used. Return 0.
 			return scalar numtodrop	= `count_match'
 			
 		}
-		
-		else if `count_match' < `numobs' {
+		*Test if the number of match is less than it is supposed to be
+		else if `count_match' < `nobs' {
 			
-			noi di as error  `"{pstd}There are less than exactly `numobs' observations that match the drop condition " `if'". No observations dropped."'
+			*Return error message
+			noi di as error  `"{pstd}There are less than exactly `nobs' observations that match the drop condition " `if'". No observations dropped."'
 			error 910
 				
-		} 
-		else if `count_match' > `numobs' {
+		}
+		*Test if the number of match is more than it is supposed to be
+		else if `count_match' > `nobs' {
 			
-			if `numobs' == 1  noi di as error  `"{pstd}There are more than exactly `numobs' observation that match the drop condition " `if'". No observations dropped."'
-			if `numobs' >  1  noi di as error  `"{pstd}There are more than exactly `numobs' observations that match the drop condition " `if'". No observations dropped."'
+			*Return error message
+			if `nobs' == 1  noi di as error  `"{pstd}There are more than exactly `nobs' observation that match the drop condition " `if'". No observations dropped."'
+			if `nobs' >  1  noi di as error  `"{pstd}There are more than exactly `nobs' observations that match the drop condition " `if'". No observations dropped."'
 			error 912
 			
 		}
-		else if `count_match' == `numobs' {
+		*Test if the number of match exactly what it is suppsed to be
+		else if `count_match' == `nobs' {
 			
+			*Return the number of obs that will be dropped
 			return scalar numtodrop	= `count_match'
 			
 		}
+		*The options above should be mutually exclusive, so this should never happen.
 		else {
-		
-			noi di as error "{pstd}The command is never supposed to reach this point, please notify the author iof the command on kbjarkefur@worldbank.org"
+			
+			*Return error message
+			noi di as error "{pstd}The command is never supposed to reach this point, please notify the author if the command on kbjarkefur@worldbank.org"
 			error 197
 		}
-	
 	
 	end 
 	
