@@ -6,7 +6,7 @@ help for {hi:iedropone}
 
 {title:Title}
 
-{phang2}{cmdab:iedropone} {hline 2} Same function as {help drop} but prevents that additional observation are unintentionally dropped
+{phang2}{cmdab:iedropone} {hline 2} Same function as {help drop} but prevents that additional observations are unintentionally dropped.
 
 {title:Syntax}
 
@@ -19,7 +19,7 @@ help for {hi:iedropone}
 {synoptset 22}{...}
 {synopthdr:options}
 {synoptline}
-{synopt :{cmdab:n:umobs(}{it:integer}{cmd:)}}Number of observations that is allowed to be dropped. Default is 1.{p_end}
+{synopt :{cmdab:n:umobs(}{it:integer}{cmd:)}}Number of observations that are allowed to be dropped. Default is 1.{p_end}
 {synopt :{cmd:zerook}}Allows that no observation is dropped.{p_end}
 {synopt :{cmdab:mvar(}{it:varname}{cmd:)}}Variable for which multiple values should be dropped. Must be used together with {cmdab:mval()}.{p_end}
 {synopt :{cmdab:mval(}{it:list of values}{cmd:)}}The list of values in {cmdab:mvar()} that should be dropped. Must be used together with {cmdab:mvar()}.{p_end}
