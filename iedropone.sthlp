@@ -49,7 +49,7 @@ help for {hi:iedropone}
 {phang}{cmdab:n:umobs(}{it:integer}{cmd:)} this allows the user to set the 
 	number of observation that should be dropped. The default is 1 but any 
 	positive integer can be used. The command throws an error if any other number
-	of observations are dropped.
+	of observations match the if condition.
 
 {phang}{cmd:zerook} allows that no observations are dropped. The default is that an error is thrown if no observations are dropped.	
 	
