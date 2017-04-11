@@ -127,8 +127,6 @@ cap	program drop	iegraph
 	
 	insheet using mainMasterDofile.txt, clear
 
-	pause
-	
 	local tmtGroupBars 	""
 	local xAxisLabels 	`"xlabel( "'
 	local legendLabels	`"lab(1 "`obsLabelControl'")"'
@@ -182,11 +180,15 @@ cap	program drop	iegraph
 		sum maxvalue 
 		local max = `r(max)'
 		
-		local magnitude = 10^(round(log(`max'),1)-2) //round up only
+		local logmax = log10(`max')
+		
+		local logmax = round(`logmax') - 1
+		
+		local tenpower = 10 ^ (`logmax')
+		
+		local up = round(`max', `tenpower')
 
-		local up = round(`max', `magnitude')
-
-		local half = (`max' - `magnitude') / 2
+		local half = (`up') / 2
 		
 		noi di "up: `up'"
 		noi di "half: `half'"
