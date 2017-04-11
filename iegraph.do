@@ -19,10 +19,10 @@ cap	program drop	iegraph
 		local varTest : list confbarsnone in varlist
 		
 		if `varTest' == 0 {
-							noi display as error "{phang} Variables defined in confbarsnone cannot be found in the graph variable list. {p_end}"
-							noi display ""
-							error 111
-							}
+					noi display as error "{phang} Variables defined in confbarsnone cannot be found in the graph variable list. {p_end}"
+					noi display ""
+					error 111
+					 }
 		
 		foreach var of local varlist{
 			cap assert inlist(`var',0,1) | missing(`var')
