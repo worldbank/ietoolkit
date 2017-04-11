@@ -1,7 +1,7 @@
 cap	program drop	iegraph
 	program define 	iegraph
 	preserve
-	syntax varlist, [noconfbars TItle(string) save(string) confbarsnone(varlist) *]
+	syntax varlist, [noconfbars TItle(string) save(string) confbarsnone(varlist) yzero *]
 	
 	mat beta_ = e(b)
 
@@ -127,6 +127,8 @@ cap	program drop	iegraph
 	
 	insheet using mainMasterDofile.txt, clear
 
+	pause
+	
 	local tmtGroupBars 	""
 	local xAxisLabels 	`"xlabel( "'
 	local legendLabels	`"lab(1 "`obsLabelControl'")"'
@@ -173,8 +175,28 @@ cap	program drop	iegraph
 		local saveOption saving("`save'", replace)
 	}
 	
-	noi di `" graph twoway `tmtGroupBars' `confIntGraph' `titleOption' `options' `legendOption' `xAxisLabels' `saveOption' title("`title'")   "'
-	graph twoway `tmtGroupBars' `confIntGraph' `titleOption' `options' `legendOption' `xAxisLabels' `saveOption' title("`title'") 
+	if "`yzero'" != "" {
+	
+		gen maxvalue = max(mean , conf_int_max)
+		
+		sum maxvalue 
+		local max = `r(max)'
+		
+		local magnitude = 10^(round(log(`max'),1)-2) //round up only
+
+		local up = round(`max', `magnitude')
+
+		local half = (`max' - `magnitude') / 2
+		
+		noi di "up: `up'"
+		noi di "half: `half'"
+			
+		local yzero_option ylabel(0(`half')`up')
+	}
+	
+	
+	noi di `" graph twoway `tmtGroupBars' `confIntGraph' `titleOption' `options' `legendOption' `xAxisLabels' `saveOption' title("`title'") `yzero_option'  "'
+	graph twoway `tmtGroupBars' `confIntGraph' `titleOption' `options' `legendOption' `xAxisLabels' `saveOption' title("`title'") `yzero_option'
 	//noi di 	`"graph twoway `tmtGroupBars' `legendOption' (scatter mean order,  msym(none)  mlabs(medium) mlabpos(10) mlabcolor(black))), xtitle("") ytitle("`e(depvar)'") `xAxisLabels' `saveOption' title("`title'")  "'
 	
 	restore
