@@ -1,7 +1,7 @@
-cap	program drop	ieimpgraph
-	program define 	ieimpgraph
+cap	program drop	iegraph
+	program define 	iegraph
 	preserve
-	syntax varlist, [noconfbars TItle(string) save(string) confbarsnone(varlist) ]
+	syntax varlist, [noconfbars TItle(string) save(string) confbarsnone(varlist) *]
 	
 	mat beta_ = e(b)
 
@@ -9,7 +9,6 @@ cap	program drop	ieimpgraph
 	//local textfile = "Mrijan"
 		
 	qui{
-		
 		if "`confbars'" 			!= "" {
 		local CONFINT_BAR 	= 0 
 		}
@@ -20,10 +19,10 @@ cap	program drop	ieimpgraph
 		local varTest : list confbarsnone in varlist
 		
 		if `varTest' == 0 {
-		noi display as error "{phang} Variables defined in confbarsnone cannot be found in the graph variable list. {p_end}"
-		noi display ""
-		error 111
-				}
+					noi display as error "{phang} Variables defined in confbarsnone cannot be found in the graph variable list. {p_end}"
+					noi display ""
+					error 111
+					 }
 		
 		foreach var of local varlist{
 			cap assert inlist(`var',0,1) | missing(`var')
@@ -162,20 +161,20 @@ cap	program drop	ieimpgraph
 	*Create the confidence interval bars
 	if `CONFINT_BAR' == 0 {
 		//local confIntGraph == `"(scatter mean order,  msym(none)  mlabs(medium) mlabpos(10) mlabcolor(black)), xtitle("") ytitle("`e(depvar)'") "'
-		local confIntGraph = `", xtitle("") ytitle("`e(depvar)'") "'
+		local confIntGraph = ""
 	} 
 		else if `CONFINT_BAR' == 1 {
-		local confIntGraph = `"(rcap conf_int_max conf_int_min order, lc(gs)) (scatter mean order,  msym(none)  mlabs(medium) mlabpos(10) mlabcolor(black)), xtitle("") ytitle("`e(depvar)'")  "'
+		local confIntGraph = `"(rcap conf_int_max conf_int_min order, lc(gs)) (scatter mean order,  msym(none)  mlabs(medium) mlabpos(10) mlabcolor(black))"'
 	}
 	
-	 
+	local titleOption `" , xtitle("") ytitle("`e(depvar)'") "'
 
 	if "`save'" != "" {
 		local saveOption saving("`save'", replace)
 	}
 	
-	noi di `" graph twoway `tmtGroupBars' `confIntGraph' `legendOption' `xAxisLabels' `saveOption' title("`title'")   "'
-	graph twoway `tmtGroupBars' `confIntGraph' `legendOption' `xAxisLabels' `saveOption' title("`title'") 
+	noi di `" graph twoway `tmtGroupBars' `confIntGraph' `titleOption' `options' `legendOption' `xAxisLabels' `saveOption' title("`title'")   "'
+	graph twoway `tmtGroupBars' `confIntGraph' `titleOption' `options' `legendOption' `xAxisLabels' `saveOption' title("`title'") 
 	//noi di 	`"graph twoway `tmtGroupBars' `legendOption' (scatter mean order,  msym(none)  mlabs(medium) mlabpos(10) mlabcolor(black))), xtitle("") ytitle("`e(depvar)'") `xAxisLabels' `saveOption' title("`title'")  "'
 	
 	restore

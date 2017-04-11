@@ -1,6 +1,6 @@
 ##Todo for ieimpgraph
 ###Input testing
-- [ ] Test that there is a regression result in memory
+- [-] Test that there is a regression result in memory. 
 - Test dummies
   - [ ] Test basic case. Any number of dummies. No obs has value 1 in more than one dummy. Some obs (controls) has 0 in all dummies.
   - [ ] Test diff-diff. Exactly three dummies. One of the dummies is a product of the other two. There is at least one (or some) observations in each combination of the dummies
