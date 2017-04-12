@@ -2,7 +2,6 @@ cap	program drop	iegraph
 	program define 	iegraph
 	preserve
 	syntax varlist, [noconfbars TItle(string) save(string) confbarsnone(varlist) yzero *]
-	
 	mat beta_ = e(b)
 
 	local counter = 0
@@ -33,7 +32,7 @@ cap	program drop	iegraph
 					}
 				else {
 					}
-					
+						
 		local counter = `counter' + 1
 		di `counter'
 		
@@ -188,12 +187,12 @@ cap	program drop	iegraph
 		
 		local up = `tenpower' * ceil(`max' / `tenpower')
 
-		local half = (`up') / 2
+		local quarter = (`up') / 4
 		
 		noi di "up: `up'"
-		noi di "half: `half'"
+		noi di "quarter: `quarter'"
 			
-		local yzero_option ylabel(0(`half')`up')
+		local yzero_option ylabel(0(`quarter')`up')
 	}
 	
 	
