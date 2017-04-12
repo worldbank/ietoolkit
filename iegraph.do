@@ -186,7 +186,7 @@ cap	program drop	iegraph
 		
 		local tenpower = 10 ^ (`logmax')
 		
-		local up = round(`max', `tenpower')
+		local up = `tenpower' * ceil(`max' / `tenpower')
 
 		local half = (`up') / 2
 		
