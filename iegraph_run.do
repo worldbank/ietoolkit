@@ -39,16 +39,16 @@
 	tab rep78, gen(d_)
 	
 	*Run the impact regression
-	reg price  d_2 d_3 d_4 d_5 weight length gear_ratio
+	reg price	d_2 d_3 weight length gear_ratio
 	*Create the graph
-	iegraph d_2 d_3,  title("Treatment effect on price") save("$testOutput/Graph2.gph") yzero grey
-	pause
-	iegraph d_2 d_3 d_4,  title("Treatment effect on price") save("$testOutput/Graph3.gph") yzero grey
-	pause
-	iegraph d_2 d_3 d_4 d_5,  title("Treatment effect on price") save("$testOutput/Graph4.gph") yzero note("Stata Command iegraph. copyright KBjark") grey
-	pause
-	iegraph d_2 d_3 d_4 d_5,   title("Treatment effect on price") save("$testOutput/Graph2.gph") yzero grey
-	pause
+	iegraph 	d_2 d_3,  title("Treatment effect on price") save("$testOutput/Graph2.gph") yzero
+	
+	reg price	d_2 d_3 d_4  weight length gear_ratio
+	iegraph 	d_2 d_3 d_4, title("Treatment effect") save("$testOutput/Graph4.gph") yzero note("Stata iegraph command")
+	
+	reg price	d_2 d_3 d_4 d_5  weight length gear_ratio
+	iegraph 	d_2 d_3 d_4 d_5, noconfbars title("Treatment effect on price") save("$testOutput/Graph2.gph") yzero
+
 
 
 
