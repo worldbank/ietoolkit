@@ -2,12 +2,10 @@ cap	program drop	iegraph
 	program define 	iegraph
 	preserve
 	syntax varlist, [noconfbars TItle(string) save(string) confbarsnone(varlist) yzero *]
-	
 	mat beta_ = e(b)
 
 	local counter = 0
 	//local textfile = "Mrijan"
-		
 	qui{
 		if "`confbars'" 			!= "" {
 		local CONFINT_BAR 	= 0 
@@ -33,7 +31,7 @@ cap	program drop	iegraph
 					}
 				else {
 					}
-					
+						
 		local counter = `counter' + 1
 		di `counter'
 		
@@ -49,6 +47,8 @@ cap	program drop	iegraph
 
 	} 
 	
+	//noi di `"iegraph `varlist', `noconfbars' title(`title') save(`save') `confbarsnone' `yzero' `anything'"'	
+
 	local count: word count `varlist' 
 	local graphCount = `count' + 1
 	//tokenize "`varlist'"
@@ -127,8 +127,6 @@ cap	program drop	iegraph
 	
 	insheet using mainMasterDofile.txt, clear
 
-	pause
-	
 	local tmtGroupBars 	""
 	local xAxisLabels 	`"xlabel( "'
 	local legendLabels	`"lab(1 "`obsLabelControl'")"'
@@ -182,21 +180,25 @@ cap	program drop	iegraph
 		sum maxvalue 
 		local max = `r(max)'
 		
-		local magnitude = 10^(round(log(`max'),1)-2) //round up only
+		local logmax = log10(`max')
+		
+		local logmax = round(`logmax') - 1
+		
+		local tenpower = 10 ^ (`logmax')
+		
+		local up = `tenpower' * ceil(`max' / `tenpower')
 
-		local up = round(`max', `magnitude')
-
-		local half = (`max' - `magnitude') / 2
+		local quarter = (`up') / 4
 		
 		noi di "up: `up'"
-		noi di "half: `half'"
+		noi di "quarter: `quarter'"
 			
-		local yzero_option ylabel(0(`half')`up')
+		local yzero_option ylabel(0(`quarter')`up')
 	}
 	
 	
 	noi di `" graph twoway `tmtGroupBars' `confIntGraph' `titleOption' `options' `legendOption' `xAxisLabels' `saveOption' title("`title'") `yzero_option'  "'
-	graph twoway `tmtGroupBars' `confIntGraph' `titleOption' `options' `legendOption' `xAxisLabels' `saveOption' title("`title'") `yzero_option'
+	graph twoway `tmtGroupBars' `confIntGraph' `titleOption'  `legendOption' `xAxisLabels' `saveOption' title("`title'") `yzero_option' `options'
 	//noi di 	`"graph twoway `tmtGroupBars' `legendOption' (scatter mean order,  msym(none)  mlabs(medium) mlabpos(10) mlabcolor(black))), xtitle("") ytitle("`e(depvar)'") `xAxisLabels' `saveOption' title("`title'")  "'
 	
 	restore

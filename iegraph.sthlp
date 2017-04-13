@@ -14,41 +14,45 @@ help for {hi:iegraph}
 {cmdab:iegraph} {varlist} 
 , [{cmd:noconfbars} {cmdab:TI:tle(}{it:string}{cmd:)}
 {cmdab:save(}{it:string}{cmd:)} {cmdab:confbarsnone(}{it:varlist}{cmd:)}
+{it: Graph Options}
 ]
 
 {marker opts}{...}
 {synoptset 22}{...}
 {synopthdr:options}
 {synoptline}
-{synopt :{cmd:noconfbars}}Removes the confidence interval bars from graphs for all treatments.{p_end}
-{synopt :{cmdab:TI:tle(}{it:string}{cmd:)}}Manually sets the title of the graph.{p_end}
-{synopt :{cmdab:save(}{it:string}{cmd:)}}Sets the filename and the directory to which the graph will be set.{p_end}
-{synopt :{cmdab:confbarsnone(}{it:varlist}{cmd:)}}Removes confidence interval bars from only the {it:varlist} listed.{p_end}
+{synopt :{cmd:noconfbars}} Removes the confidence interval bars from graphs for all treatments.{p_end}
+{synopt :{cmdab:TI:tle(}{it:string}{cmd:)}} Manually sets the title of the graph.{p_end}
+{synopt :{cmdab:save(}{it:string}{cmd:)}} Sets the filename and the directory to which the graph will be set.{p_end}
+{synopt :{cmdab:confbarsnone(}{it:varlist}{cmd:)}} Removes confidence interval bars from only the {it:varlist} listed.{p_end}
+{synopt :{cmdab:yzero}} Forces y-axis on the graph to start at 0.{p_end}
+{synopt :{cmdab: Graph Options}} Options that can be used with normal graph commands can also be used. See example 2 for details.{p_end}
 {synoptline}
 
 {marker desc}
 {title:Description}
 
-{pstd}{cmdab:iegraph}This command creates bar graphs on the average treatment effects
+{pstd}{cmdab:iegraph} This command creates bar graphs on the average treatment effects
 	for multiple treatments in a impact evaluation project. The command creates bar
 	graphs for the mean of the control group and for the various treatment groups. {p_end}
 
 {marker optslong}
 {title:Options}
 
-{phang}{cmd:noconfbars}Removes the confidence interval bars from graphs for all 
+{phang}{cmd:noconfbars} Removes the confidence interval bars from graphs for all 
 	treatments.{p_end}
 
-{phang}{cmdab:TI:tle(}{it:string}{cmd:)}Manually sets the title of the graph.{p_end}
+{phang}{cmdab:TI:tle(}{it:string}{cmd:)} Manually sets the title of the graph.{p_end}
 
-{phang}{cmdab:save(}{it:string}{cmd:)}Sets the filename and the directory to which
+{phang}{cmdab:save(}{it:string}{cmd:)} Sets the filename and the directory to which
 	the graph will be set.{p_end}
 
-{phang}{cmdab:confbarsnone(}{it:varlist}{cmd:)}Removes confidence interval bars 
+{phang}{cmdab:confbarsnone(}{it:varlist}{cmd:)} Removes confidence interval bars 
 	from only the {it:varlist} listed. The remaining variables in the graphs which 
 	have not been specified in {cmdab:confbarsnone} will still have the confidence
 	interval bars. {p_end}
 
+{phang}{cmdab:yzero} Manually sets the y-axis of the graph to start at zero instead of the Stata default.{p_end}
 
 
 {title:Examples}
@@ -63,7 +67,7 @@ help for {hi:iegraph}
 
 {pstd} {hi:Example 2.}
 
-{pmore}{inp:iematch if {it:baseline} == 1  , grpdummy({it:tmt}) matchvar({it:p_hat}) maxdiff(.001)}
+{pmore}{inp:iegraph treatment, noconfbars title("Treatment effect on price") save("$Output/Graph1.gph") xlabel(,angle(45)) ylabel(minmax)}
 
 {pmore}In the example above, the observations with value 1 in {it:tmt} will be matched
 	towards the nearest, in terms of {it:p_hat}, observations with value 0 in {it:tmt} as

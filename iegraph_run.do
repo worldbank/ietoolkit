@@ -24,8 +24,8 @@
 	*Run the impact regression
 	reg price  Treatment
 	*Create the graph
-	iegraph Treatment, noconfbars title("Treatment effect on price") save("$testOutput/Graph1.gph")
-	iegraph Treatment, title("Treatment effect on price") save("$testOutput/Graph1.gph")
+	iegraph Treatment, noconfbars title("Treatment effect on price") save("$testOutput/Graph1.gph") yzero
+	iegraph Treatment, title("Treatment effect on price") save("$testOutput/Graph1.gph") yzero
 		
 	**********************
 	*Graph 2 - multiple treatment	
@@ -37,10 +37,10 @@
 	*Run the impact regression
 	reg price  d_2 d_3 d_4 d_5 weight length gear_ratio
 	*Create the graph
-	iegraph d_2 d_3,  title("Treatment effect on price") save("$testOutput/Graph2.gph")
-	iegraph d_2 d_3 d_4,  title("Treatment effect on price") save("$testOutput/Graph3.gph")
-	iegraph d_2 d_3 d_4 d_5,  title("Treatment effect on price") save("$testOutput/Graph4.gph")
-	iegraph d_2 d_3 d_4 d_5,  noconfbars title("Treatment effect on price") save("$testOutput/Graph2.gph")
+	iegraph d_2 d_3,  title("Treatment effect on price") save("$testOutput/Graph2.gph") yzero
+	iegraph d_2 d_3 d_4,  title("Treatment effect on price") save("$testOutput/Graph3.gph") yzero
+	iegraph d_2 d_3 d_4 d_5,  title("Treatment effect on price") save("$testOutput/Graph4.gph") yzero note(Stata Command iegraph. copyright KBjark)
+	iegraph d_2 d_3 d_4 d_5,  noconfbars title("Treatment effect on price") save("$testOutput/Graph2.gph") yzero
 
 
 
