@@ -6,7 +6,6 @@ cap	program drop	iegraph
 
 	local counter = 0
 	//local textfile = "Mrijan"
-		
 	qui{
 		if "`confbars'" 			!= "" {
 		local CONFINT_BAR 	= 0 
@@ -48,6 +47,8 @@ cap	program drop	iegraph
 
 	} 
 	
+	//noi di `"iegraph `varlist', `noconfbars' title(`title') save(`save') `confbarsnone' `yzero' `anything'"'	
+
 	local count: word count `varlist' 
 	local graphCount = `count' + 1
 	//tokenize "`varlist'"
@@ -197,7 +198,7 @@ cap	program drop	iegraph
 	
 	
 	noi di `" graph twoway `tmtGroupBars' `confIntGraph' `titleOption' `options' `legendOption' `xAxisLabels' `saveOption' title("`title'") `yzero_option'  "'
-	graph twoway `tmtGroupBars' `confIntGraph' `titleOption' `options' `legendOption' `xAxisLabels' `saveOption' title("`title'") `yzero_option'
+	graph twoway `tmtGroupBars' `confIntGraph' `titleOption'  `legendOption' `xAxisLabels' `saveOption' title("`title'") `yzero_option' `options'
 	//noi di 	`"graph twoway `tmtGroupBars' `legendOption' (scatter mean order,  msym(none)  mlabs(medium) mlabpos(10) mlabcolor(black))), xtitle("") ytitle("`e(depvar)'") `xAxisLabels' `saveOption' title("`title'")  "'
 	
 	restore
