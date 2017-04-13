@@ -67,7 +67,7 @@ help for {hi:iegraph}
 
 {pstd} {hi:Example 2.}
 
-{pmore}{inp:iematch if {it:baseline} == 1  , grpdummy({it:tmt}) matchvar({it:p_hat}) maxdiff(.001)}
+{pmore}{inp:iegraph treatment, noconfbars title("Treatment effect on price") save("$Output/Graph1.gph") xlabel(,angle(45)) ylabel(minmax)}
 
 {pmore}In the example above, the observations with value 1 in {it:tmt} will be matched
 	towards the nearest, in terms of {it:p_hat}, observations with value 0 in {it:tmt} as
