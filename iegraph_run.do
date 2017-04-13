@@ -14,8 +14,6 @@
 	*Load the command
 	do "$ietoolkit\iegraph.do"
 
-	pause on
-	
 	**********************
 	*Graph 1 - single treatment
 	
