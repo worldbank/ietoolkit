@@ -49,8 +49,8 @@ help for {hi:iegraph}
 	arms than that may result in a still correct but perhaps cluttered  graph.
 	
 {pstd}{bf:Model 2: Difference-in-Differneces}{break}Another typical regression model in impact 
-	evaluations are difference-in-difference (DD) models with two treatment arms (treatment 
-	and control) and two time periods. If the DD regression is specified as having the 
+	evaluations are difference-in-difference (Diff-in-Diff) models with two treatment arms (treatment 
+	and control) and two time periods. If the Diff-in-Diff regression is specified as having the 
 	outcome variable as the dependent variable and three dummy variables (time, treatment 
 	and timeXtreatment) as the independent varaibles, then this command will produce a nice 
 	graph. Controls, treatment effects etc. may be added to the regression model. See especially example 3.
@@ -90,25 +90,62 @@ help for {hi:iegraph}
 
 {pstd} {hi:Example 1.}
 
-{pmore} {inp:regress outcomevar treatment_dummy1 treatment_dummy2}{break}
-		{inp:iegraph treatment_dummy1 treatment_dummy2 , title({it:string})}
+{pmore} {inp:regress} {it:outcomevar treatment_dummy}{break}
+		{inp:iegraph} {it:treatment_dummy} , {inp:title({it:"Treatment Effect on Outcome"})}
 
-{pmore}In the example above, graphs comparing the effects of {it:treatmentVar1} and 
-		{it:treatmentVar2} to the mean of the control will be generated. The option 
-		title({it:string}) gives the graph the title that the user puts in the string.
+{pmore}In the example above, there is only two treatment arms (treatment and 
+		control). {it:treatment_dummy} has a 1 for all treatment observations and 
+		a 0 for all control observations. The graph will have one bar for control and 
+		it shows the mean for {it:outcomevar} for all observations in control. The 
+		second bar in the graph will be the sum of that mean and the coefficient 
+		for {it:treatment_dummy} in the regression. The graph will also have the 
+		title: Treatment Effect on Outcome.
 
 {pstd} {hi:Example 2.}
 
-{pmore}{inp:iegraph treatment, noconfbars title("Treatment effect on price") save("$Output/Graph1.gph") xlabel(,angle(45)) ylabel(minmax)}
+{pmore} {inp:regress} {it:income tmt_1 tmt_2 age education}{inp:, cluster(}{it:district}{inp:)}{break}
+		{inp:iegraph} {it:tmt_1 tmt_2}{inp:, noconfbars yzero title({it:"Treatment effect on income"}) }
 
-{pmore}In the example above, the observations with value 1 in {it:tmt} will be matched
-	towards the nearest, in terms of {it:p_hat}, observations with value 0 in {it:tmt} as
-	long as the difference in {it:p_hat} is less than .001. Only observations that has the
-	value 1 in variable {it:baseline} will be included in the match.
+{pmore}In the example above, the treatment effect on income in reserached. There 
+		are three treatment arms; control, treatment 1 ({it:tmt_1}) and treatment
+		2 ({it:tmt_2}). It is important that no observation has the value 1 in 
+		both {it:tmt_1} and {it:tmt_2} (i.e. no observation is in more than one
+		treatment) and some observations must have the value 0 in both {it:tmt_1} 
+		and {it:tmt_2} (i.e. control observations). The variables {it:age} and 
+		{it:education} are covariates (control variables) and is not included 
+		in {cmd:iegraph}. {inp:noconfbars} omitts the confidence intervall bars
+		, and {inp:yzero} sets the y-axis to start at 0.
 
+{pstd} {hi:Example 3.}
+
+{pmore} {inp:regress} {it:chld_wght time treat timeXtreat}{break}
+		{inp:iegraph} {it:time treat timeXtreat} {inp:, title({it:"Treatment effect on Child Weight (Diff-in-Diff)"})}
+		
+{pmore}In the example above, the data set is a panel data set with two time 
+		periods and the regression estimates the treatment effect on child weight
+		using a Difference-in-Differences model.
+		The dummy variable {it:time} indicates if it is time period 0 or 1.
+		The dummy variable {it:treat} indicates if the observation is treatment 
+		or control. {it:timeXtreat} is the interaction term of {it:time} 
+		and {it:treat}. This the standard way to set up a Difference-in-Differences
+		regression model.
+
+{pstd} {hi:Example 4.}
+
+{pmore} {inp:regress} {it:harvest T1 T2 T3 } {break}
+		{inp:iegraph} {it:T1 T2 T3} {inp:, title({it:"Treatment effect on harvest"}) 
+		xlabel(,angle(45)) yzero ylabel(minmax) save({it:"$Output/Graph1.gph"})}
+		
+{pmore}The example above shows how to save a graph to disk. It also shows that 
+	most two-way graph options can be used. In this example the {cmd:iegraph} 
+	option {cdm:yzero} conflicts with the two-way option {cmd:ylabel(minmax)}. 
+	In such a case the user specified option takes presidence over {cmd:iegraph} 
+	options like {cdm:yzero}.
+		
+	
 {title:Acknowledgements}
 
-{phang}I would like to acknowledge the help in testing and proofreading I received in relation to this command and help file from (in alphabetic order):{p_end}
+{phang}We would like to acknowledge the help in testing and proofreading we received in relation to this command and help file from (in alphabetic order):{p_end}
 {pmore}{break}
 
 {title:Author}
