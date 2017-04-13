@@ -126,7 +126,7 @@ cap	program drop	iegraph
 	*************************************/
 	
 	insheet using mainMasterDofile.txt, clear
-
+		
 	local tmtGroupBars 	""
 	local xAxisLabels 	`"xlabel( "'
 	local legendLabels	`"lab(1 "`obsLabelControl'")"'
@@ -255,19 +255,17 @@ cap	program drop	greyPicker
 	
 	args groupCount totalNumGroups 
 	
-	local first3 "0 0 0"
-	
 	if `groupCount' == 1 {
 		
 		return local color "black"
 	}
-	else if `groupCount' == 2 {
+	else if `groupCount' == 2 & `totalNumGroups' <= 3 {
 		
-		return local color "white"
+		return local color "gs14"
 	}
 	else {
 	
-		local grayscale =  round( `groupCount' * (100 / `totalNumGroups' )) 
+		local grayscale =  round( (`groupCount'-1) * (100 / (`totalNumGroups'-1) )) 
 	
 		return local color "`grayscale' `grayscale' `grayscale' `grayscale'"
 	}
