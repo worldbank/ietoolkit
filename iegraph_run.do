@@ -51,7 +51,7 @@
 	iegraph 	d_2 d_3 d_4 d_5, noconfbars title("Treatment effect on price") save("$testOutput/Graph2.gph") yzero
 
 	iegraph d_2 d_3,  title("Treatment effect on price") save("$testOutput/Graph2.gph") yzero
-	iegraph d_2 d_3 d_4,  title("Treatment effect") save("$testOutput/Graph4.gph") yzero note(Stata Command iegraph. copyright KBjark)
+	iegraph d_2 d_3 d_4,  title("Treatment effect") save("$testOutput/Graph4.gph") yzero note(Stata iegraph command)
 	iegraph d_2 d_3 d_4 d_5,  noconfbars title("Treatment effect on price") save("$testOutput/Graph2.gph") yzero
 
 
