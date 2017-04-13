@@ -1,7 +1,7 @@
 cap	program drop	iegraph
 	program define 	iegraph
 	preserve
-	syntax varlist, [noconfbars TItle(string) save(string) confbarsnone(varlist) yzero *]
+	syntax varlist, [noconfbars TItle(string) save(string) confbarsnone(varlist) GREYscale yzero *]
 	mat beta_ = e(b)
 
 	local counter = 0
@@ -137,9 +137,14 @@ cap	program drop	iegraph
 		************
 		*Create the bar for this group
 		
-		colorPicker `tmtGroupCount' `graphCount' 
+		if "`greyscale'" == "" {
+			colorPicker `tmtGroupCount' `graphCount' 
+		}
+		else {
+			greyPicker `tmtGroupCount' `graphCount' 
+		}
 		
-		local tmtGroupBars `"`tmtGroupBars' (bar mean order if order == `tmtGroupCount', color("`r(color)'")) "' 
+		local tmtGroupBars `"`tmtGroupBars' (bar mean order if order == `tmtGroupCount', color("`r(color)'") lcolor(black) ) "' 
 		
 		************
 		*Create labels etc. for this group	
@@ -240,6 +245,31 @@ cap	program drop	colorPicker
 		if `colourNum' == 4 return local color "171 217 233"
 		if `colourNum' == 0 return local color "43 123 182"
 		
+	}
+	
+end
+
+
+cap	program drop	greyPicker
+	program define 	greyPicker , rclass
+	
+	args groupCount totalNumGroups 
+	
+	local first3 "0 0 0"
+	
+	if `groupCount' == 1 {
+		
+		return local color "black"
+	}
+	else if `groupCount' == 2 {
+		
+		return local color "white"
+	}
+	else {
+	
+		local grayscale =  round( `groupCount' * (100 / `totalNumGroups' )) 
+	
+		return local color "`grayscale' `grayscale' `grayscale' `grayscale'"
 	}
 	
 end
