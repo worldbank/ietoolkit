@@ -35,13 +35,13 @@ help for {hi:iedropone}
 	
 {pstd}{cmdab:iedropone} checks that no more or fewer observations than intended are 
 	dropped. For example, in the case that one observation has been identified to
-	be dropped, then we want to make sure that when re-running the do-file only 
-	that observations is dropped even if more observations are added to that data 
+	be dropped, then we want to make sure that when re-running the do-file  
+	no other observations are dropped even if more observations are added to that data 
 	set or changed in any other way. 
 
-{pstd}While the default is 1, {cmdab:iedropone} allows the user to set another number
-	of observation that should exactly be dropped. It also allows for dropping an exact
-	number of observations for multiple values in a variable.
+{pstd}While the default is 1, {cmdab:iedropone} allows the user to set any another number
+	of observation that should be dropped. If the number of observations that fit the 
+	drop condition is differnt, then the command will throw an error. 
 
 {marker optslong}
 {title:Options}
@@ -49,16 +49,17 @@ help for {hi:iedropone}
 {phang}{cmdab:n:umobs(}{it:integer}{cmd:)} this allows the user to set the 
 	number of observation that should be dropped. The default is 1 but any 
 	positive integer can be used. The command throws an error if any other number
-	of observations match the if condition.
+	of observations match the drop condition.
 
-{phang}{cmd:zerook} allows that no observations are dropped. The default is that an error is thrown if no observations are dropped.	
+{phang}{cmd:zerook} allows that no observations are dropped. The default is that 
+	an error is thrown if no observations are dropped.
 	
 {phang}{cmdab:mvar(}{it:varname}{cmd:)} and {cmdab:mval(}{it:list of values}{cmd:)} allows 
-	that multiple values in one variable are dropped. These two option must be used together. 
+	that multiple values in one variable are dropped. These two options must be used together. 
 	If the variable in {cmd:mvar()} is a string variable and some of the values in {cmd:mval()} 
-	includes spaces, then all values in {cmd:mval()} must be listed exactly as in example 4 below. The 
-	command loops over the values in {cmd:mval()} and drop the observations that has the 
-	looped value in {cmd:mvar()} and satisfies the {it:if} condition. For example:{p_end}
+	includes spaces, then the list of values in {cmd:mval()} must be listed exactly as in example 4 below. The 
+	command loops over the values in {cmd:mval()} and drops the observations that 
+	satisfy the {it:if} condition and each of the value in {cmd:mval()}. For example:{p_end}
 	
 {pmore}{inp:iedropone if village == 100 , mvar(household_id) mval(21 22 23)}
 	
@@ -85,7 +86,7 @@ help for {hi:iedropone}
 	if someone makes a change to the ID. Otherwise we would unknowingly keep this 
 	incorrect observation in our data set.
 	
-	Similarly, if a new observation is added that is the correct household with ID 712047, 
+{pmore}Similarly, if a new observation is added that is the correct household with ID 712047, 
 	then both observation would be dropped without warning if we would have 
 	used {inp:drop if household_id == 712047}. {cmd:iedropone} will make sure that 
 	our drop condition are applied as intended even if the data set is changed.
