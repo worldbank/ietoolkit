@@ -41,7 +41,7 @@ help for {hi:iedropone}
 
 {pstd}While the default is 1, {cmdab:iedropone} allows the user to set any another number
 	of observation that should be dropped. If the number of observations that fit the 
-	drop condition is differnt, then the command will throw an error. 
+	drop condition is different, then the command will throw an error. 
 
 {marker optslong}
 {title:Options}
@@ -69,7 +69,7 @@ help for {hi:iedropone}
 
 {pmore}The default is that exactly one observation should be dropped for each 
 	value in {cmd:mval()} unless {cmd:numobs()} or {cmd:zerook} is used. If those 
-	options are used then, then they apply to all values in {cmd:mval()} seperately.
+	options are used then, then they apply to all values in {cmd:mval()} separately.
 
 {phang}{cmdab:mval(}{it:list of values}{cmd:)}, see {cmdab:mvar(}{it:varname}{cmd:)} above.
 	
@@ -96,7 +96,7 @@ help for {hi:iedropone}
 
 {pmore}{inp:iedropone if household_id == 712047 & household_head == "Bob Smith"}
 
-{pmore}Let's say we have added a new houshold with the ID 712047. In order to 
+{pmore}Let's say we have added a new household  with the ID 712047. In order to 
 	drop only one of those observations we must expand the if condition to 
 	indicate which one of them we want to drop.
 	
@@ -104,7 +104,7 @@ help for {hi:iedropone}
 
 {pmore}{inp:iedropone if household_id == 712047, numobs(2)}
 
-{pmore}Let's say we added a new houshold with the ID 712047 but we want to drop 
+{pmore}Let's say we added a new household  with the ID 712047 but we want to drop 
 	exactly both of them, then we can use the option {cmd:numobs()} like above. 
 	The command will now throw an error if not exactly two observations have the 
 	household ID 712047.
@@ -129,7 +129,7 @@ help for {hi:iedropone}
 {phang}Kristoffer Bjarkefur, The World Bank, DECIE
 
 {phang}Please send bug-reports, suggestions and requests for clarifications
-		 writing "ietools iedropone" in the subject line to:{break}
+		 writing "ietoolkit iedropone" in the subject line to:{break}
 		 kbjarkefur@worldbank.org
 
 {phang}You can also see the code, make comments to the code, see the version
