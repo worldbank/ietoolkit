@@ -155,7 +155,7 @@ help for {hi:iegraph}
 {phang}Kristoffer Bjarkefur & Mrijan Rimal, The World Bank, DECIE
 
 {phang}Please send bug-reports, suggestions and requests for clarifications
-		 writing "ietools iegraph" in the subject line to:{break}
+		 writing "ietoolkit iegraph" in the subject line to:{break}
 		 kbjarkefur@worldbank.org
 
 {phang}You can also see the code, make comments to the code, see the version
