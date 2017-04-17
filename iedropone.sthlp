@@ -6,7 +6,9 @@ help for {hi:iedropone}
 
 {title:Title}
 
-{phang2}{cmdab:iedropone} {hline 2} Same function as {help drop} but prevents that additional observations are unintentionally dropped. See {help iedropone##examples:examples below}.
+{phang2}{cmdab:iedropone} {hline 2} Same function as {help drop} but prevents 
+	that additional observations are unintentionally dropped. 
+	See {help iedropone##examples:examples below}.
 
 {title:Syntax}
 
@@ -30,7 +32,7 @@ help for {hi:iedropone}
 
 {pstd}This commands might be easier to understand by following
 	the {help iedropone##examples:examples below} before reading the 
-	description or the eplinations of the options.
+	description or the explanations of the options.
 
 {pstd}{cmdab:iedropone} has the identical purpose as {help drop} when dropping 
 	observations. However, {cmdab:iedropone} safeguards that no additional 
