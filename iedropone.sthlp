@@ -6,7 +6,7 @@ help for {hi:iedropone}
 
 {title:Title}
 
-{phang2}{cmdab:iedropone} {hline 2} Same function as {help drop} but prevents that additional observation are unintentionally dropped
+{phang2}{cmdab:iedropone} {hline 2} Same function as {help drop} but prevents that additional observation are unintentionally dropped. See {help iedropone##examples:examples below}.
 
 {title:Syntax}
 
@@ -27,6 +27,10 @@ help for {hi:iedropone}
 
 {marker desc}
 {title:Description}
+
+{pstd}This commands might be easier to understand by following
+	the {help iedropone##examples:examples below} before reading the 
+	description or the eplinations of the options.
 
 {pstd}{cmdab:iedropone} has the identical purpose as {help drop} when dropping 
 	observations. However, {cmdab:iedropone} safeguards that no additional 
@@ -72,7 +76,8 @@ help for {hi:iedropone}
 	options are used then, then they apply to all values in {cmd:mval()} separately.
 
 {phang}{cmdab:mval(}{it:list of values}{cmd:)}, see {cmdab:mvar(}{it:varname}{cmd:)} above.
-	
+
+{marker examples}	
 {title:Examples}
 
 {pstd} {hi:Example 1.}
