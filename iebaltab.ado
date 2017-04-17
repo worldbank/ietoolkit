@@ -722,6 +722,14 @@ qui {
 					noi display as error "{phang}The file format specified in savetex(`savetex') is other than .tex or .txt. Only those two formats are allowed. If no format is specified .tex is the default.{p_end}"
 					error 198
 				}
+				
+				if `CAPTION_USED' {
+				
+				* If there's an underscore in the caption, make sure it will appear as such.
+				local texcaption = subinstr("`texcaption'", "_", "\_",.)
+				local texcaption = subinstr("`texcaption'", "\\_", "\_",.)		// Just in case the user had already thought of adding the bar
+				
+				}
 			}
 			
 		}
@@ -746,6 +754,10 @@ qui {
 			
 			* Tex label must be a single word
 			if `LABEL_USED' {
+			
+				* If there's an underscore in the caption, make sure it will appear as such.
+				local texlabel = subinstr("`texlabel'", "_", "\_",.)
+				local texlabel = subinstr("`texlabel'", "\\_", "\_",.)		// Just in case the user had already thought of adding the bar
 			
 				local label_words : word count `texlabel'
 				
@@ -821,7 +833,7 @@ qui {
 			*If index is not zero then manual label is defined, use it
 			if `grpLabelPos' != 0 {
 
-				*Getting the manually defiend label corresponding to this code
+				*Getting the manually defined label corresponding to this code
 				local 	group_label : word `grpLabelPos' of `grpLabelLables'
 				
 				*Storing the label to be used for this group code.
@@ -855,7 +867,7 @@ qui {
 	/***********************************************
 	************************************************/
 		
-		*Manage labels to be used as rowtitels
+		*Manage labels to be used as rowtitles
 
 	/*************************************************
 	************************************************/
@@ -953,6 +965,10 @@ qui {
 			local groupLabel : word `groupOrderNum' of `grpLabels_final'
 			local groupCode  : word `groupOrderNum' of `ORDER_OF_GROUPS'
 			
+			* Make sure tex names are displayed correctly
+			local texGroupLabel = subinstr("`groupLabel'", "_", "\_",.)
+			local texGroupLabel = subinstr("`texGroupLabel'", "\\_", "\_",.)	// Just in case the user had already thought of adding the bar
+						
 			*Prepare a row to store onenrow values for each group
 			if `ONENROW_USED' == 1 local onenrow_`groupOrderNum' ""
 	
@@ -966,8 +982,9 @@ qui {
 				local titlerow2 `"`titlerow2' _tab ""  _tab "`groupLabel'"   	   "'
 				local titlerow3 `"`titlerow3' _tab "N" _tab "Mean/`variance_type'" "'
 				
+				
 				local texrow1 	`"`texrow1' " & \multicolumn{2}{c}{(`groupOrderNum')}" "'
-				local texrow2 	`"`texrow2' " & \multicolumn{2}{c}{`groupLabel'}" 	   "'
+				local texrow2 	`"`texrow2' " & \multicolumn{2}{c}{`texGroupLabel'}"   "'
 				local texrow3 	`"`texrow3' " & N & Mean/`variance_type'" 			   "'
 			
 			}
@@ -978,7 +995,7 @@ qui {
 				local titlerow3 `"`titlerow3' _tab "Mean/`variance_type'" "'
 				
 				local texrow1 	`"`texrow1' " & (`groupOrderNum') "   "'
-				local texrow2 	`"`texrow2' " & `groupLabel'"   	  "'
+				local texrow2 	`"`texrow2' " & `texGroupLabel'"   	  "'
 				local texrow3 	`"`texrow3' " & Mean/`variance_type'" "'
 				
 			}
@@ -998,6 +1015,10 @@ qui {
 			
 			local tot_label Total
 			if `TOTALLABEL_USED' local tot_label `totallabel'
+			
+			* Make sure tex names are displayed correctly
+			local tex_tot_label = subinstr("`tot_label'", "_", "\_",.)
+			local tex_tot_label = subinstr("`tex_tot_label'", "\\_", "\_",.)	// Just in case the user had already thought of adding the bar
 
 			*Create one more column for N if N is displayesd in column instead of row
 			if `ONENROW_USED' == 0 {
@@ -1007,7 +1028,7 @@ qui {
 				local titlerow3 `"`titlerow3' _tab "N"	_tab "Mean/`variance_type'" "'
 				
 				local texrow1  	`"`texrow1' " & \multicolumn{2}{c}{(`totalColNumber')}" "'
-				local texrow2  	`"`texrow2' " & \multicolumn{2}{c}{`tot_label'}" 		"'
+				local texrow2  	`"`texrow2' " & \multicolumn{2}{c}{`tex_tot_label'}" 	"'
 				local texrow3  	`"`texrow3' " & N & Mean/`variance_type'" 				"'
 			}
 			
@@ -1018,7 +1039,7 @@ qui {
 				local titlerow3 `"`titlerow3' _tab "Mean/`variance_type'" "'	
 				
 				local texrow1  	`"`texrow1' & (`totalColNumber') "	"'
-				local texrow2  	`"`texrow2' & `tot_label'" 			"'
+				local texrow2  	`"`texrow2' & `tex_tot_label'" 		"'
 				local texrow3  	`"`texrow3' & Mean/`variance_type'" "'	
 			
 			}
@@ -1268,7 +1289,11 @@ qui {
 			local tableRowUp `""`row_label'""' 
 			local tableRowDo `" "' 
 			
-			local texRowUp `""`row_label'""' 
+			*Make sure underscores in variable labels are displayed correctly
+			local texrow_label = subinstr("`row_label'", "_", "\_",.)
+			local texrow_label = subinstr("`texrow_label'", "\\_", "\_",.)		// Just in case the user had already thought of adding the bar
+			
+			local texRowUp `""`texrow_label'""' 
 			local texRowDo `" "' 
 			
 			
