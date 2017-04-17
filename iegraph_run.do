@@ -26,11 +26,8 @@
 	*Run the impact regression
 	reg price  Treatment
 	*Create the graph
-	iegraph Treatment, noconfbars title("Treatment effect on price")  save("$testOutput/Graph1.gph") yzero grey
-	pause
-	iegraph Treatment, title("Treatment effect on price") save("$testOutput/Graph1.gph") yzero grey
-	pause
-		
+	iegraph Treatment, noconfbars title("Treatment effect on price")  save("$testOutput/Graph1.gph") yzero 
+	iegraph Treatment, title("Treatment effect on price") save("$testOutput/Graph1.gph") yzero 
 	**********************
 	*Graph 2 - multiple treatment	
 	
@@ -53,6 +50,11 @@
 	iegraph d_2 d_3,  title("Treatment effect on price") save("$testOutput/Graph2.gph") yzero
 	iegraph d_2 d_3 d_4,  title("Treatment effect") save("$testOutput/Graph4.gph") yzero note(Stata iegraph command)
 	iegraph d_2 d_3 d_4 d_5,  noconfbars title("Treatment effect on price") save("$testOutput/Graph2.gph") yzero
+
+	iegraph d_2 d_3,  title("Treatment effect on price") save("$testOutput/Graph2.gph") yzero
+	iegraph d_2 d_3 d_4,  title("Treatment effect") save("$testOutput/Graph4.gph") yzero note(Stata iegraph command)
+	iegraph d_2 d_3 d_4 d_5,  noconfbars title("Treatment effect on price") save("$testOutput/Graph2.gph") yzero
+
 
 
 
