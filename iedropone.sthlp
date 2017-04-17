@@ -6,7 +6,7 @@ help for {hi:iedropone}
 
 {title:Title}
 
-{phang2}{cmdab:iedropone} {hline 2} Same function as {help drop} but prevents that additional observation are unintentionally dropped
+{phang2}{cmdab:iedropone} {hline 2} Same function as {help drop} but prevents that additional observations are unintentionally dropped.
 
 {title:Syntax}
 
