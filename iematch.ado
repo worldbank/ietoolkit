@@ -623,7 +623,7 @@ end
 		*Testing that the option name is not the same as the other variable's default name.
 		if ("`userName'" == "`Oth1'" | "`userName'" == "`Oth2'" | "`userName'" == "`Oth3'" | "`userName'" == "_ID")  {
 
-			noi di as error "{phang}The new name specified in `optionName'(`userName') is not allowed to be _ID, `Oth1', `Oth2', or `Oth3'{p_end}"
+			noi di as error "{pstd}The new name specified in `optionName'(`userName') is not allowed to be _ID, `Oth1', `Oth2', or `Oth3'{p_end}"
 			error 198
 		}
 
@@ -637,7 +637,7 @@ end
 			cap confirm variable `validMatchVarname'
 			if _rc == 0 {
 
-				noi di as error "A variable with name `validMatchVarname' is already defined. Either drop this variable or specify a new variable name using `optionName'()."
+				noi di as error "{pstd}A variable with name `validMatchVarname' is already defined. Either drop this variable or specify a new variable name using `optionName'()."
 				error 110
 			}
 		}
@@ -651,7 +651,7 @@ end
 			cap confirm variable `validMatchVarname'
 			if _rc == 0 {
 
-				noi di as error "The variable name specified in `optionName'(`userName') is already defined in the data set. Either drop this variable or specify a another variable name using `optionName'()."
+				noi di as error "{pstd}The variable name specified in `optionName'(`userName') is already defined in the data set. Either drop this variable or specify a another variable name using `optionName'()."
 				error 110
 			}
 		}
@@ -661,7 +661,7 @@ end
 
 		if _rc != 0 {
 
-			noi di as error "The variable name specified in `optionName'(`userName') is not a valid variable name."
+			noi di as error "{pstd}The variable name specified in `optionName'(`userName') is not a valid variable name."
 			error _rc
 		}
 		drop `validMatchVarname'
