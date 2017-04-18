@@ -12,8 +12,9 @@ help for {hi:iegraph}
 
 {phang2}
 {cmdab:iegraph} {varlist} 
-, [{cmd:noconfbars} {cmdab:ti:tle(}{it:string}{cmd:)}
-{cmdab:save(}{it:string}{cmd:)} {cmdab:confbarsnone(}{it:varlist}{cmd:)}
+, [ {cmdab:ti:tle(}{it:string}{cmd:)} {cmdab:varl:abels}
+{cmdab:save(}{it:string}{cmd:)} {cmdab:grey:scale} {cmdab:yzero}
+{cmd:noconfbars} {cmdab:confbarsnone(}{it:varlist}{cmd:)}
 {it:any towway graph options}
 ]
 
@@ -21,14 +22,18 @@ help for {hi:iegraph}
 {synoptset 22}{...}
 {synopthdr:options}
 {synoptline}
-{synopt :{cmd:noconfbars}} Removes the confidence interval bars from graphs for all treatments.{p_end}
 {synopt :{cmdab:ti:tle(}{it:string}{cmd:)}} Manually sets the title of the graph.{p_end}
+{synopt :{cmdab:varl:abels}} Uses variable labels for legends instead of variable names.{p_end}
 {synopt :{cmdab:save(}{it:string}{cmd:)}} Sets the filename and the directory to which the graph will be set/exported.{p_end}
-{synopt :{cmdab:confbarsnone(}{it:varlist}{cmd:)}} Removes confidence interval bars from only the {it:varlist} listed.{p_end}
+{synopt :{cmdab:grey:scale}} Uses greyscales for the bars instead of colors.{p_end}
 {synopt :{cmdab:yzero}} Forces y-axis on the graph to start at 0.{p_end}
-{synopt :{cmdab:varlabels}} Uses variable labels for legends instead of variable names.{p_end}
-{synopt :{cmdab: Graph Options}} Options that can be used with normal graph commands can also be used. See example 2 for details.{p_end}
+{synopt :{cmd:noconfbars}} Removes the confidence interval bars from graphs for all treatments.{p_end}
+{synopt :{cmdab:confbarsnone(}{it:varlist}{cmd:)}} Removes confidence interval bars from only the {it:varlist} listed.{p_end}
 {synoptline}
+
+{pstd}Any towway graph options that can be used with normal twoway graph commands can 
+	also be used. If any of these commands conflict with any of the built in options, 
+	then the user specified settings have precedence. See example 2 for details.{p_end}
 
 {marker desc}
 {title:Description}
@@ -71,10 +76,10 @@ help for {hi:iegraph}
 {marker optslong}
 {title:Options}
 
-{phang}{cmd:noconfbars} Removes the confidence interval bars from graphs for all 
-	treatments. The default value for the confidence interval bars ar 95%. {p_end}
-
 {phang}{cmdab:ti:tle(}{it:string}{cmd:)} Manually sets the title of the graph.{p_end}
+
+{phang}{cmdab:varl:abels} Sets the legends to the variable labels for the 
+	variables instead of the variable names.{p_end}
 
 {phang}{cmdab:save(}{it:string}{cmd:)} Sets the filename and the directory to which
 	the graph will be set. If the filename ends with no extension or '.gph', it will be 
@@ -82,14 +87,20 @@ help for {hi:iegraph}
 	Wmf and Emf are only available for the Windows version of Stata. Png and Tif for all 
 	versions of Stata except Console.{p_end}
 
+{phang}{cmdab:grey:scale} Uses greyscales for the bars instead of colors. The color 
+	of the control bar will be black and the treatment bar will run in equal shade 
+	differnces from light grey to dark grey.{p_end}
+
+{phang}{cmd:noconfbars} Removes the confidence interval bars from graphs for all 
+	treatments. The default value for the confidence interval bars ar 95%. {p_end}
+	
 {phang}{cmdab:confbarsnone(}{it:varlist}{cmd:)} Removes confidence interval bars 
 	from only the {it:varlist} listed. The remaining variables in the graphs which 
 	have not been specified in {cmdab:confbarsnone} will still have the confidence
 	interval bars. {p_end}
 
-{phang}{cmdab:yzero} Manually sets the y-axis of the graph to start at zero instead of the Stata default.{p_end}
-
-{phang}{cmdab:yzero} Sets the legends to the variable labels for the variables instead of the variable names.{p_end}
+{phang}{cmdab:yzero} Manually sets the y-axis of the graph to start at zero 
+	instead of the Stata default.{p_end}
 
 {marker optslong}
 {title:Examples}
