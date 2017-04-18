@@ -109,14 +109,14 @@ help for {hi:iegraph}
 {pmore} {inp:regress} {it:income tmt_1 tmt_2 age education}{inp:, cluster(}{it:district}{inp:)}{break}
 		{inp:iegraph} {it:tmt_1 tmt_2}{inp:, noconfbars yzero title({it:"Treatment effect on income"}) }
 
-{pmore}In the example above, the treatment effect on income in reserached. There 
+{pmore}In the example above, the treatment effect on income in researched. There 
 		are three treatment arms; control, treatment 1 ({it:tmt_1}) and treatment
 		2 ({it:tmt_2}). It is important that no observation has the value 1 in 
 		both {it:tmt_1} and {it:tmt_2} (i.e. no observation is in more than one
 		treatment) and some observations must have the value 0 in both {it:tmt_1} 
 		and {it:tmt_2} (i.e. control observations). The variables {it:age} and 
-		{it:education} are covariates (control variables) and is not included 
-		in {cmd:iegraph}. {inp:noconfbars} omitts the confidence intervall bars
+		{it:education} are covariates (control variables) and are not included 
+		in {cmd:iegraph}. {inp:noconfbars} omits the confidence interval bars
 		, and {inp:yzero} sets the y-axis to start at 0.
 
 {pstd} {hi:Example 3.}
@@ -142,7 +142,7 @@ help for {hi:iegraph}
 {pmore}The example above shows how to save a graph to disk. It also shows that 
 	most two-way graph options can be used. In this example the {cmd:iegraph} 
 	option {cdm:yzero} conflicts with the two-way option {cmd:ylabel(minmax)}. 
-	In such a case the user specified option takes presidence over {cmd:iegraph} 
+	In such a case the user specified option takes precedence over {cmd:iegraph} 
 	options like {cdm:yzero}.
 		
 	
