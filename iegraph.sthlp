@@ -23,7 +23,7 @@ help for {hi:iegraph}
 {synoptline}
 {synopt :{cmd:noconfbars}} Removes the confidence interval bars from graphs for all treatments.{p_end}
 {synopt :{cmdab:ti:tle(}{it:string}{cmd:)}} Manually sets the title of the graph.{p_end}
-{synopt :{cmdab:save(}{it:string}{cmd:)}} Sets the filename and the directory to which the graph will be set.{p_end}
+{synopt :{cmdab:save(}{it:string}{cmd:)}} Sets the filename and the directory to which the graph will be set/exported.{p_end}
 {synopt :{cmdab:confbarsnone(}{it:varlist}{cmd:)}} Removes confidence interval bars from only the {it:varlist} listed.{p_end}
 {synopt :{cmdab:yzero}} Forces y-axis on the graph to start at 0.{p_end}
 {synopt :{cmdab: Graph Options}} Options that can be used with normal graph commands can also be used. See example 2 for details.{p_end}
@@ -76,7 +76,10 @@ help for {hi:iegraph}
 {phang}{cmdab:ti:tle(}{it:string}{cmd:)} Manually sets the title of the graph.{p_end}
 
 {phang}{cmdab:save(}{it:string}{cmd:)} Sets the filename and the directory to which
-	the graph will be set.{p_end}
+	the graph will be set. If the filename ends with no extension or '.gph', it will be 
+	saved in the graph format. Extensions(png,pdf,tif,wmf,emf,ps,and eps) will be exported. 
+	Wmf and Emf are only available for the Windows version of Stata. Png and Tif for all 
+	versions of Stata except Console.{p_end}
 
 {phang}{cmdab:confbarsnone(}{it:varlist}{cmd:)} Removes confidence interval bars 
 	from only the {it:varlist} listed. The remaining variables in the graphs which 
@@ -146,11 +149,11 @@ help for {hi:iegraph}
 {title:Acknowledgements}
 
 {phang}We would like to acknowledge the help in testing and proofreading we received in relation to this command and help file from (in alphabetic order):{p_end}
-{pmore}Michael Orevba{break}Ahmad Zia Wahdat{break}
+{pmore}Luiza Cardoso De Andrade{break}Michael Orevba{break}Ahmad Zia Wahdat{break}
 
 
 
-{title:Author}
+{title:Authors}
 
 {phang}Kristoffer Bjarkefur & Mrijan Rimal, The World Bank, DECIE
 
