@@ -189,8 +189,6 @@ cap	program drop	iegraph
 	
 	file close `newHandle'	
 	
-	*copy "`newTextFile'"  "mainMasterDofile.txt" , replace
-	
 	/*************************************
 	
 		Create the graph
