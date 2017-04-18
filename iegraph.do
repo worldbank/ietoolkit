@@ -1,12 +1,13 @@
 cap	program drop	iegraph
 	program define 	iegraph
 	preserve
-	syntax varlist, [noconfbars TItle(string) save(string) confbarsnone(varlist) varlables GREYscale yzero *]
+	syntax varlist, [noconfbars TItle(string) save(string) confbarsnone(varlist) varlabels GREYscale yzero *]
 	mat beta_ = e(b)
 
 	local counter = 0
-	//local textfile = "Mrijan"
 	qui{
+		*Checking to see if the noconfbars option has been used and assigning 1 and 0 based
+		*on that to the CONFINT_BAR variable.
 		if "`confbars'" 			!= "" {
 		local CONFINT_BAR 	= 0 
 		}
@@ -14,13 +15,18 @@ cap	program drop	iegraph
 		local CONFINT_BAR 	= 1 
 		}
 		
+		*Testing to see if the variables used in confbarsnone are actually in the list of 
+		*variables used for the regression/graph.
 		local varTest : list confbarsnone in varlist
 		
 		if `varTest' == 0 {
 					noi display as error "{phang} Variables defined in confbarsnone cannot be found in the graph variable list. {p_end}"
 					noi display ""
 					error 111
+					*Error displayed if variables defined in confbarsnone aren't in the list of variables for the graph.
 					 }
+		
+		*Testing to see if the variables used in the regressions are actual dummy variables as treatment vars need to be dummy variables. 
 		
 		foreach var of local varlist{
 			cap assert inlist(`var',0,1) | missing(`var')
@@ -33,19 +39,20 @@ cap	program drop	iegraph
 					}
 						
 		local counter = `counter' + 1
-		di `counter'
+		
+		*Assigning variable coefficient/standard errors/no of obs. to scalars with the name Coeff_(`variable name') 
+		*coeff_se_(`variable name'), obs_(`variable name').
 		
 		scalar coeff_`var' = _b[`var'] 
-		//noi display coeff_`var'
 
 		scalar coeff_se_`var' = _se[`var']
-		//noi display coeff_se_`var'
 		
 		count if e(sample) == 1 & `var' == 1 //Count one tmt group at the time
 		scalar obs_`var' = r(N)
-		//noi display obs_`var'
 
 			} 
+		*Checking to see if the save option is used what is the extension related to it. 
+	
 	if "`save'" != "" {
 	
         *Find index for where the file type suffix start
@@ -53,20 +60,19 @@ cap	program drop	iegraph
 		 
         *Extract the file index
         local file_suffix   = substr("`save'", `dot_index', .)
-		//noi di "`file_suffix'"
 	        
-		*
+		*List of formats to which the file can be exported
         local nonGPH_formats png tiff gph ps eps pdf wmf emf
 
         
 
-        *If no file format suffix is specified, use the default .xlsx
+        *If no file format suffix is specified, use the default .gph
 
         if `dot_index' == 1 | "`file_suffix'" == "gph" {
 			local save_export = 0
 		}
 
-        *If a file format suffix is specified make sure that it is one of the two allowed.
+        *If a file format suffix is specified make sure that it is one of the eight formats allowed.
 
         else if `:list file_suffix in nonGPH_formats' != 0  {
             local save_export = 1
@@ -76,20 +82,18 @@ cap	program drop	iegraph
                 error 198
 			} 
 		}
+		*If a different extension was used then displaying an error. 
         else {
-  
+		
             di as error "You are not using a allowed file format in save(`save'). Only the following formats are allowed: gph `nonGPH_formats'"
             error 198
         }
     }
 	
-	//noi di `"iegraph `varlist', `noconfbars' title(`title') save(`save') `confbarsnone' `yzero' `anything'"'	
 
-	local count: word count `varlist' 
-	local graphCount = `count' + 1
-	//tokenize "`varlist'"
-	//noi di `count'
-
+	local count: word count `varlist' // Counting the number of total vars used as treatment.
+	local graphCount = `count' + 1 // Number of vars needed for the graph is total treatment vars plus one(control).
+	
 	//Make all vars tempvars (maybe do later)
 	//Make sure that missing is properly handled
 	tempvar anyTMT
@@ -108,7 +112,11 @@ cap	program drop	iegraph
 			
 			test `var' 
 			local star_`var' " "
-
+			
+			**************
+			*Assigning stars to the treatment vars.
+			*********
+			
 			scalar  pvalue =r(p)
 			if pvalue < 0.10 {
 				local star_`var' "*"
@@ -119,7 +127,7 @@ cap	program drop	iegraph
 			if pvalue < 0.01 {
 				local star_`var' "***"
 			}
-			*noi display "`star_`var''"
+
 			scalar tmt_mean_`var' = ctl_mean + coeff_`var'
 		}
 	
@@ -142,23 +150,26 @@ cap	program drop	iegraph
 		
 			*Default is to use the varname in legend
 			local var_legend "`var'"
-			
+		
+		}
 		else {
 			
 			*Option to use the variable label in the legen instead
 			local var_legend : variable label `var'
-		
+			
+			
 		}
+		//Writing the necessary tables for the graph to list to file.
 	
 	    if `: list var in confbarsnone' { 
-			file write `newHandle' 	%9.3f (`newCounter') _tab "`var_legend'"  ///
+			file write `newHandle' 	%9.3f (`newCounter') _tab `"`var_legend'"'  ///
 			_tab %9.3f (tmt_mean_`var') _tab  %9.3f (coeff_`var')  _tab _tab ///
 			_tab %9.3f (obs_`var') _tab "`star_`var''"  _n 
 			
 			replace `newCounter' = `newCounter' + 1	
 		}
 		else {	
-			file write `newHandle' %9.3f (`newCounter') _tab "`var_legend'" ///
+			file write `newHandle' %9.3f (`newCounter') _tab `"`var_legend'"' ///
 			_tab %9.3f (tmt_mean_`var') _tab  %9.3f (coeff_`var')  			///
 			_tab %9.3f (conf_int_min_`var') _tab %9.3f (conf_int_max_`var')	///
 			_tab %9.3f (obs_`var')   _tab "`star_`var''"  _n 
@@ -178,7 +189,10 @@ cap	program drop	iegraph
 	*************************************/
 	
 	insheet using mainMasterDofile.txt, clear
-		
+	
+	
+	*Defining various options to go on the graph option. 
+	
 	local tmtGroupBars 	""
 	local xAxisLabels 	`"xlabel( "'
 	local legendLabels	`"lab(1 "`obsLabelControl'")"'
@@ -216,8 +230,9 @@ cap	program drop	iegraph
 
 
 	*Create the confidence interval bars
+	
 	if `CONFINT_BAR' == 0 {
-		//local confIntGraph == `"(scatter mean order,  msym(none)  mlabs(medium) mlabpos(10) mlabcolor(black)), xtitle("") ytitle("`e(depvar)'") "'
+
 		local confIntGraph = ""
 	} 
 		else if `CONFINT_BAR' == 1 {
@@ -229,104 +244,132 @@ cap	program drop	iegraph
 	if "`save'" != "" {
 		local saveOption saving("`save'", replace)
 	}
-	
-	if "`yzero'" != "" {
-	
-		gen maxvalue = max(mean , conf_int_max)
+		*******************************************************************************
+		*** Generating the graph axis labels for the y-zero option used..
+		*******************************************************************************
 		
-		sum maxvalue 
-		local max = `r(max)'
+		if "`yzero'" != "" {
 		
-		local logmax = log10(`max')
-		
-		local logmax = round(`logmax') - 1
-		
-		local tenpower = 10 ^ (`logmax')
-		
-		local up = `tenpower' * ceil(`max' / `tenpower')
-
-		local quarter = (`up') / 4
-		
-		noi di "up: `up'"
-		noi di "quarter: `quarter'"
+			gen maxvalue = max(mean , conf_int_max)
 			
-		local yzero_option ylabel(0(`quarter')`up')
-	}
-	
-	
-		//noi di `" graph twoway `tmtGroupBars' `confIntGraph' `titleOption' `options' `legendOption' `xAxisLabels' `saveOption' title("`title'") `yzero_option'  "'
-	if `save_export' == 0 {
-		graph twoway `tmtGroupBars' `confIntGraph' `titleOption'  `legendOption' `xAxisLabels' `saveOption' title("`title'") `yzero_option' `options'
-		noi di `" graph twoway `tmtGroupBars' `confIntGraph' `titleOption' `options' `legendOption' `xAxisLabels' `saveOption' title("`title'") `yzero_option'  "'
-
+			sum maxvalue 
+			
+			
+			*Finding the max value that is needed in the Y-axis. 
+			*From the max of mean values and conf_int_max values.
+			
+			local max = `r(max)'
+			
+			*Log10 of the Max value to find the order necessary.
+			
+			local logmax = log10(`max')
+			
+			local logmax = round(`logmax') - 1
+			
+			*Generating tenpower which is 1 order smaller than the max value,
+			*so we can log to that. 
+			
+			local tenpower = 10 ^ (`logmax')
+			
+			*Rounding up for max value.
+			
+			local up = `tenpower' * ceil(`max' / `tenpower')
+			
+			*Generating quarter value for y-axis markers.
+			local quarter = (`up') / 4
+			
+			*Specifying the option itself. 
+			
+			local yzero_option ylabel(0(`quarter')`up')
 		}
-	else if `save_export' == 1 {
-		graph twoway `tmtGroupBars' `confIntGraph' `titleOption'  `legendOption' `xAxisLabels' title("`title'") `yzero_option' `options'
-		graph export "`save'", replace
-		}	
+	
+		*******************************************************************************
+		***Graph generation based on if the option save has a export or a save feature.
+		*******************************************************************************
 		
-	restore
+		if `save_export' == 0 {
+			graph twoway `tmtGroupBars' `confIntGraph' `titleOption'  `legendOption' `xAxisLabels' `saveOption' title("`title'") `yzero_option' `options'
+
+			}
+		else if `save_export' == 1 {
+			graph twoway `tmtGroupBars' `confIntGraph' `titleOption'  `legendOption' `xAxisLabels' title("`title'") `yzero_option' `options'
+			graph export "`save'", replace
+			}	
+		
+		*pause
+		
+		restore
 }
 
 end
+		*******************************************
+		*******************************************
+			******* To pick colours based *******
+			******* on the number of vars *******
+		*******************************************
+		*******************************************
+		cap	program drop	colorPicker
+			program define 	colorPicker , rclass
+			
+			args groupCount totalNumGroups 
+			
+			if `totalNumGroups' == 2 {
+				
+				if `groupCount' == 1 return local color "215 25 28"
+				if `groupCount' == 2 return local color "43 123 182"
+			}
+			else if `totalNumGroups' == 3 {
 
-cap	program drop	colorPicker
-	program define 	colorPicker , rclass
+				if `groupCount' == 1 return local color "215 25 28"
+				if `groupCount' == 2 return local color "255 255 191"
+				if `groupCount' == 3 return local color "43 123 182"
+			}
+			else if `totalNumGroups' == 4 {
+			
+				if `groupCount' == 1 return local color "215 25 28"
+				if `groupCount' == 2 return local color "255 255 191"
+				if `groupCount' == 3 return local color "171 217 233"
+				if `groupCount' == 4 return local color "43 123 182"
+			}
+			else {
+				
+				*For five or more colors we repeat the same pattern
+				
+				local colourNum = mod(`groupCount', 5)
+				if `colourNum' == 1 return local color "215 25 28"
+				if `colourNum' == 2 return local color "253 174 93"
+				if `colourNum' == 3 return local color "255 255 191"
+				if `colourNum' == 4 return local color "171 217 233"
+				if `colourNum' == 0 return local color "43 123 182"
+				
+			}
+			
+		end
+		*******************************************
+		*******************************************
+			******* Greyscale Option *******
+			******* Colour Picker    *******	
+		*******************************************
+		*******************************************
 	
-	args groupCount totalNumGroups 
-	
-	if `totalNumGroups' == 2 {
-		
-		if `groupCount' == 1 return local color "215 25 28"
-		if `groupCount' == 2 return local color "43 123 182"
-	}
-	else if `totalNumGroups' == 3 {
-
-		if `groupCount' == 1 return local color "215 25 28"
-		if `groupCount' == 2 return local color "255 255 191"
-		if `groupCount' == 3 return local color "43 123 182"
-	}
-	else if `totalNumGroups' == 4 {
-	
-		if `groupCount' == 1 return local color "215 25 28"
-		if `groupCount' == 2 return local color "255 255 191"
-		if `groupCount' == 3 return local color "171 217 233"
-		if `groupCount' == 4 return local color "43 123 182"
-	}
-	else {
-		
-		*For five or more colors we repeat the same pattern
-		
-		local colourNum = mod(`groupCount', 5)
-		if `colourNum' == 1 return local color "215 25 28"
-		if `colourNum' == 2 return local color "253 174 93"
-		if `colourNum' == 3 return local color "255 255 191"
-		if `colourNum' == 4 return local color "171 217 233"
-		if `colourNum' == 0 return local color "43 123 182"
-		
-	}
-	
-end
-
-
-cap	program drop	greyPicker
-	program define 	greyPicker , rclass
-	
-	args groupCount totalNumGroups 
-	
-	if `groupCount' == 1 {
-		
-		return local color "black"
-	}
-	else if `groupCount' == 2 & `totalNumGroups' <= 3 {
-		
-		return local color "gs14"
-	}
-	else {
-	
-		local grayscale =  round( (`groupCount'-1) * (100 / (`totalNumGroups'-1) )) 
-	
-		return local color "`grayscale' `grayscale' `grayscale' `grayscale'"
-	}
-	
-end
+		cap	program drop	greyPicker
+			program define 	greyPicker , rclass
+			
+			args groupCount totalNumGroups 
+			
+			if `groupCount' == 1 {
+				
+				return local color "black"
+			}
+			else if `groupCount' == 2 & `totalNumGroups' <= 3 {
+				
+				return local color "gs14"
+			}
+			else {
+			
+				local grayscale =  round( (`groupCount'-1) * (100 / (`totalNumGroups'-1) )) 
+			
+				return local color "`grayscale' `grayscale' `grayscale' `grayscale'"
+			}
+			
+		end

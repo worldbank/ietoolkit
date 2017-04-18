@@ -26,6 +26,7 @@ help for {hi:iegraph}
 {synopt :{cmdab:save(}{it:string}{cmd:)}} Sets the filename and the directory to which the graph will be set/exported.{p_end}
 {synopt :{cmdab:confbarsnone(}{it:varlist}{cmd:)}} Removes confidence interval bars from only the {it:varlist} listed.{p_end}
 {synopt :{cmdab:yzero}} Forces y-axis on the graph to start at 0.{p_end}
+{synopt :{cmdab:varlabels}} Uses variable labels for legends instead of variable names.{p_end}
 {synopt :{cmdab: Graph Options}} Options that can be used with normal graph commands can also be used. See example 2 for details.{p_end}
 {synoptline}
 
@@ -87,6 +88,8 @@ help for {hi:iegraph}
 	interval bars. {p_end}
 
 {phang}{cmdab:yzero} Manually sets the y-axis of the graph to start at zero instead of the Stata default.{p_end}
+
+{phang}{cmdab:yzero} Sets the legends to the variable labels for the variables instead of the variable names.{p_end}
 
 {marker optslong}
 {title:Examples}
