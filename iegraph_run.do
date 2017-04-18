@@ -14,8 +14,6 @@
 	*Load the command
 	do "$ietoolkit\iegraph.do"
 
-	pause on
-	
 	**********************
 	*Graph 1 - single treatment
 	
@@ -26,11 +24,8 @@
 	*Run the impact regression
 	reg price  Treatment
 	*Create the graph
-	iegraph Treatment, noconfbars title("Treatment effect on price")  save("$testOutput/Graph1.gph") yzero grey
-	pause
-	iegraph Treatment, title("Treatment effect on price") save("$testOutput/Graph1.gph") yzero grey
-	pause
-		
+	iegraph Treatment, noconfbars title("Treatment effect on price")  save("$testOutput/Graph1.gph") yzero  grey
+	iegraph Treatment, title("Treatment effect on price") save("$testOutput/Graph1.png") yzero 
 	**********************
 	*Graph 2 - multiple treatment	
 	
@@ -41,13 +36,22 @@
 	*Run the impact regression
 	reg price	d_2 d_3 weight length gear_ratio
 	*Create the graph
+
 	iegraph 	d_2 d_3,  title("Treatment effect on price") save("$testOutput/Graph2.gph") yzero
 	
 	reg price	d_2 d_3 d_4  weight length gear_ratio
-	iegraph 	d_2 d_3 d_4, title("Treatment effect") save("$testOutput/Graph4.gph") yzero note("Stata iegraph command")
+	iegraph 	d_2 d_3 d_4, title("Treatment effect") save("$testOutput/Graph4.png") yzero note("Stata iegraph command")
 	
 	reg price	d_2 d_3 d_4 d_5  weight length gear_ratio
 	iegraph 	d_2 d_3 d_4 d_5, noconfbars title("Treatment effect on price") save("$testOutput/Graph2.gph") yzero
+
+	iegraph d_2 d_3,  title("Treatment effect on price") save("$testOutput/Graph2.gph") yzero
+	iegraph d_2 d_3 d_4,  title("Treatment effect") save("$testOutput/Graph4.gph") yzero note(Stata iegraph command)
+	iegraph d_2 d_3 d_4 d_5,  noconfbars title("Treatment effect on price") save("$testOutput/Graph2.png") yzero
+
+	iegraph d_2 d_3,  title("Treatment effect on price") save("$testOutput/Graph2.gph") yzero
+	iegraph d_2 d_3 d_4,  title("Treatment effect") save("$testOutput/Graph4.png") yzero note(Stata iegraph command)
+	iegraph d_2 d_3 d_4 d_5,  noconfbars title("Treatment effect on price") save("$testOutput/Graph2.gph") yzero
 
 
 
