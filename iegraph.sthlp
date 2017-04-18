@@ -15,7 +15,7 @@ help for {hi:iegraph}
 , [ {cmdab:ti:tle(}{it:string}{cmd:)} {cmdab:varl:abels}
 {cmdab:save(}{it:string}{cmd:)} {cmdab:grey:scale} {cmdab:yzero}
 {cmd:noconfbars} {cmdab:confbarsnone(}{it:varlist}{cmd:)}
-{it:any towway graph options}
+{it:any twoway graph options}
 ]
 
 {marker opts}{...}
@@ -31,16 +31,16 @@ help for {hi:iegraph}
 {synopt :{cmdab:confbarsnone(}{it:varlist}{cmd:)}} Removes confidence interval bars from only the {it:varlist} listed.{p_end}
 {synoptline}
 
-{pstd}Any towway graph options that can be used with normal twoway graph commands can 
+{pstd}Any twoway graph options that can be used with normal twoway graph commands can 
 	also be used. If any of these commands conflict with any of the built in options, 
 	then the user specified settings have precedence. See example 2 for details.{p_end}
 
 {marker desc}
 {title:Description}
 
-{pstd}{cmdab:iegraph} This command creates bar graphs on the based on the coefficients 
+{pstd}{cmdab:iegraph} This command creates bar graphs on the basis of the coefficients 
 	of treatment dummies in regression results. This command is developed for reading 
-	stored results of from two types of impact evaluation regression models, but there 
+	stored results from two types of impact evaluation regression models, but there 
 	are countless of other examples where the command also can be used. {cmd:iegraph} must 
 	be used immediately after running the regression or as long as the regression result is 
 	still stored in or restored to Stata's {help ereturn} results. 
@@ -49,7 +49,7 @@ help for {hi:iegraph}
 	to have the outcome variable as the dependent variable and one dummy for each 
 	treatment arm where control is the omitted category. These regressions can also include 
 	covariates, fixed effects etc., but as long as the treatment status is defined by 
-	mutually exclusive dummy variables. See especially example 1 and 2 below. This command 
+	mutually exclusive dummy variables. See especially examples 1 and 2 below. This command 
 	works with any number of treatment arms but works best from two arms (treatment 
 	and control) to five treatment arms (4 different treatments and control). More 
 	arms than that may result in a still correct but perhaps cluttered graph.
@@ -89,10 +89,10 @@ help for {hi:iegraph}
 
 {phang}{cmdab:grey:scale} Uses greyscales for the bars instead of colors. The color 
 	of the control bar will be black and the treatment bar will run in equal shade 
-	differnces from light grey to dark grey.{p_end}
+	differences from light grey to dark grey.{p_end}
 
 {phang}{cmd:noconfbars} Removes the confidence interval bars from graphs for all 
-	treatments. The default value for the confidence interval bars ar 95%. {p_end}
+	treatments. The default value for the confidence interval bars is 95%. {p_end}
 	
 {phang}{cmdab:confbarsnone(}{it:varlist}{cmd:)} Removes confidence interval bars 
 	from only the {it:varlist} listed. The remaining variables in the graphs which 
@@ -110,7 +110,7 @@ help for {hi:iegraph}
 {pmore} {inp:regress} {it:outcomevar treatment_dummy}{break}
 		{inp:iegraph} {it:treatment_dummy} , {inp:title({it:"Treatment Effect on Outcome"})}
 
-{pmore}In the example above, there is only two treatment arms (treatment and 
+{pmore}In the example above, there are only two treatment arms (treatment and 
 		control). {it:treatment_dummy} has a 1 for all treatment observations and 
 		a 0 for all control observations. The graph will have one bar for control and 
 		it shows the mean for {it:outcomevar} for all observations in control. The 
@@ -151,7 +151,7 @@ help for {hi:iegraph}
 
 {pmore} {inp:regress} {it:harvest T1 T2 T3 } {break}
 		{inp:iegraph} {it:T1 T2 T3} {inp:, title({it:"Treatment effect on harvest"}) 
-		xlabel(,angle(45)) yzero ylabel(minmax) save({it:"$Output/Graph1.gph"})}
+		xlabel(,angle(45)) yzero ylabel(minmax) save({it:"Graph1.gph"})}
 		
 {pmore}The example above shows how to save a graph to disk. It also shows that 
 	most two-way graph options can be used. In this example the {cmd:iegraph} 
