@@ -27,6 +27,7 @@
 	iegraph Treatment, noconfbars title("Treatment effect on price")  save("$testOutput/Graph1.gph") yzero  grey
 	iegraph Treatment, title("Treatment effect on price") save("$testOutput/Graph1.png") yzero 
 	**********************
+	
 	*Graph 2 - multiple treatment	
 	
 	*open an example data set and create mutually exclusive mock dummies
@@ -36,23 +37,31 @@
 	*Run the impact regression
 	reg price	d_2 d_3 weight length gear_ratio
 	*Create the graph
-
+	/*
 	iegraph 	d_2 d_3,  title("Treatment effect on price") save("$testOutput/Graph2.gph") yzero
 	
 	reg price	d_2 d_3 d_4  weight length gear_ratio
-	iegraph 	d_2 d_3 d_4, title("Treatment effect") save("$testOutput/Graph4.png") yzero note("Stata iegraph command")
+	iegraph 	d_2 d_3 d_4, title("Treatment effect") save("$testOutput/Graph4.png") yzero note("Stata iegraph command") varlabels
 	
 	reg price	d_2 d_3 d_4 d_5  weight length gear_ratio
 	iegraph 	d_2 d_3 d_4 d_5, noconfbars title("Treatment effect on price") save("$testOutput/Graph2.gph") yzero
+	*/
+	
+	reg price	d_2 d_3 d_4 d_5  weight length gear_ratio
 
+	label variable d_2 "2nd Rep"
+	label variable d_3 "3rd Rep"
+	label variable d_4 "4th Rep"
+	label variable d_5 "5th Rep"
+	
 	iegraph d_2 d_3,  title("Treatment effect on price") save("$testOutput/Graph2.gph") yzero
 	iegraph d_2 d_3 d_4,  title("Treatment effect") save("$testOutput/Graph4.gph") yzero note(Stata iegraph command)
-	iegraph d_2 d_3 d_4 d_5,  noconfbars title("Treatment effect on price") save("$testOutput/Graph2.png") yzero
+	iegraph d_2 d_3 d_4 d_5,  noconfbars title("Treatment effect on price") save("$testOutput/Graph2.png") yzero varlabels
 
-	iegraph d_2 d_3,  title("Treatment effect on price") save("$testOutput/Graph2.gph") yzero
-	iegraph d_2 d_3 d_4,  title("Treatment effect") save("$testOutput/Graph4.png") yzero note(Stata iegraph command)
-	iegraph d_2 d_3 d_4 d_5,  noconfbars title("Treatment effect on price") save("$testOutput/Graph2.gph") yzero
-
+	iegraph d_2 d_3,  title("Treatment effect on price") save("$testOutput/Graph2.gph") yzero 
+	iegraph d_2 d_3 d_4,  title("Treatment effect") save("$testOutput/Graph4.png") yzero note(Stata iegraph command) varlabels
+	iegraph d_2 d_3 d_4 d_5,  noconfbars title("Treatment effect on price") save("$testOutput/Graph2.gph") yzero varlabels
+	
 
 
 
