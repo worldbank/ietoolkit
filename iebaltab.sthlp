@@ -50,7 +50,7 @@ will test for differences across the catagories in grpvar({it:varname}).
 {synopt :{cmdab:totall:abel(}{it:string}{cmd:)}}Manually set the total column title{p_end}
 {synopt :{cmdab:rowv:arlabels}}Use the variable labels instead of variable name as row titles{p_end}
 {synopt :{cmdab:rowl:abels(}{it:nametitles}{cmd:)}}Manually set the row titles. See details on {it:nametitles} below.{p_end}
-{synopt :{cmdab:onerown}}Write number of observations in one row{p_end}
+{synopt :{cmdab:onenrow}}Write number of observations in one row{p_end}
 
 {marker statsoptions}{...}
 {pstd}{it:    Statistics and data modification:}{p_end}
@@ -251,7 +251,7 @@ has precedence over {cmd:rowvarlabels} when used together, meaning that variable
 in the {it:nametitlestring}. The title can consist of several words. Everything that follows the variable name until the end
 of a string or a "@" will be included in the title.{p_end}
 
-{phang}{cmdab:onerown} displays the number of observations in additional row at the bottom of the table if each group has the same
+{phang}{cmdab:onenrow} displays the number of observations in additional row at the bottom of the table if each group has the same
 number of observations for all variables in {it:balancevarlist}. If not specified, the number of observations per variable per group
 is display in additional column besides the mean value.{p_end}
 
