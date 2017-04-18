@@ -45,7 +45,75 @@ cap	program drop	iegraph
 		scalar obs_`var' = r(N)
 		//noi display obs_`var'
 
-	} 
+			} 
+	if `save' {
+
+        *Find index for where the file type suffix start
+
+        local dot_index     = strpos("`save'",".")
+		   
+		
+        *Extract the file index
+
+        local file_suffix   = substr("`save'", `dot_index', .)
+
+        
+
+        local nonGPH_formats png tif
+
+        
+
+        *If no file format suffix is specified, use the default .xlsx
+
+        if "`file_suffix'" == "" | "`file_suffix'" == "gph" {
+
+        
+
+            local save_export = 0
+
+        }
+
+        
+
+        
+
+        *If a file format suffix is specified make sure that it is one of the two allowed.
+
+        else if `:list file_suffix in nonGPH_formats' != 0  {
+
+        
+
+            local save_export = 1
+
+            
+
+            if "`file_suffix'" == "wmf" & `c(os)' != "Windows" {
+
+            
+
+                di as error ""
+
+                error
+
+                
+
+            }
+
+        }
+
+        else {
+
+        
+
+            di as error "You have not using a allowed file format in save(`save'). Only the following formats are allowed:"
+
+            di "gph `nonGPH_formats'"
+
+            error
+
+        }
+
+    }
 	
 	//noi di `"iegraph `varlist', `noconfbars' title(`title') save(`save') `confbarsnone' `yzero' `anything'"'	
 
@@ -205,7 +273,7 @@ cap	program drop	iegraph
 	noi di `" graph twoway `tmtGroupBars' `confIntGraph' `titleOption' `options' `legendOption' `xAxisLabels' `saveOption' title("`title'") `yzero_option'  "'
 	graph twoway `tmtGroupBars' `confIntGraph' `titleOption'  `legendOption' `xAxisLabels' `saveOption' title("`title'") `yzero_option' `options'
 	//noi di 	`"graph twoway `tmtGroupBars' `legendOption' (scatter mean order,  msym(none)  mlabs(medium) mlabpos(10) mlabcolor(black))), xtitle("") ytitle("`e(depvar)'") `xAxisLabels' `saveOption' title("`title'")  "'
-	
+	//graph export `export'
 	restore
 }
 
