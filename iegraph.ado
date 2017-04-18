@@ -1,11 +1,20 @@
+*! version 4.0 18APR2017  Kristoffer Bjarkefur kbjarkefur@worldbank.org
+	
 cap	program drop	iegraph
 	program define 	iegraph
 	preserve
+	
 	syntax varlist, [noconfbars TItle(string) save(string) confbarsnone(varlist) VARLabels GREYscale yzero *]
+	
+	qui{
+	
+	version 11
+	
+	*Load regression results
 	mat beta_ = e(b)
 
 	local counter = 0
-	qui{
+	
 		*Checking to see if the noconfbars option has been used and assigning 1 and 0 based
 		*on that to the CONFINT_BAR variable.
 		if "`confbars'" 			!= "" {
