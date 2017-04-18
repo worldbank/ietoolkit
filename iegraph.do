@@ -52,11 +52,10 @@ cap	program drop	iegraph
         local dot_index     = strpos("`save'",".") + 1
 		 
         *Extract the file index
-
         local file_suffix   = substr("`save'", `dot_index', .)
-		noi di "`file_suffix'"
+		//noi di "`file_suffix'"
 	        
-
+		*
         local nonGPH_formats png tiff gph ps eps pdf wmf emf
 
         
@@ -64,8 +63,8 @@ cap	program drop	iegraph
         *If no file format suffix is specified, use the default .xlsx
 
         if `dot_index' == 1 | "`file_suffix'" == "gph" {
-                   local save_export = 0
-				}
+			local save_export = 0
+		}
 
         *If a file format suffix is specified make sure that it is one of the two allowed.
 
@@ -73,15 +72,14 @@ cap	program drop	iegraph
             local save_export = 1
 			
 			if ("`file_suffix'" == "wmf" | "`file_suffix'" == "emf") & "`c(os)'" != "Windows" {
-				di as error ""
-                error
-                   } 
-			}
-
+				di as error "The file formats .wmf and .emf are only allowed when using Stata on a Windows computer."
+                error 198
+			} 
+		}
         else {
   
             di as error "You are not using a allowed file format in save(`save'). Only the following formats are allowed: gph `nonGPH_formats'"
-            error
+            error 198
         }
     }
 	
