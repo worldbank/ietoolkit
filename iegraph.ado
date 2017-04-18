@@ -1,7 +1,7 @@
 cap	program drop	iegraph
 	program define 	iegraph
 	preserve
-	syntax varlist, [noconfbars TItle(string) save(string) confbarsnone(varlist) varlabels GREYscale yzero *]
+	syntax varlist, [noconfbars TItle(string) save(string) confbarsnone(varlist) VARLabels GREYscale yzero *]
 	mat beta_ = e(b)
 
 	local counter = 0
