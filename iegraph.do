@@ -1,7 +1,7 @@
 cap	program drop	iegraph
 	program define 	iegraph
 	preserve
-	syntax varlist, [noconfbars TItle(string) save(string) confbarsnone(varlist) GREYscale yzero *]
+	syntax varlist, [noconfbars TItle(string) save(string) confbarsnone(varlist) varlables GREYscale yzero *]
 	mat beta_ = e(b)
 
 	local counter = 0
@@ -137,17 +137,33 @@ cap	program drop	iegraph
 	gen `newCounter' = 2  //First tmt group starts at 2 (1 is control)
 	
 	foreach var in `varlist' {
-	     if `: list var in confbarsnone' { 
-		file write `newHandle' ///
-			%9.3f (`newCounter') _tab "`var'" _tab %9.3f (tmt_mean_`var') _tab  %9.3f (coeff_`var')  _tab %9.3f  _tab _tab %9.3f (obs_`var')   _tab "`star_`var''"  _n 
+	
+		if "`varlabels'" == "" {
 		
-		replace `newCounter' = `newCounter' + 1	
-			}
+			*Default is to use the varname in legend
+			local var_legend "`var'"
+			
+		else {
+			
+			*Option to use the variable label in the legen instead
+			local var_legend : variable label `var'
+		
+		}
+	
+	    if `: list var in confbarsnone' { 
+			file write `newHandle' 	%9.3f (`newCounter') _tab "`var_legend'"  ///
+			_tab %9.3f (tmt_mean_`var') _tab  %9.3f (coeff_`var')  _tab _tab ///
+			_tab %9.3f (obs_`var') _tab "`star_`var''"  _n 
+			
+			replace `newCounter' = `newCounter' + 1	
+		}
 		else {	
-		file write `newHandle' ///
-			%9.3f (`newCounter') _tab "`var'" _tab %9.3f (tmt_mean_`var') _tab  %9.3f (coeff_`var')  _tab %9.3f (conf_int_min_`var') _tab %9.3f (conf_int_max_`var') _tab %9.3f (obs_`var')   _tab "`star_`var''"  _n 
-		
-		replace `newCounter' = `newCounter' + 1
+			file write `newHandle' %9.3f (`newCounter') _tab "`var_legend'" ///
+			_tab %9.3f (tmt_mean_`var') _tab  %9.3f (coeff_`var')  			///
+			_tab %9.3f (conf_int_min_`var') _tab %9.3f (conf_int_max_`var')	///
+			_tab %9.3f (obs_`var')   _tab "`star_`var''"  _n 
+			
+			replace `newCounter' = `newCounter' + 1
 		}
 	}
 	
