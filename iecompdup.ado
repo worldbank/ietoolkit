@@ -156,8 +156,8 @@
 				
 				noi di "{phang}The duplicate observations with ID = `id' have non-missing values in `numNonMissing' variables. Out of those variables:{p_end}"
 				noi di ""
-				noi di "{phang2}`:list sizeof match' varaible(s) are identical across the duplicates{p_end}"
-				noi di "{phang2}`:list sizeof difference' varaible(s) have different values across the duplicates{p_end}"
+				noi di "{phang2}`:list sizeof match' variable(s) are identical across the duplicates{p_end}"
+				noi di "{phang2}`:list sizeof difference' variable(s) have different values across the duplicates{p_end}"
 				
 				
 				

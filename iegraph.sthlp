@@ -165,8 +165,6 @@ help for {hi:iegraph}
 {phang}We would like to acknowledge the help in testing and proofreading we received in relation to this command and help file from (in alphabetic order):{p_end}
 {pmore}Luiza Cardoso De Andrade{break}Michael Orevba{break}Ahmad Zia Wahdat{break}
 
-
-
 {title:Authors}
 
 {phang}Kristoffer Bjarkefur & Mrijan Rimal, The World Bank, DECIE
