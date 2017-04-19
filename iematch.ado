@@ -1,4 +1,4 @@
-	*! version 3.0 26DEC2016  Kristoffer Bjarkefur kbjarkefur@worldbank.org
+	*! version 4.0 18APR2017  Kristoffer Bjarkefur kbjarkefur@worldbank.org
 
 	cap program drop 	iematch
 	    program define	iematch
@@ -254,7 +254,9 @@
 
 			********************************
 			*
-			*	Checking and generating the MatchID and the MatchDiff var
+			*	Checking user defined names
+			*	and then create the result
+			*	varaibles
 			*
 			********************************
 			
@@ -262,8 +264,9 @@
 			* Result var
 			
 			iematchMatchVarCheck _matchResult `matchresultname'
-			local matchResultName "`r(validVarName)'"
-			gen `matchResultName' = .
+			local 	 		 matchResultName "`r(validVarName)'"
+			gen 			`matchResultName' = .
+			label variable	`matchResultName' "Matched obs = 1, not mathched = 0, all other different missing values"
 			
 			*Create a label for missing values that explains no match
 			label define matchLabel 0 "Not Matched" 1 "Matched" .i "Obs excluded due to if/in" .g "Missing value in `grpdummy'" .m "Missing value in `matchvar'" .d "No match within maxdiff"
@@ -285,21 +288,39 @@
 				gen  `matchIDname' = ""
 			}
 			
+			*This variable is slightly differnt between a many-one and one-one match
+			if "`m1'" != "" {
+				label variable	`matchIDname' "The ID of the target var in each matched group"
+			}
+			else {
+				label variable	`matchIDname' "The ID of the target var in each matched pair"
+			}
+			
 			*******
 			*Diff var
 			
 			iematchMatchVarCheck _matchDiff `matchdiffname'
-			local matchDiffName "`r(validVarName)'"
-			gen `matchDiffName' = .
-
+			local 	 matchDiffName "`r(validVarName)'"
+			gen 	`matchDiffName' = .
+			
+			*This variable is slightly differnt between a many-one and one-one match
+			if "`m1'" != "" {
+				label variable	`matchDiffName' "The difference in matchvar() between base obs and the target obs it matched with"
+			}
+			else {
+				label variable	`matchDiffName' "The difference in matchvar() between base and target obs in each pair"
+			}
+			
 			*******
 			*Count var
 			
 			*If many-to-one match used
 			if "`m1'" != "" {
 				iematchMatchVarCheck _matchCount `matchcountname'
-				local matchCountName "`r(validVarName)'"
-				gen `matchCountName' = .
+				local 			 matchCountName "`r(validVarName)'"
+				gen 			`matchCountName' = .
+				label variable	`matchDiffName' "The number of base obs this target obs matched with"
+				
 			}
 			else {
 				
@@ -488,7 +509,7 @@
 			* Replace the _matchCount var with number of base observations in each 
 			* match group. Each group is all base observation plus the target 
 			* observation, therefore (_N - 1)
-			bys 	`prefID' 			:   replace `matchCountName' = _N - 1
+			bys 	`prefID' 			:   replace `matchCountName' = _N - 1 if !missing(`prefID')
 		
 
 			**Replace prefID to missing for target obs that had no base 
@@ -514,6 +535,9 @@
 		replace `matchDiffName' 	= `prefDiff'	if `matched' == 1
 		replace `matchIDname' 		= `idvar' 		if `matched' == 1 & `grpdummy' == 0
 		replace `matchIDname' 		= `prefID' 		if `matched' == 1 & `grpdummy' == 1
+		
+		*Remove the best match value in obs that did not have a match within maxdiff()
+		replace `matchDiffName'  == . 				if `matchResultName' == .d
 		
 		*Matched observations are give value 1 in result var
 		replace `matchResultName' = 1 				if `matched' == 1 & `matchResultName' != .d
@@ -599,7 +623,7 @@ end
 		*Testing that the option name is not the same as the other variable's default name.
 		if ("`userName'" == "`Oth1'" | "`userName'" == "`Oth2'" | "`userName'" == "`Oth3'" | "`userName'" == "_ID")  {
 
-			noi di as error "{phang}The new name specified in `optionName'(`userName') is not allowed to be _ID, `Oth1', `Oth2', or `Oth3'{p_end}"
+			noi di as error "{pstd}The new name specified in `optionName'(`userName') is not allowed to be _ID, `Oth1', `Oth2', or `Oth3'{p_end}"
 			error 198
 		}
 
@@ -613,7 +637,7 @@ end
 			cap confirm variable `validMatchVarname'
 			if _rc == 0 {
 
-				noi di as error "A variable with name `validMatchVarname' is already defined. Either drop this variable or specify a new variable name using `optionName'()."
+				noi di as error "{pstd}A variable with name `validMatchVarname' is already defined. Either drop this variable or specify a new variable name using `optionName'()."
 				error 110
 			}
 		}
@@ -627,7 +651,7 @@ end
 			cap confirm variable `validMatchVarname'
 			if _rc == 0 {
 
-				noi di as error "The variable name specified in `optionName'(`userName') is already defined in the data set. Either drop this variable or specify a another variable name using `optionName'()."
+				noi di as error "{pstd}The variable name specified in `optionName'(`userName') is already defined in the data set. Either drop this variable or specify a another variable name using `optionName'()."
 				error 110
 			}
 		}
@@ -637,7 +661,7 @@ end
 
 		if _rc != 0 {
 
-			noi di as error "The variable name specified in `optionName'(`userName') is not a valid variable name."
+			noi di as error "{pstd}The variable name specified in `optionName'(`userName') is not a valid variable name."
 			error _rc
 		}
 		drop `validMatchVarname'

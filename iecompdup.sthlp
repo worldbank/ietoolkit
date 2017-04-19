@@ -1,5 +1,5 @@
 {smcl}
-{* 1 Nov 2016}{...}
+{* 18 Apr 2017}{...}
 {hline}
 help for {hi:iecompdup}
 {hline}
