@@ -30,7 +30,7 @@ An easy but still very efficient way to provide any feedback on these commands i
 ### **Contributions**
 If you are not familiar with GitHub see the **Bug reports and feature requests** section above for a less technical but still very helpful way to contribute to **ietoolkit**.
 
-GitHub is a wonderful tool for collaboration on code. We appreciate contributions directly to the code and will of course give credit to anyone providing contributions that we merge to the master branch. If you have any questions on anything in this section, please do not hesitate to email kbjarkefur@worldbank.com.
+GitHub is a wonderful tool for collaboration on code. We appreciate contributions directly to the code and will of course give credit to anyone providing contributions that we merge to the master branch. If you have any questions on anything in this section, please do not hesitate to email kbjarkefur@worldbank.org.
 
 The Stata files on the `master` branch are the files most recently released on the SSC server. README, LICENSE and similar files are updated directly to `master` in between releases. Check out any of the `develop` branches (if there are any) if you want to see what future updates we are currently working on.
 
@@ -44,7 +44,7 @@ If you wish to make a contribution by making a "fork and pull request" but are n
 **ietoolkit** is developed under MIT license. See http://adampritchard.mit-license.org/ or see [the `LICENSE` file](https://github.com/worldbank/ietoolkit/blob/master/LICENSE) for details.
 
 ### **Main Contact**
-Kristoffer Bjärkefur (kbjarkefur@worldbank.com)
+Kristoffer Bjärkefur (kbjarkefur@worldbank.org)
 
 ### **Authors**
 Kristoffer Bjärkefur, Mrijan Rimal and Luiza Cardoso de Andrade.
