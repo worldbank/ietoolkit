@@ -38,7 +38,7 @@ Please make your "fork and pull requests" from the `master` branch **only** if y
 
 All Stata commands we are working on that we have yet to release a first version of, are found in the branches called `develop-NAME` where *NAME* corresponds to the working name of the command that is yet to be published. If you wish to contribute to any of those commands, then please fork from the branch of the command you want to contribute to, and only make edits to the .ado/.do and .sthlp that correspond to that command. If you want to make contributions to multiple commands that have yet to be released, then you will have to fork from multiple branches.
 
-If you wish to make a contribution by making a "fork and pull request" but are not exactly sure how to do so, feel free to send an email to kbjarkefur@worldbank.com.
+If you wish to make a contribution by making a "fork and pull request" but are not exactly sure how to do so, feel free to send an email to kbjarkefur@worldbank.org.
 
 ### **License**
 **ietoolkit** is developed under MIT license. See http://adampritchard.mit-license.org/ or see [the `LICENSE` file](https://github.com/worldbank/ietoolkit/blob/master/LICENSE) for details.
