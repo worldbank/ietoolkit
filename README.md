@@ -22,7 +22,9 @@ An easy but still very efficient way to provide any feedback on these commands i
  - **ieduplicates** and **iecompdup** are useful tools to identify and correct for duplicates, particulary in primary survey data
  - **iebaltab** is a tool for multiple treatment arm balance tables
  - **iematch** is an algortihm for matching observations in one group to "the most similar" observations in another group
+ - **iegraph** produces graphs of estimation results in common impact evaluation regression models
  - **ieboilstart** standardizes the boilerplate code at the top of all do-files
+ - **iedropone** drops observations and controls that the correct number was dropped
  - **ieboilsave** performs checks before saving a data set
 
 ### **Contributions**
@@ -45,4 +47,4 @@ If you wish to make a contribution by making a "fork and pull request" but are n
 Kristoffer Bjärkefur (kbjarkefur@worldbank.com)
 
 ### **Authors**
-Kristoffer Bjärkefur and Luiza Cardoso de Andrade.
+Kristoffer Bjärkefur, Mrijan Rimal and Luiza Cardoso de Andrade.
