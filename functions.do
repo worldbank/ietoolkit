@@ -26,10 +26,9 @@
 			*parse the rest of the line (from tokenize above)
 			local partNum  		"`4'"
 			local partName 		"`6'"
-			local sectionNum 	"`8'"
-			local sectionName 	"`10'"
-			local itemName 		"`12'"
-			local itemAbb	 	"`14'"
+			local sectionName 	"`8'"
+			local itemName 		"`10'"
+			local itemAbb	 	"`12'"
 			
 			*Return the part name and number. All iefolder divisor lines has this
 			return local partNum  "`partNum'"
@@ -165,11 +164,11 @@
 	cap program drop 	writeDevisor 
 	program define		writeDevisor , rclass
 		
-		args  subHandle partNum partName sectionNum sectionName itemName itemAbb 
+		args  subHandle partNum partName sectionName itemName itemAbb 
 		
 		*di "devisor start"
 		
-		local devisor "*iefolder*`partNum'*`partName'*`sectionNum'*`sectionName'*`itemName'*`itemAbb'*"
+		local devisor "*iefolder*`partNum'*`partName'*`sectionName'*`itemName'*`itemAbb'*"
 		
 		local devisorLen = strlen("`devisor'")
 		
@@ -232,29 +231,6 @@
 				_col(32) "tas. Do not include Part 0-2 in a task" _n ///
 				_col(32) "specific master do-file" _n ///
 				_n _n
-			
-			/*
-			file write  `subHandle'	/// 
-				_col(8)"** REQUIRES:" _col(25) "List all data sets using the globals that you " _n ///
-				_col(25) "define below to indicate what data you will need" _n ///
-				_n ///					
-				_col(25) "Example:" _n ///
-				_col(25) _char(36)"BL_dtRaw/baseline_survey_v1.csv" _n ///
-				_col(25) _char(36)"BL_dtRaw/baseline_survey_v2.csv" _n ///
-				_col(25) _char(36)"moniData/monitor2016_data.xlsx" _n ///
-				_n 
-					
-			file write  `subHandle'	/// 		
-				_col(8)"** CREATES:" _col(25) "List all data sets using the globals that you " _n ///
-				_col(25) "define below to indicate what data set are " _n ///
-				_col(25) "created by the do-files this master do-file calls" _n ///
-				_n ///					
-				_col(25) "Example:" _n ///
-				_col(25) _char(36)"BL_dtFinal/baseline_clean.dta" _n ///
-				_col(25) _char(36)"BL_dtFinal/baseline_constructs.dta" _n ///
-				_col(25) "Multiple tables and grahps in \$BL_Out" _n ///
-				_n
-			*/
 		} 
 		else if "`itemType'" == "round" {
 			
@@ -356,7 +332,7 @@ cap program drop 	mdofle_p1
 			_col(4)"* ---------------------" _n 
 		
 		*Write sub devisor starting master and monitor data section section
-		writeDevisor `subHandle' 1 FolderGlobals 1 master	
+		writeDevisor `subHandle' 1 FolderGlobals master	
 		
 		*Create master data folder and add global to folder in master do file
 		createFolderWriteGlobal "MasterData"  "projectfolder"  	mastData	 	`subHandle' 
@@ -366,9 +342,19 @@ cap program drop 	mdofle_p1
 		createFolderWriteGlobal "Dofiles"  			"mastData"  mastDataDo
 		createFolderWriteGlobal "Sampling"  		"mastData"  mastDataSamp
 		createFolderWriteGlobal "Treatment"  		"mastData"  mastDataTreat			
+
+		*Write sub devisor starting master and monitor data section section
+		writeDevisor `subHandle' 1 FolderGlobals rawData	
+		
+		*Create master data folder and add global to folder in master do file
+		createFolderWriteGlobal "RawDataEncrypted"  "projectfolder"  	rawData	 		`subHandle' 
+
+		*Create master data subfolders
+		createFolderWriteGlobal "MasterIdKey"  		"rawData"  		masterIdDataSets	 `subHandle'
+		
 		
 		*Write sub devisor starting master and monitor data section section
-		writeDevisor `subHandle' 1 FolderGlobals 3 monitor			
+		writeDevisor `subHandle' 1 FolderGlobals monitor			
 
 		*Write sub devisor starting master and monitor data section section
 		writeDevisor `subHandle' 1 End_FolderGlobals	

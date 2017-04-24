@@ -181,7 +181,6 @@ cap program drop 	iefolder_newRound
 	file read `oldHandle' line
 	
 	*Locals needed for the section devider
-	local sectionNum 	= 0 //Keeps track of the section number
 	local partNum 		= 0 //Keeps track of the part number
 	
 	
@@ -215,11 +214,8 @@ cap program drop 	iefolder_newRound
 					*Test if it is an end of globals section as we are writing a new 
 					if "`r(sectionName)'" == "monitor" {
 					
-					*Increment the section number for the new section
-					local ++sectionNum
-					
 					*Write devisor for this section
-					writeDevisor 			`subHandle' 1 RoundGlobals 2 rounds `rndName' `rndAbb' 
+					writeDevisor 			`subHandle' 1 RoundGlobals rounds `rndName' `rndAbb' 
 					
 					*Write the globals to the master do file and create the folders
 					newRndFolderAndGlobals 	`rndName' `rndAbb' "projectfolder" `subHandle'
@@ -255,11 +251,8 @@ cap program drop 	iefolder_newRound
 				*Test if it is an end of globals section as we are writing a new 
 				if "`r(partName)'" == "End_RunDofiles" {
 					
-					*Increment the section number for the new section
-					local ++sectionNum
-					
 					*Write devisor for this section
-					writeDevisor 			`subHandle' 3 RunDofiles `sectionNum' `rndName' `rndAbb' 
+					writeDevisor 			`subHandle' 3 RunDofiles `rndName' `rndAbb' 
 					
 					*Write the 
 					file write  `subHandle' ///
