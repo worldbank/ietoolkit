@@ -88,6 +88,11 @@ cap program drop 	iefolder
 	cap file close 	`newHandle'	
 		file open  	`newHandle' using "`newTextFile'", text write append	
 	
+	
+	*Create a global pointing to the main data folder
+	global dataWorkFolder 	"`projectfolder'/DataWork"
+	global encryptFolder 	"$dataWorkFolder/EncryptedRawData"
+	
 	if "`subcommand'" == "new" {
 	
 		di "Subcommand: New"
@@ -126,7 +131,7 @@ cap program drop 	iefolder
 	file close 		`newHandle'
 	
 	*Copy the new master dofile from the tempfile to the original position
-	copy "`newTextFile'"  "$projectfolder/Project_MasterDofile.do" , replace
+	copy "`newTextFile'"  "$dataWorkFolder/Project_MasterDofile.do" , replace
 	
 	
 end 	
@@ -144,8 +149,6 @@ cap program drop 	iefolder_newProject
 		args projectfolder newHandle
 		
 		mkdir "`projectfolder'/DataWork"
-	
-		global projectfolder "`projectfolder'/DataWork"
 		
 		******************************
 		*Writing master do file header
@@ -155,7 +158,7 @@ cap program drop 	iefolder_newProject
 		mdofle_p0 `newHandle' project
 		
 		*Write flolder globals section header and the root folders
-		mdofle_p1 `newHandle' "$projectfolder"
+		mdofle_p1 `newHandle' "$dataWorkFolder"
 		
 		*Write globals section header and the root folders
 		mdofle_p2 `newHandle'
@@ -175,7 +178,7 @@ cap program drop 	iefolder_newRound
 	
 	*Old file reference
 	tempname 	oldHandle
-	local 		oldTextFile 	"$projectfolder/Project_MasterDofile.do"
+	local 		oldTextFile 	"$dataWorkFolder/Project_MasterDofile.do"
 
 	file open `oldHandle' using `"`oldTextFile'"', read
 	file read `oldHandle' line

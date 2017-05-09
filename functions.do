@@ -70,17 +70,20 @@
 		file write  `subHandle'	_col(4)"*`rndName' folder globals" _n
 		
 		*Round main folder	
-		createFolderWriteGlobal "`rndName'" 	 		"`dtfld_glb'"  	"`rnd'" 		`subHandle'
+		createFolderWriteGlobal "`rndName'" 	 		"`dtfld_glb'"  	"`rnd'" 				`subHandle'
 		
 		*Sub folders
-		createFolderWriteGlobal "DataSets" 				"`rnd'" 		"`rnd'_dt" 		`subHandle'
-		createFolderWriteGlobal "Dofiles" 				"`rnd'"			"`rnd'_do" 		`subHandle'
-		createFolderWriteGlobal "Output" 				"`rnd'"			"`rnd'_out"		`subHandle'
+		createFolderWriteGlobal "DataSets" 				"`rnd'" 		"`rnd'_dt" 				`subHandle'
+		createFolderWriteGlobal "Dofiles" 				"`rnd'"			"`rnd'_do" 				`subHandle'
+		createFolderWriteGlobal "Output" 				"`rnd'"			"`rnd'_out"				`subHandle'
 		createFolderWriteGlobal "Documentation" 		"`rnd'"	 		"`rnd'_doc"	
 		createFolderWriteGlobal "Questionnaire" 		"`rnd'"	 		"`rnd'_quest"		
 		
+		*Raw Encrypted Folder		
+		createFolderWriteGlobal "`rndName'_DataSets" 	"encryptFolder" 		"`rnd'_encrpt_raw_data" `subHandle'
+		
 		*Create round master dofile
-		createRoundMasterDofile "$projectfolder/`rndName'" "`rndName'" "`rnd'"
+		createRoundMasterDofile "$dataWorkFolder/`rndName'" "`rndName'" "`rnd'"
 		
 	end
 	
@@ -154,6 +157,8 @@
 			global `globalName' "$`parentGlobal'/`folderName'"
 			
 			*noi di `"mkdir "${`parentGlobal'}\\`folderName'""'
+			
+			di `" mkdir "${`parentGlobal'}\\`folderName'" "'
 			
 			mkdir "${`parentGlobal'}\\`folderName'"
 			
@@ -347,10 +352,10 @@ cap program drop 	mdofle_p1
 		writeDevisor `subHandle' 1 FolderGlobals rawData	
 		
 		*Create master data folder and add global to folder in master do file
-		createFolderWriteGlobal "RawDataEncrypted"  "projectfolder"  	rawData	 		`subHandle' 
+		createFolderWriteGlobal "EncryptedRawData"  "projectfolder"  	EncrptData	 		`subHandle' 
 
 		*Create master data subfolders
-		createFolderWriteGlobal "MasterIdKey"  		"rawData"  		masterIdDataSets	 `subHandle'
+		createFolderWriteGlobal "IDMasterKey"  		"EncrptData"  		masterIdDataSets	 `subHandle'
 		
 		
 		*Write sub devisor starting master and monitor data section section
