@@ -91,7 +91,7 @@ cap program drop 	iefolder
 	
 	*Create a global pointing to the main data folder
 	global dataWorkFolder 	"`projectfolder'/DataWork"
-	global encryptFolder 	"$dataWorkFolder/EncryptedRawData"
+	global encryptFolder 	"$dataWorkFolder/EncryptedData"
 	
 	if "`subcommand'" == "new" {
 	
@@ -148,7 +148,7 @@ cap program drop 	iefolder_newProject
 		
 		args projectfolder newHandle
 		
-		mkdir "`projectfolder'/DataWork"
+		mkdir "$dataWorkFolder"
 		
 		******************************
 		*Writing master do file header
@@ -158,7 +158,7 @@ cap program drop 	iefolder_newProject
 		mdofle_p0 `newHandle' project
 		
 		*Write flolder globals section header and the root folders
-		mdofle_p1 `newHandle' "$dataWorkFolder"
+		mdofle_p1 `newHandle' "`projectfolder'"
 		
 		*Write globals section header and the root folders
 		mdofle_p2 `newHandle'
@@ -221,7 +221,7 @@ cap program drop 	iefolder_newRound
 					writeDevisor 			`subHandle' 1 RoundGlobals rounds `rndName' `rndAbb' 
 					
 					*Write the globals to the master do file and create the folders
-					newRndFolderAndGlobals 	`rndName' `rndAbb' "projectfolder" `subHandle'
+					newRndFolderAndGlobals 	`rndName' `rndAbb' "dataWorkFolder" `subHandle'
 					
 					*Write an empty line before the end devisor
 					file write		`subHandle' "" _n	

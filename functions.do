@@ -70,18 +70,18 @@
 		file write  `subHandle'	_col(4)"*`rndName' folder globals" _n
 		
 		*Round main folder	
-		createFolderWriteGlobal "`rndName'" 	 		"`dtfld_glb'"  	"`rnd'" 				`subHandle'
-		
-		*Sub folders
-		createFolderWriteGlobal "DataSets" 				"`rnd'" 		"`rnd'_dt" 				`subHandle'
-		createFolderWriteGlobal "Dofiles" 				"`rnd'"			"`rnd'_do" 				`subHandle'
-		createFolderWriteGlobal "Output" 				"`rnd'"			"`rnd'_out"				`subHandle'
-		createFolderWriteGlobal "Documentation" 		"`rnd'"	 		"`rnd'_doc"	
-		createFolderWriteGlobal "Questionnaire" 		"`rnd'"	 		"`rnd'_quest"		
+		createFolderWriteGlobal "`rndName'" 	"`dtfld_glb'"	"`rnd'" 		`subHandle'
 		
 		*Raw Encrypted Folder		
-		createFolderWriteGlobal "`rndName'_DataSets" 	"encryptFolder" 		"`rnd'_encrpt_raw_data" `subHandle'
+		createFolderWriteGlobal "`rndName'" 	"encrypted" 	"`rnd'_encrpt"	`subHandle'
 		
+		*Sub folders
+		createFolderWriteGlobal "DataSets" 		"`rnd'" 		"`rnd'_dt" 		`subHandle'
+		createFolderWriteGlobal "Dofiles" 		"`rnd'"			"`rnd'_do" 		`subHandle'
+		createFolderWriteGlobal "Output" 		"`rnd'"			"`rnd'_out"		`subHandle'
+		createFolderWriteGlobal "Documentation" "`rnd'"	 		"`rnd'_doc"	
+		createFolderWriteGlobal "Questionnaire" "`rnd'"	 		"`rnd'_quest"		
+	
 		*Create round master dofile
 		createRoundMasterDofile "$dataWorkFolder/`rndName'" "`rndName'" "`rnd'"
 		
@@ -102,8 +102,8 @@
 		mdofle_p1_round `roundHandle' `rndName'
 		
 		*DataSets sub-folder
-		file write  `roundHandle'		_col(4)"*DataSets sub-folder globals" _n
-		createFolderWriteGlobal "Raw"  							"`rnd'_dt" 		"`rnd'_dtRaw" 	`roundHandle'
+		file write  `roundHandle'		_col(4)"*DataSets sub-folder globals" _n ///
+			_col(4)"global `rnd'_dtRaw " _col(34) `"""' _char(36)`"encrypted/`rndName'""' _n
 		createFolderWriteGlobal "Intermediate" 					"`rnd'_dt" 		"`rnd'_dtInt" 	`roundHandle'
 		createFolderWriteGlobal "Final"  						"`rnd'_dt" 		"`rnd'_dtFin" 	`roundHandle'
 		
@@ -121,8 +121,8 @@
 	
 		*Questionnaire subfolders
 		file write  `roundHandle' _n	_col(4)"*Questionnaire sub-folder globals" _n
-		createFolderWriteGlobal "Questionnaire Develop" 		"`rnd'_quest"	 "`rnd'_qstDev"	`roundHandle'		
-		createFolderWriteGlobal "Questionnaire Final" 			"`rnd'_quest"	 "`rnd'_qstFin"	`roundHandle'
+		createFolderWriteGlobal "Questionnaire Develop" 		"`rnd'_quest"	 "`rnd'_qstDev"			
+		createFolderWriteGlobal "Questionnaire Final" 			"`rnd'_quest"	 "`rnd'_qstFin"	
 		createFolderWriteGlobal "PreloadData"	 				"`rnd'_quest"	 "`rnd'_prld"	`roundHandle'
 		createFolderWriteGlobal "Questionnaire Documentation"	"`rnd'_quest"	 "`rnd'_doc"	`roundHandle'
 		
@@ -143,26 +143,21 @@
 		program define	createFolderWriteGlobal 
 		
 		args  folderName parentGlobal globalName subHandle
-			
-			*di "createFolderWriteGlobal start `folderName'"
-			
+		
+			*Write global in round master dofile if subHandle is specified
 			if ("`subHandle'" != "") {
 				
 				file write  `subHandle' ///
 					_col(4) `"global `globalName'"' _col(34) ///
 					`"""' _char(36)`"`parentGlobal'/`folderName'" "' _n 
-
 			}
 			
 			global `globalName' "$`parentGlobal'/`folderName'"
 			
-			*noi di `"mkdir "${`parentGlobal'}\\`folderName'""'
-			
-			di `" mkdir "${`parentGlobal'}\\`folderName'" "'
+			*di `" mkdir "${`parentGlobal'}\\`folderName'" "'
 			
 			mkdir "${`parentGlobal'}\\`folderName'"
 			
-			*di "createFolderWriteGlobal end `folderName'"
 	end
 	
 	
@@ -291,7 +286,7 @@
 cap program drop 	mdofle_p1
 	program define	mdofle_p1
 		
-		args   subHandle projectDir 
+		args   subHandle projectfolder 
 		
 		*Write devisor starting globals section
 		writeDevisor  `subHandle' 1 FolderGlobals
@@ -325,7 +320,7 @@ cap program drop 	mdofle_p1
 			_col(4)"* ---------------------" _n ///
 			_n ///	
 			_col(4)"if "_char(36)"user == 1 {" _n ///
-			_col(8)`"global projectfolder "`projectDir'""' _n ///
+			_col(8)`"global projectfolder "`projectfolder'""' _n ///
 			_col(4)"}" _n ///	
 			_n ///		
 			_col(4)"if "_char(36)"user == 2 {" _n ///
@@ -334,13 +329,15 @@ cap program drop 	mdofle_p1
 			_n ///
 			_n ///
 			_col(4)"* Project folder globals" _n ///
-			_col(4)"* ---------------------" _n 
+			_col(4)"* ---------------------" _n _n ///
+			_col(4)"global dataWorkFolder " _col(34) `"""' _char(36)`"projectfolder/DataWork""' _n
+			
 		
 		*Write sub devisor starting master and monitor data section section
 		writeDevisor `subHandle' 1 FolderGlobals master	
 		
 		*Create master data folder and add global to folder in master do file
-		createFolderWriteGlobal "MasterData"  "projectfolder"  	mastData	 	`subHandle' 
+		createFolderWriteGlobal "MasterData"  "dataWorkFolder"  	mastData	 	`subHandle' 
 
 		*Create master data subfolders
 		createFolderWriteGlobal "MasterDataSets"  	"mastData"  masterDataSets	 `subHandle'
@@ -352,10 +349,10 @@ cap program drop 	mdofle_p1
 		writeDevisor `subHandle' 1 FolderGlobals rawData	
 		
 		*Create master data folder and add global to folder in master do file
-		createFolderWriteGlobal "EncryptedRawData"  "projectfolder"  	EncrptData	 		`subHandle' 
+		createFolderWriteGlobal "EncryptedData"  	"dataWorkFolder"  	encrypted	 		`subHandle' 
 
 		*Create master data subfolders
-		createFolderWriteGlobal "IDMasterKey"  		"EncrptData"  		masterIdDataSets	 `subHandle'
+		createFolderWriteGlobal "IDMasterKey"  		"encrypted"  		masterIdDataSets	 `subHandle'
 		
 		
 		*Write sub devisor starting master and monitor data section section
