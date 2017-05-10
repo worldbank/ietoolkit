@@ -24,19 +24,19 @@
 ******************************************************************************
 	
 	*Creat a new project
-	iefolder new project , projectfolder("$projectABC")
+	iefolder new project 		, projectfolder("$projectABC")
 	
 	*Create a new folder called baseline
-	iefolder new round baseline  , projectfolder("$projectABC")
+	iefolder new round baseline	, projectfolder("$projectABC")
 	
 	*Create a new folder for endline with abbreviation EL
-	iefolder new round endline 	, projectfolder("$projectABC") abb("EL")
+	iefolder new round endline	, projectfolder("$projectABC") abb("EL")
 
 	*Show example of test for imput
 	*iefolder new round baseline , projectfolder("$projectABC") 
 	
 	*Show that it is scalabe
-	*iefolder new round midline_studnets , projectfolder("$projectABC") 	abb("ML_stud")
-	*iefolder new round midline_teachers , projectfolder("$projectABC") 	abb("ML_tch") 
-	*iefolder new round midline_schools , projectfolder("$projectABC")  	abb("ML_schl")
+	iefolder new round midline_studnets , projectfolder("$projectABC") 	abb("ML_stud")
+	iefolder new round midline_teachers , projectfolder("$projectABC") 	abb("ML_tch") 
+	iefolder new round midline_schools 	, projectfolder("$projectABC")  	abb("ML_schl")
 	

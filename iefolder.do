@@ -49,7 +49,7 @@ cap program drop 	iefolder
 	***************************************************/	
 	
 	local sub_commands "new rename"
-	local itemTypes "project round master monitor "
+	local itemTypes "project round master unitofobs monitor "
 	
 	*Test if subcommand is valid
 	if `:list subcommand in sub_commands' == 0 {
@@ -113,9 +113,9 @@ cap program drop 	iefolder
 			iefolder_newRound `newHandle' "`itemName'" "`abb'"	
 		}
 		*Creating a new master data set
-		else if "`itemType'" == "master" {
+		else if "`itemType'" == "master" | "`itemType'" == "unitofobs" {
 			
-			di "ItemType: master"
+			di "ItemType: master/unitofobs"
 			iefolder_newMaster	
 		}
 		*Creating a new monitor
@@ -132,7 +132,6 @@ cap program drop 	iefolder
 	
 	*Copy the new master dofile from the tempfile to the original position
 	copy "`newTextFile'"  "$dataWorkFolder/Project_MasterDofile.do" , replace
-	
 	
 end 	
 
@@ -188,8 +187,6 @@ cap program drop 	iefolder_newRound
 	
 	
 	while r(eof)==0 {
-		
-		di `"`line'"'
 		
 		*Do not interpret macros
 		local line : subinstr local line "\$"  "\\$"
@@ -283,5 +280,64 @@ cap program drop 	iefolder_newRound
 	*Close the old file. 
 	file close `oldHandle'
 
-	
 end
+
+
+cap program drop 	iefolder_newMaster
+	program define	iefolder_newMaster
+	
+	args subHandle obsName 
+	
+	*create folder in masterdata
+	*create folder in encrypred ID key master
+
+end 
+
+
+cap program drop 	iefolder_newMonitor
+	program define	iefolder_newMonitor
+	
+	*Old file reference
+	tempname 	oldHandle
+	local 		oldTextFile 	"$dataWorkFolder/Project_MasterDofile.do"
+
+	file open `oldHandle' using `"`oldTextFile'"', read
+	file read `oldHandle' line
+	
+	
+		
+	while r(eof)==0 {
+		
+		*Do not interpret macros
+		local line : subinstr local line "\$"  "\\$"
+		local line : subinstr local line "\`"  "\\`"
+		
+		parseReadLine `"`line'"'
+	
+		if `r(ief_line)' == 0 {
+			
+			*This is a regular line of code. It should be copied as-is. No action needed. 
+			file write	`subHandle' `"`line'"' _n
+		
+		}
+		
+		
+		
+		
+		*Read next file and repeat the while loop
+		file read `oldHandle' line
+		
+		di "new line read"
+	}
+	
+	*Close the old file. 
+	file close `oldHandle'	
+	
+	
+	*create folder for monitor exercise
+		** create the subfolders
+	*create master do file for the monitor project
+	*update master dofile
+
+
+end 

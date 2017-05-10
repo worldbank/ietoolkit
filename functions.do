@@ -154,8 +154,6 @@
 			
 			global `globalName' "$`parentGlobal'/`folderName'"
 			
-			*di `" mkdir "${`parentGlobal'}\\`folderName'" "'
-			
 			mkdir "${`parentGlobal'}\\`folderName'"
 			
 	end
@@ -166,13 +164,11 @@
 		
 		args  subHandle partNum partName sectionName itemName itemAbb 
 		
-		*di "devisor start"
-		
 		local devisor "*iefolder*`partNum'*`partName'*`sectionName'*`itemName'*`itemAbb'*"
 		
 		local devisorLen = strlen("`devisor'")
 		
-		*Make all devisors at least 80 characters wide
+		*Make all devisors at least 80 characters wide by adding stars
 		if (`devisorLen' < 80) {
 			
 			local numStars = 80 - `devisorLen'
@@ -182,21 +178,14 @@
 		file write  `subHandle' _n "`devisor'" `addedStars'
 		file write  `subHandle' _n "*iefolder will not work properly if the line above is edited"  _n _n
 		
-		*di "devisor end"
-		
 	end
 	
 	
 	
-
-
-	/*
-	
+	/**************************************************************************************
 		The functions below are all related to write the mostly 
 		static part of the master do file
-
-	*/
-	
+	**************************************************************************************/
 	
 	cap program drop 	mdofle_p0
 	program define		mdofle_p0 
