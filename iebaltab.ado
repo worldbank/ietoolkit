@@ -57,6 +57,7 @@
 				TEXNotewidth(numlist min=1 max=1)							///
 				TEXCaption(string)											///
 				TEXLabel(string)											///
+				TEXDOCument													///
 				BROWSE														///
 				SAVEBRowse													///
 				REPLACE														///
@@ -246,6 +247,10 @@ qui {
 		*Is option texnotewidth() used:
 		if "`texlabel'"			== "" local LABEL_USED = 0
 		if "`texlabel'"			!= "" local LABEL_USED = 1
+		
+		*Is option texdocument() used:
+		if "`texdocument'"		== "" local TEXDOC_USED = 0
+		if "`texdocument'"		!= "" local TEXDOC_USED = 1
 		
 		*Is option browse() used:
 		if "`browse'" 			== "" local BROWSE_USED = 0 
@@ -1176,27 +1181,31 @@ qui {
 		tempname 	texname
 		tempfile	texfile
 		
-		****Write texheader
+		****Write texheader if full document option was selected
 		*Everyhting here is the tex headers
 		capture file close `texname'
 		
-		file open  `texname' using "`texfile'", text write replace
-		file write `texname' ///
-			"%%% Table created in Stata by iebaltab (https://github.com/worldbank/ietoolkit)" _n ///
-			"%" _n ///
-			"% \documentclass{article}" _n ///
-			"%" _n ///
-			"% ----- Preamble " _n ///
-			"% \usepackage[utf8]{inputenc}" _n ///
-			"%%% We suggest using the adjustbox package to fit the table to page size. To do so, uncomment the next line." _n ///
-			"% \usepackage{adjustbox}" _n ///
-			"% ----- End of preamble " _n ///
-			"%" _n ///
-			"% \begin{document}" _n ///
-			"%" _n ///
-			"\begin{table}[!htbp]" _n /// 
-			"\centering" _n
-		file close `texname'	
+		if `TEXDOC_USED' {
+		
+			file open  `texname' using "`texfile'", text write replace
+			file write `texname' ///
+				"%%% Table created in Stata by iebaltab (https://github.com/worldbank/ietoolkit)" _n ///
+				"" _n ///
+				" \documentclass{article}" _n ///
+				"" _n ///
+				" ----- Preamble " _n ///
+				" \usepackage[utf8]{inputenc}" _n ///
+				"%%% We suggest using the adjustbox package to fit the table to page size. To do so, uncomment the next line." _n ///
+				"% \usepackage{adjustbox}" _n ///
+				" ----- End of preamble " _n ///
+				"" _n ///
+				" \begin{document}" _n ///
+				"" _n ///
+				"begin{table}[!htbp]" _n /// 
+				"\centering" _n
+			file close `texname'
+			
+		}
 		
 		* Write tex caption if specified
 		if `CAPTION_USED' {
@@ -1212,15 +1221,23 @@ qui {
 			file close `texname'
 		}
 		
+		if `TEXDOC_USED' {
+		
+			file open  `texname' using "`texfile'", text write append
+			file write `texname' ///
+				"%%% Uncomment the next line to fit the table to page size using the adjustbox package." _n ///
+				"% \begin{adjustbox}{max width=\textwidth}" _n ///
+			file close `texname'
+			
+		}
+		
 		file open  `texname' using "`texfile'", text write append
 		file write `texname' ///
-			"%%% Uncomment the next line to fit the table to page size using the adjustbox package." _n ///
-			"% \begin{adjustbox}{max width=\textwidth}" _n ///
 			"\begin{tabular}{@{\extracolsep{5pt}}`colstring'}" _n ///
 			"\\[-1.8ex]\hline" _n ///
-			"\hline \\[-1.8ex]" _n	
-			
+			"\hline \\[-1.8ex]" _n		
 		file close `texname'
+		
 		
 		*Write the title rows defined above	
 		capture file close `texname'
@@ -2144,14 +2161,19 @@ qui {
 		}
 	
 		file write `texname' ///	
-			"\end{tabular}" _n ///
-			"%%% Uncomment the next line to fit the table to page size using the adjustbox package." _n ///
-			"% \end{adjustbox}" _n ///
-			"\end{table}" _n ///
-			"% \end{document}" _n
-			
-		file close `texname'
+				"\end{tabular}" _n
+		file close `texname'		
 	
+		if `TEXDOC_USED' {
+		
+			file write `texname' ///	
+				"%%% Uncomment the next line to fit the table to page size using the adjustbox package." _n ///
+				"% \end{adjustbox}" _n ///
+				"\end{table}" _n ///
+				"\end{document}" _n
+				
+			file close `texname'
+		}
 	/***********************************************
 	************************************************/
 
