@@ -32,6 +32,7 @@
 				COVMISS(string) 											///
 				COVMISSReg(string)											///	
 				MISSMINmean(numlist min=1 max=1 >0)							///
+				aweight(varname)											///
 																			///
 				/*F-test*/													///
 				FTest 														///
@@ -189,7 +190,6 @@ qui {
 		if "`missminmean'" 		== "" local MISSMINMEAN_USED = 0 
 		if "`missminmean'" 		!= "" local MISSMINMEAN_USED = 1 			
 		
-		
 		*Is option starlevels() used:
 		if "`starlevels'" 		== "" local STARLEVEL_USED = 0 
 		if "`starlevels'" 		!= "" local STARLEVEL_USED = 1 
@@ -215,6 +215,10 @@ qui {
 		*Is option pftest() used:
 		if "`stdev'" 			== "" local STDEV_USED = 0 
 		if "`stdev'" 			!= "" local STDEV_USED = 1 
+		
+		*Is option aweight() used:
+		if "`aweight'" 			== "" local AWEIGHT_USED = 0 
+		if "`aweight'" 			!= "" local AWEIGHT_USED = 1 
 	
 	
 	** Output Options	
@@ -595,7 +599,11 @@ qui {
 			}
 		}
 		 	
-			
+		if `AWEIGHT_USED' == 1{
+		
+			*LA: test if aweight variable is numeric and shit
+		
+		}
 			
 		
 		
@@ -1263,6 +1271,18 @@ qui {
 			local error_estm vce(`vce')
 		
 		}
+		
+	**********************************
+	*Preparing weight option
+	
+		if `AWEIGHT_USED' {
+			
+			** The varname for weight is
+			*  prepared to be put in the reg
+			*  options
+			local aweight_option [aweight = `aweight']
+		
+		}
 	
 	
 	** Create locals that control the warning table
@@ -1331,7 +1351,7 @@ qui {
 		
 			forvalues groupNumber = 1/`GRPVAR_NUM_GROUPS' {
 			
-				reg 	`balancevar' if `groupOrder' == `groupNumber' , `error_estm'
+				reg 	`balancevar' if `groupOrder' == `groupNumber' `aweight_option', `error_estm' 
 				
 				local 	N_`groupNumber' 	= e(N)
 				local 	N_`groupNumber'  	: display %9.0f `N_`groupNumber''
@@ -1997,6 +2017,12 @@ qui {
 		if "`vce_type'" == "cluster"  	local error_est_note	"`variance_type_name' are clustered at variable `cluster_var'. "
 		if "`vce_type'" == "bootstrap"  local error_est_note	"`variance_type_name' are estimeated using bootstrap. "
 	}	
+	
+	if `AWEIGHT_USED' == 1 {
+			
+		local weight_note	"Observations are weighted using variable `aweight' as analytical weights."
+	
+	}	
 
 	
 	if `BALMISS_USED' == 1 | `BALMISSREG_USED' == 1 {
@@ -2027,6 +2053,7 @@ qui {
 		*Delete the locals corresponding to options not used
 		if `FTEST_USED'			== 0	local ftest_note		""
 		if `VCE_USED'			== 0	local error_est_note	""
+		if `AWEIGHT_USED'		== 0	local weight_note		""
 		if `FIX_EFFECT_USED'	== 0	local fixed_note		""
 		if `COVARIATES_USED'	== 0	local covar_note		""
 		if `BALMISS_USED'		== 0	local balmiss_note 		""
@@ -2037,7 +2064,7 @@ qui {
 			*Write to file
 			file open  `textname' using "`textfile'", text write append
 			
-				file write `textname' "`tblnote' `ttest_note'`ftest_note'`error_est_note'`fixed_note'`covar_note'`balmiss_note'`covmiss_note'`stars_note'" _n
+				file write `textname' "`tblnote' `ttest_note'`ftest_note'`error_est_note'`fixed_note'`covar_note'`weight_note'`balmiss_note'`covmiss_note'`stars_note'" _n
 				
 			file close `textname'
 
@@ -2077,6 +2104,7 @@ qui {
 	*Delete the locals corresponding to options not used
 	if `FTEST_USED'			== 0	local ftest_note		""
 	if `VCE_USED'			== 0	local error_est_note	""
+	if `AWEIGHT_USED'		== 0	local weight_note		""
 	if `FIX_EFFECT_USED'	== 0	local fixed_note		""
 	if `COVARIATES_USED'	== 0	local covar_note		""
 	if `BALMISS_USED'		== 0	local balmiss_note 		""
@@ -2112,7 +2140,7 @@ qui {
 			file write `texname' ///
 				"%%% This is the note. If it does not have the correct margins, edit text below to fit to table size." _n ///
 				"[-1.8ex] \multicolumn{`totalColNo'}{@{}p{`texnotewidth'\textwidth}}" _n ///
-				`"{\textit{Notes}: `tblnote' `ttest_note'`ftest_note'`error_est_note'`fixed_note'`covar_note'`balmiss_note'`covmiss_note'`stars_note'}"' _n
+				`"{\textit{Notes}: `tblnote' `ttest_note'`ftest_note'`error_est_note'`fixed_note'`covar_note'`weight_note'`balmiss_note'`covmiss_note'`stars_note'}"' _n
 		}
 	
 		file write `texname' ///	
