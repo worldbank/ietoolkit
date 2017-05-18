@@ -6,7 +6,7 @@ help for {hi:iematch}
 
 {title:Title}
 
-{phang2}{cmdab:iefolder} {hline 2} Sets up folders and master do-files according to World Bank DIME's standards.
+{phang2}{cmdab:iefolder} {hline 2} Sets up project folders and master do-files according to World Bank DIME's standards.
 
 {title:Syntax}
 
@@ -30,20 +30,38 @@ help for {hi:iematch}
 {marker desc}
 {title:Description}
 
-{pstd}{cmdab:iematch} matches base observations towards target observations in terms
-	of nearest value in {cmd:matchvar()}. Base observations are observations with
-	value 1 in {cmd:grpdummy()} and target observations are observations with value
-	0. For example, in a typical p-score match, base observations are treatment and
-	target is control, however, there are many other examples of matching where it could
-	be different.
+{pstd}{cmdab:iefolder} automizes the process of setting up the folder in a 
+	project folder where all the data work will take place. The folders set 
+	up will follow DIME's best practices outlined and explained here: 
+	{browse "https://dimewiki.worldbank.org/wiki/DataWork_Folder"} (This page 
+	is a part of a Wiki that we are in the final stage of getting approval to 
+	release externally, the page is until then unfortunatelly password protected.) 
 
-{pstd}{cmdab:iematch} bases its matching algorithm on the Stable Marriage algorithm.
-	This algorithm was chosen because it always provides a solution and allows stable
-	matching even if multiple observations have identical match
-	values (see {cmd:seed()} option for more details). One disadvantage of this
-	algorithm is that it takes into account local efficiency only, and not global efficiency. This
-	means that it is possible that other matching algorithms might generate a more
-	efficient match in terms of the sum of the difference of all matched pairs/groups.
+{pstd}In addition to setting up the {hi:DataWork} folder and it sub-folders the 
+	command creates master do-files linking to all of these sub-folders. These 
+	master do-files are updated whenever more subfolders are added using this command.
+	
+{pstd}This command can create either a new DataWork folder or add folders to an 
+	existing DataWork folder. The existing DataWork fodler must have been created 
+	with {cmd:iefolder} for the additions to work. There are two types of folders 
+	that can be added to an existing folder, {ul:{hi:round}} and {ul:{hi:master}}. 
+	See next paragraphs for descriptions.
+	
+{pstd}{ul:{hi:round}} folders are folders specific to a data collection round, for example, {it:Baseline}, {it:Endline},
+	{it:Follow Up} etc. When adding a new round, sub-folders are added to the DataWork 
+	folder in line with the best practice described here:
+	{browse "https://dimewiki.worldbank.org/wiki/DataWork_Survey_Round"}. {cmd:iefolder} also 
+	creates a master do-file specific for the round with globals references the sub-folders
+	specific to this round. {cmd:iefolder} is implemented so that you can keep working 
+	for years with your project inbetween adding folders. The command reads the content 
+	of the folder and the project master do-file and make the addition in accordance to
+	that.
+	
+{pstd}{ul:{hi:master}} folder is folders specific to the master data sets that corresponds 
+	to each unit of observation. Read more about master data sets and the folder structure
+	this commands sets up for you at {browse "https://dimewiki.worldbank.org/wiki/Master_Data_Set"}. A 
+	master data folder for each new unit of observation is created in two places. Both in 
+	the MasterData folder in the DataWork folder, and in the MasterKeyID folder in the encrypted folder.
 
 {marker optslong}
 {title:Options}
