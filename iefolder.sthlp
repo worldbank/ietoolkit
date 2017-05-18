@@ -14,21 +14,24 @@ help for {hi:iematch}
 {cmd:iefolder} new {it:itemtype} , {cmdab:proj:ectfolder(}{it:directory}{cmd:)} 
 	[{cmdab:abb:reviation(}{it:string}{cmd:)}] 
 	
-{pmore} Where {it:itemtype} is either {it:project}, {it:round}, {it:master} or 
-	{it:unitofobs}. See details below.
+{pmore}where {it:itemtype} is either {it:project}, {it:round} or {it:master}. See 
+	details on itemtypes below.
 
 {marker opts}{...}
 {synoptset 22}{...}
 {synopthdr:options}
 {synoptline}
-{synopt : {cmdab:proj:ectfolder(}{it:dir}{cmd:)}}The location where 
-	the {hi:DataWork} folder should be created (new projects), or 
-	where it is located (existing projects). {p_end}
+{synopt :{it:new itemtype}}Specifies if you want to create a DataWork folder in a 
+	new {ul:{it:project}} or add a new {ul:{it:round}} folder or new {ul:{it:master}}
+	folders.{p_end}
+{synopt : {cmdab:proj:ectfolder(}{it:dir}{cmd:)}}The location of 
+	the project folder where the {hi:DataWork} folder should be 
+	created (new projects), or where it is located (existing projects).{p_end}
 {synopt : {cmdab:abb:reviation(}{it:string}{cmd:)}}Optional abbreviation 
 	of round name to be used to make globals shorter. {p_end}
+{synoptline}
 
-{marker desc}
-{title:Description}
+{marker desc}{title:Description}
 
 {pstd}{cmdab:iefolder} automizes the process of setting up the folder in a 
 	project folder where all the data work will take place. The folders set 
@@ -41,13 +44,13 @@ help for {hi:iematch}
 	command creates master do-files linking to all of these sub-folders. These 
 	master do-files are updated whenever more subfolders are added using this command.
 	
-{pstd}This command can create either a new DataWork folder or add folders to an 
+{pstd}{ul:{hi:itemtypes}}. This command can create either a new DataWork folder or add folders to an 
 	existing DataWork folder. The existing DataWork fodler must have been created 
 	with {cmd:iefolder} for the additions to work. There are two types of folders 
-	that can be added to an existing folder, {ul:{hi:round}} and {ul:{hi:master}}. 
+	that can be added to an existing folder, {ul:{round} and {ul:{master}. 
 	See next paragraphs for descriptions.
 	
-{pstd}{ul:{hi:round}} folders are folders specific to a data collection round, for example, {it:Baseline}, {it:Endline},
+{pstd}{ul:round} folders are folders specific to a data collection round, for example, {it:Baseline}, {it:Endline},
 	{it:Follow Up} etc. When adding a new round, sub-folders are added to the DataWork 
 	folder in line with the best practice described here:
 	{browse "https://dimewiki.worldbank.org/wiki/DataWork_Survey_Round"}. {cmd:iefolder} also 
@@ -57,41 +60,70 @@ help for {hi:iematch}
 	of the folder and the project master do-file and make the addition in accordance to
 	that.
 	
-{pstd}{ul:{hi:master}} folder is folders specific to the master data sets that corresponds 
+{pstd}{ul:master} folders are folders specific to the master data sets that corresponds 
 	to each unit of observation. Read more about master data sets and the folder structure
 	this commands sets up for you at {browse "https://dimewiki.worldbank.org/wiki/Master_Data_Set"}. A 
 	master data folder for each new unit of observation is created in two places. Both in 
 	the MasterData folder in the DataWork folder, and in the MasterKeyID folder in the encrypted folder.
 
-{marker optslong}
-{title:Options}
+{marker optslong}{title:Options}
 
-{phang}{cmdab:proj:ectfolder(}{it:dir}{cmd:)} is 
+{phang}{it:new itemtype} is used to specify what to create when {cmd:iefolder} is used. 
+	There are three {it:itemtpyes} meaning that it can either be sepcified as {it:new project}, 
+	{it:new round} or {it:new master}. {it:new project} sets up the initia
 
-{phang}{cmdab:abb:reviation(}{it:string}{cmd:)} is 
+{phang}{cmdab:proj:ectfolder(}{it:dir}{cmd:)} should point to the same folder regardless 
+	of which {it:itemtype}is created. If {it:new project} is specified the file path should
+	point to where DataWork should be created, and if {it:new round} or {it:new project} is
+	specified, it should point to where DataWork was already created. See how the file path is 
+	the same both time when {cmd:iefolder} is called twice in Example 1. 
+
+{phang}{cmdab:abb:reviation(}{it:string}{cmd:)} can be used to shorten the globals created
+	in the master do-files that point to the sub-folders to {it:roundf} folders. For example, 
+	if you create a new {it:round} called Baseline, as in Example 1, then a global to the 
+	DataSet folder called Baseline_dt will be created in the master do-file. If the 
+	abbrevation office would have been used like in Example 2, then the global would 
+	have been called BL_dt.
 
 {title:Examples}
 
 {pstd} {hi:Example 1.}
 
-{pmore}{inp:iematch , grpdummy({it:tmt}) matchvar({it:p_hat})}
+{pmore}{inp:global projectFolder "C:\Users\Documents\DropBox\ProjectABC"}
 
-{pmore}In the example above, the observations with value 1 in {it:tmt} will be matched
-	towards the nearest, in terms of {it:p_hat}, observations with value 0 in {it:tmt}.
+{pmore}{inp:iefolder new project , projectfolder("$projectFolder")}{break}
+{inp:iefolder new round baseline , projectfolder("$projectFolder")}
+
+{pmore}In the example above, 
 
 {pstd} {hi:Example 2.}
 
-{pmore}{inp:iematch if {it:baseline} == 1  , grpdummy({it:tmt}) matchvar({it:p_hat}) maxdiff(.001)}
+{pmore}{inp:global projectFolder "C:\Users\Documents\DropBox\ProjectABC"}
 
-{pmore}In the example above, the observations with value 1 in {it:tmt} will be matched
-	towards the nearest, in terms of {it:p_hat}, observations with value 0 in {it:tmt} as
-	long as the difference in {it:p_hat} is less than .001. Only observations that has the
-	value 1 in variable {it:baseline} will be included in the match.
+{pmore}{inp:iefolder new project , projectfolder("$projectFolder")}{break}
+{inp:iefolder new round baseline , projectfolder("$projectFolder") , abbvreviation("BL")}
+
+{pmore}In the example above, 
+
+{pstd} {hi:Example 2.}
+
+{pmore}{inp:global projectFolder "C:\Users\Documents\DropBox\ProjectABC"}
+
+{pmore}{inp:iefolder new project , projectfolder("$projectFolder")}{break}
+{inp:iefolder new master household , projectfolder("$projectFolder") , abbvreviation("BL")}{break}
+{inp:iefolder new round baseline , projectfolder("$projectFolder") , abbvreviation("BL")}
+
+{pmore}{inp:iefolder new round midline , projectfolder("$projectFolder") , abbvreviation("ML")}{break}
+{inp:iefolder new master village , projectfolder("$projectFolder")}
+
+{pmore}{inp:iefolder new round endline , projectfolder("$projectFolder") , abbvreviation("EL")}
+
+{pmore}In the example above, 
 
 {title:Acknowledgements}
 
 {phang}I would like to acknowledge the help in testing and proofreading I received in relation to this command and help file from (in alphabetic order):{p_end}
-{pmore}Mrijan Rimal, Seungmin Lee, Laura Costica{break}
+{pmore}Laura Costica{break}Seungmin Lee{break}Mrijan Rimal{break}
 
 {title:Author}
 
