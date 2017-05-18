@@ -180,7 +180,33 @@
 		
 	end
 	
+	cap program drop 	checkFolderExists 
+	program define		checkFolderExists , rclass	
+		
+		args folder type
+		
+		*Returns 0 if folder does not exist, 1 if it does
+		mata : st_numscalar("r(dirExist)", direxists("`folder'"))
+		
+		** If type is parent folder, i.e. the folder in which we are creating a 
+		*  new folder, then the parent folder should exist. Throw an error if it doesn't
+		if `r(dirExist)' == 0 & "`type'" == "parent" {
+		
+			noi di as error `"{phang}A new folder cannot be created in "`folder'" as that folder does not exist. iefolder will not work properly if the names of the folders it depends on are changed."' 
+			error 693
+			exit
+		}
+		
+		** If type is new folder, i.e. the folder we are creating, 
+		*  then that folder should not exist. Throw an error if it does		
+		if `r(dirExist)' == 1 & "`type'" == "new" {
+			
+			noi di as error `"{phang}The new folder cannot be created since the folder "`folder'" already exist. You may not use the a name twice for teh same type of folder."' 
+			error 693
+			exit
+		}
 	
+	end
 	
 	/**************************************************************************************
 		The functions below are all related to write the mostly 
@@ -328,12 +354,6 @@ cap program drop 	mdofle_p1
 		*Create master data folder and add global to folder in master do file
 		createFolderWriteGlobal "MasterData"  "dataWorkFolder"  	mastData	 	`subHandle' 
 
-		*Create master data subfolders
-		createFolderWriteGlobal "MasterDataSets"  	"mastData"  masterDataSets	 `subHandle'
-		createFolderWriteGlobal "Dofiles"  			"mastData"  mastDataDo
-		createFolderWriteGlobal "Sampling"  		"mastData"  mastDataSamp
-		createFolderWriteGlobal "Treatment"  		"mastData"  mastDataTreat			
-
 		*Write sub devisor starting master and monitor data section section
 		writeDevisor `subHandle' 1 FolderGlobals rawData	
 		
@@ -444,29 +464,29 @@ cap program drop 	mdofle_p3
 		writeDevisor  `subHandle' `partNum' RunDofiles	
 		
 			file write  `subHandle' 	///
-				_col(4)"* ******************************************************************** *" _n ///
-				_col(4)"*" _n ///	
-				_col(4)"*" _col(12) "PART `partNum': - RUN DOFILES CALLED BY THIS MASTER DO FILE" _n ///
+				_col(4)"* ******************************************************************** *" _n 	///
+				_col(4)"*" _n 																			///	
+				_col(4)"*" _col(12) "PART `partNum': - RUN DOFILES CALLED BY THIS MASTER DO FILE" _n 	///
 				_col(4)"*" _n 
 				
 			if "`itemType'" == "project" {	
-				file write  `subHandle' 	///
-					_col(4)"*" _col(16) "-When survey rounds are added, this section will" _n ///
-					_col(4)"*" _col(17) "link to the master dofile for that round." _n /// 
-					_col(4)"*" _col(16) "-The default is that these dofiles are set to not"  _n ///
-					_col(4)"*" _col(17) "run. It is rare that all round specfic master dofiles"  _n ///
-					_col(4)"*" _col(17) "are called at the same time, the round specifc master"  _n ///
-					_col(4)"*" _col(17) "dofiles are almost always called individually. The"  _n ///
+				file write  `subHandle' 																///
+					_col(4)"*" _col(16) "-When survey rounds are added, this section will" _n 			///
+					_col(4)"*" _col(17) "link to the master dofile for that round." _n 					/// 
+					_col(4)"*" _col(16) "-The default is that these dofiles are set to not"  _n 		///
+					_col(4)"*" _col(17) "run. It is rare that all round specfic master dofiles"  _n 	///
+					_col(4)"*" _col(17) "are called at the same time, the round specifc master"  _n 	///
+					_col(4)"*" _col(17) "dofiles are almost always called individually. The"  _n 		///
 					_col(4)"*" _col(17) "excpetion is when reviewing or replicating a full project." _n 
 			} 
 			else if "`itemType'" == "round" {	
-				file write  `subHandle' 	///
-					_col(4)"*" _col(16) "-A task master dofile has been created for each high"  _n ///
-					_col(4)"*" _col(17) "level task (import, cleaning, construct, analyze). By "  _n ///
-					_col(4)"*" _col(17) "running all of them all data work associated with the "  _n ///
-					_col(4)"*" _col(17) "`rndName' should be replicated, including output of "  _n ///
-					_col(4)"*" _col(17) "tablets, graphs, etc." _n /// 
-					_col(4)"*" _col(16) "-Feel free to add to this list if you have other high"  _n /// 
+				file write  `subHandle' 																///
+					_col(4)"*" _col(16) "-A task master dofile has been created for each high"  _n 		///
+					_col(4)"*" _col(17) "level task (cleaning, construct, analyze). By "  _n 			///
+					_col(4)"*" _col(17) "running all of them all data work associated with the "  _n 	///
+					_col(4)"*" _col(17) "`rndName' should be replicated, including output of "  _n 		///
+					_col(4)"*" _col(17) "tablets, graphs, etc." _n 										/// 
+					_col(4)"*" _col(16) "-Feel free to add to this list if you have other high"  _n 	/// 
 					_col(4)"*" _col(17) "level tasks relevant to your project." _n 
 			}
 			
@@ -479,13 +499,11 @@ cap program drop 	mdofle_p3
 			file write  `subHandle' 	_n ///
 				_col(4)"**Set the locals corresponding to the taks you want" _n ///
 				_col(4)"* run to 1. To not run a task, set the local to 0." _n ///
-				_col(4)"local importDo" _col(25) "1" _n ///
 				_col(4)"local cleaningDo" _col(25) "1" _n ///
 				_col(4)"local constructDo" _col(25) "1" _n ///
 				_col(4)"local analysisDo" _col(25) "1" _n ///
 			
 			*Create the references to the high level task 
-			highLevelTask `subHandle'  "`rndName'" "`rnd'" "import"
 			highLevelTask `subHandle'  "`rndName'" "`rnd'" "cleaning"
 			highLevelTask `subHandle'  "`rndName'" "`rnd'" "construct"
 			highLevelTask `subHandle'  "`rndName'" "`rnd'" "analysis"
@@ -550,9 +568,6 @@ cap program drop 	mdofle_task
 		local caps = upper("`rndName' `task'")
 		
 		local suffix 
-		if "`task'" == "import" {
-			local suffix "_doImp"
-		}
 		if "`task'" == "cleaning" {
 			local suffix "_doCln"
 		}
