@@ -48,8 +48,8 @@ cap program drop 	iefolder
 	
 	***************************************************/	
 	
-	local sub_commands "new rename"
-	local itemTypes "project round master unitofobs monitor "
+	local sub_commands "new"
+	local itemTypes "project round master unitofobs"
 	
 	*Test if subcommand is valid
 	if `:list subcommand in sub_commands' == 0 {
@@ -70,7 +70,6 @@ cap program drop 	iefolder
 		
 		di as error "{phang}You must specify a name of the `itemType'. See help file for details.{p_end}"
 		error 198
-	
 	}
 	
 	di "All tests ok"
@@ -112,17 +111,12 @@ cap program drop 	iefolder
 			di "ItemType: round"
 			iefolder_newRound `newHandle' "`itemName'" "`abb'"	
 		}
-		*Creating a new master data set
+		*Creating a new level of observation for master data set
 		else if "`itemType'" == "master" | "`itemType'" == "unitofobs" {
 			
 			di "ItemType: master/unitofobs"
-			iefolder_newMaster	
-		}
-		*Creating a new monitor
-		else if "`itemType'" == "monitor" {
-			
-			di "ItemType: monitor"
-			iefolder_newMonitor		
+			di `"iefolder_newMaster	`newHandle' "`itemName'""'
+			iefolder_newMaster	`newHandle' "`itemName'"
 		}
 	}
 	
@@ -147,6 +141,12 @@ cap program drop 	iefolder_newProject
 		
 		args projectfolder newHandle
 		
+		*Test if folder where to create new folder exist
+		checkFolderExists "`projectfolder'" "parent"
+
+		*Test that the new folder does not already exist
+		checkFolderExists "$dataWorkFolder" "new"				
+				
 		mkdir "$dataWorkFolder"
 		
 		******************************
@@ -172,8 +172,17 @@ end
 
 cap program drop 	iefolder_newRound
 	program define	iefolder_newRound
-
+	
 	args subHandle rndName rndAbb 
+	
+	di "new round command"
+	
+	
+	*Test if folder where to create new folder exist
+	checkFolderExists "$dataWorkFolder" "parent"
+	
+	*Test that the new folder does not already exist
+	checkFolderExists "$dataWorkFolder/`rndName'" "new"		
 	
 	*Old file reference
 	tempname 	oldHandle
@@ -205,7 +214,7 @@ cap program drop 	iefolder_newRound
 			**This is a line of code with a devisor written by 
 			* iefodler. New additions to a section are always added right before an end of section line. 
 			
-			return list
+			*return list
 			
 			**This is NOT an end of section line. Nothing will be written here 
 			* but we test that there is no confict with previous names
@@ -273,8 +282,6 @@ cap program drop 	iefolder_newRound
 		
 		*Read next file and repeat the while loop
 		file read `oldHandle' line
-		
-		di "new line read"
 	}
 	
 	*Close the old file. 
@@ -288,14 +295,25 @@ cap program drop 	iefolder_newMaster
 	
 	args subHandle obsName 
 	
+	di "new master command"
+
+	*************
+	*create folder in encrypred ID key master	
+	
+	*Test if folder where to create new folder exist
+	checkFolderExists "$dataWorkFolder/EncryptedData/IDMasterKey" "parent"
+
+	*Test that the new folder does not already exist
+	checkFolderExists "$dataWorkFolder/EncryptedData/IDMasterKey/`obsName'" "new"				
+
+	*Create the folder
+	mkdir "$dataWorkFolder/EncryptedData/IDMasterKey/`obsName'"
+	
+	
+	*************
 	*create folder in masterdata
-	*create folder in encrypred ID key master
-
-end 
-
-
-cap program drop 	iefolder_newMonitor
-	program define	iefolder_newMonitor
+	global mastData 	"$dataWorkFolder/MasterData"
+	
 	
 	*Old file reference
 	tempname 	oldHandle
@@ -304,8 +322,10 @@ cap program drop 	iefolder_newMonitor
 	file open `oldHandle' using `"`oldTextFile'"', read
 	file read `oldHandle' line
 	
+	*Locals needed for the section devider
+	local partNum 		= 0 //Keeps track of the part number
 	
-		
+	
 	while r(eof)==0 {
 		
 		*Do not interpret macros
@@ -314,30 +334,57 @@ cap program drop 	iefolder_newMonitor
 		
 		parseReadLine `"`line'"'
 	
-		if `r(ief_line)' == 0 {
+		if `r(ief_line)' == 1 & `r(ief_line)' == 1 & `r(ief_end)' == 0  & "`r(sectionName)'" == "rawData" {
 			
-			*This is a regular line of code. It should be copied as-is. No action needed. 
-			file write	`subHandle' `"`line'"' _n
+			*Create master data folder and add global to folder in master do file
+			cap createFolderWriteGlobal "`obsName'"  "mastData"  	mastData_`obsName'	`subHandle'
+
+			if _rc == 693 {
+				
+				*Test if folder where to create new fodler exist
+				checkFolderExists "$mastData" "parent"
+
+				*Test that the new folder does not already exist
+				checkFolderExists "$mastData\`obsName'" "new"				
+				
+				*If that folder exist, problem 
+				di as error "{phang}could not create new folder, folder name might already exist "
+				error _rc
+		
+			}
+			else if _rc != 0 {
+				
+				*Unexpected error, run the exact command name again and throw the error to user
+				createFolderWriteGlobal "`obsName'"  "mastData"  	mastData_`obsName'	`subHandle'
+			}
+	
+			
+			
+			file write		`subHandle' `"`line'"' _n
+		
+		}
+		else {
+			
+			*Copy the line as is
+			file write		`subHandle' `"`line'"' _n
 		
 		}
 		
 		
-		
-		
 		*Read next file and repeat the while loop
 		file read `oldHandle' line
-		
-		di "new line read"
 	}
 	
 	*Close the old file. 
 	file close `oldHandle'	
 	
 	
-	*create folder for monitor exercise
-		** create the subfolders
-	*create master do file for the monitor project
-	*update master dofile
+	*Create master data subfolders
+	createFolderWriteGlobal "MasterDataSets"  	"mastData_`obsName'"  masterDataSets	
+	createFolderWriteGlobal "Dofiles"  			"mastData_`obsName'"  mastDataDo
+	createFolderWriteGlobal "Sampling"  		"mastData_`obsName'"  mastDataSamp
+	createFolderWriteGlobal "Treatment"  		"mastData_`obsName'"  mastDataTreat	
+	
 
 
 end 
