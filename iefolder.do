@@ -49,7 +49,7 @@ cap program drop 	iefolder
 	***************************************************/	
 	
 	local sub_commands "new"
-	local itemTypes "project round master unitofobs"
+	local itemTypes "project round master"
 	
 	*Test if subcommand is valid
 	if `:list subcommand in sub_commands' == 0 {
@@ -112,7 +112,7 @@ cap program drop 	iefolder
 			iefolder_newRound `newHandle' "`itemName'" "`abb'"	
 		}
 		*Creating a new level of observation for master data set
-		else if "`itemType'" == "master" | "`itemType'" == "unitofobs" {
+		else if "`itemType'" == "master" {
 			
 			di "ItemType: master/unitofobs"
 			di `"iefolder_newMaster	`newHandle' "`itemName'""'
