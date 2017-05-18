@@ -72,9 +72,6 @@
 		*Round main folder	
 		createFolderWriteGlobal "`rndName'" 	"`dtfld_glb'"	"`rnd'" 		`subHandle'
 		
-		*Raw Encrypted Folder		
-		createFolderWriteGlobal "`rndName'" 	"encrypted" 	"`rnd'_encrpt"	`subHandle'
-		
 		*Sub folders
 		createFolderWriteGlobal "DataSets" 		"`rnd'" 		"`rnd'_dt" 		`subHandle'
 		createFolderWriteGlobal "Dofiles" 		"`rnd'"			"`rnd'_do" 		`subHandle'
@@ -101,15 +98,19 @@
 		mdofle_p0 		`roundHandle' round
 		mdofle_p1_round `roundHandle' `rndName'
 		
+		*Encrypted round sub-folder
+		file write  `roundHandle'		_col(4)"*Encrypted round sub-folder globals" _n 
+		createFolderWriteGlobal "`rndName' encrypted" 			"encryptFolder" "`rnd'_encrypt" `roundHandle'
+		createFolderWriteGlobal "Raw Identified Data"  			"`rnd'_encrypt" "`rnd'_dtRaw" 	`roundHandle'
+		createFolderWriteGlobal "Dofiles Import"				"`rnd'_encrypt" "`rnd'_doImp" 	`roundHandle'
+		
 		*DataSets sub-folder
-		file write  `roundHandle'		_col(4)"*DataSets sub-folder globals" _n ///
-			_col(4)"global `rnd'_dtRaw " _col(34) `"""' _char(36)`"encrypted/`rndName'""' _n
+		file write  `roundHandle' _n	_col(4)"*DataSets sub-folder globals" _n
 		createFolderWriteGlobal "Intermediate" 					"`rnd'_dt" 		"`rnd'_dtInt" 	`roundHandle'
 		createFolderWriteGlobal "Final"  						"`rnd'_dt" 		"`rnd'_dtFin" 	`roundHandle'
 		
 		*Dofile sub-folder
 		file write  `roundHandle' _n	_col(4)"*Dofile sub-folder globals" _n
-		createFolderWriteGlobal "Dofiles Import"				"`rnd'_do" 		"`rnd'_doImp" 	`roundHandle'
 		createFolderWriteGlobal "Dofiles Cleaning"				"`rnd'_do" 		"`rnd'_doCln" 	`roundHandle'
 		createFolderWriteGlobal "Dofiles Construct"				"`rnd'_do" 		"`rnd'_doCon" 	`roundHandle'
 		createFolderWriteGlobal "Dofiles Analysis"				"`rnd'_do" 		"`rnd'_doAnl" 	`roundHandle'
@@ -358,10 +359,10 @@ cap program drop 	mdofle_p1
 		writeDevisor `subHandle' 1 FolderGlobals rawData	
 		
 		*Create master data folder and add global to folder in master do file
-		createFolderWriteGlobal "EncryptedData"  	"dataWorkFolder"  	encrypted	 		`subHandle' 
+		createFolderWriteGlobal "EncryptedData"  	"dataWorkFolder"  	encryptFolder	 		`subHandle' 
 
 		*Create master data subfolders
-		createFolderWriteGlobal "IDMasterKey"  		"encrypted"  		masterIdDataSets	 `subHandle'
+		createFolderWriteGlobal "IDMasterKey"  		"encryptFolder"  		masterIdDataSets	 `subHandle'
 		
 		
 		*Write sub devisor starting master and monitor data section section
