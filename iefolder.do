@@ -3,7 +3,7 @@
 cap program drop 	iefolder
 	program define	iefolder	
 	
-	syntax anything, projectfolder(string) [abb(string)]
+	syntax anything, PROJectfolder(string) [ABBreviation(string)]
 	
 	***Todo
 	*Test that a folder called DataWork already exist (unless new project)
