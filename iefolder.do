@@ -309,17 +309,16 @@ cap program drop 	iefolder_newMaster
 	checkFolderExists "$mastDataIDKey" "parent"
 
 	*Test that the new folder does not already exist
-	checkFolderExists "$mastDataIDKey/`obsName'" "new"				
-
+	checkFolderExists "$mastDataIDKey/`obsName'" "new"
+	
 	*Test if folder where to create new fodler exist
 	checkFolderExists "$mastData" "parent"
-
+	
 	*Test that the new folder does not already exist
-	checkFolderExists "$mastData\`obsName'" "new"				
+	checkFolderExists "$mastData/`obsName'" "new"				
 	
 	*************
 	*create folder in masterdata
-
 	
 	
 	*Old file reference
@@ -391,9 +390,10 @@ cap program drop 	iefolder_newMaster
 	*create folder in encrypred ID key master	
 
 	
-	createFolderWriteGlobal "`obsName'"  		"mastDataIDKey"  		mastData_Encr_`obsName'
-	createFolderWriteGlobal "Sampling"  		"mastData_`obsName'"  	mastDataSamp
-	createFolderWriteGlobal "Treatment"  		"mastData_`obsName'"  	mastDataTreat	
+	createFolderWriteGlobal "`obsName'"  		"mastDataIDKey"  			mastData_E_`obsName'
+	createFolderWriteGlobal "Data"  			"mastData_E_`obsName'"  	mastData_E_data
+	createFolderWriteGlobal "Sampling"  		"mastData_E_`obsName'"  	mastData_E_Samp
+	createFolderWriteGlobal "Treatment"  		"mastData_E_`obsName'"  	mastData_E_Treat	
 	
 
 
