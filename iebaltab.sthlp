@@ -14,9 +14,9 @@ help for {hi:iebaltab}
 {cmdab:iebaltab} {it:balancevarlist} [{help if:if}] [{help in:in}]
 , {cmdab:grpv:ar(}{it:varname}{cmd:)} {c -(} {cmdab:save(}{it:{help filename}}{cmd:)} | {cmdab:savet:ex(}{it:{help filename}}{cmd:)} | {cmdab:browse} {c )-}
 [
-{it:{help ieboilstart##columnoptions:column_options} {help ieboilstart##labeloptions:label_options}} 
-{it:{help ieboilstart##statsoptions:stats_options} {help ieboilstart##ftestoptions:ftest_options}} 
-{it: {help ieboilstart##display:display_options} {help ieboilstart##exportoptions:export_options}}  
+{it:{help iebaltab##columnoptions:column_options} {help iebaltab##labeloptions:label_options}} 
+{it:{help iebaltab##statsoptions:stats_options} {help iebaltab##ftestoptions:ftest_options}} 
+{it: {help iebaltab##display:display_options} {help iebaltab##exportoptions:export_options}}  
 ]
 
 {phang2}where {it:balancevarlist} is one or several variables (from here on called balance variables) for which the command
