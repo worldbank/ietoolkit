@@ -1,7 +1,7 @@
 {smcl}
 {* 26 Dec 2016}{...}
 {hline}
-help for {hi:iematch}
+help for {hi:iefolder}
 {hline}
 
 {title:Title}
@@ -10,12 +10,12 @@ help for {hi:iematch}
 
 {title:Syntax}
 
-{pstd} {ul:When intially setting up the {hi:DataWork} folder in a new project:}
+{pstd} {ul:When initially setting up the {hi:DataWork} folder in a new project:}
 
 {phang2}{cmd:iefolder} new project, {cmdab:proj:ectfolder(}{it:directory}{cmd:)} 
 
 
-{pstd} {ul:When adding fodlers to and already existing {hi:DataWork} folder:}
+{pstd} {ul:When adding folders to and already existing {hi:DataWork} folder:}
 
 {phang2}{cmd:iefolder} new {it:itemtype} {it:itemname} , {cmdab:proj:ectfolder(}{it:directory}{cmd:)} 
 	[{cmdab:abb:reviation(}{it:string}{cmd:)}] 
@@ -37,19 +37,19 @@ help for {hi:iematch}
 
 {marker desc}{title:Description}
 
-{pstd}{cmdab:iefolder} automizes the process of setting up the folder in a 
+{pstd}{cmdab:iefolder} automates the process of setting up the folder in a 
 	project folder where all the data work will take place. The folders set 
 	up will follow DIME's best practices outlined and explained here: 
 	{browse "https://dimewiki.worldbank.org/wiki/DataWork_Folder"} (This page 
 	is a part of a Wiki that we are in the final stage of getting approval to 
-	release externally, the page is until then unfortunatelly password protected.) 
+	release externally, the page is until then unfortunately password protected.) 
 
 {pstd}In addition to setting up the {hi:DataWork} folder and it sub-folders the 
 	command creates master do-files linking to all of these sub-folders. These 
 	master do-files are updated whenever more subfolders are added using this command.
 	
 {pstd}{ul:{hi:itemtypes}}. This command can create either a new DataWork folder or add folders to an 
-	existing DataWork folder. The existing DataWork fodler must have been created 
+	existing DataWork folder. The existing DataWork folder must have been created 
 	with {cmd:iefolder} for the additions to work. There are two types of folders 
 	that can be added to an existing folder, {ul:{round} and {ul:{master}. 
 	See next paragraphs for descriptions.
@@ -60,7 +60,7 @@ help for {hi:iematch}
 	{browse "https://dimewiki.worldbank.org/wiki/DataWork_Survey_Round"}. {cmd:iefolder} also 
 	creates a master do-file specific for the round with globals references the sub-folders
 	specific to this round. {cmd:iefolder} is implemented so that you can keep working 
-	for years with your project inbetween adding folders. The command reads the content 
+	for years with your project in between adding folders. The command reads the content 
 	of the folder and the project master do-file and make the addition in accordance to
 	that.
 	
@@ -73,16 +73,16 @@ help for {hi:iematch}
 {marker optslong}{title:Options}
 
 {phang}{cmdab:proj:ectfolder(}{it:dir}{cmd:)} should point to the same folder regardless 
-	of which {it:itemtype}is created. If {it:new project} is specified the file path should
+	of which {it:itemtype} is created. If {it:new project} is specified the file path should
 	point to where DataWork should be created, and if {it:new round} or {it:new project} is
 	specified, it should point to where DataWork was already created. See how the file path is 
 	the same both time when {cmd:iefolder} is called twice in Example 1. 
 
 {phang}{cmdab:abb:reviation(}{it:string}{cmd:)} can be used to shorten the globals created
-	in the master do-files that point to the sub-folders to {it:roundf} folders. For example, 
+	in the master do-files that point to the sub-folders to {it:round} folders. For example, 
 	if you create a new {it:round} called Baseline, as in Example 1, then a global to the 
 	DataSet folder called Baseline_dt will be created in the master do-file. If the 
-	abbrevation office would have been used like in Example 2, then the global would 
+	abbreviation option would have been used, like in Example 2, then the global would 
 	have been called BL_dt.
 
 {title:Examples}
