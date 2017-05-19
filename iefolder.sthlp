@@ -10,25 +10,29 @@ help for {hi:iematch}
 
 {title:Syntax}
 
-{phang2}
-{cmd:iefolder} new {it:itemtype} , {cmdab:proj:ectfolder(}{it:directory}{cmd:)} 
+{pstd} {ul:When intially setting up the {hi:DataWork} folder in a new project:}
+
+{phang2}{cmd:iefolder} new project, {cmdab:proj:ectfolder(}{it:directory}{cmd:)} 
+
+
+{pstd} {ul:When adding fodlers to and already existing {hi:DataWork} folder:}
+
+{phang2}{cmd:iefolder} new {it:itemtype} {it:itemname} , {cmdab:proj:ectfolder(}{it:directory}{cmd:)} 
 	[{cmdab:abb:reviation(}{it:string}{cmd:)}] 
 	
-{pmore}where {it:itemtype} is either {it:project}, {it:round} or {it:master}. See 
-	details on itemtypes below.
+{pmore}where {it:itemtype} is either {it:round} or {it:master}. See 
+	details on {it:itemtype} and {it:itemname} below.
 
 {marker opts}{...}
 {synoptset 22}{...}
 {synopthdr:options}
 {synoptline}
-{synopt :{it:new itemtype}}Specifies if you want to create a DataWork folder in a 
-	new {ul:{it:project}} or add a new {ul:{it:round}} folder or new {ul:{it:master}}
-	folders.{p_end}
 {synopt : {cmdab:proj:ectfolder(}{it:dir}{cmd:)}}The location of 
 	the project folder where the {hi:DataWork} folder should be 
 	created (new projects), or where it is located (existing projects).{p_end}
 {synopt : {cmdab:abb:reviation(}{it:string}{cmd:)}}Optional abbreviation 
-	of round name to be used to make globals shorter. {p_end}
+	of round name to be used to make globals shorter. Can only be used 
+	when {it:itemtype} is round.{p_end}
 {synoptline}
 
 {marker desc}{title:Description}
@@ -68,10 +72,6 @@ help for {hi:iematch}
 
 {marker optslong}{title:Options}
 
-{phang}{it:new itemtype} is used to specify what to create when {cmd:iefolder} is used. 
-	There are three {it:itemtpyes} meaning that it can either be sepcified as {it:new project}, 
-	{it:new round} or {it:new master}. {it:new project} sets up the initia
-
 {phang}{cmdab:proj:ectfolder(}{it:dir}{cmd:)} should point to the same folder regardless 
 	of which {it:itemtype}is created. If {it:new project} is specified the file path should
 	point to where DataWork should be created, and if {it:new round} or {it:new project} is
@@ -87,38 +87,77 @@ help for {hi:iematch}
 
 {title:Examples}
 
-{pstd} {hi:Example 1.}
+{pstd}{hi:Example 1.}
 
 {pmore}{inp:global projectFolder "C:\Users\Documents\DropBox\ProjectABC"}
 
 {pmore}{inp:iefolder new project , projectfolder("$projectFolder")}{break}
 {inp:iefolder new round baseline , projectfolder("$projectFolder")}
 
-{pmore}In the example above, 
+{pstd}In the example above, in the line the first time {cmd:iefolder} is used, a folder 
+	called {hi:DataWork} is created at the location of "C:\Users\Documents\DropBox\ProjectABC". 
+	The second time {cmd:iefolder} a folder for the baseline round is created inside the {hi:DataWork} 
+	folder. Note that the folder provided in {inp:projectfolder()} is the same both times.
+	
+{pstd}Both the {hi:DataWork} folder and the {hi:baseline} folder created have sub-folders 
+	and master do-files greating globals pointing to these.
 
-{pstd} {hi:Example 2.}
+	
+{pstd}{hi:Example 2.}
 
 {pmore}{inp:global projectFolder "C:\Users\Documents\DropBox\ProjectABC"}
 
 {pmore}{inp:iefolder new project , projectfolder("$projectFolder")}{break}
 {inp:iefolder new round baseline , projectfolder("$projectFolder") , abbvreviation("BL")}
 
-{pmore}In the example above, 
+{pstd}The example above creates the same folder structure as in Example 1, but 
+	in the globals in the master do-files the abbreviation BL is used instead of 
+	baseline. But the folders created on disk will still be called baseline.
 
-{pstd} {hi:Example 2.}
+	
+{pstd} {hi:Example 3.}
 
-{pmore}{inp:global projectFolder "C:\Users\Documents\DropBox\ProjectABC"}
+{pstd}The example below is meant to describe an intended workflow for a full 
+	life cycle of an impact evaluation. First we need to set up the {hi:DataWork} folder. 
+	We do that using {it:{cmd:iefolder} new project}. Like this:
 
-{pmore}{inp:iefolder new project , projectfolder("$projectFolder")}{break}
-{inp:iefolder new master household , projectfolder("$projectFolder") , abbvreviation("BL")}{break}
-{inp:iefolder new round baseline , projectfolder("$projectFolder") , abbvreviation("BL")}
+{pmore}{inp:iefolder new project , projectfolder("C:\Users\Documents\DropBox\ProjectABC")}
 
-{pmore}{inp:iefolder new round midline , projectfolder("$projectFolder") , abbvreviation("ML")}{break}
-{inp:iefolder new master village , projectfolder("$projectFolder")}
+{pstd}Our first data collection will be a baseline where the unit of observation 
+	is households. We therefore need to set up a master file for houesholds that
+	we can sample from. We do that using {it:{cmd:iefolder} new master household}.
+	Like this:
+
+{pmore}{inp:iefolder new master household , projectfolder("C:\Users\Documents\DropBox\ProjectABC") , abbvreviation("BL")}
+
+{pstd}When we are ready to start preparing for the baseline we want to create the 
+	baseline folder. We do that using {it:{cmd:iefolder} new round baseline}. Like this:
+
+{pmore}{inp:iefolder new round baseline , projectfolder("C:\Users\Documents\DropBox\ProjectABC") , abbvreviation("BL")}
+
+{pstd}At this point we can collect the baseline data, save the data in the folders
+	we created and write the report. Then long streches of time might pass before 
+	we need to use the command. 
+	
+{pstd}Let's say that when we plan for midline we also want
+	to collect data about the villages that the households we interview in baseline 
+	lives in. Then we need to create a new master folder for the unit of observation 
+	villages. We do that using {it:{cmd:iefolder} new master village}. Like this:
+
+{pmore}{inp:iefolder new master village , projectfolder("$projectFolder")}
+
+{pstd}Then we need to create the rounds used for the midline round for both 
+	households and for villages. Since this is seperate data collection (although 
+	they might happen at the same time). We create those folders like this:
+
+{pmore}{inp:iefolder new round midlineVillage , projectfolder("$projectFolder") , abbvreviation("ML")}{break}
+{inp:iefolder new round midline {space 6}     , projectfolder("$projectFolder") , abbvreviation("MLvill")}
+
+{pstd}Finally, in the last round of data collection we are only collecting data 
+	on households again. Since we are not collecting data on any new unit 
+	of observation we do not need to create any new master folder.
 
 {pmore}{inp:iefolder new round endline , projectfolder("$projectFolder") , abbvreviation("EL")}
-
-{pmore}In the example above, 
 
 {title:Acknowledgements}
 
