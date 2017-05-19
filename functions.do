@@ -202,7 +202,7 @@
 		*  then that folder should not exist. Throw an error if it does		
 		if `r(dirExist)' == 1 & "`type'" == "new" {
 			
-			noi di as error `"{phang}The new folder cannot be created since the folder "`folder'" already exist. You may not use the a name twice for teh same type of folder."' 
+			noi di as error `"{phang}The new folder cannot be created since the folder "`folder'" already exist. You may not use the a name twice for the same type of folder."' 
 			error 693
 			exit
 		}
