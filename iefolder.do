@@ -37,7 +37,7 @@ cap program drop 	iefolder
 	
 	if "`rest'" != "" {
 
-		di as error "You have specified to many words. Spaces are not allowed."
+		di as error "{pstd}You have specified to many words in: [{it:iefolder `subcommand' `itemType' `itemName'`rest'}]. Spaces are not allowed in the {it:itemname}."
 		error 198
 	}
  
