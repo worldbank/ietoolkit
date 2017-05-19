@@ -100,7 +100,7 @@
 		
 		*Encrypted round sub-folder
 		file write  `roundHandle'		_col(4)"*Encrypted round sub-folder globals" _n 
-		createFolderWriteGlobal "`rndName' encrypted" 			"encryptFolder" "`rnd'_encrypt" `roundHandle'
+		createFolderWriteGlobal "`rndName' Encrypted Data" 			"encryptFolder" "`rnd'_encrypt" `roundHandle'
 		createFolderWriteGlobal "Raw Identified Data"  			"`rnd'_encrypt" "`rnd'_dtRaw" 	`roundHandle'
 		createFolderWriteGlobal "Dofiles Import"				"`rnd'_encrypt" "`rnd'_doImp" 	`roundHandle'
 		

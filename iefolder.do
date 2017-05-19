@@ -297,22 +297,29 @@ cap program drop 	iefolder_newMaster
 	
 	di "new master command"
 
-	*************
-	*create folder in encrypred ID key master	
+	global mastData 		"$dataWorkFolder/MasterData"
+	global mastDataIDKey 	"$encryptFolder/IDMasterKey"	
+	
+	*********************************************
+	*Test if folder can be created where expected
+	*********************************************
+	
 	
 	*Test if folder where to create new folder exist
-	checkFolderExists "$dataWorkFolder/EncryptedData/IDMasterKey" "parent"
+	checkFolderExists "$mastDataIDKey" "parent"
 
 	*Test that the new folder does not already exist
-	checkFolderExists "$dataWorkFolder/EncryptedData/IDMasterKey/`obsName'" "new"				
+	checkFolderExists "$mastDataIDKey/`obsName'" "new"				
 
-	*Create the folder
-	mkdir "$dataWorkFolder/EncryptedData/IDMasterKey/`obsName'"
-	
+	*Test if folder where to create new fodler exist
+	checkFolderExists "$mastData" "parent"
+
+	*Test that the new folder does not already exist
+	checkFolderExists "$mastData\`obsName'" "new"				
 	
 	*************
 	*create folder in masterdata
-	global mastData 	"$dataWorkFolder/MasterData"
+
 	
 	
 	*Old file reference
@@ -341,11 +348,7 @@ cap program drop 	iefolder_newMaster
 
 			if _rc == 693 {
 				
-				*Test if folder where to create new fodler exist
-				checkFolderExists "$mastData" "parent"
-
-				*Test that the new folder does not already exist
-				checkFolderExists "$mastData\`obsName'" "new"				
+	
 				
 				*If that folder exist, problem 
 				di as error "{phang}could not create new folder, folder name might already exist "
@@ -382,8 +385,15 @@ cap program drop 	iefolder_newMaster
 	*Create master data subfolders
 	createFolderWriteGlobal "MasterDataSets"  	"mastData_`obsName'"  masterDataSets	
 	createFolderWriteGlobal "Dofiles"  			"mastData_`obsName'"  mastDataDo
-	createFolderWriteGlobal "Sampling"  		"mastData_`obsName'"  mastDataSamp
-	createFolderWriteGlobal "Treatment"  		"mastData_`obsName'"  mastDataTreat	
+
+	
+		*************
+	*create folder in encrypred ID key master	
+
+	
+	createFolderWriteGlobal "`obsName'"  		"mastDataIDKey"  		mastData_Encr_`obsName'
+	createFolderWriteGlobal "Sampling"  		"mastData_`obsName'"  	mastDataSamp
+	createFolderWriteGlobal "Treatment"  		"mastData_`obsName'"  	mastDataTreat	
 	
 
 
