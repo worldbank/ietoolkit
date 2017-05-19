@@ -4,8 +4,7 @@
 	`r(version)'
 	
 	*Folder globals
-	global box 			"C:\Users\wb462869\Box Sync"
-	global ief 			"$box\Stata\Stata work\Commands\ietoolkit"
+	global ief 			"C:\Users\WB462869\Documents\GitHub\ietoolkit"
 	*global ief 			"C:\Users\Kristoffer\Documents\GitHub\ietoolkit"
 	
 	*Load the command
@@ -15,7 +14,7 @@
 	cd "$ief\test\cdjunk"
 	
 	*Global to the project fodler in box
-	global projectABC	"$ief\test\testOutput\Project ABC Uganda"	
+	global projectABC	"$ief\test\iefolder\testOutput\Project ABC Uganda"	
 	
 	*Clean up the folder fomr last run
 	do "$ief\deletefolder.do"
