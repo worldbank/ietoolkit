@@ -268,7 +268,7 @@ cap program drop 	iefolder_newRound
 					*Write the 
 					file write  `subHandle' ///
 						_col(4)"if (0) { //Change the 0 to 1 to run the `rndName' master dofile" _n ///
-						_col(8) `"do ""' _char(36) `"`rndAbb'/`rndName'_master_dofile.do" "' _n ///
+						_col(8) `"do ""' _char(36) `"`rndAbb'/`rndName'_MasterDofile.do" "' _n ///
 						_col(4)"}" ///
 						_n
 					

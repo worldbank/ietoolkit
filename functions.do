@@ -527,8 +527,8 @@ cap program drop 	mdofle_p3
 			
 			*Write section where task master files are called
 			file write  `roundHandle' 	_n ///
-				_col(4)"if (" _char(96) "`task'' == 1) { //Change the local above to run or not to run this file" _n ///
-				_col(8) `"do ""' _char(36) `"`rnd'_do/`task'_MasterDofile.do" "' _n ///
+				_col(4)"if (" _char(96) "`task'Do' == 1) { //Change the local above to run or not to run this file" _n ///
+				_col(8) `"do ""' _char(36) `"`rnd'_do/`rnd'_`task'_MasterDofile.do" "' _n ///
 				_col(4)"}" _n
 			
 			*Create the task dofiles
@@ -556,7 +556,7 @@ cap program drop 	mdofle_p3
 			file close 		`taskHandle'
 
 			*Copy the new master dofile from the tempfile to the original position
-			copy "`taskTextFile'"  "${`rnd'_do}/`rnd'_`task'_Master.do" , replace
+			copy "`taskTextFile'"  "${`rnd'_do}/`rnd'_`task'_MasterDofile.do" , replace
 			
 			
 	end		
