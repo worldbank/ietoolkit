@@ -8,7 +8,6 @@
 
 	
 	*Load the command
-	qui do 		"$ief\functions.do"
 	qui do 		"$ief\iefolder.do"
 	
 	*Global to the mock project folder you created
