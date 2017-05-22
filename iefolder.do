@@ -7,6 +7,8 @@ qui {
 	
 	syntax anything, PROJectfolder(string) [ABBreviation(string)]
 	
+	version 11
+	
 	***Todo
 	*Test that old master do file exist
 	*give error message if divisor is changed
@@ -30,9 +32,10 @@ qui {
 	gettoken itemName rest : itemName
 	
 	*Clean up the input
-	local subcomand = trim("`subcommand'")
-	local itemType 	= trim("`itemType'")
-	local itemName 	= trim("`itemName'")
+	local subcomand 	= trim("`subcommand'")
+	local itemType 		= trim("`itemType'")
+	local itemName 		= trim("`itemName'")
+	local abbreviation 	= trim("`abbreviation'")
 	
 	*noi di "SubCommand 	`subcommand'"
 	*noi di "ItemType 	`itemType'"
@@ -42,8 +45,8 @@ qui {
 	
 		Test input
 	
-	***************************************************/	
-
+	***************************************************/
+	
 	*test that there is no space in itemname
 	local space_pos = strpos(trim("`itemName'"), " ")
 	if "`rest'" != ""  | `space_pos' != 0 {
@@ -68,8 +71,7 @@ qui {
 		error 198
 	}	
 	
-	*Test that there are no forbidden characters in what will be a foldername
-	
+	*Test that the type is correct
 	local sub_commands "new"
 	local itemTypes "project round unitofobs"
 	
@@ -94,8 +96,6 @@ qui {
 		error 198
 	}
 	
-	di "All tests ok"
-	
 	/***************************************************
 	
 		Start making updates to the project folder
@@ -113,7 +113,7 @@ qui {
 	*Create a global pointing to the main data folder
 	global dataWorkFolder 	"`projectfolder'/DataWork"
 	global encryptFolder 	"$dataWorkFolder/EncryptedData"
-	
+
 	if "`subcommand'" == "new" {
 	
 		di "Subcommand: New"
@@ -126,7 +126,7 @@ qui {
 			
 			*Produce success output
 			noi di "{pstd}Command ran succesfully, a new DataWork folder was created here:{p_end}"
-			noi di "{pstd}1) [${dataWorkFolder}]{p_end}"
+			noi di "{phang2}1) [${dataWorkFolder}]{p_end}"
 			
 		}
 		*Creating a new round
@@ -140,9 +140,9 @@ qui {
 			
 			*Produce success output
 			noi di "{pstd}Command ran succesfully, for the round [`itemName'] the following folders and master dofile were created:{p_end}"
-			noi di "{pstd}1) [${`abbreviation'}]{p_end}"
-			noi di "{pstd}2) [${encryptFolder}/`itemName' Encrypted Data]{p_end}"
-			noi di "{pstd}3) [${`abbreviation'}/`itemName'_MasterDofile.do]{p_end}"
+			noi di "{phang2}1) [${`abbreviation'}]{p_end}"
+			noi di "{phang2}2) [${encryptFolder}/`itemName' Encrypted Data]{p_end}"
+			noi di "{phang2}3) [${`abbreviation'}/`itemName'_MasterDofile.do]{p_end}"
 		}
 		*Creating a new level of observation for master data set
 		else if "`itemType'" == "unitofobs" {
@@ -153,12 +153,11 @@ qui {
 			
 			*Produce success output
 			noi di "{pstd}Command ran succesfully, for the unit of observation [`itemName'] the following folders were created:{p_end}"
-			noi di "{pstd}1) [${dataWorkFolder}/MasterData/`itemName']{p_end}"
-			noi di "{pstd}2) [${encryptFolder}/IDMasterKey/`itemName']{p_end}"
+			noi di "{phang2}1) [${dataWorkFolder}/MasterData/`itemName']{p_end}"
+			noi di "{phang2}2) [${encryptFolder}/IDMasterKey/`itemName']{p_end}"
 		}
 	}
 	
-
 	*Closing the new main master dofile handle
 	file close 		`newHandle'
 	
@@ -167,12 +166,11 @@ qui {
 }	
 end 	
 
-	/***************************************************
-	
-		Here are all functions for combination of 
-		subcommand and item type
-	
-	***************************************************/
+/************************************************************
+
+	Primary functions : creating each itemtype
+
+************************************************************/
 
 cap program drop 	iefolder_newProject
 	program define	iefolder_newProject
@@ -281,7 +279,6 @@ cap program drop 	iefolder_newRound
 						noi di as error "{phang}The new round abbreviation `rndAbb' is already in use. No new folders are creaetd and the master do-files has not been changed.{p_end}"
 						error 507
 					}
-					
 				}
 				
 				*Copy the line as is
@@ -374,7 +371,8 @@ cap program drop 	iefolder_newUnitOfObs
 		local line : subinstr local line "\`"  "\\`"
 		
 		parseReadLine `"`line'"'
-	
+		
+		*Test if this is the location to write the new master data globals
 		if `r(ief_line)' == 1 & `r(ief_line)' == 1 & `r(ief_end)' == 0  & "`r(sectionName)'" == "rawData" {
 			
 			*Create unit of observation data folder and add global to folder in master do file
@@ -393,18 +391,14 @@ cap program drop 	iefolder_newUnitOfObs
 				createFolderWriteGlobal "`obsName'"  "mastData"  	mastData_`obsName'	`subHandle'
 			}
 	
-			
-			
+			*After adding new lines, keep adding the old line to the new file.
 			file write		`subHandle' `"`line'"' _n
-		
 		}
 		else {
 			
-			*Copy the line as is
+			*Do not add new lines here, keep adding the old line to the new file.
 			file write		`subHandle' `"`line'"' _n
-		
 		}
-		
 		
 		*Read next file and repeat the while loop
 		file read `oldHandle' line
@@ -413,21 +407,27 @@ cap program drop 	iefolder_newUnitOfObs
 	*Close the old file. 
 	file close `oldHandle'	
 	
-	
+	*************
 	*Create unit of observation data subfolders
-	createFolderWriteGlobal "DataSet"  	"mastData_`obsName'"  masterDataSets	
-	createFolderWriteGlobal "Dofiles"  			"mastData_`obsName'"  mastDataDo
-
+	createFolderWriteGlobal "DataSet"  	"mastData_`obsName'"  	masterDataSets	
+	createFolderWriteGlobal "Dofiles"  	"mastData_`obsName'"  	mastDataDo
 	
-		*************
+	*************
 	*create folder in encrypred ID key master	
-	createFolderWriteGlobal "`obsName'"  		"mastDataIDKey"  			mastData_E_`obsName'
-	createFolderWriteGlobal "DataSet"  			"mastData_E_`obsName'"  	mastData_E_data
-	createFolderWriteGlobal "Sampling"  		"mastData_E_`obsName'"  	mastData_E_Samp
-	createFolderWriteGlobal "Treatment"  		"mastData_E_`obsName'"  	mastData_E_Treat	
+	createFolderWriteGlobal "`obsName'"	"mastDataIDKey"  		mastData_E_`obsName'
+	createFolderWriteGlobal "DataSet"  	"mastData_E_`obsName'"  mastData_E_data
+	createFolderWriteGlobal "Sampling"  "mastData_E_`obsName'"  mastData_E_Samp
+	createFolderWriteGlobal "Treatment" "mastData_E_`obsName'"  mastData_E_Treat	
 
 end 
 
+
+
+/************************************************************
+
+	Sub-functions : functionality
+
+************************************************************/
 
 cap program drop 	parseReadLine 
 	program define		parseReadLine, rclass
@@ -591,7 +591,7 @@ end
 
 
 cap program drop 	writeDevisor 
-	program define		writeDevisor , rclass
+	program define	writeDevisor , rclass
 		
 		args  subHandle partNum partName sectionName itemName itemAbb 
 		
@@ -611,8 +611,9 @@ cap program drop 	writeDevisor
 		
 end
 	
+*Program that checks if folder exist and provide errors if not. 
 cap program drop 	checkFolderExists 
-	program define		checkFolderExists , rclass	
+	program define	checkFolderExists , rclass	
 	
 		args folder type
 		
@@ -639,13 +640,14 @@ cap program drop 	checkFolderExists
 	
 end
 	
-	/**************************************************************************************
-		The functions below are all related to write the mostly 
-		static part of the master do file
-	**************************************************************************************/
+/************************************************************
+
+	Sub-functions : writing master dofiles
+
+************************************************************/
 	
 cap program drop 	mdofle_p0
-	program define		mdofle_p0 
+	program define	mdofle_p0 
 		
 		args subHandle itemType rndName task
 		
@@ -734,8 +736,6 @@ cap program drop 	mdofle_p1
 		*Write devisor starting globals section
 		writeDevisor  `subHandle' 1 FolderGlobals
 		
-		*di "masterDofilePart1 start"
-		
 		file write  `subHandle' 	///
 			_col(4)"* ******************************************************************** *" _n ///
 			_col(4)"*" _n ///	
@@ -780,16 +780,16 @@ cap program drop 	mdofle_p1
 		writeDevisor `subHandle' 1 FolderGlobals master	
 		
 		*Create master data folder and add global to folder in master do file
-		createFolderWriteGlobal "MasterData"  "dataWorkFolder"  	mastData	 	`subHandle' 
+		createFolderWriteGlobal "MasterData"  	"dataWorkFolder"  	mastData	 		`subHandle' 
 
 		*Write sub devisor starting master and monitor data section section
 		writeDevisor `subHandle' 1 FolderGlobals rawData	
 		
 		*Create master data folder and add global to folder in master do file
-		createFolderWriteGlobal "EncryptedData"  	"dataWorkFolder"  	encryptFolder	 		`subHandle' 
+		createFolderWriteGlobal "EncryptedData" "dataWorkFolder"  	encryptFolder	 	`subHandle' 
 
 		*Create master data subfolders
-		createFolderWriteGlobal "IDMasterKey"  		"encryptFolder"  		masterIdDataSets	 `subHandle'
+		createFolderWriteGlobal "IDMasterKey"	"encryptFolder"  	masterIdDataSets	`subHandle'
 		
 		
 		*Write sub devisor starting master and monitor data section section
@@ -814,13 +814,13 @@ cap program drop 	mdofle_p1_round
 		writeDevisor  `subHandle' 1 FolderGlobals
 		
 		file write  `subHandle' 	///
-			_col(4)"* ******************************************************************** *" _n ///
-			_col(4)"*" _n ///	
-			_col(4)"*" _col(12) "PART 1:  PREPARING `rndName_caps' FOLDER PATH GLOBALS" _n ///
-			_col(4)"*" _n ///			
-			_col(4)"*" _col(16) "-Set global to point to the `rndName' folders" _n ///
-			_col(4)"*" _col(16) "-Add to these globals as you need" _n ///
-			_col(4)"*" _n ///	
+			_col(4)"* ******************************************************************** *" _n 	///
+			_col(4)"*" _n 																			///
+			_col(4)"*" _col(12) "PART 1:  PREPARING `rndName_caps' FOLDER PATH GLOBALS" _n 			///
+			_col(4)"*" _n 																			///			
+			_col(4)"*" _col(16) "-Set global to point to the `rndName' folders" _n 					///	
+			_col(4)"*" _col(16) "-Add to these globals as you need" _n 								///
+			_col(4)"*" _n 																			///	
 			_col(4)"* ******************************************************************** *" _n _n
 		
 end	
@@ -837,37 +837,37 @@ cap program drop 	mdofle_p2
 		writeDevisor  `subHandle' 2 StandardGlobals		
 		
 		file write  `subHandle' 	///
-			_col(4)"* ******************************************************************** *" _n ///
-			_col(4)"*" _n ///	
-			_col(4)"*" _col(12) "PART 2: - SET STANDARDIZATION GLOBALS AND OTHER CONSTANTS" _n ///
-			_col(4)"*" _n ///			
-			_col(4)"*" _col(16) "-Set globals with numbers or lists of " _n ///
-			_col(4)"*" _col(17) "variables that is supposed to stay the" _n /// 
-			_col(4)"*" _col(17) "same across the project." _n /// 
-			_col(4)"*" _n ///	
+			_col(4)"* ******************************************************************** *" _n 	///
+			_col(4)"*" _n 																			///	
+			_col(4)"*" _col(12) "PART 2: - SET STANDARDIZATION GLOBALS AND OTHER CONSTANTS" _n 		///
+			_col(4)"*" _n 																			///			
+			_col(4)"*" _col(16) "-Set globals with numbers or lists of " _n 						///
+			_col(4)"*" _col(17) "variables that is supposed to stay the" _n 						/// 
+			_col(4)"*" _col(17) "same across the project." _n 										/// 
+			_col(4)"*" _n 																			///	
 			_col(4)"* ******************************************************************** *" _n
 							
-		file write  `subHandle' ///
-			_n ///	
-			_col(4)"* Set all conversion rates used in unit standardization " _n ///
-			_col(4)"* accross the whole project here. " _n ///
-			_n ///
-			_col(4)"**Example. Expand this section with globals for all constant" _n ///
-			_col(4)"* scalars used in this project. Reference these globals instead" _n ///
-			_col(4)"* of hardcode values each time constant converstion rates are used." _n ///
-			_col(4)"*Standardizing to meters" _n ///
-			_n ///	
-			_col(4)"global foot" _col(20) "= 0.3048" _n ///
-			_col(4)"global mile" _col(20) "= 1609.34" _n ///
-			_col(4)"global km" 	 _col(20) "= 1000" _n ///
-			_n /// 
-			_col(4)"**Other examples to be included here could be regression controls" _n ///
-			_col(4)"* used across the project. Everything that is constant may be" _n ///
-			_col(4)"* included here. One example of something not constant that should" _n ///
-			_col(4)"* be included here is exchange rates. It is best practice to have one" _n ///
-			_col(4)"* global with the exchange rate here, and reference this each time a" _n ///
-			_col(4)"* currency conversion is done. If the currency exchange rate needs to be" _n ///
-			_col(4)"* updated, then it only has to be done at one place for the whole project." _n ///
+		file write  `subHandle' 																	///
+			_n 																						///	
+			_col(4)"* Set all conversion rates used in unit standardization " _n 					///
+			_col(4)"* accross the whole project here. " _n 											///
+			_n 																						///
+			_col(4)"**Example. Expand this section with globals for all constant" _n 				///
+			_col(4)"* scalars used in this project. Reference these globals instead" _n 			///
+			_col(4)"* of hardcode values each time constant converstion rates are used." _n 		///
+			_col(4)"*Standardizing to meters" _n 													///
+			_n 																						///	
+			_col(4)"global foot" _col(20) "= 0.3048" _n 											///
+			_col(4)"global mile" _col(20) "= 1609.34" _n 											///
+			_col(4)"global km" 	 _col(20) "= 1000" _n 												///
+			_n 																						/// 
+			_col(4)"**Other examples to be included here could be regression controls" _n 			///
+			_col(4)"* used across the project. Everything that is constant may be" _n 				///
+			_col(4)"* included here. One example of something not constant that should" _n 			///
+			_col(4)"* be included here is exchange rates. It is best practice to have one" _n 		///
+			_col(4)"* global with the exchange rate here, and reference this each time a" _n 		///
+			_col(4)"* currency conversion is done. If the currency exchange rate needs to be" _n 	///
+			_col(4)"* updated, then it only has to be done at one place for the whole project." _n 	///
 			_n
 		
 		*Write devisor ending standardization globals section
@@ -1016,7 +1016,7 @@ cap program drop 	mdofle_task
 			_col(4)"*" _col(75) "*" _n ///
 			_col(4)"* ******************************************************************** *" _n ///
 			_col(4)"* ******************************************************************** *" _n ///
-			_n _col(8)"/*" _n 	/// 
+			 _n 	/// 
 			_col(4)"** IDS VAR:" _col(25) "list_ID_var_here		//Uniquely identifies households (update for your project)" _n ///			  
 			_col(4)"** NOTES:" _n /// 	  			  
 			_col(4)"** WRITEN BY:" _col(25) "names_of_contributors" _n ///
@@ -1030,9 +1030,9 @@ cap program drop 	mdofle_task
 			
 		
 		*Create the sections that calls each tast dofile.
-		mdofle_task_dosection `subHandle' "`rnd'" "`task'" 1
-		mdofle_task_dosection `subHandle' "`rnd'" "`task'" 2
-		mdofle_task_dosection `subHandle' "`rnd'" "`task'" 3
+		mdofle_task_dosection `subHandle' "`rnd'" "`task'" "`suffix'" 1
+		mdofle_task_dosection `subHandle' "`rnd'" "`task'" "`suffix'" 2
+		mdofle_task_dosection `subHandle' "`rnd'" "`task'" "`suffix'" 3
 
 	file write  `subHandle' ///
 		_col(4)"* ************************************" _n ///
@@ -1044,7 +1044,7 @@ end
 cap program drop 	mdofle_task_dosection
 	program define	mdofle_task_dosection
 	
-	args subHandle rnd task number
+	args subHandle rnd task suffix number
 	
 	file write  `subHandle' ///
 		_col(4)"* ***************************************************** *" _n ///
