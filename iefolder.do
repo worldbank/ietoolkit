@@ -55,14 +55,14 @@ qui {
 	** Test that item name only includes numbers, letter, underscores and does 
 	*  not start with a number. These are simplified requirements for folder 
 	*  names on disk.
-	if !regexm("`itemName'", "^[a-zA-Z][a-zA-Z0-9_]*[a-zA-Z0-9_]$") | "`itemType'" == "project" {
+	if !regexm("`itemName'", "^[a-zA-Z][a-zA-Z0-9_]*[a-zA-Z0-9_]$") & "`itemType'" != "project" {
 		
 		noi di as error `"{pstd}Invalid {it:itemname}. The itemname [`itemName'] can only include letters, numbers or underscore and the first character must be a letter.{p_end}"'
 		error 198
 	}
 	
 	** Test that also the abbreviation has valid characters
-	if !regexm("`abbreviation'", "^[a-zA-Z][a-zA-Z0-9_]*[a-zA-Z0-9_]$") | "`abbreviation'" == "" {
+	if !regexm("`abbreviation'", "^[a-zA-Z][a-zA-Z0-9_]*[a-zA-Z0-9_]$") & "`abbreviation'" != "" {
 		
 		noi di as error `"{pstd}Invalid name in the option {it:abbreviation()}. The name [`abbreviation'] can only include letters, numbers or underscore and the first character must be a letter.{p_end}"'
 		error 198
