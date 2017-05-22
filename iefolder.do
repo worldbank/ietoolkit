@@ -10,8 +10,6 @@ qui {
 	***Todo
 	*Test that old master do file exist
 	*give error message if divisor is changed
-	*remove dofiles from dofile subfolders
-	*change master to unitofobs
 	*rename MasterDataSets to DataSet (singular)
 
 	
@@ -417,7 +415,7 @@ cap program drop 	iefolder_newUnitOfObs
 	
 	
 	*Create unit of observation data subfolders
-	createFolderWriteGlobal "MasterDataSets"  	"mastData_`obsName'"  masterDataSets	
+	createFolderWriteGlobal "DataSet"  	"mastData_`obsName'"  masterDataSets	
 	createFolderWriteGlobal "Dofiles"  			"mastData_`obsName'"  mastDataDo
 
 	
@@ -426,7 +424,7 @@ cap program drop 	iefolder_newUnitOfObs
 
 	
 	createFolderWriteGlobal "`obsName'"  		"mastDataIDKey"  			mastData_E_`obsName'
-	createFolderWriteGlobal "Data"  			"mastData_E_`obsName'"  	mastData_E_data
+	createFolderWriteGlobal "DataSet"  			"mastData_E_`obsName'"  	mastData_E_data
 	createFolderWriteGlobal "Sampling"  		"mastData_E_`obsName'"  	mastData_E_Samp
 	createFolderWriteGlobal "Treatment"  		"mastData_E_`obsName'"  	mastData_E_Treat	
 	

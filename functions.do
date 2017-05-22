@@ -111,9 +111,9 @@
 		
 		*Dofile sub-folder
 		file write  `roundHandle' _n	_col(4)"*Dofile sub-folder globals" _n
-		createFolderWriteGlobal "Dofiles Cleaning"				"`rnd'_do" 		"`rnd'_doCln" 	`roundHandle'
-		createFolderWriteGlobal "Dofiles Construct"				"`rnd'_do" 		"`rnd'_doCon" 	`roundHandle'
-		createFolderWriteGlobal "Dofiles Analysis"				"`rnd'_do" 		"`rnd'_doAnl" 	`roundHandle'
+		createFolderWriteGlobal "Cleaning"				"`rnd'_do" 		"`rnd'_doCln" 	`roundHandle'
+		createFolderWriteGlobal "Construct"				"`rnd'_do" 		"`rnd'_doCon" 	`roundHandle'
+		createFolderWriteGlobal "Analysis"				"`rnd'_do" 		"`rnd'_doAnl" 	`roundHandle'
 		
 		*Output subfolders
 		file write  `roundHandle' _n	_col(4)"*Output sub-folder globals" _n
