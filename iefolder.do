@@ -8,9 +8,11 @@ qui {
 	syntax anything, PROJectfolder(string) [ABBreviation(string)]
 	
 	***Todo
-	*Test that a folder called DataWork already exist (unless new project)
 	*Test that old master do file exist
-	*allow to specifiy other place for master do file
+
+	
+	*Create an empty line before error message or output
+	noi di ""
 	
 	/***************************************************
 	
@@ -97,7 +99,7 @@ qui {
 	if "`subcommand'" == "new" {
 	
 		di "Subcommand: New"
-	
+		
 		*Creating a new project
 		if "`itemType'" == "project" {
 			
