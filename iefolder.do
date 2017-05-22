@@ -42,14 +42,7 @@ qui {
 	*noi di "ItemType 	`itemType'"
 	*noi di "ItemName	`itemName'"
 	
-	*test that there is no space in itemname
-	local space_pos = strpos(trim("`itemName'"), " ")
-	
-	if "`rest'" != ""  | `space_pos' != 0 {
 
-		noi di as error "{pstd}You have specified to many words in: [{it:iefolder `subcommand' `itemType' `itemName'`rest'}] or used a space in {it:itemname}. Spaces are not allowed in the {it:itemname}. Use underscores or camel case.{p_end}"
-		error 198
-	}
  
 
 	 /***************************************************
@@ -57,6 +50,26 @@ qui {
 		Test input
 	
 	***************************************************/	
+
+	*test that there is no space in itemname
+	local space_pos = strpos(trim("`itemName'"), " ")
+	if "`rest'" != ""  | `space_pos' != 0 {
+
+		noi di as error `"{pstd}You have specified to many words in: [{it:iefolder `subcommand' `itemType' `itemName'`rest'}] or used a space in {it:itemname}. Spaces are not allowed in the {it:itemname}. Use underscores or camel case.{p_end}"'
+		error 198
+	}
+	
+	** Test that item name only includes numbers, letter, underscores and does 
+	*  not start with a number. These are simplified requirements for folder 
+	*  names on disk.
+	if !regexm("`itemName'", "^[a-zA-Z][a-zA-Z0-9_]*[a-zA-Z0-9_]$") & "`itemType'" != "project" {
+		
+		noi di as error `"{pstd}Invalid {it:itemname}. The itemname [`itemName'] can only include letters, numbers or underscore and the first character must be a letter.{p_end}"'
+		error 198
+	}
+	
+	
+	*Test that there are no forbidden characters in what will be a foldername
 	
 	local sub_commands "new"
 	local itemTypes "project round unitofobs"
