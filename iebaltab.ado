@@ -738,10 +738,11 @@ qui {
 				
 				if `CAPTION_USED' {
 				
-				* If there's an underscore in the caption, make sure it will appear as such.
-				local texcaption = subinstr("`texcaption'", "_", "\_",.)
-				local texcaption = subinstr("`texcaption'", "\\_", "\_",.)		// Just in case the user had already thought of adding the bar
-				
+					* Make sure special characters are displayed correctly
+					local texcaption : subinstr local texcaption "%"  "\%"
+					local texcaption : subinstr local texcaption "_"  "\_"
+					local texcaption : subinstr local texcaption "&"  "\&"
+					
 				}
 			}
 			
@@ -767,11 +768,7 @@ qui {
 			
 			* Tex label must be a single word
 			if `LABEL_USED' {
-			
-				* If there's an underscore in the caption, make sure it will appear as such.
-				local texlabel = subinstr("`texlabel'", "_", "\_",.)
-				local texlabel = subinstr("`texlabel'", "\\_", "\_",.)		// Just in case the user had already thought of adding the bar
-			
+					
 				local label_words : word count `texlabel'
 				
 				if `label_words' != 1 {
@@ -779,18 +776,28 @@ qui {
 					noi display as error `"{phang}The value specified in texlabel(`texlabel') is not allowed. For more information, {browse "https://en.wikibooks.org/wiki/LaTeX/Labels_and_Cross-referencing":check LaTeX labels manual}.{p_end}"'
 					error 198
 				}
+				
+			}
+			
+			if (`LABEL_USED' | `CAPTION_USED') {
+			
+				if `TEXDOC_USED' == 0 {
+				
+					noi display as error "{phang}Options texlabel and texcaption may only be used in combination with option texdocument {p_end}"
+					error 198
+				}
 			}
 		}
 		
+				
 		* Error for incorrectly using tex options
-		else if `NOTEWIDTH_USED' | `LABEL_USED' | `CAPTION_USED'{
+		else if `NOTEWIDTH_USED' | `LABEL_USED' | `CAPTION_USED' | `TEXDOC_USED' {
 	
-			noi display as error "{phang}Options texnotewidth, texlabel and texcaption may only be used in combination with option savetex(){p_end}"
+			noi display as error "{phang}Options texnotewidth, texdocument, texlabel and texcaption may only be used in combination with option savetex(){p_end}"
 			error 198
 		
 		}
-		
-		
+				
 		*At least one of save and browse may be used
 		if (`SAVE_USED' + `BROWSE_USED' + `SAVE_TEX_USED' < 1) {
 			
@@ -978,9 +985,11 @@ qui {
 			local groupLabel : word `groupOrderNum' of `grpLabels_final'
 			local groupCode  : word `groupOrderNum' of `ORDER_OF_GROUPS'
 			
-			* Make sure tex names are displayed correctly
-			local texGroupLabel = subinstr("`groupLabel'", "_", "\_",.)
-			local texGroupLabel = subinstr("`texGroupLabel'", "\\_", "\_",.)	// Just in case the user had already thought of adding the bar
+			* Make sure special characters are displayed correctly
+			local texGroupLabel : subinstr local groupLabel    "%"  "\%"
+			local texGroupLabel : subinstr local texGroupLabel "_"  "\_"
+			local texGroupLabel : subinstr local texGroupLabel "&"  "\&"
+			local texGroupLabel : subinstr local texGroupLabel "\$"  "\\\\\\\$"
 						
 			*Prepare a row to store onenrow values for each group
 			if `ONENROW_USED' == 1 local onenrow_`groupOrderNum' ""
@@ -1029,10 +1038,12 @@ qui {
 			local tot_label Total
 			if `TOTALLABEL_USED' local tot_label `totallabel'
 			
-			* Make sure tex names are displayed correctly
-			local tex_tot_label = subinstr("`tot_label'", "_", "\_",.)
-			local tex_tot_label = subinstr("`tex_tot_label'", "\\_", "\_",.)	// Just in case the user had already thought of adding the bar
-
+			* Make sure special characters are displayed correctly
+			local tex_tot_label : subinstr local tot_label     "%"  "\%"
+			local tex_tot_label : subinstr local tex_tot_label "_"  "\_"
+			local tex_tot_label : subinstr local tex_tot_label "&"  "\&"
+			local tex_tot_label : subinstr local tex_tot_label "\$"  "\\\\\$"
+			
 			*Create one more column for N if N is displayesd in column instead of row
 			if `ONENROW_USED' == 0 {
 						
@@ -1184,52 +1195,43 @@ qui {
 		****Write texheader if full document option was selected
 		*Everyhting here is the tex headers
 		capture file close `texname'
-		
+				
 		if `TEXDOC_USED' {
 		
-			file open  `texname' using "`texfile'", text write replace
+			file open  `texname' using "`texfile'", text write replace			
 			file write `texname' ///
 				"%%% Table created in Stata by iebaltab (https://github.com/worldbank/ietoolkit)" _n ///
 				"" _n ///
-				" \documentclass{article}" _n ///
+				"\documentclass{article}" _n ///
 				"" _n ///
-				" ----- Preamble " _n ///
-				" \usepackage[utf8]{inputenc}" _n ///
-				"%%% We suggest using the adjustbox package to fit the table to page size. To do so, uncomment the next line." _n ///
-				"% \usepackage{adjustbox}" _n ///
-				" ----- End of preamble " _n ///
+				"% ----- Preamble " _n ///
+				"\usepackage[utf8]{inputenc}" _n ///
+				"\usepackage{adjustbox}" _n ///
+				"% ----- End of preamble " _n ///
 				"" _n ///
 				" \begin{document}" _n ///
 				"" _n ///
-				"begin{table}[!htbp]" _n /// 
+				"\begin{table}[!htbp]" _n /// 
 				"\centering" _n
+			
+			* Write tex caption if specified
+			if `CAPTION_USED' {
+			
+				file write `texname' `"\caption{`texcaption'}"' _n
+	
+			}
+			
+			* Write tex label if specified
+			if `LABEL_USED' {
+				
+				file write `texname' `"\label{`texlabel'}"' _n
+				
+			}
+			
+			file write `texname'	"\begin{adjustbox}{max width=\textwidth}" _n
 			file close `texname'
 			
-		}
-		
-		* Write tex caption if specified
-		if `CAPTION_USED' {
-			file open  `texname' using "`texfile'", text write append
-			file write `texname' `"\caption{`texcaption'}"' _n
-			file close `texname'
-		}
-		
-		* Write tex label if specified
-		if `LABEL_USED' {
-			file open  `texname' using "`texfile'", text write append
-			file write `texname' `"\label{`texlabel'}"' _n
-			file close `texname'
-		}
-		
-		if `TEXDOC_USED' {
-		
-			file open  `texname' using "`texfile'", text write append
-			file write `texname' ///
-				"%%% Uncomment the next line to fit the table to page size using the adjustbox package." _n ///
-				"% \begin{adjustbox}{max width=\textwidth}" _n ///
-			file close `texname'
-			
-		}
+		}	
 		
 		file open  `texname' using "`texfile'", text write append
 		file write `texname' ///
@@ -1237,8 +1239,7 @@ qui {
 			"\\[-1.8ex]\hline" _n ///
 			"\hline \\[-1.8ex]" _n		
 		file close `texname'
-		
-		
+			
 		*Write the title rows defined above	
 		capture file close `texname'
 		file open  `texname' using "`texfile'", text write append
@@ -1249,10 +1250,7 @@ qui {
 						"\hline \\[-1.8ex] " _n
 		file close `texname'
 	
-	
-	
-	
-	
+
 	/***********************************************
 	***********************************************/
 	
@@ -1326,9 +1324,11 @@ qui {
 			local tableRowUp `""`row_label'""' 
 			local tableRowDo `" "' 
 			
-			*Make sure underscores in variable labels are displayed correctly
-			local texrow_label = subinstr("`row_label'", "_", "\_",.)
-			local texrow_label = subinstr("`texrow_label'", "\\_", "\_",.)		// Just in case the user had already thought of adding the bar
+			*Make sure special characters in variable labels are displayed correctly
+			local texrow_label : subinstr local row_label 	 "%"  "\%"
+			local texrow_label : subinstr local texrow_label "_"  "\_"
+			local texrow_label : subinstr local texrow_label "&"  "\&"
+			local texrow_label : subinstr local texrow_label "\$"  "\\\\\\\\$"
 			
 			local texRowUp `""`texrow_label'""' 
 			local texRowDo `" "' 
@@ -2159,21 +2159,24 @@ qui {
 				"[-1.8ex] \multicolumn{`totalColNo'}{@{}p{`texnotewidth'\textwidth}}" _n ///
 				`"{\textit{Notes}: `tblnote' `ttest_note'`ftest_note'`error_est_note'`fixed_note'`covar_note'`weight_note'`balmiss_note'`covmiss_note'`stars_note'}"' _n
 		}
-	
+		
 		file write `texname' ///	
 				"\end{tabular}" _n
 		file close `texname'		
 	
+			
 		if `TEXDOC_USED' {
 		
+			file open  `texname' using "`texfile'", text write append
 			file write `texname' ///	
-				"%%% Uncomment the next line to fit the table to page size using the adjustbox package." _n ///
-				"% \end{adjustbox}" _n ///
+				"\end{adjustbox}" _n ///
 				"\end{table}" _n ///
 				"\end{document}" _n
 				
 			file close `texname'
 		}
+		
+			
 	/***********************************************
 	************************************************/
 
