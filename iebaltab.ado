@@ -1,5 +1,5 @@
 	*! version 4.0 18APR2017  Kristoffer Bjarkefur kbjarkefur@worldbank.org
-	
+		
 	capture program drop iebaltab
 	program iebaltab
 	
@@ -32,7 +32,7 @@
 				COVMISS(string) 											///
 				COVMISSReg(string)											///	
 				MISSMINmean(numlist min=1 max=1 >0)							///
-				aweight(varname)											///
+				weight(string)												///
 																			///
 				/*F-test*/													///
 				FTest 														///
@@ -62,6 +62,7 @@
 				SAVEBRowse													///
 				REPLACE														///
 				]
+		
 			
 		***************TODO***************
 		* 1. Add number of clusters
@@ -217,9 +218,9 @@ qui {
 		if "`stdev'" 			== "" local STDEV_USED = 0 
 		if "`stdev'" 			!= "" local STDEV_USED = 1 
 		
-		*Is option aweight() used:
-		if "`aweight'" 			== "" local AWEIGHT_USED = 0 
-		if "`aweight'" 			!= "" local AWEIGHT_USED = 1 
+		*Is option weight() used:
+		if "`weight'" 			== "" local WEIGHT_USED = 0 
+		if "`weight'" 			!= "" local WEIGHT_USED = 1 
 	
 	
 	** Output Options	
@@ -604,14 +605,35 @@ qui {
 			}
 		}
 		 	
-		if `AWEIGHT_USED' == 1{
+		if `WEIGHT_USED' == 1 {
 		
-			*LA: test if aweight variable is numeric and shit
-		
+			* Parsing weight options
+			gettoken weight_type weight_var : weight, parse("=")
+			
+			* Parsing keeps the separating character
+			local weight_var : subinstr local weight_var "="  ""
+			
+			* Test is weight type specified is valie
+			local weight_options "fweights pweights aweights iweights fw freq weight pw aw iw"
+			
+			if `:list weight_type in weight_options' == 0 {
+			
+				noi display as error  "{phang} The option `weight_type' specified in weight() is not a valid weight option. Weight options are: fweights, fw, freq, weight, pweights, pw, aweights, aw, iweights, and iw. {p_end}"
+				error 198
+				
+			}
+			
+			* Test is weight variable specified if valid
+			capture confirm variable `weight_var'
+			
+			if _rc {
+			
+				noi display as error  "{phang} The option `weight_var' specified in weight() is not a variable. {p_end}"
+				error 198
+			}		
 		}
 			
-		
-		
+				
 	
 	** Output Options
 		
@@ -1290,12 +1312,10 @@ qui {
 	**********************************
 	*Preparing weight option
 	
-		if `AWEIGHT_USED' {
+		if `WEIGHT_USED' {
 			
-			** The varname for weight is
-			*  prepared to be put in the reg
-			*  options
-			local aweight_option [aweight = `aweight']
+			** The varname for weight is  prepared to be put in the reg  options
+			local weight_option "[`weight_type' = `weight_var']"
 		
 		}
 	
@@ -1368,7 +1388,7 @@ qui {
 		
 			forvalues groupNumber = 1/`GRPVAR_NUM_GROUPS' {
 			
-				reg 	`balancevar' if `groupOrder' == `groupNumber' `aweight_option', `error_estm' 
+				reg 	`balancevar' if `groupOrder' == `groupNumber' `weight_option', `error_estm' 
 				
 				local 	N_`groupNumber' 	= e(N)
 				local 	N_`groupNumber'  	: display %9.0f `N_`groupNumber''
@@ -1757,7 +1777,7 @@ qui {
 			
 			********** 
 			* Run the regression for f-test
-			reg `tempvar_thisGroupInPair' `balancevars' `covariates' i.`fixedeffect' ,  `error_estm'
+			reg `tempvar_thisGroupInPair' `balancevars' `covariates' i.`fixedeffect' `weight_option',  `error_estm'
 			
 			*This F is calculated using fixed effects as well
 			local reg_F 	"`e(F)'"
@@ -2035,9 +2055,19 @@ qui {
 		if "`vce_type'" == "bootstrap"  local error_est_note	"`variance_type_name' are estimeated using bootstrap. "
 	}	
 	
-	if `AWEIGHT_USED' == 1 {
+	if `WEIGHT_USED' == 1 {
 			
-		local weight_note	"Observations are weighted using variable `aweight' as analytical weights."
+		local f_weights "fweights fw freq weight"
+		local a_weights "aweights aw"
+		local p_weights "pweights pw"
+		local i_weights "iweights iw"
+		
+		if `:list weight_type in f_weights' local weight_type = "frequency"
+		else if `:list weight_type in a_weights' local weight_type = "analytical"
+		else if `:list weight_type in p_weights' local weight_type = "probability"
+		else if `:list weight_type in i_weights' local weight_type = "importance"
+		
+		local weight_note	"Observations are weighted using variable `weight_var' as `weight_type' weights."
 	
 	}	
 
@@ -2070,7 +2100,7 @@ qui {
 		*Delete the locals corresponding to options not used
 		if `FTEST_USED'			== 0	local ftest_note		""
 		if `VCE_USED'			== 0	local error_est_note	""
-		if `AWEIGHT_USED'		== 0	local weight_note		""
+		if `WEIGHT_USED'		== 0	local weight_note		""
 		if `FIX_EFFECT_USED'	== 0	local fixed_note		""
 		if `COVARIATES_USED'	== 0	local covar_note		""
 		if `BALMISS_USED'		== 0	local balmiss_note 		""
@@ -2121,12 +2151,21 @@ qui {
 	*Delete the locals corresponding to options not used
 	if `FTEST_USED'			== 0	local ftest_note		""
 	if `VCE_USED'			== 0	local error_est_note	""
-	if `AWEIGHT_USED'		== 0	local weight_note		""
+	if `WEIGHT_USED'		== 0	local weight_note		""
 	if `FIX_EFFECT_USED'	== 0	local fixed_note		""
 	if `COVARIATES_USED'	== 0	local covar_note		""
 	if `BALMISS_USED'		== 0	local balmiss_note 		""
 	if `COVMISS_USED'		== 0	local covmiss_note 		""
 	if `STARSNOADD_USED'	== 1	local stars_note		""
+	
+	* Make sure variables with underscore in name are displayed correctly in the note
+	local notes_list "error_est_note weight_note fixed_note covar_note"
+	
+	foreach note of local notes_list {
+	
+		local `note' : subinstr local `note' "_"  "\_"
+	
+	}
 	
 	
 	*Calculate total number of columns
