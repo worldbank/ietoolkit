@@ -109,7 +109,7 @@ help for {hi:iefolder}
 {pmore}{inp:global projectFolder "C:\Users\Documents\DropBox\ProjectABC"}
 
 {pmore}{inp:iefolder new project , projectfolder("$projectFolder")}{break}
-{inp:iefolder new round baseline , projectfolder("$projectFolder") , abbreviation("BL")}
+{inp:iefolder new round baseline , projectfolder("$projectFolder") abbreviation("BL")}
 
 {pstd}The example above creates the same folder structure as in Example 1, but 
 	in the globals in the master do-files the abbreviation BL is used instead of 
@@ -129,12 +129,12 @@ help for {hi:iefolder}
 	we can sample from. We do that using {it:{cmd:iefolder} new master household}.
 	Like this:
 
-{pmore}{inp:iefolder new master household , projectfolder("C:\Users\Documents\DropBox\ProjectABC") , abbreviation("BL")}
+{pmore}{inp:iefolder new master household , projectfolder("C:\Users\Documents\DropBox\ProjectABC") abbreviation("BL")}
 
 {pstd}When we are ready to start preparing for the baseline we want to create the 
 	baseline folder. We do that using {it:{cmd:iefolder} new round baseline}. Like this:
 
-{pmore}{inp:iefolder new round baseline , projectfolder("C:\Users\Documents\DropBox\ProjectABC") , abbreviation("BL")}
+{pmore}{inp:iefolder new round baseline , projectfolder("C:\Users\Documents\DropBox\ProjectABC") abbreviation("BL")}
 
 {pstd}At this point we can collect the baseline data, save the data in the folders
 	we created and write the report. Then long stretches of time might pass before 
@@ -151,14 +151,14 @@ help for {hi:iefolder}
 	households and for villages. Since this is separate data collection (although 
 	they might happen at the same time). We create those folders like this:
 
-{pmore}{inp:iefolder new round midlineVillage , projectfolder("$projectFolder") , abbreviation("ML")}{break}
-{inp:iefolder new round midline {space 6}     , projectfolder("$projectFolder") , abbreviation("MLvill")}
+{pmore}{inp:iefolder new round midlineVillage , projectfolder("$projectFolder") abbreviation("ML")}{break}
+{inp:iefolder new round midline {space 6}     , projectfolder("$projectFolder") abbreviation("MLvill")}
 
 {pstd}Finally, in the last round of data collection, we are only collecting data 
 	on households again. Since we are not collecting data on any new unit 
 	of observation, we do not need to create any new master folder.
 
-{pmore}{inp:iefolder new round endline , projectfolder("$projectFolder") , abbreviation("EL")}
+{pmore}{inp:iefolder new round endline , projectfolder("$projectFolder") abbreviation("EL")}
 
 {title:Acknowledgements}
 
