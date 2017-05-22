@@ -103,6 +103,9 @@ qui {
 			
 			di "ItemType: Project"
 			iefolder_newProject "`projectfolder'" `newHandle'
+			noi di "{pstd}Command ran succesfully, a new DataWork folder was created here created:{p_end}"
+			noi di "{pstd}1) [${dataWorkFolder}]{p_end}"
+			
 		}
 		*Creating a new round
 		else if "`itemType'" == "round" {
@@ -112,6 +115,11 @@ qui {
 			
 			di "ItemType: round"
 			iefolder_newRound `newHandle' "`itemName'" "`abbreviation'"	
+			
+			noi di "{pstd}Command ran succesfully, for the round `itemName' the following folders and master dofile were created:{p_end}"
+			noi di "{pstd}1) [${`abbreviation'}]{p_end}"
+			noi di "{pstd}2) [${encryptFolder}/`itemName' Encrypted Data]{p_end}"
+			noi di "{pstd}3) [${`abbreviation'}/`itemName'_MasterDofile.do]{p_end}"
 		}
 		*Creating a new level of observation for master data set
 		else if "`itemType'" == "master" {
@@ -119,6 +127,10 @@ qui {
 			di "ItemType: master/unitofobs"
 			di `"iefolder_newMaster	`newHandle' "`itemName'""'
 			iefolder_newMaster	`newHandle' "`itemName'"
+			
+			noi di "{pstd}Command ran succesfully, for the master `itemName' the following folders were created:{p_end}"
+			noi di "{pstd}1) [${dataWorkFolder}/MasterData/`itemName']{p_end}"
+			noi di "{pstd}2) [${encryptFolder}/IDMasterKey/`itemName']{p_end}"
 		}
 	}
 	
