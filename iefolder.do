@@ -107,7 +107,7 @@ qui {
 			
 			di "ItemType: Project"
 			iefolder_newProject "`projectfolder'" `newHandle'
-			noi di "{pstd}Command ran succesfully, a new DataWork folder was created here created:{p_end}"
+			noi di "{pstd}Command ran succesfully, a new DataWork folder was created here:{p_end}"
 			noi di "{pstd}1) [${dataWorkFolder}]{p_end}"
 			
 		}
