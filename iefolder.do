@@ -12,6 +12,7 @@ qui {
 	*give error message if divisor is changed
 	*remove dofiles from dofile subfolders
 	*change master to unitofobs
+	*rename MasterDataSets to DataSet (singular)
 
 	
 	*Create an empty line before error message or output
@@ -44,7 +45,7 @@ qui {
 	*test that there is no space in itemname
 	local space_pos = strpos(trim("`itemName'"), " ")
 	
-	if "`rest'" != ""  | "`space_pos'" != 0 {
+	if "`rest'" != ""  | `space_pos' != 0 {
 
 		noi di as error "{pstd}You have specified to many words in: [{it:iefolder `subcommand' `itemType' `itemName'`rest'}] or used a space in {it:itemname}. Spaces are not allowed in the {it:itemname}. Use underscores or camel case.{p_end}"
 		error 198
@@ -58,7 +59,7 @@ qui {
 	***************************************************/	
 	
 	local sub_commands "new"
-	local itemTypes "project round master"
+	local itemTypes "project round unitofobs"
 	
 	*Test if subcommand is valid
 	if `:list subcommand in sub_commands' == 0 {
@@ -126,20 +127,20 @@ qui {
 			iefolder_newRound `newHandle' "`itemName'" "`abbreviation'"	
 			
 			*Produce success output
-			noi di "{pstd}Command ran succesfully, for the round `itemName' the following folders and master dofile were created:{p_end}"
+			noi di "{pstd}Command ran succesfully, for the round [`itemName'] the following folders and master dofile were created:{p_end}"
 			noi di "{pstd}1) [${`abbreviation'}]{p_end}"
 			noi di "{pstd}2) [${encryptFolder}/`itemName' Encrypted Data]{p_end}"
 			noi di "{pstd}3) [${`abbreviation'}/`itemName'_MasterDofile.do]{p_end}"
 		}
 		*Creating a new level of observation for master data set
-		else if "`itemType'" == "master" {
+		else if "`itemType'" == "unitofobs" {
 			
-			di "ItemType: master/unitofobs"
+			di "ItemType: untiofobs/unitofobs"
 			di `"iefolder_newMaster	`newHandle' "`itemName'""'
-			iefolder_newMaster	`newHandle' "`itemName'"
+			iefolder_newUnitOfObs	`newHandle' "`itemName'"
 			
 			*Produce success output
-			noi di "{pstd}Command ran succesfully, for the master `itemName' the following folders were created:{p_end}"
+			noi di "{pstd}Command ran succesfully, for the unit of observation [`itemName'] the following folders were created:{p_end}"
 			noi di "{pstd}1) [${dataWorkFolder}/MasterData/`itemName']{p_end}"
 			noi di "{pstd}2) [${encryptFolder}/IDMasterKey/`itemName']{p_end}"
 		}
@@ -313,12 +314,12 @@ cap program drop 	iefolder_newRound
 end
 
 
-cap program drop 	iefolder_newMaster
-	program define	iefolder_newMaster
+cap program drop 	iefolder_newUnitOfObs
+	program define	iefolder_newUnitOfObs
 	
 	args subHandle obsName 
 	
-	di "new master command"
+	di "new unitofobs command"
 
 	global mastData 		"$dataWorkFolder/MasterData"
 	global mastDataIDKey 	"$encryptFolder/IDMasterKey"	
@@ -365,13 +366,11 @@ cap program drop 	iefolder_newMaster
 	
 		if `r(ief_line)' == 1 & `r(ief_line)' == 1 & `r(ief_end)' == 0  & "`r(sectionName)'" == "rawData" {
 			
-			*Create master data folder and add global to folder in master do file
+			*Create unit of observation data folder and add global to folder in master do file
 			cap createFolderWriteGlobal "`obsName'"  "mastData"  	mastData_`obsName'	`subHandle'
 
 			if _rc == 693 {
-				
-	
-				
+			
 				*If that folder exist, problem 
 				noi di as error "{phang}could not create new folder, folder name might already exist "
 				error _rc
@@ -404,7 +403,7 @@ cap program drop 	iefolder_newMaster
 	file close `oldHandle'	
 	
 	
-	*Create master data subfolders
+	*Create unit of observation data subfolders
 	createFolderWriteGlobal "MasterDataSets"  	"mastData_`obsName'"  masterDataSets	
 	createFolderWriteGlobal "Dofiles"  			"mastData_`obsName'"  mastDataDo
 

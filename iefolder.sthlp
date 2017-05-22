@@ -20,7 +20,7 @@ help for {hi:iefolder}
 {phang2}{cmd:iefolder} new {it:itemtype} {it:itemname} , {cmdab:proj:ectfolder(}{it:directory}{cmd:)} 
 	[{cmdab:abb:reviation(}{it:string}{cmd:)}] 
 	
-{pmore}where {it:itemtype} is either {it:round} or {it:master}. See 
+{pmore}where {it:itemtype} is either {it:round} or {it:unitofobs}. See 
 	details on {it:itemtype} and {it:itemname} below.
 
 {marker opts}{...}
@@ -29,7 +29,7 @@ help for {hi:iefolder}
 {synoptline}
 {synopt : {cmdab:proj:ectfolder(}{it:dir}{cmd:)}}The location of 
 	the project folder where the {hi:DataWork} folder should be 
-	created (new projects), or where it is located (new round and new master).{p_end}
+	created (new projects), or where it is located (new round and new unitofobs).{p_end}
 {synopt : {cmdab:abb:reviation(}{it:string}{cmd:)}}Optional abbreviation 
 	of round name to be used to make globals shorter. Can only be used 
 	when {it:itemtype} is round.{p_end}
@@ -51,7 +51,7 @@ help for {hi:iefolder}
 {pstd}{ul:{hi:itemtypes}}. This command can create either a new DataWork folder or add folders to an 
 	existing DataWork folder. The existing DataWork folder must have been created 
 	with {cmd:iefolder} for the additions to work. There are two types of folders 
-	that can be added to an existing folder, {ul:round} and {ul:master}. See 
+	that can be added to an existing folder, {ul:round} and {ul:untiofobs}. See 
 	next paragraphs for descriptions.
 	
 {pstd}{hi:{it:round}} folders are folders specific to a data collection round, for example, {it:Baseline}, {it:Endline},
@@ -64,8 +64,8 @@ help for {hi:iefolder}
 	of the folder and the project master do-file and make the addition in those files 
 	preserving the manual changes that has been done.
 	
-{pstd}{hi:{it:master}} folders are folders specific to the master data sets that corresponds 
-	to each unit of observation. Read more about master data sets and the folder structure
+{pstd}{hi:{it:untiofobs}} folders are folders specific to a unit of observation, 
+	for example the master data set folder. Read more about master data sets and the folder structure
 	this commands sets up for you at {browse "https://dimewiki.worldbank.org/wiki/Master_Data_Set"}. A 
 	master data folder for each new unit of observation is created in two places. Both in 
 	the MasterData folder in the DataWork folder, and in the MasterKeyID folder in the encrypted folder.
@@ -125,11 +125,13 @@ help for {hi:iefolder}
 {pmore}{inp:iefolder new project , projectfolder("C:\Users\Documents\DropBox\ProjectABC")}
 
 {pstd}Our first data collection will be a baseline where the unit of observation 
-	is households. We therefore need to set up a master file for households that
-	we can sample from. We do that using {it:{cmd:iefolder} new master household}.
-	Like this:
+	is households. We therefore need to set up folders for the unit of observation 
+	"households". In the encrypted master folder for "housholds" you can create your 
+	list over households and you have a subfolder called {it:Sampling} where you 
+	can keep do files and data with identifying infomration. We create all of that by 
+	using {it:{cmd:iefolder} new untiofobs household}.	Like this:
 
-{pmore}{inp:iefolder new master household , projectfolder("C:\Users\Documents\DropBox\ProjectABC") abbreviation("BL")}
+{pmore}{inp:iefolder new untiofobs household , projectfolder("C:\Users\Documents\DropBox\ProjectABC") abbreviation("BL")}
 
 {pstd}When we are ready to start preparing for the baseline we want to create the 
 	baseline folder. We do that using {it:{cmd:iefolder} new round baseline}. Like this:
@@ -143,9 +145,9 @@ help for {hi:iefolder}
 {pstd}Let's say that when we plan for midline we also want
 	to collect data about the villages that the households we interview in baseline 
 	live in. Then we need to create a new master folder for the unit of observation 
-	villages. We do that using {it:{cmd:iefolder} new master village}. Like this:
+	villages. We do that using {it:{cmd:iefolder} new untiofobs village}. Like this:
 
-{pmore}{inp:iefolder new master village , projectfolder("$projectFolder")}
+{pmore}{inp:iefolder new untiofobs village , projectfolder("$projectFolder")}
 
 {pstd}Then we need to create the rounds used for the midline round for both 
 	households and for villages. Since this is separate data collection (although 
