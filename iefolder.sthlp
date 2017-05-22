@@ -44,7 +44,7 @@ help for {hi:iefolder}
 	is a part of a Wiki that we are in the final stage of getting approval to 
 	release externally, the page is until then unfortunately password protected.) 
 
-{pstd}In addition to setting up the {hi:DataWork} folder and its sub-folders the 
+{pstd}In addition to setting up the {hi:DataWork} folder and its sub-folders, the 
 	command creates master do-files linking to all of these sub-folders. These 
 	master do-files are updated whenever more subfolders are added using this command.
 	
@@ -62,7 +62,7 @@ help for {hi:iefolder}
 	specific to this round. {cmd:iefolder} is implemented so that you can keep working 
 	for years with your project in between adding folders. The command reads the content 
 	of the folder and the project master do-file and make the addition in those files 
-	perserving the manual changes that has been done.
+	preserving the manual changes that has been done.
 	
 {pstd}{hi:{it:master}} folders are folders specific to the master data sets that corresponds 
 	to each unit of observation. Read more about master data sets and the folder structure
@@ -142,7 +142,7 @@ help for {hi:iefolder}
 	
 {pstd}Let's say that when we plan for midline we also want
 	to collect data about the villages that the households we interview in baseline 
-	lives in. Then we need to create a new master folder for the unit of observation 
+	live in. Then we need to create a new master folder for the unit of observation 
 	villages. We do that using {it:{cmd:iefolder} new master village}. Like this:
 
 {pmore}{inp:iefolder new master village , projectfolder("$projectFolder")}
@@ -154,9 +154,9 @@ help for {hi:iefolder}
 {pmore}{inp:iefolder new round midlineVillage , projectfolder("$projectFolder") , abbreviation("ML")}{break}
 {inp:iefolder new round midline {space 6}     , projectfolder("$projectFolder") , abbreviation("MLvill")}
 
-{pstd}Finally, in the last round of data collection we are only collecting data 
+{pstd}Finally, in the last round of data collection, we are only collecting data 
 	on households again. Since we are not collecting data on any new unit 
-	of observation we do not need to create any new master folder.
+	of observation, we do not need to create any new master folder.
 
 {pmore}{inp:iefolder new round endline , projectfolder("$projectFolder") , abbreviation("EL")}
 
