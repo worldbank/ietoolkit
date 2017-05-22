@@ -9,6 +9,9 @@ qui {
 	
 	***Todo
 	*Test that old master do file exist
+	*give error message if divisor is changed
+	*remove dofiles from dofile subfolders
+	*change master to unitofobs
 
 	
 	*Create an empty line before error message or output
@@ -107,6 +110,8 @@ qui {
 			
 			di "ItemType: Project"
 			iefolder_newProject "`projectfolder'" `newHandle'
+			
+			*Produce success output
 			noi di "{pstd}Command ran succesfully, a new DataWork folder was created here:{p_end}"
 			noi di "{pstd}1) [${dataWorkFolder}]{p_end}"
 			
@@ -120,6 +125,7 @@ qui {
 			di "ItemType: round"
 			iefolder_newRound `newHandle' "`itemName'" "`abbreviation'"	
 			
+			*Produce success output
 			noi di "{pstd}Command ran succesfully, for the round `itemName' the following folders and master dofile were created:{p_end}"
 			noi di "{pstd}1) [${`abbreviation'}]{p_end}"
 			noi di "{pstd}2) [${encryptFolder}/`itemName' Encrypted Data]{p_end}"
@@ -132,6 +138,7 @@ qui {
 			di `"iefolder_newMaster	`newHandle' "`itemName'""'
 			iefolder_newMaster	`newHandle' "`itemName'"
 			
+			*Produce success output
 			noi di "{pstd}Command ran succesfully, for the master `itemName' the following folders were created:{p_end}"
 			noi di "{pstd}1) [${dataWorkFolder}/MasterData/`itemName']{p_end}"
 			noi di "{pstd}2) [${encryptFolder}/IDMasterKey/`itemName']{p_end}"
@@ -181,9 +188,7 @@ cap program drop 	iefolder_newProject
 		mdofle_p2 `newHandle'
 		
 		*Write section that runs sub-master dofiles
-		mdofle_p3 `newHandle' project
-
-					
+		mdofle_p3 `newHandle' project		
 		
 end 
 
