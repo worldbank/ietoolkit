@@ -37,11 +37,13 @@ qui {
 	*noi di "SubCommand 	`subcommand'"
 	*noi di "ItemType 	`itemType'"
 	*noi di "ItemName	`itemName'"
-
 	
-	if "`rest'" != "" {
+	*test that there is no space in itemname
+	local space_pos = strpos(trim("`itemName'"), " ")
+	
+	if "`rest'" != ""  | "`space_pos'" != 0 {
 
-		noi di as error "{pstd}You have specified to many words in: [{it:iefolder `subcommand' `itemType' `itemName'`rest'}]. Spaces are not allowed in the {it:itemname}. Use underscores or camel case.{p_end}"
+		noi di as error "{pstd}You have specified to many words in: [{it:iefolder `subcommand' `itemType' `itemName'`rest'}] or used a space in {it:itemname}. Spaces are not allowed in the {it:itemname}. Use underscores or camel case.{p_end}"
 		error 198
 	}
  
