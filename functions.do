@@ -193,7 +193,7 @@
 		*  new folder, then the parent folder should exist. Throw an error if it doesn't
 		if `r(dirExist)' == 0 & "`type'" == "parent" {
 		
-			noi di as error `"{phang}A new folder cannot be created in "`folder'" as that folder does not exist. iefolder will not work properly if the names of the folders it depends on are changed."' 
+			noi di as error `"{phang}A new folder cannot be created in "`folder'" as that folder does not exist. iefolder will not work properly if the names of the folders it depends on are changed.{p_end}"' 
 			error 693
 			exit
 		}
@@ -202,7 +202,7 @@
 		*  then that folder should not exist. Throw an error if it does		
 		if `r(dirExist)' == 1 & "`type'" == "new" {
 			
-			noi di as error `"{phang}The new folder cannot be created since the folder "`folder'" already exist. You may not use the a name twice for the same type of folder."' 
+			noi di as error `"{phang}The new folder cannot be created since the folder "`folder'" already exist. You may not use the a name twice for the same type of folder.{p_end}"' 
 			error 693
 			exit
 		}

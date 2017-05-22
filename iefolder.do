@@ -2,6 +2,8 @@
 
 cap program drop 	iefolder
 	program define	iefolder	
+
+qui {	
 	
 	syntax anything, PROJectfolder(string) [ABBreviation(string)]
 	
@@ -30,14 +32,14 @@ cap program drop 	iefolder
 	local itemType 	= trim("`itemType'")
 	local itemName 	= trim("`itemName'")
 	
-	di "SubCommand 	`subcommand'"
-	di "ItemType 	`itemType'"
-	di "ItemName	`itemName'"
+	*noi di "SubCommand 	`subcommand'"
+	*noi di "ItemType 	`itemType'"
+	*noi di "ItemName	`itemName'"
 
 	
 	if "`rest'" != "" {
 
-		di as error "{pstd}You have specified to many words in: [{it:iefolder `subcommand' `itemType' `itemName'`rest'}]. Spaces are not allowed in the {it:itemname}."
+		noi di as error "{pstd}You have specified to many words in: [{it:iefolder `subcommand' `itemType' `itemName'`rest'}]. Spaces are not allowed in the {it:itemname}. Use underscores or camel case.{p_end}"
 		error 198
 	}
  
@@ -54,21 +56,21 @@ cap program drop 	iefolder
 	*Test if subcommand is valid
 	if `:list subcommand in sub_commands' == 0 {
 
-		di as error "{phang}You have not used a valid subcommand. See help file for details.{p_end}"
+		noi di as error "{phang}You have not used a valid subcommand. See help file for details.{p_end}"
 		error 198
 	}	
 	
 	*Test if item type is valid
 	if `:list itemType in itemTypes' == 0 {
 
-		di as error "{phang}You have not used a valid item type. See help file for details.{p_end}"
+		noi di as error "{phang}You have not used a valid item type. See help file for details.{p_end}"
 		error 198
 	} 
 	
 	*Test that item name is used when item type is anything but project
 	else if ("`itemType'" != "project" & "`itemName'" == "" ) {
 		
-		di as error "{phang}You must specify a name of the `itemType'. See help file for details.{p_end}"
+		noi di as error "{phang}You must specify a name of the `itemType'. See help file for details.{p_end}"
 		error 198
 	}
 	
@@ -106,10 +108,10 @@ cap program drop 	iefolder
 		else if "`itemType'" == "round" {
 			
 			*Use the full item name if abbrevaition was not specified
-			if "`abb'" == "" local abb "`itemName'"
+			if "`abbreviation'" == "" local abbreviation "`itemName'"
 			
 			di "ItemType: round"
-			iefolder_newRound `newHandle' "`itemName'" "`abb'"	
+			iefolder_newRound `newHandle' "`itemName'" "`abbreviation'"	
 		}
 		*Creating a new level of observation for master data set
 		else if "`itemType'" == "master" {
@@ -126,7 +128,7 @@ cap program drop 	iefolder
 	
 	*Copy the new master dofile from the tempfile to the original position
 	copy "`newTextFile'"  "$dataWorkFolder/Project_MasterDofile.do" , replace
-	
+}	
 end 	
 
 	/***************************************************
@@ -237,13 +239,13 @@ cap program drop 	iefolder_newRound
 				
 					*Test that the folder name about to be used is not already in use 
 					if "`r(itemName)'" == "`rndName'" {
-						di as error "{phang}The new round name `rndName' is already in use. No new folders are creaetd and the master do-files has not been changed.{p_end}"
+						noi di as error "{phang}The new round name `rndName' is already in use. No new folders are creaetd and the master do-files has not been changed.{p_end}"
 						error 507
 					}
 					
 					*Test that the folder name about to be used is not already in use 
 					if "`r(itemAbb)'" == "`rndAbb'" {
-						di as error "{phang}The new round abbreviation `rndAbb' is already in use. No new folders are creaetd and the master do-files has not been changed.{p_end}"
+						noi di as error "{phang}The new round abbreviation `rndAbb' is already in use. No new folders are creaetd and the master do-files has not been changed.{p_end}"
 						error 507
 					}
 					
@@ -350,7 +352,7 @@ cap program drop 	iefolder_newMaster
 	
 				
 				*If that folder exist, problem 
-				di as error "{phang}could not create new folder, folder name might already exist "
+				noi di as error "{phang}could not create new folder, folder name might already exist "
 				error _rc
 		
 			}
