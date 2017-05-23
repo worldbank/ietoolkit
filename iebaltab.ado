@@ -1,5 +1,5 @@
 	*! version 4.0 18APR2017  Kristoffer Bjarkefur kbjarkefur@worldbank.org
-	
+		
 	capture program drop iebaltab
 	program iebaltab
 	
@@ -32,6 +32,7 @@
 				COVMISS(string) 											///
 				COVMISSReg(string)											///	
 				MISSMINmean(numlist min=1 max=1 >0)							///
+				weight(string)												///
 																			///
 				/*F-test*/													///
 				FTest 														///
@@ -56,10 +57,12 @@
 				TEXNotewidth(numlist min=1 max=1)							///
 				TEXCaption(string)											///
 				TEXLabel(string)											///
+				TEXDOCument													///
 				BROWSE														///
 				SAVEBRowse													///
 				REPLACE														///
 				]
+		
 			
 		***************TODO***************
 		* 1. Add number of clusters
@@ -189,7 +192,6 @@ qui {
 		if "`missminmean'" 		== "" local MISSMINMEAN_USED = 0 
 		if "`missminmean'" 		!= "" local MISSMINMEAN_USED = 1 			
 		
-		
 		*Is option starlevels() used:
 		if "`starlevels'" 		== "" local STARLEVEL_USED = 0 
 		if "`starlevels'" 		!= "" local STARLEVEL_USED = 1 
@@ -215,6 +217,10 @@ qui {
 		*Is option pftest() used:
 		if "`stdev'" 			== "" local STDEV_USED = 0 
 		if "`stdev'" 			!= "" local STDEV_USED = 1 
+		
+		*Is option weight() used:
+		if "`weight'" 			== "" local WEIGHT_USED = 0 
+		if "`weight'" 			!= "" local WEIGHT_USED = 1 
 	
 	
 	** Output Options	
@@ -242,6 +248,10 @@ qui {
 		*Is option texnotewidth() used:
 		if "`texlabel'"			== "" local LABEL_USED = 0
 		if "`texlabel'"			!= "" local LABEL_USED = 1
+		
+		*Is option texdocument() used:
+		if "`texdocument'"		== "" local TEXDOC_USED = 0
+		if "`texdocument'"		!= "" local TEXDOC_USED = 1
 		
 		*Is option browse() used:
 		if "`browse'" 			== "" local BROWSE_USED = 0 
@@ -595,10 +605,35 @@ qui {
 			}
 		}
 		 	
-			
-			
+		if `WEIGHT_USED' == 1 {
 		
-		
+			* Parsing weight options
+			gettoken weight_type weight_var : weight, parse("=")
+			
+			* Parsing keeps the separating character
+			local weight_var : subinstr local weight_var "="  ""
+			
+			* Test is weight type specified is valie
+			local weight_options "fweights pweights aweights iweights fw freq weight pw aw iw"
+			
+			if `:list weight_type in weight_options' == 0 {
+			
+				noi display as error  "{phang} The option `weight_type' specified in weight() is not a valid weight option. Weight options are: fweights, fw, freq, weight, pweights, pw, aweights, aw, iweights, and iw. {p_end}"
+				error 198
+				
+			}
+			
+			* Test is weight variable specified if valid
+			capture confirm variable `weight_var'
+			
+			if _rc {
+			
+				noi display as error  "{phang} The option `weight_var' specified in weight() is not a variable. {p_end}"
+				error 198
+			}		
+		}
+			
+				
 	
 	** Output Options
 		
@@ -725,10 +760,11 @@ qui {
 				
 				if `CAPTION_USED' {
 				
-				* If there's an underscore in the caption, make sure it will appear as such.
-				local texcaption = subinstr("`texcaption'", "_", "\_",.)
-				local texcaption = subinstr("`texcaption'", "\\_", "\_",.)		// Just in case the user had already thought of adding the bar
-				
+					* Make sure special characters are displayed correctly
+					local texcaption : subinstr local texcaption "%"  "\%"
+					local texcaption : subinstr local texcaption "_"  "\_"
+					local texcaption : subinstr local texcaption "&"  "\&"
+					
 				}
 			}
 			
@@ -754,11 +790,7 @@ qui {
 			
 			* Tex label must be a single word
 			if `LABEL_USED' {
-			
-				* If there's an underscore in the caption, make sure it will appear as such.
-				local texlabel = subinstr("`texlabel'", "_", "\_",.)
-				local texlabel = subinstr("`texlabel'", "\\_", "\_",.)		// Just in case the user had already thought of adding the bar
-			
+					
 				local label_words : word count `texlabel'
 				
 				if `label_words' != 1 {
@@ -766,18 +798,28 @@ qui {
 					noi display as error `"{phang}The value specified in texlabel(`texlabel') is not allowed. For more information, {browse "https://en.wikibooks.org/wiki/LaTeX/Labels_and_Cross-referencing":check LaTeX labels manual}.{p_end}"'
 					error 198
 				}
+				
+			}
+			
+			if (`LABEL_USED' | `CAPTION_USED') {
+			
+				if `TEXDOC_USED' == 0 {
+				
+					noi display as error "{phang}Options texlabel and texcaption may only be used in combination with option texdocument {p_end}"
+					error 198
+				}
 			}
 		}
 		
+				
 		* Error for incorrectly using tex options
-		else if `NOTEWIDTH_USED' | `LABEL_USED' | `CAPTION_USED'{
+		else if `NOTEWIDTH_USED' | `LABEL_USED' | `CAPTION_USED' | `TEXDOC_USED' {
 	
-			noi display as error "{phang}Options texnotewidth, texlabel and texcaption may only be used in combination with option savetex(){p_end}"
+			noi display as error "{phang}Options texnotewidth, texdocument, texlabel and texcaption may only be used in combination with option savetex(){p_end}"
 			error 198
 		
 		}
-		
-		
+				
 		*At least one of save and browse may be used
 		if (`SAVE_USED' + `BROWSE_USED' + `SAVE_TEX_USED' < 1) {
 			
@@ -965,9 +1007,11 @@ qui {
 			local groupLabel : word `groupOrderNum' of `grpLabels_final'
 			local groupCode  : word `groupOrderNum' of `ORDER_OF_GROUPS'
 			
-			* Make sure tex names are displayed correctly
-			local texGroupLabel = subinstr("`groupLabel'", "_", "\_",.)
-			local texGroupLabel = subinstr("`texGroupLabel'", "\\_", "\_",.)	// Just in case the user had already thought of adding the bar
+			* Make sure special characters are displayed correctly
+			local texGroupLabel : subinstr local groupLabel    "%"  "\%"
+			local texGroupLabel : subinstr local texGroupLabel "_"  "\_"
+			local texGroupLabel : subinstr local texGroupLabel "&"  "\&"
+			local texGroupLabel : subinstr local texGroupLabel "\$"  "\\\\\\\$"
 						
 			*Prepare a row to store onenrow values for each group
 			if `ONENROW_USED' == 1 local onenrow_`groupOrderNum' ""
@@ -1016,10 +1060,12 @@ qui {
 			local tot_label Total
 			if `TOTALLABEL_USED' local tot_label `totallabel'
 			
-			* Make sure tex names are displayed correctly
-			local tex_tot_label = subinstr("`tot_label'", "_", "\_",.)
-			local tex_tot_label = subinstr("`tex_tot_label'", "\\_", "\_",.)	// Just in case the user had already thought of adding the bar
-
+			* Make sure special characters are displayed correctly
+			local tex_tot_label : subinstr local tot_label     "%"  "\%"
+			local tex_tot_label : subinstr local tex_tot_label "_"  "\_"
+			local tex_tot_label : subinstr local tex_tot_label "&"  "\&"
+			local tex_tot_label : subinstr local tex_tot_label "\$"  "\\\\\$"
+			
 			*Create one more column for N if N is displayesd in column instead of row
 			if `ONENROW_USED' == 0 {
 						
@@ -1168,52 +1214,54 @@ qui {
 		tempname 	texname
 		tempfile	texfile
 		
-		****Write texheader
+		****Write texheader if full document option was selected
 		*Everyhting here is the tex headers
 		capture file close `texname'
+				
+		if `TEXDOC_USED' {
 		
-		file open  `texname' using "`texfile'", text write replace
-		file write `texname' ///
-			"%%% Table created in Stata by iebaltab (https://github.com/worldbank/ietoolkit)" _n ///
-			"%" _n ///
-			"% \documentclass{article}" _n ///
-			"%" _n ///
-			"% ----- Preamble " _n ///
-			"% \usepackage[utf8]{inputenc}" _n ///
-			"%%% We suggest using the adjustbox package to fit the table to page size. To do so, uncomment the next line." _n ///
-			"% \usepackage{adjustbox}" _n ///
-			"% ----- End of preamble " _n ///
-			"%" _n ///
-			"% \begin{document}" _n ///
-			"%" _n ///
-			"\begin{table}[!htbp]" _n /// 
-			"\centering" _n
-		file close `texname'	
-		
-		* Write tex caption if specified
-		if `CAPTION_USED' {
-			file open  `texname' using "`texfile'", text write append
-			file write `texname' `"\caption{`texcaption'}"' _n
+			file open  `texname' using "`texfile'", text write replace			
+			file write `texname' ///
+				"%%% Table created in Stata by iebaltab (https://github.com/worldbank/ietoolkit)" _n ///
+				"" _n ///
+				"\documentclass{article}" _n ///
+				"" _n ///
+				"% ----- Preamble " _n ///
+				"\usepackage[utf8]{inputenc}" _n ///
+				"\usepackage{adjustbox}" _n ///
+				"% ----- End of preamble " _n ///
+				"" _n ///
+				" \begin{document}" _n ///
+				"" _n ///
+				"\begin{table}[!htbp]" _n /// 
+				"\centering" _n
+			
+			* Write tex caption if specified
+			if `CAPTION_USED' {
+			
+				file write `texname' `"\caption{`texcaption'}"' _n
+	
+			}
+			
+			* Write tex label if specified
+			if `LABEL_USED' {
+				
+				file write `texname' `"\label{`texlabel'}"' _n
+				
+			}
+			
+			file write `texname'	"\begin{adjustbox}{max width=\textwidth}" _n
 			file close `texname'
-		}
-		
-		* Write tex label if specified
-		if `LABEL_USED' {
-			file open  `texname' using "`texfile'", text write append
-			file write `texname' `"\label{`texlabel'}"' _n
-			file close `texname'
-		}
+			
+		}	
 		
 		file open  `texname' using "`texfile'", text write append
 		file write `texname' ///
-			"%%% Uncomment the next line to fit the table to page size using the adjustbox package." _n ///
-			"% \begin{adjustbox}{max width=\textwidth}" _n ///
 			"\begin{tabular}{@{\extracolsep{5pt}}`colstring'}" _n ///
 			"\\[-1.8ex]\hline" _n ///
-			"\hline \\[-1.8ex]" _n	
-			
+			"\hline \\[-1.8ex]" _n		
 		file close `texname'
-		
+			
 		*Write the title rows defined above	
 		capture file close `texname'
 		file open  `texname' using "`texfile'", text write append
@@ -1224,10 +1272,7 @@ qui {
 						"\hline \\[-1.8ex] " _n
 		file close `texname'
 	
-	
-	
-	
-	
+
 	/***********************************************
 	***********************************************/
 	
@@ -1263,6 +1308,16 @@ qui {
 			local error_estm vce(`vce')
 		
 		}
+		
+	**********************************
+	*Preparing weight option
+	
+		if `WEIGHT_USED' {
+			
+			** The varname for weight is  prepared to be put in the reg  options
+			local weight_option "[`weight_type' = `weight_var']"
+		
+		}
 	
 	
 	** Create locals that control the warning table
@@ -1289,9 +1344,11 @@ qui {
 			local tableRowUp `""`row_label'""' 
 			local tableRowDo `" "' 
 			
-			*Make sure underscores in variable labels are displayed correctly
-			local texrow_label = subinstr("`row_label'", "_", "\_",.)
-			local texrow_label = subinstr("`texrow_label'", "\\_", "\_",.)		// Just in case the user had already thought of adding the bar
+			*Make sure special characters in variable labels are displayed correctly
+			local texrow_label : subinstr local row_label 	 "%"  "\%"
+			local texrow_label : subinstr local texrow_label "_"  "\_"
+			local texrow_label : subinstr local texrow_label "&"  "\&"
+			local texrow_label : subinstr local texrow_label "\$"  "\\\\\\\\$"
 			
 			local texRowUp `""`texrow_label'""' 
 			local texRowDo `" "' 
@@ -1331,7 +1388,7 @@ qui {
 		
 			forvalues groupNumber = 1/`GRPVAR_NUM_GROUPS' {
 			
-				reg 	`balancevar' if `groupOrder' == `groupNumber' , `error_estm'
+				reg 	`balancevar' if `groupOrder' == `groupNumber' `weight_option', `error_estm' 
 				
 				local 	N_`groupNumber' 	= e(N)
 				local 	N_`groupNumber'  	: display %9.0f `N_`groupNumber''
@@ -1720,7 +1777,7 @@ qui {
 			
 			********** 
 			* Run the regression for f-test
-			reg `tempvar_thisGroupInPair' `balancevars' `covariates' i.`fixedeffect' ,  `error_estm'
+			reg `tempvar_thisGroupInPair' `balancevars' `covariates' i.`fixedeffect' `weight_option',  `error_estm'
 			
 			*This F is calculated using fixed effects as well
 			local reg_F 	"`e(F)'"
@@ -1997,6 +2054,22 @@ qui {
 		if "`vce_type'" == "cluster"  	local error_est_note	"`variance_type_name' are clustered at variable `cluster_var'. "
 		if "`vce_type'" == "bootstrap"  local error_est_note	"`variance_type_name' are estimeated using bootstrap. "
 	}	
+	
+	if `WEIGHT_USED' == 1 {
+			
+		local f_weights "fweights fw freq weight"
+		local a_weights "aweights aw"
+		local p_weights "pweights pw"
+		local i_weights "iweights iw"
+		
+		if `:list weight_type in f_weights' local weight_type = "frequency"
+		else if `:list weight_type in a_weights' local weight_type = "analytical"
+		else if `:list weight_type in p_weights' local weight_type = "probability"
+		else if `:list weight_type in i_weights' local weight_type = "importance"
+		
+		local weight_note	"Observations are weighted using variable `weight_var' as `weight_type' weights."
+	
+	}	
 
 	
 	if `BALMISS_USED' == 1 | `BALMISSREG_USED' == 1 {
@@ -2027,6 +2100,7 @@ qui {
 		*Delete the locals corresponding to options not used
 		if `FTEST_USED'			== 0	local ftest_note		""
 		if `VCE_USED'			== 0	local error_est_note	""
+		if `WEIGHT_USED'		== 0	local weight_note		""
 		if `FIX_EFFECT_USED'	== 0	local fixed_note		""
 		if `COVARIATES_USED'	== 0	local covar_note		""
 		if `BALMISS_USED'		== 0	local balmiss_note 		""
@@ -2037,7 +2111,7 @@ qui {
 			*Write to file
 			file open  `textname' using "`textfile'", text write append
 			
-				file write `textname' "`tblnote' `ttest_note'`ftest_note'`error_est_note'`fixed_note'`covar_note'`balmiss_note'`covmiss_note'`stars_note'" _n
+				file write `textname' "`tblnote' `ttest_note'`ftest_note'`error_est_note'`fixed_note'`covar_note'`weight_note'`balmiss_note'`covmiss_note'`stars_note'" _n
 				
 			file close `textname'
 
@@ -2077,11 +2151,21 @@ qui {
 	*Delete the locals corresponding to options not used
 	if `FTEST_USED'			== 0	local ftest_note		""
 	if `VCE_USED'			== 0	local error_est_note	""
+	if `WEIGHT_USED'		== 0	local weight_note		""
 	if `FIX_EFFECT_USED'	== 0	local fixed_note		""
 	if `COVARIATES_USED'	== 0	local covar_note		""
 	if `BALMISS_USED'		== 0	local balmiss_note 		""
 	if `COVMISS_USED'		== 0	local covmiss_note 		""
 	if `STARSNOADD_USED'	== 1	local stars_note		""
+	
+	* Make sure variables with underscore in name are displayed correctly in the note
+	local notes_list "error_est_note weight_note fixed_note covar_note"
+	
+	foreach note of local notes_list {
+	
+		local `note' : subinstr local `note' "_"  "\_"
+	
+	}
 	
 	
 	*Calculate total number of columns
@@ -2112,18 +2196,26 @@ qui {
 			file write `texname' ///
 				"%%% This is the note. If it does not have the correct margins, edit text below to fit to table size." _n ///
 				"[-1.8ex] \multicolumn{`totalColNo'}{@{}p{`texnotewidth'\textwidth}}" _n ///
-				`"{\textit{Notes}: `tblnote' `ttest_note'`ftest_note'`error_est_note'`fixed_note'`covar_note'`balmiss_note'`covmiss_note'`stars_note'}"' _n
+				`"{\textit{Notes}: `tblnote' `ttest_note'`ftest_note'`error_est_note'`fixed_note'`covar_note'`weight_note'`balmiss_note'`covmiss_note'`stars_note'}"' _n
 		}
-	
+		
 		file write `texname' ///	
-			"\end{tabular}" _n ///
-			"%%% Uncomment the next line to fit the table to page size using the adjustbox package." _n ///
-			"% \end{adjustbox}" _n ///
-			"\end{table}" _n ///
-			"% \end{document}" _n
-			
-		file close `texname'
+				"\end{tabular}" _n
+		file close `texname'		
 	
+			
+		if `TEXDOC_USED' {
+		
+			file open  `texname' using "`texfile'", text write append
+			file write `texname' ///	
+				"\end{adjustbox}" _n ///
+				"\end{table}" _n ///
+				"\end{document}" _n
+				
+			file close `texname'
+		}
+		
+			
 	/***********************************************
 	************************************************/
 
