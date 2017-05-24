@@ -2231,9 +2231,27 @@ qui {
 	
 	
 	if !( `BROWSE_USED' | `SAVE_BROWSE_USED' ) preserve
-	
-		import delimited using "`textfile'", clear delimiters("\t")
 		
+		
+		******************************************
+		*Load the text file with the data prepared
+		
+		*Insheet was replaced by import delimited by Stata 13
+		if c(version) < 13 {
+			
+			*For Stata 11 and 12
+			insheet using "`textfile'", tab clear
+		}
+		else {
+			
+			*For Stata 13 and more recent
+			import delimited using "`textfile'", clear delimiters("\t")
+		}
+		
+		******************************************
+		*Export the data according to user specification		
+		
+		*Export to excel format
 		if `SAVE_USED' {
 		
 			export excel using `"`save'"', `replace'
@@ -2241,6 +2259,7 @@ qui {
 			noi di as result `"{phang}Balance table saved to: {browse "`save'":`save'} "'
 		}
 		
+		*Export to tex format
 		if `SAVE_TEX_USED' {
 		
 			copy "`texfile'" `"`savetex'"', `replace'
