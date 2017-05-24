@@ -13,12 +13,6 @@
 	*Global to the mock project folder you created
 	global projectfolder	""	
 	
-	
-	*(Ask me before using this two lines of code)
-	*Clean up the folder fomr last run
-	*do "$ief\deletefolder.do"
-	*cap deleteFolder "$projectfolder\DataWork"
-	
 ******************************************************************************
 
 
