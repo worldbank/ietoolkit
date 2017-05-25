@@ -1,6 +1,6 @@
 ﻿**ietoolkit**
 =====
-##**Stata Commands for Impact Evaluations**
+## **Stata Commands for Impact Evaluations**
 
 ### **Install and Update**
 To install **ietoolkit**, type **`ssc install ietoolkit`** in Stata. If you see anything mentioned here (in the master branch) that you do not see reflected in the commands in ietoolkit in Stata on your computer, then you might not have the latest version of **ietoolkit** installed. To update all files associated with **ietoolkit** type **`adoupdate ietoolkit, update`** in Stata. (It is wise to be in the habit of regularly checking if any of your .ado files installed in Stata need updates by typing **`adoupdate`**.)
@@ -10,10 +10,10 @@ Stata version 11 or later is required for this command.
 ### **Background**
 These commands are developed by people that work at or with the unit for Development Impact Evaluations (DIME) at the The World Bank. While the commands are developed with best practices for impact evaluations in mind, we still hope and think that these commands can be useful outside our field as well.
 
-###**Bug Reports and Feature Requests**
+### **Bug Reports and Feature Requests**
 If you are familiar with GitHub go to the **Contributions** section below for advanced instructions.
 
-An easy but still very efficient way to provide any feedback on these commands is to create an *issue* in GitHub. You can read *issues* submitted by other users or create a new *issue* in the top menu below [ worldbank**/ietoolkit**](https://github.com/worldbank/ietoolkit) at [https://github.com/worldbank/ietoolkit](https://github.com/worldbank/ietoolkit). While the word *issue* has a negative connotation outside GitHub, it can be used for any kind of feedback. If you have an idea for a new command, or a new feature on an existing command, creating an *issue* is a great tool for suggesting that. Please read already existing *issues* to check whether someone else has made the same suggestion or reported the same error before creating a new *issue*.
+An easy but still very efficient way to provide any feedback on these commands is to create an *issue* in GitHub. You can read *issues* submitted by other users or create a new *issue* in the top menu below [**worldbank**/**ietoolkit**](https://github.com/worldbank/ietoolkit) at [https://github.com/worldbank/ietoolkit](https://github.com/worldbank/ietoolkit). While the word *issue* has a negative connotation outside GitHub, it can be used for any kind of feedback. If you have an idea for a new command, or a new feature on an existing command, creating an *issue* is a great tool for suggesting that. Please read already existing *issues* to check whether someone else has made the same suggestion or reported the same error before creating a new *issue*.
 
 ### **Content**
 
@@ -22,7 +22,9 @@ An easy but still very efficient way to provide any feedback on these commands i
  - **ieduplicates** and **iecompdup** are useful tools to identify and correct for duplicates, particulary in primary survey data
  - **iebaltab** is a tool for multiple treatment arm balance tables
  - **iematch** is an algortihm for matching observations in one group to "the most similar" observations in another group
+ - **iegraph** produces graphs of estimation results in common impact evaluation regression models
  - **ieboilstart** standardizes the boilerplate code at the top of all do-files
+ - **iedropone** drops observations and controls that the correct number was dropped
  - **ieboilsave** performs checks before saving a data set
 
 ### **Contributions**
@@ -45,4 +47,4 @@ If you wish to make a contribution by making a "fork and pull request" but are n
 Kristoffer Bjärkefur (kbjarkefur@worldbank.com)
 
 ### **Authors**
-Kristoffer Bjärkefur and Luiza Cardoso de Andrade.
+Kristoffer Bjärkefur, Mrijan Rimal and Luiza Cardoso de Andrade.

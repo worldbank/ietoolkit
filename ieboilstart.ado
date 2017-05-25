@@ -1,4 +1,4 @@
-	*! version 3.0 26DEC2016  Kristoffer Bjarkefur kbjarkefur@worldbank.org
+	*! version 4.0 18APR2017  Kristoffer Bjarkefur kbjarkefur@worldbank.org
 
 	capture program drop ieboilstart
 	program ieboilstart , rclass
@@ -228,10 +228,10 @@
 		
 		*********************
 		*Set default settings
-		set more 		off
+		set more 		off , perm
 		pause 			on
 		set varabbrev 	off
-		local setDispLocal "`setDispLocal'{break}{col 5}set more {col 22}off"
+		local setDispLocal "`setDispLocal'{break}{col 5}set more {col 22}off {col 28}, perm"
 		local setDispLocal "`setDispLocal'{break}{col 5}pause {col 22}on"
 		local setDispLocal "`setDispLocal'{break}{col 5}set varabbrev {col 22}off"
 		
