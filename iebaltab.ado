@@ -795,9 +795,9 @@ qui {
 				if `CAPTION_USED' {
 				
 					* Make sure special characters are displayed correctly
-					local texcaption : subinstr local texcaption "%"  "\%"
-					local texcaption : subinstr local texcaption "_"  "\_"
-					local texcaption : subinstr local texcaption "&"  "\&"
+					local texcaption : subinstr local texcaption "%"  "\%" , all
+					local texcaption : subinstr local texcaption "_"  "\_" , all
+					local texcaption : subinstr local texcaption "&"  "\&" , all
 					
 				}
 			}
@@ -1042,10 +1042,10 @@ qui {
 			local groupCode  : word `groupOrderNum' of `ORDER_OF_GROUPS'
 			
 			* Make sure special characters are displayed correctly
-			local texGroupLabel : subinstr local groupLabel    "%"  "\%"
-			local texGroupLabel : subinstr local texGroupLabel "_"  "\_"
-			local texGroupLabel : subinstr local texGroupLabel "&"  "\&"
-			local texGroupLabel : subinstr local texGroupLabel "\$"  "\\\\\\\$"
+			local texGroupLabel : subinstr local groupLabel    "%"  "\%" , all
+			local texGroupLabel : subinstr local texGroupLabel "_"  "\_" , all
+			local texGroupLabel : subinstr local texGroupLabel "&"  "\&" , all
+			local texGroupLabel : subinstr local texGroupLabel "\$"  "\\\\\\\$" , all
 						
 			*Prepare a row to store onenrow values for each group
 			if `ONENROW_USED' == 1 local onenrow_`groupOrderNum' ""
@@ -1095,10 +1095,10 @@ qui {
 			if `TOTALLABEL_USED' local tot_label `totallabel'
 			
 			* Make sure special characters are displayed correctly
-			local tex_tot_label : subinstr local tot_label     "%"  "\%"
-			local tex_tot_label : subinstr local tex_tot_label "_"  "\_"
-			local tex_tot_label : subinstr local tex_tot_label "&"  "\&"
-			local tex_tot_label : subinstr local tex_tot_label "\$"  "\\\\\$"
+			local tex_tot_label : subinstr local tot_label     "%"  "\%" , all
+			local tex_tot_label : subinstr local tex_tot_label "_"  "\_" , all
+			local tex_tot_label : subinstr local tex_tot_label "&"  "\&" , all
+			local tex_tot_label : subinstr local tex_tot_label "\$"  "\\\\\$" , all
 			
 			*Create one more column for N if N is displayesd in column instead of row
 			if `ONENROW_USED' == 0 {
@@ -1381,10 +1381,10 @@ qui {
 			local tableRowDo `" "' 
 			
 			*Make sure special characters in variable labels are displayed correctly
-			local texrow_label : subinstr local row_label 	 "%"  "\%"
-			local texrow_label : subinstr local texrow_label "_"  "\_"
-			local texrow_label : subinstr local texrow_label "&"  "\&"
-			local texrow_label : subinstr local texrow_label "\$"  "\\\\\\\\$"
+			local texrow_label : subinstr local row_label 	 "%"  "\%" , all
+			local texrow_label : subinstr local texrow_label "_"  "\_" , all
+			local texrow_label : subinstr local texrow_label "&"  "\&" , all 
+			local texrow_label : subinstr local texrow_label "\$"  "\\\\\\\\$" , all
 			
 			local texRowUp `""`texrow_label'""' 
 			local texRowDo `" "' 
@@ -2199,7 +2199,7 @@ qui {
 	
 	foreach note of local notes_list {
 	
-		local `note' : subinstr local `note' "_"  "\_"
+		local `note' : subinstr local `note' "_"  "\_" , all
 	
 	}
 	
