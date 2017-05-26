@@ -2195,14 +2195,16 @@ qui {
 	if `STARSNOADD_USED'	== 1	local stars_note		""
 	
 	* Make sure variables with underscore in name are displayed correctly in the note
-	local notes_list "error_est_note weight_note fixed_note covar_note"
+	local notes_list "tblnote error_est_note weight_note fixed_note covar_note"
 	
 	foreach note of local notes_list {
 	
 		local `note' : subinstr local `note' "_"  "\_" , all
-	
+		local `note' : subinstr local `note' "%"  "\%" , all
+		local `note' : subinstr local `note' "&"  "\&" , all
+		local `note' : subinstr local `note' "\$"  "\\\$" , all
+
 	}
-	
 	
 	*Calculate total number of columns
 	local totalColNo = strlen("`colstring'")
