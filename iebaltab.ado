@@ -75,16 +75,14 @@
 		
 	preserve		
 qui {
-
+	
+	*Set minimum version for this command
 	version 11
 	
 	*Remove observations excluded by if and in
 	if ("`if'`in'"!="") {
 		keep `if' `in'
-	}
-	
-	*Remove observations with a missing value in grpvar()
-	drop if `grpvar' >= .
+	}	
 	
 	if 1 {
 
@@ -285,6 +283,42 @@ qui {
 	
 	*************************************************
 	************************************************/	
+		
+		cap confirm numeric variable `grpvar' 
+		
+		if _rc != 0 {
+			
+			*Test for commands not allowed if grpvar is a string variable
+			
+			if `CONTROL_USED' == 1 {
+				di as error "{pstd}The option control() can only be used if variable {it:`grpvar'} is a numeric variable. Use {help encode} to generate a numeric version of variable {it:`grpvar'}. It is best practice to store all categorical variables as labeled numeric variables.{p_end}"
+				error 198
+			}
+			if `ORDER_USED' == 1 {
+				di as error "{pstd}The option order() can only be used if variable {it:`grpvar'} is a numeric variable. Use {help encode} to generate a numeric version of variable {it:`grpvar'}. It is best practice to store all categorical variables as labeled numeric variables.{p_end}"
+				error 198
+			}
+			if `NOGRPLABEL_USED' == 1 {
+				di as error "{pstd}The option grpcodes can only be used if variable {it:`grpvar'} is a numeric variable. Use {help encode} to generate a numeric version of variable {it:`grpvar'}. It is best practice to store all categorical variables as labeled numeric variables.{p_end}"
+				error 198
+			}
+			if `GRPLABEL_USED' == 1 {
+				di as error "{pstd}The option grplabels() can only be used if variable {it:`grpvar'} is a numeric variable. Use {help encode} to generate a numeric version of variable {it:`grpvar'}. It is best practice to store all categorical variables as labeled numeric variables.{p_end}"
+				error 198
+			}
+			
+			*Generate a encoded tempvar version of grpvar 
+			tempvar grpvar_code 
+			encode `grpvar' , gen(`grpvar_code')
+			
+			*replace the grpvar local so that it uses the tempvar instead
+			local grpvar `grpvar_code'
+		
+		}
+		
+
+		*Remove observations with a missing value in grpvar()
+		drop if `grpvar' >= .
 		
 		*Create a local of all codes in group variable
 		levelsof `grpvar', local(GRP_CODE_LEVELS)
