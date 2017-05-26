@@ -1149,8 +1149,10 @@ qui {
 						local titlerow3 `"`titlerow3' _tab "p-value""'
 					}
 					else {
-						local titlerow1 `" `titlerow1' " & (`ctrlGrpPos') - (`second_ttest_group')" "'
+						local titlerow3 `"`titlerow3' _tab "Difference""'
 					}
+					
+					local texrow3  `" `texrow3' " & (`ctrlGrpPos')-(`second_ttest_group')" "'
 					
 					*Storing a local of all the test pairs
 					local ttest_pairs "`ttest_pairs' `ctrlGrpPos'_`second_ttest_group'"
