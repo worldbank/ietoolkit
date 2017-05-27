@@ -37,7 +37,7 @@ help for {hi:iefolder}
 
 {marker desc}{title:Description}
 
-{pstd}{cmdab:iefolder} automates the process of setting up the folder and master do-files 
+{pstd}{cmdab:iefolder} automates the process of setting up the folders and master do-files 
 	where all the data work will take place in a project folder. The folders set 
 	up will follow DIME's best practices outlined and explained here: 
 	{browse "https://dimewiki.worldbank.org/wiki/DataWork_Folder"} (This page 
@@ -58,11 +58,11 @@ help for {hi:iefolder}
 	{it:Follow Up} etc. When adding a new round, sub-folders are added to the DataWork 
 	folder in line with the best practice described here:
 	{browse "https://dimewiki.worldbank.org/wiki/DataWork_Survey_Round"}. {cmd:iefolder} also 
-	creates a master do-file specific for the round with globals references the sub-folders
+	creates a master do-file specific for this round with globals referencing the sub-folders
 	specific to this round. {cmd:iefolder} is implemented so that you can keep working 
-	for years with your project in between adding folders. The command reads the content 
-	of the folder and the project master do-file and make the addition in those files 
-	preserving the manual changes that has been done.
+	for years with your project in between adding folders. The command reads and perserves 
+	changes made manually to the DataWork folder and master do-file before making additions
+	when adding a new round.
 	
 {pstd}{hi:{it:untiofobs}} folders are folders specific to a unit of observation, 
 	for example the master data set folder. Read more about master data sets and the folder structure
@@ -76,7 +76,7 @@ help for {hi:iefolder}
 	of which {it:itemtype} is created. If {it:new project} is specified the file path should
 	point to where DataWork should be created, and if {it:new round} or {it:new project} is
 	specified, it should point to where DataWork was already created. See how the file path is 
-	the same both time when {cmd:iefolder} is called twice in Example 1. 
+	the same both time when {cmd:iefolder} is called twice in Example 1 below. 
 
 {phang}{cmdab:abb:reviation(}{it:string}{cmd:)} can be used to shorten the globals created
 	in the master do-files that point to the sub-folders to {it:round} folders. For example, 
@@ -95,7 +95,7 @@ help for {hi:iefolder}
 {inp:iefolder new round baseline , projectfolder("$projectFolder")}
 
 {pstd}In the example above, in the line the first time {cmd:iefolder} is used, a folder 
-	called {hi:DataWork} is created at the location of "C:\Users\Documents\DropBox\ProjectABC". 
+	called {hi:DataWork} is created at the location of {it:"C:\Users\Documents\DropBox\ProjectABC"}. 
 	In the line where {cmd:iefolder} used a second time, a folder for the baseline round 
 	is created inside the {hi:DataWork} folder. Note that the folder provided 
 	in {inp:projectfolder()} is the same both times.
@@ -165,7 +165,7 @@ help for {hi:iefolder}
 {title:Acknowledgements}
 
 {phang}I would like to acknowledge the help in testing and proofreading I received in relation to this command and help file from (in alphabetic order):{p_end}
-{pmore}Laura Costica{break}Seungmin Lee{break}Mrijan Rimal{break}
+{pmore}Luiza Cardoso De Andrade{break}Laura Costica{break}Seungmin Lee{break}Mrijan Rimal{break}Sakina Shibuya
 
 {title:Author}
 
