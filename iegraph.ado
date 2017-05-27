@@ -27,7 +27,7 @@ cap	program drop	iegraph
 	*Testing to see if the variables used in confbarsnone are actually in the list of 
 	*variables used for the regression/graph.
 	local varTest : list confbarsnone in varlist
-	
+
 	if `varTest' == 0 {
 		*Error displayed if variables defined in confbarsnone aren't in the list of variables for the graph.
 		noi display as error "{phang} Variables defined in confbarsnone(`confbarsnone') cannot be found in the graph variable list. {p_end}"
@@ -92,17 +92,21 @@ cap	program drop	iegraph
             error 198
         }
     }
+	else {
+		
+		*Save option is not used, therefore save export will not be used
+		local save_export = 0
+	}
 	
 
 	local count: word count `varlist' // Counting the number of total vars used as treatment.
 	local graphCount = `count' + 1 // Number of vars needed for the graph is total treatment vars plus one(control).
-	
+
 	//Make all vars tempvars (maybe do later)
 	//Make sure that missing is properly handled
-	tempvar anyTMT
-	egen `anyTMT' = rowmax(`varlist') if e(sample) == 1
-	tempvar control
-	gen `control' = (`anyTMT' == 0) if !missing(`anyTMT')
+	tempvar anyTMT control
+	egen `anyTMT' = rowmax(`varlist') 	if e(sample) == 1
+	gen `control' = (`anyTMT' == 0) 	if !missing(`anyTMT')
 
 	sum `e(depvar)' if e(sample) == 1 & `control' == 1
 	scalar ctl_N		= r(N)
@@ -237,7 +241,7 @@ cap	program drop	iegraph
 
 
 	*Create the confidence interval bars
-	
+
 	if `CONFINT_BAR' == 0 {
 
 		local confIntGraph = ""
@@ -286,7 +290,7 @@ cap	program drop	iegraph
 	*******************************************************************************
 	***Graph generation based on if the option save has a export or a save feature.
 	*******************************************************************************
-	
+
 	if `save_export' == 0 {
 		
 		graph twoway `tmtGroupBars' `confIntGraph' `titleOption'  `legendOption' `xAxisLabels' `saveOption' title("`title'") `yzero_option' `options'
@@ -333,7 +337,7 @@ end
 		else {
 			
 			*For five or more colors we repeat the same pattern
-			
+
 			local colourNum = mod(`groupCount', 5)
 			if `colourNum' == 1 return local color "215 25 28"
 			if `colourNum' == 2 return local color "253 174 93"

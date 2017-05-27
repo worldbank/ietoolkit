@@ -14,9 +14,9 @@ help for {hi:iebaltab}
 {cmdab:iebaltab} {it:balancevarlist} [{help if:if}] [{help in:in}]
 , {cmdab:grpv:ar(}{it:varname}{cmd:)} {c -(} {cmdab:save(}{it:{help filename}}{cmd:)} | {cmdab:savet:ex(}{it:{help filename}}{cmd:)} | {cmdab:browse} {c )-}
 [
-{it:{help ieboilstart##columnoptions:column_options} {help ieboilstart##labeloptions:label_options}} 
-{it:{help ieboilstart##statsoptions:stats_options} {help ieboilstart##ftestoptions:ftest_options}} 
-{it: {help ieboilstart##display:display_options} {help ieboilstart##exportoptions:export_options}}  
+{it:{help iebaltab##columnoptions:column_options} {help iebaltab##labeloptions:label_options}} 
+{it:{help iebaltab##statsoptions:stats_options} {help iebaltab##ftestoptions:ftest_options}} 
+{it: {help iebaltab##display:display_options} {help iebaltab##exportoptions:export_options}}  
 ]
 
 {phang2}where {it:balancevarlist} is one or several variables (from here on called balance variables) for which the command
@@ -63,6 +63,7 @@ will test for differences across the catagories in grpvar({it:varname}).
 {synopt :{cmdab:covmiss:(}{it:reptype}{cmd:)}}Replaces missing values in covariate variables with either zeros, the mean or the group mean. See details on {it:reptype} below.{p_end}
 {synopt :{cmdab:covmissr:eg(}{it:reptype}{cmd:)}}Similar to {cmd:covmisszero} but treats {help missing:extended missing values} still as missing. See details on {it:reptype} below.{p_end}
 {synopt :{cmdab:missmin:mean(}{it:{help numlist:numlist}}{cmd:)}}Sets a minimum number of observations that a mean or group mean must be based on in options requiring {it:reptype}.{p_end}
+{synopt :{cmdab:weight(}{it:weight_option}{cmd:)}}Determines weight variable and method. aweights, fweights, iweights, and pweights are allowed {it:reptype}.{p_end}
 
 {marker ftestoptions}{...}
 {pstd}{it:    F-test:}{p_end}
@@ -89,6 +90,7 @@ will test for differences across the catagories in grpvar({it:varname}).
 {synopt :{cmdab:texn:otewidth(}{it:{help numlist:numlist}}{cmd:)}}Manually adjust width of note{p_end}
 {synopt :{cmdab:texc:aption(}{it:string}{cmd:)}}Specify TeX table caption{p_end}
 {synopt :{cmdab:texl:abel(}{it:string}{cmd:)}}Specify TeX label{p_end}
+{synopt :{cmdab:texdoc:ument}}Creates a stand-alone TeX document{p_end}
 
 {synoptline}
 
@@ -275,6 +277,9 @@ The difference is that this option still treats {help missing:extended missing v
 {phang}{cmdab:missmin:mean(}{it:{help numlist:numlist}}{cmd:)} sets a minimum number of observations that a mean or group mean must be based
 on in {cmd:balmiss()}, {cmd:balmissreg()}, {cmd:covmiss()} and {cmd:covmissreg()}. The arbitrary default is 10.{p_end}
 
+{phang}{cmdab:weight(}{it:weight_option}{cmd:)} defines a variable to be used as weight. {it:weight_option} is a string in the following format {it:"weight_type = weight_variable"}, where
+weight_type is a Stata {help weight:weight} option, and weight_variable is a numeric variable.{p_end}
+
 {phang}{cmdab:vce:(}{it:{help vce_option:vce_types}{cmd:)}} sets the type of variance estimator to be used in all regressions for this
 command. See {help vce_option:vce_types} for more details. The only vce types allowed in this command are {hi:robust}, {hi:cluster} {it:clustervar} or {hi:bootstrap}.{p_end}
 
@@ -351,6 +356,9 @@ The note width is a multiple of text width. If not specified, default width is t
 {phang}{cmdab:texc:aption(}{it:string}{cmd:)} writes table's caption in LaTeX file.{p_end}
 
 {phang}{cmdab:texl:abel(}{it:string}{cmd:)} specifies table's label, used for meta-reference across TeX file.{p_end}
+
+{phang}{cmdab:texdoc:ument}  creates a stand-alone TeX document that can be readily compiled, without the need to import it to a different file.
+ As default, {cmd:savetex()} creates a fragmented TeX file consisting only of a tabular environment.{p_end}
 
 {title:Examples}
 
