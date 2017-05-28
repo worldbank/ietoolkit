@@ -1,4 +1,4 @@
-	
+*! version 5.0 18APR2017  Kristoffer Bjarkefur kbjarkefur@worldbank.org	
 
 cap program drop 	iefolder
 	program define	iefolder	

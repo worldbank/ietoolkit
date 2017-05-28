@@ -1,4 +1,4 @@
-	*! version 4.0 18APR2017  Kristoffer Bjarkefur kbjarkefur@worldbank.org
+*! version 5.0 18APR2017  Kristoffer Bjarkefur kbjarkefur@worldbank.org
 	
 	capture program drop iecompdup 
 	program iecompdup , rclass
