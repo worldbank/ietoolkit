@@ -1021,9 +1021,6 @@ cap program drop 	mdofle_task
 			_col(4)"** NOTES:" _n /// 	  			  
 			_col(4)"** WRITEN BY:" _col(25) "names_of_contributors" _n ///
 			_col(4)"** Last date modified: `c(current_date)'" _n _n /// 
-			_col(4)"*Standardize settings accross users" _n ///
-			_col(4)"ieboilstart, version(12.1)" _col(40) "//Set the version number to the oldest version used by anyone in the project team" _n ///
-			_col(4) _char(96)"r(version)'" 		_col(40) "//This line is needed to actually set the version from the command above" _n ///
 			_n ///
 			_col(4)"* ***************************************************** *" _n ///
 			_col(4)"*" _col(60) "*" _n ///
