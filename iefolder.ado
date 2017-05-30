@@ -47,30 +47,6 @@ qui {
 	
 	***************************************************/
 	
-	*test that there is no space in itemname
-	local space_pos = strpos(trim("`itemName'"), " ")
-	if "`rest'" != ""  | `space_pos' != 0 {
-
-		noi di as error `"{pstd}You have specified to many words in: [{it:iefolder `subcommand' `itemType' `itemName'`rest'}] or used a space in {it:itemname}. Spaces are not allowed in the {it:itemname}. Use underscores or camel case.{p_end}"'
-		error 198
-	}
-	
-	** Test that item name only includes numbers, letter, underscores and does 
-	*  not start with a number. These are simplified requirements for folder 
-	*  names on disk.
-	if !regexm("`itemName'", "^[a-zA-Z][a-zA-Z0-9_]*[a-zA-Z0-9_]$") & "`itemType'" != "project" {
-		
-		noi di as error `"{pstd}Invalid {it:itemname}. The itemname [`itemName'] can only include letters, numbers or underscore and the first character must be a letter.{p_end}"'
-		error 198
-	}
-	
-	** Test that also the abbreviation has valid characters
-	if !regexm("`abbreviation'", "^[a-zA-Z][a-zA-Z0-9_]*[a-zA-Z0-9_]$") & "`abbreviation'" != "" {
-		
-		noi di as error `"{pstd}Invalid name in the option {it:abbreviation()}. The name [`abbreviation'] can only include letters, numbers or underscore and the first character must be a letter.{p_end}"'
-		error 198
-	}	
-	
 	*Test that the type is correct
 	local sub_commands "new"
 	local itemTypes "project round unitofobs"
@@ -95,6 +71,31 @@ qui {
 		noi di as error "{phang}You must specify a name of the `itemType'. See help file for details.{p_end}"
 		error 198
 	}
+	
+	
+		*test that there is no space in itemname
+	local space_pos = strpos(trim("`itemName'"), " ")
+	if "`rest'" != ""  | `space_pos' != 0 {
+
+		noi di as error `"{pstd}You have specified to many words in: [{it:iefolder `subcommand' `itemType' `itemName'`rest'}] or used a space in {it:itemname}. Spaces are not allowed in the {it:itemname}. Use underscores or camel case.{p_end}"'
+		error 198
+	}
+	
+	** Test that item name only includes numbers, letter, underscores and does 
+	*  not start with a number. These are simplified requirements for folder 
+	*  names on disk.
+	if !regexm("`itemName'", "^[a-zA-Z][a-zA-Z0-9_]*[a-zA-Z0-9_]$") & "`itemType'" != "project" {
+		
+		noi di as error `"{pstd}Invalid {it:itemname}. The itemname [`itemName'] can only include letters, numbers or underscore and the first character must be a letter.{p_end}"'
+		error 198
+	}
+	
+	** Test that also the abbreviation has valid characters
+	if !regexm("`abbreviation'", "^[a-zA-Z][a-zA-Z0-9_]*[a-zA-Z0-9_]$") & "`abbreviation'" != "" {
+		
+		noi di as error `"{pstd}Invalid name in the option {it:abbreviation()}. The name [`abbreviation'] can only include letters, numbers or underscore and the first character must be a letter.{p_end}"'
+		error 198
+	}	
 	
 	/***************************************************
 	
