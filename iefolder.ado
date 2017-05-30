@@ -586,7 +586,7 @@ cap program drop 	createFolderWriteGlobal
 			
 			global `globalName' "$`parentGlobal'/`folderName'"
 			
-			mkdir "${`parentGlobal'}\\`folderName'"
+			mkdir "${`parentGlobal'}/`folderName'"
 			
 end
 
