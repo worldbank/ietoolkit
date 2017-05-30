@@ -6,22 +6,22 @@ help for {hi:iefolder}
 
 {title:Title}
 
-{phang2}{cmdab:iefolder} {hline 2} sets up project folders and master do-files according to World Bank DIME's standards.
+{phang2}{cmdab:iefolder} {hline 2} sets up project folders and master do-files according to World Bank DIME's standards.{p_end}
 
 {title:Syntax}
 
-{pstd} {ul:When initially setting up the {hi:DataWork} folder in a new project:}
+{pstd} {ul:When initially setting up the {hi:DataWork} folder in a new project:}{p_end}
 
-{phang2}{cmd:iefolder} new project, {cmdab:proj:ectfolder(}{it:directory}{cmd:)} 
+{phang2}{cmd:iefolder} new project, {cmdab:proj:ectfolder(}{it:directory}{cmd:)} {p_end}
 
 
-{pstd} {ul:When adding folders to and already existing {hi:DataWork} folder:}
+{pstd} {ul:When adding folders to and already existing {hi:DataWork} folder:}{p_end}
 
 {phang2}{cmd:iefolder} new {it:itemtype} {it:itemname} , {cmdab:proj:ectfolder(}{it:directory}{cmd:)} 
-	[{cmdab:abb:reviation(}{it:string}{cmd:)}] 
+	[{cmdab:abb:reviation(}{it:string}{cmd:)}] {p_end}
 	
 {pmore}where {it:itemtype} is either {it:round} or {it:unitofobs}. See 
-	details on {it:itemtype} and {it:itemname} below.
+	details on {it:itemtype} and {it:itemname} below.{p_end}
 
 {marker opts}{...}
 {synoptset 22}{...}
