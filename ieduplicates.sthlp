@@ -129,8 +129,8 @@ apply any changes already entered in the original report.
 {phang}{cmdab:nodaily} disables the generation of daily back-up copies of the 
 Excel report. The default is that the command saves dated copies of the Excel 
 report in a sub-folder called Daily in the folder specified in {cmdab:folder()}. If 
-the folder Daily does not exist, then it either needs to be created or the 
-option {cmdab:nodaily} need to be specified in order to not cause an error.
+the folder Daily does not exist, then it is creaetd unless the 
+option {cmdab:nodaily} is used.
 
 {phang}{cmdab:min:precision(}{it:numlist}{cmd:)} is rarely used but can be used 
 to manually set the precision (in minutes) when exporting and importing a time 

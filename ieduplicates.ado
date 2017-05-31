@@ -92,8 +92,6 @@
 			
 			************************************************************************
 			***********************************************************************/				
-
-			local suffix _`suffix'
 			
 			/******************
 				Section 3.1
@@ -620,21 +618,38 @@
 
 					if "`daily'" == "" { 
 							
+							
+						*Returns 0 if folder does not exist, 1 if it does
+						mata : st_numscalar("r(dirExist)", direxists("`folder'/Daily"))
+						
+						** If the daily folder is not created, just create it
+						if `r(dirExist)' == 0  {
+							
+							*Create the folder since it does not exist
+							mkdir "`folder'/Daily"
+						}
+						
+						*Export the daily file
 						cap export excel using "`folder'/Daily/iedupreport`suffix'_`date'.xlsx"	, firstrow(variables) replace nolabel 
+						
+						*Print error if daily report cannot be saved
 						if _rc {
 							
-							display as error "{phang}There is no folder named Daily in `folder'. Either create that folder or see option nodaily{p_end}"	
+							display as error "{phang}There the Daily copy could not be saved to the `folder'/Daily folder. Make sure to close any old daily copy or see the option nodaily{p_end}"	
 							error 603
 							exit
 						
 						}
 						
+						*Prepare local for output
 						local daily_output "and a daily copy have been saved to the Daily folder"
 					}
-					export excel using "`folder'/iedupreport`suffix'.xlsx"					, firstrow(variables) replace  nolabel 
 					
 					
+					*Export main report
+					export excel using "`folder'/iedupreport`suffix'.xlsx"	, firstrow(variables) replace  nolabel 
 					
+					*Produce output
 					noi di `"{phang}Excel file created at: {browse "`folder'/iedupreport`suffix'.xlsx":`folder'/iedupreport`suffix'.xlsx} `daily_output'{p_end}"'
 					noi di ""
 				}
