@@ -1,7 +1,8 @@
 *! version 5.1 31MAY2017  Kristoffer Bjarkefur kbjarkefur@worldbank.org
 	
-cap	program drop	iegraph
-	program define 	iegraph
+cap	program drop	iegraph2
+	program define 	iegraph2 , rclass
+	
 	preserve
 	
 	syntax varlist, [noconfbars BASICTItle(string) save(string) confbarsnone(varlist) VARLabels GREYscale yzero *]
@@ -206,7 +207,7 @@ cap	program drop	iegraph
 	
 	local tmtGroupBars 	""
 	local xAxisLabels 	`"xlabel( "'
-	local legendLabels	`"lab(1 "`obsLabelControl'")"'
+	local legendLabels	""
 	local legendNumbers	""
 	
 	forval tmtGroupCount = 1/`graphCount' {
@@ -294,11 +295,17 @@ cap	program drop	iegraph
 	if `save_export' == 0 {
 		
 		graph twoway `tmtGroupBars' `confIntGraph' `titleOption'  `legendOption' `xAxisLabels' `saveOption' title("`basictitle'") `yzero_option' `options'
+		
+		return local cmd `"graph twoway `tmtGroupBars' `confIntGraph' `titleOption'  `legendOption' `xAxisLabels' `saveOption' title("`basictitle'") `yzero_option' `options'"'
+		
 	}
 	else if `save_export' == 1 {
 		
 		graph twoway `tmtGroupBars' `confIntGraph' `titleOption'  `legendOption' `xAxisLabels' title("`basictitle'") `yzero_option' `options'
 		graph export "`save'", replace
+		
+		return local cmd `"graph twoway `tmtGroupBars' `confIntGraph' `titleOption'  `legendOption' `xAxisLabels' title("`basictitle'") `yzero_option' `options'"'
+		
 	}	
 	
 	restore
