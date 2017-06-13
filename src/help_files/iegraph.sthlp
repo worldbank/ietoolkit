@@ -12,7 +12,7 @@ help for {hi:iegraph}
 
 {phang2}
 {cmdab:iegraph} {varlist} 
-, [ {cmdab:ti:tle(}{it:string}{cmd:)} {cmdab:varl:abels}
+, [ {cmdab:basicti:tle(}{it:string}{cmd:)} {cmdab:varl:abels}
 {cmdab:save(}{it:string}{cmd:)} {cmdab:grey:scale} {cmdab:yzero}
 {cmd:noconfbars} {cmdab:confbarsnone(}{it:varlist}{cmd:)}
 {it:any twoway graph options}
@@ -22,7 +22,7 @@ help for {hi:iegraph}
 {synoptset 22}{...}
 {synopthdr:options}
 {synoptline}
-{synopt :{cmdab:ti:tle(}{it:string}{cmd:)}} Manually sets the title of the graph.{p_end}
+{synopt :{cmdab:basicti:tle(}{it:string}{cmd:)}} Manually sets the title of the graph.{p_end}
 {synopt :{cmdab:varl:abels}} Uses variable labels for legends instead of variable names.{p_end}
 {synopt :{cmdab:save(}{it:string}{cmd:)}} Sets the filename and the directory to which the graph will be set/exported.{p_end}
 {synopt :{cmdab:grey:scale}} Uses greyscales for the bars instead of colors.{p_end}
@@ -76,7 +76,9 @@ help for {hi:iegraph}
 {marker optslong}
 {title:Options}
 
-{phang}{cmdab:ti:tle(}{it:string}{cmd:)} Manually sets the title of the graph.{p_end}
+{phang}{cmdab:basicti:tle(}{it:string}{cmd:)} Manually sets the title of the graph. This
+	can be overwritten using twoway's title feature for more options like title size, position
+	, etc.{p_end}
 
 {phang}{cmdab:varl:abels} Sets the legends to the variable labels for the 
 	variables instead of the variable names.{p_end}
@@ -108,7 +110,7 @@ help for {hi:iegraph}
 {pstd} {hi:Example 1.}
 
 {pmore} {inp:regress} {it:outcomevar treatment_dummy}{break}
-		{inp:iegraph} {it:treatment_dummy} , {inp:title({it:"Treatment Effect on Outcome"})}
+		{inp:iegraph} {it:treatment_dummy} , {inp:basictitle({it:"Treatment Effect on Outcome"})}
 
 {pmore}In the example above, there are only two treatment arms (treatment and 
 		control). {it:treatment_dummy} has a 1 for all treatment observations and 
@@ -121,7 +123,7 @@ help for {hi:iegraph}
 {pstd} {hi:Example 2.}
 
 {pmore} {inp:regress} {it:income tmt_1 tmt_2 age education}{inp:, cluster(}{it:district}{inp:)}{break}
-		{inp:iegraph} {it:tmt_1 tmt_2}{inp:, noconfbars yzero title({it:"Treatment effect on income"}) }
+		{inp:iegraph} {it:tmt_1 tmt_2}{inp:, noconfbars yzero basictitle({it:"Treatment effect on income"}) }
 
 {pmore}In the example above, the treatment effect on income in researched. There 
 		are three treatment arms; control, treatment 1 ({it:tmt_1}) and treatment
@@ -136,7 +138,7 @@ help for {hi:iegraph}
 {pstd} {hi:Example 3.}
 
 {pmore} {inp:regress} {it:chld_wght time treat timeXtreat}{break}
-		{inp:iegraph} {it:time treat timeXtreat} {inp:, title({it:"Treatment effect on Child Weight (Diff-in-Diff)"})}
+		{inp:iegraph} {it:time treat timeXtreat} {inp:, basictitle({it:"Treatment effect on Child Weight (Diff-in-Diff)"})}
 		
 {pmore}In the example above, the data set is a panel data set with two time 
 		periods and the regression estimates the treatment effect on child weight
@@ -150,7 +152,7 @@ help for {hi:iegraph}
 {pstd} {hi:Example 4.}
 
 {pmore} {inp:regress} {it:harvest T1 T2 T3 } {break}
-		{inp:iegraph} {it:T1 T2 T3} {inp:, title({it:"Treatment effect on harvest"}) 
+		{inp:iegraph} {it:T1 T2 T3} {inp:, basictitle({it:"Treatment effect on harvest"}) 
 		xlabel(,angle(45)) yzero ylabel(minmax) save({it:"Graph1.gph"})}
 		
 {pmore}The example above shows how to save a graph to disk. It also shows that 
