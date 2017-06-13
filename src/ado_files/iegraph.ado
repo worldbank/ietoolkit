@@ -4,7 +4,7 @@ cap	program drop	iegraph
 	program define 	iegraph
 	preserve
 	
-	syntax varlist, [noconfbars TItle(string) save(string) confbarsnone(varlist) VARLabels GREYscale yzero *]
+	syntax varlist, [noconfbars BASICTItle(string) save(string) confbarsnone(varlist) VARLabels GREYscale yzero *]
 	
 	qui{
 	
@@ -293,11 +293,11 @@ cap	program drop	iegraph
 
 	if `save_export' == 0 {
 		
-		graph twoway `tmtGroupBars' `confIntGraph' `titleOption'  `legendOption' `xAxisLabels' `saveOption' title("`title'") `yzero_option' `options'
+		graph twoway `tmtGroupBars' `confIntGraph' `titleOption'  `legendOption' `xAxisLabels' `saveOption' title("`basictitle'") `yzero_option' `options'
 	}
 	else if `save_export' == 1 {
 		
-		graph twoway `tmtGroupBars' `confIntGraph' `titleOption'  `legendOption' `xAxisLabels' title("`title'") `yzero_option' `options'
+		graph twoway `tmtGroupBars' `confIntGraph' `titleOption'  `legendOption' `xAxisLabels' title("`basictitle'") `yzero_option' `options'
 		graph export "`save'", replace
 	}	
 	
