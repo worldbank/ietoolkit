@@ -15,7 +15,7 @@ help for {hi:iegraph}
 , [ {cmdab:basicti:tle(}{it:string}{cmd:)} {cmdab:varl:abels}
 {cmdab:save(}{it:string}{cmd:)} {cmdab:grey:scale} {cmdab:yzero}
 {cmd:noconfbars} {cmdab:confbarsnone(}{it:varlist}{cmd:)}
-{it:any twoway graph options}
+{it:any twoway graph scatter options}
 ]
 
 {marker opts}{...}
@@ -31,7 +31,7 @@ help for {hi:iegraph}
 {synopt :{cmdab:confbarsnone(}{it:varlist}{cmd:)}} Removes confidence interval bars from only the {it:varlist} listed.{p_end}
 {synoptline}
 
-{pstd}Any twoway graph options that can be used with normal twoway graph commands can 
+{pstd}Any twoway graph scatter options that can be used with normal twoway graph scatter commands can 
 	also be used. If any of these commands conflict with any of the built in options, 
 	then the user specified settings have precedence. See example 2 for details.{p_end}
 
@@ -77,7 +77,7 @@ help for {hi:iegraph}
 {title:Options}
 
 {phang}{cmdab:basicti:tle(}{it:string}{cmd:)} Manually sets the title of the graph. This
-	can be overwritten using twoway's title feature for more options like title size, position
+	can be overwritten using twoway scatter's title feature for more options like title size, position
 	, etc.{p_end}
 
 {phang}{cmdab:varl:abels} Sets the legends to the variable labels for the 
