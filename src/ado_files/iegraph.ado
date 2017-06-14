@@ -291,20 +291,25 @@ cap	program drop	iegraph2
 	*******************************************************************************
 	***Graph generation based on if the option save has a export or a save feature.
 	*******************************************************************************
-
+	
+	
+	local commandline `" `tmtGroupBars' `confIntGraph' `titleOption'  `legendOption' `xAxisLabels' title("`basictitle'") `yzero_option' `options'  "'
+	
+	
 	if `save_export' == 0 {
 		
-		graph twoway `tmtGroupBars' `confIntGraph' `titleOption'  `legendOption' `xAxisLabels' `saveOption' title("`basictitle'") `yzero_option' `options'
+		graph twoway `commandline' `saveOption'
 		
 		return local cmd `"graph twoway `tmtGroupBars' `confIntGraph' `titleOption'  `legendOption' `xAxisLabels' `saveOption' title("`basictitle'") `yzero_option' `options'"'
+		
 		
 	}
 	else if `save_export' == 1 {
 		
-		graph twoway `tmtGroupBars' `confIntGraph' `titleOption'  `legendOption' `xAxisLabels' title("`basictitle'") `yzero_option' `options'
+		graph twoway `commandline'
 		graph export "`save'", replace
 		
-		return local cmd `"graph twoway `tmtGroupBars' `confIntGraph' `titleOption'  `legendOption' `xAxisLabels' title("`basictitle'") `yzero_option' `options'"'
+		return local cmd `"graph twoway `commandline'"'
 		
 	}	
 	
