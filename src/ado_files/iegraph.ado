@@ -5,7 +5,7 @@ cap	program drop	iegraph2
 	
 	preserve
 	
-	syntax varlist, [noconfbars BASICTItle(string) save(string) confbarsnone(varlist) VARLabels GREYscale yzero *]
+	syntax varlist, [noconfbars BASICTItle(string) save(string) confbarsnone(varlist) VARLabels BARoption(string) GREYscale yzero *]
 	
 	qui{
 	
@@ -105,6 +105,7 @@ cap	program drop	iegraph2
 
 	//Make all vars tempvars (maybe do later)
 	//Make sure that missing is properly handled
+	
 	tempvar anyTMT control
 	egen `anyTMT' = rowmax(`varlist') 	if e(sample) == 1
 	gen `control' = (`anyTMT' == 0) 	if !missing(`anyTMT')
@@ -222,7 +223,7 @@ cap	program drop	iegraph2
 			greyPicker `tmtGroupCount' `graphCount' 
 		}
 		
-		local tmtGroupBars `"`tmtGroupBars' (bar mean order if order == `tmtGroupCount', color("`r(color)'") lcolor(black) ) "' 
+		local tmtGroupBars `"`tmtGroupBars' (bar mean order if order == `tmtGroupCount', `baroption' color("`r(color)'") lcolor(black) ) "' 
 		
 		************
 		*Create labels etc. for this group	
