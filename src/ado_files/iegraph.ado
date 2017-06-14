@@ -302,7 +302,7 @@ cap	program drop	iegraph2
 	if `save_export' == 0 {
 		
 		*Generate a return local with the code that will be used to generate the graph
-		return local cmd `"graph twoway `tmtGroupBars' `confIntGraph' `titleOption'  `legendOption' `xAxisLabels' `saveOption' title("`basictitle'") `yzero_option' `options'"'
+		return local cmd `"graph twoway `commandline' `saveOption'"'
 		
 		*Generate the graph
 		cap graph twoway `commandline' `saveOption'
