@@ -297,7 +297,7 @@ cap	program drop	iegraph2
 	local commandline 		`" `tmtGroupBars' `confIntGraph' `titleOption'  `legendOption' `xAxisLabels' title("`basictitle'") `yzero_option' `options'  "'
 	
 	*Error message used in both save-option cases below.
-	local graphErrorMessage `" MRIJAN: Something went wrong when trying to generate the graph. Click {stata di r(cmd) :display graph options } to see what graph options iegraph created for assisitance in de-bugging. "'
+	local graphErrorMessage `" Something went wrong while trying to generate the graph. Click {stata di r(cmd) :display graph options } to see what graph options iegraph used. This can help in de-bugging your code. "'
 	
 	if `save_export' == 0 {
 		
