@@ -5,7 +5,7 @@ cap	program drop	iegraph2
 	
 	preserve
 	
-	syntax varlist, [noconfbars BASICTItle(string) save(string) confbarsnone(varlist) VARLabels BARoption(string) GREYscale yzero *]
+	syntax varlist, [noconfbars BASICTItle(string) save(string) confbarsnone(varlist) VARLabels BAROPTions(string) GREYscale yzero *]
 	
 	qui{
 	
@@ -82,14 +82,14 @@ cap	program drop	iegraph2
             local save_export = 1
 			
 			if ("`file_suffix'" == "wmf" | "`file_suffix'" == "emf") & "`c(os)'" != "Windows" {
-				di as error "The file formats .wmf and .emf are only allowed when using Stata on a Windows computer."
+				di as error "{pstd}The file formats .wmf and .emf are only allowed when using Stata on a Windows computer.{p_end}"
                 error 198
 			} 
 		}
 		*If a different extension was used then displaying an error. 
         else {
 		
-            di as error "You are not using a allowed file format in save(`save'). Only the following formats are allowed: gph `nonGPH_formats'"
+            di as error "{pstd}You are not using a allowed file format in save(`save'). Only the following formats are allowed: gph `nonGPH_formats'{p_end}"
             error 198
         }
     }
@@ -223,7 +223,7 @@ cap	program drop	iegraph2
 			greyPicker `tmtGroupCount' `graphCount' 
 		}
 		
-		local tmtGroupBars `"`tmtGroupBars' (bar mean order if order == `tmtGroupCount', `baroption' color("`r(color)'") lcolor(black) ) "' 
+		local tmtGroupBars `"`tmtGroupBars' (bar mean order if order == `tmtGroupCount', `baroptions' color("`r(color)'") lcolor(black) ) "' 
 		
 		************
 		*Create labels etc. for this group	
@@ -293,24 +293,44 @@ cap	program drop	iegraph2
 	***Graph generation based on if the option save has a export or a save feature.
 	*******************************************************************************
 	
+	*Store all the options in one local
+	local commandline 		`" `tmtGroupBars' `confIntGraph' `titleOption'  `legendOption' `xAxisLabels' title("`basictitle'") `yzero_option' `options'  "'
 	
-	local commandline `" `tmtGroupBars' `confIntGraph' `titleOption'  `legendOption' `xAxisLabels' title("`basictitle'") `yzero_option' `options'  "'
-	
+	*Error message used in both save-option cases below.
+	local graphErrorMessage `" MRIJAN: Something went wrong when trying to generate the graph. Click {stata di r(cmd) :display graph options } to see what graph options iegraph created for assisitance in de-bugging. "'
 	
 	if `save_export' == 0 {
 		
-		graph twoway `commandline' `saveOption'
-		
+		*Generate a return local with the code that will be used to generate the graph
 		return local cmd `"graph twoway `tmtGroupBars' `confIntGraph' `titleOption'  `legendOption' `xAxisLabels' `saveOption' title("`basictitle'") `yzero_option' `options'"'
 		
+		*Generate the graph
+		cap graph twoway `commandline' `saveOption'
 		
+		*If error, provide error message and then run the code again allowing the program to crash
+		if _rc { 
+			
+			di as error "{pstd}`graphErrorMessage'{p_end}"
+            graph twoway `commandline' `saveOption'
+		}
 	}
 	else if `save_export' == 1 {
 		
-		graph twoway `commandline'
-		graph export "`save'", replace
-		
+		*Generate a return local with the code that will be used to generate the graph
 		return local cmd `"graph twoway `commandline'"'
+		
+		*Generate the graph
+		cap graph twoway `commandline'
+		
+		*If error, provide error message and then run the code again allowing the program to crash
+		if _rc { 
+			
+			di as error "{pstd}`graphErrorMessage'{p_end}"
+            graph twoway `commandline'
+		}
+		
+		*Export graph to preferred option
+		graph export "`save'", replace
 		
 	}	
 	
