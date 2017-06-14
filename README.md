@@ -47,4 +47,4 @@ If you wish to make a contribution by making a "fork and pull request" but are n
 Kristoffer Bjärkefur (kbjarkefur@worldbank.org)
 
 ### **Authors**
-Kristoffer Bjärkefur, Mrijan Rimal and Luiza Cardoso de Andrade.
+Kristoffer Bjärkefur, Mrijan Rimal, and Luiza Cardoso de Andrade.
