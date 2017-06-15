@@ -78,9 +78,9 @@ help for {hi:iegraph}
 {marker optslong}
 {title:Options}
 
-{phang}{cmdab:basicti:tle(}{it:string}{cmd:)} Manually sets the title of the graph. This
-	can be overwritten using twoway scatter's title feature for more options like title size, position
-	, etc.{p_end}
+{phang}{cmdab:basicti:tle(}{it:string}{cmd:)} Manually sets the title of the graph. To 
+	apply formatting like title size, position, etc., use Stata's buil 
+	in {help title_options:title() option} instead.{p_end}
 
 {phang}{cmdab:varl:abels} Sets the legends to the variable labels for the 
 	variables instead of the variable names.{p_end}
@@ -96,7 +96,10 @@ help for {hi:iegraph}
 	differences from light grey to dark grey.{p_end}
 	
 {phang}{cmdab:yzero} Manually sets the y-axis of the graph to start at zero 
-	instead of the Stata default.{p_end}
+	instead of the Stata default. In many cases, we expect that neither the default 
+	settings nor this option will make the axes look perfect, but you may use Stata's built 
+	in {help axis_option:axis options} that allow you to set the axes to perfectly fit 
+	your data.{p_end}
 	
 {phang}{cmd:noconfbars} Removes the confidence interval bars from graphs for all 
 	treatments. The default value for the confidence interval bars is 95%. {p_end}
