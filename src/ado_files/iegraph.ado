@@ -1,11 +1,12 @@
 *! version 5.1 31MAY2017  Kristoffer Bjarkefur kbjarkefur@worldbank.org
 	
-cap	program drop	iegraph2
-	program define 	iegraph2 , rclass
+cap	program drop	iegraph
+	program define 	iegraph , rclass
 	
-	preserve
+	syntax varlist, [noconfbars BASICTItle(string) save(string) confbarsnone(varlist) VARLabels BAROPTions(string) norestore GREYscale yzero *]
 	
-	syntax varlist, [noconfbars BASICTItle(string) save(string) confbarsnone(varlist) VARLabels BAROPTions(string) GREYscale yzero *]
+	
+	if "`restore'" == "" preserve
 	
 	qui{
 	
@@ -51,9 +52,8 @@ cap	program drop	iegraph2
 		*Assigning variable coefficient/standard errors/no of obs. to scalars with the name Coeff_(`variable name') 
 		*coeff_se_(`variable name'), obs_(`variable name').
 		
-		scalar coeff_`var' = _b[`var'] 
-
-		scalar coeff_se_`var' = _se[`var']
+		scalar coeff_`var' 		= _b[`var'] 
+		scalar coeff_se_`var' 	= _se[`var']
 		
 		count if e(sample) == 1 & `var' == 1 //Count one tmt group at the time
 		scalar obs_`var' = r(N)
@@ -154,7 +154,7 @@ cap	program drop	iegraph2
 	
 	*Write headers and control value
 	file write `newHandle' ///
-		"order" 	_tab "xLabeled"	_tab "mean" _tab "coeff" _tab "conf_int_min" _tab "conf_int_max" _tab "obs" _tab "star" _n 	///
+		"position" 	_tab "xLabeled"	_tab "mean" _tab "coeff" _tab "conf_int_min" _tab "conf_int_max" _tab "obs" _tab "star" _n 	///
 		%9.3f (1) _tab "Control"  _tab %9.3f (ctl_mean)      _tab  	_tab   _tab _tab %9.3f (ctl_N) 	 _tab  _n 
 
 	tempvar newCounter 
@@ -223,7 +223,7 @@ cap	program drop	iegraph2
 			greyPicker `tmtGroupCount' `graphCount' 
 		}
 		
-		local tmtGroupBars `"`tmtGroupBars' (bar mean order if order == `tmtGroupCount', `baroptions' color("`r(color)'") lcolor(black) ) "' 
+		local tmtGroupBars `"`tmtGroupBars' (bar mean position if position == `tmtGroupCount', `baroptions' color("`r(color)'") lcolor(black) ) "' 
 		
 		************
 		*Create labels etc. for this group	
@@ -249,7 +249,7 @@ cap	program drop	iegraph2
 		local confIntGraph = ""
 	} 
 		else if `CONFINT_BAR' == 1 {
-		local confIntGraph = `"(rcap conf_int_max conf_int_min order, lc(gs)) (scatter mean order,  msym(none)  mlabs(medium) mlabpos(10) mlabcolor(black))"'
+		local confIntGraph = `"(rcap conf_int_max conf_int_min position, lc(gs)) (scatter mean position,  msym(none)  mlabs(medium) mlabpos(10) mlabcolor(black))"'
 	}
 	
 	local titleOption `" , xtitle("") ytitle("`e(depvar)'") "'
@@ -334,7 +334,7 @@ cap	program drop	iegraph2
 		
 	}	
 	
-	restore
+	if "`restore'" == "" restore
 }
 
 end

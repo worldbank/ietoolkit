@@ -15,7 +15,8 @@ help for {hi:iegraph}
 , [ {cmdab:basicti:tle(}{it:string}{cmd:)} {cmdab:varl:abels}
 {cmdab:save(}{it:string}{cmd:)} {cmdab:grey:scale} {cmdab:yzero}
 {cmd:noconfbars} {cmdab:confbarsnone(}{it:varlist}{cmd:)}
-{it:any twoway graph scatter options}
+{cmd:norestore} {cmdab:baropt:ions(}{it:string}{cmd:)} 
+{it:{help scatter##twoway_options:twoway_scatter_options}}
 ]
 
 {marker opts}{...}
@@ -29,6 +30,7 @@ help for {hi:iegraph}
 {synopt :{cmdab:yzero}} Forces y-axis on the graph to start at 0.{p_end}
 {synopt :{cmd:noconfbars}} Removes the confidence interval bars from graphs for all treatments.{p_end}
 {synopt :{cmdab:confbarsnone(}{it:varlist}{cmd:)}} Removes confidence interval bars from only the {it:varlist} listed.{p_end}
+{synopt :{cmd:norestore}} Allows you to debug your two way graph settings on the data set prepared by iegraph. To be used with {it:r(cmd)}.{p_end}
 {synoptline}
 
 {pstd}Any twoway graph scatter options that can be used with normal twoway graph scatter commands can 
@@ -92,7 +94,10 @@ help for {hi:iegraph}
 {phang}{cmdab:grey:scale} Uses greyscales for the bars instead of colors. The color 
 	of the control bar will be black and the treatment bar will run in equal shade 
 	differences from light grey to dark grey.{p_end}
-
+	
+{phang}{cmdab:yzero} Manually sets the y-axis of the graph to start at zero 
+	instead of the Stata default.{p_end}
+	
 {phang}{cmd:noconfbars} Removes the confidence interval bars from graphs for all 
 	treatments. The default value for the confidence interval bars is 95%. {p_end}
 	
@@ -101,8 +106,14 @@ help for {hi:iegraph}
 	have not been specified in {cmdab:confbarsnone} will still have the confidence
 	interval bars. {p_end}
 
-{phang}{cmdab:yzero} Manually sets the y-axis of the graph to start at zero 
-	instead of the Stata default.{p_end}
+{phang}{cmdab:norestore} Returns the data set that iegraph prepares to create
+	the graph. This is helpful when de-bugging how one of Stata's many graph 
+	options can be applied to an iegraph graph. This option is meant to be 
+	used in combination with the {help return:returned result} in {it:r(cmd)}. {it:r(cmd)} 
+	gives you the line of code iegraph prepares to create the graph and {cmdab:norestore} gives you 
+	access to the data that code is meant to be used on. This approach will help
+	you de-bug how to apply Stata's built in graph options to an iegraph graph.
+	Note that this option deletes any unsaved changes made to your data.{p_end}
 
 {marker optslong}
 {title:Examples}
