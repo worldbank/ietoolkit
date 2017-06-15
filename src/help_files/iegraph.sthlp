@@ -79,7 +79,7 @@ help for {hi:iegraph}
 {title:Options}
 
 {phang}{cmdab:basicti:tle(}{it:string}{cmd:)} Manually sets the title of the graph. To 
-	apply formatting like title size, position, etc., use Stata's buil 
+	apply formatting like title size, position, etc., use Stata's built 
 	in {help title_options:title() option} instead.{p_end}
 
 {phang}{cmdab:varl:abels} Sets the legends to the variable labels for the 
