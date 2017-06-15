@@ -14,7 +14,7 @@ help for {hi:iegraph}
 {cmdab:iegraph} {varlist} 
 , [ {cmdab:basicti:tle(}{it:string}{cmd:)} {cmdab:varl:abels}
 {cmdab:save(}{it:string}{cmd:)} {cmdab:grey:scale} {cmdab:yzero}
-{cmd:noconfbars} {cmdab:confbarsnone(}{it:varlist}{cmd:)}
+{cmd:noconfbars} {cmdab:confbarsnone(}{it:varlist}{cmd:)} {cmdab:confintval(}{it:numlist}{cmd:)} 
 {cmd:norestore} {cmdab:baropt:ions(}{it:string}{cmd:)} 
 {it:{help scatter##twoway_options:twoway_scatter_options}}
 ]
@@ -30,6 +30,7 @@ help for {hi:iegraph}
 {synopt :{cmdab:yzero}} Forces y-axis on the graph to start at 0.{p_end}
 {synopt :{cmd:noconfbars}} Removes the confidence interval bars from graphs for all treatments.{p_end}
 {synopt :{cmdab:confbarsnone(}{it:varlist}{cmd:)}} Removes confidence interval bars from only the {it:varlist} listed.{p_end}
+{synopt :{cmdab:confintval(}{it:numlist}{cmd:)}} Sets the confidence interval for the confidence interval bars. Default is .95.{p_end}
 {synopt :{cmd:norestore}} Allows you to debug your two way graph settings on the data set prepared by iegraph. To be used with {it:r(cmd)}.{p_end}
 {synoptline}
 
@@ -109,6 +110,9 @@ help for {hi:iegraph}
 	have not been specified in {cmdab:confbarsnone} will still have the confidence
 	interval bars. {p_end}
 
+{phang}{cmdab:confintval(}{it:numlist}{cmd:)} Sets the confidence interval for 
+	the confidence interval bars. Default is .95. Values between 0 and 1 are allowed.{p_end}	
+	
 {phang}{cmdab:norestore} Returns the data set that iegraph prepares to create
 	the graph. This is helpful when de-bugging how one of Stata's many graph 
 	options can be applied to an iegraph graph. This option is meant to be 

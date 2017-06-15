@@ -3,12 +3,14 @@
 cap	program drop	iegraph
 	program define 	iegraph , rclass
 	
-	syntax varlist, [noconfbars BASICTItle(string) save(string) confbarsnone(varlist) VARLabels BAROPTions(string) norestore GREYscale yzero *]
+	syntax varlist, [noconfbars BASICTItle(string) save(string) confbarsnone(varlist) 	///
+						confintval(numlist min=1 max=1 >0 <1) VARLabels BAROPTions(string) norestore  	///
+						GREYscale yzero *]
 	
 	
 	if "`restore'" == "" preserve
 	
-	qui{
+	qui {
 	
 	version 11
 	
@@ -115,11 +117,32 @@ cap	program drop	iegraph
 	scalar ctl_mean	  	= r(mean)
 	scalar ctl_mean_sd 	= r(sd)	
 
+	
+	/**
+	 Calculate t-statistics
+	**/
+	
+	*If not set in options, use default of 95%
+	if "`confintval'" == "" {
+		local confintval = .95
+	}
+	
+	**Since we calculating each tail separetely we need to convert
+	* the two tail % to one tail %
+	local conintval_1tail = ( `confintval' + (1-`confintval' ) / 2)
+
+	*degreeds of freedom in regression
+	local df = `e(df_r)'
+	
+	*Calculate t-stats to be used
+	local tstats = invt(`df' , `conintval_1tail'  )
+
+	
 	foreach var of local varlist {
 		
 		*Caculating confidnece interval
-		scalar  conf_int_min_`var'   =	coeff_`var'-(1.96*coeff_se_`var') + ctl_mean
-		scalar  conf_int_max_`var'   =	coeff_`var'+(1.96*coeff_se_`var') + ctl_mean
+		scalar  conf_int_min_`var'   =	coeff_`var'-(`tstats'*coeff_se_`var') + ctl_mean
+		scalar  conf_int_max_`var'   =	coeff_`var'+(`tstats'*coeff_se_`var') + ctl_mean
 
 		**Assigning stars to the treatment vars.
 		
