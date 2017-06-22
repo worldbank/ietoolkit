@@ -1355,6 +1355,8 @@ qui {
 	**********************************
 	*Preparing weight option
 	
+		local weight_option ""
+		
 		if `WEIGHT_USED' {
 			
 			** The varname for weight is  prepared to be put in the reg  options
@@ -1522,7 +1524,7 @@ qui {
 			
 			if `TOTAL_USED' {
 				
-				reg 	`balancevar'  , `error_estm'
+				reg 	`balancevar'  `weight_option', `error_estm'
 				
 				local 	N_tot	= e(N)
 				local 	N_tot 	: display %9.0f `N_tot'
@@ -1624,7 +1626,7 @@ qui {
 				local varloc = max(var[1,1],var[2,2])				
 				
 				*This is the regression where we test differences.
-				reg `balancevar' `tempvar_thisGroupInPair' `covariates' i.`fixedeffect' , `error_estm'
+				reg `balancevar' `tempvar_thisGroupInPair' `covariates' i.`fixedeffect' `weight_option', `error_estm'
 				
 
 				*Testing result and if valid, write to file with or without stars
