@@ -1008,7 +1008,8 @@ qui {
 	
 	/*************************************************
 	************************************************/
-		
+	
+	
 		
 		** The titles consist of three rows across all 
 		*  columns of the table. Each row is one local
@@ -1021,15 +1022,21 @@ qui {
 		*  columns of the table. Each row is one local
 		local texrow1 ""
 		local texrow2 ""
-		local texrow3 `""Variable""'
-		
-		
+		local texrow3 `"Variable"'
 		
 		** Set titlw SE if standard errors are used (default)
 		*  or SD if standard deviation is used
 								local variance_type "SE"
 		if `STDEV_USED' == 1 	local variance_type "SD"
-	
+		
+		*Prepare title for column showing onle N or N and cluster
+		if "`vce_type'" != "cluster" {
+			local N_title "N"
+		}
+		else {
+			local N_title "N/[Clusters]"
+		}
+		
 	*********************************************
 	*Generating titles for each value of groupvar
 	
@@ -1060,33 +1067,30 @@ qui {
 			*Create one more column for N if N is displayesd in column instead of row
 			if `ONEROW_USED' == 0 {
 				
-				if "`vce_type'" == "cluster" local cluster_title "/[Clusters]"
-				
-				
 				local titlerow1 `"`titlerow1' _tab "" 	_tab " (`groupOrderNum') " "'
 				local titlerow2 `"`titlerow2' _tab ""  _tab "`groupLabel'"   	   "'
-				local titlerow3 `"`titlerow3' _tab "N`cluster_title'" _tab "Mean/`variance_type'" "'
+				local titlerow3 `"`titlerow3' _tab "`N_title'" _tab "Mean/`variance_type'" "'
 				
 				
-				local texrow1 	`"`texrow1' " & \multicolumn{2}{c}{(`groupOrderNum')}" "'
-				local texrow2 	`"`texrow2' " & \multicolumn{2}{c}{`texGroupLabel'}"   "'
-				local texrow3 	`"`texrow3' " & N`cluster_title' & Mean/`variance_type'" 			   "'
+				local texrow1 	`"`texrow1' & \multicolumn{2}{c}{(`groupOrderNum')} "'
+				local texrow2 	`"`texrow2' & \multicolumn{2}{c}{`texGroupLabel'} "'
+				local texrow3 	`"`texrow3' & `N_title' & Mean/`variance_type' "'
 			
 			}
 			else {
 			
-				local titlerow1 `"`titlerow1' _tab " (`groupOrderNum') "  "'
-				local titlerow2 `"`titlerow2' _tab "`groupLabel'"   	  "'
+				local titlerow1 `"`titlerow1' _tab " (`groupOrderNum') " "'
+				local titlerow2 `"`titlerow2' _tab "`groupLabel'" "'
 				local titlerow3 `"`titlerow3' _tab "Mean/`variance_type'" "'
 				
-				local texrow1 	`"`texrow1' " & (`groupOrderNum') "   "'
-				local texrow2 	`"`texrow2' " & `texGroupLabel'"   	  "'
-				local texrow3 	`"`texrow3' " & Mean/`variance_type'" "'
+				local texrow1 	`"`texrow1' & (`groupOrderNum') "'
+				local texrow2 	`"`texrow2' & `texGroupLabel' "'
+				local texrow3 	`"`texrow3' & Mean/`variance_type' 	"'
 				
 			}
 			
 		}
-		
+
 	***********************************************************
 	*Generating titles for sample total if total() is specified	
 	
@@ -1112,26 +1116,25 @@ qui {
 						
 				local titlerow1 `"`titlerow1' _tab ""	_tab " (`totalColNumber') "	"'
 				local titlerow2 `"`titlerow2' _tab "" 	_tab "`tot_label'" 			"'
-				local titlerow3 `"`titlerow3' _tab "N"	_tab "Mean/`variance_type'" "'
+				local titlerow3 `"`titlerow3' _tab "`N_title'"	_tab "Mean/`variance_type'" "'
 				
-				local texrow1  	`"`texrow1' " & \multicolumn{2}{c}{(`totalColNumber')}" "'
-				local texrow2  	`"`texrow2' " & \multicolumn{2}{c}{`tex_tot_label'}" 	"'
-				local texrow3  	`"`texrow3' " & N & Mean/`variance_type'" 				"'
+				local texrow1  	`"`texrow1' & \multicolumn{2}{c}{(`totalColNumber')}"'
+				local texrow2  	`"`texrow2' & \multicolumn{2}{c}{`tex_tot_label'} "'
+				local texrow3  	`"`texrow3' & `N_title' & Mean/`variance_type' "'
 			}
-			
 			else {
 			
 				local titlerow1 `"`titlerow1' _tab " (`totalColNumber') " "'
 				local titlerow2 `"`titlerow2' _tab "`tot_label'" 		  "'
 				local titlerow3 `"`titlerow3' _tab "Mean/`variance_type'" "'	
 				
-				local texrow1  	`"`texrow1' & (`totalColNumber') "	"'
-				local texrow2  	`"`texrow2' & `tex_tot_label'" 		"'
-				local texrow3  	`"`texrow3' & Mean/`variance_type'" "'	
+				local texrow1  	`"`texrow1' & (`totalColNumber') "'
+				local texrow2  	`"`texrow2' & `tex_tot_label' "'
+				local texrow3  	`"`texrow3' & Mean/`variance_type' "'	
 			
 			}
 		}
-		
+
 	************************************************
 	*Generating titles for each test of diff in mean
 	
@@ -1159,7 +1162,7 @@ qui {
 						local titlerow3 `"`titlerow3' _tab "Difference""'
 					}
 					
-					local texrow3  `" `texrow3' " & (`ctrlGrpPos')-(`second_ttest_group')" "'
+					local texrow3  `" `texrow3'  & (`ctrlGrpPos')-(`second_ttest_group') "'
 					
 					*Storing a local of all the test pairs
 					local ttest_pairs "`ttest_pairs' `ctrlGrpPos'_`second_ttest_group'"
@@ -1189,7 +1192,7 @@ qui {
 						local titlerow3 `"`titlerow3' _tab "Difference""'
 					}
 					
-					local texrow3  `" `texrow3' " & (`first_ttest_group')-(`second_ttest_group')" "'
+					local texrow3  `" `texrow3' & (`first_ttest_group')-(`second_ttest_group') "'
 					
 					*Storing a local of all the test pairs
 					local ttest_pairs "`ttest_pairs' `first_ttest_group'_`second_ttest_group'"
@@ -1203,17 +1206,18 @@ qui {
 		
 		if `testPairCount' > 0 {
 			
-			local texrow1 	`" `texrow1' " & \multicolumn{`testPairCount'}{c}{T-test}" "'
+			local texrow1 	`" `texrow1' & \multicolumn{`testPairCount'}{c}{T-test} "'
 			
 			if `PTTEST_USED' == 1 {
-				local texrow2 `"`texrow2' " & \multicolumn{`testPairCount'}{c}{P-value}" "'
+				local texrow2 `"`texrow2' & \multicolumn{`testPairCount'}{c}{P-value} "'
 			}
 			else {
-				local texrow2 `"`texrow2' " & \multicolumn{`testPairCount'}{c}{Difference}" "'
+				local texrow2 `"`texrow2' & \multicolumn{`testPairCount'}{c}{Difference} "'
 			}
 		}
 		*texrow3 created in loop above
 	
+
 	
 	****************************
 	*Writing titles to textfile
@@ -1230,8 +1234,7 @@ qui {
 							`titlerow2' _n ///
 							`titlerow3' _n 			
 		file close 		`textname'
-			
-		
+	
 	********************
 	*texfile
 		
@@ -1247,7 +1250,7 @@ qui {
 				local	colstring	"`colstring'c"
 			}
 		}
-		
+
 		*Add one column per test pair
 		forvalues repeat = 1/`testPairCount' {
 			local	colstring	`colstring'c
@@ -1260,7 +1263,7 @@ qui {
 		****Write texheader if full document option was selected
 		*Everyhting here is the tex headers
 		capture file close `texname'
-				
+
 		if `TEXDOC_USED' {
 		
 			file open  `texname' using "`texfile'", text write replace			
@@ -1297,24 +1300,25 @@ qui {
 			file close `texname'
 			
 		}	
-		
+
 		file open  `texname' using "`texfile'", text write append
 		file write `texname' ///
 			"\begin{tabular}{@{\extracolsep{5pt}}`colstring'}" _n ///
 			"\\[-1.8ex]\hline" _n ///
 			"\hline \\[-1.8ex]" _n		
 		file close `texname'
-			
+
 		*Write the title rows defined above	
 		capture file close `texname'
 		file open  `texname' using "`texfile'", text write append
+		
 		file write `texname' ///
-						`texrow1' " \\" _n ///
-						`texrow2' " \\" _n ///
-						`texrow3' " \\" _n ///
+						"`texrow1' \\" _n ///
+						"`texrow2' \\" _n ///
+						"`texrow3' \\" _n ///
 						"\hline \\[-1.8ex] " _n
 		file close `texname'
-	
+		 
 
 	/***********************************************
 	***********************************************/
@@ -1440,11 +1444,11 @@ qui {
 				local 	N_`groupNumber'  	: display %9.0f `N_`groupNumber''
 			
 				*If clusters used, number of clusters in this balance var for this group
-				if "`vce_type'" == "cluster"
+				if "`vce_type'" == "cluster" {
 
 					local 	N_clust_`groupNumber' 	= e(N_clust)
 					local 	N_clust_`groupNumber'  	: display %9.0f `N_clust_`groupNumber''	
-					local 	N_clust_`groupNumber'  	= "[`N_clust_`groupNumber'']"	
+					local 	N_clust_`groupNumber'  	= subinstr("[`N_clust_`groupNumber'']", " ", "" , .)	
 				}
 				
 				*Load values from matrices into scalars
@@ -1473,7 +1477,7 @@ qui {
 				*Test that N is the same for each group across all vars
 				if `ONEROW_USED' == 0 {
 				
-					local 	tableRowUp  `"`tableRowUp' _tab "`N_`groupNumber''" 			_tab "`di_mean_`groupNumber''"  "'
+					local 	tableRowUp  `"`tableRowUp' _tab "`N_`groupNumber''" 		_tab "`di_mean_`groupNumber''"  "'
 					local 	tableRowDo  `"`tableRowDo' _tab "`N_clust_`groupNumber'' " 	_tab "[`di_var_`groupNumber'']"  "'
 
 					local 	texRowUp  	`"`texRowUp' " & `N_`groupNumber'' & `di_mean_`groupNumber''"  "'
@@ -1529,7 +1533,16 @@ qui {
 				local 	N_tot	= e(N)
 				local 	N_tot 	: display %9.0f `N_tot'
 				
-				//Load values from matrices into scalars
+				*If clusters used, number of clusters in this balance var for this group
+				if "`vce_type'" == "cluster" {
+
+					local 	N_clust_tot 	= e(N_clust)
+					local 	N_clust_tot  	: display %9.0f `N_clust_tot'	
+					local 	N_clust_tot  	= subinstr("[`N_clust_tot']", " ", "" , .)	
+				}
+				
+				
+				*Load values from matrices into scalars
 				local 	mean_tot 	= _b[_cons]
 				local	se_tot   	= _se[_cons]
 				
@@ -1559,10 +1572,10 @@ qui {
 				if `ONEROW_USED' == 0 {
 				
 					local 	tableRowUp  `"`tableRowUp' _tab "`N_tot'" _tab "`mean_tot'"  "'
-					local 	tableRowDo  `"`tableRowDo' _tab " " 	  _tab "[`var_tot']"  "'
+					local 	tableRowDo  `"`tableRowDo' _tab "`N_clust_tot'"  _tab "[`var_tot']"  "'
 					
 					local 	texRowUp  	`"`texRowUp' " & `N_tot' & `mean_tot'"  "'
-					local 	texRowDo  	`"`texRowDo' " &    & (`var_tot')"  "'
+					local 	texRowDo  	`"`texRowDo' " & `N_clust_tot' & (`var_tot')"  "'
 				}
 				else {
 					
@@ -1579,6 +1592,23 @@ qui {
 						error 198
 					}
 					
+					*If cluster is usedTest if the number of clusters is the same in each group accross all balance vars
+					if "`vce_type'" == "cluster" {
+						
+						if "`oneclstrow_tot'" == "" {
+							*Store the obs num
+							local oneclstrow_tot = `N_clust_tot'
+						}
+						*If not, then check that the obs num is the same as before
+						else if !(`oneclstrow_tot' == `N_clust_tot') {
+										
+							*option onerow not allowed if N is different
+							noi display as error  "{phang}The number of clusters fora ll groups for `balancevar' is differenet compared to other balance variables. You can therefore not use the option onerow. Run the command without the option onerow to see which balance variable does not have the same number of clusters with non-missing values as the other balance variables.{p_end}"
+							error 198
+						}
+					}
+					
+					
 					*Either this is the first balance var or num obs are identical, so write columns
 					local 	tableRowUp  `"`tableRowUp' _tab "`mean_tot'"  "'
 					local 	tableRowDo  `"`tableRowDo' _tab "[`var_tot']"  "'	
@@ -1586,9 +1616,7 @@ qui {
 					local 	texRowUp  	`"`texRowUp' " & `mean_tot'"  "'
 					local 	texRowDo  	`"`texRowDo' " & (`var_tot')"  "'	
 				}
-			}
-			
-			
+			}		
 					
 	*** Create the columns with t-tests for this row
 			
@@ -1705,20 +1733,20 @@ qui {
 			
 		*Variable column i.e. row title
 		local tableRowN `""N""' 
-		local texRowN 	`""N""' 
+		local texRowN 	`"N"' 
 
 		local tableRowClstr `""Clusters""' 
-		local texRowClstr 	`""Clusters""' 		
+		local texRowClstr 	`"Clusters"' 		
 		
 		*Loop over all groups
 		forvalues groupOrderNum = 1/`GRPVAR_NUM_GROUPS' {
 			
 			*Prepare the row based on the numbers from above
 			local tableRowN `" `tableRowN' _tab "`onerow_`groupOrderNum''" "'
-			local texRowN 	`" `texRowN' " & `onerow_`groupOrderNum''" "'
+			local texRowN 	`" `texRowN' & `onerow_`groupOrderNum'' "'
 			
 			local tableRowClstr `" `tableRowClstr' _tab "`oneclstrow_`groupOrderNum''" "'
-			local texRowClstr 	`" `texRowClstr' " & `oneclstrow_`groupOrderNum''" "'			
+			local texRowClstr 	`" `texRowClstr' & `oneclstrow_`groupOrderNum'' "'			
 			
 		}
 
@@ -1726,7 +1754,10 @@ qui {
 		
 			*Prepare the row based on the numbers from above
 			local tableRowN `" `tableRowN' _tab "`onerow_tot'" "'
-			local texRowN 	`" `texRowN' " & `onerow_tot'" "'
+			local texRowN 	`" `texRowN'  & `onerow_tot' "'
+			
+			local tableRowClstr `" `tableRowClstr' _tab "`oneclstrow_tot'" "'
+			local texRowClstr 	`" `texRowClstr' & `oneclstrow_tot' "'				
 		}
 
 		*Write the N prepared above
@@ -1736,8 +1767,8 @@ qui {
 		file close `textname'
 		
 		file open  `texname' using "`texfile'", text write append
-		file write `texname' `texRowN' " \\" _n 		
-		if "`vce_type'" == "cluster" file write `texname' `texRowClstr' " \\" _n 
+		file write `texname' " `texRowN' \\" _n 		
+		if "`vce_type'" == "cluster" file write `texname' " `texRowClstr' \\" _n 
 		file close `texname'
 	}
 		
@@ -1748,7 +1779,7 @@ qui {
 	
 	/************************************************
 	************************************************/
-		
+
 	if `FTEST_USED' == 1 {
 	
 		if `ONEROW_USED' == 0 {
