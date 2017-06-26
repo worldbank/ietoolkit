@@ -1,6 +1,5 @@
-﻿**ietoolkit**
+**ietoolkit - Stata Commands for Impact Evaluations**
 =====
-## **Stata Commands for Impact Evaluations**
 
 ### **Install and Update**
 To install **ietoolkit**, type **`ssc install ietoolkit`** in Stata. If you see anything mentioned here (in the master branch) that you do not see reflected in the commands in ietoolkit in Stata on your computer, then you might not have the latest version of **ietoolkit** installed. To update all files associated with **ietoolkit** type **`adoupdate ietoolkit, update`** in Stata. (It is wise to be in the habit of regularly checking if any of your .ado files installed in Stata need updates by typing **`adoupdate`**.)
@@ -48,4 +47,4 @@ If you wish to make a contribution by making a "fork and pull request" but are n
 Kristoffer Bjärkefur (kbjarkefur@worldbank.org)
 
 ### **Authors**
-Kristoffer Bjärkefur, Mrijan Rimal and Luiza Cardoso de Andrade.
+Kristoffer Bjärkefur, Mrijan Rimal, and Luiza Cardoso de Andrade.
