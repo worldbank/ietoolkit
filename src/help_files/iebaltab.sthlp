@@ -50,7 +50,7 @@ will test for differences across the catagories in grpvar({it:varname}).
 {synopt :{cmdab:totall:abel(}{it:string}{cmd:)}}Manually set the total column title{p_end}
 {synopt :{cmdab:rowv:arlabels}}Use the variable labels instead of variable name as row titles{p_end}
 {synopt :{cmdab:rowl:abels(}{it:nametitles}{cmd:)}}Manually set the row titles. See details on {it:nametitles} below.{p_end}
-{synopt :{cmdab:onerow}}Write number of observations (and number of clusters if applicable)in one row at the bottom of the table.{p_end}
+{synopt :{cmdab:onerow}}Write number of observations (and number of clusters if applicable) in one row at the bottom of the table.{p_end}
 
 {marker statsoptions}{...}
 {pstd}{it:    Statistics and data modification:}{p_end}
