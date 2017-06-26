@@ -1495,7 +1495,7 @@ qui {
 					else if !(`onerow_`groupNumber'' == `N_`groupNumber'') {
 									
 						*option onerow not allowed if N is different
-						noi display as error  "{phang}The number of observations for `balancevar' is differenet compared to other balance variables within the same group. You can therefore not use the option onerow. Run the command without the option onerow to see which group does not have the same number of observations with non-missing values across all balance variables.{p_end}"
+						noi display as error  "{phang}The number of observations for `balancevar' is different compared to other balance variables within the same group. You can therefore not use the option onerow. Run the command without the option onerow to see which group does not have the same number of observations with non-missing values across all balance variables.{p_end}"
 						error 198
 					}
 					
