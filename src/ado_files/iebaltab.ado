@@ -756,12 +756,28 @@ qui {
 	
 		if `SAVE_USED' | `SAVE_TEX_USED' {
 			if `SAVE_USED' {
-				*Find index for where the file type suffix start
-				local dot_index 	= strpos("`save'",".")
+
+				**Find the last . in the file path and assume that 
+				* the file extension is what follows. If a file path has a . then 
+				* the file extension must be explicitly specified by the user.
+			
+				*Copy the full file path to the file suffix local
+				local file_suffix 	= "`save'"
 				
-				*Extract the file index
-				local file_suffix 	= substr("`save'", `dot_index', .)
+				** Find index for where the file type suffix start
+				local dot_index 	= strpos("`file_suffix'",".")
 				
+				**If there is one or many . in the file path than loop over 
+				* the file path until we have found the last one.
+				while `dot_index' > 0 {
+					
+					*Extract the file index
+					local file_suffix 	= substr("`file_suffix'", `dot_index' + 1, .)
+					
+					*Find index for where the file type suffix start
+					local dot_index 	= strpos("`file_suffix'",".")
+				}
+	
 				*If no file format suffix is specified, use the default .xlsx
 				if "`file_suffix'" == "" {
 				
@@ -771,7 +787,7 @@ qui {
 				*If a file format suffix is specified make sure that it is one of the two allowed.
 				else if !("`file_suffix'" == ".xls" | "`file_suffix'" == ".xlsx") {
 				
-					noi display as error "{phang}The file format specified in save(`save') is other than .xls or .xlsx. Only those two formats are allowed. If no format is specified .xlsx is the default.{p_end}"
+					noi display as error "{phang}The file format specified in save(`save') is other than .xls or .xlsx. Only those two formats are allowed. If no format is specified .xlsx is the default. If you have a . in your file path, for example in a folder name, then you must specify the file extension .xls or .xlsx.{p_end}"
 					error 198
 				}
 			}
