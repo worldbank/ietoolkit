@@ -790,7 +790,7 @@ qui {
 				*If a file format suffix is specified make sure that it is one of the two allowed.
 				else if !("`file_suffix'" == "xls" | "`file_suffix'" == "xlsx") {
 				
-					noi display as error "{phang}The file format specified in save(`save') is other than .xls or .xlsx. Only those two formats are allowed. If no format is specified .xlsx is the default. If you have a . in your file path, for example in a folder name, then you must specify the file extension .xls or .xlsx.{p_end}"
+					noi display as error "{phang}The file format specified in save(`save') is other than .xls or .xlsx. Only those two formats are allowed. If no format is specified .xlsx is the default. If you have a . in your file path, for example in a folder name, then you must specify the file extension .xls or .xlsx.{p_end}"x
 					error 198
 				}
 			}

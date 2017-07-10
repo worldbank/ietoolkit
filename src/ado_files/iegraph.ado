@@ -28,7 +28,8 @@ cap	program drop	iegraph
 		local CONFINT_BAR 	= 1 
 	}
 	
-	*Testing to see if the variables used in confbarsnone are actually in the list of 
+	*Testing to see if the variables used in confbarsnone are 
+	*actually in the list of 
 	*variables used for the regression/graph.
 	local varTest : list confbarsnone in varlist
 
@@ -65,17 +66,46 @@ cap	program drop	iegraph
 	*Checking to see if the save option is used what is the extension related to it. 
 	if "`save'" != "" {
 	
+		**Find the last . in the path name and assume that
+		* the file extension is what follows. However, with names
+		* that have multiple dots in it, the user has to explicitly 
+		* specify the file name. 
+		
+		**First, will extract the file names from the combination of file
+		* path and files names.
+		
+		local backslash = strpos(reverse("`save'", "\"))
+		local forwardslash = strpos(reverse("`save'", "/"))
+		
+		*Assign the full file path to the local file_suffix
+		local file_suffix = "`save'"
+				
         *Find index for where the file type suffix start
-        local dot_index     = strpos("`save'",".") + 1
-		 
-        *Extract the file index
-        local file_suffix   = substr("`save'", `dot_index', .)
-	        
-		*List of formats to which the file can be exported
+        local dot_index     = strpos("`save'",".") 
+		
+		*If no dot in the name, then no file extension
+		if `dot_index' == 0 {
+			local save `"`save'.gph"'
+			local file_suffix ".gph"
+			local save_export = 0
+		}
+		
+		**If there is one or many . in the file path than loop over 
+		* the file path until we have found the last one.
+		while `dot_index' > 0 {
+					
+			*Extract the file index
+			local file_suffix 	= substr("`file_suffix'", `dot_index' + 1, .)
+			
+			*Find index for where the file type suffix start
+			local dot_index 	= strpos("`file_suffix'",".")
+		}
+				
+        *List of formats to which the file can be exported
         local nonGPH_formats png tiff gph ps eps pdf wmf emf
 
         *If no file format suffix is specified, use the default .gph
-        if `dot_index' == 1 | "`file_suffix'" == "gph" {
+        if "`file_suffix'" == "gph" {
 			local save_export = 0
 		}
 
@@ -91,7 +121,8 @@ cap	program drop	iegraph
 		*If a different extension was used then displaying an error. 
         else {
 		
-            di as error "{pstd}You are not using a allowed file format in save(`save'). Only the following formats are allowed: gph `nonGPH_formats'{p_end}"
+            di as error "{pstd}You are not using a allowed file format in save(`save'). Only the following formats are allowed: gph `nonGPH_formats'. If you file ///
+							or path name has a dot(.) in it, please specify full file extension. {p_end}"
             error 198
         }
     }
