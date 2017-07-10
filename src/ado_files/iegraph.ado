@@ -79,15 +79,14 @@ cap	program drop	iegraph
 		**local slashpos = min(`backslash', `forwardslash')
 		
 		if `forwardslash' == 0 | `backslash' == 0 {
-			local file_name = substr(reverse("`save'"), 1, max(`forwardslash', `backslash'))
+			local file_name = substr(reverse("`save'"), 1, (max(`forwardslash', `backslash')-1))
 		}
 		else {
-			local file_name = substr(reverse("`save'"), 1, min(`forwardslash', `backslash'))
+			local file_name = substr(reverse("`save'"), 1, (min(`forwardslash', `backslash')-1))
 			}
-		local file_name = substr(reverse("`save'"), 1, `slashpos')
-		
+	
 		di "`file_name'"
-		/*
+		
 		*Assign the full file path to the local file_suffix
 		local file_suffix = "`save'"
 				
@@ -141,7 +140,7 @@ cap	program drop	iegraph
 		
 		*Save option is not used, therefore save export will not be used
 		local save_export = 0
-		*/
+		
 	}
 	
 	
