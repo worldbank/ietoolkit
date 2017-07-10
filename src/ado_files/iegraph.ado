@@ -74,9 +74,20 @@ cap	program drop	iegraph
 		**First, will extract the file names from the combination of file
 		* path and files names.
 		
-		local backslash = strpos(reverse("`save'", "\"))
-		local forwardslash = strpos(reverse("`save'", "/"))
+		local backslash = strpos(reverse("`save'"), "\")
+		local forwardslash = strpos(reverse("`save'"), "/")
+		**local slashpos = min(`backslash', `forwardslash')
 		
+		if `forwardslash' == 0 | `backslash' == 0 {
+			local file_name = substr(reverse("`save'"), 1, max(`forwardslash', `backslash'))
+		}
+		else {
+			local file_name = substr(reverse("`save'"), 1, min(`forwardslash', `backslash'))
+			}
+		local file_name = substr(reverse("`save'"), 1, `slashpos')
+		
+		di "`file_name'"
+		/*
 		*Assign the full file path to the local file_suffix
 		local file_suffix = "`save'"
 				
@@ -130,9 +141,10 @@ cap	program drop	iegraph
 		
 		*Save option is not used, therefore save export will not be used
 		local save_export = 0
+		*/
 	}
 	
-
+	
 	local count: word count `varlist' // Counting the number of total vars used as treatment.
 	local graphCount = `count' + 1 // Number of vars needed for the graph is total treatment vars plus one(control).
 
