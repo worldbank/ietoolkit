@@ -74,9 +74,10 @@ cap	program drop	iegraph
 		**First, will extract the file names from the combination of file
 		* path and files names.
 		
+		**Using both backslash and forward slash to account for Windows/Mac 
+		* paths
 		local backslash = strpos(reverse("`save'"), "\")
 		local forwardslash = strpos(reverse("`save'"), "/")
-		**local slashpos = min(`backslash', `forwardslash')
 		
 		if `forwardslash' == 0 | `backslash' == 0 {
 			local file_name = substr(reverse("`save'"), 1, (max(`forwardslash', `backslash')-1))
@@ -84,8 +85,8 @@ cap	program drop	iegraph
 		else {
 			local file_name = substr(reverse("`save'"), 1, (min(`forwardslash', `backslash')-1))
 			}
-	
-		di "`file_name'"
+		
+		local file_name = reverse("`file_name'")
 		
 		*Assign the full file path to the local file_suffix
 		local file_suffix = "`save'"
