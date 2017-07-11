@@ -89,18 +89,19 @@ cap	program drop	iegraph
 		local file_name = reverse("`file_name'")
 		
 		*Assign the full file path to the local file_suffix
-		local file_suffix = "`save'"
+		local file_suffix = "`file_name'"
 				
         *Find index for where the file type suffix start
-        local dot_index     = strpos("`save'",".") 
+        local dot_index     = strpos("`file_name'",".") 
 		
 		*If no dot in the name, then no file extension
 		if `dot_index' == 0 {
 			local save `"`save'.gph"'
-			local file_suffix ".gph"
+			local file_suffix "gph"
 			local save_export = 0
 		}
 		
+		local dotcount = 0
 		**If there is one or many . in the file path than loop over 
 		* the file path until we have found the last one.
 		while `dot_index' > 0 {
@@ -110,6 +111,12 @@ cap	program drop	iegraph
 			
 			*Find index for where the file type suffix start
 			local dot_index 	= strpos("`file_suffix'",".")
+			
+			local dotcount = `dotcount' + 1
+			
+			if (`dotcount' > 1) {
+				di as error "{pstd}File names cannot have more than one dot. Please only use the dot to separate the filename and file format.{p_end}"
+				}
 		}
 				
         *List of formats to which the file can be exported
@@ -132,8 +139,7 @@ cap	program drop	iegraph
 		*If a different extension was used then displaying an error. 
         else {
 		
-            di as error "{pstd}You are not using a allowed file format in save(`save'). Only the following formats are allowed: gph `nonGPH_formats'. If you file ///
-							or path name has a dot(.) in it, please specify full file extension. {p_end}"
+            di as error "{pstd}You are not using a allowed file format in save(`save'). Only the following formats are allowed: gph `nonGPH_formats'. {p_end}"
             error 198
         }
     }
