@@ -72,27 +72,32 @@ cap	program drop	iegraph
 		* specify the file name. 
 		
 		**First, will extract the file names from the combination of file
-		* path and files names.
-		
-		**Using both backslash and forward slash to account for Windows/Mac 
-		* paths
+		* path and files names. We will use both backslash and forward slash  
+		* to account for differences in Windows/Unix file paths
 		local backslash = strpos(reverse("`save'"), "\")
 		local forwardslash = strpos(reverse("`save'"), "/")
 		
-		if `forwardslash' == 0 | `backslash' == 0 {
-			local file_name = substr(reverse("`save'"), 1, (max(`forwardslash', `backslash')-1))
-		}
-		else {
-			local file_name = substr(reverse("`save'"), 1, (min(`forwardslash', `backslash')-1))
-			}
-		
+		** Replacing the value of forward/back slash with the other value if one of the
+		*  values is equal to zero. 	
+        if `forwardslash' == 0  local forwardslash = `backslash'
+        if `backslash' == 0     local backslash = `forwardslash'
+        
+		**Extracting the file name from the full file path by  reversing and breaking the path
+		* at the first occurence of slash. 
+		local file_name = substr(reverse("`save'"), 1, (min(`forwardslash', `backslash')-1))
 		local file_name = reverse("`file_name'")
+
+		**If no slashes it means that there is no file path and just a file name, so the name of the file will be
+		* the local save.
+		if (`forwardslash' == 0 & `backslash' == 0) local file_name = "`save''"  
 		
 		*Assign the full file path to the local file_suffix
 		local file_suffix = "`file_name'"
 				
         *Find index for where the file type suffix start
         local dot_index     = strpos("`file_name'",".") 
+		
+		local file_suffix = substr("`file_name'", `dot_index' + 1, .)
 		
 		*If no dot in the name, then no file extension
 		if `dot_index' == 0 {
@@ -101,22 +106,19 @@ cap	program drop	iegraph
 			local save_export = 0
 		}
 		
-		local dotcount = 0
 		**If there is one or many . in the file path than loop over 
 		* the file path until we have found the last one.
-		while `dot_index' > 0 {
+		
+		**Find index for where the file type suffix start. We are re-checking
+		* to see if there are any more dots than the first one. If there are, 
+		* then there needs to be an error message saying remove the dots.
+		local dot_index 	= strpos("`file_suffix'",".")
+		
+		*Extract the file index
 					
-			*Extract the file index
-			local file_suffix 	= substr("`file_suffix'", `dot_index' + 1, .)
-			
-			*Find index for where the file type suffix start
-			local dot_index 	= strpos("`file_suffix'",".")
-			
-			local dotcount = `dotcount' + 1
-			
-			if (`dotcount' > 1) {
-				di as error "{pstd}File names cannot have more than one dot. Please only use the dot to separate the filename and file format.{p_end}"
-				}
+		if (`dot_index' > 0) {
+			di as error "{pstd}File names cannot have more than one dot. Please only use the dot to separate the filename and file format.{p_end}"
+			error 198
 		}
 				
         *List of formats to which the file can be exported
