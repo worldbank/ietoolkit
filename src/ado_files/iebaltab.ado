@@ -903,6 +903,7 @@ qui {
 				* If no comma, show error message
 				if `multirow_comma_pos' == 0 {
 					noi display as error "{phang}Option multirow is incorrectly specified. See {help iebaltab:iebaltab help}.{p_end}"
+					error 198
 				}
 				
 				* If comma, get width and varnames and test it
@@ -915,6 +916,7 @@ qui {
 					local 	multirow_width_unit = substr("`multirow_width'",-2,2)
 					if 	!inlist("`multirow_width_unit'","cm","mm","pt","in","ex","em") {
 						noi display as error `"{phang}Option multirow is incorrectly specified. Column width unit must be one of "cm", "mm", "pt", "in", "ex" or "em". For more information, {browse "https://en.wikibooks.org/wiki/LaTeX/Lengths":check LaTeX lengths manual}.{p_end}"'
+						error 198
 					}
 					
 					* Test if width value is correctly specified
@@ -922,15 +924,19 @@ qui {
 					capture confirm number `multirow_width_value' 
 					if _rc & inlist("`multirow_width_unit'","cm","mm","pt","in","ex","em") {
 						noi display as error "{phang}Option multirow is incorrectly specified. Column width value must be numeric. See {help iebaltab:iebaltab help}. {p_end}"
+						error 198
 					}
 					
 					* Test if width varnames is a list of variables
 					capture confirm variable `multirow_varnames'
 					if _rc {
 						noi display as error "{phang}At least one of the variables in multirow could not be found. See {help iebaltab:iebaltab help}. {p_end}"
+						error 198
 					}
 					
 				}
+				
+				noi display as error "{phang}WARNING: tables created using option {it:multirow} will only be correctly displayed in LaTeX unless {it:multirow} package is loaded. {p_end}"
 			}
 		}
 		
