@@ -59,6 +59,7 @@
 				TEXCaption(string)											///
 				TEXLabel(string)											///
 				TEXDOCument													///
+				multirow(string)											///
 				BROWSE														///
 				SAVEBRowse													///
 				REPLACE														///
@@ -254,6 +255,10 @@ qui {
 		*Is option texdocument() used:
 		if "`texdocument'"		== "" local TEXDOC_USED = 0
 		if "`texdocument'"		!= "" local TEXDOC_USED = 1
+		
+		*Is option multirow() used:
+		if "`multirow'"			== "" local MULTIROW_USED = 0
+		if "`multirow'"			!= "" local MULTIROW_USED = 1
 		
 		*Is option browse() used:
 		if "`browse'" 			== "" local BROWSE_USED = 0 
@@ -493,6 +498,7 @@ qui {
 	
 	
 	** Stats Options	
+		local SHOW_NCLUSTER 0
 		
 		if `VCE_USED' == 1 {
 			
@@ -506,6 +512,9 @@ qui {
 				*Robust is allowed and not other tests needed
 			}
 			else if "`vce_type'" == "cluster" {
+				
+				*Create a local for displaying number of clusters
+				local SHOW_NCLUSTER 1
 				
 				local cluster_var `2'
 				
@@ -884,13 +893,52 @@ qui {
 					error 198
 				}
 			}
+			
+		if `MULTIROW_USED' {
+			
+				* Parse multirow option: before the comma is the width, after the comma are the variables
+				local multirow_options_to_tokenize `multirow'
+				local multirow_comma_pos = strpos("`multirow'",",")
+				
+				* If no comma, show error message
+				if `multirow_comma_pos' == 0 {
+					noi display as error "{phang}Option multirow is incorrectly specified. See {help iebaltab:iebaltab help}.{p_end}"
+				}
+				
+				* If comma, get width and varnames and test it
+				else {
+				
+					local 	multirow_width = substr("`multirow_options_to_tokenize'",1,`multirow_comma_pos'-1)
+					local 	multirow_varnames = substr("`multirow_options_to_tokenize'",`multirow_comma_pos'+1,.)
+					
+					* Test if width unit is correctly specified
+					local 	multirow_width_unit = substr("`multirow_width'",-2,2)
+					if 	!inlist("`multirow_width_unit'","cm","mm","pt","in","ex","em") {
+						noi display as error `"{phang}Option multirow is incorrectly specified. Column width unit must be one of "cm", "mm", "pt", "in", "ex" or "em". For more information, {browse "https://en.wikibooks.org/wiki/LaTeX/Lengths":check LaTeX lengths manual}.{p_end}"'
+					}
+					
+					* Test if width value is correctly specified
+					local 	multirow_width_value = subinstr("`multirow_width'","`multirow_width_unit'","",.)
+					capture confirm number `multirow_width_value' 
+					if _rc & inlist("`multirow_width_unit'","cm","mm","pt","in","ex","em") {
+						noi display as error "{phang}Option multirow is incorrectly specified. Column width value must be numeric. See {help iebaltab:iebaltab help}. {p_end}"
+					}
+					
+					* Test if width varnames is a list of variables
+					capture confirm variable `multirow_varnames'
+					if _rc {
+						noi display as error "{phang}At least one of the variables in multirow could not be found. See {help iebaltab:iebaltab help}. {p_end}"
+					}
+					
+				}
+			}
 		}
 		
 				
 		* Error for incorrectly using tex options
-		else if `NOTEWIDTH_USED' | `LABEL_USED' | `CAPTION_USED' | `TEXDOC_USED' {
+		else if `NOTEWIDTH_USED' | `LABEL_USED' | `CAPTION_USED' | `TEXDOC_USED' | `MULTIROW_USED' {
 	
-			noi display as error "{phang}Options texnotewidth, texdocument, texlabel and texcaption may only be used in combination with option savetex(){p_end}"
+			noi display as error "{phang}Options texnotewidth, texdocument, texlabel, texcaption, and multirow may only be used in combination with option savetex(){p_end}"
 			error 198
 		
 		}
@@ -1276,7 +1324,8 @@ qui {
 	*texfile
 		
 		*Count number of columns in table
-		local 		colstring	l
+		if `MULTIROW_USED' == 0		local 		colstring	l
+		else						local 		colstring	p{`multirow_width'}
 		
 		forvalues repeat = 1/`NUM_COL_GRP_TOT' {
 			
@@ -1303,7 +1352,7 @@ qui {
 
 		if `TEXDOC_USED' {
 		
-			file open  `texname' using "`texfile'", text write replace			
+			file open  `texname' using "`texfile'", text write replace
 			file write `texname' ///
 				"%%% Table created in Stata by iebaltab (https://github.com/worldbank/ietoolkit)" _n ///
 				"" _n ///
@@ -1311,7 +1360,15 @@ qui {
 				"" _n ///
 				"% ----- Preamble " _n ///
 				"\usepackage[utf8]{inputenc}" _n ///
-				"\usepackage{adjustbox}" _n ///
+				"\usepackage{adjustbox}" _n
+			
+			if `MULTIROW_USED' {
+				
+				file write `texname' "\usepackage{multirow}" _n
+				
+			}
+			
+			file write `texname' ///
 				"% ----- End of preamble " _n ///
 				"" _n ///
 				" \begin{document}" _n ///
@@ -1436,8 +1493,10 @@ qui {
 			local texrow_label : subinstr local texrow_label "&"  "\&" , all 
 			local texrow_label : subinstr local texrow_label "\$"  "\\\\\\\\$" , all
 			
-			local texRowUp `""`texrow_label'""' 
-			local texRowDo `" "' 
+			local texRowUp 		`""`texrow_label'""' 
+			local texRowDo 		`" "' 
+
+			local texMultirow	`""`texrow_label'""'			
 			
 			
 			*** Replacing missing value
@@ -1485,7 +1544,7 @@ qui {
 
 					local 	N_clust_`groupNumber' 	= e(N_clust)
 					local 	N_clust_`groupNumber'  	: display %9.0f `N_clust_`groupNumber''	
-					local 	N_clust_`groupNumber'  	= subinstr("[`N_clust_`groupNumber'']", " ", "" , .)	
+					local 	N_clust_`groupNumber' 	= trim("`N_clust_`groupNumber''")
 				}
 				
 				*Load values from matrices into scalars
@@ -1514,12 +1573,18 @@ qui {
 				*Test that N is the same for each group across all vars
 				if `ONEROW_USED' == 0 {
 				
-					local 	tableRowUp  `"`tableRowUp' _tab "`N_`groupNumber''" 		_tab "`di_mean_`groupNumber''"  "'
-					local 	tableRowDo  `"`tableRowDo' _tab "`N_clust_`groupNumber'' " 	_tab "[`di_var_`groupNumber'']"  "'
+					local 	tableRowUp  `"`tableRowUp' _tab "`N_`groupNumber''" 			_tab "`di_mean_`groupNumber''"  "'
+					local 	tableRowDo  `"`tableRowDo' _tab "[`N_clust_`groupNumber'']" 	_tab "[`di_var_`groupNumber'']"  "'
 
 					local 	texRowUp  	`"`texRowUp' " & `N_`groupNumber'' & `di_mean_`groupNumber''"  "'
-					local 	texRowDo  	`"`texRowDo' " & `N_clust_`groupNumber'' & (`di_var_`groupNumber'')"  "'
-				
+					local 	texRowDo  	`"`texRowDo' " & [`N_clust_`groupNumber''] & (`di_var_`groupNumber'')"  "'
+					
+					if `SHOW_NCLUSTER' == 0	{
+						local texMultirow 	`"`texMultirow' " & `N_`groupNumber'' & \multirow{2}{*}{\begin{tabular}{c}	`di_mean_`groupNumber'' \\ (`di_var_`groupNumber'') \end{tabular}}"  "'
+					}
+					if `SHOW_NCLUSTER' == 1	{
+						local texMultirow 	`"`texMultirow' " & \multirow{2}{*}{\begin{tabular}{c}	`N_`groupNumber'' \\ {[}`N_clust_`groupNumber''] \end{tabular}} & \multirow{2}{*}{\begin{tabular}{c}	`di_mean_`groupNumber'' \\ (`di_var_`groupNumber'') \end{tabular}}"  "'
+					}					
 				}
 				else {
 
@@ -1554,11 +1619,13 @@ qui {
 					}
 							
 					*Either this is the first balance var or num obs are identical, so write columns
-					local 	tableRowUp  `"`tableRowUp' _tab "`di_mean_`groupNumber''"  "'
-					local 	tableRowDo  `"`tableRowDo' _tab "[`di_var_`groupNumber'']"  "'	
-					
-					local 	texRowUp  	`"`texRowUp' " & `di_mean_`groupNumber''"  "'
-					local 	texRowDo  	`"`texRowDo' " & (`di_var_`groupNumber'')"  "'	
+					local 	tableRowUp  	`"`tableRowUp' _tab "`di_mean_`groupNumber''"  "'
+					local 	tableRowDo  	`"`tableRowDo' _tab "[`di_var_`groupNumber'']"  "'	
+						
+					local 	texRowUp  		`"`texRowUp' " & `di_mean_`groupNumber''"  "'
+					local 	texRowDo  		`"`texRowDo' " & (`di_var_`groupNumber'')"  "'	
+				
+					local 	texMultirow 	`"`texMultirow' " & \multirow{2}{*}{\begin{tabular}{c}	`di_mean_`groupNumber'' \\ (`di_var_`groupNumber'') \end{tabular}}"  "'
 				}
 				
 			}
@@ -1575,7 +1642,7 @@ qui {
 
 					local 	N_clust_tot 	= e(N_clust)
 					local 	N_clust_tot  	: display %9.0f `N_clust_tot'	
-					local 	N_clust_tot  	= subinstr("[`N_clust_tot']", " ", "" , .)	
+					local 	N_clust_tot  	= trim("`N_clust_tot'")	
 				}
 				
 				
@@ -1608,11 +1675,18 @@ qui {
 				*Test that N is the same for each group across all vars
 				if `ONEROW_USED' == 0 {
 				
-					local 	tableRowUp  `"`tableRowUp' _tab "`N_tot'" _tab "`mean_tot'"  "'
-					local 	tableRowDo  `"`tableRowDo' _tab "`N_clust_tot'"  _tab "[`var_tot']"  "'
+					local 	tableRowUp  `"`tableRowUp' _tab "`N_tot'" 			_tab "`mean_tot'"  "'
+					local 	tableRowDo  `"`tableRowDo' _tab "[`N_clust_tot']"  	_tab "[`var_tot']"  "'
 					
 					local 	texRowUp  	`"`texRowUp' " & `N_tot' & `mean_tot'"  "'
-					local 	texRowDo  	`"`texRowDo' " & `N_clust_tot' & (`var_tot')"  "'
+					local 	texRowDo  	`"`texRowDo' " & [`N_clust_tot'] & (`var_tot')"  "'
+				
+					if `SHOW_NCLUSTER' == 0	{
+						local texMultirow 	`"`texMultirow' " & `N_tot' & \multirow{2}{*}{\begin{tabular}{c} `mean_tot' \\ (`var_tot') \end{tabular}}"  "'
+					}
+					if `SHOW_NCLUSTER' == 1	{
+						local texMultirow 	`"`texMultirow' " & \multirow{2}{*}{\begin{tabular}{c}	`N_tot' \\ {[}`N_clust_tot'] \end{tabular}} & \multirow{2}{*}{\begin{tabular}{c} `mean_tot' \\ (`var_tot') \end{tabular}}"  "'
+					}
 				}
 				else {
 					
@@ -1647,11 +1721,13 @@ qui {
 					
 					
 					*Either this is the first balance var or num obs are identical, so write columns
-					local 	tableRowUp  `"`tableRowUp' _tab "`mean_tot'"  "'
-					local 	tableRowDo  `"`tableRowDo' _tab "[`var_tot']"  "'	
+					local 	tableRowUp  	`"`tableRowUp' _tab "`mean_tot'"  "'
+					local 	tableRowDo  	`"`tableRowDo' _tab "[`var_tot']"  "'	
 					
-					local 	texRowUp  	`"`texRowUp' " & `mean_tot'"  "'
-					local 	texRowDo  	`"`texRowDo' " & (`var_tot')"  "'	
+					local 	texRowUp  		`"`texRowUp' " & `mean_tot'"  "'
+					local 	texRowDo  		`"`texRowDo' " & (`var_tot')"  "'
+					
+					local 	texMultirow 	`"`texMultirow' " & \multirow{2}{*}{\begin{tabular}{c}	`mean_tot' \\ (`var_tot') \end{tabular}}"  "'
 				}
 			}		
 					
@@ -1709,6 +1785,8 @@ qui {
 					local texRowUp 		`" `texRowUp' " & N/A" "'
 					local texRowDo		`" `texRowDo' " &  " "'
 					
+					local texMultirow	`" `texMultirow' " & N/A" "'
+					
 				}
 		
 				else {
@@ -1739,13 +1817,16 @@ qui {
 					}
 					
 					*Print row
-					local tableRowUp `" `tableRowUp' _tab "`ttest_output'" "'
-					local tableRowDo `" `tableRowDo' _tab " " "'
+					local tableRowUp 	`" `tableRowUp' _tab "`ttest_output'" "'
+					local tableRowDo 	`" `tableRowDo' _tab " " "'
 					
-					local texRowUp 	 `" `texRowUp' " & `ttest_output'" "'
-					local texRowDo 	 `" `texRowDo' " &  " "'
+					local texRowUp 	 	`" `texRowUp' " & `ttest_output'" "'
+					local texRowDo 	 	`" `texRowDo' " &  " "'
+					
+					local texMultirow	`" `texMultirow' " & `ttest_output'" "'
 				}
 			}
+						
 	
 			*Write the row for this balance var to file.
 			file open  `textname' using "`textfile'", text write append
@@ -1754,12 +1835,27 @@ qui {
 				`tableRowDo' _n	
 			file close `textname'
 
-			file open  `texname' using "`texfile'", text write append
-			file write `texname' 	///
-				`texRowUp' " \\" _n		///
-				`texRowDo' " \\" _n	
-			file close `texname'
-
+			if `MULTIROW_USED' == 0 {
+				file open  `texname' using "`texfile'", text write append
+				file write `texname' 	///
+					`texRowUp' " \\" _n	///
+					`texRowDo' " \\[4ex]"  _n
+				file close `texname'
+			}
+			
+			if `MULTIROW_USED' == 1 {
+			
+				*Calculate line space 
+				local multirowVar = strpos("`multirow_varnames'","`balancevar'")
+				if `multirowVar' == 0 	local lineSpace  4ex
+				else					local lineSpace  4.4ex
+				
+				* Write line
+				file open  `texname' using "`texfile'", text write append
+				file write `texname' 	///
+					`texMultirow' " \\[`lineSpace']"  _n
+				file close `texname'
+			}
 		}
 
 	
@@ -2317,7 +2413,12 @@ qui {
 	}
 	
 	*Calculate total number of columns
-	local totalColNo = strlen("`colstring'")
+	if `MULTIROW_USED' == 0 	local totalColNo = strlen("`colstring'")
+	else {
+		local colstrBracePos = strpos("`colstring'","}")
+		local nonLabelCols = substr("`colstring'",`colstrBracePos'+1,.)
+		local totalColNo = strlen("`nonLabelCols'") +1
+	}
 	
 	*Set default tex note width (note width is a multiple of text width.
 	*if none is manually specified, default is text width)
