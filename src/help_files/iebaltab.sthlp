@@ -23,7 +23,7 @@ help for {hi:iebaltab}
 will test for differences across the catagories in grpvar({it:varname}).
 
 {marker opts}{...}
-{synoptset 21}{...}
+{synoptset 23}{...}
 {synopthdr:options}
 {synoptline}
 {pstd}{it:    {ul:{hi:Required options:}}}{p_end}
@@ -91,6 +91,7 @@ will test for differences across the catagories in grpvar({it:varname}).
 {synopt :{cmdab:texc:aption(}{it:string}{cmd:)}}Specify TeX table caption{p_end}
 {synopt :{cmdab:texl:abel(}{it:string}{cmd:)}}Specify TeX label{p_end}
 {synopt :{cmdab:texdoc:ument}}Creates a stand-alone TeX document{p_end}
+{synopt :{cmd:multirow(}{it:width, {help varlist}}{cmd:)}}Limits width of table's first column{p_end}
 
 {synoptline}
 
@@ -359,6 +360,11 @@ The note width is a multiple of text width. If not specified, default width is t
 
 {phang}{cmdab:texdoc:ument}  creates a stand-alone TeX document that can be readily compiled, without the need to import it to a different file.
  As default, {cmd:savetex()} creates a fragmented TeX file consisting only of a tabular environment.{p_end}
+
+{phang}{cmd:multirow(}{it:width, {help varlist}}{cmd:)} limits the width of table's first column so that a line break is added when a variable's name
+or label is too long. {it:width} is a string consisting of a numeric value and one of the following units: "cm", "mm", "pt", "in", "ex" or "em".
+For more information on these units, {browse "https://en.wikibooks.org/wiki/LaTeX/Lengths":check LaTeX lengths manual}. {it:varlist} 
+is a list of the variables whose names or labels are too long and should have a line break inserted in the first column.{p_end}
 
 {title:Examples}
 
