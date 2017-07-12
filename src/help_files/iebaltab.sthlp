@@ -364,7 +364,8 @@ The note width is a multiple of text width. If not specified, default width is t
 {phang}{cmd:multirow(}{it:width, {help varlist}}{cmd:)} limits the width of table's first column so that a line break is added when a variable's name
 or label is too long. {it:width} is a string consisting of a numeric value and one of the following units: "cm", "mm", "pt", "in", "ex" or "em".
 For more information on these units, {browse "https://en.wikibooks.org/wiki/LaTeX/Lengths":check LaTeX lengths manual}. {it:varlist} 
-is a list of the variables whose names or labels are too long and should have a line break inserted in the first column.{p_end}
+is a list of the variables whose names or labels are too long and should have a line break inserted in the first column. Tables created using this option
+will only be correctly displayed in LaTeX if the {it:multirow} package is loaded.{p_end}
 
 {title:Examples}
 
