@@ -6,10 +6,12 @@ An easy but still very efficient way to provide any feedback on these commands t
 
 # ietoolkit contribution conventions
 
+In addition to using common GitHub practices, please follow these conventions to make it possible to keep an overview of the progress amde to this code.
+
 ## Commit message conventions
 
 If your commit ios specific to a command, then always start with that command name for example `iefolder: fix typo in error message`
 
 ## Working with solutions to issues
 
-When you start working on the solution to a new issue, then create a new branch named after the issue, for example `fix issue #122`. If you want feedback on your solution to the issue or help with testing it, then ask for that before you merge the fix to the `develop` branch.
+When you start working on the solution to a new issue, then create a new branch named after the issue, for example `fix issue #122`. If you want feedback on your solution to the issue or help with testing it, then ask for that before you merge the fix to the `develop` branch. If your branch contains many changes back and forth, then we suggest taht you do a sqaushed merge to the `develop` branch. Squashed merge means that all commits in the fix issue branch are combined into a single commit in the `develop` branch where only the final changes are reflected. All commits in the branch are still saved individually in the history of that branch.
