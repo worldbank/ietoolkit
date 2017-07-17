@@ -59,7 +59,8 @@
 				TEXCaption(string)											///
 				TEXLabel(string)											///
 				TEXDOCument													///
-				multirow(string)											///
+				texvspace(string)											///
+				texcolwidth(string)											///
 				BROWSE														///
 				SAVEBRowse													///
 				REPLACE														///
@@ -256,9 +257,13 @@ qui {
 		if "`texdocument'"		== "" local TEXDOC_USED = 0
 		if "`texdocument'"		!= "" local TEXDOC_USED = 1
 		
-		*Is option multirow() used:
-		if "`multirow'"			== "" local MULTIROW_USED = 0
-		if "`multirow'"			!= "" local MULTIROW_USED = 1
+		*Is option texlinespace() used:
+		if "`texvspace'"		== "" local TEXVSPACE_USED = 0
+		if "`texvspace'"		!= "" local TEXVSPACE_USED = 1
+		
+		*Is option texcolwidth() used:
+		if "`texcolwidth'"		== "" local TEXCOLWIDTH_USED = 0
+		if "`texcolwidth'"		!= "" local TEXCOLWIDTH_USED = 1
 		
 		*Is option browse() used:
 		if "`browse'" 			== "" local BROWSE_USED = 0 
@@ -894,57 +899,47 @@ qui {
 				}
 			}
 			
-		if `MULTIROW_USED' {
+			if `TEXCOLWIDTH_USED' {
 			
-				* Parse multirow option: before the comma is the width, after the comma are the variables
-				local multirow_options_to_tokenize `multirow'
-				local multirow_comma_pos = strpos("`multirow'",",")
-				
-				* If no comma, show error message
-				if `multirow_comma_pos' == 0 {
-					noi display as error "{phang}Option multirow is incorrectly specified. See {help iebaltab:iebaltab help}.{p_end}"
+				* Test if width unit is correctly specified
+				local 	texcolwidth_unit = substr("`texcolwidth'",-2,2)
+				if 	!inlist("`texcolwidth_unit'","cm","mm","pt","in","ex","em") {
+					noi display as error `"{phang}Option texcolwidth is incorrectly specified. Column width unit must be one of "cm", "mm", "pt", "in", "ex" or "em". For more information, {browse "https://en.wikibooks.org/wiki/LaTeX/Lengths":check LaTeX lengths manual}.{p_end}"'
 					error 198
 				}
 				
-				* If comma, get width and varnames and test it
-				else {
-				
-					local 	multirow_width = substr("`multirow_options_to_tokenize'",1,`multirow_comma_pos'-1)
-					local 	multirow_varnames = substr("`multirow_options_to_tokenize'",`multirow_comma_pos'+1,.)
-					
-					* Test if width unit is correctly specified
-					local 	multirow_width_unit = substr("`multirow_width'",-2,2)
-					if 	!inlist("`multirow_width_unit'","cm","mm","pt","in","ex","em") {
-						noi display as error `"{phang}Option multirow is incorrectly specified. Column width unit must be one of "cm", "mm", "pt", "in", "ex" or "em". For more information, {browse "https://en.wikibooks.org/wiki/LaTeX/Lengths":check LaTeX lengths manual}.{p_end}"'
-						error 198
-					}
-					
-					* Test if width value is correctly specified
-					local 	multirow_width_value = subinstr("`multirow_width'","`multirow_width_unit'","",.)
-					capture confirm number `multirow_width_value' 
-					if _rc & inlist("`multirow_width_unit'","cm","mm","pt","in","ex","em") {
-						noi display as error "{phang}Option multirow is incorrectly specified. Column width value must be numeric. See {help iebaltab:iebaltab help}. {p_end}"
-						error 198
-					}
-					
-					* Test if width varnames is a list of variables
-					capture confirm variable `multirow_varnames'
-					if _rc {
-						noi display as error "{phang}At least one of the variables in multirow could not be found. See {help iebaltab:iebaltab help}. {p_end}"
-						error 198
-					}
-					
+				* Test if width value is correctly specified
+				local 	texcolwidth_value = subinstr("`texcolwidth'","`texcolwidth_unit'","",.)
+				capture confirm number `texcolwidth_value' 
+				if _rc & inlist("`texcolwidth_unit'","cm","mm","pt","in","ex","em") {
+					noi display as error "{phang}Option texcolwidth is incorrectly specified. Column width value must be numeric. See {help iebaltab:iebaltab help}. {p_end}"
+					error 198
+				}				
+			}
+			
+			if `TEXVSPACE_USED' {
+			
+				* Test if width unit is correctly specified
+				local 	vspace_unit = substr("`texvspace'",-2,2)
+				if 	!inlist("`vspace_unit'","cm","mm","pt","in","ex","em") {
+					noi display as error `"{phang}Option texvspace is incorrectly specified. Vertical space unit must be one of "cm", "mm", "pt", "in", "ex" or "em". For more information, {browse "https://en.wikibooks.org/wiki/LaTeX/Lengths":check LaTeX lengths manual}.{p_end}"'
+					error 198
 				}
 				
-				noi display as error "{phang}WARNING: tables created using option {it:multirow} will only be correctly displayed in LaTeX if the {it:multirow} package is loaded. {p_end}"
+				* Test if width value is correctly specified
+				local 	vspace_value = subinstr("`texvspace'","`vspace_unit'","",.)
+				capture confirm number `vspace_value' 
+				if _rc & inlist("`vspace_unit'","cm","mm","pt","in","ex","em") {
+					noi display as error "{phang}Option texvspace is incorrectly specified. Vertical space value must be numeric. See {help iebaltab:iebaltab help}. {p_end}"
+					error 198
+				}	
 			}
 		}
-		
-				
+						
 		* Error for incorrectly using tex options
-		else if `NOTEWIDTH_USED' | `LABEL_USED' | `CAPTION_USED' | `TEXDOC_USED' | `MULTIROW_USED' {
+		else if `NOTEWIDTH_USED' | `LABEL_USED' | `CAPTION_USED' | `TEXDOC_USED' | `TEXVSPACE_USED' | `TEXCOLWIDTH_USED' {
 	
-			noi display as error "{phang}Options texnotewidth, texdocument, texlabel, texcaption, and multirow may only be used in combination with option savetex(){p_end}"
+			noi display as error "{phang}Options texnotewidth, texdocument, texlabel, texcaption, texvspace and texcolwidth may only be used in combination with option savetex(){p_end}"
 			error 198
 		
 		}
@@ -1330,8 +1325,8 @@ qui {
 	*texfile
 		
 		*Count number of columns in table
-		if `MULTIROW_USED' == 0		local 		colstring	l
-		else						local 		colstring	p{`multirow_width'}
+		if `TEXCOLWIDTH_USED' == 0	local 		colstring	l
+		else						local 		colstring	p{`texcolwidth'}
 		
 		forvalues repeat = 1/`NUM_COL_GRP_TOT' {
 			
@@ -1367,12 +1362,6 @@ qui {
 				"% ----- Preamble " _n ///
 				"\usepackage[utf8]{inputenc}" _n ///
 				"\usepackage{adjustbox}" _n
-			
-			if `MULTIROW_USED' {
-				
-				file write `texname' "\usepackage{multirow}" _n
-				
-			}
 			
 			file write `texname' ///
 				"% ----- End of preamble " _n ///
@@ -1484,6 +1473,8 @@ qui {
 	
 	*** Create columns with means and sd for this row
 		
+		local tex_line_space	0pt
+		
 		foreach balancevar in `balancevars' {
 		
 			*Get the rowlabels prepared above one at the time
@@ -1496,14 +1487,11 @@ qui {
 			*Make sure special characters in variable labels are displayed correctly
 			local texrow_label : subinstr local row_label 	 "%"  "\%" , all
 			local texrow_label : subinstr local texrow_label "_"  "\_" , all
+			local texrow_label : subinstr local texrow_label "["  "{[}" , all
 			local texrow_label : subinstr local texrow_label "&"  "\&" , all 
 			local texrow_label : subinstr local texrow_label "\$"  "\\\\\\\\$" , all
 			
-			local texRowUp 		`""`texrow_label'""' 
-			local texRowDo 		`" "' 
-
-			local texMultirow	`""`texrow_label'""'			
-			
+			local texRow	`""`texrow_label'""'				
 			
 			*** Replacing missing value
 			
@@ -1551,6 +1539,9 @@ qui {
 					local 	N_clust_`groupNumber' 	= e(N_clust)
 					local 	N_clust_`groupNumber'  	: display %9.0f `N_clust_`groupNumber''	
 					local 	N_clust_`groupNumber' 	= trim("`N_clust_`groupNumber''")
+					local 	N_clust_`groupNumber' 	= "[`N_clust_`groupNumber'']"
+					local 	N_clustex_`groupNumber' = "{[}`N_clust_`groupNumber'']"
+
 				}
 				
 				*Load values from matrices into scalars
@@ -1579,17 +1570,14 @@ qui {
 				*Test that N is the same for each group across all vars
 				if `ONEROW_USED' == 0 {
 				
-					local 	tableRowUp  `"`tableRowUp' _tab "`N_`groupNumber''" 			_tab "`di_mean_`groupNumber''"  "'
-					local 	tableRowDo  `"`tableRowDo' _tab "[`N_clust_`groupNumber'']" 	_tab "[`di_var_`groupNumber'']"  "'
+					local 	tableRowUp  `"`tableRowUp' _tab "`N_`groupNumber''" 		_tab "`di_mean_`groupNumber''"  "'
+					local 	tableRowDo  `"`tableRowDo' _tab "`N_clust_`groupNumber''" 	_tab "[`di_var_`groupNumber'']"  "'
 
-					local 	texRowUp  	`"`texRowUp' " & `N_`groupNumber'' & `di_mean_`groupNumber''"  "'
-					local 	texRowDo  	`"`texRowDo' " & [`N_clust_`groupNumber''] & (`di_var_`groupNumber'')"  "'
-					
 					if `SHOW_NCLUSTER' == 0	{
-						local texMultirow 	`"`texMultirow' " & `N_`groupNumber'' & \multirow{2}{*}{\begin{tabular}{c}	`di_mean_`groupNumber'' \\ (`di_var_`groupNumber'') \end{tabular}}"  "'
+						local texRow 	`"`texRow' " & `N_`groupNumber'' & \begin{tabular}[t]{@{}c@{}} `di_mean_`groupNumber'' \\ (`di_var_`groupNumber'') \end{tabular}"  "'
 					}
 					if `SHOW_NCLUSTER' == 1	{
-						local texMultirow 	`"`texMultirow' " & \multirow{2}{*}{\begin{tabular}{c}	`N_`groupNumber'' \\ {[}`N_clust_`groupNumber''] \end{tabular}} & \multirow{2}{*}{\begin{tabular}{c}	`di_mean_`groupNumber'' \\ (`di_var_`groupNumber'') \end{tabular}}"  "'
+						local texRow 	`"`texRow' " & \begin{tabular}[t]{@{}c@{}} `N_`groupNumber'' \\ `N_clustex_`groupNumber'' \end{tabular} & \begin{tabular}[t]{@{}c@{}} `di_mean_`groupNumber'' \\ (`di_var_`groupNumber'') \end{tabular}"  "'
 					}					
 				}
 				else {
@@ -1628,10 +1616,7 @@ qui {
 					local 	tableRowUp  	`"`tableRowUp' _tab "`di_mean_`groupNumber''"  "'
 					local 	tableRowDo  	`"`tableRowDo' _tab "[`di_var_`groupNumber'']"  "'	
 						
-					local 	texRowUp  		`"`texRowUp' " & `di_mean_`groupNumber''"  "'
-					local 	texRowDo  		`"`texRowDo' " & (`di_var_`groupNumber'')"  "'	
-				
-					local 	texMultirow 	`"`texMultirow' " & \multirow{2}{*}{\begin{tabular}{c}	`di_mean_`groupNumber'' \\ (`di_var_`groupNumber'') \end{tabular}}"  "'
+					local 	texRow 		`"`texRow' " &  \begin{tabular}[t]{@{}c@{}} `di_mean_`groupNumber'' \\ (`di_var_`groupNumber'') \end{tabular}"  "'
 				}
 				
 			}
@@ -1649,6 +1634,8 @@ qui {
 					local 	N_clust_tot 	= e(N_clust)
 					local 	N_clust_tot  	: display %9.0f `N_clust_tot'	
 					local 	N_clust_tot  	= trim("`N_clust_tot'")	
+					local 	N_clust_tot  	= "[`N_clust_tot']"
+					local 	N_clustex_tot	= "{[}`N_clust_tot']"
 				}
 				
 				
@@ -1682,16 +1669,13 @@ qui {
 				if `ONEROW_USED' == 0 {
 				
 					local 	tableRowUp  `"`tableRowUp' _tab "`N_tot'" 			_tab "`mean_tot'"  "'
-					local 	tableRowDo  `"`tableRowDo' _tab "[`N_clust_tot']"  	_tab "[`var_tot']"  "'
+					local 	tableRowDo  `"`tableRowDo' _tab "`N_clust_tot'"  	_tab "[`var_tot']"  "'
 					
-					local 	texRowUp  	`"`texRowUp' " & `N_tot' & `mean_tot'"  "'
-					local 	texRowDo  	`"`texRowDo' " & [`N_clust_tot'] & (`var_tot')"  "'
-				
 					if `SHOW_NCLUSTER' == 0	{
-						local texMultirow 	`"`texMultirow' " & `N_tot' & \multirow{2}{*}{\begin{tabular}{c} `mean_tot' \\ (`var_tot') \end{tabular}}"  "'
+						local texRow 	`"`texRow' " & `N_tot' & \begin{tabular}[t]{@{}c@{}} `mean_tot' \\ (`var_tot') \end{tabular}"  "'
 					}
 					if `SHOW_NCLUSTER' == 1	{
-						local texMultirow 	`"`texMultirow' " & \multirow{2}{*}{\begin{tabular}{c}	`N_tot' \\ {[}`N_clust_tot'] \end{tabular}} & \multirow{2}{*}{\begin{tabular}{c} `mean_tot' \\ (`var_tot') \end{tabular}}"  "'
+						local texRow 	`"`texRow' " & \begin{tabular}[t]{@{}c@{}}	`N_tot' \\ `N_clustex_tot' \end{tabular} & \begin{tabular}[t]{@{}c@{}} `mean_tot' \\ (`var_tot') \end{tabular}"  "'
 					}
 				}
 				else {
@@ -1727,13 +1711,10 @@ qui {
 					
 					
 					*Either this is the first balance var or num obs are identical, so write columns
-					local 	tableRowUp  	`"`tableRowUp' _tab "`mean_tot'"  "'
-					local 	tableRowDo  	`"`tableRowDo' _tab "[`var_tot']"  "'	
+					local 	tableRowUp  `"`tableRowUp' _tab "`mean_tot'"  "'
+					local 	tableRowDo  `"`tableRowDo' _tab "[`var_tot']"  "'	
 					
-					local 	texRowUp  		`"`texRowUp' " & `mean_tot'"  "'
-					local 	texRowDo  		`"`texRowDo' " & (`var_tot')"  "'
-					
-					local 	texMultirow 	`"`texMultirow' " & \multirow{2}{*}{\begin{tabular}{c}	`mean_tot' \\ (`var_tot') \end{tabular}}"  "'
+					local 	texRow	 	`"`texRow' " & \begin{tabular}[t]{@{}c@{}}	`mean_tot' \\ (`var_tot') \end{tabular}"  "'
 				}
 			}		
 					
@@ -1788,10 +1769,7 @@ qui {
 					local tableRowUp	`" `tableRowUp' _tab "N/A" "'
 					local tableRowDo	`" `tableRowDo' _tab " " "'
 					
-					local texRowUp 		`" `texRowUp' " & N/A" "'
-					local texRowDo		`" `texRowDo' " &  " "'
-					
-					local texMultirow	`" `texMultirow' " & N/A" "'
+					local texRow		`" `texRow' " & N/A" "'
 					
 				}
 		
@@ -1826,10 +1804,7 @@ qui {
 					local tableRowUp 	`" `tableRowUp' _tab "`ttest_output'" "'
 					local tableRowDo 	`" `tableRowDo' _tab " " "'
 					
-					local texRowUp 	 	`" `texRowUp' " & `ttest_output'" "'
-					local texRowDo 	 	`" `texRowDo' " &  " "'
-					
-					local texMultirow	`" `texMultirow' " & `ttest_output'" "'
+					local texRow	`" `texRow' " & `ttest_output'" "'
 				}
 			}
 						
@@ -1841,27 +1816,14 @@ qui {
 				`tableRowDo' _n	
 			file close `textname'
 
-			if `MULTIROW_USED' == 0 {
-				file open  `texname' using "`texfile'", text write append
-				file write `texname' 	///
-					`texRowUp' " \\" _n	///
-					`texRowDo' " \\[4ex]"  _n
-				file close `texname'
-			}
+			file open  `texname' using "`texfile'", text write append
+			file write `texname' 	///
+				`texRow' " \rule{0pt}{`tex_line_space'}\\" _n	
+			file close `texname'
 			
-			if `MULTIROW_USED' == 1 {
-			
-				*Calculate line space 
-				local multirowVar = strpos("`multirow_varnames'","`balancevar'")
-				if `multirowVar' == 0 	local lineSpace  4ex
-				else					local lineSpace  4.4ex
-				
-				* Write line
-				file open  `texname' using "`texfile'", text write append
-				file write `texname' 	///
-					`texMultirow' " \\[`lineSpace']"  _n
-				file close `texname'
-			}
+			* We'll now add more space between the lines
+			if `TEXVSPACE_USED' == 0 	local tex_line_space	3ex
+			else						local tex_line_space	`texvspace'
 		}
 
 	
@@ -2419,7 +2381,7 @@ qui {
 	}
 	
 	*Calculate total number of columns
-	if `MULTIROW_USED' == 0 	local totalColNo = strlen("`colstring'")
+	if `TEXCOLWIDTH_USED' == 0 	local totalColNo = strlen("`colstring'")
 	else {
 		local colstrBracePos = strpos("`colstring'","}")
 		local nonLabelCols = substr("`colstring'",`colstrBracePos'+1,.)
