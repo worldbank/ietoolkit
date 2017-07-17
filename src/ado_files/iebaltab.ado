@@ -1539,9 +1539,8 @@ qui {
 					local 	N_clust_`groupNumber' 	= e(N_clust)
 					local 	N_clust_`groupNumber'  	: display %9.0f `N_clust_`groupNumber''	
 					local 	N_clust_`groupNumber' 	= trim("`N_clust_`groupNumber''")
-					local 	N_clust_`groupNumber' 	= "[`N_clust_`groupNumber'']"
 					local 	N_clustex_`groupNumber' = "{[}`N_clust_`groupNumber'']"
-
+					local 	N_clust_`groupNumber' 	= "[`N_clust_`groupNumber'']"
 				}
 				
 				*Load values from matrices into scalars
@@ -1634,8 +1633,8 @@ qui {
 					local 	N_clust_tot 	= e(N_clust)
 					local 	N_clust_tot  	: display %9.0f `N_clust_tot'	
 					local 	N_clust_tot  	= trim("`N_clust_tot'")	
-					local 	N_clust_tot  	= "[`N_clust_tot']"
 					local 	N_clustex_tot	= "{[}`N_clust_tot']"
+					local 	N_clust_tot  	= "[`N_clust_tot']"
 				}
 				
 				
@@ -1868,7 +1867,7 @@ qui {
 		file close `textname'
 		
 		file open  `texname' using "`texfile'", text write append
-		file write `texname' " `texRowN' \\" _n 		
+		file write `texname' " `texRowN' \rule{0pt}{`tex_line_space'} \\" _n 		
 		if "`vce_type'" == "cluster" file write `texname' " `texRowClstr' \\" _n 
 		file close `texname'
 	}
