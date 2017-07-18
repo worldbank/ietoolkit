@@ -72,7 +72,7 @@ details {help ieboilstart##comp:below}.
 {marker comp}{...}
 {title:Compatibility Across Different Stata:}
 
-{pstd}{cmdab:ieboilstart} sets settings that increases compatibility between Stata 11.0-14.1, Stata Small/IC/SE/MP and Stata for	PC/Mac/Linux. {it:Increase compatibility} does not mean an absolute guarantee that all code will always
+{pstd}{cmdab:ieboilstart} sets settings that increases compatibility between Stata 11.0-15.0, Stata Small/IC/SE/MP and Stata for	PC/Mac/Linux. {it:Increase compatibility} does not mean an absolute guarantee that all code will always
 	work the same in different types of Stata. That is technically impossible. {it:Increase compatibility} here means reducing the risk of code working differently in different types of Stata.
 
 {pstd}{cmdab:ieboilstart} does sometimes apply different settings for different users as all settings does not work for all versions and types of Stata. For example, new memory settings were introduced in Stata 12 and {inp:set maxvar} is not allowed in Stata IC. {cmdab:ieboilstart} is implemented to set the settings in each version and type of Stata that reduces the risk of errors when different users run the same code, but the only way to eliminate the risk completely, is to use exactly the same version of Stata.
@@ -171,12 +171,12 @@ details {help ieboilstart##comp:below}.
 	risk that there are far too big a difference in many commands. Best
 	practice is therefore to keep the same version number throughout a project,
 	unless there is something specific to a newer version that is required for any
-	dofile. Only major and recent	versions are allowed in order to reduce errors and
-	complexity. The valid versions	are 11.0, 11.1, 11.2, 12.0, 12.1, 13.0, 13.1,
-	14.0 and 14.1. All versions of Stata can be set to run any older version of Stata
-	but not a newer. It is recommended to use a .1 over a .0 version. .1 is free
-	of charge	if you already have the corresponding .0 and .1 includes bug fixes to the
-	functions introduced in .0.{p_end}
+	dofile. Only major and recent versions are allowed in order to reduce errors and
+	complexity. The valid versions are 11.0, 11.1, 11.2, 12.0, 12.1, 13.0, 13.1,
+	14.0, 14.1, 14.2, 15.0 and all versions without decimals. However, it is recommended 
+	to use a .1 over a .0 version. .1 is free of charge if you already have the 
+	corresponding .0 and .1 includes bug fixes to the functions introduced in .0.
+	All versions of Stata can be set to run any older version of Stata but not a newer. {p_end}
 
 {phang}{cmdab:maxvar(}{it:numlist}{cmd:)} manually sets the maximum number of
 	variables allowed in a data set. The default is to set the number to the highest
