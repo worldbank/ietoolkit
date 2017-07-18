@@ -1,4 +1,4 @@
-# How to contribute
+# How to contribute:
 If you are familiar with how GitHub works, please feel free to make a fork and submit a pull request for any additions you want to make, but please read the **ietoolkit contribution conventions** section below first. If you are new to GitHub, start by reading the **Bug reports and feature requests** section below. 
 
 ## Bug reports and feature requests
