@@ -948,11 +948,13 @@ cap program drop 	mdofle_p3
 			file write  `subHandle' 	_n ///
 				_col(4)"**Set the locals corresponding to the taks you want" _n ///
 				_col(4)"* run to 1. To not run a task, set the local to 0." _n ///
-				_col(4)"local cleaningDo" _col(25) "1" _n ///
-				_col(4)"local constructDo" _col(25) "1" _n ///
-				_col(4)"local analysisDo" _col(25) "1" _n ///
+				_col(4)"local importDo" _col(25) "0" _n ///
+				_col(4)"local cleaningDo" _col(25) "0" _n ///
+				_col(4)"local constructDo" _col(25) "0" _n ///
+				_col(4)"local analysisDo" _col(25) "0" _n ///
 			
 			*Create the references to the high level task 
+			highLevelTask `subHandle'  "`rndName'" "`rnd'" "import"
 			highLevelTask `subHandle'  "`rndName'" "`rnd'" "cleaning"
 			highLevelTask `subHandle'  "`rndName'" "`rnd'" "construct"
 			highLevelTask `subHandle'  "`rndName'" "`rnd'" "analysis"
@@ -973,10 +975,23 @@ cap program drop 	highLevelTask
 		
 		di "highLevelTask start"
 		
+		*Import folder is in differnt location, in the encrypted folder
+		if "`task'" != "import" {
+			
+			*The location of all the task master dofile apart from import master
+			local taskdo_fldr "`rnd'_do"
+		}
+		else {
+			
+			**The import master dofile is in the encryption folder as it is 
+			* likely to have identifying information
+			local taskdo_fldr "`rnd'_doImp"
+		}
+		
 		*Write section where task master files are called
 		file write  `roundHandle' 	_n ///
 			_col(4)"if (" _char(96) "`task'Do' == 1) { //Change the local above to run or not to run this file" _n ///
-			_col(8) `"do ""' _char(36) `"`rnd'_do/`rnd'_`task'_MasterDofile.do" "' _n ///
+			_col(8) `"do ""' _char(36) `"`taskdo_fldr'/`rnd'_`task'_MasterDofile.do" "' _n ///
 			_col(4)"}" _n
 		
 		*Create the task dofiles
@@ -1003,10 +1018,18 @@ cap program drop 	highLevelTaskMasterDofile
 		*Closing the new main master dofile handle
 		file close 		`taskHandle'
 
-		*Copy the new master dofile from the tempfile to the original position
-		copy "`taskTextFile'"  "${`rnd'_do}/`rnd'_`task'_MasterDofile.do" , replace
-		
+		*Import folder is in differnt location, in the encrypted folder
+		if "`task'" != "import" {
 			
+			*Copy the new task master dofile from the tempfile to the original position
+			copy "`taskTextFile'"  "${`rnd'_do}/`rnd'_`task'_MasterDofile.do" , replace
+		}
+		else {
+		
+			*Copy the import task master do file in to the Dofile import folder. 
+			copy "`taskTextFile'"  "${`rnd'_doImp}/`rnd'_`task'_MasterDofile.do" , replace		
+		}
+				
 end		
 		
 cap program drop 	mdofle_task
@@ -1014,9 +1037,15 @@ cap program drop 	mdofle_task
 		
 		args subHandle rndName rnd task
 		
+		**Create local with round name and task in 
+		* upper case for the titel of the master dofile
 		local caps = upper("`rndName' `task'")
 		
+		*Differnt global suffix for different tasks
 		local suffix 
+		if "`task'" == "import" {
+			local suffix "_doImp"
+		}
 		if "`task'" == "cleaning" {
 			local suffix "_doCln"
 		}
@@ -1047,7 +1076,7 @@ cap program drop 	mdofle_task
 			_col(4)"*" _col(60) "*" _n ///
 			
 		
-		*Create the sections that calls each tast dofile.
+		*Create the sections with placeholders for each dofile for this task
 		mdofle_task_dosection `subHandle' "`rnd'" "`task'" "`suffix'" 1
 		mdofle_task_dosection `subHandle' "`rnd'" "`task'" "`suffix'" 2
 		mdofle_task_dosection `subHandle' "`rnd'" "`task'" "`suffix'" 3
@@ -1055,12 +1084,13 @@ cap program drop 	mdofle_task
 	file write  `subHandle' ///
 		_col(4)"* ************************************" _n ///
 		_col(4)"*" _col(8) "Keep adding sections for all additional dofiles needed" _n ///
-		
-		
+			
 end
 
 cap program drop 	mdofle_task_dosection
 	program define	mdofle_task_dosection
+	
+	*Write the task master do-file section
 	
 	args subHandle rnd task suffix number
 	
