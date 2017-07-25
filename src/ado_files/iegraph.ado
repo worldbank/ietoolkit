@@ -359,23 +359,32 @@ cap	program drop	iegraph
 		*From the max of mean values and conf_int_max values.
 		sum maxvalue
 		local max = `r(max)'
+		local min = `r(min)'
 		
 		*Log10 of the Max value to find the order necessary.
 		local logmax = log10(`max')
 		local logmax = round(`logmax') - 1
+		local logmin = log10(`min')
+		local logmin = round(`logmin') - 1
 		
 		*Generating tenpower which is 1 order smaller than the max value,
 		*so we can log to that. 
 		local tenpower = 10 ^ (`logmax')
+		local tenpower_min = 10 ^ (`logmin')
 		
 		*Rounding up for max value.
 		local up = `tenpower' * ceil(`max' / `tenpower')
+		local down = `tenpower_min' * floor(`min'/`tenpower')
 		
 		*Generating quarter value for y-axis markers.
 		local quarter = (`up') / 4
 		
 		*Specifying the option itself. 
-		local yzero_option ylabel(0(`quarter')`up')
+		if `r(max)' > 0 & `r(min)'> 0 { 
+				local yzero_option ylabel(0(`quarter')`up')
+		}
+			else {
+			local yzero_option ylabel(`down'(`quarter')0)
 	}
 
 	*******************************************************************************
