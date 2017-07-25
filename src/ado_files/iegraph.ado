@@ -338,15 +338,13 @@ cap	program drop	iegraph
 	* This is useful if the minimum value is less than 0, and
 	* y-zero is used. 
 	
-	gen minvalue = min(mean, conf_int_min, conf_int_max, coeff)
+	gen minvalue = min(mean, conf_int_min, conf_int_max)
 	sum minvalue
-	di `r(min)'
 	
 	*Finding the max value that is needed in the Y-axis. 
 		
-	gen maxvalue = max(mean , conf_int_max, coeff, conf_int_min)
+	gen maxvalue = max(mean , conf_int_max, conf_int_min)
 	sum maxvalue 
-	di `r(max)'
 		
 	local signcheck = ((`r(max)' * `r(min)') >= 0)
 		
@@ -359,32 +357,39 @@ cap	program drop	iegraph
 		*From the max of mean values and conf_int_max values.
 		sum maxvalue
 		local max = `r(max)'
-		local min = `r(min)'
+		sum minvalue
+		local min = abs(`r(min)')
 		
 		*Log10 of the Max value to find the order necessary.
 		local logmax = log10(`max')
 		local logmax = round(`logmax') - 1
-		local logmin = log10(`min')
+		
+		local logmin = (log10(`min'))
 		local logmin = round(`logmin') - 1
 		
 		*Generating tenpower which is 1 order smaller than the max value,
 		*so we can log to that. 
 		local tenpower = 10 ^ (`logmax')
-		local tenpower_min = 10 ^ (`logmin')
+		local tenpower_min = (10 ^ `logmin') 
 		
 		*Rounding up for max value.
 		local up = `tenpower' * ceil(`max' / `tenpower')
-		local down = `tenpower_min' * floor(`min'/`tenpower')
+		local down = `tenpower_min' * (ceil(`min'/ `tenpower_min'))
 		
 		*Generating quarter value for y-axis markers.
 		local quarter = (`up') / 4
 		
+		local quarter_min = (`down') / 4
+		
+		local down = `down' * (-1)
+		
 		*Specifying the option itself. 
-		if `r(max)' > 0 & `r(min)'> 0 { 
-				local yzero_option ylabel(0(`quarter')`up')
+		if `r(max)' > 0 & `r(min)' > 0 { 
+			local yzero_option ylabel(0(`quarter')`up')
 		}
 			else {
-			local yzero_option ylabel(`down'(`quarter')0)
+			local yzero_option ylabel(`down'(`quarter_min')0)
+		}
 	}
 
 	*******************************************************************************
@@ -393,7 +398,7 @@ cap	program drop	iegraph
 	
 	*Store all the options in one local
 	local commandline 		`" `tmtGroupBars' `confIntGraph' `titleOption'  `legendOption' `xAxisLabels' title("`basictitle'") `yzero_option' `options'  "'
-	
+	noi di `"`commandline'"'
 	*Error message used in both save-option cases below.
 	local graphErrorMessage `" Something went wrong while trying to generate the graph. Click {stata di r(cmd) :display graph options } to see what graph options iegraph used. This can help in locating the source of the error in the command. "'
 	
