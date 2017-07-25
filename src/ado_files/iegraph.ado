@@ -1,7 +1,7 @@
 *! version 5.1 31MAY2017  Kristoffer Bjarkefur kbjarkefur@worldbank.org
 	
-cap	program drop	iegraph2
-	program define 	iegraph2 , rclass
+cap	program drop	iegraph
+	program define 	iegraph , rclass
 	
 	syntax varlist, [noconfbars BASICTItle(string) save(string) confbarsnone(varlist) 	///
 						confintval(numlist min=1 max=1 >0 <1) VARLabels BAROPTions(string) norestore  	///
@@ -193,8 +193,7 @@ cap	program drop	iegraph2
 		
 		*Caculating confidnece interval
 		scalar  conf_int_min_`var'   =	(coeff_`var'-(`tstats'*coeff_se_`var') + ctl_mean) 
-		scalar  conf_int_max_`var'   =	(coeff_`var'+(`tstats'*coeff_se_`var') + ctl_mean)
-
+		scalar  conf_int_max_`var'   =	(coeff_`var'+(`tstats'*coeff_se_`var') + ctl_mean) 
 		**Assigning stars to the treatment vars.
 		
 		*Perform the test to get p-values
@@ -339,23 +338,22 @@ cap	program drop	iegraph2
 	* This is useful if the minimum value is less than 0, and
 	* y-zero is used. 
 	
-	gen minvalue = min(mean, conf_int_min, coeff)
-	sum minvalue
-	noi di minvalue 
+	gen minvalue = min(mean, conf_int_min, conf_int_max, coeff)
+	
 	*Finding the max value that is needed in the Y-axis. 
 		
 	gen maxvalue = max(mean , conf_int_max, coeff, conf_int_min)
-	sum maxvalue 
-	noi di maxvalue 
-
-	if  ("`yzero'" != "" & (minvalue > 0 & maxvalue < 0)) | ("`yzero'" != "" & (maxvalue > 0 & minvalue < 0 )) {
-		*noi di as ("red") "WARNING:"
+	
+	local signcheck = ((`r(max)' * `r(min)') > 0)
+		
+	if  ("`yzero'" != "" & `signcheck' == 0 ) {
+		noi di in red "WARNING:"
 		noi di "{pstd} Some values are positive and some values are negative, yzero option will be ignored. {p_end}"
 	}
-	else if ( "`yzero'" != "" & (minvalue > 0 & maxvalue > 0)) | ("`yzero'" != "" & (minvalue < 0 & maxvalue < 0))  {
+	else if ( "`yzero'" != "" & `signcheck' == 1 )  {
 		
 		*From the max of mean values and conf_int_max values.
-		sum maxvalue
+		noi sum maxvalue
 		local max = `r(max)'
 		
 		*Log10 of the Max value to find the order necessary.
