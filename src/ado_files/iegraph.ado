@@ -339,11 +339,15 @@ cap	program drop	iegraph
 	* y-zero is used. 
 	
 	gen minvalue = min(mean, conf_int_min, conf_int_max, coeff)
+	sum minvalue
+	di `r(min)'
 	
 	*Finding the max value that is needed in the Y-axis. 
 		
 	gen maxvalue = max(mean , conf_int_max, coeff, conf_int_min)
-	
+	sum maxvalue 
+	di `r(max)'
+		
 	local signcheck = ((`r(max)' * `r(min)') > 0)
 		
 	if  ("`yzero'" != "" & `signcheck' == 0 ) {
@@ -353,7 +357,7 @@ cap	program drop	iegraph
 	else if ( "`yzero'" != "" & `signcheck' == 1 )  {
 		
 		*From the max of mean values and conf_int_max values.
-		noi sum maxvalue
+		sum maxvalue
 		local max = `r(max)'
 		
 		*Log10 of the Max value to find the order necessary.
