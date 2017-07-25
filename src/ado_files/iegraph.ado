@@ -1,7 +1,7 @@
 *! version 5.1 31MAY2017  Kristoffer Bjarkefur kbjarkefur@worldbank.org
 	
-cap	program drop	iegraph
-	program define 	iegraph , rclass
+cap	program drop	iegraph2
+	program define 	iegraph2 , rclass
 	
 	syntax varlist, [noconfbars BASICTItle(string) save(string) confbarsnone(varlist) 	///
 						confintval(numlist min=1 max=1 >0 <1) VARLabels BAROPTions(string) norestore  	///
@@ -335,6 +335,12 @@ cap	program drop	iegraph
 	*******************************************************************************
 	*** Generating the graph axis labels for the y-zero option used..
 	*******************************************************************************
+	**Checking to verify if the minimum value is less than 0.
+	* This is useful if the minimum value is less than 0, and
+	* y-zero is used. 
+	
+	gen minvalue = min(mean, conf_int_min)
+	sum minvalue
 	
 	if "`yzero'" != "" {
 		
