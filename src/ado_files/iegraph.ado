@@ -1,7 +1,7 @@
 *! version 5.1 31MAY2017  Kristoffer Bjarkefur kbjarkefur@worldbank.org
 	
-cap	program drop	iegraph2
-	program define 	iegraph2 , rclass
+cap	program drop	iegraph
+	program define 	iegraph , rclass
 	
 	syntax varlist, [noconfbars BASICTItle(string) save(string) confbarsnone(varlist) 	///
 						confintval(numlist min=1 max=1 >0 <1) VARLabels BAROPTions(string) norestore  	///
@@ -336,43 +336,31 @@ cap	program drop	iegraph2
 	*** Generating the graph axis labels for the y-zero option used..
 	*******************************************************************************
 	
-	**Checking to verify if the minimum value is less than 0.
-	* This is useful if the minimum value is less than 0, and
-	* y-zero is used. 
-	
-	gen minvalue = min(mean, conf_int_min)
-	noi di minvalue
-	sum minvalue 
-	noi di minvalue
-	
-	if minvalue < 0 & "`yzero'" != "" {
-		noi di "Some values are positive and some values are negative, yzero option will be ignored."
-	}
-		else if "`yzero'" != "" & minvalue > 0{
-			
-			*Finding the max value that is needed in the Y-axis. 
-			gen maxvalue = max(mean , conf_int_max)
-			sum maxvalue 
-			
-			*From the max of mean values and conf_int_max values.
-			local max = `r(max)'
-			
-			*Log10 of the Max value to find the order necessary.
-			local logmax = log10(`max')
-			local logmax = round(`logmax') - 1
-			
-			*Generating tenpower which is 1 order smaller than the max value,
-			*so we can log to that. 
-			local tenpower = 10 ^ (`logmax')
-			
-			*Rounding up for max value.
-			local up = `tenpower' * ceil(`max' / `tenpower')
-			
-			*Generating quarter value for y-axis markers.
-			local quarter = (`up') / 4
-			
-			*Specifying the option itself. 
-			local yzero_option ylabel(0(`quarter')`up')
+	if "`yzero'" != "" {
+		
+		*Finding the max value that is needed in the Y-axis. 
+		gen maxvalue = max(mean , conf_int_max)
+		sum maxvalue 
+		
+		*From the max of mean values and conf_int_max values.
+		local max = `r(max)'
+		
+		*Log10 of the Max value to find the order necessary.
+		local logmax = log10(`max')
+		local logmax = round(`logmax') - 1
+		
+		*Generating tenpower which is 1 order smaller than the max value,
+		*so we can log to that. 
+		local tenpower = 10 ^ (`logmax')
+		
+		*Rounding up for max value.
+		local up = `tenpower' * ceil(`max' / `tenpower')
+		
+		*Generating quarter value for y-axis markers.
+		local quarter = (`up') / 4
+		
+		*Specifying the option itself. 
+		local yzero_option ylabel(0(`quarter')`up')
 	}
 
 	*******************************************************************************
