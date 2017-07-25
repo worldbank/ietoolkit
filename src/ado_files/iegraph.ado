@@ -334,6 +334,7 @@ cap	program drop	iegraph
 	*******************************************************************************
 	*** Generating the graph axis labels for the y-zero option used..
 	*******************************************************************************
+	
 	**Checking to verify if the minimum value is less than 0.
 	* This is useful if the minimum value is less than 0, and
 	* y-zero is used. 
@@ -345,34 +346,40 @@ cap	program drop	iegraph
 		
 	gen row_maxvalue = max(mean , conf_int_max, conf_int_min)
 	sum row_maxvalue 
-		
-	local signcheck = ((`r(max)' * `r(min)') >= 0)
-	local negative	=  (`r(max)' < 0)
-		
-	if  ("`yzero'" != "" & `signcheck' == 0 ) {
-		noi di in red "WARNING:"
-		noi di "{pstd} Some values are positive and some values are negative, yzero option will be ignored. {p_end}"
-	}
-	else if ( "`yzero'" != "" & `signcheck' == 1 )  {
 	
+	*Locals used for logic below
+	local signcheck = ((`r(max)' * `r(min)') >= 0) 	// dummy local for both signs the same (positive or negative)
+	local negative	=  (`r(max)' <= 0)				// dummy for max value still negative (including 0)
+	
+	**If yzero() is used and min and max does not have 
+	* the same sign, then the yzero() is not applicable.
+	if  ("`yzero'" != "" & `signcheck' == 0 ) {
+		noi di "{pstd}{error:WARNING:} Some values are positive and some values are negative, yzero option will be ignored. {p_end}"
+	}
+	*Yzero is used and applicable
+	else {
+		
+		*Get max value if only postive values
 		if (`negative' == 0) { 
 		
 			*From the max of mean values and conf_int_max values.
 			sum row_maxvalue
 			local absMax = `r(max)'
 		}
+		
+		*Get absolute min (will convert back below) if only negative values
 		else {
+			
 			sum row_minvalue
 			local absMax = abs(`r(min)')
 		}
 		
 		*Log10 of the Max value to find the order necessary.
-		local logAbsMax = log10(`absMax')
-		local logAbsMax = round(`logAbsMax') - 1
+		local logAbsMax = round(log10(`absMax'))
 		
 		*Generating tenpower which is 1 order smaller than the max value,
 		*so we can log to that. 
-		local tenpower = 10 ^ (`logAbsMax')
+		local tenpower = 10 ^ (`logAbsMax' - 1 )
 		
 		*Rounding up for max value.
 		local absMax = `tenpower' * ceil(`logAbsMax' / `tenpower')
@@ -380,14 +387,15 @@ cap	program drop	iegraph
 		*Generating quarter value for y-axis markers.
 		local quarter = (`absMax') / 4
 		
-		*Specifying the option itself. 
+		**Constuct the option to be applied to 
+		* the graph using the values calculated
 		if (`negative' == 0)  { 
 		
 			local yzero_option ylabel(0(`quarter')`up')
 		}
 		else {
 			
-			local absMax = `absMax' * (-1)
+			local absMax = `absMax' * (-1) //Convert back to negative
 			local yzero_option ylabel(`absMax'(`quarter')0)
 		}
 	}
