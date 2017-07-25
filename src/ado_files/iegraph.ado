@@ -348,7 +348,7 @@ cap	program drop	iegraph
 	sum maxvalue 
 	di `r(max)'
 		
-	local signcheck = ((`r(max)' * `r(min)') > 0)
+	local signcheck = ((`r(max)' * `r(min)') >= 0)
 		
 	if  ("`yzero'" != "" & `signcheck' == 0 ) {
 		noi di in red "WARNING:"
