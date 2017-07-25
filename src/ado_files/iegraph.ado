@@ -338,57 +338,57 @@ cap	program drop	iegraph
 	* This is useful if the minimum value is less than 0, and
 	* y-zero is used. 
 	
-	gen minvalue = min(mean, conf_int_min, conf_int_max)
-	sum minvalue
+	gen row_minvalue = min(mean, conf_int_min, conf_int_max)
+	sum row_minvalue
 	
 	*Finding the max value that is needed in the Y-axis. 
 		
-	gen maxvalue = max(mean , conf_int_max, conf_int_min)
-	sum maxvalue 
+	gen row_maxvalue = max(mean , conf_int_max, conf_int_min)
+	sum row_maxvalue 
 		
 	local signcheck = ((`r(max)' * `r(min)') >= 0)
+	local negative	=  (`r(max)' < 0)
 		
 	if  ("`yzero'" != "" & `signcheck' == 0 ) {
 		noi di in red "WARNING:"
 		noi di "{pstd} Some values are positive and some values are negative, yzero option will be ignored. {p_end}"
 	}
 	else if ( "`yzero'" != "" & `signcheck' == 1 )  {
+	
+		if (`negative' == 0) { 
 		
-		*From the max of mean values and conf_int_max values.
-		sum maxvalue
-		local max = `r(max)'
-		sum minvalue
-		local min = abs(`r(min)')
+			*From the max of mean values and conf_int_max values.
+			sum row_maxvalue
+			local absMax = `r(max)'
+		}
+		else {
+			sum row_minvalue
+			local absMax = abs(`r(min)')
+		}
 		
 		*Log10 of the Max value to find the order necessary.
-		local logmax = log10(`max')
-		local logmax = round(`logmax') - 1
-		
-		local logmin = (log10(`min'))
-		local logmin = round(`logmin') - 1
+		local logAbsMax = log10(`absMax')
+		local logAbsMax = round(`logAbsMax') - 1
 		
 		*Generating tenpower which is 1 order smaller than the max value,
 		*so we can log to that. 
-		local tenpower = 10 ^ (`logmax')
-		local tenpower_min = (10 ^ `logmin') 
+		local tenpower = 10 ^ (`logAbsMax')
 		
 		*Rounding up for max value.
-		local up = `tenpower' * ceil(`max' / `tenpower')
-		local down = `tenpower_min' * (ceil(`min'/ `tenpower_min'))
+		local absMax = `tenpower' * ceil(`logAbsMax' / `tenpower')
 		
 		*Generating quarter value for y-axis markers.
-		local quarter = (`up') / 4
-		
-		local quarter_min = (`down') / 4
-		
-		local down = `down' * (-1)
+		local quarter = (`absMax') / 4
 		
 		*Specifying the option itself. 
-		if `r(max)' > 0 & `r(min)' > 0 { 
+		if (`negative' == 0)  { 
+		
 			local yzero_option ylabel(0(`quarter')`up')
 		}
-			else {
-			local yzero_option ylabel(`down'(`quarter_min')0)
+		else {
+			
+			local absMax = `absMax' * (-1)
+			local yzero_option ylabel(`absMax'(`quarter')0)
 		}
 	}
 
