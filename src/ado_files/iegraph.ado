@@ -335,68 +335,86 @@ cap	program drop	iegraph
 	*** Generating the graph axis labels for the y-zero option used..
 	*******************************************************************************
 	
-	**Checking to verify if the minimum value is less than 0.
-	* This is useful if the minimum value is less than 0, and
-	* y-zero is used. 
-	
-	gen row_minvalue = min(mean, conf_int_min, conf_int_max)
-	sum row_minvalue
-	
-	*Finding the max value that is needed in the Y-axis. 
+	*Calculations needed if yzero used
+	if  ("`yzero'" != "" ) {	
 		
-	gen row_maxvalue = max(mean , conf_int_max, conf_int_min)
-	sum row_maxvalue 
-	
-	*Locals used for logic below
-	local signcheck = ((`r(max)' * `r(min)') >= 0) 	// dummy local for both signs the same (positive or negative)
-	local negative	=  (`r(max)' <= 0)				// dummy for max value still negative (including 0)
-	
-	**If yzero() is used and min and max does not have 
-	* the same sign, then the yzero() is not applicable.
-	if  ("`yzero'" != "" & `signcheck' == 0 ) {
-		noi di "{pstd}{error:WARNING:} Some values are positive and some values are negative, yzero option will be ignored. {p_end}"
-	}
-	*Yzero is used and applicable
-	else {
+		**Testing if yzero is applicable
+		********************************
 		
-		*Get max value if only postive values
-		if (`negative' == 0) { 
+		**Yzero is only applicable if all values used in the graph 
+		* are all negative or all postive. If there is a mix, then  
+		* the yzero option will be ignored
 		
-			*From the max of mean values and conf_int_max values.
-			sum row_maxvalue
-			local absMax = `r(max)'
-		}
+		*Finding the min value for all values used in the graph
+		gen row_minvalue = min(mean, conf_int_min, conf_int_max)
+		sum row_minvalue
+		local min_value `r(min)'
 		
-		*Get absolute min (will convert back below) if only negative values
-		else {
+		*Finding the min value for all values used in the graph	
+		gen row_maxvalue = max(mean , conf_int_max, conf_int_min)
+		sum row_maxvalue 
+		local max_value `r(max)'
+		
+		*Locals used for logic below
+		noi di "local signcheck = ((`r(max)' * `r(min)') >= 0) "
+		local signcheck = ((`max_value' * `min_value') >= 0) 	// dummy local for both signs the same (positive or negative)
+		local negative	=  (`max_value' <= 0)				// dummy for max value still negative (including 0)
+		
+		**If yzero() is used and min and max does not have 
+		* the same sign, then the yzero() is not applicable.
+		
+		if (`signcheck' == 0 ) {
+		
+		**** yzero is NOT applicable and will be ignored
+		*************************************************			
 			
-			sum row_minvalue
-			local absMax = abs(`r(min)')
-		}
-		
-		*Log10 of the Max value to find the order necessary.
-		local logAbsMax = round(log10(`absMax'))
-		
-		*Generating tenpower which is 1 order smaller than the max value,
-		*so we can log to that. 
-		local tenpower = 10 ^ (`logAbsMax' - 1 )
-		
-		*Rounding up for max value.
-		local absMax = `tenpower' * ceil(`logAbsMax' / `tenpower')
-		
-		*Generating quarter value for y-axis markers.
-		local quarter = (`absMax') / 4
-		
-		**Constuct the option to be applied to 
-		* the graph using the values calculated
-		if (`negative' == 0)  { 
-		
-			local yzero_option ylabel(0(`quarter')`up')
+			noi di "{pstd}{error:WARNING:} Option yzero will be ignored as the graph has values both on the the positve and negative part of the y-axis. This only affects formatting of the graph. See helpfile for more details.{p_end}"
 		}
 		else {
+		
+		**** yzero is applicable and will be used
+		*****************************************		
 			
-			local absMax = `absMax' * (-1) //Convert back to negative
-			local yzero_option ylabel(`absMax'(`quarter')0)
+			*Get max value if only postive values
+			if (`negative' == 0) { 
+			
+				sum row_maxvalue
+				local absMax = `max_value'
+			}
+			
+			*Get absolute min (will convert back below) if only negative values
+			else {
+				
+				sum row_minvalue
+				local absMax = abs(`min_value')
+			}
+			
+			*Log10 of the Max value to find the order necessary, rounded up to the nearest 
+			local logAbsMax = ceil(log10(`absMax'))
+			
+			*Generating tenpower which is 1 order smaller than the max value,
+			*so we can log to that. 
+			local absMax = 10 ^ (`logAbsMax')
+			noi di "local tenpower = 10 ^ (`logAbsMax')"
+			
+			*Rounding up for max value.
+			*local absMax = `tenpower' * ceil(`logAbsMax' / `tenpower')
+			noi di "local absMax = `absMax' * ceil(`logAbsMax' / `absMax')"
+			
+			*Generating quarter value for y-axis markers.
+			local quarter = (`absMax') / 4
+			
+			**Constuct the option to be applied to 
+			* the graph using the values calculated
+			if (`negative' == 0)  { 
+			
+				local yzero_option ylabel(0(`quarter')`absMax')
+			}
+			else {
+				
+				local absMax = `absMax' * (-1) //Convert back to negative
+				local yzero_option ylabel(`absMax'(`quarter')0)
+			}
 		}
 	}
 
@@ -406,7 +424,7 @@ cap	program drop	iegraph
 	
 	*Store all the options in one local
 	local commandline 		`" `tmtGroupBars' `confIntGraph' `titleOption'  `legendOption' `xAxisLabels' title("`basictitle'") `yzero_option' `options'  "'
-	noi di `"`commandline'"'
+	
 	*Error message used in both save-option cases below.
 	local graphErrorMessage `" Something went wrong while trying to generate the graph. Click {stata di r(cmd) :display graph options } to see what graph options iegraph used. This can help in locating the source of the error in the command. "'
 	
