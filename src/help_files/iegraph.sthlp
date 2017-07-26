@@ -103,7 +103,7 @@ help for {hi:iegraph}
 	your data. The command will ignore the {cmdab:yzero} option in cases where the graph cannot
 	be forced to zero i.e. where the values in the graph extend beyond zero, both positively
 	or negatively. A warning will be displayed telling the user that the option has 
-	been ignored.{p_end}
+	been ignored. Despite the warning, the graph will be produced correctly.{p_end}
 	
 {phang}{cmd:noconfbars} Removes the confidence interval bars from graphs for all 
 	treatments. The default value for the confidence interval bars is 95%. {p_end}
