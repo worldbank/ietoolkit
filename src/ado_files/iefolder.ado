@@ -207,6 +207,8 @@ cap program drop 	iefolder_newProject
 
 		*Write section that runs sub-master dofiles
 		mdofle_p3 `newHandle' project		
+		mdofle_p3 `newHandle' project	
+		
 		
 end 
 
@@ -857,39 +859,12 @@ cap program drop 	mdofle_p2
 		*Write devisor starting standardization globals section
 		writeDevisor  `subHandle' 2 StandardGlobals		
 		
-		file write  `subHandle' 	///
-			_col(4)"* ******************************************************************** *" _n 	///
-			_col(4)"*" _n 																			///	
-			_col(4)"*" _col(12) "PART 2: - SET STANDARDIZATION GLOBALS AND OTHER CONSTANTS" _n 		///
-			_col(4)"*" _n 																			///			
-			_col(4)"*" _col(16) "-Set globals with numbers or lists of " _n 						///
-			_col(4)"*" _col(17) "variables that is supposed to stay the" _n 						/// 
-			_col(4)"*" _col(17) "same across the project." _n 										/// 
-			_col(4)"*" _n 																			///	
-			_col(4)"* ******************************************************************** *" _n
-							
-		file write  `subHandle' 																	///
-			_n 																						///	
-			_col(4)"* Set all conversion rates used in unit standardization " _n 					///
-			_col(4)"* accross the whole project here. " _n 											///
-			_n 																						///
-			_col(4)"**Example. Expand this section with globals for all constant" _n 				///
-			_col(4)"* scalars used in this project. Reference these globals instead" _n 			///
-			_col(4)"* of hardcode values each time constant converstion rates are used." _n 		///
-			_col(4)"*Standardizing to meters" _n 													///
-			_n 																						///	
-			_col(4)"global foot" _col(20) "= 0.3048" _n 											///
-			_col(4)"global mile" _col(20) "= 1609.34" _n 											///
-			_col(4)"global km" 	 _col(20) "= 1000" _n 												///
-			_n 																						/// 
-			_col(4)"**Other examples to be included here could be regression controls" _n 			///
-			_col(4)"* used across the project. Everything that is constant may be" _n 				///
-			_col(4)"* included here. One example of something not constant that should" _n 			///
-			_col(4)"* be included here is exchange rates. It is best practice to have one" _n 		///
-			_col(4)"* global with the exchange rate here, and reference this each time a" _n 		///
-			_col(4)"* currency conversion is done. If the currency exchange rate needs to be" _n 	///
-			_col(4)"* updated, then it only has to be done at one place for the whole project." _n 	///
-			_n
+		file write  `roundHandle' 	_n ///
+			_col(4)"* Set all non-folder path globals that are constant accross" _n ///
+			_col(4)"* the project. Examples are conversion rates used in unit" _n  	///		
+			_col(4)"* standardization, differnt set of control variables," _n 		///		
+			_col(4)"* ado file paths etc." _n _n 									///		
+			_col(8) `"do ""' _char(36) `"dataWorkFolder/global_setup.do" "' _n 
 		
 		*Write devisor ending standardization globals section
 		writeDevisor  `subHandle' 2 End_StandardGlobals	
@@ -897,8 +872,8 @@ cap program drop 	mdofle_p2
 		di "masterDofilePart2 end"
 		
 end	
-	
-	
+
+
 cap program drop 	mdofle_p3
 	program define	mdofle_p3
 		
