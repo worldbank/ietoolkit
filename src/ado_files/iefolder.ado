@@ -991,9 +991,9 @@ cap program drop 	mdofle_p3
 		args   subHandle itemType rndName rnd
 
 		di "masterDofilePart3 start"
-
-		if "`itemType'" == "project" 	local partNum = 3
-		if "`itemType'" == "round"		local partNum = 2
+		
+		*Part number
+		local partNum = 3
 		
 		*Write devisor starting the section running sub-master dofiles
 		writeDevisor  `subHandle' `partNum' RunDofiles	
