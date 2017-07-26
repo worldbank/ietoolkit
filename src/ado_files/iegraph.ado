@@ -389,17 +389,9 @@ cap	program drop	iegraph
 				local absMax = abs(`min_value')
 			}
 			
-			*Log10 of the Max value to find the order necessary, rounded up to the nearest 
-			local logAbsMax = ceil(log10(`absMax'))
-			
-			*Generating tenpower which is 1 order smaller than the max value,
-			*so we can log to that. 
+			*Rounded up to the nearest power of ten
+			local logAbsMax = ceil(log10(`absMax')) 
 			local absMax = 10 ^ (`logAbsMax')
-			noi di "local tenpower = 10 ^ (`logAbsMax')"
-			
-			*Rounding up for max value.
-			*local absMax = `tenpower' * ceil(`logAbsMax' / `tenpower')
-			noi di "local absMax = `absMax' * ceil(`logAbsMax' / `absMax')"
 			
 			*Generating quarter value for y-axis markers.
 			local quarter = (`absMax') / 4
