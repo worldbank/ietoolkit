@@ -192,9 +192,8 @@ cap	program drop	iegraph
 	foreach var of local varlist {
 		
 		*Caculating confidnece interval
-		scalar  conf_int_min_`var'   =	coeff_`var'-(`tstats'*coeff_se_`var') + ctl_mean
-		scalar  conf_int_max_`var'   =	coeff_`var'+(`tstats'*coeff_se_`var') + ctl_mean
-
+		scalar  conf_int_min_`var'   =	(coeff_`var'-(`tstats'*coeff_se_`var') + ctl_mean) 
+		scalar  conf_int_max_`var'   =	(coeff_`var'+(`tstats'*coeff_se_`var') + ctl_mean) 
 		**Assigning stars to the treatment vars.
 		
 		*Perform the test to get p-values
@@ -275,7 +274,7 @@ cap	program drop	iegraph
 	
 	*************************************/
 	
-	*Rread file with results
+	*Read file with results
 	insheet using `newTextFile', clear
 	
 	*Defining various options to go on the graph option. 
@@ -336,31 +335,79 @@ cap	program drop	iegraph
 	*** Generating the graph axis labels for the y-zero option used..
 	*******************************************************************************
 	
-	if "`yzero'" != "" {
+	*Calculations needed if yzero used
+	if  ("`yzero'" != "" ) {	
 		
-		*Finding the max value that is needed in the Y-axis. 
-		gen maxvalue = max(mean , conf_int_max)
-		sum maxvalue 
+		**Testing if yzero is applicable
+		********************************
 		
-		*From the max of mean values and conf_int_max values.
-		local max = `r(max)'
+		**Yzero is only applicable if all values used in the graph 
+		* are all negative or all postive. If there is a mix, then  
+		* the yzero option will be ignored
 		
-		*Log10 of the Max value to find the order necessary.
-		local logmax = log10(`max')
-		local logmax = round(`logmax') - 1
+		*Finding the min value for all values used in the graph
+		gen row_minvalue = min(mean, conf_int_min, conf_int_max)
+		sum row_minvalue
+		local min_value `r(min)'
 		
-		*Generating tenpower which is 1 order smaller than the max value,
-		*so we can log to that. 
-		local tenpower = 10 ^ (`logmax')
+		*Finding the min value for all values used in the graph	
+		gen row_maxvalue = max(mean , conf_int_max, conf_int_min)
+		sum row_maxvalue 
+		local max_value `r(max)'
 		
-		*Rounding up for max value.
-		local up = `tenpower' * ceil(`max' / `tenpower')
+		*Locals used for logic below
+		noi di "local signcheck = ((`r(max)' * `r(min)') >= 0) "
+		local signcheck = ((`max_value' * `min_value') >= 0) 	// dummy local for both signs the same (positive or negative)
+		local negative	=  (`max_value' <= 0)				// dummy for max value still negative (including 0)
 		
-		*Generating quarter value for y-axis markers.
-		local quarter = (`up') / 4
+		**If yzero() is used and min and max does not have 
+		* the same sign, then the yzero() is not applicable.
 		
-		*Specifying the option itself. 
-		local yzero_option ylabel(0(`quarter')`up')
+		if (`signcheck' == 0 ) {
+		
+		**** yzero is NOT applicable and will be ignored
+		*************************************************			
+			
+			noi di "{pstd}{error:WARNING:} Option yzero will be ignored as the graph has values both on the the positve and negative part of the y-axis. This only affects formatting of the graph. See helpfile for more details.{p_end}"
+		}
+		else {
+		
+		**** yzero is applicable and will be used
+		*****************************************		
+			
+			*Get max value if only postive values
+			if (`negative' == 0) { 
+			
+				sum row_maxvalue
+				local absMax = `max_value'
+			}
+			
+			*Get absolute min (will convert back below) if only negative values
+			else {
+				
+				sum row_minvalue
+				local absMax = abs(`min_value')
+			}
+			
+			*Rounded up to the nearest power of ten
+			local logAbsMax = ceil(log10(`absMax')) 
+			local absMax = 10 ^ (`logAbsMax')
+			
+			*Generating quarter value for y-axis markers.
+			local quarter = (`absMax') / 4
+			
+			**Constuct the option to be applied to 
+			* the graph using the values calculated
+			if (`negative' == 0)  { 
+			
+				local yzero_option ylabel(0(`quarter')`absMax')
+			}
+			else {
+				
+				local absMax = `absMax' * (-1) //Convert back to negative
+				local yzero_option ylabel(`absMax'(`quarter')0)
+			}
+		}
 	}
 
 	*******************************************************************************

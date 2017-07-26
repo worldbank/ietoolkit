@@ -100,7 +100,10 @@ help for {hi:iegraph}
 	instead of the Stata default. In many cases, we expect that neither the default 
 	settings nor this option will make the axes look perfect, but you may use Stata's built 
 	in {help axis_option:axis options} that allow you to set the axes to perfectly fit 
-	your data.{p_end}
+	your data. The command will ignore the {cmdab:yzero} option in cases where the graph cannot
+	be forced to zero i.e. where the values in the graph extend beyond zero, both positively
+	or negatively. A warning will be displayed telling the user that the option has 
+	been ignored. Despite the warning, the graph will be produced correctly.{p_end}
 	
 {phang}{cmd:noconfbars} Removes the confidence interval bars from graphs for all 
 	treatments. The default value for the confidence interval bars is 95%. {p_end}
