@@ -1,7 +1,7 @@
 *! version 5.1 31MAY2017  Kristoffer Bjarkefur kbjarkefur@worldbank.org
 
-cap program drop 	iefolder2
-	program define	iefolder2
+cap program drop 	iefolder
+	program define	iefolder
 
 qui {	
 	
