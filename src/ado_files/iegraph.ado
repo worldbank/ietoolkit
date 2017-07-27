@@ -16,23 +16,34 @@ cap	program drop	iegraph
 	*Only keep the observations in the regressions	
 	keep if e(sample) == 1
 	
+	*Copy beta matrix to a regular matrix
+	mat BETA = e(b)
+	
 	*Unabbriviate and varlists
 	unab varlist : `varlist'
 	
 	*Testing to see if the variables used in the regressions are actual dummy variables as treatment vars need to be dummy variables. 
 	foreach var of local varlist {
 		
+		*Get the column number from this var
+		local colnumber = colnumb(BETA,"`var'")
+		
+		*Test if this var was omitted from the regression
+		if "`r(label`colnumber')'" == "(omitted)" {
+			
+			*Test if that dummy is not found in the estimation matrix
+			noi di as error "{phang}Dummy variable `var' was not included in the regression, or was omitted from it.{p_end}"
+			error 480	
+		}
+	}
+	
+	foreach var of local varlist {
 		*Assigning variable coefficient/standard errors/no of obs. to scalars with the name Coeff_(`variable name') 
 		*coeff_se_(`variable name'), obs_(`variable name').
 		
-		*Access the beta value (and thest that there is a value for this dummy from the regression)
-		cap scalar coeff_`var' 		= _b[`var'] 
-		*Test if that dummy is not found in the estimation matrix
-		if _rc == 111 {
-			noi di as error "{phang}Dummy variable `var' was not a part of the regression{p_end}"
-			error 111
-		}
-		
+		*Access and store the beta value (
+		scalar coeff_`var' 		= _b[`var'] 
+
 		*Access and store standard errors for the dummy
 		scalar coeff_se_`var' 	= _se[`var']
 		
@@ -590,22 +601,22 @@ end
 		
 		*Test that there is at least some treatment observations
 		if `dum_count_0' == 0 		noi di as error "{phang} There are no control observations. One category must be omitted and it should be the omitted category in the regression. The omitted category will be considerd the control group. See helpfile for more info. Disable this test by using option ignoredummytest.{p_end}"
-		if `dum_count_0' == 0 		error 111		
+		if `dum_count_0' == 0 		error 480		
 		
 		*Test that there is at least some control observations (this error should be caught by dummies omitted in the regression)
 		if `dum_count_1' == 0 		noi di as error "{phang} There are no treatment observations. None of the dummies have observations for which the dummy has the value 1. See helpfile for more info. Disable this test by using option ignoredummytest.{p_end}"
-		if `dum_count_1' == 0 		error 111
+		if `dum_count_1' == 0 		error 480
 		
 		*Test if there are any observations that have two or more than three dummies that is 1
 		if `dum_count_2orgt3' > 0 	noi di as error "{phang} There is overlap in the treatment dummies. The dummies must be mutually exclusive meaning that no observation has the value 1 in more than one treatment dummy. The exception is when you use a diff-and-diff, but this dummies is not a valid diff and diff. See helpfile for more info. Disable this test by using option ignoredummytest.{p_end}"
-		if `dum_count_2orgt3' > 0 	error 111
+		if `dum_count_2orgt3' > 0 	error 480
 		
 		*After passing the previous two steps, test if there are cases that are only allowed in diff 
 		if `dum_count_3' > 0 {		
 			
 			*Diff-and-diff must have exactly 3 dummies
 			if `:list sizeof dumlist' != 3 	noi di as error "{phang} There is overlap in the treatment dummies. The dummies must be mutually exclusive meaning that no observation has the value 1 in more than one treatment dummy. The exception is when you use a diff-and-diff, but this dummies is not a valid diff and diff. See helpfile for more info. Disable this test by using option ignoredummytest.{p_end}"
-			if `:list sizeof dumlist' != 3 	error 111
+			if `:list sizeof dumlist' != 3 	error 480
 			
 			* Test if valid diff-diff	
 			testDumsDD `dum_count' `dumlist'
@@ -635,6 +646,6 @@ end
 		}
 		*Count that exactly two dummies fullfilledthe condition
 		if `counter' != 2	noi di as error "{phang} There is overlap in the treatment dummies. The dummies must be mutually exclusive meaning that no observation has the value 1 in more than one treatment dummy. The exception is when you use a diff-and-diff, but this dummies is not a valid diff and diff. See helpfile for more info. Disable this test by using option ignoredummytest.{p_end}""	
-		if `counter' != 2	error 111
+		if `counter' != 2	error 480
 		
 	end
