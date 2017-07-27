@@ -1,9 +1,9 @@
 *! version 5.1 31MAY2017  Kristoffer Bjarkefur kbjarkefur@worldbank.org
 	
-cap	program drop	iegraph2
-	program define 	iegraph2 , rclass
+cap	program drop	iegraph
+	program define 	iegraph, rclass
 	
-	syntax varlist, [noconfbars BASICTItle(string) save(string) confbarsnone(varlist) 	///
+	syntax varlist, [noconfbars BASICTItle(string) save(string) ignoredummytest confbarsnone(varlist) 	///
 						confintval(numlist min=1 max=1 >0 <1) VARLabels BAROPTions(string) norestore  	///
 						GREYscale yzero *]
 	
@@ -43,7 +43,7 @@ cap	program drop	iegraph2
 	} 
 	
 	*Test if the list of dummies are valid
-	testDums `varlist'
+	if "`ignoredummytest'" == "" testDums `varlist'
 	
 
 	*Checking to see if the noconfbars option has been used and assigning 1 and 0 based
@@ -589,22 +589,22 @@ end
 		local dum_count_2orgt3 `r(N)'
 		
 		*Test that there is at least some treatment observations
-		if `dum_count_0' == 0 		noi di as error "There are no control obs. The dummy for control must be omitted"
+		if `dum_count_0' == 0 		noi di as error "{phang} There are no control observations. One category must be omitted and it should be the omitted category in the regression. The omitted category will be considerd the control group. See helpfile for more info. Disable this test by using option ignoredummytest.{p_end}"
 		if `dum_count_0' == 0 		error 111		
 		
-		*Test that there is at least some control observations
-		if `dum_count_1' == 0 		noi di as error "There are no treatment obs. All observations are control (Should casue error earlier but test is included for completeness)"
+		*Test that there is at least some control observations (this error should be caught by dummies omitted in the regression)
+		if `dum_count_1' == 0 		noi di as error "{phang} There are no treatment observations. None of the dummies have observations for which the dummy has the value 1. See helpfile for more info. Disable this test by using option ignoredummytest.{p_end}"
 		if `dum_count_1' == 0 		error 111
 		
 		*Test if there are any observations that have two or more than three dummies that is 1
-		if `dum_count_2orgt3' > 0 	noi di as error "There is overlap in the treatment dummies. The dummies must be mutually exclusive."
+		if `dum_count_2orgt3' > 0 	noi di as error "{phang} There is overlap in the treatment dummies. The dummies must be mutually exclusive meaning that no observation has the value 1 in more than one treatment dummy. The exception is when you use a diff-and-diff, but this dummies is not a valid diff and diff. See helpfile for more info. Disable this test by using option ignoredummytest.{p_end}"
 		if `dum_count_2orgt3' > 0 	error 111
 		
 		*After passing the previous two steps, test if there are cases that are only allowed in diff 
 		if `dum_count_3' > 0 {		
 			
 			*Diff-and-diff must have exactly 3 dummies
-			if `:list sizeof dumlist' != 3 	noi di as error "There is overlap in the treatment dummies. The dummies must be mutually exclusive."
+			if `:list sizeof dumlist' != 3 	noi di as error "{phang} There is overlap in the treatment dummies. The dummies must be mutually exclusive meaning that no observation has the value 1 in more than one treatment dummy. The exception is when you use a diff-and-diff, but this dummies is not a valid diff and diff. See helpfile for more info. Disable this test by using option ignoredummytest.{p_end}"
 			if `:list sizeof dumlist' != 3 	error 111
 			
 			* Test if valid diff-diff	
@@ -634,7 +634,7 @@ end
 		
 		}
 		*Count that exactly two dummies fullfilledthe condition
-		if `counter' != 2	noi di as error "Not valid diff and diff"	
+		if `counter' != 2	noi di as error "{phang} There is overlap in the treatment dummies. The dummies must be mutually exclusive meaning that no observation has the value 1 in more than one treatment dummy. The exception is when you use a diff-and-diff, but this dummies is not a valid diff and diff. See helpfile for more info. Disable this test by using option ignoredummytest.{p_end}""	
 		if `counter' != 2	error 111
 		
 	end
