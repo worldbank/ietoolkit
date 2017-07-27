@@ -759,7 +759,7 @@ cap program drop 	mdofle_p0
 		
 		file write  `subHandle' 	///							
 			_col(8)"*Install all packages that this project requires:" _n ///
-			_col(8)"ssc install ietoolkit" _n ///
+			_col(8)"ssc install ietoolkit, replace" _n ///
 			_n	 ///
 			_col(8)"*Standardize settings accross users" _n ///
 			_col(8)"ieboilstart, version(12.1)" _col(40) "//Set the version number to the oldest version used by anyone in the project team" _n ///
@@ -898,7 +898,7 @@ program define		global_setup
 		_col(4)"*" _col(12) "SET UP STANDARDIZATION GLOBALS AND OTHER CONSTANTS" _n 			///
 		_col(4)"*" _n 																			///			
 		_col(4)"*" _col(16) "-Set globals used all across the projects" _n 						///
-		_col(4)"*" _col(16) "-It is bad practice to defien these at mutliple locations" _n		///
+		_col(4)"*" _col(16) "-It is bad practice to define these at mutliple locations" _n		///
 		_col(4)"*" _n 																			///	
 		_col(4)"* ******************************************************************** *" _n
 						
@@ -909,7 +909,7 @@ program define		global_setup
 		_col(4)"* ******************************************************************** *" _n 	///
 		_n 																						///
 		_col(4)"**Define all your conversion rates here instead of typing them each " _n 		///
-		_col(4)"* time you are converting amounts, for example in unit standardization. " _n 	///
+		_col(4)"* time you are converting amounts, for example - in unit standardization. " _n 	///
 		_col(4)"* We have already listed common conversion rates below, but you" _n 			/// 
 		_col(4)"* might have to add rates specific to your project, or change the target " _n 	///
 		_col(4)"* unit if you are standardizing to other units than meters, hectares," _n 		///
@@ -942,9 +942,9 @@ program define		global_setup
 		_n 																						///
 		_col(4)"**This is a good location to create lists of variables to be used at " _n 		///
 		_col(4)"* multiple locations across the project. Examples of such lists might " _n 		///
-		_col(4)"* be differnt list of controls to be used across multiple regressions. " _n		///
+		_col(4)"* be different list of controls to be used across multiple regressions. " _n		///
 		_col(4)"* By defining these lists here, you can easliy make updates and have " _n		///
-		_col(4)"* those updates being aplied to all regressions without a large risk " _n		///
+		_col(4)"* those updates being applied to all regressions without a large risk " _n		///
 		_col(4)"* of copy and paste errors." _n 												///
 		_n 																						///	
 		_col(8)"*Control Variables" _n 															///
@@ -1010,9 +1010,9 @@ cap program drop 	mdofle_p3
 					_col(4)"*" _col(17) "link to the master dofile for that round." _n 					/// 
 					_col(4)"*" _col(16) "-The default is that these dofiles are set to not"  _n 		///
 					_col(4)"*" _col(17) "run. It is rare that all round specfic master dofiles"  _n 	///
-					_col(4)"*" _col(17) "are called at the same time, the round specifc master"  _n 	///
+					_col(4)"*" _col(17) "are called at the same time, the round specific master"  _n 	///
 					_col(4)"*" _col(17) "dofiles are almost always called individually. The"  _n 		///
-					_col(4)"*" _col(17) "excpetion is when reviewing or replicating a full project." _n 
+					_col(4)"*" _col(17) "exception is when reviewing or replicating a full project." _n 
 			} 
 			else if "`itemType'" == "round" {	
 				file write  `subHandle' 																///
@@ -1186,7 +1186,7 @@ cap program drop 	mdofle_task_dosection
 		_col(4)"*" _col(8) "`task' dofile `number'" _n ///
 		_col(4)"*" _n ///
 		_col(4)"*" _col(8) "The purpose of this dofiles is:" _n ///
-		_col(4)"*" _col(10) "(The list below are examples on what to include here)" _n ///
+		_col(4)"*" _col(10) "(The ideas below are examples on what to include here)" _n ///
 		_col(4)"*" _col(11) "-what additional data sets does this file require" _n ///
 		_col(4)"*" _col(11) "-what variables are created" _n ///
 		_col(4)"*" _col(11) "-what corrections are made" _n ///
