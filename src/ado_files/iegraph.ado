@@ -1,12 +1,11 @@
 *! version 5.1 31MAY2017  Kristoffer Bjarkefur kbjarkefur@worldbank.org
 	
-cap	program drop	iegraph
-	program define 	iegraph , rclass
+cap	program drop	iegraph2
+	program define 	iegraph2 , rclass
 	
 	syntax varlist, [noconfbars BASICTItle(string) save(string) confbarsnone(varlist) 	///
 						confintval(numlist min=1 max=1 >0 <1) VARLabels BAROPTions(string) norestore  	///
 						GREYscale yzero *]
-	
 	
 	if "`restore'" == "" preserve
 	
@@ -31,7 +30,7 @@ cap	program drop	iegraph
 		*Test if that dummy is not found in the estimation matrix
 		if _rc == 111 {
 			noi di as error "{phang}Dummy variable `var' was not a part of the regression{p_end}"
-			_rc 111
+			error 111
 		}
 		
 		*Access and store standard errors for the dummy
@@ -42,7 +41,10 @@ cap	program drop	iegraph
 		scalar obs_`var' = r(N)
 
 	} 
-		
+	
+	*Test if the list of dummies are valid
+	testDums `varlist'
+	
 
 	*Checking to see if the noconfbars option has been used and assigning 1 and 0 based
 	*on that to the CONFINT_BAR variable.
@@ -522,7 +524,8 @@ end
 		if `groupCount' == 1 {
 			
 			return local color "black"
-		}
+		}do "C:\Users\WB462869\AppData\Local\Temp\STD02000000.tmp"
+
 		else if `groupCount' == 2 & `totalNumGroups' <= 3 {
 			
 			return local color "gs14"
@@ -554,6 +557,9 @@ end
 		*Test: all values dummies (missing would have been excluded in regression and we keep if e(sample)
 		
 		foreach dumvar of varlist `dumlist' {
+		
+			*tab `dumvar', m
+			
 			cap assert inlist(`dumvar',0,1)
 			if _rc {
 				noi display as error "{phang} The variable `dumvar' is not a dummy. Treatment variable needs to be a dummy (0 or 1) variable. {p_end}"
@@ -561,7 +567,7 @@ end
 				error 149
 			}
 		}
-		
+				
 		*Count how many dummies is 1 for each observation
 		tempvar  dum_count
 		egen 	`dum_count' = rowtotal(`dumlist')
@@ -581,24 +587,24 @@ end
 		*Exactly 2 or more than three is never correct.
 		count if `dum_count' == 2 | `dum_count' > 3
 		local dum_count_2orgt3 `r(N)'
-
+		
 		*Test that there is at least some treatment observations
-		if `dum_count_0' == 0 		di as error "There are no control obs. The dummy for control must be omitted"
+		if `dum_count_0' == 0 		noi di as error "There are no control obs. The dummy for control must be omitted"
 		if `dum_count_0' == 0 		error 111		
 		
 		*Test that there is at least some control observations
-		if `dum_count_1' == 0 		di as error "There are no treatment obs. All observations are control (Should casue error earlier but test is included for completeness)"
+		if `dum_count_1' == 0 		noi di as error "There are no treatment obs. All observations are control (Should casue error earlier but test is included for completeness)"
 		if `dum_count_1' == 0 		error 111
 		
 		*Test if there are any observations that have two or more than three dummies that is 1
-		if `dum_count_2orgt3' > 0 	di as error "There is overlap in the treatment dummies. The dummies must be mutually exclusive."
+		if `dum_count_2orgt3' > 0 	noi di as error "There is overlap in the treatment dummies. The dummies must be mutually exclusive."
 		if `dum_count_2orgt3' > 0 	error 111
 		
 		*After passing the previous two steps, test if there are cases that are only allowed in diff 
 		if `dum_count_3' > 0 {		
 			
 			*Diff-and-diff must have exactly 3 dummies
-			if `:list sizeof dumlist' != 3 	di as error "There is overlap in the treatment dummies. The dummies must be mutually exclusive."
+			if `:list sizeof dumlist' != 3 	noi di as error "There is overlap in the treatment dummies. The dummies must be mutually exclusive."
 			if `:list sizeof dumlist' != 3 	error 111
 			
 			* Test if valid diff-diff	
@@ -606,6 +612,7 @@ end
 		}
 		
 	end
+	
 	cap program drop 	testDumsDD
 		program define	testDumsDD
 		
@@ -627,7 +634,7 @@ end
 		
 		}
 		*Count that exactly two dummies fullfilledthe condition
-		if `counter' != 2	di as error "Not valid diff and diff"	
+		if `counter' != 2	noi di as error "Not valid diff and diff"	
 		if `counter' != 2	error 111
 		
 	end
