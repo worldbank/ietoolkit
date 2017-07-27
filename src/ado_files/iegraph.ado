@@ -17,10 +17,32 @@ cap	program drop	iegraph
 	*Only keep the observations in the regressions	
 	keep if e(sample) == 1
 	
-	*Load regression results
-	mat beta_ = e(b)
+	*Unabbriviate and varlists
+	unab varlist : `varlist'
+	
+	*Testing to see if the variables used in the regressions are actual dummy variables as treatment vars need to be dummy variables. 
+	foreach var of local varlist {
+		
+		*Assigning variable coefficient/standard errors/no of obs. to scalars with the name Coeff_(`variable name') 
+		*coeff_se_(`variable name'), obs_(`variable name').
+		
+		*Access the beta value (and thest that there is a value for this dummy from the regression)
+		cap scalar coeff_`var' 		= _b[`var'] 
+		*Test if that dummy is not found in the estimation matrix
+		if _rc == 111 {
+			noi di as error "{phang}Dummy variable `var' was not a part of the regression{p_end}"
+			_rc 111
+		}
+		
+		*Access and store standard errors for the dummy
+		scalar coeff_se_`var' 	= _se[`var']
+		
+		*Store the number of observations for this dummy
+		count if `var' == 1 //Count one tmt group at the time
+		scalar obs_`var' = r(N)
 
-	local counter = 0
+	} 
+		
 
 	*Checking to see if the noconfbars option has been used and assigning 1 and 0 based
 	*on that to the CONFINT_BAR variable.
@@ -44,29 +66,7 @@ cap	program drop	iegraph
 	}
 	
 	
-	*Testing to see if the variables used in the regressions are actual dummy variables as treatment vars need to be dummy variables. 
-	foreach var of local varlist{
-		
-		cap assert inlist(`var',0,1) | missing(`var')
-		if _rc {
-			noi display as error "{phang} The variable `var' is not a dummy. Treatment variable needs to be a dummy (0 or 1) variable. {p_end}"
-			noi display ""
-			error 149
-		}
-					
-		local counter = `counter' + 1
-		
-		*Assigning variable coefficient/standard errors/no of obs. to scalars with the name Coeff_(`variable name') 
-		*coeff_se_(`variable name'), obs_(`variable name').
-		
-		scalar coeff_`var' 		= _b[`var'] 
-		scalar coeff_se_`var' 	= _se[`var']
-		
-		count if `var' == 1 //Count one tmt group at the time
-		scalar obs_`var' = r(N)
 
-	} 
-		
 	*Checking to see if the save option is used what is the extension related to it. 
 	if "`save'" != "" {
 	
