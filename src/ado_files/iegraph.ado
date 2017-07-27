@@ -524,7 +524,7 @@ end
 		if `groupCount' == 1 {
 			
 			return local color "black"
-		}do "C:\Users\WB462869\AppData\Local\Temp\STD02000000.tmp"
+		}
 
 		else if `groupCount' == 2 & `totalNumGroups' <= 3 {
 			
