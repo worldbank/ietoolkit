@@ -14,6 +14,9 @@ cap	program drop	iegraph
 	
 	version 11
 	
+	*Only keep the observations in the regressions	
+	keep if e(sample) == 1
+	
 	*Load regression results
 	mat beta_ = e(b)
 
@@ -43,6 +46,7 @@ cap	program drop	iegraph
 	
 	*Testing to see if the variables used in the regressions are actual dummy variables as treatment vars need to be dummy variables. 
 	foreach var of local varlist{
+		
 		cap assert inlist(`var',0,1) | missing(`var')
 		if _rc {
 			noi display as error "{phang} The variable `var' is not a dummy. Treatment variable needs to be a dummy (0 or 1) variable. {p_end}"
@@ -58,7 +62,7 @@ cap	program drop	iegraph
 		scalar coeff_`var' 		= _b[`var'] 
 		scalar coeff_se_`var' 	= _se[`var']
 		
-		count if e(sample) == 1 & `var' == 1 //Count one tmt group at the time
+		count if `var' == 1 //Count one tmt group at the time
 		scalar obs_`var' = r(N)
 
 	} 
@@ -160,10 +164,10 @@ cap	program drop	iegraph
 	//Make sure that missing is properly handled
 	
 	tempvar anyTMT control
-	egen `anyTMT' = rowmax(`varlist') 	if e(sample) == 1
+	egen `anyTMT' = rowmax(`varlist')
 	gen `control' = (`anyTMT' == 0) 	if !missing(`anyTMT')
 
-	sum `e(depvar)' if e(sample) == 1 & `control' == 1
+	sum `e(depvar)' if `control' == 1
 	scalar ctl_N		= r(N)
 	scalar ctl_mean	  	= r(mean)
 	scalar ctl_mean_sd 	= r(sd)	
