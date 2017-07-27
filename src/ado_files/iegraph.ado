@@ -506,6 +506,7 @@ end
 		}
 		
 	end
+	
 	*******************************************
 	*******************************************
 		******* Greyscale Option *******
@@ -532,5 +533,101 @@ end
 		
 			return local color "`grayscale' `grayscale' `grayscale' `grayscale'"
 		}
+		
+	end
+	
+	*******************************************
+	*******************************************
+		******* Test if valid  *******
+		******* dummies 	   *******	
+	*******************************************
+	*******************************************
+	
+	cap program drop 	testDums
+		program define	testDums
+		
+		unab dumlist : `0'
+		
+		*What we know:
+			* No all same values in variable (would have been dropped in regression and we test that it is in the regression)
+		
+		*Test: all values dummies (missing would have been excluded in regression and we keep if e(sample)
+		
+		foreach dumvar of varlist `dumlist' {
+			cap assert inlist(`dumvar',0,1)
+			if _rc {
+				noi display as error "{phang} The variable `dumvar' is not a dummy. Treatment variable needs to be a dummy (0 or 1) variable. {p_end}"
+				noi display ""
+				error 149
+			}
+		}
+		
+		*Count how many dummies is 1 for each observation
+		tempvar  dum_count
+		egen 	`dum_count' = rowtotal(`dumlist')
+		
+		*Exactly one dummy is 1, meaning this observation is in one of the treatment arms
+		count if `dum_count' == 1
+		local dum_count_1 `r(N)'
+		
+		*No dummies is 1, meaning this observation is control
+		count if `dum_count' == 0
+		local dum_count_0 `r(N)'
+
+		*Exactly 3 dummies are three. Only allowed in the exact case of diff-and-diff regressions
+		count if `dum_count' == 3
+		local dum_count_3 `r(N)'	
+		
+		*Exactly 2 or more than three is never correct.
+		count if `dum_count' == 2 | `dum_count' > 3
+		local dum_count_2orgt3 `r(N)'
+
+		*Test that there is at least some treatment observations
+		if `dum_count_0' == 0 		di as error "There are no control obs. The dummy for control must be omitted"
+		if `dum_count_0' == 0 		error 111		
+		
+		*Test that there is at least some control observations
+		if `dum_count_1' == 0 		di as error "There are no treatment obs. All observations are control (Should casue error earlier but test is included for completeness)"
+		if `dum_count_1' == 0 		error 111
+		
+		*Test if there are any observations that have two or more than three dummies that is 1
+		if `dum_count_2orgt3' > 0 	di as error "There is overlap in the treatment dummies. The dummies must be mutually exclusive."
+		if `dum_count_2orgt3' > 0 	error 111
+		
+		*After passing the previous two steps, test if there are cases that are only allowed in diff 
+		if `dum_count_3' > 0 {		
+			
+			*Diff-and-diff must have exactly 3 dummies
+			if `:list sizeof dumlist' != 3 	di as error "There is overlap in the treatment dummies. The dummies must be mutually exclusive."
+			if `:list sizeof dumlist' != 3 	error 111
+			
+			* Test if valid diff-diff	
+			testDumsDD `dum_count' `dumlist'
+		}
+		
+	end
+	cap program drop 	testDumsDD
+		program define	testDumsDD
+		
+		local dum_count `1'
+		
+		**Test that for only two of three dummies there are observations
+		* that has only that dummy. I.e. the two that is not the 
+		* interaction. If the interaction is 1, all three shluld be 1.
+		
+		*Count how many dummies the condition is above applies to
+		local counter 0
+		
+		*Loop over all dummies
+		forvalues i = 2/4 {
+			
+			*Test the number
+			count if ``i'' == 1 & `dum_count' == 1
+			if `r(N)' > 0 local ++counter
+		
+		}
+		*Count that exactly two dummies fullfilledthe condition
+		if `counter' != 2	di as error "Not valid diff and diff"	
+		if `counter' != 2	error 111
 		
 	end
