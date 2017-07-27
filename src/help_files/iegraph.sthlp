@@ -15,7 +15,7 @@ help for {hi:iegraph}
 , [ {cmdab:basicti:tle(}{it:string}{cmd:)} {cmdab:varl:abels}
 {cmdab:save(}{it:string}{cmd:)} {cmdab:grey:scale} {cmdab:yzero}
 {cmd:noconfbars} {cmdab:confbarsnone(}{it:varlist}{cmd:)} {cmdab:confintval(}{it:numlist}{cmd:)} 
-{cmd:norestore} {cmdab:baropt:ions(}{it:string}{cmd:)} 
+{cmd:norestore} {cmdab:baropt:ions(}{it:string}{cmd:)} {cmdab:ignoredummytest} 
 {it:{help scatter##twoway_options:twoway_scatter_options}}
 ]
 
@@ -32,6 +32,7 @@ help for {hi:iegraph}
 {synopt :{cmdab:confbarsnone(}{it:varlist}{cmd:)}} Removes confidence interval bars from only the {it:varlist} listed.{p_end}
 {synopt :{cmdab:confintval(}{it:numlist}{cmd:)}} Sets the confidence interval for the confidence interval bars. Default is .95.{p_end}
 {synopt :{cmd:norestore}} Allows you to debug your two way graph settings on the data set prepared by iegraph. To be used with {it:r(cmd)}.{p_end}
+{synopt :{cmdab:ignoredummytest}} Ignores the tests that tests if the dummies fits one of the two models below.{p_end}
 {synoptline}
 
 {pstd}Any twoway graph scatter options that can be used with normal twoway graph scatter commands can 
@@ -125,6 +126,13 @@ help for {hi:iegraph}
 	you de-bug how to apply Stata's built in graph options to an iegraph graph.
 	Note that this option deletes any unsaved changes made to your data.{p_end}
 
+{phang}{cmd:ignoredummytest} Ignores the tests that test if the dummies fits one 
+	of the two models this command is intended for. The two models are described 
+	in detail above above. There might be models we have not thought of for which 
+	this command is helpful as well. Use this option to lift the restrictions of 
+	those two models. But be careful, this command has not been tested for other 
+	models than the two described.{p_end}	
+	
 {marker optslong}
 {title:Examples}
 
