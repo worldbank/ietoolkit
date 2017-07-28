@@ -1,4 +1,4 @@
-*! version 5.1 31MAY2017  Kristoffer Bjarkefur kbjarkefur@worldbank.org
+*! version 5.2 28JUL2017  Kristoffer Bjarkefur kbjarkefur@worldbank.org
 
 	capture program drop ieboilstart
 	program ieboilstart , rclass
@@ -16,11 +16,11 @@
 			
 		*********************************/			
 		
-		local stata_versions "11.0 11.1 11.2 12.0 12.1 13.0 13.1 14.0 14.1"
+		local stata_versions "11 11.0 11.1 11.2 12 12.0 12.1 13 13.0 13.1 14 14.0 14.1 14.2 15 15.0"
 		
 		if `:list versionnumber in stata_versions' == 0 {
 
-			di as error "{phang}Only recent major releases are allowed. One decimal must always be included. The releases currently allowed are:{break}`stata_versions'{p_end}"
+			di as error "{phang}Only recent major releases are allowed. The releases currently allowed are:{break}`stata_versions'{p_end}"
 			di ""
 			error 198
 			exit

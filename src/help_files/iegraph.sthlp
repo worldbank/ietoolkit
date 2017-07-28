@@ -1,5 +1,5 @@
 {smcl}
-{* 31 May 2017}{...}
+{* 28 Jul 2017}{...}
 {hline}
 help for {hi:iegraph}
 {hline}
@@ -12,26 +12,30 @@ help for {hi:iegraph}
 
 {phang2}
 {cmdab:iegraph} {varlist} 
-, [ {cmdab:ti:tle(}{it:string}{cmd:)} {cmdab:varl:abels}
+, [ {cmdab:basicti:tle(}{it:string}{cmd:)} {cmdab:varl:abels}
 {cmdab:save(}{it:string}{cmd:)} {cmdab:grey:scale} {cmdab:yzero}
-{cmd:noconfbars} {cmdab:confbarsnone(}{it:varlist}{cmd:)}
-{it:any twoway graph options}
+{cmd:noconfbars} {cmdab:confbarsnone(}{it:varlist}{cmd:)} {cmdab:confintval(}{it:numlist}{cmd:)} 
+{cmd:norestore} {cmdab:baropt:ions(}{it:string}{cmd:)} {cmdab:ignoredummytest} 
+{it:{help scatter##twoway_options:twoway_scatter_options}}
 ]
 
 {marker opts}{...}
 {synoptset 22}{...}
 {synopthdr:options}
 {synoptline}
-{synopt :{cmdab:ti:tle(}{it:string}{cmd:)}} Manually sets the title of the graph.{p_end}
+{synopt :{cmdab:basicti:tle(}{it:string}{cmd:)}} Manually sets the title of the graph.{p_end}
 {synopt :{cmdab:varl:abels}} Uses variable labels for legends instead of variable names.{p_end}
 {synopt :{cmdab:save(}{it:string}{cmd:)}} Sets the filename and the directory to which the graph will be set/exported.{p_end}
 {synopt :{cmdab:grey:scale}} Uses greyscales for the bars instead of colors.{p_end}
 {synopt :{cmdab:yzero}} Forces y-axis on the graph to start at 0.{p_end}
 {synopt :{cmd:noconfbars}} Removes the confidence interval bars from graphs for all treatments.{p_end}
 {synopt :{cmdab:confbarsnone(}{it:varlist}{cmd:)}} Removes confidence interval bars from only the {it:varlist} listed.{p_end}
+{synopt :{cmdab:confintval(}{it:numlist}{cmd:)}} Sets the confidence interval for the confidence interval bars. Default is .95.{p_end}
+{synopt :{cmd:norestore}} Allows you to debug your two way graph settings on the data set prepared by iegraph. To be used with {it:r(cmd)}.{p_end}
+{synopt :{cmdab:ignoredummytest}} Ignores the tests that tests if the dummies fits one of the two models below.{p_end}
 {synoptline}
 
-{pstd}Any twoway graph options that can be used with normal twoway graph commands can 
+{pstd}Any twoway graph scatter options that can be used with normal twoway graph scatter commands can 
 	also be used. If any of these commands conflict with any of the built in options, 
 	then the user specified settings have precedence. See example 2 for details.{p_end}
 
@@ -76,7 +80,9 @@ help for {hi:iegraph}
 {marker optslong}
 {title:Options}
 
-{phang}{cmdab:ti:tle(}{it:string}{cmd:)} Manually sets the title of the graph.{p_end}
+{phang}{cmdab:basicti:tle(}{it:string}{cmd:)} Manually sets the title of the graph. To 
+	apply formatting like title size, position, etc., use Stata's built 
+	in {help title_options:title() option} instead.{p_end}
 
 {phang}{cmdab:varl:abels} Sets the legends to the variable labels for the 
 	variables instead of the variable names.{p_end}
@@ -90,7 +96,16 @@ help for {hi:iegraph}
 {phang}{cmdab:grey:scale} Uses greyscales for the bars instead of colors. The color 
 	of the control bar will be black and the treatment bar will run in equal shade 
 	differences from light grey to dark grey.{p_end}
-
+	
+{phang}{cmdab:yzero} Manually sets the y-axis of the graph to start at zero 
+	instead of the Stata default. In many cases, we expect that neither the default 
+	settings nor this option will make the axes look perfect, but you may use Stata's built 
+	in {help axis_option:axis options} that allow you to set the axes to perfectly fit 
+	your data. The command will ignore the {cmdab:yzero} option in cases where the graph cannot
+	be forced to zero i.e. where the values in the graph extend beyond zero, both positively
+	or negatively. A warning will be displayed telling the user that the option has 
+	been ignored. Despite the warning, the graph will be produced correctly.{p_end}
+	
 {phang}{cmd:noconfbars} Removes the confidence interval bars from graphs for all 
 	treatments. The default value for the confidence interval bars is 95%. {p_end}
 	
@@ -99,16 +114,32 @@ help for {hi:iegraph}
 	have not been specified in {cmdab:confbarsnone} will still have the confidence
 	interval bars. {p_end}
 
-{phang}{cmdab:yzero} Manually sets the y-axis of the graph to start at zero 
-	instead of the Stata default.{p_end}
+{phang}{cmdab:confintval(}{it:numlist}{cmd:)} Sets the confidence interval for 
+	the confidence interval bars. Default is .95. Values between 0 and 1 are allowed.{p_end}	
+	
+{phang}{cmdab:norestore} Returns the data set that iegraph prepares to create
+	the graph. This is helpful when de-bugging how one of Stata's many graph 
+	options can be applied to an iegraph graph. This option is meant to be 
+	used in combination with the {help return:returned result} in {it:r(cmd)}. {it:r(cmd)} 
+	gives you the line of code iegraph prepares to create the graph and {cmdab:norestore} gives you 
+	access to the data that code is meant to be used on. This approach will help
+	you de-bug how to apply Stata's built in graph options to an iegraph graph.
+	Note that this option deletes any unsaved changes made to your data.{p_end}
 
+{phang}{cmd:ignoredummytest} Ignores the tests that test if the dummies fits one 
+	of the two models this command is intended for. The two models are described 
+	in detail above above. There might be models we have not thought of for which 
+	this command is helpful as well. Use this option to lift the restrictions of 
+	those two models. But be careful, this command has not been tested for other 
+	models than the two described.{p_end}	
+	
 {marker optslong}
 {title:Examples}
 
 {pstd} {hi:Example 1.}
 
 {pmore} {inp:regress} {it:outcomevar treatment_dummy}{break}
-		{inp:iegraph} {it:treatment_dummy} , {inp:title({it:"Treatment Effect on Outcome"})}
+		{inp:iegraph} {it:treatment_dummy} , {inp:basictitle({it:"Treatment Effect on Outcome"})}
 
 {pmore}In the example above, there are only two treatment arms (treatment and 
 		control). {it:treatment_dummy} has a 1 for all treatment observations and 
@@ -121,7 +152,7 @@ help for {hi:iegraph}
 {pstd} {hi:Example 2.}
 
 {pmore} {inp:regress} {it:income tmt_1 tmt_2 age education}{inp:, cluster(}{it:district}{inp:)}{break}
-		{inp:iegraph} {it:tmt_1 tmt_2}{inp:, noconfbars yzero title({it:"Treatment effect on income"}) }
+		{inp:iegraph} {it:tmt_1 tmt_2}{inp:, noconfbars yzero basictitle({it:"Treatment effect on income"}) }
 
 {pmore}In the example above, the treatment effect on income in researched. There 
 		are three treatment arms; control, treatment 1 ({it:tmt_1}) and treatment
@@ -136,7 +167,7 @@ help for {hi:iegraph}
 {pstd} {hi:Example 3.}
 
 {pmore} {inp:regress} {it:chld_wght time treat timeXtreat}{break}
-		{inp:iegraph} {it:time treat timeXtreat} {inp:, title({it:"Treatment effect on Child Weight (Diff-in-Diff)"})}
+		{inp:iegraph} {it:time treat timeXtreat} {inp:, basictitle({it:"Treatment effect on Child Weight (Diff-in-Diff)"})}
 		
 {pmore}In the example above, the data set is a panel data set with two time 
 		periods and the regression estimates the treatment effect on child weight
@@ -150,7 +181,7 @@ help for {hi:iegraph}
 {pstd} {hi:Example 4.}
 
 {pmore} {inp:regress} {it:harvest T1 T2 T3 } {break}
-		{inp:iegraph} {it:T1 T2 T3} {inp:, title({it:"Treatment effect on harvest"}) 
+		{inp:iegraph} {it:T1 T2 T3} {inp:, basictitle({it:"Treatment effect on harvest"}) 
 		xlabel(,angle(45)) yzero ylabel(minmax) save({it:"Graph1.gph"})}
 		
 {pmore}The example above shows how to save a graph to disk. It also shows that 

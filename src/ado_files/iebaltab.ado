@@ -1,4 +1,4 @@
-*! version 5.1 31MAY2017  Kristoffer Bjarkefur kbjarkefur@worldbank.org
+*! version 5.2 28JUL2017  Kristoffer Bjarkefur kbjarkefur@worldbank.org
 		
 	capture program drop iebaltab
 	program iebaltab
@@ -20,6 +20,7 @@
 				TOTALLabel(string)											///
 				ROWVarlabels												///
 				ROWLabels(string)											///
+				onerow														///
 				onenrow														///
 																			///
 				/*Statistics and data manipulation*/						///
@@ -58,6 +59,8 @@
 				TEXCaption(string)											///
 				TEXLabel(string)											///
 				TEXDOCument													///
+				texvspace(string)											///
+				texcolwidth(string)											///
 				BROWSE														///
 				SAVEBRowse													///
 				REPLACE														///
@@ -136,8 +139,11 @@ qui {
 		if "`rowlabels'" 		!= "" local ROWLABEL_USED = 1 
 		
 		*Is option totallable() used:
-		if "`onenrow'" 			== "" local ONENROW_USED = 0 
-		if "`onenrow'" 			!= "" local ONENROW_USED = 1 		
+		if "`onenrow'" 			!= "" local onerow = "onerow" //Old name still supported for backward compatibility
+		if "`onerow'" 			== "" local ONEROW_USED = 0 
+		if "`onerow'" 			!= "" local ONEROW_USED = 1 	
+		
+			
 			
 
 	** Stats Options
@@ -250,6 +256,14 @@ qui {
 		*Is option texdocument() used:
 		if "`texdocument'"		== "" local TEXDOC_USED = 0
 		if "`texdocument'"		!= "" local TEXDOC_USED = 1
+		
+		*Is option texlinespace() used:
+		if "`texvspace'"		== "" local TEXVSPACE_USED = 0
+		if "`texvspace'"		!= "" local TEXVSPACE_USED = 1
+		
+		*Is option texcolwidth() used:
+		if "`texcolwidth'"		== "" local TEXCOLWIDTH_USED = 0
+		if "`texcolwidth'"		!= "" local TEXCOLWIDTH_USED = 1
 		
 		*Is option browse() used:
 		if "`browse'" 			== "" local BROWSE_USED = 0 
@@ -489,6 +503,7 @@ qui {
 	
 	
 	** Stats Options	
+		local SHOW_NCLUSTER 0
 		
 		if `VCE_USED' == 1 {
 			
@@ -502,6 +517,9 @@ qui {
 				*Robust is allowed and not other tests needed
 			}
 			else if "`vce_type'" == "cluster" {
+				
+				*Create a local for displaying number of clusters
+				local SHOW_NCLUSTER 1
 				
 				local cluster_var `2'
 				
@@ -752,12 +770,31 @@ qui {
 	
 		if `SAVE_USED' | `SAVE_TEX_USED' {
 			if `SAVE_USED' {
-				*Find index for where the file type suffix start
-				local dot_index 	= strpos("`save'",".")
+
+				**Find the last . in the file path and assume that 
+				* the file extension is what follows. If a file path has a . then 
+				* the file extension must be explicitly specified by the user.
+			
+				*Copy the full file path to the file suffix local
+				local file_suffix 	= "`save'"
 				
-				*Extract the file index
-				local file_suffix 	= substr("`save'", `dot_index', .)
+				** Find index for where the file type suffix start
+				local dot_index 	= strpos("`file_suffix'",".")
 				
+				*If no dot then no file extension
+				if `dot_index' == 0  local file_suffix 	""
+				
+				**If there is one or many . in the file path than loop over 
+				* the file path until we have found the last one.
+				while `dot_index' > 0 {
+					
+					*Extract the file index
+					local file_suffix 	= substr("`file_suffix'", `dot_index' + 1, .)
+					
+					*Find index for where the file type suffix start
+					local dot_index 	= strpos("`file_suffix'",".")
+				}
+	
 				*If no file format suffix is specified, use the default .xlsx
 				if "`file_suffix'" == "" {
 				
@@ -765,19 +802,37 @@ qui {
 				}
 				
 				*If a file format suffix is specified make sure that it is one of the two allowed.
-				else if !("`file_suffix'" == ".xls" | "`file_suffix'" == ".xlsx") {
+				else if !("`file_suffix'" == "xls" | "`file_suffix'" == "xlsx") {
 				
-					noi display as error "{phang}The file format specified in save(`save') is other than .xls or .xlsx. Only those two formats are allowed. If no format is specified .xlsx is the default.{p_end}"
+					noi display as error "{phang}The file format specified in save(`save') is other than .xls or .xlsx. Only those two formats are allowed. If no format is specified .xlsx is the default. If you have a . in your file path, for example in a folder name, then you must specify the file extension .xls or .xlsx.{p_end}"
 					error 198
 				}
 			}
 			if `SAVE_TEX_USED' {
 		
-				*Find index for where the file type suffix start
-				local tex_dot_index 	= strpos("`savetex'",".")
+				**Find the last . in the file path and assume that 
+				* the file extension is what follows. If a file path has a . then 
+				* the file extension must be explicitly specified by the user.
+			
+				*Copy the full file path to the file suffix local
+				local tex_file_suffix 	= "`savetex'"
 				
-				*Extract the file index
-				local tex_file_suffix 	= substr("`savetex'", `tex_dot_index', .)
+				** Find index for where the file type suffix start
+				local tex_dot_index 	= strpos("`tex_file_suffix'",".")
+				
+				*If no dot then no file extension
+				if `tex_dot_index' == 0  local tex_file_suffix 	""
+				
+				**If there is one or many . in the file path than loop over 
+				* the file path until we have found the last one.
+				while `tex_dot_index' > 0 {
+					
+					*Extract the file index
+					local tex_file_suffix 	= substr("`tex_file_suffix'", `tex_dot_index' + 1, .)
+					
+					*Find index for where the file type suffix start
+					local tex_dot_index 	= strpos("`tex_file_suffix'",".")
+				}
 
 				*If no file format suffix is specified, use the default .tex
 				if "`tex_file_suffix'" == "" {
@@ -786,9 +841,9 @@ qui {
 				}
 				
 				*If a file format suffix is specified make sure that it is one of the two allowed.
-				else if !("`tex_file_suffix'" == ".tex" | "`tex_file_suffix'" == ".txt") {
+				else if !("`tex_file_suffix'" == "tex" | "`tex_file_suffix'" == "txt") {
 				
-					noi display as error "{phang}The file format specified in savetex(`savetex') is other than .tex or .txt. Only those two formats are allowed. If no format is specified .tex is the default.{p_end}"
+					noi display as error "{phang}The file format specified in savetex(`savetex') is other than .tex or .txt. Only those two formats are allowed. If no format is specified .tex is the default. If you have a . in your file path, for example in a folder name, then you must specify the file extension .tex or .txt.{p_end}"
 					error 198
 				}
 				
@@ -843,13 +898,48 @@ qui {
 					error 198
 				}
 			}
-		}
-		
+			
+			if `TEXCOLWIDTH_USED' {
+			
+				* Test if width unit is correctly specified
+				local 	texcolwidth_unit = substr("`texcolwidth'",-2,2)
+				if 	!inlist("`texcolwidth_unit'","cm","mm","pt","in","ex","em") {
+					noi display as error `"{phang}Option texcolwidth is incorrectly specified. Column width unit must be one of "cm", "mm", "pt", "in", "ex" or "em". For more information, {browse "https://en.wikibooks.org/wiki/LaTeX/Lengths":check LaTeX lengths manual}.{p_end}"'
+					error 198
+				}
 				
+				* Test if width value is correctly specified
+				local 	texcolwidth_value = subinstr("`texcolwidth'","`texcolwidth_unit'","",.)
+				capture confirm number `texcolwidth_value' 
+				if _rc & inlist("`texcolwidth_unit'","cm","mm","pt","in","ex","em") {
+					noi display as error "{phang}Option texcolwidth is incorrectly specified. Column width value must be numeric. See {help iebaltab:iebaltab help}. {p_end}"
+					error 198
+				}				
+			}
+			
+			if `TEXVSPACE_USED' {
+			
+				* Test if width unit is correctly specified
+				local 	vspace_unit = substr("`texvspace'",-2,2)
+				if 	!inlist("`vspace_unit'","cm","mm","pt","in","ex","em") {
+					noi display as error `"{phang}Option texvspace is incorrectly specified. Vertical space unit must be one of "cm", "mm", "pt", "in", "ex" or "em". For more information, {browse "https://en.wikibooks.org/wiki/LaTeX/Lengths":check LaTeX lengths manual}.{p_end}"'
+					error 198
+				}
+				
+				* Test if width value is correctly specified
+				local 	vspace_value = subinstr("`texvspace'","`vspace_unit'","",.)
+				capture confirm number `vspace_value' 
+				if _rc & inlist("`vspace_unit'","cm","mm","pt","in","ex","em") {
+					noi display as error "{phang}Option texvspace is incorrectly specified. Vertical space value must be numeric. See {help iebaltab:iebaltab help}. {p_end}"
+					error 198
+				}	
+			}
+		}
+						
 		* Error for incorrectly using tex options
-		else if `NOTEWIDTH_USED' | `LABEL_USED' | `CAPTION_USED' | `TEXDOC_USED' {
+		else if `NOTEWIDTH_USED' | `LABEL_USED' | `CAPTION_USED' | `TEXDOC_USED' | `TEXVSPACE_USED' | `TEXCOLWIDTH_USED' {
 	
-			noi display as error "{phang}Options texnotewidth, texdocument, texlabel and texcaption may only be used in combination with option savetex(){p_end}"
+			noi display as error "{phang}Options texnotewidth, texdocument, texlabel, texcaption, texvspace and texcolwidth may only be used in combination with option savetex(){p_end}"
 			error 198
 		
 		}
@@ -1004,7 +1094,8 @@ qui {
 	
 	/*************************************************
 	************************************************/
-		
+	
+	
 		
 		** The titles consist of three rows across all 
 		*  columns of the table. Each row is one local
@@ -1017,15 +1108,21 @@ qui {
 		*  columns of the table. Each row is one local
 		local texrow1 ""
 		local texrow2 ""
-		local texrow3 `""Variable""'
-		
-		
+		local texrow3 `"Variable"'
 		
 		** Set titlw SE if standard errors are used (default)
 		*  or SD if standard deviation is used
 								local variance_type "SE"
 		if `STDEV_USED' == 1 	local variance_type "SD"
-	
+		
+		*Prepare title for column showing onle N or N and cluster
+		if "`vce_type'" != "cluster" {
+			local N_title "N"
+		}
+		else {
+			local N_title "N/[Clusters]"
+		}
+		
 	*********************************************
 	*Generating titles for each value of groupvar
 	
@@ -1047,39 +1144,39 @@ qui {
 			local texGroupLabel : subinstr local texGroupLabel "&"  "\&" , all
 			local texGroupLabel : subinstr local texGroupLabel "\$"  "\\\\\\\$" , all
 						
-			*Prepare a row to store onenrow values for each group
-			if `ONENROW_USED' == 1 local onenrow_`groupOrderNum' ""
+			*Prepare a row to store onerow values for each group
+			if `ONEROW_USED' == 1 local onerow_`groupOrderNum' ""
 	
 			*Assign the group order to observations that belong to this group
 			replace `groupOrder' = `groupOrderNum' if `grpvar' == `groupCode'
 			
 			*Create one more column for N if N is displayesd in column instead of row
-			if `ONENROW_USED' == 0 {
-			
+			if `ONEROW_USED' == 0 {
+				
 				local titlerow1 `"`titlerow1' _tab "" 	_tab " (`groupOrderNum') " "'
 				local titlerow2 `"`titlerow2' _tab ""  _tab "`groupLabel'"   	   "'
-				local titlerow3 `"`titlerow3' _tab "N" _tab "Mean/`variance_type'" "'
+				local titlerow3 `"`titlerow3' _tab "`N_title'" _tab "Mean/`variance_type'" "'
 				
 				
-				local texrow1 	`"`texrow1' " & \multicolumn{2}{c}{(`groupOrderNum')}" "'
-				local texrow2 	`"`texrow2' " & \multicolumn{2}{c}{`texGroupLabel'}"   "'
-				local texrow3 	`"`texrow3' " & N & Mean/`variance_type'" 			   "'
+				local texrow1 	`"`texrow1' & \multicolumn{2}{c}{(`groupOrderNum')} "'
+				local texrow2 	`"`texrow2' & \multicolumn{2}{c}{`texGroupLabel'} "'
+				local texrow3 	`"`texrow3' & `N_title' & Mean/`variance_type' "'
 			
 			}
 			else {
 			
-				local titlerow1 `"`titlerow1' _tab " (`groupOrderNum') "  "'
-				local titlerow2 `"`titlerow2' _tab "`groupLabel'"   	  "'
+				local titlerow1 `"`titlerow1' _tab " (`groupOrderNum') " "'
+				local titlerow2 `"`titlerow2' _tab "`groupLabel'" "'
 				local titlerow3 `"`titlerow3' _tab "Mean/`variance_type'" "'
 				
-				local texrow1 	`"`texrow1' " & (`groupOrderNum') "   "'
-				local texrow2 	`"`texrow2' " & `texGroupLabel'"   	  "'
-				local texrow3 	`"`texrow3' " & Mean/`variance_type'" "'
+				local texrow1 	`"`texrow1' & (`groupOrderNum') "'
+				local texrow2 	`"`texrow2' & `texGroupLabel' "'
+				local texrow3 	`"`texrow3' & Mean/`variance_type' 	"'
 				
 			}
 			
 		}
-		
+
 	***********************************************************
 	*Generating titles for sample total if total() is specified	
 	
@@ -1088,8 +1185,8 @@ qui {
 			*Add one more column group
 			local totalColNumber = `GRPVAR_NUM_GROUPS' + 1
 			
-			*If onenrow used, then add a local to store the total num obs
-			if `ONENROW_USED' == 1 local onenrow_tot ""
+			*If onerow used, then add a local to store the total num obs
+			if `ONEROW_USED' == 1 local onerow_tot ""
 			
 			local tot_label Total
 			if `TOTALLABEL_USED' local tot_label `totallabel'
@@ -1101,30 +1198,29 @@ qui {
 			local tex_tot_label : subinstr local tex_tot_label "\$"  "\\\\\$" , all
 			
 			*Create one more column for N if N is displayesd in column instead of row
-			if `ONENROW_USED' == 0 {
+			if `ONEROW_USED' == 0 {
 						
 				local titlerow1 `"`titlerow1' _tab ""	_tab " (`totalColNumber') "	"'
 				local titlerow2 `"`titlerow2' _tab "" 	_tab "`tot_label'" 			"'
-				local titlerow3 `"`titlerow3' _tab "N"	_tab "Mean/`variance_type'" "'
+				local titlerow3 `"`titlerow3' _tab "`N_title'"	_tab "Mean/`variance_type'" "'
 				
-				local texrow1  	`"`texrow1' " & \multicolumn{2}{c}{(`totalColNumber')}" "'
-				local texrow2  	`"`texrow2' " & \multicolumn{2}{c}{`tex_tot_label'}" 	"'
-				local texrow3  	`"`texrow3' " & N & Mean/`variance_type'" 				"'
+				local texrow1  	`"`texrow1' & \multicolumn{2}{c}{(`totalColNumber')}"'
+				local texrow2  	`"`texrow2' & \multicolumn{2}{c}{`tex_tot_label'} "'
+				local texrow3  	`"`texrow3' & `N_title' & Mean/`variance_type' "'
 			}
-			
 			else {
 			
 				local titlerow1 `"`titlerow1' _tab " (`totalColNumber') " "'
 				local titlerow2 `"`titlerow2' _tab "`tot_label'" 		  "'
 				local titlerow3 `"`titlerow3' _tab "Mean/`variance_type'" "'	
 				
-				local texrow1  	`"`texrow1' & (`totalColNumber') "	"'
-				local texrow2  	`"`texrow2' & `tex_tot_label'" 		"'
-				local texrow3  	`"`texrow3' & Mean/`variance_type'" "'	
+				local texrow1  	`"`texrow1' & (`totalColNumber') "'
+				local texrow2  	`"`texrow2' & `tex_tot_label' "'
+				local texrow3  	`"`texrow3' & Mean/`variance_type' "'	
 			
 			}
 		}
-		
+
 	************************************************
 	*Generating titles for each test of diff in mean
 	
@@ -1152,7 +1248,7 @@ qui {
 						local titlerow3 `"`titlerow3' _tab "Difference""'
 					}
 					
-					local texrow3  `" `texrow3' " & (`ctrlGrpPos')-(`second_ttest_group')" "'
+					local texrow3  `" `texrow3'  & (`ctrlGrpPos')-(`second_ttest_group') "'
 					
 					*Storing a local of all the test pairs
 					local ttest_pairs "`ttest_pairs' `ctrlGrpPos'_`second_ttest_group'"
@@ -1182,7 +1278,7 @@ qui {
 						local titlerow3 `"`titlerow3' _tab "Difference""'
 					}
 					
-					local texrow3  `" `texrow3' " & (`first_ttest_group')-(`second_ttest_group')" "'
+					local texrow3  `" `texrow3' & (`first_ttest_group')-(`second_ttest_group') "'
 					
 					*Storing a local of all the test pairs
 					local ttest_pairs "`ttest_pairs' `first_ttest_group'_`second_ttest_group'"
@@ -1196,17 +1292,18 @@ qui {
 		
 		if `testPairCount' > 0 {
 			
-			local texrow1 	`" `texrow1' " & \multicolumn{`testPairCount'}{c}{T-test}" "'
+			local texrow1 	`" `texrow1' & \multicolumn{`testPairCount'}{c}{T-test} "'
 			
 			if `PTTEST_USED' == 1 {
-				local texrow2 `"`texrow2' " & \multicolumn{`testPairCount'}{c}{P-value}" "'
+				local texrow2 `"`texrow2' & \multicolumn{`testPairCount'}{c}{P-value} "'
 			}
 			else {
-				local texrow2 `"`texrow2' " & \multicolumn{`testPairCount'}{c}{Difference}" "'
+				local texrow2 `"`texrow2' & \multicolumn{`testPairCount'}{c}{Difference} "'
 			}
 		}
 		*texrow3 created in loop above
 	
+
 	
 	****************************
 	*Writing titles to textfile
@@ -1223,24 +1320,24 @@ qui {
 							`titlerow2' _n ///
 							`titlerow3' _n 			
 		file close 		`textname'
-			
-		
+	
 	********************
 	*texfile
 		
 		*Count number of columns in table
-		local 		colstring	l
+		if `TEXCOLWIDTH_USED' == 0	local 		colstring	l
+		else						local 		colstring	p{`texcolwidth'}
 		
 		forvalues repeat = 1/`NUM_COL_GRP_TOT' {
 			
 			*Add at least one column per group and for total if used
 			local	colstring	"`colstring'c"
 			*Add another columns if N is displyaed in column and not row
-			if `ONENROW_USED' == 0 { 
+			if `ONEROW_USED' == 0 { 
 				local	colstring	"`colstring'c"
 			}
 		}
-		
+
 		*Add one column per test pair
 		forvalues repeat = 1/`testPairCount' {
 			local	colstring	`colstring'c
@@ -1253,10 +1350,10 @@ qui {
 		****Write texheader if full document option was selected
 		*Everyhting here is the tex headers
 		capture file close `texname'
-				
+
 		if `TEXDOC_USED' {
 		
-			file open  `texname' using "`texfile'", text write replace			
+			file open  `texname' using "`texfile'", text write replace
 			file write `texname' ///
 				"%%% Table created in Stata by iebaltab (https://github.com/worldbank/ietoolkit)" _n ///
 				"" _n ///
@@ -1264,7 +1361,9 @@ qui {
 				"" _n ///
 				"% ----- Preamble " _n ///
 				"\usepackage[utf8]{inputenc}" _n ///
-				"\usepackage{adjustbox}" _n ///
+				"\usepackage{adjustbox}" _n
+			
+			file write `texname' ///
 				"% ----- End of preamble " _n ///
 				"" _n ///
 				" \begin{document}" _n ///
@@ -1290,24 +1389,25 @@ qui {
 			file close `texname'
 			
 		}	
-		
+
 		file open  `texname' using "`texfile'", text write append
 		file write `texname' ///
 			"\begin{tabular}{@{\extracolsep{5pt}}`colstring'}" _n ///
 			"\\[-1.8ex]\hline" _n ///
 			"\hline \\[-1.8ex]" _n		
 		file close `texname'
-			
+
 		*Write the title rows defined above	
 		capture file close `texname'
 		file open  `texname' using "`texfile'", text write append
+		
 		file write `texname' ///
-						`texrow1' " \\" _n ///
-						`texrow2' " \\" _n ///
-						`texrow3' " \\" _n ///
+						"`texrow1' \\" _n ///
+						"`texrow2' \\" _n ///
+						"`texrow3' \\" _n ///
 						"\hline \\[-1.8ex] " _n
 		file close `texname'
-	
+		 
 
 	/***********************************************
 	***********************************************/
@@ -1348,6 +1448,8 @@ qui {
 	**********************************
 	*Preparing weight option
 	
+		local weight_option ""
+		
 		if `WEIGHT_USED' {
 			
 			** The varname for weight is  prepared to be put in the reg  options
@@ -1371,6 +1473,8 @@ qui {
 	
 	*** Create columns with means and sd for this row
 		
+		local tex_line_space	0pt
+		
 		foreach balancevar in `balancevars' {
 		
 			*Get the rowlabels prepared above one at the time
@@ -1383,12 +1487,11 @@ qui {
 			*Make sure special characters in variable labels are displayed correctly
 			local texrow_label : subinstr local row_label 	 "%"  "\%" , all
 			local texrow_label : subinstr local texrow_label "_"  "\_" , all
+			local texrow_label : subinstr local texrow_label "["  "{[}" , all
 			local texrow_label : subinstr local texrow_label "&"  "\&" , all 
 			local texrow_label : subinstr local texrow_label "\$"  "\\\\\\\\$" , all
 			
-			local texRowUp `""`texrow_label'""' 
-			local texRowDo `" "' 
-			
+			local texRow	`""`texrow_label'""'				
 			
 			*** Replacing missing value
 			
@@ -1426,8 +1529,19 @@ qui {
 			
 				reg 	`balancevar' if `groupOrder' == `groupNumber' `weight_option', `error_estm' 
 				
+				*Number of observation for this balancevar for this group
 				local 	N_`groupNumber' 	= e(N)
 				local 	N_`groupNumber'  	: display %9.0f `N_`groupNumber''
+			
+				*If clusters used, number of clusters in this balance var for this group
+				if "`vce_type'" == "cluster" {
+
+					local 	N_clust_`groupNumber' 	= e(N_clust)
+					local 	N_clust_`groupNumber'  	: display %9.0f `N_clust_`groupNumber''	
+					local 	N_clust_`groupNumber' 	= trim("`N_clust_`groupNumber''")
+					local 	N_clustex_`groupNumber' = "{[}`N_clust_`groupNumber'']"
+					local 	N_clust_`groupNumber' 	= "[`N_clust_`groupNumber'']"
+				}
 				
 				*Load values from matrices into scalars
 				local 	mean_`groupNumber' 	= _b[_cons]
@@ -1453,48 +1567,78 @@ qui {
 				local 	di_var_`groupNumber' 	=trim("`di_var_`groupNumber''")
 								
 				*Test that N is the same for each group across all vars
-				if `ONENROW_USED' == 0 {
+				if `ONEROW_USED' == 0 {
 				
-					local 	tableRowUp  `"`tableRowUp' _tab "`N_`groupNumber''" _tab "`di_mean_`groupNumber''"  "'
-					local 	tableRowDo  `"`tableRowDo' _tab " " 				_tab "[`di_var_`groupNumber'']"  "'
+					local 	tableRowUp  `"`tableRowUp' _tab "`N_`groupNumber''" 		_tab "`di_mean_`groupNumber''"  "'
+					local 	tableRowDo  `"`tableRowDo' _tab "`N_clust_`groupNumber''" 	_tab "[`di_var_`groupNumber'']"  "'
 
-					local 	texRowUp  	`"`texRowUp' " & `N_`groupNumber'' & `di_mean_`groupNumber''"  "'
-					local 	texRowDo  	`"`texRowDo' " &  & (`di_var_`groupNumber'')"  "'
-				
+					if `SHOW_NCLUSTER' == 0	{
+						local texRow 	`"`texRow' " & `N_`groupNumber'' & \begin{tabular}[t]{@{}c@{}} `di_mean_`groupNumber'' \\ (`di_var_`groupNumber'') \end{tabular}"  "'
+					}
+					if `SHOW_NCLUSTER' == 1	{
+						local texRow 	`"`texRow' " & \begin{tabular}[t]{@{}c@{}} `N_`groupNumber'' \\ `N_clustex_`groupNumber'' \end{tabular} & \begin{tabular}[t]{@{}c@{}} `di_mean_`groupNumber'' \\ (`di_var_`groupNumber'') \end{tabular}"  "'
+					}					
 				}
 				else {
 
-					*Test if the first balance var
-					if "`onenrow_`groupNumber''" == "" {
+					*Test if the number of observations is the same in each group accross all balance vars
+					if "`onerow_`groupNumber''" == "" {
 						*Store the obs num
-						local onenrow_`groupNumber' = `N_`groupNumber''
+						local onerow_`groupNumber' = `N_`groupNumber''
 					}
 					*If not, then check that the obs num is the same as before
-					else if !(`onenrow_`groupNumber'' == `N_`groupNumber'') {
+					else if !(`onerow_`groupNumber'' == `N_`groupNumber'') {
 									
-						*option onenrow not allowed if N is different
-						noi display as error  "{phang}The number of observations for all groups are not the same for `balancevar' compare to at least one other balance variables. Run the command without the option onenrow to see which group does not have the same number of observations with non-missing values across all balance variables.{p_end}"
+						*option onerow not allowed if N is different
+						noi display as error  "{phang}The number of observations for `balancevar' is different compared to other balance variables within the same group. You can therefore not use the option onerow. Run the command without the option onerow to see which group does not have the same number of observations with non-missing values across all balance variables.{p_end}"
 						error 198
+					}
+					
+					
+					*If cluster is usedTest if the number of clusters is the same in each group accross all balance vars
+					if "`vce_type'" == "cluster" {
+						
+						if "`oneclstrow_`groupNumber''" == "" {
+							*Store the obs num
+							local oneclstrow_`groupNumber' = `N_clust_`groupNumber''
+						}
+						*If not, then check that the obs num is the same as before
+						else if !(`oneclstrow_`groupNumber'' == `N_clust_`groupNumber'') {
+										
+							*option onerow not allowed if N is different
+							noi display as error  "{phang}The number of clusters for `balancevar' is differenet compared to other balance variables within the same group. You can therefore not use the option onerow. Run the command without the option onerow to see which group does not have the same number of clusters with non-missing values across all balance variables.{p_end}"
+							error 198
+						}
 					}
 							
 					*Either this is the first balance var or num obs are identical, so write columns
-					local 	tableRowUp  `"`tableRowUp' _tab "`di_mean_`groupNumber''"  "'
-					local 	tableRowDo  `"`tableRowDo' _tab "[`di_var_`groupNumber'']"  "'	
-					
-					local 	texRowUp  	`"`texRowUp' " & `di_mean_`groupNumber''"  "'
-					local 	texRowDo  	`"`texRowDo' " & (`di_var_`groupNumber'')"  "'	
+					local 	tableRowUp  	`"`tableRowUp' _tab "`di_mean_`groupNumber''"  "'
+					local 	tableRowDo  	`"`tableRowDo' _tab "[`di_var_`groupNumber'']"  "'	
+						
+					local 	texRow 		`"`texRow' " &  \begin{tabular}[t]{@{}c@{}} `di_mean_`groupNumber'' \\ (`di_var_`groupNumber'') \end{tabular}"  "'
 				}
 				
 			}
 			
 			if `TOTAL_USED' {
 				
-				reg 	`balancevar'  , `error_estm'
+				reg 	`balancevar'  `weight_option', `error_estm'
 				
 				local 	N_tot	= e(N)
 				local 	N_tot 	: display %9.0f `N_tot'
 				
-				//Load values from matrices into scalars
+				*If clusters used, number of clusters in this balance var for this group
+				if "`vce_type'" == "cluster" {
+
+					local 	N_clust_tot 	= e(N_clust)
+					local 	N_clust_tot  	: display %9.0f `N_clust_tot'	
+					local 	N_clust_tot  	= trim("`N_clust_tot'")	
+					local 	N_clustex_tot	= "{[}`N_clust_tot']"
+					local 	N_clust_tot  	= "[`N_clust_tot']"
+				}
+				
+				
+				*Load values from matrices into scalars
 				local 	mean_tot 	= _b[_cons]
 				local	se_tot   	= _se[_cons]
 				
@@ -1521,39 +1665,57 @@ qui {
 
 				
 				*Test that N is the same for each group across all vars
-				if `ONENROW_USED' == 0 {
+				if `ONEROW_USED' == 0 {
 				
-					local 	tableRowUp  `"`tableRowUp' _tab "`N_tot'" _tab "`mean_tot'"  "'
-					local 	tableRowDo  `"`tableRowDo' _tab " " 	  _tab "[`var_tot']"  "'
+					local 	tableRowUp  `"`tableRowUp' _tab "`N_tot'" 			_tab "`mean_tot'"  "'
+					local 	tableRowDo  `"`tableRowDo' _tab "`N_clust_tot'"  	_tab "[`var_tot']"  "'
 					
-					local 	texRowUp  	`"`texRowUp' " & `N_tot' & `mean_tot'"  "'
-					local 	texRowDo  	`"`texRowDo' " &    & (`var_tot')"  "'
+					if `SHOW_NCLUSTER' == 0	{
+						local texRow 	`"`texRow' " & `N_tot' & \begin{tabular}[t]{@{}c@{}} `mean_tot' \\ (`var_tot') \end{tabular}"  "'
+					}
+					if `SHOW_NCLUSTER' == 1	{
+						local texRow 	`"`texRow' " & \begin{tabular}[t]{@{}c@{}}	`N_tot' \\ `N_clustex_tot' \end{tabular} & \begin{tabular}[t]{@{}c@{}} `mean_tot' \\ (`var_tot') \end{tabular}"  "'
+					}
 				}
 				else {
 					
 					*Test if the first balance var
-					if "`onenrow_tot'" == "" {
+					if "`onerow_tot'" == "" {
 						*Store the obs num
-						local onenrow_tot = `N_tot'
+						local onerow_tot = `N_tot'
 					}
 					*If not, then check that the obs num is the same as before
-					else if !(`onenrow_tot' == `N_tot') {
+					else if !(`onerow_tot' == `N_tot') {
 						
-						*option onenrow not allowed if N is different
-						noi display as error  "{phang}The number of observations for all groups are not the same for `balancevar' compare to at least one other balance variables. Run the command without the option onenrow to see which group does not have the same number of observations with non-missing values across all balance variables. This happened in the total column which can be an indication of a serious bug. Please email this erro message to kbjarkefur@worldbank.org{p_end}"
+						*option onerow not allowed if N is different
+						noi display as error  "{phang}The number of observations for all groups are not the same for `balancevar' compare to at least one other balance variables. Run the command without the option onerow to see which group does not have the same number of observations with non-missing values across all balance variables. This happened in the total column which can be an indication of a serious bug. Please email this erro message to kbjarkefur@worldbank.org{p_end}"
 						error 198
 					}
+					
+					*If cluster is usedTest if the number of clusters is the same in each group accross all balance vars
+					if "`vce_type'" == "cluster" {
+						
+						if "`oneclstrow_tot'" == "" {
+							*Store the obs num
+							local oneclstrow_tot = `N_clust_tot'
+						}
+						*If not, then check that the obs num is the same as before
+						else if !(`oneclstrow_tot' == `N_clust_tot') {
+										
+							*option onerow not allowed if N is different
+							noi display as error  "{phang}The number of clusters fora ll groups for `balancevar' is differenet compared to other balance variables. You can therefore not use the option onerow. Run the command without the option onerow to see which balance variable does not have the same number of clusters with non-missing values as the other balance variables.{p_end}"
+							error 198
+						}
+					}
+					
 					
 					*Either this is the first balance var or num obs are identical, so write columns
 					local 	tableRowUp  `"`tableRowUp' _tab "`mean_tot'"  "'
 					local 	tableRowDo  `"`tableRowDo' _tab "[`var_tot']"  "'	
 					
-					local 	texRowUp  	`"`texRowUp' " & `mean_tot'"  "'
-					local 	texRowDo  	`"`texRowDo' " & (`var_tot')"  "'	
+					local 	texRow	 	`"`texRow' " & \begin{tabular}[t]{@{}c@{}}	`mean_tot' \\ (`var_tot') \end{tabular}"  "'
 				}
-			}
-			
-			
+			}		
 					
 	*** Create the columns with t-tests for this row
 			
@@ -1591,7 +1753,7 @@ qui {
 				local varloc = max(var[1,1],var[2,2])				
 				
 				*This is the regression where we test differences.
-				reg `balancevar' `tempvar_thisGroupInPair' `covariates' i.`fixedeffect' , `error_estm'
+				reg `balancevar' `tempvar_thisGroupInPair' `covariates' i.`fixedeffect' `weight_option', `error_estm'
 				
 
 				*Testing result and if valid, write to file with or without stars
@@ -1606,8 +1768,7 @@ qui {
 					local tableRowUp	`" `tableRowUp' _tab "N/A" "'
 					local tableRowDo	`" `tableRowDo' _tab " " "'
 					
-					local texRowUp 		`" `texRowUp' " & N/A" "'
-					local texRowDo		`" `texRowDo' " &  " "'
+					local texRow		`" `texRow' " & N/A" "'
 					
 				}
 		
@@ -1639,13 +1800,13 @@ qui {
 					}
 					
 					*Print row
-					local tableRowUp `" `tableRowUp' _tab "`ttest_output'" "'
-					local tableRowDo `" `tableRowDo' _tab " " "'
+					local tableRowUp 	`" `tableRowUp' _tab "`ttest_output'" "'
+					local tableRowDo 	`" `tableRowDo' _tab " " "'
 					
-					local texRowUp 	 `" `texRowUp' " & `ttest_output'" "'
-					local texRowDo 	 `" `texRowDo' " &  " "'
+					local texRow	`" `texRow' " & `ttest_output'" "'
 				}
 			}
+						
 	
 			*Write the row for this balance var to file.
 			file open  `textname' using "`textfile'", text write append
@@ -1656,46 +1817,58 @@ qui {
 
 			file open  `texname' using "`texfile'", text write append
 			file write `texname' 	///
-				`texRowUp' " \\" _n		///
-				`texRowDo' " \\" _n	
+				`texRow' " \rule{0pt}{`tex_line_space'}\\" _n	
 			file close `texname'
-
+			
+			* We'll now add more space between the lines
+			if `TEXVSPACE_USED' == 0 	local tex_line_space	3ex
+			else						local tex_line_space	`texvspace'
 		}
 
 	
 			
-	***Write N row if onenrow used
+	***Write N row if onerow used
 				
-	if `ONENROW_USED' == 1 {	
+	if `ONEROW_USED' == 1 {	
 			
 		*Variable column i.e. row title
 		local tableRowN `""N""' 
-		local texRowN 	`""N""' 
-	
+		local texRowN 	`"N"' 
+
+		local tableRowClstr `""Clusters""' 
+		local texRowClstr 	`"Clusters"' 		
+		
 		*Loop over all groups
 		forvalues groupOrderNum = 1/`GRPVAR_NUM_GROUPS' {
 			
 			*Prepare the row based on the numbers from above
-			local tableRowN `" `tableRowN' _tab "`onenrow_`groupOrderNum''" "'
-			local texRowN 	`" `texRowN' " & `onenrow_`groupOrderNum''" "'
+			local tableRowN `" `tableRowN' _tab "`onerow_`groupOrderNum''" "'
+			local texRowN 	`" `texRowN' & `onerow_`groupOrderNum'' "'
+			
+			local tableRowClstr `" `tableRowClstr' _tab "`oneclstrow_`groupOrderNum''" "'
+			local texRowClstr 	`" `texRowClstr' & `oneclstrow_`groupOrderNum'' "'			
+			
 		}
 
 		if `TOTAL_USED' {
 		
 			*Prepare the row based on the numbers from above
-			local tableRowN `" `tableRowN' _tab "`onenrow_tot'" "'
-			local texRowN 	`" `texRowN' " & `onenrow_tot'" "'
+			local tableRowN `" `tableRowN' _tab "`onerow_tot'" "'
+			local texRowN 	`" `texRowN'  & `onerow_tot' "'
+			
+			local tableRowClstr `" `tableRowClstr' _tab "`oneclstrow_tot'" "'
+			local texRowClstr 	`" `texRowClstr' & `oneclstrow_tot' "'				
 		}
 
 		*Write the N prepared above
 		file open  `textname' using "`textfile'", text write append
-		file write `textname' 	///
-			`tableRowN' _n		
+		file write `textname' `tableRowN' _n		
+		if "`vce_type'" == "cluster" file write `textname' `tableRowClstr' _n	
 		file close `textname'
 		
 		file open  `texname' using "`texfile'", text write append
-		file write `texname' 	///
-			`texRowN' " \\" _n 		
+		file write `texname' " `texRowN' \rule{0pt}{`tex_line_space'} \\" _n 		
+		if "`vce_type'" == "cluster" file write `texname' " `texRowClstr' \\" _n 
 		file close `texname'
 	}
 		
@@ -1706,10 +1879,10 @@ qui {
 	
 	/************************************************
 	************************************************/
-		
+
 	if `FTEST_USED' == 1 {
 	
-		if `ONENROW_USED' == 0 {
+		if `ONEROW_USED' == 0 {
 			local ftestMulticol = 1 + (2*`NUM_COL_GRP_TOT')
 		}
 		else {
@@ -1735,8 +1908,8 @@ qui {
 			local Fstat_row   	`" `Fstat_row' _tab "" "'
 			local Fobs_row    	`" `Fobs_row'  _tab "" "'
 			
-			*Add one more column if onenrow is not used
-			if `ONENROW_USED' == 0 {
+			*Add one more column if onerow is not used
+			if `ONEROW_USED' == 0 {
 				local Fstat_row   	`" `Fstat_row' _tab "" "'
 				local Fobs_row    	`" `Fobs_row'  _tab "" "'			
 			
@@ -1749,8 +1922,8 @@ qui {
 			local Fobs_row   	`" `Fobs_row'  _tab "" "'
 			
 	
-			*Add one more column if onenrow is not used
-			if `ONENROW_USED' == 0 {
+			*Add one more column if onerow is not used
+			if `ONEROW_USED' == 0 {
 				local Fstat_row   	`" `Fstat_row' _tab "" "'
 				local Fobs_row    	`" `Fobs_row'  _tab "" "'			
 				
@@ -2207,7 +2380,12 @@ qui {
 	}
 	
 	*Calculate total number of columns
-	local totalColNo = strlen("`colstring'")
+	if `TEXCOLWIDTH_USED' == 0 	local totalColNo = strlen("`colstring'")
+	else {
+		local colstrBracePos = strpos("`colstring'","}")
+		local nonLabelCols = substr("`colstring'",`colstrBracePos'+1,.)
+		local totalColNo = strlen("`nonLabelCols'") +1
+	}
 	
 	*Set default tex note width (note width is a multiple of text width.
 	*if none is manually specified, default is text width)

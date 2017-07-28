@@ -1,5 +1,5 @@
 {smcl}
-{* 31 May 2017}{...}
+{* 28 Jul 2017}{...}
 {hline}
 help for {hi:iebaltab}
 {hline}
@@ -23,7 +23,7 @@ help for {hi:iebaltab}
 will test for differences across the catagories in grpvar({it:varname}).
 
 {marker opts}{...}
-{synoptset 21}{...}
+{synoptset 23}{...}
 {synopthdr:options}
 {synoptline}
 {pstd}{it:    {ul:{hi:Required options:}}}{p_end}
@@ -50,7 +50,7 @@ will test for differences across the catagories in grpvar({it:varname}).
 {synopt :{cmdab:totall:abel(}{it:string}{cmd:)}}Manually set the total column title{p_end}
 {synopt :{cmdab:rowv:arlabels}}Use the variable labels instead of variable name as row titles{p_end}
 {synopt :{cmdab:rowl:abels(}{it:nametitles}{cmd:)}}Manually set the row titles. See details on {it:nametitles} below.{p_end}
-{synopt :{cmdab:onenrow}}Write number of observations in one row{p_end}
+{synopt :{cmdab:onerow}}Write number of observations (and number of clusters if applicable) in one row at the bottom of the table.{p_end}
 
 {marker statsoptions}{...}
 {pstd}{it:    Statistics and data modification:}{p_end}
@@ -91,6 +91,8 @@ will test for differences across the catagories in grpvar({it:varname}).
 {synopt :{cmdab:texc:aption(}{it:string}{cmd:)}}Specify TeX table caption{p_end}
 {synopt :{cmdab:texl:abel(}{it:string}{cmd:)}}Specify TeX label{p_end}
 {synopt :{cmdab:texdoc:ument}}Creates a stand-alone TeX document{p_end}
+{synopt :{cmd:texvspace(}{it:string}{cmd:)}}Manually set size of the line space between two rows on TeX output{p_end}
+{synopt :{cmd:texcolwidth(}{it:string}{cmd:)}}Limit width of the first column on TeX output{p_end}
 
 {synoptline}
 
@@ -253,9 +255,9 @@ has precedence over {cmd:rowvarlabels} when used together, meaning that variable
 in the {it:nametitlestring}. The title can consist of several words. Everything that follows the variable name until the end
 of a string or a "@" will be included in the title.{p_end}
 
-{phang}{cmdab:onenrow} displays the number of observations in additional row at the bottom of the table if each group has the same
-number of observations for all variables in {it:balancevarlist}. If not specified, the number of observations per variable per group
-is display in additional column besides the mean value.{p_end}
+{phang}{cmdab:onerow} displays the number of observations in additional row at the bottom of the table if each group has the same
+number of observations for all variables in {it:balancevarlist}. This also applies to number of clusters. If not specified, the 
+number of observations (and clusters) per variable per group is displayed on the same row in additional column besides the mean value.{p_end}
 
 {pstd}{it:    Statistics and data modification:}{p_end}
 
@@ -359,6 +361,15 @@ The note width is a multiple of text width. If not specified, default width is t
 
 {phang}{cmdab:texdoc:ument}  creates a stand-alone TeX document that can be readily compiled, without the need to import it to a different file.
  As default, {cmd:savetex()} creates a fragmented TeX file consisting only of a tabular environment.{p_end}
+
+{phang}{cmd:texvspace(}{it:string}{cmd:)} sets the size of the line space between two variable rows. {it:string} must consist of a numeric value 
+and one of the following units: "cm", "mm", "pt", "in", "ex" or "em". Note that the resulting line space displayed will be equal to the 
+specified value minus the height of one line of text. Default is "3ex". For more information on units, 
+{browse "https://en.wikibooks.org/wiki/LaTeX/Lengths":check LaTeX lengths manual}. {p_end}
+
+{phang}{cmd:texcolwidth(}{it:string}{cmd:)} limits the width of table's first column so that a line break is added when a variable's name
+or label is too long. {it:string} must consist of a numeric value and one of the following units: "cm", "mm", "pt", "in", "ex" or "em".
+For more information on these units, {browse "https://en.wikibooks.org/wiki/LaTeX/Lengths":check LaTeX lengths manual}. {p_end}
 
 {title:Examples}
 

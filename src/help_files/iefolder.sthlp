@@ -1,5 +1,5 @@
 {smcl}
-{* 31 May 2017}{...}
+{* 28 Jul 2017}{...}
 {hline}
 help for {hi:iefolder}
 {hline}
@@ -64,7 +64,7 @@ help for {hi:iefolder}
 	changes made manually to the DataWork folder and master do-file before making additions
 	when adding a new round.
 	
-{pstd}{hi:{it:untiofobs}} folders are folders specific to a unit of observation, 
+{pstd}{hi:{it:unitofobs}} folders are folders specific to a unit of observation, 
 	for example the master data set folder. Read more about master data sets and the folder structure
 	this commands sets up for you at {browse "https://dimewiki.worldbank.org/wiki/Master_Data_Set"}. A 
 	master data folder for each new unit of observation is created in two places. Both in 
@@ -73,7 +73,7 @@ help for {hi:iefolder}
 {marker optslong}{title:Options}
 
 {phang}{cmdab:proj:ectfolder(}{it:dir}{cmd:)} should point to the same folder regardless 
-	of which {it:itemtype} is created. If {it:new project} is specified the file path should
+	of which {it:itemtype} is created. If {it:new project} is specified, the file path should
 	point to where DataWork should be created, and if {it:new round} or {it:new project} is
 	specified, it should point to where DataWork was already created. See how the file path is 
 	the same both time when {cmd:iefolder} is called twice in Example 1 below. 
@@ -165,7 +165,7 @@ help for {hi:iefolder}
 {title:Acknowledgements}
 
 {phang}I would like to acknowledge the help in testing and proofreading I received in relation to this command and help file from (in alphabetic order):{p_end}
-{pmore}Luiza Cardoso De Andrade{break}Laura Costica{break}Seungmin Lee{break}Mrijan Rimal{break}Sakina Shibuya
+{pmore}Laura Costica{break}Luiza Cardoso De Andrade{break}Mrijan Rimal{break}Sakina Shibuya{break}Seungmin Lee
 
 {title:Author}
 
