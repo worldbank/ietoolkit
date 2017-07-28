@@ -1,12 +1,11 @@
 *! version 5.1 31MAY2017  Kristoffer Bjarkefur kbjarkefur@worldbank.org
 	
 cap	program drop	iegraph
-	program define 	iegraph , rclass
+	program define 	iegraph, rclass
 	
-	syntax varlist, [noconfbars BASICTItle(string) save(string) confbarsnone(varlist) 	///
+	syntax varlist, [noconfbars BASICTItle(string) save(string) ignoredummytest confbarsnone(varlist) 	///
 						confintval(numlist min=1 max=1 >0 <1) VARLabels BAROPTions(string) norestore  	///
 						GREYscale yzero *]
-	
 	
 	if "`restore'" == "" preserve
 	
@@ -14,10 +13,49 @@ cap	program drop	iegraph
 	
 	version 11
 	
-	*Load regression results
-	mat beta_ = e(b)
+	*Only keep the observations in the regressions	
+	keep if e(sample) == 1
+	
+	*Copy beta matrix to a regular matrix
+	mat BETA = e(b)
+	
+	*Unabbriviate and varlists
+	unab varlist : `varlist'
+	
+	*Testing to see if the variables used in the regressions are actual dummy variables as treatment vars need to be dummy variables. 
+	foreach var of local varlist {
+		
+		*Get the column number from this var
+		local colnumber = colnumb(BETA,"`var'")
+		
+		*Test if this var was omitted from the regression
+		if "`r(label`colnumber')'" == "(omitted)" {
+			
+			*Test if that dummy is not found in the estimation matrix
+			noi di as error "{phang}Dummy variable `var' was not included in the regression, or was omitted from it.{p_end}"
+			error 480	
+		}
+	}
+	
+	foreach var of local varlist {
+		*Assigning variable coefficient/standard errors/no of obs. to scalars with the name Coeff_(`variable name') 
+		*coeff_se_(`variable name'), obs_(`variable name').
+		
+		*Access and store the beta value (
+		scalar coeff_`var' 		= _b[`var'] 
 
-	local counter = 0
+		*Access and store standard errors for the dummy
+		scalar coeff_se_`var' 	= _se[`var']
+		
+		*Store the number of observations for this dummy
+		count if `var' == 1 //Count one tmt group at the time
+		scalar obs_`var' = r(N)
+
+	} 
+	
+	*Test if the list of dummies are valid
+	if "`ignoredummytest'" == "" testDums `varlist'
+	
 
 	*Checking to see if the noconfbars option has been used and assigning 1 and 0 based
 	*on that to the CONFINT_BAR variable.
@@ -41,28 +79,7 @@ cap	program drop	iegraph
 	}
 	
 	
-	*Testing to see if the variables used in the regressions are actual dummy variables as treatment vars need to be dummy variables. 
-	foreach var of local varlist{
-		cap assert inlist(`var',0,1) | missing(`var')
-		if _rc {
-			noi display as error "{phang} The variable `var' is not a dummy. Treatment variable needs to be a dummy (0 or 1) variable. {p_end}"
-			noi display ""
-			error 149
-		}
-					
-		local counter = `counter' + 1
-		
-		*Assigning variable coefficient/standard errors/no of obs. to scalars with the name Coeff_(`variable name') 
-		*coeff_se_(`variable name'), obs_(`variable name').
-		
-		scalar coeff_`var' 		= _b[`var'] 
-		scalar coeff_se_`var' 	= _se[`var']
-		
-		count if e(sample) == 1 & `var' == 1 //Count one tmt group at the time
-		scalar obs_`var' = r(N)
 
-	} 
-		
 	*Checking to see if the save option is used what is the extension related to it. 
 	if "`save'" != "" {
 	
@@ -160,10 +177,10 @@ cap	program drop	iegraph
 	//Make sure that missing is properly handled
 	
 	tempvar anyTMT control
-	egen `anyTMT' = rowmax(`varlist') 	if e(sample) == 1
+	egen `anyTMT' = rowmax(`varlist')
 	gen `control' = (`anyTMT' == 0) 	if !missing(`anyTMT')
 
-	sum `e(depvar)' if e(sample) == 1 & `control' == 1
+	sum `e(depvar)' if `control' == 1
 	scalar ctl_N		= r(N)
 	scalar ctl_mean	  	= r(mean)
 	scalar ctl_mean_sd 	= r(sd)	
@@ -502,6 +519,7 @@ end
 		}
 		
 	end
+	
 	*******************************************
 	*******************************************
 		******* Greyscale Option *******
@@ -518,6 +536,7 @@ end
 			
 			return local color "black"
 		}
+
 		else if `groupCount' == 2 & `totalNumGroups' <= 3 {
 			
 			return local color "gs14"
@@ -528,5 +547,105 @@ end
 		
 			return local color "`grayscale' `grayscale' `grayscale' `grayscale'"
 		}
+		
+	end
+	
+	*******************************************
+	*******************************************
+		******* Test if valid  *******
+		******* dummies 	   *******	
+	*******************************************
+	*******************************************
+	
+	cap program drop 	testDums
+		program define	testDums
+		
+		unab dumlist : `0'
+		
+		*What we know:
+			* No all same values in variable (would have been dropped in regression and we test that it is in the regression)
+		
+		*Test: all values dummies (missing would have been excluded in regression and we keep if e(sample)
+		
+		foreach dumvar of varlist `dumlist' {
+		
+			*tab `dumvar', m
+			
+			cap assert inlist(`dumvar',0,1)
+			if _rc {
+				noi display as error "{phang} The variable `dumvar' is not a dummy. Treatment variable needs to be a dummy (0 or 1) variable. {p_end}"
+				noi display ""
+				error 149
+			}
+		}
+				
+		*Count how many dummies is 1 for each observation
+		tempvar  dum_count
+		egen 	`dum_count' = rowtotal(`dumlist')
+		
+		*Exactly one dummy is 1, meaning this observation is in one of the treatment arms
+		count if `dum_count' == 1
+		local dum_count_1 `r(N)'
+		
+		*No dummies is 1, meaning this observation is control
+		count if `dum_count' == 0
+		local dum_count_0 `r(N)'
+
+		*Exactly 3 dummies are three. Only allowed in the exact case of diff-and-diff regressions
+		count if `dum_count' == 3
+		local dum_count_3 `r(N)'	
+		
+		*Exactly 2 or more than three is never correct.
+		count if `dum_count' == 2 | `dum_count' > 3
+		local dum_count_2orgt3 `r(N)'
+		
+		*Test that there is at least some treatment observations
+		if `dum_count_0' == 0 		noi di as error "{phang} There are no control observations. One category must be omitted and it should be the omitted category in the regression. The omitted category will be considerd the control group. See helpfile for more info. Disable this test by using option ignoredummytest.{p_end}"
+		if `dum_count_0' == 0 		error 480		
+		
+		*Test that there is at least some control observations (this error should be caught by dummies omitted in the regression)
+		if `dum_count_1' == 0 		noi di as error "{phang} There are no treatment observations. None of the dummies have observations for which the dummy has the value 1. See helpfile for more info. Disable this test by using option ignoredummytest.{p_end}"
+		if `dum_count_1' == 0 		error 480
+		
+		*Test if there are any observations that have two or more than three dummies that is 1
+		if `dum_count_2orgt3' > 0 	noi di as error "{phang} There is overlap in the treatment dummies. The dummies must be mutually exclusive meaning that no observation has the value 1 in more than one treatment dummy. The exception is when you use a diff-and-diff, but this dummies is not a valid diff and diff. See helpfile for more info. Disable this test by using option ignoredummytest.{p_end}"
+		if `dum_count_2orgt3' > 0 	error 480
+		
+		*After passing the previous two steps, test if there are cases that are only allowed in diff 
+		if `dum_count_3' > 0 {		
+			
+			*Diff-and-diff must have exactly 3 dummies
+			if `:list sizeof dumlist' != 3 	noi di as error "{phang} There is overlap in the treatment dummies. The dummies must be mutually exclusive meaning that no observation has the value 1 in more than one treatment dummy. The exception is when you use a diff-and-diff, but this dummies is not a valid diff and diff. See helpfile for more info. Disable this test by using option ignoredummytest.{p_end}"
+			if `:list sizeof dumlist' != 3 	error 480
+			
+			* Test if valid diff-diff	
+			testDumsDD `dum_count' `dumlist'
+		}
+		
+	end
+	
+	cap program drop 	testDumsDD
+		program define	testDumsDD
+		
+		local dum_count `1'
+		
+		**Test that for only two of three dummies there are observations
+		* that has only that dummy. I.e. the two that is not the 
+		* interaction. If the interaction is 1, all three shluld be 1.
+		
+		*Count how many dummies the condition is above applies to
+		local counter 0
+		
+		*Loop over all dummies
+		forvalues i = 2/4 {
+			
+			*Test the number
+			count if ``i'' == 1 & `dum_count' == 1
+			if `r(N)' > 0 local ++counter
+		
+		}
+		*Count that exactly two dummies fullfilledthe condition
+		if `counter' != 2	noi di as error "{phang} There is overlap in the treatment dummies. The dummies must be mutually exclusive meaning that no observation has the value 1 in more than one treatment dummy. The exception is when you use a diff-and-diff, but this dummies is not a valid diff and diff. See helpfile for more info. Disable this test by using option ignoredummytest.{p_end}""	
+		if `counter' != 2	error 480
 		
 	end
