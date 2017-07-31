@@ -143,7 +143,7 @@ qui {
 			*Produce success output
 			noi di "{pstd}Command ran succesfully, for the round [`itemName'] the following folders and master dofile were created:{p_end}"
 			noi di "{phang2}1) [${`abbreviation'}]{p_end}"
-			noi di "{phang2}2) [${encryptFolder}/`itemName' Encrypted Data]{p_end}"
+			noi di "{phang2}2) [${encryptFolder}/Round `itemName' Encrypted]{p_end}"
 			noi di "{phang2}3) [${`abbreviation'}/`itemName'_MasterDofile.do]{p_end}"
 		}
 		*Creating a new level of observation for master data set
@@ -156,7 +156,7 @@ qui {
 			*Produce success output
 			noi di "{pstd}Command ran succesfully, for the unit of observation [`itemName'] the following folders were created:{p_end}"
 			noi di "{phang2}1) [${dataWorkFolder}/MasterData/`itemName']{p_end}"
-			noi di "{phang2}2) [${encryptFolder}/IDMasterKey/`itemName']{p_end}"
+			noi di "{phang2}2) [${encryptFolder}/Master `itemName' Encrypted]{p_end}"
 		}
 	}
 	
@@ -224,12 +224,20 @@ cap program drop 	iefolder_newRound
 	args subHandle rndName rndAbb 
 	
 	di "new round command"
-
+	
+	*Not encrypted branch
+	
 	*Test if folder where to create new folder exist
 	checkFolderExists "$dataWorkFolder" "parent"
-	
 	*Test that the new folder does not already exist
 	checkFolderExists "$dataWorkFolder/`rndName'" "new"		
+
+	*Encrypted branch
+	
+	*Test if folder where to create new fodler exist
+	checkFolderExists "$encryptFolder" "parent"
+	*Test that the new folder does not already exist
+	checkFolderExists "$encryptFolder/Round `rndName' Encrypted" "new"		
 	
 	*Old file reference
 	tempname 	oldHandle
@@ -349,24 +357,25 @@ cap program drop 	iefolder_newUnitOfObs
 	di "new unitofobs command"
 
 	global mastData 		"$dataWorkFolder/MasterData"
-	global mastDataIDKey 	"$encryptFolder/IDMasterKey"	
 	
 	*********************************************
 	*Test if folder can be created where expected
 	*********************************************
 	
+	*Not encrypted branch
 	
 	*Test if folder where to create new folder exist
-	checkFolderExists "$mastDataIDKey" "parent"
-
+	checkFolderExists "$mastData" "parent"
 	*Test that the new folder does not already exist
-	checkFolderExists "$mastDataIDKey/`obsName'" "new"
+	checkFolderExists "$mastData/`obsName'" "new"
+	
+	
+	*Encrypted branch
 	
 	*Test if folder where to create new fodler exist
-	checkFolderExists "$mastData" "parent"
-	
+	checkFolderExists "$encryptFolder" "parent"
 	*Test that the new folder does not already exist
-	checkFolderExists "$mastData/`obsName'" "new"				
+	checkFolderExists "$encryptFolder/Master `obsName' Encrypted" "new"				
 	
 	*************
 	*create folder in masterdata
@@ -428,15 +437,15 @@ cap program drop 	iefolder_newUnitOfObs
 	
 	*************
 	*Create unit of observation data subfolders
-	createFolderWriteGlobal "DataSet"  		"mastData_`obsName'"  	masterDataSets	
-	createFolderWriteGlobal "Dofiles"  	 	"mastData_`obsName'"  	mastDataDo
+	createFolderWriteGlobal "DataSet"  						"mastData_`obsName'"  	masterDataSets	
+	createFolderWriteGlobal "Dofiles"  	 					"mastData_`obsName'"  	mastDataDo
 	
 	*************
 	*create folder in encrypred ID key master	
-	createFolderWriteGlobal "`obsName'"  	"mastDataIDKey"  		mastData_E_`obsName'
-	createFolderWriteGlobal "DataSet"  	 	"mastData_E_`obsName'"  mastData_E_data
-	createFolderWriteGlobal "Sampling"   	"mastData_E_`obsName'"  mastData_E_Samp
-	createFolderWriteGlobal "Treatment"  	"mastData_E_`obsName'"  mastData_E_Treat	
+	createFolderWriteGlobal "Master `obsName' Encrypted"  	"encryptFolder"  		mastData_E_`obsName'
+	createFolderWriteGlobal "DataSet"  	 					"mastData_E_`obsName'"  mastData_E_data
+	createFolderWriteGlobal "Sampling"   					"mastData_E_`obsName'"  mastData_E_Samp
+	createFolderWriteGlobal "Treatment Assignment"			"mastData_E_`obsName'"  mastData_E_Treat	
 
 end 
 
@@ -553,7 +562,7 @@ cap program drop 	createRoundMasterDofile
 		
 		*Encrypted round sub-folder
 		file write  `roundHandle'	_n	_col(4)"*Encrypted round sub-folder globals" _n 
-		createFolderWriteGlobal "`rndName' Encrypted Data" 		"encryptFolder" "`rnd'_encrypt" `roundHandle'
+		createFolderWriteGlobal "Round `rndName' Encrypted" 	"encryptFolder" "`rnd'_encrypt" `roundHandle'
 		createFolderWriteGlobal "Raw Identified Data"  			"`rnd'_encrypt" "`rnd'_dtRaw" 	`roundHandle'
 		createFolderWriteGlobal "Dofiles Import"				"`rnd'_encrypt" "`rnd'_doImp" 	`roundHandle'
 		createFolderWriteGlobal "High Frequency Checks"			"`rnd'_encrypt" "`rnd'_HFC" 	`roundHandle'
@@ -830,9 +839,6 @@ cap program drop 	mdofle_p1
 		if "`rndName'" == "" createFolderWriteGlobal "EncryptedData"  "dataWorkFolder"  encryptFolder `subHandle' 
 		if "`rndName'" != "" writeGlobal 			 "EncryptedData"  "dataWorkFolder"  encryptFolder `subHandle' 
 
-		*Create master data subfolders
-		if "`rndName'" == "" createFolderWriteGlobal "IDMasterKey" "encryptFolder" masterIdDataSets `subHandle'
-		if "`rndName'" != "" writeGlobal 			 "IDMasterKey" "encryptFolder" masterIdDataSets `subHandle'
 		
 		if "`rndName'" == "" {
 			*Write sub devisor starting master and monitor data section section
