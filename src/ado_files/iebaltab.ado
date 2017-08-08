@@ -26,7 +26,7 @@
 				/*Statistics and data manipulation*/						///
 				FIXedeffect(varname)										///
 				COVariates(varlist)											///
-				COVAMISSOK													///
+				COVARMISSOK													///
 				vce(string) 												///
 				BALMISS(string) 											///
 				BALMISSReg(string)											///
