@@ -4,7 +4,7 @@ cap program drop   iegitaddtxt
 	
 	qui {
 	
-		args folder
+		syntax nothing, folder(string)
 		
 		*Test that folder exist
 		mata : st_numscalar("r(dirExist)", direxists("`folder'"))
