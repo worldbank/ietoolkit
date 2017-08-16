@@ -16,9 +16,8 @@ cap program drop   iegitaddtxt
 			exit
 		}
 		
-
 		*List files, directories and other files
-		local flist : dir `"`folder'"' files "*"
+		local flist : dir `"`folder'"' files "*" 
 		local dlist : dir `"`folder'"' dirs "*" 
 		local olist : dir `"`folder'"' other "*"
 	
@@ -31,18 +30,17 @@ cap program drop   iegitaddtxt
 			
 		}
 		
-		*Use the command on any subfolder to this command
+		*Use the command on each subfolder to this folder (if any)
 		foreach dir of local dlist {
 			
-			*Recursive call on subfolder
+			*Recursive call on each subfolder
 			addGitKeep `"`folder'\\`dir'"'	
 		}	
-		
 	}
 	
 end 
 	
-	
+*Write a short txt file iegitaddtxt have found an empty folder	
 cap program drop   writeGitKeep
 	program define writeGitKeep
 	
