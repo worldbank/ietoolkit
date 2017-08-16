@@ -6,6 +6,17 @@ cap program drop   iegitaddtxt
 	
 		args folder
 		
+		*Test that folder exist
+		mata : st_numscalar("r(dirExist)", direxists("`folder'"))
+		
+		if `r(dirExist)' == 0 {
+		
+			noi di as error `"{phang}The "`folder'" folder does not exist. You must enter the full path. For example, on most Windows computers from {it:C:} and on most Mac computers from {it:/user/}. {p_end}"' 
+			error 693
+			exit
+		}
+		
+
 		*List files, directories and other files
 		local flist : dir `"`folder'"' files "*"
 		local dlist : dir `"`folder'"' dirs "*" 
@@ -30,6 +41,7 @@ cap program drop   iegitaddtxt
 	}
 	
 end 
+	
 	
 cap program drop   writeGitKeep
 	program define writeGitKeep
