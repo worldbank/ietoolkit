@@ -3,8 +3,8 @@ cap program drop   iegitaddtxt
 	program define iegitaddtxt
 	
 	qui {
-	
-		syntax nothing, folder(string)
+		
+		syntax , folder(string)
 		
 		*Test that folder exist
 		mata : st_numscalar("r(dirExist)", direxists("`folder'"))
@@ -34,7 +34,7 @@ cap program drop   iegitaddtxt
 		foreach dir of local dlist {
 			
 			*Recursive call on each subfolder
-			addGitKeep `"`folder'\\`dir'"'	
+			iegitaddtxt , folder(`"`folder'\\`dir'"')
 		}	
 	}
 	
