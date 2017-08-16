@@ -52,7 +52,7 @@ help for {hi:ieaddgittxt}
 {title:Acknowledgements}
 
 {pstd}I would like to acknowledge the help in testing and proofreading I received in relation to this command and help file from (in alphabetic order):{p_end}
-{pmore}Mrijan Rimal{break}
+{pmore}Guadalupe Bedoya{break}Mrijan Rimal{break}
 
 {title:Author}
 
