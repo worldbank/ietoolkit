@@ -27,8 +27,7 @@ help for {hi:ieaddgittxt}
 	that a folder structure is added to the repository at the beginning of a project. At 
 	the time the folder structure is added to the repository several folders might still 
 	be empty and GitHub will not sync them, meaning that they are not available to the full
-	team. {cmd:iegitaddtxt} is a Stata adaptation of the solution in 
-	{browse "http://bytefreaks.net/gnulinux/bash/how-to-add-automatically-all-empty-folders-in-git-repository" :this post}.
+	team. {cmd:iegitaddtxt} is a Stata adaptation of {it:Solution B} in {browse "http://bytefreaks.net/gnulinux/bash/how-to-add-automatically-all-empty-folders-in-git-repository" :this post}.
 
 {pstd}{cmd:iegitaddtxt} creates a placeholder .txt file called {it:gitkeep.txt} in all empty subfolders of 
 	the folder specified in {cmd:folder()}. The placeholder .txt file may be removed as 
