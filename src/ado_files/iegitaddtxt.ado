@@ -34,7 +34,7 @@ cap program drop   iegitaddtxt
 		foreach dir of local dlist {
 			
 			*Recursive call on each subfolder
-			iegitaddtxt , folder(`"`folder'\\`dir'"')
+			iegitaddtxt , folder(`"`folder'//`dir'"')
 		}	
 	}
 	
@@ -49,7 +49,7 @@ cap program drop   writeGitKeep
 		*Create file
 		tempname 	newHandle
 		cap file close 	`newHandle'	
-			file open  	`newHandle' using "`folder'\gitKeep.txt", text write replace
+			file open  	`newHandle' using "`folder'/gitKeep.txt", text write replace
 		
 		*Add some text to the file
 		file write  `newHandle' ///
