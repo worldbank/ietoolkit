@@ -55,8 +55,10 @@ cap program drop   writeGitKeep
 		file write  `newHandle' ///
 			_col(4)"*******************************************************************************" _n ///
 			_col(4)"*******************************************************************************" _n _n ///
-			_col(8) "This file is just a placeholder file so the GitHub syncs empty folders" _n _n ///
-			_col(8) "This file is meant to be deleted once this folder has real content" _n _n ///
+			_col(8) "This file is only a placeholder file so that GitHub syncs empty folders!" _n _n ///
+			_col(8) "If files have been added to the folder of this file so that this" _n ///
+			_col(8) "file is no longer the only file in this folder, then this file" _n ///
+			_col(8) "may be deleted. " _n _n ///
 			_col(4)"*******************************************************************************" _n ///
 			_col(4)"*******************************************************************************" _n ///
 			_n 
