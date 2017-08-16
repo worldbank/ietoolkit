@@ -25,8 +25,8 @@ help for {hi:ieaddgittxt}
 
 {pstd}GitHub does not sync empty folders. However, it is common in research projects 
 	that a folder structure is added to the repository at the beginning of a project. At 
-	the time the folder structure is added to the repository several folders might still 
-	be empty and GitHub will not sync them, meaning that they are not available to the full
+	the time the folder structure is added to the repository, several folders might still 
+	be empty and GitHub will not sync them, meaning that they will not be available to the full
 	team. {cmd:iegitaddtxt} is a Stata adaptation of {it:Solution B} in {browse "http://bytefreaks.net/gnulinux/bash/how-to-add-automatically-all-empty-folders-in-git-repository" :this post}.
 
 {pstd}{cmd:iegitaddtxt} creates a placeholder .txt file called {it:gitkeep.txt} in all empty subfolders of 
@@ -44,8 +44,8 @@ help for {hi:ieaddgittxt}
 
 {pstd}In the example above, there is a GitHub repository in the folder ProjectA. This 
 	repository has a folder structure where some folders are still empty but will later 
-	be populated with files. In order to have all folders, even the empty ones, on all 
-	collaborators cloned local copies of the reposiory, the folders needs to be filled with 
+	be populated with files. In order to have all folders, even the empty ones, synced on all 
+	collaborators cloned local copies of the repository, the folders need to be filled with 
 	something and that is what the example above is doing.
 
 {title:Acknowledgements}
