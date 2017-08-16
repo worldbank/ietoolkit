@@ -11,7 +11,7 @@ cap program drop   iegitaddtxt
 		
 		if `r(dirExist)' == 0 {
 		
-			noi di as error `"{phang}The "`folder'" folder does not exist. You must enter the full path. For example, on most Windows computers from {it:C:} and on most Mac computers from {it:/user/}. {p_end}"' 
+			noi di as error `"{phang}The "`folder'" folder does not exist. You must enter the full path. For example, on most Windows computers it starts with {it:C:} and on most Mac computers with {it:/user/}. Important: Specify the whole file path to the repository folder, not just {it:C:} or {it:/user/} as that would creaet the .txt file in every empty folder on your computer.{p_end}"' 
 			error 693
 			exit
 		}
