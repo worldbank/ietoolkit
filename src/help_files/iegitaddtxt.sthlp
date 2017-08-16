@@ -6,11 +6,11 @@ help for {hi:ieaddgittxt}
 
 {title:Title}
 
-{phang}{cmdab:iematch} {hline 2} Creates a placeholder .txt files each empty subfolder, which is often needed to sync standardized folder structures to GitHub.
+{phang}{cmdab:iegitaddtxt} {hline 2} Creates a placeholder .txt file in each empty subfolder, which is often needed to sync standardized folder structures to GitHub.
 
 {title:Syntax}
 
-{phang} {cmdab:iematch} , {cmd:folder(}{it:file_path}{cmd:)}
+{phang} {cmdab:iegitaddtxt} , {cmd:folder(}{it:file_path}{cmd:)}
 
 {marker opts}{...}
 {synoptset 18}{...}
@@ -23,10 +23,10 @@ help for {hi:ieaddgittxt}
 {marker desc}
 {title:Description}
 
-{pstd}GitHub does not sync empty folders, however, it is common in research projects 
-	that a folder structure is added to the repository at teh beginning of a project. At 
-	that time the fodler structure is added to the repository several folders might still 
-	be empty and GitHub will not sync them, meaning that they are not availible to the full
+{pstd}GitHub does not sync empty folders. However, it is common in research projects 
+	that a folder structure is added to the repository at the beginning of a project. At 
+	the time the folder structure is added to the repository several folders might still 
+	be empty and GitHub will not sync them, meaning that they are not available to the full
 	team. {cmd:iegitaddtxt} is a Stata adaptation of the solution in 
 	{browse "http://bytefreaks.net/gnulinux/bash/how-to-add-automatically-all-empty-folders-in-git-repository" :this post}.
 
@@ -37,7 +37,7 @@ help for {hi:ieaddgittxt}
 {marker optslong}
 {title:Options}
 
-{phang}{cmd:folder(}{it:file_path}{cmd:)} is the folder path to the repository with empty fodlers where the file {it:gitkeep.txt} will be created in each empty folder.
+{phang}{cmd:folder(}{it:file_path}{cmd:)} is the folder path to the repository with empty folders where the file {it:gitkeep.txt} will be created in each empty folder.
 
 {title:Example}
 
@@ -45,8 +45,8 @@ help for {hi:ieaddgittxt}
 
 {pstd}In the example above, there is a GitHub repository in the folder ProjectA. This 
 	repository has a folder structure where some folders are still empty but will later 
-	be populated with files. In order to have all folders, even the empty folders, on all 
-	collaborators cloned local copies of the reposiory the folders needs to be filled with 
+	be populated with files. In order to have all folders, even the empty ones, on all 
+	collaborators cloned local copies of the reposiory, the folders needs to be filled with 
 	something and that is what the example above is doing.
 
 {title:Acknowledgements}
