@@ -1,11 +1,11 @@
 *! version 5.2 28JUL2017  Kristoffer Bjarkefur kbjarkefur@worldbank.org
 
-cap program drop 	iefolder
-	program define	iefolder
+cap program drop 	iefolder2
+	program define	iefolder2
 
 qui {	
 	
-	syntax anything, PROJectfolder(string) [ABBreviation(string)]
+	syntax anything, PROJectfolder(string) [ABBreviation(string) SUBfolder(string)]
 	
 	version 11
 	
@@ -72,8 +72,7 @@ qui {
 		error 198
 	}
 	
-	
-		*test that there is no space in itemname
+	*test that there is no space in itemname
 	local space_pos = strpos(trim("`itemName'"), " ")
 	if "`rest'" != ""  | `space_pos' != 0 {
 
@@ -96,6 +95,14 @@ qui {
 		noi di as error `"{pstd}Invalid name in the option {it:abbreviation()}. The name [`abbreviation'] can only include letters, numbers or underscore and the first character must be a letter.{p_end}"'
 		error 198
 	}	
+	
+	**Only rounds can be put in a sufolder, so if subfolder is used the itemtype must be 
+	
+	if ("`subfolder'" != "" & "`itemType'" != "round") {
+		
+		noi di as error `"{pstd}The option subfolder() can only be used together with item type "round" as only "round" folders can be organized in subfolders.{p_end}"'
+		error 198
+	}
 	
 	/***************************************************
 	
