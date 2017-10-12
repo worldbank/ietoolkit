@@ -25,7 +25,7 @@ An easy but still very efficient way to provide any feedback on these commands i
  - **iegraph** produces graphs of estimation results in common impact evaluation regression models
  - **ieboilstart** standardizes the boilerplate code at the top of all do-files
  - **iedropone** drops observations and controls that the correct number was dropped
- - **iegitaddtxt** adds placeholder files to all empty subfolders allowing them to be synced on GitHub
+ - **iegitaddmd** adds placeholder README.md files to all empty subfolders allowing them to be synced on GitHub
  - **ieboilsave** performs checks before saving a data set
 
 ### **Contributions**
