@@ -54,21 +54,21 @@ qui {
 	*Test if subcommand is valid
 	if `:list subcommand in sub_commands' == 0 {
 
-		noi di as error "{phang}You have not used a valid subcommand. See help file for details.{p_end}"
+		noi di as error `"{phang}You have not used a valid subcommand. You entered "`subcommand'". See the {help iefolder:help file} for details.{p_end}"'
 		error 198
 	}	
 	
 	*Test if item type is valid
 	if `:list itemType in itemTypes' == 0 {
 
-		noi di as error "{phang}You have not used a valid item type. See help file for details.{p_end}"
+		noi di as error `"{phang}You have not used a valid item type. You entered "`itemType'". See the {help iefolder:help file} for details.{p_end}"'
 		error 198
 	} 
 	
 	*Test that item name is used when item type is anything but project
 	else if ("`itemType'" != "project" & "`itemName'" == "" ) {
 		
-		noi di as error "{phang}You must specify a name of the `itemType'. See help file for details.{p_end}"
+		noi di as error `"{phang}You must specify a name of the `itemType'. See the {help iefolder:help file} for details.{p_end}"'
 		error 198
 	}
 	
