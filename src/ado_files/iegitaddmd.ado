@@ -1,6 +1,6 @@
 
-cap program drop   iegitaddtxt
-	program define iegitaddtxt
+cap program drop   iegitaddmd
+	program define iegitaddmd
 	
 	qui {
 		
@@ -25,7 +25,7 @@ cap program drop   iegitaddtxt
 		if `"`flist'`dlist'`olist'"' == "" {
 			
 			** If all those lists are empty then we are in an 
-			*  empty folder and should write gitKeep.txt
+			*  empty folder and should write README.md
 			writeGitKeep `"`folder'"'
 			
 		}
@@ -40,7 +40,7 @@ cap program drop   iegitaddtxt
 	
 end 
 	
-*Write a short txt file iegitaddtxt have found an empty folder	
+*Write a README.md file iegitaddmd have found an empty folder	
 cap program drop   writeGitKeep
 	program define writeGitKeep
 	
@@ -49,7 +49,7 @@ cap program drop   writeGitKeep
 		*Create file
 		tempname 	newHandle
 		cap file close 	`newHandle'	
-			file open  	`newHandle' using "`folder'/gitKeep.txt", text write replace
+			file open  	`newHandle' using "`folder'/README.md", text write replace
 		
 		*Add some text to the file
 		file write  `newHandle' ///
