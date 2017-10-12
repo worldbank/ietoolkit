@@ -10,7 +10,7 @@ This command is intended to be used with **iefolder** but it can be used in any 
 
 The practice that we recommend is that the text in this file is replaced with a text that describes what this empty folder is intended to be used for. This file is written in markdown (.md) format, which is suitable for GitHub. If a markdown file is called *README.md* then GitHub displays this file when someone opens the containing folder on GitHub.com using a web browser.
 
-If you are new to markup languages (markdown, html etc.) then this [Markdown Tutorial] (https://www.markdowntutorial.com/) is a great place to start. If you have some experience with markup languages, then this [Markdown Cheat Sheet](https://guides.github.com/pdfs/markdown-cheatsheet-online.pdf) is great place to start.
+If you are new to markup languages (markdown, html etc.) then this [Markdown Tutorial](https://www.markdowntutorial.com/) is a great place to start. If you have some experience with markup languages, then this [Markdown Cheat Sheet](https://guides.github.com/pdfs/markdown-cheatsheet-online.pdf) is great place to start.
 
 ## Add similar files in other folders
 
@@ -20,4 +20,4 @@ Another great use of a *README.md* file is to use it as documentation on how the
 
 ## Removing this file
 
-It is not recommended to remove this file as GitHub will then not sync the folder it sits in anymore, unless the folder now has content. But even when content is added and the file can be removed without breaking the GitHub functionality, our recomm endation is to replace the content with more relevant content rather than deleting it.
+It is not recommended to remove this file as GitHub will then not sync the folder it sits in anymore, unless the folder now has content. But even when content is added and the file can be removed without breaking the GitHub functionality, our recommendation is to replace the content with more relevant content rather than deleting it.
