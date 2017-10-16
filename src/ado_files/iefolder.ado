@@ -16,6 +16,8 @@ qui {
 	*Create an empty line before error message or output
 	noi di ""
 	
+
+	
 	/***************************************************
 	
 		Parse input
@@ -37,7 +39,7 @@ qui {
 	local itemName 		= trim("`itemName'")
 	local abbreviation 	= trim("`abbreviation'")
 	
-	*noi di "SubCommand 	`subcommand'"
+	*noi di "SubCommand `subcommand'"
 	*noi di "ItemType 	`itemType'"
 	*noi di "ItemName	`itemName'"
 
@@ -165,6 +167,7 @@ qui {
 			noi di "{phang2}1) [${dataWorkFolder}/MasterData/`itemName']{p_end}"
 			noi di "{phang2}2) [${encryptFolder}/Master `itemName' Encrypted]{p_end}"
 		}
+
 	}
 	
 	*Closing the new main master dofile handle
@@ -894,108 +897,7 @@ cap program drop 	mdofle_p2
 		
 end	
 
-cap program drop 	global_setup
-program define		global_setup
-	
-	*Create a temporary textfile
-	tempname 	glbStupHandle	
-	tempfile	glbStupTextFile
-	
-	cap file close 	`glbStupHandle'	
-	file open  		`glbStupHandle' using "`glbStupTextFile'", text write append	
-	
-		
-	file write  `glbStupHandle' 	///
-		_col(4)"* ******************************************************************** *" _n 	///
-		_col(4)"*" _n 																			///	
-		_col(4)"*" _col(12) "SET UP STANDARDIZATION GLOBALS AND OTHER CONSTANTS" _n 			///
-		_col(4)"*" _n 																			///			
-		_col(4)"*" _col(16) "-Set globals used all across the projects" _n 						///
-		_col(4)"*" _col(16) "-It is bad practice to define these at mutliple locations" _n		///
-		_col(4)"*" _n 																			///	
-		_col(4)"* ******************************************************************** *" _n
-						
-	file write  `glbStupHandle' 																///
-		_n 																						///	
-		_col(4)"* ******************************************************************** *" _n 	///
-		_col(4)"* Set all conversion rates used in unit standardization " _n 					///
-		_col(4)"* ******************************************************************** *" _n 	///
-		_n 																						///
-		_col(4)"**Define all your conversion rates here instead of typing them each " _n 		///
-		_col(4)"* time you are converting amounts, for example - in unit standardization. " _n 	///
-		_col(4)"* We have already listed common conversion rates below, but you" _n 			/// 
-		_col(4)"* might have to add rates specific to your project, or change the target " _n 	///
-		_col(4)"* unit if you are standardizing to other units than meters, hectares," _n 		///
-		_col(4)"* and kilograms." 		_n														///
-		_n 																						///
-		_col(4)"*Standardizing length to meters" _n 											///
-		_col(8)"global foot" _col(24) "= 0.3048" _n 											///
-		_col(8)"global mile" _col(24) "= 1609.34" _n 											///
-		_col(8)"global km" 	 _col(24) "= 1000" _n 												///
-		_col(8)"global yard" _col(24) "= 0.9144" _n 											///
-		_col(8)"global inch" _col(24) "= 0.0254" _n 											///
-		_n 																						///	
-		_col(4)"*Standardizing area to hectares" _n 											///
-		_col(8)"global sqfoot"	_col(24) "= (1 / 107639)" _n 									///
-		_col(8)"global sqmile"	_col(24) "= (1 / 258.999)" _n 									///
-		_col(8)"global sqmtr" 	_col(24) "= (1 / 10000)" _n 									///
-		_col(8)"global sqkmtr"	_col(24) "= (1 / 100)" _n 										///
-		_col(8)"global acre" 	_col(24) "= 0.404686" _n 										///
-		_n 																						///	
-		_col(4)"*Standardizing weight to kilorgrams" _n 										///
-		_col(8)"global pound" 	_col(24) "= 0.453592" _n 										///
-		_col(8)"global gram" 	_col(24) "= 0.001" _n 											///
-		_col(8)"global impTon" 	_col(24) "= 1016.05" _n 										///
-		_col(8)"global usTon" 	_col(24) "= 907.1874996" _n 									///
-		_col(8)"global mtrTon" 	_col(24) "= 1000" _n 											///
-		_n 																						/// 
-		_col(4)"* ******************************************************************** *" _n 	///
-		_col(4)"* Set global lists of variables" _n 											///
-		_col(4)"* ******************************************************************** *" _n 	///
-		_n 																						///
-		_col(4)"**This is a good location to create lists of variables to be used at " _n 		///
-		_col(4)"* multiple locations across the project. Examples of such lists might " _n 		///
-		_col(4)"* be different list of controls to be used across multiple regressions. " _n		///
-		_col(4)"* By defining these lists here, you can easliy make updates and have " _n		///
-		_col(4)"* those updates being applied to all regressions without a large risk " _n		///
-		_col(4)"* of copy and paste errors." _n 												///
-		_n 																						///	
-		_col(8)"*Control Variables" _n 															///
-		_col(8)"*Example: global household_controls" _col(50) "income female_headed" _n 		///
-		_col(8)"*Example: global country_controls" 	 _col(50) "GDP inflation unemployment" _n 	///
-		_n 																						///	
-		_col(4)"* ******************************************************************** *" _n 	///
-		_col(4)"* Set custom ado file path" _n 													///
-		_col(4)"* ******************************************************************** *" _n 	///
-		_n																						///
-		_col(4)"**It is possible to control exactly which version of each command that " _n 	///
-		_col(4)"* is used in the project. This prevents that different versions in " _n 		///
-		_col(4)"* installed commands leads to different results." _n _n							///
-		_col(4)"/*"_n																			///
-		_col(8)"global ado" 	_col(24) `"""' _char(36) `"dataWorkFolder/your_ado_folder""' _n	///
-		_col(12)"adopath ++"	_col(24) `"""' _char(36) `"ado" "'	 _n							///
-		_col(12)"adopath ++"	_col(24) `"""' _char(36) `"ado/m" "' _n							///
-		_col(12)"adopath ++"	_col(24) `"""' _char(36) `"ado/b" "' _n							///
-		_col(4)"*/"_n																			///
-		_n 																						///	
-		_col(4)"* ******************************************************************** *" _n 	///
-		_col(4)"* Anything else" _n 													///
-		_col(4)"* ******************************************************************** *" _n 	///
-		_n																						///		
-		_col(4)"**Everything that is constant may be included here. One example of" _n 			///
-		_col(4)"* something not constant that should be included here is exchange" _n 			///
-		_col(4)"* rates. It is best practice to have one global with the exchange rate" _n 		///
-		_col(4)"* here, and reference this each time a currency conversion is done. If " _n 	///
-		_col(4)"* the currency exchange rate needs to be updated, then it only has to" _n 		///
-		_col(4)"* be done at one place for the whole project." _n 								///		
-		
-	*Closing the new main master dofile handle
-	file close 		`glbStupHandle'
-	
-	*Copy the new master dofile from the tempfile to the original position
-	copy "`glbStupTextFile'"  "$dataWorkFolder/global_setup.do" , replace	
-		
-end
+
 	
 
 cap program drop 	mdofle_p3
@@ -1207,5 +1109,114 @@ cap program drop 	mdofle_task_dosection
 		_col(4)"* ***************************************************** *"  _n ///
 		_n ///
 		_col(8) `"*do ""' _char(36) `"`rnd'`suffix'/dofile`number'.do" //Give your dofile a more informative name, this is just a place holder name"' _n _n
+		
+end
+
+/*****************************************************************
+
+	Create dofile that sets all non-folder globals
+
+*****************************************************************/
+
+cap program drop 	global_setup
+program define		global_setup
+	
+	*Create a temporary textfile
+	tempname 	glbStupHandle	
+	tempfile	glbStupTextFile
+	
+	cap file close 	`glbStupHandle'	
+	file open  		`glbStupHandle' using "`glbStupTextFile'", text write append	
+	
+		
+	file write  `glbStupHandle' 	///
+		_col(4)"* ******************************************************************** *" _n 	///
+		_col(4)"*" _n 																			///	
+		_col(4)"*" _col(12) "SET UP STANDARDIZATION GLOBALS AND OTHER CONSTANTS" _n 			///
+		_col(4)"*" _n 																			///			
+		_col(4)"*" _col(16) "-Set globals used all across the projects" _n 						///
+		_col(4)"*" _col(16) "-It is bad practice to define these at mutliple locations" _n		///
+		_col(4)"*" _n 																			///	
+		_col(4)"* ******************************************************************** *" _n
+						
+	file write  `glbStupHandle' 																///
+		_n 																						///	
+		_col(4)"* ******************************************************************** *" _n 	///
+		_col(4)"* Set all conversion rates used in unit standardization " _n 					///
+		_col(4)"* ******************************************************************** *" _n 	///
+		_n 																						///
+		_col(4)"**Define all your conversion rates here instead of typing them each " _n 		///
+		_col(4)"* time you are converting amounts, for example - in unit standardization. " _n 	///
+		_col(4)"* We have already listed common conversion rates below, but you" _n 			/// 
+		_col(4)"* might have to add rates specific to your project, or change the target " _n 	///
+		_col(4)"* unit if you are standardizing to other units than meters, hectares," _n 		///
+		_col(4)"* and kilograms." 		_n														///
+		_n 																						///
+		_col(4)"*Standardizing length to meters" _n 											///
+		_col(8)"global foot" _col(24) "= 0.3048" _n 											///
+		_col(8)"global mile" _col(24) "= 1609.34" _n 											///
+		_col(8)"global km" 	 _col(24) "= 1000" _n 												///
+		_col(8)"global yard" _col(24) "= 0.9144" _n 											///
+		_col(8)"global inch" _col(24) "= 0.0254" _n 											///
+		_n 																						///	
+		_col(4)"*Standardizing area to hectares" _n 											///
+		_col(8)"global sqfoot"	_col(24) "= (1 / 107639)" _n 									///
+		_col(8)"global sqmile"	_col(24) "= (1 / 258.999)" _n 									///
+		_col(8)"global sqmtr" 	_col(24) "= (1 / 10000)" _n 									///
+		_col(8)"global sqkmtr"	_col(24) "= (1 / 100)" _n 										///
+		_col(8)"global acre" 	_col(24) "= 0.404686" _n 										///
+		_n 																						///	
+		_col(4)"*Standardizing weight to kilorgrams" _n 										///
+		_col(8)"global pound" 	_col(24) "= 0.453592" _n 										///
+		_col(8)"global gram" 	_col(24) "= 0.001" _n 											///
+		_col(8)"global impTon" 	_col(24) "= 1016.05" _n 										///
+		_col(8)"global usTon" 	_col(24) "= 907.1874996" _n 									///
+		_col(8)"global mtrTon" 	_col(24) "= 1000" _n 											///
+		_n 																						/// 
+		_col(4)"* ******************************************************************** *" _n 	///
+		_col(4)"* Set global lists of variables" _n 											///
+		_col(4)"* ******************************************************************** *" _n 	///
+		_n 																						///
+		_col(4)"**This is a good location to create lists of variables to be used at " _n 		///
+		_col(4)"* multiple locations across the project. Examples of such lists might " _n 		///
+		_col(4)"* be different list of controls to be used across multiple regressions. " _n		///
+		_col(4)"* By defining these lists here, you can easliy make updates and have " _n		///
+		_col(4)"* those updates being applied to all regressions without a large risk " _n		///
+		_col(4)"* of copy and paste errors." _n 												///
+		_n 																						///	
+		_col(8)"*Control Variables" _n 															///
+		_col(8)"*Example: global household_controls" _col(50) "income female_headed" _n 		///
+		_col(8)"*Example: global country_controls" 	 _col(50) "GDP inflation unemployment" _n 	///
+		_n 																						///	
+		_col(4)"* ******************************************************************** *" _n 	///
+		_col(4)"* Set custom ado file path" _n 													///
+		_col(4)"* ******************************************************************** *" _n 	///
+		_n																						///
+		_col(4)"**It is possible to control exactly which version of each command that " _n 	///
+		_col(4)"* is used in the project. This prevents that different versions in " _n 		///
+		_col(4)"* installed commands leads to different results." _n _n							///
+		_col(4)"/*"_n																			///
+		_col(8)"global ado" 	_col(24) `"""' _char(36) `"dataWorkFolder/your_ado_folder""' _n	///
+		_col(12)"adopath ++"	_col(24) `"""' _char(36) `"ado" "'	 _n							///
+		_col(12)"adopath ++"	_col(24) `"""' _char(36) `"ado/m" "' _n							///
+		_col(12)"adopath ++"	_col(24) `"""' _char(36) `"ado/b" "' _n							///
+		_col(4)"*/"_n																			///
+		_n 																						///	
+		_col(4)"* ******************************************************************** *" _n 	///
+		_col(4)"* Anything else" _n 													///
+		_col(4)"* ******************************************************************** *" _n 	///
+		_n																						///		
+		_col(4)"**Everything that is constant may be included here. One example of" _n 			///
+		_col(4)"* something not constant that should be included here is exchange" _n 			///
+		_col(4)"* rates. It is best practice to have one global with the exchange rate" _n 		///
+		_col(4)"* here, and reference this each time a currency conversion is done. If " _n 	///
+		_col(4)"* the currency exchange rate needs to be updated, then it only has to" _n 		///
+		_col(4)"* be done at one place for the whole project." _n 								///		
+		
+	*Closing the new main master dofile handle
+	file close 		`glbStupHandle'
+	
+	*Copy the new master dofile from the tempfile to the original position
+	copy "`glbStupTextFile'"  "$dataWorkFolder/global_setup.do" , replace	
 		
 end
