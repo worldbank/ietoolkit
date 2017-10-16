@@ -176,7 +176,21 @@ qui {
 			noi di "{phang2}1) [${dataWorkFolder}/MasterData/`itemName']{p_end}"
 			noi di "{phang2}2) [${encryptFolder}/Master `itemName' Encrypted]{p_end}"
 		}
-
+		*Creating a new subfolder in which rounds can be organized
+		else if "`itemType'" == "subfolder" {
+		
+			*Use the full item name if abbrevaition was not specified
+			if "`abbreviation'" == "" local abbreviation "`itemName'"
+			
+			di "ItemType: subfolder"
+			*iefolder_newSubfolder `newHandle' "`itemName'" "`abbreviation'"	
+			
+			*Produce success output
+			noi di "{pstd}Command ran succesfully, for the subfolder [`itemName'] the following folders were created:{p_end}"
+			noi di "{phang2}1) [${dataWorkFolder}/`itemName']{p_end}"
+			noi di "{phang2}2) [${encryptFolder}/`itemName' Encrypted]{p_end}"
+		
+		}
 	}
 	
 	*Closing the new main master dofile handle
