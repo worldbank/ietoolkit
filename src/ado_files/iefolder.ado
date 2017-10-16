@@ -16,7 +16,16 @@ qui {
 	*Create an empty line before error message or output
 	noi di ""
 	
-
+	*Subfolder todo:
+	* test that new subfolder does not have the same name as another subfolder or round
+	* test that new round folder does not have the same name as a subfolder (is already testing for not having the same name a another round)
+	* add folder
+	* add global to subfolder in master do-file
+	* allow subfolder to have abbreviation
+	
+	*Round to add after subfolder
+	* implement add round in subfolder
+	* test that the subfolder in option is a subfolder and not a round folder
 	
 	/***************************************************
 	
