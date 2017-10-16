@@ -22,6 +22,7 @@ qui {
 	* add folder
 	* add global to subfolder in master do-file
 	* allow subfolder to have abbreviation
+	* make rows in master do file that list all names and abbreviations used for rounds, unitofobs and subfolders. Test that they are not used before doing anything.
 	
 	*Round to add after subfolder
 	* implement add round in subfolder
@@ -60,7 +61,7 @@ qui {
 	
 	*Test that the type is correct
 	local sub_commands "new"
-	local itemTypes "project round unitofobs"
+	local itemTypes "project round unitofobs subfolder"
 	
 	*Test if subcommand is valid
 	if `:list subcommand in sub_commands' == 0 {
@@ -183,12 +184,12 @@ qui {
 			if "`abbreviation'" == "" local abbreviation "`itemName'"
 			
 			di "ItemType: subfolder"
-			*iefolder_newSubfolder `newHandle' "`itemName'" "`abbreviation'"	
+			iefolder_newSubfolder `newHandle' "`itemName'" "`abbreviation'"	
 			
 			*Produce success output
 			noi di "{pstd}Command ran succesfully, for the subfolder [`itemName'] the following folders were created:{p_end}"
 			noi di "{phang2}1) [${dataWorkFolder}/`itemName']{p_end}"
-			noi di "{phang2}2) [${encryptFolder}/`itemName' Encrypted]{p_end}"
+			noi di "{phang2}2) [${encryptFolder}/`itemName']{p_end}"
 		
 		}
 	}
@@ -482,7 +483,111 @@ cap program drop 	iefolder_newUnitOfObs
 
 end 
 
+cap program drop 	iefolder_newSubfolder
+	program define	iefolder_newSubfolder
+	
+	args subHandle subName 
+	
+	di "new Subfolder command"
+	
+	*********************************************
+	*Test if folder can be created where expected
+	*********************************************
+	
+	*Not encrypted branch
+	
+	*Test if folder where to create new folder exist
+	checkFolderExists "$dataWorkFolder" "parent"
+	*Test that the new folder does not already exist
+	checkFolderExists "$dataWorkFolder/`subName'" "new"
+	
+	*Encrypted branch
+	
+	*Test if folder where to create new fodler exist
+	checkFolderExists "$encryptFolder" "parent"
+	*Test that the new folder does not already exist
+	checkFolderExists "$encryptFolder/`subName'" "new"				
+	
+	noi di "folder check ok"
+	
+	**********************************************
+	*New tempfile for updated version of master do
+	**********************************************	
+	
+	*Old file reference
+	tempname 	oldHandle
+	local 		oldTextFile 	"$dataWorkFolder/Project_MasterDofile.do"
 
+	file open `oldHandle' using `"`oldTextFile'"', read
+	file read `oldHandle' line
+	
+	*Locals needed for the section devider
+	local partNum 		= 0 //Keeps track of the part number
+	
+	
+	while r(eof)==0 {
+		
+		*Do not interpret macros
+		local line : subinstr local line "\$"  "\\$"
+		local line : subinstr local line "\`"  "\\`"
+		
+		parseReadLine `"`line'"'
+		
+		*Test if this is the location to write the new master data globals
+		if `r(ief_line)' == 1 & `r(ief_line)' == 1 & `r(ief_end)' == 0  & "`r(sectionName)'" == "rawData" {
+			
+			*Main folder
+			*Create subfolder in the datawork folder and add global to the folder in master do file
+			cap createFolderWriteGlobal "`subName'"    "dataWorkFolder"  	`subName'	`subHandle' 
+			
+			if _rc == 693 {
+			
+				*If that folder exist, problem 
+				noi di as error "{phang}could not create new folder, folder name might already exist "
+				error _rc
+		
+			}
+			else if _rc != 0 {
+				
+				*Unexpected error, run the exact command name again and throw the error to user
+				createFolderWriteGlobal "`subName'"    "dataWorkFolder"  	`subName'	`subHandle' 
+			}
+			
+			*Encrypted folder
+			*Create subfolder in the datawork folder and add global to the folder in master do file
+			cap createFolderWriteGlobal "`subName'"    "encryptFolder"  	`subName'	`subHandle' 
+			
+			if _rc == 693 {
+			
+				*If that folder exist, problem 
+				noi di as error "{phang}could not create new folder, folder name might already exist "
+				error _rc
+		
+			}
+			else if _rc != 0 {
+				
+				*Unexpected error, run the exact command name again and throw the error to user
+				createFolderWriteGlobal "`subName'"    "encryptFolder"  	`subName'	`subHandle' 
+			}
+			
+			*After adding new lines, keep adding the old line to the new file.
+			file write		`subHandle' `"`line'"' _n
+		}
+		else {
+			
+			*Do not add new lines here, keep adding the old line to the new file.
+			file write		`subHandle' `"`line'"' _n
+		}
+		
+		*Read next file and repeat the while loop
+		file read `oldHandle' line
+	}
+	
+	*Close the old file. 
+	file close `oldHandle'	
+	
+
+end 
 
 /************************************************************
 
