@@ -45,25 +45,33 @@ cap program drop   writeGitKeep
 	program define writeGitKeep
 
 		args folder
+		
+		* Do not create a README.md file if one already exist. This issue could
+		* happen if the option [all] is used on a repository that already has at
+		* least one README.md file
+		cap confirm file `"`folder'/README.md"'
+		if !_rc {
+		
+			*Create file
+			tempname 	newHandle
+			cap file close 	`newHandle'
+				file open  	`newHandle' using "`folder'/README.md", text write replace
 
-		*Create file
-		tempname 	newHandle
-		cap file close 	`newHandle'
-			file open  	`newHandle' using "`folder'/README.md", text write replace
+			*Add some text to the file
+			file write  `newHandle' ///
+				_col(4)"*******************************************************************************" _n ///
+				_col(4)"*******************************************************************************" _n _n ///
+				_col(8) "This file is only a placeholder file so that GitHub syncs empty folders!" _n _n ///
+				_col(8) "If files have been added to the folder of this file so that this" _n ///
+				_col(8) "file is no longer the only file in this folder, then this file" _n ///
+				_col(8) "may be deleted. " _n _n ///
+				_col(4)"*******************************************************************************" _n ///
+				_col(4)"*******************************************************************************" _n ///
+				_n
 
-		*Add some text to the file
-		file write  `newHandle' ///
-			_col(4)"*******************************************************************************" _n ///
-			_col(4)"*******************************************************************************" _n _n ///
-			_col(8) "This file is only a placeholder file so that GitHub syncs empty folders!" _n _n ///
-			_col(8) "If files have been added to the folder of this file so that this" _n ///
-			_col(8) "file is no longer the only file in this folder, then this file" _n ///
-			_col(8) "may be deleted. " _n _n ///
-			_col(4)"*******************************************************************************" _n ///
-			_col(4)"*******************************************************************************" _n ///
-			_n
-
-		*Closing the file
-		file close 		`newHandle'
+			*Closing the file
+			file close 		`newHandle'
+			
+		}
 
 end
