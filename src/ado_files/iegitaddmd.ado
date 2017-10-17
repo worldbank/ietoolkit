@@ -50,7 +50,7 @@ cap program drop   writeGitKeep
 		* happen if the option [all] is used on a repository that already has at
 		* least one README.md file
 		cap confirm file `"`folder'/README.md"'
-		if !_rc {
+		if _rc {
 		
 			*Create file
 			tempname 	newHandle
