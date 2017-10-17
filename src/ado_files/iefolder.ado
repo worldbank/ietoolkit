@@ -976,7 +976,8 @@ cap program drop 	mdofle_p1
 		*Create master data folder and add global to folder in master do file
 		if "`rndName'" == "" createFolderWriteGlobal "EncryptedData"  "dataWorkFolder"  encryptFolder `subHandle' 
 		if "`rndName'" != "" writeGlobal 			 "EncryptedData"  "dataWorkFolder"  encryptFolder `subHandle' 
-
+		
+		writeNameLine `subHandle' new
 		
 		if "`rndName'" == "" {
 			*Write sub devisor starting master and monitor data section section
@@ -999,6 +1000,53 @@ cap program drop 	mdofle_p1
 
 
 end	
+
+	
+cap program drop 	writeNameLine
+	program define	writeNameLine
+	
+	args   subHandle type name line
+	
+	if "`type'" == "new" {
+		writeNameLine `subHandle' "rounds" 
+		writeNameLine `subHandle' "untObs"
+		writeNameLine `subHandle' "subFld"
+	}
+	else {
+		
+		*remove stars in the end of the line
+		local line = substr("`line'",1,strlen("`line'") - indexnot(reverse("`line'"),"*") + 1)
+		
+		if "`name'" == "" {
+			
+			*Start the new line
+			local line "*`type'"
+		
+		}
+		else {
+			
+			*add new name (and abbrevation if applicable) to line
+			local line "`line'*`name'"
+		}
+		
+		*Make all devisors at least 80 characters wide by adding stars
+		if (strlen("`line'") < 80) {
+			
+			local numStars = 80 - strlen("`line'")
+			local addedStars _dup(`numStars') _char(42)
+		}
+		
+		file write  `subHandle' _n "`line'" `addedStars'
+		
+		*If creating the lines the first time then add a warning text at the end
+		if "`type'" == "subFld" & "`name'" == "" {
+			file write  `subHandle' _n "*iefolder will not work properly if the lines above are edited" 
+		}
+	}
+	
+	
+	
+end
 
 	
 cap program drop 	mdofle_p2
