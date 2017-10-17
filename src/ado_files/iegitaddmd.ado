@@ -34,7 +34,7 @@ cap program drop   iegitaddmd
 		foreach dir of local dlist {
 
 			*Recursive call on each subfolder
-			iegitaddmd , folder(`"`folder'//`dir'"')
+			iegitaddmd , folder(`"`folder'//`dir'"') `all'
 		}
 	}
 
