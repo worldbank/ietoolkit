@@ -3,7 +3,7 @@
 cap program drop 	iefolder2
 	program define	iefolder2
 
-qui {	
+*qui {	
 	
 	syntax anything, PROJectfolder(string) [ABBreviation(string) SUBfolder(string)]
 	
@@ -139,6 +139,10 @@ qui {
 	
 		di "Subcommand: New"
 		
+		*Use the full item name if abbrevaition was not specified (this code 
+		*is irrelevant if not applicable)
+		if "`abbreviation'" == "" local abbreviation "`itemName'"
+		
 		*Creating a new project
 		if "`itemType'" == "project" {
 			
@@ -152,9 +156,6 @@ qui {
 		}
 		*Creating a new round
 		else if "`itemType'" == "round" {
-			
-			*Use the full item name if abbrevaition was not specified
-			if "`abbreviation'" == "" local abbreviation "`itemName'"
 			
 			di "ItemType: round"
 			iefolder_newRound `newHandle' "`itemName'" "`abbreviation'"	
@@ -179,9 +180,6 @@ qui {
 		}
 		*Creating a new subfolder in which rounds can be organized
 		else if "`itemType'" == "subfolder" {
-		
-			*Use the full item name if abbrevaition was not specified
-			if "`abbreviation'" == "" local abbreviation "`itemName'"
 			
 			di "ItemType: subfolder"
 			iefolder_newSubfolder `newHandle' "`itemName'" "`abbreviation'"	
@@ -199,7 +197,7 @@ qui {
 	
 	*Copy the new master dofile from the tempfile to the original position
 	copy "`newTextFile'"  "$dataWorkFolder/Project_MasterDofile.do" , replace
-}	
+*}	
 end 	
 
 /************************************************************
@@ -292,7 +290,7 @@ cap program drop 	iefolder_newRound
 		**Run funtion to read old project master dofile to check if any 
 		* infomration should be added before this line
 		parseReadLine `"`line'"'
-	
+		
 		if `r(ief_line)' == 0 {
 
 			*This is a regular line of code. It should be copied as-is. No action needed. 
@@ -309,43 +307,48 @@ cap program drop 	iefolder_newRound
 			
 			**This is NOT an end of section line. Nothing will be written here 
 			* but we test that there is no confict with previous names
-			if `r(ief_end)' == 0 {
+			if "`r(sectionName)'" == "endRounds" {
 
-					*Test if it is an end of globals section as we are writing a new 
-					if "`r(sectionName)'" == "endRounds" {
-					
-					*Write devisor for this section
-					writeDevisor 			`subHandle' 1 RoundGlobals rounds `rndName' `rndAbb' 
-					
-					*Write the globals for this round to the proejct master dofile
-					newRndFolderAndGlobals 	`rndName' `rndAbb' "dataWorkFolder" `subHandle' project
+				*Write devisor for this section
+				writeDevisor 			`subHandle' 1 RoundGlobals rounds `rndName' `rndAbb' 
 				
-					*Create the round master dofile and create the subfolders for this round
-					createRoundMasterDofile "$dataWorkFolder/`rndName'" "`rndName'" "`rndAbb'"
+				*Write the globals for this round to the proejct master dofile
+				newRndFolderAndGlobals 	`rndName' `rndAbb' "dataWorkFolder" `subHandle' project
+			
+				*Create the round master dofile and create the subfolders for this round
+				createRoundMasterDofile "$dataWorkFolder/`rndName'" "`rndName'" "`rndAbb'"
 
-					*Write an empty line before the end devisor
-					file write		`subHandle' "" _n	
-					
-				}
-				else {
-				
-					*Test that the folder name about to be used is not already in use 
-					if "`r(itemName)'" == "`rndName'" {
-						noi di as error "{phang}The new round name `rndName' is already in use. No new folders are creaetd and the master do-files has not been changed.{p_end}"
-						error 507
-					}
-					
-					*Test that the folder name about to be used is not already in use 
-					if "`r(itemAbb)'" == "`rndAbb'" {
-						noi di as error "{phang}The new round abbreviation `rndAbb' is already in use. No new folders are creaetd and the master do-files has not been changed.{p_end}"
-						error 507
-					}
-				}
+				*Write an empty line before the end devisor
+				file write		`subHandle' "" _n	
 				
 				*Copy the line as is
 				file write		`subHandle' `"`line'"' _n
+					
 			}
-			
+			else if `r(ief_NameLine)' == 1  {
+				
+				****Test that name is not used already
+				testNameAvailible "`line'" "`rndName'" "`rndAbb'" 
+
+				****Write new line
+				if "`r(nameLineType)'" == "rounds" {
+				
+					*Test if abb is identical to name (applies to 
+					*when abb is not used)
+					*add only name as they are identical
+					if "`rndName'" == "`rndAbb'" local name "`rndName'"
+					*add both name and abb
+					if "`rndName'" != "`rndAbb'" local name "`rndName'*`rndAbb'"
+					
+					*write the new line
+					writeNameLine `subHandle' "rounds" "`name'" "`line'"
+				}
+				else {
+					
+					*We do not add to this line so write is as it was
+					file write		`subHandle' `"`line'"' _n	
+				}
+			}
 			**This is an end of section line. We will add the new content here 
 			* before writing the end of section line
 			else if `r(ief_end)' == 1 {
@@ -607,17 +610,27 @@ cap program drop 	parseReadLine
 		* test if this line is an iefolder line
 		local divisorStar  		"`1'"
 		local divisorIefoldeer  "`2'"
-
-		if `"`divisorStar'`divisorIefoldeer'"' != "*iefolder" {
+		
+		if `"`divisorIefoldeer'"' == "rounds" | `"`divisorIefoldeer'"' == "untObs" | `"`divisorIefoldeer'"' == "subFld"{
+			
+			return scalar ief_line 		= 1	
+			return scalar ief_end 		= 0
+			return scalar ief_NameLine 	= 1
+			return local  nameLineType 	= `"`divisorIefoldeer'"'
+		
+		}
+		else if `"`divisorStar'`divisorIefoldeer'"' != "*iefolder" {
 			
 			*This is not a iefolder divisor
-			return scalar ief_line 	= 0
-			return scalar ief_end 	= 0
+			return scalar ief_line 		= 0
+			return scalar ief_end 		= 0
+			
 		}
 		else {
 		
-			*This is a iefolder divisor, 
-			return scalar ief_line 	= 1		
+			*This is a iefolder divisor 
+			return scalar ief_line 		= 1	
+			return scalar ief_NameLine 	= 0
 			
 			*parse the rest of the line (from tokenize above)
 			local partNum  		"`4'"
@@ -827,6 +840,94 @@ cap program drop 	checkFolderExists
 		}
 	
 end
+
+*Write or update the line that list all names used
+cap program drop 	writeNameLine
+	program define	writeNameLine
+	
+	args   subHandle type name line
+	
+	if "`type'" == "new" {
+		
+		*Add a white space before this section
+		file write  `subHandle' _n 
+		
+		writeNameLine `subHandle' "rounds" 
+		writeNameLine `subHandle' "untObs"
+		writeNameLine `subHandle' "subFld"
+	}
+	else {
+		
+		*remove stars in the end of the line
+		local line = substr("`line'",1,strlen("`line'") - indexnot(reverse("`line'"),"*") + 1)
+		
+		*Start the new line
+		if "`name'" == "" local line "*`type'"
+		
+		*add new name (and abbrevation if applicable) to existing line
+		if "`name'" != "" local line "`line'*`name'"
+		
+		*Make all devisors at least 80 characters wide by adding stars
+		if (strlen("`line'") < 80) {
+			
+			local numStars = 80 - strlen("`line'")
+			local addedStars _dup(`numStars') _char(42)
+		}
+		
+		file write  `subHandle' "`line'" `addedStars' _n 
+		
+		*If creating the lines the first time then add a warning text at the end
+		if "`type'" == "subFld" & "`name'" == "" {
+			file write  `subHandle' "*iefolder will not work properly if the lines above are edited" _n
+		}
+	}
+end
+
+* Test if the new name or abb is already used
+cap program drop 	testNameAvailible
+	program define	testNameAvailible
+	
+	args line name abb
+	
+	*If abb was not used or is the same, remove abb
+	if "`name'" == "`abb'" local abb "" 
+	
+	*Tokenize each line 
+	tokenize  "`line'" , parse("*")
+	
+	*Start at the second item in the list as the first is a star
+	local number	1
+	local item 		"``number''"
+
+	*Loop over all 
+	while "`item'" != "" {
+
+		*Loop over name and abb (if abb is not used)
+		foreach nameTest in `name' `abb' {
+			
+			*Test if the name to test is equal to something already used
+			if "`item'" == "`nameTest'" {
+				
+				*name already used, throw error
+				noi di as error "{phang}The name `nameTest' have already been used as a folder name or abreviation. No new folders are creaetd and the master do-files has not been changed.{p_end}"
+				error 507
+			}
+		}
+		
+		*Increment number one more step and take the nest item in the tokenized list
+		local ++number
+
+		*If both this item and the next is a * then break the while loop
+		if "`item'" == "*" & "``number''" == "*" {
+			local item ""
+		}
+		else {
+			*If not both are *, take the next in the list
+			local item "``number''"
+		}
+	}
+	
+end
 	
 /************************************************************
 
@@ -1000,53 +1101,6 @@ cap program drop 	mdofle_p1
 
 
 end	
-
-	
-cap program drop 	writeNameLine
-	program define	writeNameLine
-	
-	args   subHandle type name line
-	
-	if "`type'" == "new" {
-		writeNameLine `subHandle' "rounds" 
-		writeNameLine `subHandle' "untObs"
-		writeNameLine `subHandle' "subFld"
-	}
-	else {
-		
-		*remove stars in the end of the line
-		local line = substr("`line'",1,strlen("`line'") - indexnot(reverse("`line'"),"*") + 1)
-		
-		if "`name'" == "" {
-			
-			*Start the new line
-			local line "*`type'"
-		
-		}
-		else {
-			
-			*add new name (and abbrevation if applicable) to line
-			local line "`line'*`name'"
-		}
-		
-		*Make all devisors at least 80 characters wide by adding stars
-		if (strlen("`line'") < 80) {
-			
-			local numStars = 80 - strlen("`line'")
-			local addedStars _dup(`numStars') _char(42)
-		}
-		
-		file write  `subHandle' _n "`line'" `addedStars'
-		
-		*If creating the lines the first time then add a warning text at the end
-		if "`type'" == "subFld" & "`name'" == "" {
-			file write  `subHandle' _n "*iefolder will not work properly if the lines above are edited" 
-		}
-	}
-	
-	
-	
-end
 
 	
 cap program drop 	mdofle_p2
