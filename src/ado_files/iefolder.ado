@@ -169,6 +169,8 @@ cap program drop 	iefolder2
 		*Creating a new level of observation for master data set
 		else if "`itemType'" == "unitofobs" {
 			
+			global mastData 		"$dataWorkFolder/MasterData"
+			
 			di "ItemType: untiofobs/unitofobs"
 			di `"iefolder_newMaster	`newHandle' "`itemName'""'
 			iefolder_newUnitOfObs	`newHandle' "`itemName'"
@@ -257,20 +259,11 @@ cap program drop 	iefolder_newRound
 	
 	di "new round command"
 	
-	*Not encrypted branch
-	
-	*Test if folder where to create new folder exist
-	checkFolderExists "$dataWorkFolder" "parent"
-	*Test that the new folder does not already exist
-	checkFolderExists "$dataWorkFolder/`rndName'" "new"		
-
-	*Encrypted branch
-	
-	*Test if folder where to create new fodler exist
-	checkFolderExists "$encryptFolder" "parent"
-	*Test that the new folder does not already exist
-	checkFolderExists "$encryptFolder/Round `rndName' Encrypted" "new"		
-	
+	**Test that the folder where the new folder will 
+	* be created exist and that a folder with the same
+	* name is created there already
+	iefolder_testFolderPossible "dataWorkFolder" "`rndName'" "encryptFolder" "Round `rndName' Encrypted"
+		
 	*Old file reference
 	tempname 	oldHandle
 	local 		oldTextFile 	"$dataWorkFolder/Project_MasterDofile.do"
@@ -325,6 +318,7 @@ cap program drop 	iefolder_newRound
 				file write		`subHandle' `"`line'"' _n
 					
 			}
+			*Test if the line is a line with a name line
 			else if `r(ief_NameLine)' == 1  {
 				
 				****Test that name is not used already
@@ -357,7 +351,7 @@ cap program drop 	iefolder_newRound
 				if "`r(partName)'" == "End_RunDofiles" {
 					
 					*Write devisor for this section
-					writeDevisor 			`subHandle' 3 RunDofiles `rndName' `rndAbb' 
+					writeDevisor `subHandle' 3 RunDofiles `rndName' `rndAbb' 
 					
 					*Write the 
 					file write  `subHandle' ///
@@ -374,6 +368,10 @@ cap program drop 	iefolder_newRound
 				*Write the end of section line
 				file write		`subHandle' `"`line'"' _n	
 			}
+			else {
+				*If none apply, just write the line
+				file write		`subHandle' `"`line'"' _n	
+			}
 		}
 		
 		*Read next file and repeat the while loop
@@ -385,6 +383,26 @@ cap program drop 	iefolder_newRound
 
 end
 
+cap program drop 	iefolder_testFolderPossible
+	program define	iefolder_testFolderPossible
+	
+	args mainFolderGlobal mainName encrptFolderGlobal encrptName
+	
+
+	*Test if folder where to create new folder exist
+	checkFolderExists "$`mainFolderGlobal'" "parent"
+	*Test that the new folder does not already exist
+	checkFolderExists "$`mainFolderGlobal'/`mainName'" "new"		
+
+	*Encrypted branch
+	
+	*Test if folder where to create new fodler exist
+	checkFolderExists "$`encrptFolderGlobal'" "parent"
+	*Test that the new folder does not already exist
+	checkFolderExists "$`encrptFolderGlobal'/`encrptName'" "new"
+	
+end
+
 
 cap program drop 	iefolder_newUnitOfObs
 	program define	iefolder_newUnitOfObs
@@ -393,30 +411,16 @@ cap program drop 	iefolder_newUnitOfObs
 	
 	di "new unitofobs command"
 
-	global mastData 		"$dataWorkFolder/MasterData"
+
 	
 	*********************************************
 	*Test if folder can be created where expected
 	*********************************************
 	
-	*Not encrypted branch
-	
-	*Test if folder where to create new folder exist
-	checkFolderExists "$mastData" "parent"
-	*Test that the new folder does not already exist
-	checkFolderExists "$mastData/`obsName'" "new"
-	
-	
-	*Encrypted branch
-	
-	*Test if folder where to create new fodler exist
-	checkFolderExists "$encryptFolder" "parent"
-	*Test that the new folder does not already exist
-	checkFolderExists "$encryptFolder/Master `obsName' Encrypted" "new"				
-	
-	*************
-	*create folder in masterdata
-	
+	**Test that the folder where the new folder will 
+	* be created exist and that a folder with the same
+	* name is created there already
+	iefolder_testFolderPossible "mastData" "`obsName'" "encryptFolder" "Master `obsName' Encrypted"
 	
 	*Old file reference
 	tempname 	oldHandle
@@ -850,7 +854,7 @@ cap program drop 	writeNameLine
 	if "`type'" == "new" {
 		
 		*Add a white space before this section
-		file write  `subHandle' _n 
+		file write  `subHandle' "" _n 
 		
 		writeNameLine `subHandle' "rounds" 
 		writeNameLine `subHandle' "untObs"
