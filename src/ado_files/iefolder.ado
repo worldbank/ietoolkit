@@ -557,7 +557,7 @@ cap program drop 	newRndFolderAndGlobals
 		createFolderWriteGlobal "`rndName'" "`dtfld_glb'" "`rnd'" 	`subHandle'
 		
 		*Sub folders
-		writeGlobal 			"Round `rndName' Encrypted" 	"encryptFolder" "`rnd'_encrypt" `subHandle'
+		createFolderWriteGlobal	"Round `rndName' Encrypted" 	"encryptFolder" "`rnd'_encrypt" `subHandle'
 		createFolderWriteGlobal "DataSets" 						"`rnd'" 		"`rnd'_dt" 		`subHandle'
 		createFolderWriteGlobal "Dofiles" 						"`rnd'"			"`rnd'_do" 		`subHandle'
 		createFolderWriteGlobal "Output" 						"`rnd'"			"`rnd'_out"		`subHandle'
@@ -586,24 +586,27 @@ cap program drop 	createRoundMasterDofile
 		di "hej3"
 		*Encrypted round sub-folder
 		file write  `roundHandle'	_n	_col(4)"*Encrypted round sub-folder globals" _n 
-		createFolderWriteGlobal "Round `rndName' Encrypted" 	"encryptFolder" "`rnd'_encrypt" `roundHandle'
+		writeGlobal				"Round `rndName' Encrypted" 	"encryptFolder" "`rnd'_encrypt" `roundHandle'
 		createFolderWriteGlobal "Raw Identified Data"  			"`rnd'_encrypt" "`rnd'_dtRaw" 	`roundHandle'
 		createFolderWriteGlobal "Dofiles Import"				"`rnd'_encrypt" "`rnd'_doImp" 	`roundHandle'
 		createFolderWriteGlobal "High Frequency Checks"			"`rnd'_encrypt" "`rnd'_HFC" 	`roundHandle'
 		di "hej4"
 		*DataSets sub-folder
 		file write  `roundHandle' _n	_col(4)"*DataSets sub-folder globals" _n
+		writeGlobal				"DataSets" 						"`rnd'" 		"`rnd'_dt" 		`roundHandle'
 		createFolderWriteGlobal "Intermediate" 					"`rnd'_dt" 		"`rnd'_dtInt" 	`roundHandle'
 		createFolderWriteGlobal "Final"  						"`rnd'_dt" 		"`rnd'_dtFin" 	`roundHandle'
 		
 		*Dofile sub-folder
 		file write  `roundHandle' _n	_col(4)"*Dofile sub-folder globals" _n
+		writeGlobal				"Dofiles" 						"`rnd'"			"`rnd'_do" 		`roundHandle'
 		createFolderWriteGlobal "Cleaning"				 		"`rnd'_do" 		"`rnd'_doCln" 	`roundHandle'
 		createFolderWriteGlobal "Construct"				 		"`rnd'_do" 		"`rnd'_doCon" 	`roundHandle'
 		createFolderWriteGlobal "Analysis"				 		"`rnd'_do" 		"`rnd'_doAnl" 	`roundHandle'
 		
 		*Output subfolders
 		file write  `roundHandle' _n	_col(4)"*Output sub-folder globals" _n
+		writeGlobal				"Output" 						"`rnd'"			"`rnd'_out"		`roundHandle'
 		createFolderWriteGlobal "Raw" 							"`rnd'_out"	 	"`rnd'_outRaw"	`roundHandle'		
 		createFolderWriteGlobal "Final" 						"`rnd'_out"		"`rnd'_outFin"	`roundHandle'
 	
