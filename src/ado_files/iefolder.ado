@@ -28,7 +28,7 @@ cap program drop 	iefolder2
 	* implement add round in subfolder
 	* test that the subfolder in option is a subfolder and not a round folder
 	
-	do "C:\Users\kbrkb\Documents\GitHub\ietoolkit\src\ado_files\iefolder_functions.do"
+	//do "C:\Users\kbrkb\Documents\GitHub\ietoolkit\src\ado_files\iefolder_functions.do"
 	
 	/***************************************************
 	
@@ -186,7 +186,7 @@ cap program drop 	iefolder2
 		else if "`itemType'" == "subfolder" {
 			
 			di "ItemType: subfolder"
-			iefolder_newSubfolder `newHandle' subFld "`itemName'" "`abbreviation'"	
+			iefolder_newItem `newHandle' subFld "`itemName'" "`abbreviation'"	
 			
 			*Produce success output
 			noi di "{pstd}Command ran succesfully, for the subfolder [`itemName'] the following folders were created:{p_end}"
@@ -266,7 +266,7 @@ cap program drop 	iefolder_newItem
 	* name is created there already
 	if "`itemType'" == "round"  iefolder_testFolderPossible "dataWorkFolder" "`itemName'" "encryptFolder" "Round `itemName' Encrypted" 
 	if "`itemType'" == "untObs" iefolder_testFolderPossible "mastData" 		 "`itemName'" "encryptFolder" "Master `itemName' Encrypted" 
-	if "`itemType'" == "subFld" iefolder_testFolderPossible 
+	if "`itemType'" == "subFld" iefolder_testFolderPossible "dataWorkFolder" "`itemName'" "encryptFolder" "`itemName' Encrypted"
 	
 	*Old file reference
 	tempname 	oldHandle
@@ -380,7 +380,10 @@ cap program drop 	iefolder_newItem
 					
 					*Write an empty line before the end devisor
 					file write		`subHandle' "" _n	
-						
+					
+					*Then write original line
+					file write		`subHandle' `"`line'"' _n
+					
 				}
 				else {
 					*If none apply, just write the line
@@ -389,7 +392,7 @@ cap program drop 	iefolder_newItem
 			}
 			
 			*Test if this is the location to write the new master data globals
-			else if "`r(sectionName)'" == "rawData"  & "`itemType'" == "untObs" { //And new unitofobs
+			else if "`r(sectionName)'" == "encrypted"  & "`itemType'" == "untObs" { //And new unitofobs
 			
 				di "mas1"
 				*Create unit of observation data folder and add global to folder in master do file
@@ -415,8 +418,17 @@ cap program drop 	iefolder_newItem
 				file write		`subHandle' `"`line'"' _n	
 			}
 			
-			else if "`r(sectionName)'" == "rawData"  & "`itemType'" == "subFld" { //And new unitofobs
-				asdsa
+			*Test if this is the location to write the new master data globals
+			else if "`r(sectionName)'" == "master"  & "`itemType'" == "subFld" { //And new unitofobs
+				
+				*Create unit of observation data folder and add global to folder in master do file
+				file write		`subHandle' _col(4)"*`itemName' sub-folder globals" _n	
+				createFolderWriteGlobal "`itemName'"    		"dataWorkFolder"  	`itemAbb'	`subHandle'	
+				createFolderWriteGlobal "`itemName' Encrypted"  "encryptFolder"  	`itemAbb'_encrypt `subHandle'
+				file write		`subHandle' _col(4) _n	
+				
+				file write		`subHandle' `"`line'"' _n	
+				
 			}
 			
 			else {
@@ -436,113 +448,6 @@ cap program drop 	iefolder_newItem
 end
 
 
-
-
-cap program drop 	iefolder_newSubfolder
-	program define	iefolder_newSubfolder
-	
-	args subHandle subName 
-	
-	di "new Subfolder command"
-	
-	*********************************************
-	*Test if folder can be created where expected
-	*********************************************
-	
-	*Not encrypted branch
-	
-	*Test if folder where to create new folder exist
-	checkFolderExists "$dataWorkFolder" "parent"
-	*Test that the new folder does not already exist
-	checkFolderExists "$dataWorkFolder/`subName'" "new"
-	
-	*Encrypted branch
-	
-	*Test if folder where to create new fodler exist
-	checkFolderExists "$encryptFolder" "parent"
-	*Test that the new folder does not already exist
-	checkFolderExists "$encryptFolder/`subName'" "new"				
-	
-	noi di "folder check ok"
-	
-	**********************************************
-	*New tempfile for updated version of master do
-	**********************************************	
-	
-	*Old file reference
-	tempname 	oldHandle
-	local 		oldTextFile 	"$dataWorkFolder/Project_MasterDofile.do"
-
-	file open `oldHandle' using `"`oldTextFile'"', read
-	file read `oldHandle' line
-	
-	*Locals needed for the section devider
-	local partNum 		= 0 //Keeps track of the part number
-	
-	
-	while r(eof)==0 {
-		
-		*Do not interpret macros
-		local line : subinstr local line "\$"  "\\$"
-		local line : subinstr local line "\`"  "\\`"
-		
-		parseReadLine `"`line'"'
-		
-		*Test if this is the location to write the new master data globals
-		if `r(ief_line)' == 1 & `r(ief_line)' == 1 & `r(ief_end)' == 0  & "`r(sectionName)'" == "rawData" {
-			
-			*Main folder
-			*Create subfolder in the datawork folder and add global to the folder in master do file
-			cap createFolderWriteGlobal "`subName'"    "dataWorkFolder"  	`subName'	`subHandle' 
-			
-			if _rc == 693 {
-			
-				*If that folder exist, problem 
-				noi di as error "{phang}could not create new folder, folder name might already exist "
-				error _rc
-		
-			}
-			else if _rc != 0 {
-				
-				*Unexpected error, run the exact command name again and throw the error to user
-				createFolderWriteGlobal "`subName'"    "dataWorkFolder"  	`subName'	`subHandle' 
-			}
-			
-			*Encrypted folder
-			*Create subfolder in the datawork folder and add global to the folder in master do file
-			cap createFolderWriteGlobal "`subName'"    "encryptFolder"  	`subName'	`subHandle' 
-			
-			if _rc == 693 {
-			
-				*If that folder exist, problem 
-				noi di as error "{phang}could not create new folder, folder name might already exist "
-				error _rc
-		
-			}
-			else if _rc != 0 {
-				
-				*Unexpected error, run the exact command name again and throw the error to user
-				createFolderWriteGlobal "`subName'"    "encryptFolder"  	`subName'	`subHandle' 
-			}
-			
-			*After adding new lines, keep adding the old line to the new file.
-			file write		`subHandle' `"`line'"' _n
-		}
-		else {
-			
-			*Do not add new lines here, keep adding the old line to the new file.
-			file write		`subHandle' `"`line'"' _n
-		}
-		
-		*Read next file and repeat the while loop
-		file read `oldHandle' line
-	}
-	
-	*Close the old file. 
-	file close `oldHandle'	
-	
-
-end 
 
 /************************************************************
 
@@ -653,6 +558,8 @@ cap program drop 	newRndFolderAndGlobals
 		if "`masterType'" == "project"  writeGlobal 			"`rndName'" "`dtfld_glb'" "`rnd'" 	`subHandle'
 		
 		*Sub folders
+		
+		if "`masterType'" == "round"  	writeGlobal 			"Round `rndName' Encrypted" 	"encryptFolder" "`rnd'_encrypt" `subHandle'
 		if "`masterType'" == "round"  	createFolderWriteGlobal "DataSets" 	"`rnd'" 	"`rnd'_dt" 	`subHandle'
 		if "`masterType'" == "project"  writeGlobal 			"DataSets" 	"`rnd'" 	"`rnd'_dt" 	`subHandle'
 
@@ -1044,7 +951,10 @@ cap program drop 	mdofle_p1
 			_col(4)"* Project folder globals" _n ///
 			_col(4)"* ---------------------" _n _n ///
 			_col(4)"global dataWorkFolder " _col(34) `"""' _char(36)`"projectfolder/DataWork""' _n
-		
+
+		*Write sub devisor starting master and monitor data section section
+		if "`rndName'" == "" writeDevisor `subHandle' 1 FolderGlobals subfolder				
+			
 		*Write sub devisor starting master and monitor data section section
 		writeDevisor `subHandle' 1 FolderGlobals master	
 		
@@ -1054,7 +964,7 @@ cap program drop 	mdofle_p1
 		if "`rndName'" != "" writeGlobal 			 "MasterData" "dataWorkFolder" mastData	`subHandle' //For new round
 
 		*Write sub devisor starting master and monitor data section section
-		writeDevisor `subHandle' 1 FolderGlobals rawData	
+		writeDevisor `subHandle' 1 FolderGlobals encrypted	
 		
 		*Create master data folder and add global to folder in master do file
 		if "`rndName'" == "" createFolderWriteGlobal "EncryptedData"  "dataWorkFolder"  encryptFolder `subHandle' //For new project
@@ -1437,3 +1347,6 @@ program define		global_setup
 	copy "`glbStupTextFile'"  "$dataWorkFolder/global_setup.do" , replace	
 		
 end
+
+
+
