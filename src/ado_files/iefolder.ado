@@ -28,6 +28,8 @@ cap program drop 	iefolder2
 	* implement add round in subfolder
 	* test that the subfolder in option is a subfolder and not a round folder
 	
+	do "C:\Users\kbrkb\Documents\GitHub\ietoolkit\src\ado_files\iefolder_functions.do"
+	
 	/***************************************************
 	
 		Parse input
@@ -158,7 +160,7 @@ cap program drop 	iefolder2
 		else if "`itemType'" == "round" {
 			
 			di "ItemType: round"
-			iefolder_newRound `newHandle' "`itemName'" "`abbreviation'"	
+			iefolder_newItem `newHandle' round "`itemName'" "`abbreviation'"	
 			
 			*Produce success output
 			noi di "{pstd}Command ran succesfully, for the round [`itemName'] the following folders and master dofile were created:{p_end}"
@@ -173,7 +175,7 @@ cap program drop 	iefolder2
 			
 			di "ItemType: untiofobs/unitofobs"
 			di `"iefolder_newMaster	`newHandle' "`itemName'""'
-			iefolder_newUnitOfObs	`newHandle' "`itemName'"
+			iefolder_newItem	`newHandle' untObs "`itemName'" "`abbreviation'"
 			
 			*Produce success output
 			noi di "{pstd}Command ran succesfully, for the unit of observation [`itemName'] the following folders were created:{p_end}"
@@ -184,7 +186,7 @@ cap program drop 	iefolder2
 		else if "`itemType'" == "subfolder" {
 			
 			di "ItemType: subfolder"
-			iefolder_newSubfolder `newHandle' "`itemName'" "`abbreviation'"	
+			iefolder_newSubfolder `newHandle' subFld "`itemName'" "`abbreviation'"	
 			
 			*Produce success output
 			noi di "{pstd}Command ran succesfully, for the subfolder [`itemName'] the following folders were created:{p_end}"
@@ -252,18 +254,20 @@ cap program drop 	iefolder_newProject
 end 
 
 
-cap program drop 	iefolder_newRound
-	program define	iefolder_newRound
+cap program drop 	iefolder_newItem
+	program define	iefolder_newItem
 	
-	args subHandle rndName rndAbb 
+	args subHandle itemType itemName itemAbb 
 	
-	di "new round command"
+	di "new item command"
 	
 	**Test that the folder where the new folder will 
 	* be created exist and that a folder with the same
 	* name is created there already
-	iefolder_testFolderPossible "dataWorkFolder" "`rndName'" "encryptFolder" "Round `rndName' Encrypted"
-		
+	if "`itemType'" == "round"  iefolder_testFolderPossible "dataWorkFolder" "`itemName'" "encryptFolder" "Round `itemName' Encrypted" 
+	if "`itemType'" == "untObs" iefolder_testFolderPossible "mastData" 		 "`itemName'" "encryptFolder" "Master `itemName' Encrypted" 
+	if "`itemType'" == "subFld" iefolder_testFolderPossible 
+	
 	*Old file reference
 	tempname 	oldHandle
 	local 		oldTextFile 	"$dataWorkFolder/Project_MasterDofile.do"
@@ -284,6 +288,9 @@ cap program drop 	iefolder_newRound
 		* infomration should be added before this line
 		parseReadLine `"`line'"'
 		
+		di `"`line'"'
+		 
+		
 		if `r(ief_line)' == 0 {
 
 			*This is a regular line of code. It should be copied as-is. No action needed. 
@@ -292,50 +299,32 @@ cap program drop 	iefolder_newRound
 		}
 		else if `r(ief_line)' == 1 {
 
-			di `"`line'"'
+			di `"  if "`itemType'" == "round" "'
+			pause
 			**This is a line of code with a devisor written by 
 			* iefodler. New additions to a section are always added right before an end of section line. 
 			
 			return list
 			
-			**This is NOT an end of section line. Nothing will be written here 
-			* but we test that there is no confict with previous names
-			if "`r(sectionName)'" == "endRounds" {
-
-				*Write devisor for this section
-				writeDevisor 			`subHandle' 1 RoundGlobals rounds `rndName' `rndAbb' 
-				
-				*Write the globals for this round to the proejct master dofile
-				newRndFolderAndGlobals 	`rndName' `rndAbb' "dataWorkFolder" `subHandle' project
 			
-				*Create the round master dofile and create the subfolders for this round
-				createRoundMasterDofile "$dataWorkFolder/`rndName'" "`rndName'" "`rndAbb'"
-
-				*Write an empty line before the end devisor
-				file write		`subHandle' "" _n	
-				
-				*Copy the line as is
-				file write		`subHandle' `"`line'"' _n
-					
-			}
 			*Test if the line is a line with a name line
-			else if `r(ief_NameLine)' == 1  {
+			if `r(ief_NameLine)' == 1  { // make sure that this is not confused when moved to the front
 				
 				****Test that name is not used already
-				testNameAvailible "`line'" "`rndName'" "`rndAbb'" 
-
-				****Write new line
-				if "`r(nameLineType)'" == "rounds" {
+				testNameAvailible "`line'" "`itemName'" "`itemAbb'" 
 				
+				****Write new line
+				if "`r(nameLineType)'" == "`itemType'" {
+					
 					*Test if abb is identical to name (applies to 
 					*when abb is not used)
 					*add only name as they are identical
-					if "`rndName'" == "`rndAbb'" local name "`rndName'"
+					if "`itemName'" == "`itemAbb'" local name "`itemName'"
 					*add both name and abb
-					if "`rndName'" != "`rndAbb'" local name "`rndName'*`rndAbb'"
+					if "`itemName'" != "`itemAbb'" local name "`itemName'*`itemAbb'"
 					
 					*write the new line
-					writeNameLine `subHandle' "rounds" "`name'" "`line'"
+					writeNameLine `subHandle' "`itemType'" "`name'" "`line'"
 				}
 				else {
 					
@@ -343,36 +332,99 @@ cap program drop 	iefolder_newRound
 					file write		`subHandle' `"`line'"' _n	
 				}
 			}
-			**This is an end of section line. We will add the new content here 
-			* before writing the end of section line
-			else if `r(ief_end)' == 1 {
+			else if "`itemType'" == "round" { // test if round
 				
-				*Test if it is an end of globals section as we are writing a new 
-				if "`r(partName)'" == "End_RunDofiles" {
+				pause
+			
+				**This is NOT an end of section line. Nothing will be written here 
+				* but we test that there is no confict with previous names
+				if "`r(sectionName)'" == "endRounds" {
 					
+					
+					di "Hit-1"
 					*Write devisor for this section
-					writeDevisor `subHandle' 3 RunDofiles `rndName' `rndAbb' 
+					writeDevisor 			`subHandle' 1 RoundGlobals rounds `itemName' `itemAbb' 
+					
+					di "Hit0"
+					*Write the globals for this round to the proejct master dofile
+					newRndFolderAndGlobals 	`itemName' `itemAbb' "dataWorkFolder" `subHandle' round
+					di "hit1"
+					
+					*Create the round master dofile and create the subfolders for this round
+					createRoundMasterDofile "$dataWorkFolder/`itemName'" "`itemName'" "`itemAbb'"
+					di "hit2"
+					
+					
+					*Write an empty line before the end devisor
+					file write		`subHandle' "" _n	
+					
+					*Copy the line as is
+					file write		`subHandle' `"`line'"' _n
+						
+				}
+				
+				**This is an end of section line. We will add the new content here 
+				* before writing the end of section line
+				else if "`r(partName)'" == "End_RunDofiles" { //and test round
+					
+						
+					*Write devisor for this section
+					writeDevisor `subHandle' 3 RunDofiles `itemName' `itemAbb' 
 					
 					*Write the 
 					file write  `subHandle' ///
-						_col(4)"if (0) { //Change the 0 to 1 to run the `rndName' master dofile" _n ///
-						_col(8) `"do ""' _char(36) `"`rndAbb'/`rndName'_MasterDofile.do" "' _n ///
+						_col(4)"if (0) { //Change the 0 to 1 to run the `itemName' master dofile" _n ///
+						_col(8) `"do ""' _char(36) `"`itemAbb'/`itemName'_MasterDofile.do" "' _n ///
 						_col(4)"}" ///
 						_n
 					
 					*Write an empty line before the end devisor
 					file write		`subHandle' "" _n	
-					
+						
 				}
-				
-				*Write the end of section line
+				else {
+					*If none apply, just write the line
+					file write		`subHandle' `"`line'"' _n	
+				}
+			}
+			
+			*Test if this is the location to write the new master data globals
+			else if "`r(sectionName)'" == "rawData"  & "`itemType'" == "untObs" { //And new unitofobs
+			
+				di "mas1"
+				*Create unit of observation data folder and add global to folder in master do file
+				file write		`subHandle' _col(4)"*`itemName' folder globals" _n	
+				createFolderWriteGlobal "`itemName'"    "mastData"  	`itemAbb'	`subHandle'
+
+				di "mas2"
+				*Create folders that have no refrence in master do file
+				*************
+				*Create unit of observation data subfolders
+				createFolderWriteGlobal "DataSet"  						"`itemAbb'"  	masterDataSets	
+				createFolderWriteGlobal "Dofiles"  	 					"`itemAbb'"  	mastDataDo
+				di "mas3"
+				*************
+				*create folder in encrypred ID key master	
+				createFolderWriteGlobal "Master `itemName' Encrypted"  	"encryptFolder"  	`itemAbb'_encrypt `subHandle'
+				file write		`subHandle' _col(4) _n	
+				createFolderWriteGlobal "DataSet"  	 					"`itemAbb'_encrypt"  mastData_E_data
+				createFolderWriteGlobal "Sampling"   					"`itemAbb'_encrypt"  mastData_E_Samp
+				createFolderWriteGlobal "Treatment Assignment"			"`itemAbb'_encrypt"  mastData_E_Treat					
+				di "mas4"
+				*write the line after these lines
 				file write		`subHandle' `"`line'"' _n	
 			}
+			
+			else if "`r(sectionName)'" == "rawData"  & "`itemType'" == "subFld" { //And new unitofobs
+				asdsa
+			}
+			
 			else {
 				*If none apply, just write the line
 				file write		`subHandle' `"`line'"' _n	
 			}
 		}
+		
 		
 		*Read next file and repeat the while loop
 		file read `oldHandle' line
@@ -383,112 +435,8 @@ cap program drop 	iefolder_newRound
 
 end
 
-cap program drop 	iefolder_testFolderPossible
-	program define	iefolder_testFolderPossible
-	
-	args mainFolderGlobal mainName encrptFolderGlobal encrptName
-	
-
-	*Test if folder where to create new folder exist
-	checkFolderExists "$`mainFolderGlobal'" "parent"
-	*Test that the new folder does not already exist
-	checkFolderExists "$`mainFolderGlobal'/`mainName'" "new"		
-
-	*Encrypted branch
-	
-	*Test if folder where to create new fodler exist
-	checkFolderExists "$`encrptFolderGlobal'" "parent"
-	*Test that the new folder does not already exist
-	checkFolderExists "$`encrptFolderGlobal'/`encrptName'" "new"
-	
-end
 
 
-cap program drop 	iefolder_newUnitOfObs
-	program define	iefolder_newUnitOfObs
-	
-	args subHandle obsName 
-	
-	di "new unitofobs command"
-
-
-	
-	*********************************************
-	*Test if folder can be created where expected
-	*********************************************
-	
-	**Test that the folder where the new folder will 
-	* be created exist and that a folder with the same
-	* name is created there already
-	iefolder_testFolderPossible "mastData" "`obsName'" "encryptFolder" "Master `obsName' Encrypted"
-	
-	*Old file reference
-	tempname 	oldHandle
-	local 		oldTextFile 	"$dataWorkFolder/Project_MasterDofile.do"
-
-	file open `oldHandle' using `"`oldTextFile'"', read
-	file read `oldHandle' line
-	
-	*Locals needed for the section devider
-	local partNum 		= 0 //Keeps track of the part number
-	
-	
-	while r(eof)==0 {
-		
-		*Do not interpret macros
-		local line : subinstr local line "\$"  "\\$"
-		local line : subinstr local line "\`"  "\\`"
-		
-		parseReadLine `"`line'"'
-		
-		*Test if this is the location to write the new master data globals
-		if `r(ief_line)' == 1 & `r(ief_line)' == 1 & `r(ief_end)' == 0  & "`r(sectionName)'" == "rawData" {
-			
-			*Create unit of observation data folder and add global to folder in master do file
-			cap createFolderWriteGlobal "`obsName'"    "mastData"  	mastData_`obsName'	`subHandle' 
-
-			if _rc == 693 {
-			
-				*If that folder exist, problem 
-				noi di as error "{phang}could not create new folder, folder name might already exist "
-				error _rc
-		
-			}
-			else if _rc != 0 {
-				
-				*Unexpected error, run the exact command name again and throw the error to user
-				createFolderWriteGlobal "`obsName'"   "mastData"  	mastData_`obsName'	`subHandle' 
-			}
-	
-			*After adding new lines, keep adding the old line to the new file.
-			file write		`subHandle' `"`line'"' _n
-		}
-		else {
-			
-			*Do not add new lines here, keep adding the old line to the new file.
-			file write		`subHandle' `"`line'"' _n
-		}
-		
-		*Read next file and repeat the while loop
-		file read `oldHandle' line
-	}
-	
-	*Close the old file. 
-	file close `oldHandle'	
-	
-	*************
-	*Create unit of observation data subfolders
-	createFolderWriteGlobal "DataSet"  						"mastData_`obsName'"  	masterDataSets	
-	createFolderWriteGlobal "Dofiles"  	 					"mastData_`obsName'"  	mastDataDo
-	
-	*************
-	*create folder in encrypred ID key master	
-	createFolderWriteGlobal "Master `obsName' Encrypted"  	"encryptFolder"  		mastData_E_`obsName'
-	createFolderWriteGlobal "DataSet"  	 					"mastData_E_`obsName'"  mastData_E_data
-	createFolderWriteGlobal "Sampling"   					"mastData_E_`obsName'"  mastData_E_Samp
-	createFolderWriteGlobal "Treatment Assignment"			"mastData_E_`obsName'"  mastData_E_Treat	
-
-end 
 
 cap program drop 	iefolder_newSubfolder
 	program define	iefolder_newSubfolder
@@ -602,6 +550,26 @@ end
 
 ************************************************************/
 
+cap program drop 	iefolder_testFolderPossible
+	program define	iefolder_testFolderPossible
+	
+	args mainFolderGlobal mainName encrptFolderGlobal encrptName
+	
+
+	*Test if folder where to create new folder exist
+	checkFolderExists "$`mainFolderGlobal'" "parent"
+	*Test that the new folder does not already exist
+	checkFolderExists "$`mainFolderGlobal'/`mainName'" "new"		
+
+	*Encrypted branch
+	
+	*Test if folder where to create new fodler exist
+	checkFolderExists "$`encrptFolderGlobal'" "parent"
+	*Test that the new folder does not already exist
+	checkFolderExists "$`encrptFolderGlobal'/`encrptName'" "new"
+	
+end
+
 cap program drop 	parseReadLine 
 	program define	parseReadLine, rclass
 		
@@ -615,7 +583,7 @@ cap program drop 	parseReadLine
 		local divisorStar  		"`1'"
 		local divisorIefoldeer  "`2'"
 		
-		if `"`divisorIefoldeer'"' == "rounds" | `"`divisorIefoldeer'"' == "untObs" | `"`divisorIefoldeer'"' == "subFld"{
+		if `"`divisorIefoldeer'"' == "round" | `"`divisorIefoldeer'"' == "untObs" | `"`divisorIefoldeer'"' == "subFld"{
 			
 			return scalar ief_line 		= 1	
 			return scalar ief_end 		= 0
@@ -705,23 +673,24 @@ cap program drop 	createRoundMasterDofile
 	program define	createRoundMasterDofile 	
 	
 		args roundfolder rndName rnd
-		
+		di "hej1"
 		*Create a temporary textfile
 		tempname 	roundHandle
 		tempfile	roundTextFile
 		file open  `roundHandle' using "`roundTextFile'", text write replace	
-		
+		di "hej2"
 		*Write intro part with description of round, 
 		mdofle_p0 	`roundHandle' round
+		di "hej21"
 		mdofle_p1	`roundHandle' "$projectFolder" `rndName' `rnd'
-		
+		di "hej3"
 		*Encrypted round sub-folder
 		file write  `roundHandle'	_n	_col(4)"*Encrypted round sub-folder globals" _n 
 		createFolderWriteGlobal "Round `rndName' Encrypted" 	"encryptFolder" "`rnd'_encrypt" `roundHandle'
 		createFolderWriteGlobal "Raw Identified Data"  			"`rnd'_encrypt" "`rnd'_dtRaw" 	`roundHandle'
 		createFolderWriteGlobal "Dofiles Import"				"`rnd'_encrypt" "`rnd'_doImp" 	`roundHandle'
 		createFolderWriteGlobal "High Frequency Checks"			"`rnd'_encrypt" "`rnd'_HFC" 	`roundHandle'
-		
+		di "hej4"
 		*DataSets sub-folder
 		file write  `roundHandle' _n	_col(4)"*DataSets sub-folder globals" _n
 		createFolderWriteGlobal "Intermediate" 					"`rnd'_dt" 		"`rnd'_dtInt" 	`roundHandle'
@@ -856,7 +825,7 @@ cap program drop 	writeNameLine
 		*Add a white space before this section
 		file write  `subHandle' "" _n 
 		
-		writeNameLine `subHandle' "rounds" 
+		writeNameLine `subHandle' "round" 
 		writeNameLine `subHandle' "untObs"
 		writeNameLine `subHandle' "subFld"
 	}
@@ -1061,9 +1030,17 @@ cap program drop 	mdofle_p1
 			_n ///		
 			_col(4)"if "_char(36)"user == 2 {" _n ///
 			_col(8)`"global projectfolder ""  //Enter the file path to the projectfolder of next user here"' _n ///
-			_col(4)"}" _n ///
-			_n ///
-			_n ///
+			_col(4)"}" _n _n ///
+			"*These lines are used to test that name ois not already used (do not edit manually)"
+			
+		*For new main master do file
+		if "`rndName'" == "" {
+			
+			*Write name line only in main master do file
+			writeNameLine `subHandle' new
+		}
+		
+		file write  `subHandle' _n 	_n ///
 			_col(4)"* Project folder globals" _n ///
 			_col(4)"* ---------------------" _n _n ///
 			_col(4)"global dataWorkFolder " _col(34) `"""' _char(36)`"projectfolder/DataWork""' _n
@@ -1071,38 +1048,44 @@ cap program drop 	mdofle_p1
 		*Write sub devisor starting master and monitor data section section
 		writeDevisor `subHandle' 1 FolderGlobals master	
 		
+		di `" if "`rndName'" == ""  "'
 		*Create master data folder and add global to folder in master do file
-		if "`rndName'" == "" createFolderWriteGlobal "MasterData" "dataWorkFolder" mastData	`subHandle' 
-		if "`rndName'" != "" writeGlobal 			 "MasterData" "dataWorkFolder" mastData	`subHandle' 
+		if "`rndName'" == "" createFolderWriteGlobal "MasterData" "dataWorkFolder" mastData	`subHandle' //For new project
+		if "`rndName'" != "" writeGlobal 			 "MasterData" "dataWorkFolder" mastData	`subHandle' //For new round
 
 		*Write sub devisor starting master and monitor data section section
 		writeDevisor `subHandle' 1 FolderGlobals rawData	
 		
 		*Create master data folder and add global to folder in master do file
-		if "`rndName'" == "" createFolderWriteGlobal "EncryptedData"  "dataWorkFolder"  encryptFolder `subHandle' 
-		if "`rndName'" != "" writeGlobal 			 "EncryptedData"  "dataWorkFolder"  encryptFolder `subHandle' 
+		if "`rndName'" == "" createFolderWriteGlobal "EncryptedData"  "dataWorkFolder"  encryptFolder `subHandle' //For new project
+		if "`rndName'" != "" writeGlobal 			 "EncryptedData"  "dataWorkFolder"  encryptFolder `subHandle' //For new round
 		
-		writeNameLine `subHandle' new
 		
+		di "sub 1"
+		
+		*For new main master do file
 		if "`rndName'" == "" {
+
+		
 			*Write sub devisor starting master and monitor data section section
 			writeDevisor `subHandle' 1 FolderGlobals endRounds	
-			
+			di "sub 2"
 			*Write sub devisor starting master and monitor data section section
 			writeDevisor `subHandle' 1 End_FolderGlobals
 			
 		}
-
+		
+		*For new round master do file
 		if "`rndName'" != "" {
 
 			*Write sub devisor starting master and monitor data section section
 			writeDevisor `subHandle' 1 FolderGlobals `rndName'		
-			
+			di "sub 8"
 			*Write all main folders for this round
-			newRndFolderAndGlobals 	`rndName' `rndAbb' "dataWorkFolder" `subHandle' round
+			//newRndFolderAndGlobals 	`rndName' `rndAbb' "dataWorkFolder" `subHandle' round
 		}
 		
-
+		di "sub 9"
 
 end	
 
