@@ -554,24 +554,17 @@ cap program drop 	newRndFolderAndGlobals
 		file write  `subHandle'	_col(4)"*`rndName' folder globals" _n
 
 		*Round main folder	
-		if "`masterType'" == "round"  	createFolderWriteGlobal "`rndName'" "`dtfld_glb'" "`rnd'" 	`subHandle'
-		if "`masterType'" == "project"  writeGlobal 			"`rndName'" "`dtfld_glb'" "`rnd'" 	`subHandle'
+		createFolderWriteGlobal "`rndName'" "`dtfld_glb'" "`rnd'" 	`subHandle'
 		
 		*Sub folders
-		
-		if "`masterType'" == "round"  	writeGlobal 			"Round `rndName' Encrypted" 	"encryptFolder" "`rnd'_encrypt" `subHandle'
-		if "`masterType'" == "round"  	createFolderWriteGlobal "DataSets" 	"`rnd'" 	"`rnd'_dt" 	`subHandle'
-		if "`masterType'" == "project"  writeGlobal 			"DataSets" 	"`rnd'" 	"`rnd'_dt" 	`subHandle'
-
-		if "`masterType'" == "round"  	createFolderWriteGlobal "Dofiles" 	"`rnd'"		"`rnd'_do" 	`subHandle'
-		if "`masterType'" == "project"  writeGlobal 			"Dofiles" 	"`rnd'"		"`rnd'_do" 	`subHandle'
-
-		if "`masterType'" == "round"  	createFolderWriteGlobal "Output" 	"`rnd'"		"`rnd'_out"	`subHandle'
-		if "`masterType'" == "project"  writeGlobal 			"Output" 	"`rnd'"		"`rnd'_out"	`subHandle'
+		writeGlobal 			"Round `rndName' Encrypted" 	"encryptFolder" "`rnd'_encrypt" `subHandle'
+		createFolderWriteGlobal "DataSets" 						"`rnd'" 		"`rnd'_dt" 		`subHandle'
+		createFolderWriteGlobal "Dofiles" 						"`rnd'"			"`rnd'_do" 		`subHandle'
+		createFolderWriteGlobal "Output" 						"`rnd'"			"`rnd'_out"		`subHandle'
 		
 		*This are never written to the master dofile, only created 
-		if "`masterType'" == "round" createFolderWriteGlobal "Documentation"  "`rnd'"	"`rnd'_doc"	
-		if "`masterType'" == "round" createFolderWriteGlobal "Questionnaire"  "`rnd'"	"`rnd'_quest"		
+		createFolderWriteGlobal "Documentation"  "`rnd'"	"`rnd'_doc"	
+		createFolderWriteGlobal "Questionnaire"  "`rnd'"	"`rnd'_quest"		
 	
 
 end
@@ -990,9 +983,7 @@ cap program drop 	mdofle_p1
 
 			*Write sub devisor starting master and monitor data section section
 			writeDevisor `subHandle' 1 FolderGlobals `rndName'		
-			di "sub 8"
-			*Write all main folders for this round
-			//newRndFolderAndGlobals 	`rndName' `rndAbb' "dataWorkFolder" `subHandle' round
+
 		}
 		
 		di "sub 9"
