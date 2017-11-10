@@ -55,13 +55,13 @@ will test for differences across the catagories in grpvar({it:varname}).
 {marker statsoptions}{...}
 {pstd}{it:    Statistics and data modification:}{p_end}
 {synopt :{cmdab:balmiss:(}{it:reptype}{cmd:)}}Replaces missing values in balance variables with either zeros, the mean or the group mean. See details on {it:reptype} below.{p_end}
-{synopt :{cmdab:balmissr:eg(}{it:reptype}{cmd:)}}Similar to {cmd:misszero} but treats {help missing:extended missing values} still as missing.  See details on {it:reptype} below.{p_end}
+{synopt :{cmdab:balmissr:eg(}{it:reptype}{cmd:)}}Similar to {cmd:balmiss()} but treats {help missing:extended missing values} still as missing.  See details on {it:reptype} below.{p_end}
 {synopt :{cmdab:vce:(}{it:{help vce_option:vce_types}}{cmd:)}}Options for variance estimation. {hi:Robust}, {hi:cluster} {it:clustervar} or {hi:bootstrap}{p_end}
 {synopt :{cmdab:fix:edeffect(}{it:varname}{cmd:)}}Include fixed effects in the regressions for t-tests (and for F-tests if applicable){p_end}
 {synopt :{cmdab:cov:ariates(}{it:{help varlist}}{cmd:)}}Include covariates (control variables) in the regressions for t-tests (and for F-tests if applicable){p_end}
 {synopt :{cmd:covarmissok}}Allows for observations to be dropped due to missing values in covariate variables{p_end}
 {synopt :{cmdab:covmiss:(}{it:reptype}{cmd:)}}Replaces missing values in covariate variables with either zeros, the mean or the group mean. See details on {it:reptype} below.{p_end}
-{synopt :{cmdab:covmissr:eg(}{it:reptype}{cmd:)}}Similar to {cmd:covmisszero} but treats {help missing:extended missing values} still as missing. See details on {it:reptype} below.{p_end}
+{synopt :{cmdab:covmissr:eg(}{it:reptype}{cmd:)}}Similar to {cmd:covmiss()} but treats {help missing:extended missing values} still as missing. See details on {it:reptype} below.{p_end}
 {synopt :{cmdab:missmin:mean(}{it:{help numlist:numlist}}{cmd:)}}Sets a minimum number of observations that a mean or group mean must be based on in options requiring {it:reptype}.{p_end}
 {synopt :{cmdab:weight(}{it:weight_option}{cmd:)}}Determines weight variable and method. aweights, fweights, iweights, and pweights are allowed {it:reptype}.{p_end}
 
@@ -273,7 +273,7 @@ practice is most certainly to manually replace or omitt these values manually be
 quick balance tables on raw data before the data has been cleaned.{p_end}
 
 {phang}{cmdab:balmissr:eg(}{it:reptype}{cmd:)} makes the command replace all regular missing values in balance variables with either zeros, the mean or
-the group mean of the variable. See {cmd:misszero} for details and warning.
+the group mean of the variable. See {cmd:balmiss()} for details and warning.
 The difference is that this option still treats {help missing:extended missing values} as missing, but regular missing values will be replaced.{p_end}
 
 {phang}{cmdab:missmin:mean(}{it:{help numlist:numlist}}{cmd:)} sets a minimum number of observations that a mean or group mean must be based
@@ -297,13 +297,13 @@ F-tests if applicable) as covariate variables (control variables). See the descr
 {phang}{cmd:covarmissok} allows for observations to be dropped due to missing values in covariate variables. Stata always drops observations
 with missing values in at least one the variables used in a regression. This command throws an error if any observation has missing
 values in any of the variables specified in {cmd:covariates()}. To suppress that error, use this option and therby accept that some observations
-are excluded from the balance table. Also see {cmd:covmisszero} and {cmd:covmissregzero} for other solutions to this issue.{p_end}
+are excluded from the balance table. Also see {cmd:covmiss()} and {cmd:covmissreg()} for other solutions to this issue.{p_end}
 
 {phang}{cmdab:covmiss(}{it:reptype}{cmd:)} makes the command replace all missing values in covariate variables with either zeros, the mean or the group mean of the variable. See {cmd:balmiss} for more
 details and the warning that applies to this command as well.{p_end}
 
 {phang}{cmdab:covmissr:eg(}{it:reptype}{cmd:)} makes the command replace all regular missing values in covariate variables with either zeros, the mean or the group mean of the variable. See {cmd:balmiss} for more
-details and the warning that applies to this command as well. The difference from {cmd:covmisszero} that this option still treat {help missing:extended missing values} as
+details and the warning that applies to this command as well. The difference from {cmd:covmiss()} that this option still treat {help missing:extended missing values} as
 missing, but regular missing values will be replaced.{p_end}
 
 {pstd}{it:    F-test:}{p_end}
@@ -314,7 +314,7 @@ regressions are specified. All options specified in the {it:Statistics and data 
 {phang}{cmdab:fm:issok} suppress the error caused by missing values in any of the balance variables in the F-test. Stata always drops observations
 with missing values in at least one the variables used in a regression. This command throws an error if any observation has missing
 values in any of the balance variables. To suppress that error, use this option and therby accept that some observations
-are excluded from F-tests. Also see {cmd:misszero} and {cmd:missregzero} for other solutions to this issue.{p_end}
+are excluded from F-tests. Also see {cmd:balmiss()} and {cmd:balmissreg()} for other solutions to this issue.{p_end}
 
 {phang}{cmd:fnoobs} excludes the row with number of observations in the F-test regressions from displaying in the table.{p_end}
 
