@@ -133,9 +133,10 @@ cap program drop 	iefolder2
 	
 	
 	*Create a global pointing to the main data folder
-	global projectFolder	"`projectfolder'"
-	global dataWorkFolder 	"$projectFolder/DataWork"
-	global encryptFolder 	"$dataWorkFolder/EncryptedData"
+	global projectFolder		"`projectfolder'"
+	global dataWorkFolder 		"$projectFolder/DataWork"
+	global encryptFolder 		"$dataWorkFolder/EncryptedData"
+	
 
 	if "`subcommand'" == "new" {
 	
@@ -160,7 +161,7 @@ cap program drop 	iefolder2
 		else if "`itemType'" == "round" {
 			
 			di "ItemType: round"
-			iefolder_newItem `newHandle' round "`itemName'" "`abbreviation'"	
+			iefolder_newItem `newHandle' round "`itemName'" "`abbreviation'" 
 			
 			*Produce success output
 			noi di "{pstd}Command ran succesfully, for the round [`itemName'] the following folders and master dofile were created:{p_end}"
@@ -200,7 +201,9 @@ cap program drop 	iefolder2
 	file close 		`newHandle'
 	
 	*Copy the new master dofile from the tempfile to the original position
-	copy "`newTextFile'"  "$dataWorkFolder/Project_MasterDofile.do" , replace
+	copy "`newTextFile'"  "$projectFolder/DataWork/Project_MasterDofile.do" , replace
+	
+	
 *}	
 end 	
 
@@ -270,7 +273,7 @@ cap program drop 	iefolder_newItem
 	
 	*Old file reference
 	tempname 	oldHandle
-	local 		oldTextFile 	"$dataWorkFolder/Project_MasterDofile.do"
+	local 		oldTextFile 	"$projectFolder/DataWork/Project_MasterDofile.do"
 
 	file open `oldHandle' using `"`oldTextFile'"', read
 	file read `oldHandle' line
@@ -351,7 +354,7 @@ cap program drop 	iefolder_newItem
 					di "hit1"
 					
 					*Create the round master dofile and create the subfolders for this round
-					createRoundMasterDofile "$dataWorkFolder/`itemName'" "`itemName'" "`itemAbb'"
+					createRoundMasterDofile "$dataWorkFolder/`itemName'" "`itemName'" "`itemAbb'" 
 					di "hit2"
 					
 					
@@ -557,10 +560,10 @@ cap program drop 	newRndFolderAndGlobals
 		createFolderWriteGlobal "`rndName'" "`dtfld_glb'" "`rnd'" 	`subHandle'
 		
 		*Sub folders
-		createFolderWriteGlobal	"Round `rndName' Encrypted" 	"encryptFolder" "`rnd'_encrypt" `subHandle'
-		createFolderWriteGlobal "DataSets" 						"`rnd'" 		"`rnd'_dt" 		`subHandle'
-		createFolderWriteGlobal "Dofiles" 						"`rnd'"			"`rnd'_do" 		`subHandle'
-		createFolderWriteGlobal "Output" 						"`rnd'"			"`rnd'_out"		`subHandle'
+		writeGlobal	"Round `rndName' Encrypted" 	"encryptFolder" "`rnd'_encrypt" `subHandle'
+		writeGlobal "DataSets" 						"`rnd'" 		"`rnd'_dt" 		`subHandle'
+		writeGlobal "Dofiles" 						"`rnd'"			"`rnd'_do" 		`subHandle'
+		writeGlobal "Output" 						"`rnd'"			"`rnd'_out"		`subHandle'
 		
 		*This are never written to the master dofile, only created 
 		createFolderWriteGlobal "Documentation"  "`rnd'"	"`rnd'_doc"	
@@ -572,7 +575,7 @@ end
 cap program drop 	createRoundMasterDofile 
 	program define	createRoundMasterDofile 	
 	
-		args roundfolder rndName rnd
+		args roundfolder rndName rnd 
 		di "hej1"
 		*Create a temporary textfile
 		tempname 	roundHandle
@@ -583,30 +586,31 @@ cap program drop 	createRoundMasterDofile
 		mdofle_p0 	`roundHandle' round
 		di "hej21"
 		mdofle_p1	`roundHandle' "$projectFolder" `rndName' `rnd'
+
 		di "hej3"
-		*Encrypted round sub-folder
+		*Encrypted round sub-folder		
 		file write  `roundHandle'	_n	_col(4)"*Encrypted round sub-folder globals" _n 
-		writeGlobal				"Round `rndName' Encrypted" 	"encryptFolder" "`rnd'_encrypt" `roundHandle'
+		createFolderWriteGlobal				"Round `rndName' Encrypted" 	"encryptFolder" "`rnd'_encrypt" `roundHandle'
 		createFolderWriteGlobal "Raw Identified Data"  			"`rnd'_encrypt" "`rnd'_dtRaw" 	`roundHandle'
 		createFolderWriteGlobal "Dofiles Import"				"`rnd'_encrypt" "`rnd'_doImp" 	`roundHandle'
 		createFolderWriteGlobal "High Frequency Checks"			"`rnd'_encrypt" "`rnd'_HFC" 	`roundHandle'
 		di "hej4"
 		*DataSets sub-folder
 		file write  `roundHandle' _n	_col(4)"*DataSets sub-folder globals" _n
-		writeGlobal				"DataSets" 						"`rnd'" 		"`rnd'_dt" 		`roundHandle'
+		createFolderWriteGlobal				"DataSets" 						"`rnd'" 		"`rnd'_dt" 		`roundHandle'
 		createFolderWriteGlobal "Intermediate" 					"`rnd'_dt" 		"`rnd'_dtInt" 	`roundHandle'
 		createFolderWriteGlobal "Final"  						"`rnd'_dt" 		"`rnd'_dtFin" 	`roundHandle'
 		
 		*Dofile sub-folder
 		file write  `roundHandle' _n	_col(4)"*Dofile sub-folder globals" _n
-		writeGlobal				"Dofiles" 						"`rnd'"			"`rnd'_do" 		`roundHandle'
+		createFolderWriteGlobal				"Dofiles" 						"`rnd'"			"`rnd'_do" 		`roundHandle'
 		createFolderWriteGlobal "Cleaning"				 		"`rnd'_do" 		"`rnd'_doCln" 	`roundHandle'
 		createFolderWriteGlobal "Construct"				 		"`rnd'_do" 		"`rnd'_doCon" 	`roundHandle'
 		createFolderWriteGlobal "Analysis"				 		"`rnd'_do" 		"`rnd'_doAnl" 	`roundHandle'
 		
 		*Output subfolders
 		file write  `roundHandle' _n	_col(4)"*Output sub-folder globals" _n
-		writeGlobal				"Output" 						"`rnd'"			"`rnd'_out"		`roundHandle'
+		createFolderWriteGlobal				"Output" 						"`rnd'"			"`rnd'_out"		`roundHandle'
 		createFolderWriteGlobal "Raw" 							"`rnd'_out"	 	"`rnd'_outRaw"	`roundHandle'		
 		createFolderWriteGlobal "Final" 						"`rnd'_out"		"`rnd'_outFin"	`roundHandle'
 	
