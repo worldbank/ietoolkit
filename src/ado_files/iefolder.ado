@@ -137,7 +137,6 @@ cap program drop 	iefolder2
 	global dataWorkFolder 		"$projectFolder/DataWork"
 	global encryptFolder 		"$dataWorkFolder/EncryptedData"
 	
-
 	if "`subcommand'" == "new" {
 	
 		di "Subcommand: New"
@@ -161,7 +160,7 @@ cap program drop 	iefolder2
 		else if "`itemType'" == "round" {
 			
 			di "ItemType: round"
-			iefolder_newItem `newHandle' round "`itemName'" "`abbreviation'" 
+			iefolder_newItem `newHandle' round "`itemName'" "`abbreviation'" "`subfolder'"
 			
 			*Produce success output
 			noi di "{pstd}Command ran succesfully, for the round [`itemName'] the following folders and master dofile were created:{p_end}"
@@ -260,7 +259,7 @@ end
 cap program drop 	iefolder_newItem
 	program define	iefolder_newItem
 	
-	args subHandle itemType itemName itemAbb 
+	args subHandle itemType itemName itemAbb subfolder
 	
 	di "new item command"
 	
@@ -350,11 +349,11 @@ cap program drop 	iefolder_newItem
 					
 					di "Hit0"
 					*Write the globals for this round to the proejct master dofile
-					newRndFolderAndGlobals 	`itemName' `itemAbb' "dataWorkFolder" `subHandle' round
+					newRndFolderAndGlobals 	`itemName' `itemAbb' `subHandle' round "`subfolder'"
 					di "hit1"
 					
 					*Create the round master dofile and create the subfolders for this round
-					createRoundMasterDofile "$dataWorkFolder/`itemName'" "`itemName'" "`itemAbb'" 
+					createRoundMasterDofile "$dataWorkFolder/`itemName'" "`itemName'" "`itemAbb'" "`subfolder'"
 					di "hit2"
 					
 					
@@ -426,8 +425,8 @@ cap program drop 	iefolder_newItem
 				
 				*Create unit of observation data folder and add global to folder in master do file
 				file write		`subHandle' _col(4)"*`itemName' sub-folder globals" _n	
-				createFolderWriteGlobal "`itemName'"    		"dataWorkFolder"  	`itemAbb'	`subHandle'	
-				createFolderWriteGlobal "`itemName' Encrypted"  "encryptFolder"  	`itemAbb'_encrypt `subHandle'
+				createFolderWriteGlobal "`itemName'"    					"dataWorkFolder"  	`itemAbb'	`subHandle'	
+				createFolderWriteGlobal "Subfolder `itemName' Encrypted"  	"encryptFolder"  	`itemAbb'_encrypt `subHandle'
 				file write		`subHandle' _col(4) _n	
 				
 				file write		`subHandle' `"`line'"' _n	
@@ -551,16 +550,19 @@ end
 cap program drop 	newRndFolderAndGlobals 
 	program define	newRndFolderAndGlobals 
 		
-		args rndName rnd dtfld_glb subHandle masterType
+		args rndName rnd subHandle masterType subfolder
+		
+		if "`subfolder'" != "" local subfolder_encrypt 	"Subfolder `subfolder' Encrypted/"
+		if "`subfolder'" != "" local subfolder 			"`subfolder'/"
 		
 		*Write title to the folder globals to this round
 		file write  `subHandle'	_col(4)"*`rndName' folder globals" _n
 
 		*Round main folder	
-		createFolderWriteGlobal "`rndName'" "`dtfld_glb'" "`rnd'" 	`subHandle'
+		createFolderWriteGlobal "`rndName'" "dataWorkFolder" "`rnd'" 	`subHandle' "`subfolder'"
 		
 		*Sub folders
-		writeGlobal	"Round `rndName' Encrypted" 	"encryptFolder" "`rnd'_encrypt" `subHandle'
+		writeGlobal	"Round `rndName' Encrypted" 	"encryptFolder" "`rnd'_encrypt" `subHandle' "`subfolder_encrypt'"
 		writeGlobal "DataSets" 						"`rnd'" 		"`rnd'_dt" 		`subHandle'
 		writeGlobal "Dofiles" 						"`rnd'"			"`rnd'_do" 		`subHandle'
 		writeGlobal "Output" 						"`rnd'"			"`rnd'_out"		`subHandle'
@@ -575,7 +577,11 @@ end
 cap program drop 	createRoundMasterDofile 
 	program define	createRoundMasterDofile 	
 	
-		args roundfolder rndName rnd 
+		args roundfolder rndName rnd subfolder
+		
+		if "`subfolder'" != "" local subfolder_encrypt 	"Subfolder `subfolder' Encrypted/"
+		if "`subfolder'" != "" local subfolder 			"`subfolder'/"
+		
 		di "hej1"
 		*Create a temporary textfile
 		tempname 	roundHandle
@@ -587,30 +593,34 @@ cap program drop 	createRoundMasterDofile
 		di "hej21"
 		mdofle_p1	`roundHandle' "$projectFolder" `rndName' `rnd'
 
+		*Main round folder
+		file write  `roundHandle'	_n	_col(4)"*Encrypted round sub-folder globals" _n 
+		writeGlobal 			"`rndName'" 					"dataWorkFolder" "`rnd'" 		`roundHandle' "`subfolder'"
+		
 		di "hej3"
 		*Encrypted round sub-folder		
 		file write  `roundHandle'	_n	_col(4)"*Encrypted round sub-folder globals" _n 
-		createFolderWriteGlobal				"Round `rndName' Encrypted" 	"encryptFolder" "`rnd'_encrypt" `roundHandle'
+		createFolderWriteGlobal	"Round `rndName' Encrypted" 	"encryptFolder" "`rnd'_encrypt" `roundHandle' "`subfolder_encrypt'"
 		createFolderWriteGlobal "Raw Identified Data"  			"`rnd'_encrypt" "`rnd'_dtRaw" 	`roundHandle'
 		createFolderWriteGlobal "Dofiles Import"				"`rnd'_encrypt" "`rnd'_doImp" 	`roundHandle'
 		createFolderWriteGlobal "High Frequency Checks"			"`rnd'_encrypt" "`rnd'_HFC" 	`roundHandle'
 		di "hej4"
 		*DataSets sub-folder
 		file write  `roundHandle' _n	_col(4)"*DataSets sub-folder globals" _n
-		createFolderWriteGlobal				"DataSets" 						"`rnd'" 		"`rnd'_dt" 		`roundHandle'
+		createFolderWriteGlobal	"DataSets" 						"`rnd'" 		"`rnd'_dt" 		`roundHandle'
 		createFolderWriteGlobal "Intermediate" 					"`rnd'_dt" 		"`rnd'_dtInt" 	`roundHandle'
 		createFolderWriteGlobal "Final"  						"`rnd'_dt" 		"`rnd'_dtFin" 	`roundHandle'
 		
 		*Dofile sub-folder
 		file write  `roundHandle' _n	_col(4)"*Dofile sub-folder globals" _n
-		createFolderWriteGlobal				"Dofiles" 						"`rnd'"			"`rnd'_do" 		`roundHandle'
+		createFolderWriteGlobal	"Dofiles" 						"`rnd'"			"`rnd'_do" 		`roundHandle'
 		createFolderWriteGlobal "Cleaning"				 		"`rnd'_do" 		"`rnd'_doCln" 	`roundHandle'
 		createFolderWriteGlobal "Construct"				 		"`rnd'_do" 		"`rnd'_doCon" 	`roundHandle'
 		createFolderWriteGlobal "Analysis"				 		"`rnd'_do" 		"`rnd'_doAnl" 	`roundHandle'
 		
 		*Output subfolders
 		file write  `roundHandle' _n	_col(4)"*Output sub-folder globals" _n
-		createFolderWriteGlobal				"Output" 						"`rnd'"			"`rnd'_out"		`roundHandle'
+		createFolderWriteGlobal	"Output" 						"`rnd'"			"`rnd'_out"		`roundHandle'
 		createFolderWriteGlobal "Raw" 							"`rnd'_out"	 	"`rnd'_outRaw"	`roundHandle'		
 		createFolderWriteGlobal "Final" 						"`rnd'_out"		"`rnd'_outFin"	`roundHandle'
 	
@@ -631,41 +641,42 @@ cap program drop 	createRoundMasterDofile
 		
 		*Closing the new main master dofile handle
 		file close 		`roundHandle'
-
+		di "B1"
+		di `" copy "`roundTextFile'"  "${`rnd'}/`rndName'_MasterDofile.do" , replace "'
 		*Copy the new master dofile from the tempfile to the original position
-		copy "`roundTextFile'"  "`roundfolder'/`rndName'_MasterDofile.do" , replace
+		copy "`roundTextFile'"  "${`rnd'}/`rndName'_MasterDofile.do" , replace
 	
 end
 	
 cap program drop 	createFolderWriteGlobal 
 	program define	createFolderWriteGlobal 
 
-		args  folderName parentGlobal globalName subHandle 
+		args  folderName parentGlobal globalName subHandle subfolder
 
 		*Create a global for this folder
-		global `globalName' "$`parentGlobal'/`folderName'"
+		global `globalName' "$`parentGlobal'/`subfolder'`folderName'"
 		
 		*If a subhandle is specified then write the global to the master file
 		if ("`subHandle'" != "") {
-			writeGlobal "`folderName'" `parentGlobal' `globalName' `subHandle'
+			writeGlobal "`folderName'" `parentGlobal' `globalName' `subHandle' "`subfolder'"
 		}
 
-		mkdir "${`parentGlobal'}/`folderName'"
+		mkdir "${`parentGlobal'}/`subfolder'`folderName'"
 				
 end
 
 cap program drop 	writeGlobal 
 	program define	writeGlobal 
 
-	args  folderName parentGlobal globalName subHandle 
+	args  folderName parentGlobal globalName subHandle subfolder
 
 	*Create a global for this folder
-	global `globalName' "$`parentGlobal'/`folderName'"
+	global `globalName' "$`parentGlobal'/`subfolder'`folderName'"
 
 	*Write global in round master dofile if subHandle is specified
 	file write  `subHandle' 							///
 		_col(4) `"global `globalName'"' _col(34) `"""' 	///
-		_char(36)`"`parentGlobal'/`folderName'" "' _n 
+		_char(36)`"`parentGlobal'/`subfolder'`folderName'" "' _n 
 
 end 
 
