@@ -3,7 +3,7 @@
 cap program drop 	iefolder2
 	program define	iefolder2
 
-*qui {	
+qui {	
 	
 	syntax anything, PROJectfolder(string) [ABBreviation(string) SUBfolder(string)]
 	
@@ -167,7 +167,7 @@ cap program drop 	iefolder2
 			*Produce success output
 			noi di "{pstd}Command ran succesfully, for the round [`itemName'] the following folders and master dofile were created:{p_end}"
 			noi di "{phang2}1) [${`abbreviation'}]{p_end}"
-			noi di "{phang2}2) [${encryptFolder}/Round `itemName' Encrypted]{p_end}"
+			noi di "{phang2}2) [${`abbreviation'_encrypt}]{p_end}"
 			noi di "{phang2}3) [${`abbreviation'}/`itemName'_MasterDofile.do]{p_end}"
 		}
 		*Creating a new level of observation for master data set
@@ -193,7 +193,7 @@ cap program drop 	iefolder2
 			*Produce success output
 			noi di "{pstd}Command ran succesfully, for the subfolder [`itemName'] the following folders were created:{p_end}"
 			noi di "{phang2}1) [${dataWorkFolder}/`itemName']{p_end}"
-			noi di "{phang2}2) [${encryptFolder}/`itemName']{p_end}"
+			noi di "{phang2}2) [${encryptFolder}/Subfolder `itemName' Encrypted]{p_end}"
 		
 		}
 	}
@@ -205,7 +205,7 @@ cap program drop 	iefolder2
 	copy "`newTextFile'"  "$projectFolder/DataWork/Project_MasterDofile.do" , replace
 	
 	
-*}	
+}	
 end 	
 
 /************************************************************
