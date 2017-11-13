@@ -17,15 +17,9 @@ cap program drop 	iefolder2
 	noi di ""
 	
 	*Subfolder todo:
-	* test that new subfolder does not have the same name as another subfolder or round
-	* test that new round folder does not have the same name as a subfolder (is already testing for not having the same name a another round)
-	* add folder
-	* add global to subfolder in master do-file
 	* allow subfolder to have abbreviation
-	* make rows in master do file that list all names and abbreviations used for rounds, unitofobs and subfolders. Test that they are not used before doing anything.
 	
 	*Round to add after subfolder
-	* implement add round in subfolder
 	* test that the subfolder in option is a subfolder and not a round folder
 	
 	//do "C:\Users\kbrkb\Documents\GitHub\ietoolkit\src\ado_files\iefolder_functions.do"
@@ -111,12 +105,20 @@ cap program drop 	iefolder2
 	}	
 	
 	**Only rounds can be put in a sufolder, so if subfolder is used the itemtype must be 
-	
 	if ("`subfolder'" != "" & "`itemType'" != "round") {
 		
 		noi di as error `"{pstd}The option subfolder() can only be used together with item type "round" as only "round" folders can be organized in subfolders.{p_end}"'
 		error 198
 	}
+	
+	*test that there is no space in subfolder option
+	local space_pos = strpos(trim("`subfolder'"), " ")
+	if "`subfolder'" != ""  & `space_pos' != 0 {
+
+		noi di as error `"{pstd}You have specified to many words in: [{it:subfolder(`subfolder')}]. Spaces are not allowed, use underscores or camel case instead.{p_end}"'
+		error 198
+	}
+	
 	
 	/***************************************************
 	
@@ -332,6 +334,12 @@ cap program drop 	iefolder_newItem
 					
 					*We do not add to this line so write is as it was
 					file write		`subHandle' `"`line'"' _n	
+				}
+				
+				*If subfolder option is used for a round, test that subfolder is created
+				if "`r(nameLineType)'" == "subFld"  & "`subfolder'" != "" {
+					****Test that name is not used already
+					testNameAvailible "`line'" "`subfolder'" "`subfolder'" "`subfolder'"
 				}
 			}
 			else if "`itemType'" == "round" { // test if round
@@ -778,7 +786,7 @@ end
 cap program drop 	testNameAvailible
 	program define	testNameAvailible
 	
-	args line name abb
+	args line name abb subfolder
 	
 	*If abb was not used or is the same, remove abb
 	if "`name'" == "`abb'" local abb "" 
@@ -789,6 +797,9 @@ cap program drop 	testNameAvailible
 	*Start at the second item in the list as the first is a star
 	local number	1
 	local item 		"``number''"
+	
+	*Local that keeps track if subfolder names is used
+	local subfolderFound 0
 
 	*Loop over all 
 	while "`item'" != "" {
@@ -797,11 +808,15 @@ cap program drop 	testNameAvailible
 		foreach nameTest in `name' `abb' {
 			
 			*Test if the name to test is equal to something already used
-			if "`item'" == "`nameTest'" {
+			if "`item'" == "`nameTest'" & "`subfolder'" == "" {
 				
 				*name already used, throw error
 				noi di as error "{phang}The name `nameTest' have already been used as a folder name or abreviation. No new folders are creaetd and the master do-files has not been changed.{p_end}"
 				error 507
+			}
+			else if "`item'" == "`nameTest'" & "`subfolder'" != "" {
+				
+				local subfolderFound 1
 			}
 		}
 		
@@ -817,6 +832,13 @@ cap program drop 	testNameAvailible
 			local item "``number''"
 		}
 	}
+	
+	
+	*Test that subfolder was found
+	 if `subfolderFound' == 0 & "`subfolder'" != "" {
+		noi di as error "{phang}The subofolder `name' has not been created by iefolder. Please only create subfolders with iefolders, and do not change the names once they are created. No new folders are creaetd and the master do-files has not been changed.{p_end}"
+		error 507
+	 }
 	
 end
 	
