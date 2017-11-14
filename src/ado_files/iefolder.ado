@@ -221,19 +221,15 @@ end
 cap program drop 	iefolder_newProject
 	program define	iefolder_newProject
 		
-		noi di "command ok" 
-		
 		args projectfolder newHandle
 		
-		noi di "args ok"
 		*Test if folder where to create new folder exist
 		checkFolderExists "$projectFolder" "parent"
 
 		*Test that the new folder does not already exist
 		checkFolderExists "$dataWorkFolder" "new"				
 		
-		noi di "folder check ok"
-		
+		*Create the main DataWork folder
 		mkdir "$dataWorkFolder"
 		
 		******************************
@@ -267,8 +263,6 @@ cap program drop 	iefolder_newItem
 	
 	args subHandle itemType itemName itemAbb subfolder
 	
-	di "new item command"
-	
 	**Test that the folder where the new folder will 
 	* be created exist and that a folder with the same
 	* name is created there already
@@ -292,12 +286,11 @@ cap program drop 	iefolder_newItem
 		local line : subinstr local line "\$"  "\\$"
 		local line : subinstr local line "\`"  "\\`"
 		
+		//di `"`line'"'
+		
 		**Run funtion to read old project master dofile to check if any 
 		* infomration should be added before this line
 		parseReadLine `"`line'"'
-		
-		di `"`line'"'
-		 
 		
 		if `r(ief_line)' == 0 {
 
@@ -307,8 +300,6 @@ cap program drop 	iefolder_newItem
 		}
 		else if `r(ief_line)' == 1 {
 
-			di `"  if "`itemType'" == "round" "'
-			
 			**This is a line of code with a devisor written by 
 			* iefodler. New additions to a section are always added right before an end of section line. 
 			return list
@@ -345,8 +336,6 @@ cap program drop 	iefolder_newItem
 				}
 			}
 			else if "`itemType'" == "round" { // test if round
-				
-				pause
 			
 				**This is NOT an end of section line. Nothing will be written here 
 				* but we test that there is no confict with previous names
@@ -430,9 +419,7 @@ cap program drop 	iefolder_newItem
 				file write		`subHandle' _col(4) _n	
 				
 				file write		`subHandle' `"`line'"' _n	
-				
 			}
-			
 			else {
 				*If none apply, just write the line
 				file write		`subHandle' `"`line'"' _n	
@@ -657,7 +644,8 @@ cap program drop 	createFolderWriteGlobal
 		if ("`subHandle'" != "") {
 			writeGlobal "`folderName'" `parentGlobal' `globalName' `subHandle' "`subfolder'"
 		}
-
+		
+		*Create the folder
 		mkdir "${`parentGlobal'}/`subfolder'`folderName'"
 				
 end
@@ -688,7 +676,7 @@ cap program drop 	writeDevisor
 		
 		local devisorLen = strlen("`devisor'")
 		
-		*Make all devisors at least 80 characters wide by adding stars
+		*Make all devisors at least 80 characters wide by adding stars (just aesthetic reasons)
 		if (`devisorLen' < 80) {
 			
 			local numStars = 80 - `devisorLen'
@@ -821,7 +809,6 @@ cap program drop 	testNameAvailible
 			local item "``number''"
 		}
 	}
-	
 	
 	*Test that subfolder was found
 	 if `subfolderFound' == 0 & "`subfolder'" != "" {
@@ -990,18 +977,14 @@ cap program drop 	mdofle_p1
 		
 		*Create master data folder and add global to folder in master do file
 		if "`rndName'" == "" createFolderWriteGlobal "EncryptedData"  "dataWorkFolder"  encryptFolder `subHandle' //For new project
-		if "`rndName'" != "" writeGlobal 			 "EncryptedData"  "dataWorkFolder"  encryptFolder `subHandle' //For new round
-		
-		
-		di "sub 1"
+		if "`rndName'" != "" writeGlobal 			 "EncryptedData"  "dataWorkFolder"  encryptFolder `subHandle' //For new rounds
 		
 		*For new main master do file
 		if "`rndName'" == "" {
 
-		
 			*Write sub devisor starting master and monitor data section section
 			writeDevisor `subHandle' 1 FolderGlobals endRounds	
-			di "sub 2"
+
 			*Write sub devisor starting master and monitor data section section
 			writeDevisor `subHandle' 1 End_FolderGlobals
 			
@@ -1014,8 +997,6 @@ cap program drop 	mdofle_p1
 			writeDevisor `subHandle' 1 FolderGlobals `rndName'		
 
 		}
-		
-		di "sub 9"
 
 end	
 
