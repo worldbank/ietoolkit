@@ -1,7 +1,7 @@
 *! version 5.2 28JUL2017  Kristoffer Bjarkefur kbjarkefur@worldbank.org
 
-cap program drop 	iefolder2
-	program define	iefolder2
+cap program drop 	iefolder
+	program define	iefolder
 
 qui {	
 	
@@ -14,12 +14,6 @@ qui {
 
 	*Create an empty line before error message or output
 	noi di ""
-	
-	*Subfolder todo:
-	* remove all pauses
-	
-	*Round to add after subfolder
-	* test that the subfolder in option is a subfolder and not a round folder
 	
 	/***************************************************
 	
