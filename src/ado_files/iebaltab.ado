@@ -1,4 +1,4 @@
-*! version 5.2 28JUL2017  Kristoffer Bjarkefur kbjarkefur@worldbank.org
+*! version 5.3 14NOV2017 Kristoffer Bjarkefur kbjarkefur@worldbank.org
 		
 	capture program drop iebaltab
 	program iebaltab
@@ -26,7 +26,7 @@
 				/*Statistics and data manipulation*/						///
 				FIXedeffect(varname)										///
 				COVariates(varlist)											///
-				COVAMISSOK													///
+				COVARMISSOK													///
 				vce(string) 												///
 				BALMISS(string) 											///
 				BALMISSReg(string)											///
@@ -590,16 +590,16 @@ qui {
 		
 		
 		
-		*Error for misszero incorrectly used together with missregzero
+		*Error for miss incorrectly used together with missreg
 		if `BALMISS_USED' & `BALMISSREG_USED' {
-			*Error for misszero and missregzero incorrectly used together
-			noi display as error "{phang}Option misszero may not be used in combination with option missregzero"
+			*Error for balmiss and balmissreg incorrectly used together
+			noi display as error "{phang}Option balmiss() may not be used in combination with option balmissreg()"
 			error 197
 		}	
 		
 		if `COVMISS_USED' & `COVMISSREG_USED' {
-			*Error for misszero and missregzero incorrectly used together
-			noi display as error "{phang}Option covmisszero may not be used in combination with option covmissregzero"
+			*Error for covmiss and covmissreg incorrectly used together
+			noi display as error "{phang}Option covmiss() may not be used in combination with option covmissreg()"
 			error 197
 		}			
 		
@@ -650,7 +650,7 @@ qui {
 					cap assert `covar' < .
 					if _rc == 9 {
 				
-						noi display as error  "{phang}The variable `covar' specified in covariates() has missing values for one or several observations. This would cause observations to be dropped in the estimation regressions. To allow for observations to be dropped see option covarmissok and to make the command treat missing values as zero see option covmisszero and covmissregzero. Click {stata tab `covar' `if' `in', m} to see the missing values.{p_end}"
+						noi display as error  "{phang}The variable `covar' specified in covariates() has missing values for one or several observations. This would cause observations to be dropped in the estimation regressions. To allow for observations to be dropped see option covarmissok and to make the command treat missing values as zero see option covmiss() and covmissreg(). Click {stata tab `covar' `if' `in', m} to see the missing values.{p_end}"
 						error 109
 					}
 				}
@@ -1393,8 +1393,7 @@ qui {
 		file open  `texname' using "`texfile'", text write append
 		file write `texname' ///
 			"\begin{tabular}{@{\extracolsep{5pt}}`colstring'}" _n ///
-			"\\[-1.8ex]\hline" _n ///
-			"\hline \\[-1.8ex]" _n		
+			"\\[-1.8ex]\hline \hline" _n		
 		file close `texname'
 
 		*Write the title rows defined above	
@@ -1404,8 +1403,7 @@ qui {
 		file write `texname' ///
 						"`texrow1' \\" _n ///
 						"`texrow2' \\" _n ///
-						"`texrow3' \\" _n ///
-						"\hline \\[-1.8ex] " _n
+						"`texrow3' \\ \hline " _n
 		file close `texname'
 		 
 
@@ -1489,7 +1487,7 @@ qui {
 			local texrow_label : subinstr local texrow_label "_"  "\_" , all
 			local texrow_label : subinstr local texrow_label "["  "{[}" , all
 			local texrow_label : subinstr local texrow_label "&"  "\&" , all 
-			local texrow_label : subinstr local texrow_label "\$"  "\\\\\\\\$" , all
+			local texrow_label : subinstr local texrow_label "\$"  "\\\\\\\$" , all
 			
 			local texRow	`""`texrow_label'""'				
 			
@@ -2080,7 +2078,7 @@ qui {
 			*Remove the first comman before the first variable
 			local fmiss_error_list = subinstr("`fmiss_error_list'" ,",","",1) 
 			
-			noi di as error "{phang}F-test is possible but perhaps not advisable. Some observations have missing values in some of the balance variables and therfore dropped from the f-stat regression. This happened in the f-tests for the following group(s): [`fmiss_error_list']. Solve this by manually restricting the balance table using if or in, or disable the f-test, or by using option {help dmtab:misszero}. Suppress this error message by using option {help dmtab:fmissok}"
+			noi di as error "{phang}F-test is possible but perhaps not advisable. Some observations have missing values in some of the balance variables and therfore dropped from the f-stat regression. This happened in the f-tests for the following group(s): [`fmiss_error_list']. Solve this by manually restricting the balance table using if or in, or disable the f-test, or by using option {help dmtab:balmiss()}. Suppress this error message by using option {help dmtab:fmissok}"
 			error 416
 		}
 		
@@ -2096,8 +2094,7 @@ qui {
 
 
 		file open  `texname' using "`texfile'", text write append
-								file write `texname' "\\[-1.8ex]" _n
-								file write `texname' "\hline \\[-1.8ex]" _n
+								file write `texname' "\hline" _n
 								file write `texname' `Fstat_texrow' " \\" _n
 			if !`F_NO_OBS' 		file write `texname' `Fobs_texrow'  " \\" _n
 		file close `texname'
@@ -2394,15 +2391,14 @@ qui {
 	file open  `texname' using "`texfile'", text write append
 		
 		file write `texname' ///
-			"\hline" _n ///
-			"\hline \\" _n
+			"\hline \hline" _n
 			
 		** Write notes to file according to specificiation
 		*If no automatic notes are used, write only manual notes
 		if `NONOTE_USED' & `NOTE_USED' {
 			file write `texname' ///
 				"%%% This is the note. If it does not have the correct margins, use texnotewidth() option or change the number before '\textwidth' in line below to fit it to table size." _n ///
-				"[-1.8ex] \multicolumn{`totalColNo'}{@{} p{`texnotewidth'\textwidth}}" _n ///
+				"\multicolumn{`totalColNo'}{@{} p{`texnotewidth'\textwidth}}" _n ///
 				`"{\textit{Notes}: `tblnote'}"' _n
 		}
 
@@ -2411,7 +2407,7 @@ qui {
 			*Write to file
 			file write `texname' ///
 				"%%% This is the note. If it does not have the correct margins, edit text below to fit to table size." _n ///
-				"[-1.8ex] \multicolumn{`totalColNo'}{@{}p{`texnotewidth'\textwidth}}" _n ///
+				"\multicolumn{`totalColNo'}{@{}p{`texnotewidth'\textwidth}}" _n ///
 				`"{\textit{Notes}: `tblnote' `ttest_note'`ftest_note'`error_est_note'`fixed_note'`covar_note'`weight_note'`balmiss_note'`covmiss_note'`stars_note'}"' _n
 		}
 		

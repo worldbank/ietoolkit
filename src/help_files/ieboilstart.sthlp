@@ -1,5 +1,5 @@
 {smcl}
-{* 28 Jul 2017}{...}
+{* 14 Nov 2017}{...}
 {hline}
 help for {hi:ieboilstart}
 {hline}
@@ -209,7 +209,7 @@ details {help ieboilstart##comp:below}.
 
 {phang}{cmd:veryquietly} suppresses the third output this commands generates in the result window in addition to the two that {cmd:quietly} is suppressing. The third output is a reminder to set the version number using "`r(version)'" after running the command.
 
-{phang}{cmdab:c:ustom(}{it:string}{cmd:)} allows the user to add one or multiple custom lines of code. Each line of code should be seperated with a "@". See example 4
+{phang}{cmdab:c:ustom(}{it:string}{cmd:)} allows the user to add one or multiple custom lines of code. Each line of code should be seperated with a "@". See example 2
 	below for more details.{p_end}
 
 {phang}{cmdab:c:ustom(}{it:string}{cmd:)}This option is only relevant for users of Stata 11. This value must be an integer followed by the letter B, K, M or G. The default if omitted is 50M. Cannot be used if

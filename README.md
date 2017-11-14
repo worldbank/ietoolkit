@@ -27,6 +27,7 @@ While we have a slight preference of receiving any kind of feedback here on GitH
  - **iegraph** produces graphs of estimation results in common impact evaluation regression models
  - **ieboilstart** standardizes the boilerplate code at the top of all do-files
  - **iedropone** drops observations and controls that the correct number was dropped
+ - **iegitaddmd** adds placeholder README.md files to all empty subfolders allowing them to be synced on GitHub
  - **ieboilsave** performs checks before saving a data set
 
 ### **Contributions**

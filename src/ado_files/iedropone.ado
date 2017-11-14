@@ -1,11 +1,12 @@
-*! version 5.2 28JUL2017  Kristoffer Bjarkefur kbjarkefur@worldbank.org
+*! version 5.3 14NOV2017 Kristoffer Bjarkefur kbjarkefur@worldbank.org
 	
 	capture program drop 	iedropone
 			program define 	iedropone , 
 	
 	qui {
-		
+
 		syntax [if] ,  [Numobs(numlist int min=1 max=1 >0) mvar(varname) mval(string) zerook]
+		
 		
 		version 11.0
 
@@ -19,22 +20,20 @@
 												local MULTI_USED 0
 		if ("`mvar'" != "" & "`mval'" != "") 	local MULTI_USED 1
 		
-		
 		*Set a constant for the zerook option being used
 												local ZEROOK_USED 0
 		if ("`zerook'" != "") 					local ZEROOK_USED 1
 		
 		*Set a constant for if an IF-condition used
 												local IF_USED 0
-		if ("`if'" != "") 						local IF_USED 1		
-		
+		if (`"`if'"' != "") 					local IF_USED 1		
 		
 		/***********************************
 		
 			Test input
 		
 		***********************************/
-		
+
 		*Test that mvar() and mval() was used in combination
 		if ("`mvar'" != "" & "`mval'" == "") {
 			
@@ -60,7 +59,7 @@
 			Set locals
 		
 		***********************************/		
-		
+
 		*If number of obs to drop is not set, then use the default which is 1
 		if "`numobs'" == "" {
 	
