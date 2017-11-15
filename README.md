@@ -46,7 +46,7 @@ If you wish to make a contribution by making *forks and pull requests* but are n
 ### Other DIME Anlytics Repositories
 * [Stata adofiles repository](https://github.com/worldbank/stata)
 * [Stata Visual Library](https://worldbank.github.io/Stata-IE-Visual-Library/)
-* [Disributional Impact Analysis Toolkit](https://worldbank.github.io/DIA-toolkit/)
+* [DIME LaTeX templates and training](https://github.com/worldbank/DIME-LaTeX-Templates)
 
 ### **License**
 **ietoolkit** is developed under MIT license. See http://adampritchard.mit-license.org/ or see [the `LICENSE` file](https://github.com/worldbank/ietoolkit/blob/master/LICENSE) for details.
