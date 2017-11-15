@@ -43,6 +43,11 @@ All Stata commands we are working on that we have yet to release a first version
 
 If you wish to make a contribution by making *forks and pull requests* but are not exactly sure how to do so, feel free to send an email to lcardosodeandrad@worldbank.org.
 
+### Other DIME Anlytics Repositories
+* [Stata adofiles repository](https://github.com/worldbank/stata)
+* [Stata Visual Library](https://worldbank.github.io/Stata-IE-Visual-Library/)
+* [Disributional Impact Analysis Toolkit](https://worldbank.github.io/DIA-toolkit/)
+
 ### **License**
 **ietoolkit** is developed under MIT license. See http://adampritchard.mit-license.org/ or see [the `LICENSE` file](https://github.com/worldbank/ietoolkit/blob/master/LICENSE) for details.
 
