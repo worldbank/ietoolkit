@@ -15,6 +15,7 @@
 			MATCHDIffname(string)				///
 			MATCHREsultname(string)				///
 			MATCHCOuntname(string)				///
+			replace								///
 			]
 
 		*****
@@ -41,7 +42,11 @@
 			* String used to store why and how 
 			*  many observations are excluded.
 			local obsexcludstring ""
-	
+			
+			*Dummy local that is 1 if replace is used
+			if "`replace'" == "" local REPLACE_USED 0
+			if "`replace'" != "" local REPLACE_USED 1
+			
 			*Deal with if and in and display info. 
 			if "`if'`in'" != "" {
 				
@@ -61,21 +66,146 @@
 				keep `if'`in'
 			}
 			
+		********************************
+		*
+		*	Checking ID var (and create if needed)
+		*
+		********************************
+
+			*Checking set-up for the ID var used for _matchID
+			if "`idvar'" == "" {
+
+				*Copy this name
+				local idvar _ID
+
+				*Make sure that the default name _ID is not already used
+				cap confirm variable `idvar'
+				if _rc == 0 {
+					
+					*Test if option replace is used
+					if `REPLACE_USED' == 1 {
+						*Replace option is used, drop the variable with the name specified
+						drop `idvar'
+					}
+					else {
+						*Replace is not used, throw an error. 
+						di as error "{pstd}A variable with name `idvar' is already defined. Either drop this variable manually, use the replace option or specify a variable using idvar() that fully and uniquely identifies the data set.{p_end}"
+						error 110
+					}
+				}
+
+				*Generate the ID var from row number
+				gen `idvar' = _n
+			}
 			
-			********************************
-			*
-			*	Keep only relevant vars
-			*
-			********************************
+			*Make sure that idvar is uniquelly and fully identifying 
+			cap isid `idvar'
+			if _rc != 0 {
+
+				di as error "{pstd}Variable `idvar' specified in idvar() does not fully and uniquely identify the observations in the data set. `idvar' either has duplicates or missing values which is not allowed. Make `idvar' uniquly and fully idnetifying or exclude the varaibleas using {inp:if} or {inp:in}.{p_end}"
+				error 450
+			}
+
+			*local indicating assume ID is string 
+			local IDtypeNumeric 0	
 			
-			*Keep only input vars
-			keep  `grpdummy' `idvar' `matchvar'	`originalSort'			
+			*Change local to 1 if ID actally string
+			cap confirm numeric variable `idvar'
+			if _rc == 0 local IDtypeNumeric 1
+
 			
-			********************************
-			*
-			*	Checking group dummy
-			*
-			********************************
+		********************************
+		*
+		*	Checking duplicates in variable names in options
+		*
+		********************************
+			
+			*Create a local of all varnames used in any option
+			local allnewvars `idvar' `matchidname' `matchdiffname' `matchresultname' `matchcountname'
+
+			*Check if there are any duplicates in the local of all varnames in options
+			local dupnewvars : list dups allnewvars
+
+			*Throw error if there were any duplicates
+			if "`dupnewvars'" != "" {
+
+				noi di as error "{pstd}The same new variable name was used twice or more in the options generating a new variable. Go back and check syntax.{p_end}"
+				error 198
+			}			
+
+		********************************
+		*
+		*	Test the names used for output vars
+		*
+		********************************
+			
+			iematchMatchVarCheck 	_matchResult 	`REPLACE_USED' "`matchresultname'" 
+			local matchResultName 	"`r(validVarName)'"
+			
+			iematchMatchVarCheck 	_matchID 		`REPLACE_USED' "`matchidname'"
+			local matchIDname 		"`r(validVarName)'"
+			
+			iematchMatchVarCheck 	_matchDiff 		`REPLACE_USED' "`matchdiffname'"
+			local matchDiffName 	"`r(validVarName)'"
+			
+			if "`m1'" != "" {
+			   iematchMatchVarCheck _matchCount 	`REPLACE_USED' "`matchcountname'"
+			   local matchCountName "`r(validVarName)'"
+			}
+			
+			*Option matchcountname() is not allowed if it is not a many-one match
+			if "`matchcountname'" != "" & "`m1'" == "" {
+				di as error "{pstd}Option {inp:matchcountname()} is only allowed in combination with option {inp:m1}.{p_end}"
+				error 198
+			}
+
+		********************************
+		*
+		*	Create and label output vars
+		*
+		********************************
+			
+			* MATCH RESULT VAR
+			label define 	 matchLabel 0 "Not Matched" 1 "Matched" .i "Obs excluded due to if/in" 			///
+										.g "Missing value in `grpdummy'" .m "Missing value in `matchvar'" 	///
+										.d "No match within maxdiff", replace
+			
+			gen 			`matchResultName' = .
+			label variable	`matchResultName' "Matched obs = 1, not mathched = 0, all other different missing values"
+			label value 	`matchResultName' matchLabel
+			
+			* MATCH ID VAR
+			if `IDtypeNumeric' == 1 gen  `matchIDname' = .	//Main ID var is numeric
+			if `IDtypeNumeric' == 0 gen  `matchIDname' = "" //Main ID var is string
+
+			if "`m1'" != "" label variable	`matchIDname' "The ID of the target var in each matched group"	//If many to one
+			if "`m1'" == "" label variable	`matchIDname' "The ID of the target var in each matched pair"	//If one to one			
+			
+			* MATCH DIFF VAR
+			gen 	`matchDiffName' = .
+			if "`m1'" != "" label variable	`matchDiffName' "The difference in matchvar() between base obs and the target obs it matched with" 	//If many to one
+			if "`m1'" == "" label variable	`matchDiffName' "The difference in matchvar() between base and target obs in each pair" 			//If one to one
+			
+			*Match count, only many-one
+			if "`m1'" != "" {
+				gen 			`matchCountName' = .
+				label variable	`matchCountName' "The number of base obs this target obs matched with"
+			}
+		
+		********************************
+		*
+		*	Keep only relevant vars
+		*
+		********************************
+			
+			*Keep only input vars and output vars
+			keep  `grpdummy' `idvar' `matchvar'	`originalSort' `matchResultName' `matchIDname' `matchDiffName' `matchCountName'
+			
+		********************************
+		*
+		*	Checking group dummy
+		*
+		********************************
 
 			*Test that the group dummy is 1, 0 or missing
 			cap assert inlist(`grpdummy', 1, 0, .) | `grpdummy' > .
@@ -100,11 +230,11 @@
 			drop if missing(`grpdummy')
 
 
-			********************************
-			*
-			*	Checking match continous var
-			*
-			********************************
+		********************************
+		*
+		*	Checking match continous var
+		*
+		********************************
 
 			*Test that the continous is numeric
 			cap confirm numeric variable `matchvar'
@@ -127,11 +257,11 @@
 			drop if missing(`matchvar')
 		
 			
-			********************************
-			*
-			*	Checking match var and group dummy are unique
-			*
-			********************************			
+		********************************
+		*
+		*	Checking match var and group dummy are unique
+		*
+		********************************			
 			
 			if "`seedok'" == "" {
 				
@@ -153,12 +283,12 @@
 			}
 			
 
-			********************************
-			*
-			*	Checking that there are more target 
-			*	obs than base obs in a 1-to-1 match
-			*
-			********************************			
+		********************************
+		*
+		*	Checking that there are more target 
+		*	obs than base obs in a 1-to-1 match
+		*
+		********************************			
 			
 			if "`m1'" == "" {
 				
@@ -175,162 +305,10 @@
 				
 				if _rc != 0 {
 					
-					noi di as error "{pstd}There are more base observations than target observations. This is not allowed in a one-to-one match. See option {inp:m1} for an alternaitve matching where it is allowed to have more base observations than target ovbservations.{p_end}"
+					noi di as error "{pstd}There are more base observations than target observations. This is not allowed in a one-to-one match. See option {inp:m1} for an alternative matching where it is allowed to have more base observations than target ovbservations.{p_end}"
 					error _rc
 				}
 			}			
-			
-			********************************
-			*
-			*	Checking duplicates in variable names in options
-			*
-			********************************
-
-			*Create a local of all varnames used in any option
-			local allnewvars `idvar' `matchidname' `matchdiffname' `matchresult'
-
-			*Check if there are any duplicates in the local of all varnames in options
-			local dupnewvars : list dups allnewvars
-
-			*Throw error if there were any duplicates
-			if "`dupnewvars'" != "" {
-
-				di as error "{pstd}The same new variable name was used twice or more in the options generating a new variable. Go back and check syntax.{p_end}"
-				error 198
-			}
-
-
-			********************************
-			*
-			*	Checking ID var
-			*
-			********************************
-
-
-			*Checking set-up for the ID var used for _matchID
-			if "`idvar'" == "" {
-
-				*Copy this name
-				local idvar _ID
-
-				*Make sure that the default name _ID is not already used
-				cap confirm variable `idvar'
-				if _rc == 0 {
-
-					di as error "{pstd}A variable with name `idvar' is already defined. Either drop this variable or specify a variable using idvar() that fully and uniquely identifies the data set.{p_end}"
-					error 110
-				}
-
-				*Generate the ID var from row number
-				gen `idvar' = _n
-				
-				*Store local indicating ID var generated has type numeric
-				local IDtypeNumeric 1
-
-			}
-			else {
-
-				*Make sure that user specified ID is uniquely and fully identifying the observations
-				cap isid `idvar'
-				if _rc != 0 {
-
-					di as error "{pstd}Variable `idvar' specified in idvar() does not fully and uniquely identify the observations in the data set. Meaning that `idvar' is not allowed to have any duplicates or missing values. Make `idvar' uniquly and fully idnetifying or exclude the varaibleas using {inp:if} or {inp:in}.{p_end}"
-					error 450
-				}
-				
-				*Test if ID var is string or numeric
-				cap confirm numeric variable `idvar'
-				if _rc == 0 {
-					
-					*Store local indicating ID var type is numeric
-					local IDtypeNumeric 1
-				}
-				else {
-				
-					*Store local indicating ID var type is numeric
-					local IDtypeNumeric 0			
-				}
-			}
-
-			********************************
-			*
-			*	Checking user defined names
-			*	and then create the result
-			*	varaibles
-			*
-			********************************
-			
-			*******
-			* Result var
-			
-			iematchMatchVarCheck _matchResult `matchresultname'
-			local 	 		 matchResultName "`r(validVarName)'"
-			gen 			`matchResultName' = .
-			label variable	`matchResultName' "Matched obs = 1, not mathched = 0, all other different missing values"
-			
-			*Create a label for missing values that explains no match
-			label define matchLabel 0 "Not Matched" 1 "Matched" .i "Obs excluded due to if/in" .g "Missing value in `grpdummy'" .m "Missing value in `matchvar'" .d "No match within maxdiff"
-
-			*Apply the label
-			label value `matchResultName' matchLabel
-			
-			*******
-			*ID var
-			
-			iematchMatchVarCheck _matchID `matchidname'
-			local matchIDname "`r(validVarName)'"
-	
-			*Allow the ID var used to be string
-			if `IDtypeNumeric' == 1 {
-				gen  `matchIDname' = .
-			}
-			else {
-				gen  `matchIDname' = ""
-			}
-			
-			*This variable is slightly differnt between a many-one and one-one match
-			if "`m1'" != "" {
-				label variable	`matchIDname' "The ID of the target obs in each matched group"
-			}
-			else {
-				label variable	`matchIDname' "The ID of the target obs in each matched pair"
-			}
-			
-			*******
-			*Diff var
-			
-			iematchMatchVarCheck _matchDiff `matchdiffname'
-			local 	 matchDiffName "`r(validVarName)'"
-			gen 	`matchDiffName' = .
-			
-			*This variable is slightly differnt between a many-one and one-one match
-			if "`m1'" != "" {
-				label variable	`matchDiffName' "The difference in matchvar() between base obs and the target obs it matched with"
-			}
-			else {
-				label variable	`matchDiffName' "The difference in matchvar() between base and target obs in each pair"
-			}
-			
-			*******
-			*Count var
-			
-			*If many-to-one match used
-			if "`m1'" != "" {
-				iematchMatchVarCheck _matchCount `matchcountname'
-				local 			 matchCountName "`r(validVarName)'"
-				gen 			`matchCountName' = .
-				label variable	`matchDiffName' "The number of base obs this target obs matched with"
-				
-			}
-			else {
-				
-				*Option match count name is not allowed if it is a one-to-one match
-				if "`matchcountname'" != "" {
-				
-					di as error "{pstd}Option {inp:matchcountname()} is only allowed in combination with option {inp:m1}.{p_end}"
-					error 198
-				}
-			}
 
 		********************************
 		*
@@ -535,9 +513,9 @@
 		replace `matchDiffName' 	= `prefDiff'	if `matched' == 1
 		replace `matchIDname' 		= `idvar' 		if `matched' == 1 & `grpdummy' == 0
 		replace `matchIDname' 		= `prefID' 		if `matched' == 1 & `grpdummy' == 1
-		
+
 		*Remove the best match value in obs that did not have a match within maxdiff()
-		replace `matchDiffName'   = . 				if `matchResultName' == .d
+		replace `matchDiffName'  = . 				if `matchResultName' == .d
 		
 		*Matched observations are give value 1 in result var
 		replace `matchResultName' = 1 				if `matched' == 1 & `matchResultName' != .d
@@ -590,7 +568,7 @@
 
 	*Output result table
 	noi outputTable `matchResultName' `grpdummy'
-	
+
 	*Restore the oridinal sort
 	sort `originalSort'		
 
@@ -602,8 +580,8 @@ end
 	cap program drop 	iematchMatchVarCheck
 		program define 	iematchMatchVarCheck  , rclass
 
-		args defaultName userName
-
+		args defaultName replace_used userName
+		
 		if "`defaultName'" == "_matchID" 		local optionName matchidname
 		if "`defaultName'" == "_matchDiff" 		local optionName matchdiffname
 		if "`defaultName'" == "_matchResult" 	local optionName matchresult
@@ -626,33 +604,42 @@ end
 			noi di as error "{pstd}The new name specified in `optionName'(`userName') is not allowed to be _ID, `Oth1', `Oth2', or `Oth3'{p_end}"
 			error 198
 		}
-
+		
 		*Test if name is set manually
-		if "`userName'" == "" {
-
-			*CSet the default name
-			local validMatchVarname `defaultName'
-
-			*Make sure that the manually entered name is not already used
-			cap confirm variable `validMatchVarname'
-			if _rc == 0 {
-
-				noi di as error "{pstd}A variable with name `validMatchVarname' is already defined. Either drop this variable or specify a new variable name using `optionName'()."
-				error 110
-			}
-		}
-		*Otherwise use default name
-		else {
-
-			*CSet the default name
+		if "`userName'" != "" {
+			*Use the manually set name
 			local validMatchVarname `userName'
-
-			*Make sure that the default name is not already used
-			cap confirm variable `validMatchVarname'
-			if _rc == 0 {
-
-				noi di as error "{pstd}The variable name specified in `optionName'(`userName') is already defined in the data set. Either drop this variable or specify a another variable name using `optionName'()."
+		}
+		else {
+			*No manually set name, use deafult name
+			local validMatchVarname `defaultName'
+		}
+				
+		*Make sure that the manually entered name is not already used
+		cap confirm variable `validMatchVarname'
+		if _rc == 0 {
+			
+			if `replace_used' == 1 {
+				//Replace is used, drop the old var
+				drop `validMatchVarname'
+			}
+			else {
+				
+				*Replace is not used. Prepare an error message and throw error
+				
+				if "`userName'" != "" {
+					*Error message for user specified name s
+					local nameErrorString "The variable name specified in `optionName'(`userName')"
+				}
+				else {
+					*Error message for user specified name s
+					local nameErrorString "A variable with name `validMatchVarname'"
+				}
+				
+				*Trow error
+				noi di as error "{pstd}`nameErrorString' is already defined in the data set. Either drop this variable, use the replace option or specify a another variable name using `optionName'()."
 				error 110
+
 			}
 		}
 
