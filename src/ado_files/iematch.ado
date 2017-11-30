@@ -290,10 +290,10 @@
 			
 			*This variable is slightly differnt between a many-one and one-one match
 			if "`m1'" != "" {
-				label variable	`matchIDname' "The ID of the target var in each matched group"
+				label variable	`matchIDname' "The ID of the target obs in each matched group"
 			}
 			else {
-				label variable	`matchIDname' "The ID of the target var in each matched pair"
+				label variable	`matchIDname' "The ID of the target obs in each matched pair"
 			}
 			
 			*******
