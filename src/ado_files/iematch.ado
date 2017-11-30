@@ -537,7 +537,7 @@
 		replace `matchIDname' 		= `prefID' 		if `matched' == 1 & `grpdummy' == 1
 		
 		*Remove the best match value in obs that did not have a match within maxdiff()
-		replace `matchDiffName'  == . 				if `matchResultName' == .d
+		replace `matchDiffName'   = . 				if `matchResultName' == .d
 		
 		*Matched observations are give value 1 in result var
 		replace `matchResultName' = 1 				if `matched' == 1 & `matchResultName' != .d
