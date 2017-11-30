@@ -793,7 +793,7 @@ end
 			
 			local C1 "{col 4}{c |}"
 			
-			noi di "`firstColWidth'"
+			di "`firstColWidth'"
 			
 			local col1width = `firstColWidth'  + 1 
 			local hli1 "{hline `col1width'}" 
