@@ -16,7 +16,7 @@ help for {hi:iematch}
 [{cmdab:id:var(}{it:varname}{cmd:)} {cmdab:m1} {cmdab:maxdiff(}{it:numlist}{cmd:)} {cmd:seedok}
 {cmdab:matchid:name(}{it:string}{cmd:)} {cmdab:matchdi:ffname(}{it:string}{cmd:)}
 {cmdab:matchre:sultname(}{it:string}{cmd:)} {cmdab:matchco:untname(}{it:string}{cmd:)}
-]
+{cmdab:replace}]
 
 {marker opts}{...}
 {synoptset 22}{...}
@@ -49,6 +49,8 @@ help for {hi:iematch}
 {synopt :{cmdab:matchco:untname(}{it:string}{cmd:)}}Manually sets the name of the
 	variable that indicates how many observations a target obsersvation is matched
 	with in a many-to-one matches. The default is _matchCount{p_end}
+{synopt :{cmd:replace}}Replaces variables in memory if there are name conflicts 
+	when generating the output variables.{p_end}
 {synoptline}
 
 {marker desc}
@@ -218,6 +220,9 @@ help for {hi:iematch}
 	name is {inp:_matchCount}. The names {inp:_ID}, {inp:_matchID}, {inp:_matchDiff}
 	and {inp:_matchResult} are not allowed.
 
+{phang}{cmdab:replace} allows {cmd:iematch} to replace variables in memory when 
+	encountering name conflicts while creating the variables with the results of the matching.
+	
 {title:Examples}
 
 {pstd} {hi:Example 1.}
@@ -239,7 +244,7 @@ help for {hi:iematch}
 {title:Acknowledgements}
 
 {phang}I would like to acknowledge the help in testing and proofreading I received in relation to this command and help file from (in alphabetic order):{p_end}
-{pmore}Seungmin Lee{break}Mrijan Rimal{break}
+{pmore}Luiza Cardoso De Andrade{break}Seungmin Lee{break}Mrijan Rimal{break}
 
 {title:Author}
 
