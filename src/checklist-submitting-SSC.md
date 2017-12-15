@@ -4,11 +4,11 @@
 1. **Update version and date** - In the `develop` update the version number and date in all ado-files and all dates in all help files. See section below for details.
 1. **Merge to *master*** - Merge the `develop` branch to the `master` branch.
 1. **Copy files to archive folder** - Make a folder with the version name in the archive folder Dropbox\DIME Analytics\Data Coordinator\ietoolkit\ietoolkit archive\ and copy all ado-files and help files for all *ietoolkit* command there
-1. **Create a .zip file** - Create a .zip file with all ado-files and help files in the folder you just created in the archive folder. Then remove all files but the .zip file
+1. **Create a .zip file** - Create a .zip file with all ado-files and help files in the folder you just created in the archive folder. Then remove all files but the .zip file from the archive folder.
 1. **Email Prof. Baum** - Email the .zip file to **kit.baum@bc.edu**
-1. **Draft release note** - Go to https://github.com/worldbank/ietoolkit/releases and draft a new release note for the new verison. Follow the format from previous releases with links to issues solved.
+1. **Draft release note** - Go to the [release notes](https://github.com/worldbank/ietoolkit/releases) and draft a new release note for the new verison. Follow the format from previous releases with links to issues solved.
 1. **Publish release note** - Once the new version is up on SSC, publish the release note
-1. **Close issues** - When the new version is up, close all the isses that was solved in the new version.
+1. **Close issues** - When the new version is up, close all the [issues](https://github.com/worldbank/ietoolkit/issues) that was solved in the new version.
 1. **Send announce email** - If it is a major release (new commands or significant updates to existing commands), send an email to DIME Team to announce the new version
 
 ### Version number and dates in ado-files and help files.
