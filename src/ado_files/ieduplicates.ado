@@ -801,13 +801,13 @@
 				}
 				else if `r(N)' 	== 0 {
 				
-					di as error "{phang}New ID value `newID' used as a correction in the Excel file is after corrections was never used. Please ensure that `newID' is a valid input. If problem remains, please report this bug to kbjarkefur@worldbank.org{p_end}"
+					di as error "{phang}New ID value `newID' listed in the Excel file was never used on any observation. Please ensure that `newID' is a valid input. If problem remains, please report this bug to kbjarkefur@worldbank.org{p_end}"
 					error 119
 					exit
 				}
 				else {
 				
-					di as error "{phang}New ID value `newID' used as a correction in the Excel file is after corrections used in `r(N)' obsevations. New ID value `newID' is already used in original data or is used more than once in the Excel file to correct duplicates{p_end}"
+					di as error "{phang}New ID value `newID' listed in the Excel file is expected to be used only once, but it is after corrections used in `r(N)' obsevations. New ID value `newID' is already used in original data or is used more than once in the Excel file to correct duplicates{p_end}"
 					error 119
 					exit
 				}

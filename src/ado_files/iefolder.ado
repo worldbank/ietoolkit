@@ -262,7 +262,7 @@ cap program drop 	iefolder_newItem
 	* name is created there already
 	if "`itemType'" == "round"  iefolder_testFolderPossible "dataWorkFolder" "`itemName'" "encryptFolder" "Round `itemName' Encrypted" 
 	if "`itemType'" == "untObs" iefolder_testFolderPossible "mastData" 		 "`itemName'" "encryptFolder" "Master `itemName' Encrypted" 
-	if "`itemType'" == "subFld" iefolder_testFolderPossible "dataWorkFolder" "`itemName'" "encryptFolder" "`itemName' Encrypted"
+	if "`itemType'" == "subFld" iefolder_testFolderPossible "dataWorkFolder" "`itemName'" "encryptFolder" "Subfolder `itemName' Encrypted"
 	
 	*Old file reference
 	tempname 	oldHandle
@@ -403,8 +403,8 @@ cap program drop 	iefolder_newItem
 				file write		`subHandle' `"`line'"' _n	
 			}
 			
-			*Test if this is the location to write the new master data globals
-			else if "`r(sectionName)'" == "master"  & "`itemType'" == "subFld" { //And new unitofobs
+			*Test if this is the location to write the new subfolder globals
+			else if "`r(sectionName)'" == "master"  & "`itemType'" == "subFld" { //And new subfolder
 				
 				*Create unit of observation data folder and add global to folder in master do file
 				file write		`subHandle' _col(4)"*`itemName' sub-folder globals" _n	
