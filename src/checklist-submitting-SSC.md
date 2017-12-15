@@ -8,6 +8,7 @@
 1. **Email Prof. Baum** - Email the .zip file to **kit.baum@bc.edu**
 1. **Draft release note** - Go to https://github.com/worldbank/ietoolkit/releases and draft a new release note for the new verison. Follow the format from previous releases with links to issues solved.
 1. **Publish release note** - Once the new version is up on SSC, publish the release note
+1. **Close issues** - When the new version is up, close all the isses that was solved in the new version.
 1. **Send announce email** - If it is a major release (new commands or significant updates to existing commands), send an email to DIME Team to announce the new version
 
 ### Version number and dates in ado-files and help files.
