@@ -1,4 +1,4 @@
-*! version 5.3 14NOV2017  Kristoffer Bjarkefur kbjarkefur@worldbank.org
+*! version 5.4 15DEC2017  DIME Analytics lcardosodeandrad@worldbank.org
 
 	cap program drop 	iematch
 	    program define	iematch
@@ -125,11 +125,12 @@
 
 			*Check if there are any duplicates in the local of all varnames in options
 			local dupnewvars : list dups allnewvars
+			local dupnewvars : list uniq dupnewvars
 
 			*Throw error if there were any duplicates
 			if "`dupnewvars'" != "" {
 
-				noi di as error "{pstd}The same new variable name was used twice or more in the options generating a new variable. Go back and check syntax.{p_end}"
+				noi di as error "{pstd}The variable name(s) [`dupnewvars'] was used twice or more in the options that manually name the outcome varaibles. Go back and make sure that no name is used more than once.{p_end}"
 				error 198
 			}			
 
