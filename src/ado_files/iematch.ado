@@ -9,7 +9,8 @@
 			[									///
 			IDvar(varname)						///
 			m1									///
-			maxdiff(numlist max = 1 min = 1) 	///
+			maxdiff(numlist >0 max = 1 min = 1) ///
+			maxmatch(numlist >0 integer max = 1 min = 1) ///
 			seedok						 		///
 			MATCHIDname(string)					///
 			MATCHDIffname(string)				///
@@ -168,7 +169,7 @@
 			* MATCH RESULT VAR
 			label define 	 matchLabel 0 "Not Matched" 1 "Matched" .i "Obs excluded due to if/in" 			///
 										.g "Missing value in `grpdummy'" .m "Missing value in `matchvar'" 	///
-										.d "No match within maxdiff", replace
+										.d "No match within maxdiff" .t "No more eligible target obs", replace
 			
 			gen 			`matchResultName' = .
 			label variable	`matchResultName' "Matched obs = 1, not mathched = 0, all other different missing values"
@@ -308,8 +309,21 @@
 					noi di as error "{pstd}There are more base observations than target observations. This is not allowed in a one-to-one match. See option {inp:m1} for an alternative matching where it is allowed to have more base observations than target ovbservations.{p_end}"
 					error _rc
 				}
-			}			
-
+			}	
+			
+		********************************
+		*
+		*	Checking that matchCount is only used with  
+		*	many-to-one matching
+		*
+		********************************		
+		
+		if "`m1'" == "" & "`maxmatch'" != "" {
+			
+			noi di as error "{pstd}The option {inp:maxmatch()} can only be used when option {inp:m1} is used, as restricting to a maximum number of matches is only applicable in a many-to-one match.{p_end}"
+			error 198
+		}
+		
 		********************************
 		*
 		*	Output exclude string
@@ -341,18 +355,23 @@
 		********************************
 
 		*Initiate the temporary variables used by this command
-		tempvar prefID prefDiff matched
+		tempvar prefID prefDiff matched matchcount maxmatchprefid
 
 		gen `prefDiff' 		= .
 		gen byte `matched' 	= 0
 
 		*Allow the ID var used to be string
 		if `IDtypeNumeric' == 1 {
-			gen  `prefID' = .
+			gen  `prefID' 			= .
+			gen  `maxmatchprefid' 	= .
 		}
 		else {
-			gen  `prefID' = ""
-		}			
+			gen  `prefID' 			= ""
+			gen  `maxmatchprefid' 	= ""
+		}
+		
+		*Gen a variable that indicates for target vars if the max match is reached 
+		gen `matchcount' 	= . 
 		
 
 		** Generate the inverse of the matchvar to sort descending (gsort is too slow),
@@ -405,9 +424,9 @@
 			noi di ""
 			noi di "{hline}{break}"
 			noi di "{pstd}{ul:Matching one-to-one. Base observations left to match:}{p_end}"
-			count if `grpdummy' == 1 & `matched' == 0
 			
 			*Create local to display "obs left to match" and to use in while loop
+			count if `grpdummy' == 1 & `matched' == 0
 			local left2Match = `r(N)'
 			noi di "{pstd}`left2Match' " _c
 			
@@ -452,14 +471,18 @@
 			*End formatting for the "base obs left to match"
 			noi di "{p_end}" _c
 		}
-
 		***************************
 		*
-		*	Many to one match
+		*	Many to one match with no restriction on # matches
 		*
 		***************************
-		else {
+		else if "`maxmatch'" == ""  {
 
+			*Start outputting the countdown
+			noi di ""
+			noi di "{hline}{break}"
+			noi di "{pstd}{ul:Matching many-to-one.}{p_end}"	
+		
 			**For all observations to be matched, assign the preferred
 			* match among the other unmatched observations
 			updatePrefDiffPreffID `prefID' `prefDiff' `matchvar' `invsort' `idvar' `grpdummy' `matched' `rand' `invrand' `updownTempVars' `updownIDTempVars'
@@ -483,13 +506,12 @@
 			
 			*Assign it's own ID as pref ID for all target vars
 			replace `prefID'			=  `idvar' if `grpdummy' == 0
-			
+				
 			* Replace the _matchCount var with number of base observations in each 
 			* match group. Each group is all base observation plus the target 
 			* observation, therefore (_N - 1)
 			bys 	`prefID' 			:   replace `matchCountName' = _N - 1 if !missing(`prefID')
-		
-
+			
 			**Replace prefID to missing for target obs that had no base 
 			* obs matched to it. T
 			if `IDtypeNumeric' == 1 { 
@@ -506,8 +528,109 @@
 		
 			*Remove values for target obs that were not matched
 			replace  `matchCountName'	= . 	if `matchCountName' == 0
+			
 		}
+		***************************
+		*
+		*	Many to one match with restriction on # matches
+		*
+		***************************
+		else {
+			
+			noi di "max count"
+			*pause
+			
+			*Start outputting the countdown
+			noi di ""
+			noi di "{hline}{break}"
+			noi di "{pstd}{ul:Matching many-to-one. Base observations left to match:}{p_end}"	
+			
+			*Create local to display "obs left to match" and to use in while loop
+			count if `grpdummy' == 1 & `matched' == 0
+			local left2Match = `r(N)'
+			noi di "{pstd}`left2Match' " _c
+			
+			*Match until no more observations to match.
+			while (`left2Match' > 0) {
+			
+				**For all observations to be matched, assign the preferred
+				* match among the other unmatched observations
+				updatePrefDiffPreffID `prefID' `prefDiff' `matchvar' `invsort' `idvar' `grpdummy' `matched' `rand' `invrand' `updownTempVars' `updownIDTempVars'
 
+				*Restrict matches to within maxdiff() if that option is used.
+				if "`maxdiff'" != "" {
+					
+					*Omit base observation from matching if diff is to big
+					replace `matched' 			= 1		if `prefDiff' > `maxdiff' & `grpdummy' == 1
+					
+					*Indicate in result var that this obs did not have valid match within maxdiff()
+					replace `matchResultName' 	= .d 	if `prefDiff' > `maxdiff' & `grpdummy' == 1
+					
+					*Removed preferred match
+					if `IDtypeNumeric' == 1 {
+						*IDvar is numeric
+						replace `prefID'		= .		if `prefDiff' > `maxdiff'
+					}
+					else {
+						*IDvar is string
+						replace `prefID'		= ""	if `prefDiff' > `maxdiff'
+					}	
+				}
+				
+				*If a base observation is mutually preferred by a target observation
+				replace `matched' = 1 if `grpdummy' == 1 & `matched' == 0 & `prefID' == `idvar'[_n-1] & `prefID'[_n-1] == `idvar'
+				replace `matched' = 1 if `grpdummy' == 1 & `matched' == 0 & `prefID' == `idvar'[_n+1] & `prefID'[_n+1] == `idvar'
+				
+				*Set maxmatchprefid to the matched id for matched base obs, and its own id for target obs
+				replace `maxmatchprefid' = `prefID' if `grpdummy' == 1 & `matched' == 1 
+				replace `maxmatchprefid' = `idvar'  if `grpdummy' == 0
+				
+				*By the maxmatchprefid, count how many base observations (all obs 
+				* minus target) that are matched to this target obs
+				bys 	`maxmatchprefid' : replace `matchcount' = _N - 1 if  `matchResultName' 	!= .d
+				
+				*Set the target obs as matched if the max match count is reached (matching one at the time so no risk of overstepping)
+				replace `matched' 	= 1  if `grpdummy' == 0 & `matchcount' == (`maxmatch') & `matchResultName' != .d
+				
+				*Update local to display "obs left to match" and to use in while loop
+				count if `grpdummy' == 1 & `matched' == 0
+				local left2Match = `r(N)'
+				noi di "`left2Match' " _c
+				
+				*Test that there are still target obs left to match against
+				count if `grpdummy' == 0 & `matched' == 0
+				if `r(N)' == 0 {
+					
+					*set left to match to -1 to exit while loop and to output message after loop
+					local left2Match = -1
+					
+					*Set all unmatched base obs to .t (no more eligible target obs)
+					replace `matchResultName' 	= .t 	if `grpdummy' == 1 & `matched' == 0
+				}
+				
+			}
+			
+			*End the outputted count down on how many observations left to match
+			noi di "{p_end}" _c	
+			
+			*If ran out of target out put that
+			if `left2Match' == -1 {
+				
+				noi di ""
+				noi di ""
+				noi di "{pstd}No more target obs to match{p_end}"
+			}
+			
+			*Set all target obs with at least 1 matched base obs as matched
+			replace `matched' 	= 1 if `grpdummy' == 0 & `matchcount' >= 1 & `matchResultName' != .d
+			
+			*Remove match diff for target obs (does not make sense with mutliple obs)
+			replace `prefDiff' 	= . if `grpdummy' == 0 
+			
+			*Set the match count output var to the number of matched base obs
+			replace `matchCountName' = `matchcount' if  `matched' 	== 1 & `matchResultName' != .d
+			
+		}
 
 		*Update all return vars
 		replace `matchDiffName' 	= `prefDiff'	if `matched' == 1
@@ -752,7 +875,8 @@ end
 			local text_d ".d No match within maxdiff()"
 			local text_i ".i Excluded using if/in"
 			local text_g ".g Missing grpdummy()"
-			local text_m ".m Missing matchvar()"		
+			local text_m ".m Missing matchvar()"
+			local text_t ".t No more target obs"
 			
 			*The minimum width of the 
 			local firstColWidth = max(strlen(" `resultVar'") , strlen(" value and result")) 
@@ -824,7 +948,7 @@ end
 			noi di "{col 4}{c LT}`hli1'{c +}{hline 10}{c +}{hline 12}`lastT'"
 			
 			*This is the roworder for the output table
-			local resultTableOrder 1 0 .d .i .g .m
+			local resultTableOrder 1 0 .d .t .i .g .m 
 			
 			foreach result of local resultTableOrder {
 				
