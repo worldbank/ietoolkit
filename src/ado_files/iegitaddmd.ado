@@ -5,37 +5,91 @@ cap program drop   iegitaddmd
 
 	qui {
 
-		syntax , folder(string) [all]
+		syntax , folder(string) [all file(string)]
 
+		/******************************
+			
+			Test user input
+		
+		******************************/
+		
 		*Test that folder exist
 		mata : st_numscalar("r(dirExist)", direxists("`folder'"))
-
+		
 		if `r(dirExist)' == 0 {
 
-			noi di as error `"{phang}The "`folder'" folder does not exist. You must enter the full path. For example, on most Windows computers it starts with {it:C:} and on most Mac computers with {it:/user/}. Important: Specify the whole file path to the repository folder, not just {it:C:} or {it:/user/} as that would creaet the .txt file in every empty folder on your computer.{p_end}"'
+			noi di as error `"{phang}The "`folder'" folder does not exist. You must enter the full path. For example, on most Windows computers it starts with {it:C:} and on most Mac computers with {it:/user/}. Important: Specify the whole file path to the repository folder, not just {it:C:} or {it:/user/} as that would creaet the placeholder file in every empty folder on your computer.{p_end}"'
 			error 693
 			exit
 		}
+		
+		*Test that file exist if not using default file
+		if "`file'" != "" {
+			*File option used test if file exists
+			capture confirm file "`file'"
+			if _rc {
+				*File does not exist, throw error
+				noi di as error `"{phang}File "`file'" was not found. Remember that you must enter the full path. For example, on most Windows computers it starts with {it:C:} and on most Mac computers with {it:/user/}.{p_end}"'
+				error 693
+				exit			
+			}
+			
+			* Get the name of file (include path to keep )
+			
+			*File path can have both forward and back slash
+			local slashBack = strpos(strreverse("`file'"),"\") 
+			local slashForw = strpos(strreverse("`file'"),"/") 
+			
+			*Replace 0 (not found) with missing value
+			if `slashBack' == 0 local slashBack = .
+			if `slashForw' == 0 local slashForw = .			
+			
+			*Get the lowest position, means the last slash as string was reversed
+			local slash = min(`slashBack', `slashForw')
+			
+			*Use that position to get the file name. Multiply with minus one as we count from the back
+			local userfilename = substr("`file'", (-1 * `slash') ,.)
+			
+			*Used for the recursive call of the command when there is a subfolder
+			local fileRecurse `"file(`file')"'
+			
+			
+		}
+		/******************************
+			
+			Execute command
+		
+		******************************/		
 
 		*List files, directories and other files
-		local flist : dir `"`folder'"' files "*"
-		local dlist : dir `"`folder'"' dirs "*"
-		local olist : dir `"`folder'"' other "*"
-
+		local flist : dir `"`folder'"' files "*"	, respectcase
+		local dlist : dir `"`folder'"' dirs "*" 	, respectcase
+		local olist : dir `"`folder'"' other "*"	, respectcase
+		
 		*Test if all of those lists are empty.
 		if `"`flist'`dlist'`olist'"' == "" | ("`all'" == "all") {
-
+			
 			** If all those lists are empty then we are in an
-			*  empty folder and should write README.md
-			writeGitKeep `"`folder'"'
-
+			*  empty folder and should write the placeholder file
+			
+			if "`file'" == "" {
+			
+				*Write default file
+				writeGitKeep `"`folder'"' 
+			}
+			else {
+		
+				*Write place holder file provided by user
+				copy "`file'" `"`folder'`userfilename'"'
+				
+			}
 		}
 
 		*Use the command on each subfolder to this folder (if any)
 		foreach dir of local dlist {
-
+		
 			*Recursive call on each subfolder
-			iegitaddmd , folder(`"`folder'//`dir'"') `all'
+			iegitaddmd , folder(`"`folder'/`dir'"') `all' `fileRecurse'
 		}
 	}
 
