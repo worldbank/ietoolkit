@@ -6,7 +6,7 @@ help for {hi:iegitaddmd}
 
 {title:Title}
 
-{phang}{cmdab:iegitaddmd} {hline 2} Creates a placeholder file in subfolders of a GitHub repository folder, which allows to commit folder structures with empty folders.
+{phang}{cmdab:iegitaddmd} {hline 2} Creates a placeholder file in subfolders of a GitHub repository folder, which allows committing folder structures with empty folders.
 
 {title:Syntax}
 
