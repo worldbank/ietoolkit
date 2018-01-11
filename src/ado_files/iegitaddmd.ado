@@ -5,7 +5,7 @@ cap program drop   iegitaddmd
 
 	qui {
 
-		syntax , folder(string) [all file(string)]
+		syntax , folder(string) [all file(string) skip replace]
 
 		/******************************
 			
@@ -52,9 +52,16 @@ cap program drop   iegitaddmd
 			
 			*Used for the recursive call of the command when there is a subfolder
 			local fileRecurse `"file(`file')"'
-			
-			
 		}
+		
+		*Options skip and replace cannot be used together
+		if "`skip'" != "" & "`replace'" != "" {
+			
+			noi di as error `"{phang}The options skip and replace may not be used together.{p_end}"'
+			error 198
+			exit			
+		}		
+		
 		/******************************
 			
 			Execute command
@@ -70,18 +77,40 @@ cap program drop   iegitaddmd
 		if `"`flist'`dlist'`olist'"' == "" | ("`all'" == "all") {
 			
 			** If all those lists are empty then we are in an
-			*  empty folder and should write the placeholder file
+			*  empty folder or al is used and should write the placeholder file
 			
 			if "`file'" == "" {
 			
-				*Write default file
-				writeGitKeep `"`folder'"' 
+				*Write default README.md file
+				writeGitKeep `"`folder'"' `skip' `replace'
 			}
 			else {
-		
-				*Write place holder file provided by user
-				copy "`file'" `"`folder'`userfilename'"'
 				
+				*Use user provided file. First test if it already exist
+			
+				cap confirm file `"`folder'`userfilename'"'
+				noi di _rc
+				if _rc == 0 & "`skip'" == "" & "`replace'" == "" {
+					
+					*File exist and neither skip or replace is used
+					local fileNameNoSlash = substr("`userfilename'",2,.)
+		
+					noi di as error `"{phang}A file with name `fileNameNoSlash' already exist in `folder'. Either remove option {it:all} or use either option {it:skip} or {it:replace}. See help file before using either of these options.{p_end}"'
+					error 602
+					exit
+				}
+				else if _rc == 0 & "`skip'" == "skip" {
+				
+					*File exist but option skip is used so do nothing, move to next folder
+					
+				}
+				else {
+					
+					**Either file does not exist or replace is used, so write
+					* placeholder file provided by user in folder location
+					copy "`file'" `"`folder'`userfilename'"', replace
+				
+				}
 			}
 		}
 
@@ -89,7 +118,7 @@ cap program drop   iegitaddmd
 		foreach dir of local dlist {
 		
 			*Recursive call on each subfolder
-			iegitaddmd , folder(`"`folder'/`dir'"') `all' `fileRecurse'
+			iegitaddmd , folder(`"`folder'/`dir'"') `all' `fileRecurse' `skip' `replace'
 		}
 	}
 
@@ -99,14 +128,26 @@ end
 cap program drop   writeGitKeep
 	program define writeGitKeep
 
-		args folder
+		args folder skipreplace
 		
-		* Do not create a README.md file if one already exist. This issue could
-		* happen if the option [all] is used on a repository that already has at
-		* least one README.md file
+		* Test if README.md already exist, and if it does test if skip or replace is used
 		cap confirm file `"`folder'/README.md"'
-		if _rc {
+		if _rc == 0 & "`skipreplace'" == "" {
 		
+			noi di as error `"{phang}A file with name README.md already exist in `folder'. Either remove option {it:all} or use either option {it:skip} or {it:replace}. See help file before using either of these options{p_end}"'
+			error 602
+			exit	
+		
+		}
+		else if _rc == 0 & "`skipreplace'" == "skip" {
+		
+			*Do nothing as option skip is used, move to next folder
+	
+		}
+		else {
+			
+			*If file does not exist or replace is used, then write the file in this location
+			
 			*Create file
 			tempname 	newHandle
 			cap file close 	`newHandle'
