@@ -32,6 +32,7 @@ help for {hi:iegraph}
 {synopt :{cmdab:confbarsnone(}{it:varlist}{cmd:)}} Removes confidence interval bars from only the {it:varlist} listed.{p_end}
 {synopt :{cmdab:confintval(}{it:numlist}{cmd:)}} Sets the confidence interval for the confidence interval bars. Default is .95.{p_end}
 {synopt :{cmd:norestore}} Allows you to debug your two way graph settings on the data set prepared by iegraph. To be used with {it:r(cmd)}.{p_end}
+{synopt :{cmdab:baropt:ions(}{it:string}{cmd:)}} Allows you to add formatting to the bars.{p_end}
 {synopt :{cmdab:ignoredummytest}} Ignores the tests that tests if the dummies fits one of the two models below.{p_end}
 {synoptline}
 
@@ -115,7 +116,7 @@ help for {hi:iegraph}
 	interval bars. {p_end}
 
 {phang}{cmdab:confintval(}{it:numlist}{cmd:)} Sets the confidence interval for 
-	the confidence interval bars. Default is .95. Values between 0 and 1 are allowed.{p_end}	
+	the confidence interval bars. Default is .95. Values between 0 and 1 are allowed.{p_end}
 	
 {phang}{cmdab:norestore} Returns the data set that iegraph prepares to create
 	the graph. This is helpful when de-bugging how one of Stata's many graph 
@@ -125,6 +126,10 @@ help for {hi:iegraph}
 	access to the data that code is meant to be used on. This approach will help
 	you de-bug how to apply Stata's built in graph options to an iegraph graph.
 	Note that this option deletes any unsaved changes made to your data.{p_end}
+	
+{phang}{cmdab:baropt:ions(}{it:string}{cmd:)}} Allows you to add formatting 
+	option that are applied to each bar and not the graph itself. Example of 
+	such option are {help twoway_bar} options and {help axis_options} options.
 
 {phang}{cmd:ignoredummytest} Ignores the tests that test if the dummies fits one 
 	of the two models this command is intended for. The two models are described 
