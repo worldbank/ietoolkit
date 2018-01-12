@@ -562,15 +562,9 @@ end
 		
 		unab dumlist : `0'
 		
-		*What we know:
-			* No all same values in variable (would have been dropped in regression and we test that it is in the regression)
-		
-		*Test: all values dummies (missing would have been excluded in regression and we keep if e(sample)
-		
 		foreach dumvar of varlist `dumlist' {
 		
-			*tab `dumvar', m
-			
+			*Test: all values dummies (missing would have been excluded in regression and we keep if e(sample)
 			cap assert inlist(`dumvar',0,1)
 			if _rc {
 				noi display as error "{phang} The variable `dumvar' is not a dummy. Treatment variable needs to be a dummy (0 or 1) variable. {p_end}"
@@ -578,6 +572,23 @@ end
 				error 149
 			}
 		}
+		
+		/*What we are testing for below:
+			- We count the number of dummies that each obervation has the value 1 for.
+			- The count numbers must either fit the case of diff-in-diff or the case of regression with one dummy for each treatment arms
+			
+			Regular regression with one dummy for each treatment arm
+			- Some observations don't have 1 for any dummy - omitted control observations
+			- No observation has the value 1 in more than one observation - can't be in more than one treatment group
+			- No traetment group can have no observation with value 1 for that dummy
+			
+			Diff-in-Diff
+			- Some observations don't have 1 for any dummy - omitted controls observations in time = 0
+			- Some observation must have value 1 for only the treatment dummy - treatment observations in time = 0
+			- Some observation must have value 1 for only the time dummy - control observations in time = 1
+			- Some observation must have value 1 for in all three of time, treatment and interaction dummy - treatment observations in time = 1
+		
+		*/
 				
 		*Count how many dummies is 1 for each observation
 		tempvar  dum_count
