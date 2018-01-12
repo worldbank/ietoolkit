@@ -89,7 +89,6 @@ cap program drop   iegitaddmd
 				*Use user provided file. First test if it already exist
 			
 				cap confirm file `"`folder'`userfilename'"'
-				noi di _rc
 				if _rc == 0 & "`skip'" == "" & "`replace'" == "" {
 					
 					*File exist and neither skip or replace is used
