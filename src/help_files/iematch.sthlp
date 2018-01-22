@@ -29,11 +29,14 @@ help for {hi:iematch}
 {synopt :{cmdab:id:var(}{it:varname}{cmd:)}}The uniquely and fully identifying ID
 	varaible. Used to indicate which target observation a base observation is match
 	with. If omitted an ID variable will be created. See below if you have multiple ID vars.{p_end}
-{synopt :{cmdab:m1}}Allows many-to-one matches. The default is to allow only
-	one-to-one matches. See the {help iematch##desc:description} section.{p_end}
 {synopt :{cmdab:maxdiff(}{it:numlist}{cmd:)}}Set a maximum difference allowed in
 	{cmdab:matchvar()}. If a base observation has no match within this difference
  then it will remain unmatched{p_end}
+{synopt :{cmdab:m1}}Allows many-to-one matches. The default is to allow only
+	one-to-one matches. See the {help iematch##desc:description} section.{p_end}
+{synopt :{cmdab:maxmatch(}{it:integer}{cmd:)}}Sets the maximum number of base 
+	observations that each target observation is allowed to match with in a {cmd:m1} 
+	(many-to-one) match.{p_end}
 {synopt :{cmd:seedok}}Supresses the error maessage thrown when there are duplicates
 	in {cmd:matchvar()}. When there are duplicates, the seed needs to be set in order
 	to have a replicable match. The {help seed} should be set before this command.{p_end}
@@ -178,15 +181,21 @@ help for {hi:iematch}
 	one target observation in the first round, and one another in the second. In impact 
 	evaluations, matchings are almost exclusively done only on the baseline data.
 
+{phang}{cmdab:maxdiff(}{it:numlist}{cmd:)} sets a maximum allowed difference between
+	a base observation and a target observation for a match to be valid. Any base
+	observation without a valid match within this difference will end up unmatched.	
+	
 {phang}{cmdab:m1} sets the match to a many-to-one match (see {help iematch##desc:description}).
 	This allows multiple base observations to be matched towards a single target observation.
 	The default is the one-to-one match where a maximum one base observation is matched towards
 	each target observation. This option allows the number of base observations
 	to be larger then the number of target observations.
 
-{phang}{cmdab:maxdiff(}{it:numlist}{cmd:)} sets a maximum allowed difference between
-	a base observation and a target observation for a match to be valid. Any base
-	observation without a valid match within this difference will end up unmatched.
+{phang}{cmdab:maxmatch(}{it:integer}{cmd:)} sets the maximum number of base observations a 
+	target observation is allowed to match with in a {cmd:m1} (many-to-one) match. The integer 
+	in {cmd:maxmatch()} is the maximum number of base observations in group but there is also a 
+	always a target observation in the group, so in a maxed out match group it will be {cmd:maxmatch()} 
+	plus one observations.
 
 {phang}{cmd:seedok} supresses the error message throwned when there are duplicates among
 	the base observations or the target observations in {cmd:matchvar()}. When there
@@ -240,6 +249,19 @@ help for {hi:iematch}
 	towards the nearest, in terms of {it:p_hat}, observations with value 0 in {it:tmt} as
 	long as the difference in {it:p_hat} is less than .001. Only observations that has the
 	value 1 in variable {it:baseline} will be included in the match.
+	
+{pstd} {hi:Example 3.}
+
+{pmore}{inp:iematch , grpdummy({it:tmt}) m1 maxmatch(5) matchvar({it:p_hat}) maxdiff(.001)}
+
+{pmore}In the example above, the observations with value 1 in {it:tmt} will be matched
+	towards the nearest, in terms of {it:p_hat}, observations with value 0 in {it:tmt} as
+	long as the difference in {it:p_hat} is less than .001. So far this example is identical
+	to example 2. However, in this example each target observation is allowed to match with up 
+	to 5 base observations. Hence, instead of a result with only pairs of exactly one target 
+	observation and one base observation in each pair, the result is instead match groups 
+	with one target observation and up to 5 base observations. If {cmd:maxmatch()} is omitted 
+	any number of base observations may match with each target observation.
 
 {title:Acknowledgements}
 
