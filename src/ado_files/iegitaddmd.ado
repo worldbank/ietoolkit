@@ -22,6 +22,10 @@ cap program drop   iegitaddmd
 			error 693
 			exit
 		}
+	
+		* File paths can have both forward and/or back slash. We'll standardize them so they're easier to handle
+		local folderStd	= subinstr("`folder'","\","/",.)		
+		
 		
 		*Test that file exist if not using default file
 		if "`file'" != "" {
@@ -36,22 +40,17 @@ cap program drop   iegitaddmd
 			
 			* Get the name of file (include path to keep )
 			
+			* File paths can have both forward and/or back slash. We'll standardize them so they're easier to handle
+			local fileStd	= subinstr("`file'","\","/",.)
+			
 			*File path can have both forward and back slash
-			local slashBack = strpos(strreverse("`file'"),"\") 
-			local slashForw = strpos(strreverse("`file'"),"/") 
-			
-			*Replace 0 (not found) with missing value
-			if `slashBack' == 0 local slashBack = .
-			if `slashForw' == 0 local slashForw = .			
-			
-			*Get the lowest position, means the last slash as string was reversed
-			local slash = min(`slashBack', `slashForw')
-			
+			local slash = strpos(strreverse("`fileStd'"),"/") 
+						
 			*Use that position to get the file name. Multiply with minus one as we count from the back
-			local userfilename = substr("`file'", (-1 * `slash') ,.)
+			local userfilename = substr("`fileStd'", (-1 * `slash') ,.)
 			
 			*Used for the recursive call of the command when there is a subfolder
-			local fileRecurse `"file(`file')"'
+			local fileRecurse `"file(`fileStd')"'
 		}
 		
 		*Options skip and replace cannot be used together
@@ -69,26 +68,26 @@ cap program drop   iegitaddmd
 		******************************/		
 
 		*List files, directories and other files
-		local flist : dir `"`folder'"' files "*"	, respectcase
-		local dlist : dir `"`folder'"' dirs "*" 	, respectcase
-		local olist : dir `"`folder'"' other "*"	, respectcase
-		
+		local flist : dir `"`folderStd'"' files "*"	, respectcase
+		local dlist : dir `"`folderStd'"' dirs "*" 	, respectcase
+		local olist : dir `"`folderStd'"' other "*"	, respectcase
+
 		*Test if all of those lists are empty.
 		if `"`flist'`dlist'`olist'"' == "" | ("`all'" == "all") {
-			
+
 			** If all those lists are empty then we are in an
 			*  empty folder or al is used and should write the placeholder file
 			
 			if "`file'" == "" {
-			
+
 				*Write default README.md file
-				writeGitKeep `"`folder'"' `skip' `replace'
+				writeGitKeep `"`folderStd'"' `skip' `replace'
 			}
 			else {
 				
 				*Use user provided file. First test if it already exist
 			
-				cap confirm file `"`folder'`userfilename'"'
+				cap confirm file `"`folderStd'`userfilename'"'
 				if _rc == 0 & "`skip'" == "" & "`replace'" == "" {
 					
 					*File exist and neither skip or replace is used
@@ -103,11 +102,16 @@ cap program drop   iegitaddmd
 					*File exist but option skip is used so do nothing, move to next folder
 					
 				}
-				else {
-					
+				else if _rc == 0 & "`fileStd'" == `"`folderStd'`userfilename'"' {
+				
+					*If the custom template is inside the specified folder, we won't replace it
+				
+				}
+				else{
+				
 					**Either file does not exist or replace is used, so write
 					* placeholder file provided by user in folder location
-					copy "`file'" `"`folder'`userfilename'"', replace
+					copy "`fileStd'" `"`folderStd'`userfilename'"', replace
 				
 				}
 			}
@@ -115,9 +119,13 @@ cap program drop   iegitaddmd
 
 		*Use the command on each subfolder to this folder (if any)
 		foreach dir of local dlist {
-		
-			*Recursive call on each subfolder
-			iegitaddmd , folder(`"`folder'/`dir'"') `all' `fileRecurse' `skip' `replace'
+
+			* If the custom template is inside the specified folder, we won't replace it
+			if "`fileStd'" != `"`folderStd'/`dir'`userfilename'"' { 
+	
+				*Recursive call on each subfolder
+				iegitaddmd , folder(`"`folderStd'/`dir'"') `all' `fileRecurse' `skip' `replace'
+			}
 		}
 	}
 
