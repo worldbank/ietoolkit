@@ -5,37 +5,127 @@ cap program drop   iegitaddmd
 
 	qui {
 
-		syntax , folder(string) [all]
+		syntax , folder(string) [all file(string) skip replace]
 
+		/******************************
+			
+			Test user input
+		
+		******************************/
+		
 		*Test that folder exist
 		mata : st_numscalar("r(dirExist)", direxists("`folder'"))
-
+		
 		if `r(dirExist)' == 0 {
 
-			noi di as error `"{phang}The "`folder'" folder does not exist. You must enter the full path. For example, on most Windows computers it starts with {it:C:} and on most Mac computers with {it:/user/}. Important: Specify the whole file path to the repository folder, not just {it:C:} or {it:/user/} as that would creaet the .txt file in every empty folder on your computer.{p_end}"'
+			noi di as error `"{phang}The "`folder'" folder does not exist. You must enter the full path. For example, on most Windows computers it starts with {it:C:} and on most Mac computers with {it:/user/}. Important: Specify the whole file path to the repository folder, not just {it:C:} or {it:/user/} as that would creaet the placeholder file in every empty folder on your computer.{p_end}"'
 			error 693
 			exit
 		}
+	
+		* File paths can have both forward and/or back slash. We'll standardize them so they're easier to handle
+		local folderStd	= subinstr("`folder'","\","/",.)		
+		
+		
+		*Test that file exist if not using default file
+		if "`file'" != "" {
+			*File option used test if file exists
+			capture confirm file "`file'"
+			if _rc {
+				*File does not exist, throw error
+				noi di as error `"{phang}File "`file'" was not found. Remember that you must enter the full path. For example, on most Windows computers it starts with {it:C:} and on most Mac computers with {it:/user/}.{p_end}"'
+				error 693
+				exit			
+			}
+			
+			* Get the name of file (include path to keep )
+			
+			* File paths can have both forward and/or back slash. We'll standardize them so they're easier to handle
+			local fileStd	= subinstr("`file'","\","/",.)
+			
+			*File path can have both forward and back slash
+			local slash = strpos(strreverse("`fileStd'"),"/") 
+						
+			*Use that position to get the file name. Multiply with minus one as we count from the back
+			local userfilename = substr("`fileStd'", (-1 * `slash') ,.)
+			
+			*Used for the recursive call of the command when there is a subfolder
+			local fileRecurse `"file(`fileStd')"'
+		}
+		
+		*Options skip and replace cannot be used together
+		if "`skip'" != "" & "`replace'" != "" {
+			
+			noi di as error `"{phang}The options skip and replace may not be used together.{p_end}"'
+			error 198
+			exit			
+		}		
+		
+		/******************************
+			
+			Execute command
+		
+		******************************/		
 
 		*List files, directories and other files
-		local flist : dir `"`folder'"' files "*"
-		local dlist : dir `"`folder'"' dirs "*"
-		local olist : dir `"`folder'"' other "*"
+		local flist : dir `"`folderStd'"' files "*"	, respectcase
+		local dlist : dir `"`folderStd'"' dirs "*" 	, respectcase
+		local olist : dir `"`folderStd'"' other "*"	, respectcase
 
 		*Test if all of those lists are empty.
 		if `"`flist'`dlist'`olist'"' == "" | ("`all'" == "all") {
 
 			** If all those lists are empty then we are in an
-			*  empty folder and should write README.md
-			writeGitKeep `"`folder'"'
+			*  empty folder or al is used and should write the placeholder file
+			
+			if "`file'" == "" {
 
+				*Write default README.md file
+				writeGitKeep `"`folderStd'"' `skip' `replace'
+			}
+			else {
+				
+				*Use user provided file. First test if it already exist
+			
+				cap confirm file `"`folderStd'`userfilename'"'
+				if _rc == 0 & "`skip'" == "" & "`replace'" == "" {
+					
+					*File exist and neither skip or replace is used
+					local fileNameNoSlash = substr("`userfilename'",2,.)
+		
+					noi di as error `"{phang}A file with name `fileNameNoSlash' already exist in `folder'. Either remove option {it:all} or use either option {it:skip} or {it:replace}. See help file before using either of these options.{p_end}"'
+					error 602
+					exit
+				}
+				else if _rc == 0 & "`skip'" == "skip" {
+				
+					*File exist but option skip is used so do nothing, move to next folder
+					
+				}
+				else if _rc == 0 & "`fileStd'" == `"`folderStd'`userfilename'"' {
+				
+					*If the custom template is inside the specified folder, we won't replace it
+				
+				}
+				else{
+				
+					**Either file does not exist or replace is used, so write
+					* placeholder file provided by user in folder location
+					copy "`fileStd'" `"`folderStd'`userfilename'"', replace
+				
+				}
+			}
 		}
 
 		*Use the command on each subfolder to this folder (if any)
 		foreach dir of local dlist {
 
-			*Recursive call on each subfolder
-			iegitaddmd , folder(`"`folder'//`dir'"') `all'
+			* If the custom template is inside the specified folder, we won't replace it
+			if "`fileStd'" != `"`folderStd'/`dir'`userfilename'"' { 
+	
+				*Recursive call on each subfolder
+				iegitaddmd , folder(`"`folderStd'/`dir'"') `all' `fileRecurse' `skip' `replace'
+			}
 		}
 	}
 
@@ -45,14 +135,26 @@ end
 cap program drop   writeGitKeep
 	program define writeGitKeep
 
-		args folder
+		args folder skipreplace
 		
-		* Do not create a README.md file if one already exist. This issue could
-		* happen if the option [all] is used on a repository that already has at
-		* least one README.md file
+		* Test if README.md already exist, and if it does test if skip or replace is used
 		cap confirm file `"`folder'/README.md"'
-		if _rc {
+		if _rc == 0 & "`skipreplace'" == "" {
 		
+			noi di as error `"{phang}A file with name README.md already exist in `folder'. Either remove option {it:all} or use either option {it:skip} or {it:replace}. See help file before using either of these options{p_end}"'
+			error 602
+			exit	
+		
+		}
+		else if _rc == 0 & "`skipreplace'" == "skip" {
+		
+			*Do nothing as option skip is used, move to next folder
+	
+		}
+		else {
+			
+			*If file does not exist or replace is used, then write the file in this location
+			
 			*Create file
 			tempname 	newHandle
 			cap file close 	`newHandle'
