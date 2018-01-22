@@ -154,6 +154,7 @@
 			   local matchCountName "`r(validVarName)'"
 			}
 			
+			*List of output vars used to delete vars that should be replaced by new output vars, used after restore
 			local outputNames `matchResultName' `matchIDname' `matchDiffName' `matchCountName'
 			
 			*Option matchcountname() is not allowed if it is not a many-one match
