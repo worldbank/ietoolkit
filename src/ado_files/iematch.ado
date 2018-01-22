@@ -154,6 +154,8 @@
 			   local matchCountName "`r(validVarName)'"
 			}
 			
+			local outputNames `matchResultName' `matchIDname' `matchDiffName' `matchCountName'
+			
 			*Option matchcountname() is not allowed if it is not a many-one match
 			if "`matchcountname'" != "" & "`m1'" == "" {
 				di as error "{pstd}Option {inp:matchcountname()} is only allowed in combination with option {inp:m1}.{p_end}"
@@ -663,6 +665,15 @@
 	*	to the result var
 	*
 	***************************		
+	
+	**Drop any vars with same name as the output vars. The command has already
+	* tested that replace was used if variable already exists. If variable does
+	* not exist nothing is done
+	foreach outputVar of local outputNames {
+
+		*Drop vars with same name as output vars. 
+		cap drop `outputVar'
+	}
 
 	*Merge the results with the original data
 	tempvar mergevar 
@@ -759,7 +770,7 @@ end
 					local nameErrorString "A variable with name `validMatchVarname'"
 				}
 				
-				*Trow error
+				*Throw error
 				noi di as error "{pstd}`nameErrorString' is already defined in the data set. Either drop this variable, use the replace option or specify a another variable name using `optionName'()."
 				error 110
 
