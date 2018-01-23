@@ -1393,7 +1393,7 @@ qui {
 		file open  `texname' using "`texfile'", text write append
 		file write `texname' ///
 			"\begin{tabular}{@{\extracolsep{5pt}}`colstring'}" _n ///
-			"\\[-1.8ex]\hline \hline" _n		
+			"\\[-1.8ex]\hline \hline \\[-1.8ex]" _n		
 		file close `texname'
 
 		*Write the title rows defined above	
@@ -1403,7 +1403,7 @@ qui {
 		file write `texname' ///
 						"`texrow1' \\" _n ///
 						"`texrow2' \\" _n ///
-						"`texrow3' \\ \hline " _n
+						"`texrow3' \\ \hline \\[-1.8ex]" _n
 		file close `texname'
 		 
 
@@ -2391,7 +2391,7 @@ qui {
 	file open  `texname' using "`texfile'", text write append
 		
 		file write `texname' ///
-			"\hline \hline" _n
+			"\hline \hline \\[-1.8ex]" _n
 			
 		** Write notes to file according to specificiation
 		*If no automatic notes are used, write only manual notes
