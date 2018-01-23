@@ -2231,17 +2231,17 @@ qui {
 	local stars_note	"***, **, and * indicate significance at the `p3star_percent', `p2star_percent', and `p1star_percent' percent critical level. "
 	
 	if `PTTEST_USED' == 1 {	
-		local ttest_note "The value displayed for t-tests are p-values. " 
+		local ttest_note "The values displayed for t-tests are p-values. " 
 	}
 	else {
-		local ttest_note "The value displayed for t-tests are the differences in the means across the groups. " 
+		local ttest_note "The valued displayed for t-tests are the differences in the means across the groups. " 
 	}
 	
 	if `PFTEST_USED' == 1 {	
-		local ftest_note "The value displayed for F-tests are p-values. " 
+		local ftest_note "The values displayed for F-tests are p-values. " 
 	}
 	else {
-		local ftest_note "The value displayed for F-tests are the F-statistics. "
+		local ftest_note "The values displayed for F-tests are the F-statistics. "
 	}	
 	
 	if `VCE_USED' == 1 {
