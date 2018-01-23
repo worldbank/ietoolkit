@@ -120,12 +120,9 @@ cap program drop   iegitaddmd
 		*Use the command on each subfolder to this folder (if any)
 		foreach dir of local dlist {
 
-			* If the custom template is inside the specified folder, we won't replace it
-			if "`fileStd'" != `"`folderStd'/`dir'`userfilename'"' { 
-	
-				*Recursive call on each subfolder
-				iegitaddmd , folder(`"`folderStd'/`dir'"') `all' `fileRecurse' `skip' `replace'
-			}
+			*Recursive call on each subfolder
+			iegitaddmd , folder(`"`folderStd'/`dir'"') `all' `fileRecurse' `skip' `replace'
+			
 		}
 	}
 
