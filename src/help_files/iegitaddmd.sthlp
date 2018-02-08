@@ -8,6 +8,9 @@ help for {hi:iegitaddmd}
 
 {phang}{cmdab:iegitaddmd} {hline 2} Creates a placeholder README.md file in subfolders of a GitHub repository folder, which is often needed to sync standardized folder structures.
 
+{phang2}For a more descriptive discussion on the intended usage and work flow of this 
+command please see the {browse "https://dimewiki.worldbank.org/wiki/Iegitaddmd":DIME Wiki}.
+
 {title:Syntax}
 
 {phang} {cmdab:iegitaddmd} , {cmd:folder(}{it:file_path}{cmd:)} [all]

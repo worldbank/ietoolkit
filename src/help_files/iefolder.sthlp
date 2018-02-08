@@ -8,6 +8,9 @@ help for {hi:iefolder}
 
 {phang2}{cmdab:iefolder} {hline 2} sets up project folders and master do-files according to World Bank DIME's standards.{p_end}
 
+{phang2}For a more descriptive discussion on the intended usage and work flow of this 
+command please see the {browse "https://dimewiki.worldbank.org/wiki/Iefolder":DIME Wiki}.
+
 {title:Syntax}
 
 {pstd} {ul:When initially setting up the {hi:DataWork} folder in a new project:}{p_end}

@@ -8,6 +8,9 @@ help for {hi:iematch}
 
 {phang2}{cmdab:iematch} {hline 2} Matching base observations towards target observations using on a single continous variable.
 
+{phang2}For a more descriptive discussion on the intended usage and work flow of this 
+command please see the {browse "https://dimewiki.worldbank.org/wiki/Iematch":DIME Wiki}.
+
 {title:Syntax}
 
 {phang2}

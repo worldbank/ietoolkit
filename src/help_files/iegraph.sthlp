@@ -8,6 +8,9 @@ help for {hi:iegraph}
 
 {phang2}{cmdab:iegraph} {hline 2} Generates graphs based on regressions with treatment dummies common in impact evaluations. 
 
+{phang2}For a more descriptive discussion on the intended usage and work flow of this 
+command please see the {browse "https://dimewiki.worldbank.org/wiki/Iegraph":DIME Wiki}.
+
 {title:Syntax}
 
 {phang2}

@@ -8,6 +8,8 @@ help for {hi:ieboilstart}
 
 {phang}{cmdab:ieboilstart} {hline 2} Harmonizes settings across team members in the same project to the longest extent technically possible.
 
+{phang2}For a more descriptive discussion on the intended usage and work flow of this 
+command please see the {browse "https://dimewiki.worldbank.org/wiki/Ieboilstart":DIME Wiki}.
 
 {phang}{hi:DISCLAIMER} {hline 1} Due to technical reasons, it is
 impossible to guarantee that different types of Stata (version number, Small/IC/SE/MP

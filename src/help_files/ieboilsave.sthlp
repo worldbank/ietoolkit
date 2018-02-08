@@ -8,6 +8,9 @@ help for {hi:ieboilsave}
 
 {phang2}{cmdab:ieboilsave} {hline 2} Checks that a data sets follows DECIE 
 	standards for a data set, and tag the data set with meta data.
+	
+{phang2}For a more descriptive discussion on the intended usage and work flow of this 
+command please see the {browse "https://dimewiki.worldbank.org/wiki/Ieboilsave":DIME Wiki}.
 
 {title:Syntax}
 
