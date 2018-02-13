@@ -608,7 +608,20 @@ qui {
 			*Error for covmiss and covmissreg incorrectly used together
 			noi display as error "{phang}Option covmiss() may not be used in combination with option covmissreg()"
 			error 197
-		}			
+		}
+		
+		if !`TTEST_USED' {
+			if `PTTEST_USED' {				
+				*Error for nottest and pttest incorrectly used together
+				noi display as error "{phang}Option pttest may not be used in combination with option nottest"
+				error 197
+			}
+			if `PBOTH_USED' {				
+				*Error for nottest and pboth incorrectly used together
+				noi display as error "{phang}Option pboth may not be used in combination with option nottest"
+				error 197
+			}
+		}
 		
 		*Testing input in these for options. See function at the end of this command
 		if `BALMISS_USED' == 1 		iereplacestringtest "balmiss" 		"`balmiss'"
