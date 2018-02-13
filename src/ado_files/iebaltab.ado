@@ -1335,9 +1335,9 @@ qui {
 			local titlerow2 `"`titlerow2' _tab "Joint equality""'
 			local titlerow3 `"`titlerow1' _tab """'
 			
-			local texrow1 	`" `texrow1' & "'
-			local texrow2 	`" `texrow2' & F-test"'
-			local texrow3 	`" `texrow3' & Joint equality"'
+			local texrow1 	`" `texrow1' & \multicolumn{1}{c}{ } "'
+			local texrow2 	`" `texrow2' & \multicolumn{1}{c}{F-test}"'
+			local texrow3 	`" `texrow3' & "'
 		}
 
 	
@@ -1369,19 +1369,20 @@ qui {
 			*Add at least one column per group and for total if used
 			local	colstring	"`colstring'c"
 			*Add another column if N is displyaed in column and not row
-			if `ONEROW_USED' == 0 { 
+			if !`ONEROW_USED'{ 
 				local	colstring	"`colstring'c"
 			}
-			*Add another column if F-test for equality of means is included
-			if `FEQTEST_USED' == 1 {
-				local	colstring	"`colstring'c"		
-			}
+		}
+		
+		*Add another column if F-test for equality of means is included
+		if `FEQTEST_USED'{
+			local	colstring	"`colstring'c"		
 		}
 
 		*Add one column per test pair
 		if `TTEST_USED' == 1  {
 			forvalues repeat = 1/`testPairCount' {
-				local	colstring	`colstring'c
+				local	colstring	"`colstring'c"
 			}
 		}
 		
