@@ -1332,12 +1332,12 @@ qui {
 		if `FEQTEST_USED' == 1 {
 		
 			local titlerow1 `"`titlerow1' _tab "F-test""'
-			local titlerow2 `"`titlerow2' _tab "Joint equality""'
-			local titlerow3 `"`titlerow1' _tab """'
+			local titlerow2 `"`titlerow2' _tab "for joint""'
+			local titlerow3 `"`titlerow3' _tab "orthogonality""'
 			
-			local texrow1 	`" `texrow1' & \multicolumn{1}{c}{ } "'
-			local texrow2 	`" `texrow2' & \multicolumn{1}{c}{F-test}"'
-			local texrow3 	`" `texrow3' & "'
+			local texrow1 	`" `texrow1' & \multicolumn{1}{c}{F-test} "'
+			local texrow2 	`" `texrow2' & \multicolumn{1}{c}{for joint}"'
+			local texrow3 	`" `texrow3' & \multicolumn{1}{c}{orthogonality}"'
 		}
 
 	
