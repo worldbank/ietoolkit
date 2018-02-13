@@ -41,8 +41,10 @@
 				FNOOBS														///
 																			///
 				/*Output display*/											///
+				NOTtest														///
 				PTtest														///
 				PFtest														///
+				FEQTest														///
 				PBoth														///
 				STDev														///
 				STARlevels(numlist descending min=3 max=3 >0 <1)			///
@@ -66,10 +68,7 @@
 				REPLACE														///
 				]
 		
-			
-		***************TODO***************
-		* 1. Add number of clusters
-		
+				
 		********POTENTIAL UPDATES*********
 		*1. Implement option for bootstrap
 		
@@ -204,6 +203,10 @@ qui {
 		if "`starsnoadd'" 		== "" local STARSNOADD_USED = 0 
 		if "`starsnoadd'" 		!= "" local STARSNOADD_USED = 1 
 		
+		*Is option nottest used:
+		if "`nottest'"			== "" local TTEST_USED = 1
+		if "`nottest'"			!= "" local TTEST_USED = 0
+		
 		*Is option pttest() used:
 		if "`pttest'" 			== "" local PTTEST_USED = 0 
 		if "`pttest'" 			!= "" local PTTEST_USED = 1 		
@@ -225,6 +228,10 @@ qui {
 		*Is option weight() used:
 		if "`weight'" 			== "" local WEIGHT_USED = 0 
 		if "`weight'" 			!= "" local WEIGHT_USED = 1 
+		
+		*Is option feqtest() user:
+		if "`feqtest'" 			== "" local FEQTEST_USED = 0 
+		if "`feqtest'" 			!= "" local FEQTEST_USED = 1 
 	
 	
 	** Output Options	
@@ -1223,86 +1230,102 @@ qui {
 
 	************************************************
 	*Generating titles for each test of diff in mean
-	
-		local ttest_pairs ""
 		
-		if `CONTROL_USED' {
+		if `TTEST_USED' == 1 {
 		
-			*Get the order of the control group
-			local ctrlGrpPos : list posof "`control'" in ORDER_OF_GROUPS
-		
-			*The t-tests will only be between control and each of the other groups
-			forvalues second_ttest_group = 1/`GRPVAR_NUM_GROUPS' {	
-				
-				*Include all groups apart from the control group itself
-				if `second_ttest_group' != `ctrlGrpPos' {
-				
-					*Adding title rows for the t-test. 
-					local titlerow1 `"`titlerow1' _tab "t-test""'
-					local titlerow2 `"`titlerow2' _tab "(`ctrlGrpPos') - (`second_ttest_group')""'
-					
-					if `PTTEST_USED' == 1 {
-						local titlerow3 `"`titlerow3' _tab "p-value""'
-					}
-					else {
-						local titlerow3 `"`titlerow3' _tab "Difference""'
-					}
-					
-					local texrow3  `" `texrow3'  & (`ctrlGrpPos')-(`second_ttest_group') "'
-					
-					*Storing a local of all the test pairs
-					local ttest_pairs "`ttest_pairs' `ctrlGrpPos'_`second_ttest_group'"
-				}
-			}		
-		}
-		else {
+			local ttest_pairs ""
 			
-			*The t-tests will be all cominations of groups
-			forvalues first_ttest_group = 1/`GRPVAR_NUM_GROUPS' {
-				
-				** To guarantee that all combination of groups are included 
-				*  but no duplicates are possible, start next loop one integer
-				*  higher than the first group
-				local nextPossGroup = `first_ttest_group' + 1
-				
-				forvalues second_ttest_group = `nextPossGroup'/`GRPVAR_NUM_GROUPS' {
-					
-					*Adding title rows for the t-test.
-					local titlerow1  `"`titlerow1' _tab "t-test""'
-					local titlerow2  `"`titlerow2' _tab "(`first_ttest_group')-(`second_ttest_group')""'
-				
-					if `PTTEST_USED' == 1 {
-						local titlerow3 `"`titlerow3' _tab "p-value""'
-					}
-					else {
-						local titlerow3 `"`titlerow3' _tab "Difference""'
-					}
-					
-					local texrow3  `" `texrow3' & (`first_ttest_group')-(`second_ttest_group') "'
-					
-					*Storing a local of all the test pairs
-					local ttest_pairs "`ttest_pairs' `first_ttest_group'_`second_ttest_group'"
-
-				}
-			}
-		}
-		
-		
-		local testPairCount : list sizeof ttest_pairs
-		
-		if `testPairCount' > 0 {
+			if `CONTROL_USED' {
 			
-			local texrow1 	`" `texrow1' & \multicolumn{`testPairCount'}{c}{T-test} "'
+				*Get the order of the control group
+				local ctrlGrpPos : list posof "`control'" in ORDER_OF_GROUPS
 			
-			if `PTTEST_USED' == 1 {
-				local texrow2 `"`texrow2' & \multicolumn{`testPairCount'}{c}{P-value} "'
+				*The t-tests will only be between control and each of the other groups
+				forvalues second_ttest_group = 1/`GRPVAR_NUM_GROUPS' {	
+					
+					*Include all groups apart from the control group itself
+					if `second_ttest_group' != `ctrlGrpPos' {
+					
+						*Adding title rows for the t-test. 
+						local titlerow1 `"`titlerow1' _tab "t-test""'
+						local titlerow2 `"`titlerow2' _tab "(`ctrlGrpPos') - (`second_ttest_group')""'
+						
+						if `PTTEST_USED' == 1 {
+							local titlerow3 `"`titlerow3' _tab "p-value""'
+						}
+						else {
+							local titlerow3 `"`titlerow3' _tab "Difference""'
+						}
+											
+						local texrow3  `" `texrow3'  & (`ctrlGrpPos')-(`second_ttest_group') "'
+						
+						*Storing a local of all the test pairs
+						local ttest_pairs "`ttest_pairs' `ctrlGrpPos'_`second_ttest_group'"
+					}
+				}		
 			}
 			else {
-				local texrow2 `"`texrow2' & \multicolumn{`testPairCount'}{c}{Difference} "'
+				
+				*The t-tests will be all cominations of groups
+				forvalues first_ttest_group = 1/`GRPVAR_NUM_GROUPS' {
+					
+					** To guarantee that all combination of groups are included 
+					*  but no duplicates are possible, start next loop one integer
+					*  higher than the first group
+					local nextPossGroup = `first_ttest_group' + 1
+					
+					forvalues second_ttest_group = `nextPossGroup'/`GRPVAR_NUM_GROUPS' {
+						
+						*Adding title rows for the t-test.
+						local titlerow1  `"`titlerow1' _tab "t-test""'
+						local titlerow2  `"`titlerow2' _tab "(`first_ttest_group')-(`second_ttest_group')""'
+					
+						if `PTTEST_USED' == 1 {
+							local titlerow3 `"`titlerow3' _tab "p-value""'
+						}
+						else {
+							local titlerow3 `"`titlerow3' _tab "Difference""'
+						}
+						
+						local texrow3  `" `texrow3' & (`first_ttest_group')-(`second_ttest_group') "'
+						
+						*Storing a local of all the test pairs
+						local ttest_pairs "`ttest_pairs' `first_ttest_group'_`second_ttest_group'"
+
+					}
+				}
 			}
+			
+			
+			local testPairCount : list sizeof ttest_pairs
+			
+			if `testPairCount' > 0 {
+				
+				local texrow1 	`" `texrow1' & \multicolumn{`testPairCount'}{c}{T-test} "'
+				
+				if `PTTEST_USED' == 1 {
+					local texrow2 `"`texrow2' & \multicolumn{`testPairCount'}{c}{P-value} "'
+				}
+				else {
+					local texrow2 `"`texrow2' & \multicolumn{`testPairCount'}{c}{Difference} "'
+				}
+			}
+			*texrow3 created in loop above
 		}
-		*texrow3 created in loop above
 	
+	************************************************
+	*Add column for F-test of joint equality
+	
+		if `FEQTEST_USED' == 1 {
+		
+			local titlerow1 `"`titlerow1' _tab "F-test""'
+			local titlerow2 `"`titlerow2' _tab "Joint equality""'
+			local titlerow3 `"`titlerow1' _tab """'
+			
+			local texrow1 	`" `texrow1' & "'
+			local texrow2 	`" `texrow2' & F-test"'
+			local texrow3 	`" `texrow3' & Joint equality"'
+		}
 
 	
 	****************************
@@ -1332,15 +1355,21 @@ qui {
 			
 			*Add at least one column per group and for total if used
 			local	colstring	"`colstring'c"
-			*Add another columns if N is displyaed in column and not row
+			*Add another column if N is displyaed in column and not row
 			if `ONEROW_USED' == 0 { 
 				local	colstring	"`colstring'c"
+			}
+			*Add another column if F-test for equality of means is included
+			if `FEQTEST_USED' == 1 {
+				local	colstring	"`colstring'c"		
 			}
 		}
 
 		*Add one column per test pair
-		forvalues repeat = 1/`testPairCount' {
-			local	colstring	`colstring'c
+		if `TTEST_USED' == 1  {
+			forvalues repeat = 1/`testPairCount' {
+				local	colstring	`colstring'c
+			}
 		}
 		
 		*Create a temporary texfile
@@ -1403,7 +1432,7 @@ qui {
 		file write `texname' ///
 						"`texrow1' \\" _n ///
 						"`texrow2' \\" _n ///
-						"`texrow3' \\ \hline \\[-1.8ex]" _n
+						"`texrow3' \\ \hline \\[-1.8ex] " _n
 		file close `texname'
 		 
 
@@ -1717,92 +1746,132 @@ qui {
 					
 	*** Create the columns with t-tests for this row
 			
+			if `TTEST_USED' == 1 {
+			
+				foreach ttest_pair of local ttest_pairs {
 
-			foreach ttest_pair of local ttest_pairs {
+					*Create a local for each group in the test 
+					*pair from the test_pair local created above
+					local undscr_pos   = strpos("`ttest_pair'","_")
+					local first_group  = substr("`ttest_pair'",1,`undscr_pos'-1)
+					local second_group = substr("`ttest_pair'",  `undscr_pos'+1,.)
+					
+					*Create the local with the difference to be displayed in the table
+					local diff_`ttest_pair' =  `mean_`first_group'' - `mean_`second_group'' //means from section above
 
-				*Create a local for each group in the test 
-				*pair from the test_pair local created above
-				local undscr_pos   = strpos("`ttest_pair'","_")
-				local first_group  = substr("`ttest_pair'",1,`undscr_pos'-1)
-				local second_group = substr("`ttest_pair'",  `undscr_pos'+1,.)
-				
-				*Create the local with the difference to be displayed in the table
-				local diff_`ttest_pair' =  `mean_`first_group'' - `mean_`second_group'' //means from section above
+					*Create a temporary varaible used as the dummy to indicate 
+					*which observation is in the first and in the second group 
+					*in the test pair. Since all other observations are mission, 
+					*this variable also exculde all observations in neither of 
+					*the groups from the test regression
+					tempvar tempvar_thisGroupInPair
+					gen 	`tempvar_thisGroupInPair' = .	//default is missing, and obs not in this pair will remain missing
+					replace `tempvar_thisGroupInPair' = 0 if `groupOrder' == `first_group'
+					replace `tempvar_thisGroupInPair' = 1 if `groupOrder' == `second_group'
+					
+					*The command mean is used to test that there is variation 
+					*in the balance var across these two groups. The regression 
+					*that includes fixed effects and covariaties might run without 
+					*error even if there is no variance across the two groups. The 
+					*local varloc will determine if an error or a warning will be 
+					*thrown or if the test results will be replaced with an "N/A".
+					if "`error_estm'" != "vce(robust)" 				local mean_error_estm `error_estm' //Robust not allowed in mean, but mean here is used to test something else
+					mean `balancevar', over(`tempvar_thisGroupInPair') 	 `mean_error_estm'
+					mat var = e(V)
+					local varloc = max(var[1,1],var[2,2])				
+					
+					*This is the regression where we test differences.
+					reg `balancevar' `tempvar_thisGroupInPair' `covariates' i.`fixedeffect' `weight_option', `error_estm'
+					
 
-				*Create a temporary varaible used as the dummy to indicate 
-				*which observation is in the first and in the second group 
-				*in the test pair. Since all other observations are mission, 
-				*this variable also exculde all observations in neither of 
-				*the groups from the test regression
-				tempvar tempvar_thisGroupInPair
-				gen 	`tempvar_thisGroupInPair' = .	//default is missing, and obs not in this pair will remain missing
-				replace `tempvar_thisGroupInPair' = 0 if `groupOrder' == `first_group'
-				replace `tempvar_thisGroupInPair' = 1 if `groupOrder' == `second_group'
-				
-				*The command mean is used to test that there is variation 
-				*in the balance var across these two groups. The regression 
-				*that includes fixed effects and covariaties might run without 
-				*error even if there is no variance across the two groups. The 
-				*local varloc will determine if an error or a warning will be 
-				*thrown or if the test results will be replaced with an "N/A".
-				if "`error_estm'" != "vce(robust)" 				local mean_error_estm `error_estm' //Robust not allowed in mean, but mean here is used to test something else
-				mean `balancevar', over(`tempvar_thisGroupInPair') 	 `mean_error_estm'
-				mat var = e(V)
-				local varloc = max(var[1,1],var[2,2])				
-				
-				*This is the regression where we test differences.
-				reg `balancevar' `tempvar_thisGroupInPair' `covariates' i.`fixedeffect' `weight_option', `error_estm'
-				
-
-				*Testing result and if valid, write to file with or without stars
-				if `varloc' == 0 {
-					
-					local warn_means_num  	= `warn_means_num' + 1
-					local warn_means_strlen = max(`warn_means_strlen', strlen("`balancevar'"))
-					
-					local warn_means_test`warn_means_num' "(`first_group')-(`second_group')"
-					local warn_means_bvar`warn_means_num' "`balancevar'"
-					
-					local tableRowUp	`" `tableRowUp' _tab "N/A" "'
-					local tableRowDo	`" `tableRowDo' _tab " " "'
-					
-					local texRow		`" `texRow' " & N/A" "'
-					
-				}
-		
-				else {
-					
-					*Perform the t-test and store p-value in pttest
-					test `tempvar_thisGroupInPair'
-					local pttest = r(p)
-					
-					
-					*If p-test option is used
-					if `PTTEST_USED' == 1 {
+					*Testing result and if valid, write to file with or without stars
+					if `varloc' == 0 {
 						
-						local ttest_output = `pttest'
+						local warn_means_num  	= `warn_means_num' + 1
+						local warn_means_strlen = max(`warn_means_strlen', strlen("`balancevar'"))
+						
+						local warn_means_test`warn_means_num' "(`first_group')-(`second_group')"
+						local warn_means_bvar`warn_means_num' "`balancevar'"
+						
+						local tableRowUp	`" `tableRowUp' _tab "N/A" "'
+						local tableRowDo	`" `tableRowDo' _tab " " "'
+						
+						local texRow		`" `texRow' " & N/A" "'
+						
 					}
-					*Otherwise display differences
+			
 					else {
+						
+						*Perform the t-test and store p-value in pttest
+						test `tempvar_thisGroupInPair'
+						local pttest = r(p)
+						
+						
+						*If p-test option is used
+						if `PTTEST_USED' == 1 {
+							
+							local ttest_output = `pttest'
+						}
+						*Otherwise display differences
+						else {
+						
+							local ttest_output = `diff_`ttest_pair''
+						}
 					
-						local ttest_output = `diff_`ttest_pair''
+						*Format the output
+						local ttest_output : display `diformat' `ttest_output'
+					
+						*Add stars
+						foreach ttest_p_level in `p1star' `p2star' `p3star' {
+						
+								if `pttest' < `ttest_p_level' local ttest_output "`ttest_output'*"
+						}
+						
+						*Print row
+						local tableRowUp 	`" `tableRowUp' _tab "`ttest_output'" "'
+						local tableRowDo 	`" `tableRowDo' _tab " " "'
+						
+						local texRow	`" `texRow' " & `ttest_output'" "'
 					}
-				
-					*Format the output
-					local ttest_output : display `diformat' `ttest_output'
-				
-					*Add stars
-					foreach ttest_p_level in `p1star' `p2star' `p3star' {
-					
-							if `pttest' < `ttest_p_level' local ttest_output "`ttest_output'*"
-					}
-					
-					*Print row
-					local tableRowUp 	`" `tableRowUp' _tab "`ttest_output'" "'
-					local tableRowDo 	`" `tableRowDo' _tab " " "'
-					
-					local texRow	`" `texRow' " & `ttest_output'" "'
 				}
+			}
+			
+		*** Create the columns with F-tests for this row	
+		
+			if `FEQTEST_USED' == 1 {
+			
+				* Run regression
+				reg `balancevar' i.`grpvar' `covariates' i.`fixedeffect' `weight_option', `error_estm'
+				
+				* Calculate input for F-test: i. will drop the lowest value of
+				* grpvar, so we'll do the same
+				local 1st_level = strpos("`GRP_CODE_LEVELS'"," ") + 1 
+				local FEQTEST_CODE_LEVELS = substr("`GRP_CODE_LEVELS'",`1st_level',.)
+				
+				* Calculate input for F-test: loop through levels to create input
+				local ftest_input ""
+				foreach grpCode of local FEQTEST_CODE_LEVELS {
+					local ftest_input = " `ftest_input' `grpCode'.`grpvar'="
+				}
+				
+				test `ftest_input' 0
+				local pfeqtest 	= r(p)
+				local ffeqtest 	= r(F)
+				
+				*Format the output
+				local feqtest_output : display `diformat' `ffeqtest'
+			
+				*Add stars
+				foreach ftest_p_level in `p1star' `p2star' `p3star' {
+				
+						if `pfeqtest' < `ftest_p_level' local feqtest_output "`feqtest_output'*"
+				}
+				
+				*Print row
+				local tableRowUp 	`" `tableRowUp' _tab "`feqtest_output'" "'
+				local tableRowDo 	`" `tableRowDo' _tab " " "'
+				
+				local texRow	`" `texRow' " & `feqtest_output'" "'
 			}
 						
 	
@@ -2231,17 +2300,17 @@ qui {
 	local stars_note	"***, **, and * indicate significance at the `p3star_percent', `p2star_percent', and `p1star_percent' percent critical level. "
 	
 	if `PTTEST_USED' == 1 {	
-		local ttest_note "The values displayed for t-tests are p-values. " 
+		local ttest_note "The value displayed for t-tests are p-values. " 
 	}
 	else {
-		local ttest_note "The valued displayed for t-tests are the differences in the means across the groups. " 
+		local ttest_note "The value displayed for t-tests are the differences in the means across the groups. " 
 	}
 	
 	if `PFTEST_USED' == 1 {	
-		local ftest_note "The values displayed for F-tests are p-values. " 
+		local ftest_note "The value displayed for F-tests are p-values. " 
 	}
 	else {
-		local ftest_note "The values displayed for F-tests are the F-statistics. "
+		local ftest_note "The value displayed for F-tests are the F-statistics. "
 	}	
 	
 	if `VCE_USED' == 1 {
