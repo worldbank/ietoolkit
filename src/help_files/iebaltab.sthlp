@@ -76,8 +76,10 @@ will test for differences across the catagories in grpvar({it:varname}).
 
 {marker displayoptions}{...}
 {pstd}{it:    Table display options:}{p_end}
+{synopt :{cmdab:not:test}}Supresses the column for pairwise t-tests{p_end}
 {synopt :{cmdab:pt:test}}Show p-values instead of difference-in-mean between the groups in the column for t-tests{p_end}
 {synopt :{cmdab:pf:test}}Show p-values instead of F-statistics in the row for F-tests{p_end}
+{synopt :{cmdab:feqt:est}}Add a column with F-test for joint orthogonality of treatment arms{p_end}
 {synopt :{cmdab:pb:oth}}Identical to specifying both {cmd:pttest} and {cmd:pftest}{p_end}
 {synopt :{cmdab:star:levels(}{it:{help numlist:numlist}}{cmd:)}}Manually set the three significance levels used for significance stars{p_end}
 {synopt :{cmdab:starsno:add}}Do not add any stars to the table{p_end}
