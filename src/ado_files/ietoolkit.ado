@@ -25,8 +25,8 @@ program ietoolkit, rclass
 	**********************/	
 	
 	* Prepare returned locals
-	return local diffvars 	`"`difference'"'
-	return scalar nummatch	= `:list sizeof match'
+	return local 	versiondate "`versionDate'"
+	return scalar 	version		= `version'
 	
 	* Display output
 	noi di ""
