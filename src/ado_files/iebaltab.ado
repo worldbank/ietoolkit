@@ -1403,17 +1403,22 @@ qui {
 				local	colstring	"`colstring'c"
 			}
 		}
-		
-		*Add another column if F-test for equality of means is included
-		if `FEQTEST_USED'{
-			local	colstring	"`colstring'c"		
-		}
 
 		*Add one column per test pair
 		if `TTEST_USED' {
 			forvalues repeat = 1/`testPairCount' {
 				local	colstring	"`colstring'c"
 			}
+		}
+		
+		*Add another column if F-test for equality of means is included
+		if `FEQTEST_USED'{
+			local	colstring	"`colstring'c"		
+		}
+		
+		*Add another column if normalized difference is included
+		if `NORMDIFF_USED'{
+			local	colstring	"`colstring'c"		
 		}
 		
 		*Create a temporary texfile
