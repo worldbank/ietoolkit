@@ -1252,7 +1252,7 @@ qui {
 		if `TTEST_USED' | `NORMDIFF_USED' {
 		
 			local ttest_pairs ""
-			
+		
 			if `CONTROL_USED' {
 			
 				*Get the order of the control group
@@ -1267,7 +1267,7 @@ qui {
 						if `TTEST_USED' {
 							*Adding title rows for the t-test. 
 							local titlerow1 `"`titlerow1' _tab "t-test""'
-							local titlerow2 `"`titlerow2' _tab "(`ctrlGrpPos') - (`second_ttest_group')""'
+							local titlerow2 `"`titlerow2' _tab "(`ctrlGrpPos')-(`second_ttest_group')""'
 							
 							if `PTTEST_USED' == 1 {
 								local titlerow3 `"`titlerow3' _tab "p-value""'
@@ -1281,7 +1281,7 @@ qui {
 							*Adding title rows for the t-test. 
 							local titlerow1 `"`titlerow1' _tab "Normalized""'
 							local titlerow2 `"`titlerow2' _tab "difference""'
-							local titlerow3 `"`titlerow3' _tab "(`ctrlGrpPos') - (`second_ttest_group')""'
+							local titlerow3 `"`titlerow3' _tab "(`ctrlGrpPos')-(`second_ttest_group')""'
 							
 							local texrow3  `" `texrow3'  & (`ctrlGrpPos')-(`second_ttest_group') "'
 						}
@@ -1790,7 +1790,7 @@ qui {
 					
 	*** Create the columns with t-tests for this row
 			
-			if `TTEST_USED' == 1 {
+			if `TTEST_USED' {
 			
 				foreach ttest_pair of local ttest_pairs {
 
@@ -1882,15 +1882,15 @@ qui {
 			
 		*** Create the columns with normalized difference for this row
 			
-			if `NORMDIFF_USED' == 1 {
-			
+			if `NORMDIFF_USED' {
+
 				foreach normdiff_pair of local ttest_pairs {
 
 					*Create a local for each group in the test 
 					*pair from the test_pair local created above
-					local undscr_pos   = strpos("`ttest_pair'","_")
-					local first_group  = substr("`ttest_pair'",1,`undscr_pos'-1)
-					local second_group = substr("`ttest_pair'",  `undscr_pos'+1,.)
+					local undscr_pos   = strpos("`normdiff_pair'","_")
+					local first_group  = substr("`normdiff_pair'",1,`undscr_pos'-1)
+					local second_group = substr("`normdiff_pair'",  `undscr_pos'+1,.)
 					
 					*Create the local with the difference to be displayed in the table
 					local diff_`normdiff_pair' =  `mean_`first_group'' - `mean_`second_group'' //means from section above
@@ -1899,10 +1899,10 @@ qui {
 					sum `balancevar' if inlist(`groupOrder',`first_group',`second_group')
 					
 					*Create the local with the normalized difference
-					local normdiff_`normdiff_pair' = diff_`normdiff_pair'/r(sd)
+					local normdiff_`normdiff_pair' = `diff_`normdiff_pair''/r(sd)
 
 					*Testing result and if valid, write to file with or without stars
-					if `r(sd)' == 0 {
+					if r(sd) == 0 {
 						
 						local warn_means_num  	= `warn_means_num' + 1
 						local warn_means_strlen = max(`warn_means_strlen', strlen("`balancevar'"))
@@ -1916,7 +1916,7 @@ qui {
 						local texRow		`" `texRow' " & N/A" "'
 						
 					}
-			
+
 					else {
 						
 						*Format the output
