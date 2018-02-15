@@ -889,12 +889,18 @@ cap program drop 	mdofle_p0
 		writeDevisor `subHandle' 0 End_StandardSettings
 		
 		file write  `subHandle' 	///							
-			_col(8)"*Install all packages that this project requires:" _n ///
-			_col(8)"ssc install ietoolkit, replace" _n ///
+			_col(4)"*Install all packages that this project requires:" _n ///			
+			_col(4)"local user_commands ietoolkit" _col(40) "//Fill this list will all commands this project requires" _n ///	
+			_col(4)"foreach command of local user_commands {" _n ///	
+			_col(8)		"cap which " _char(96) "command'" _n ///	
+			_col(8)		"if _rc == 111 {" _n ///	
+			_col(12)		"cap ssc install " _char(96) "command'" _n ///	
+			_col(8)		"}" _n ///	
+			_col(4)"}" _n ///	
 			_n	 ///
-			_col(8)"*Standardize settings accross users" _n ///
-			_col(8)"ieboilstart, version(12.1)" _col(40) "//Set the version number to the oldest version used by anyone in the project team" _n ///
-			_col(8) _char(96)"r(version)'" 		_col(40) "//This line is needed to actually set the version from the command above" _n
+			_col(4)"*Standardize settings accross users" _n ///
+			_col(4)"ieboilstart, version(12.1)" _col(40) "//Set the version number to the oldest version used by anyone in the project team" _n ///
+			_col(4) _char(96)"r(version)'" 		_col(40) "//This line is needed to actually set the version from the command above" _n
 			
 		
 end
