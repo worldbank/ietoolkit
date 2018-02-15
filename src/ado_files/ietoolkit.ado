@@ -1,6 +1,6 @@
 *! version 5.4 15DEC2017  DIME Analytics lcardosodeandrad@worldbank.org
 		
-capture program drop ietoolkit, rclass
+capture program drop ietoolkit
 program ietoolkit, rclass
 	
 	* UPDATE THESE LOCALS FOR EACH NEW VERSION PUBLISHED
