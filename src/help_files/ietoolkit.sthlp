@@ -1,30 +1,30 @@
 {smcl}
 {* 15 Dec 2017}{...}
 {hline}
-help for {hi:iegraph}
+help for {hi:ietoolkit}
 {hline}
 
 {title:Title}
 
 {phang}{cmdab:ietoolkit} {hline 2} Returns information on the version of ietoolkit installed
 
-{phang}For a more descriptive discussion on the intended usage and work flow of this 
+{phang}For a more descriptive discussion on the intended usage and work flow of this
 command please see the {browse "https://dimewiki.worldbank.org/wiki/Ietoolkit":DIME Wiki}.
 
 {title:Syntax}
 
 {phang}
-{cmdab:ietoolkit} 
+{cmdab:ietoolkit}
 
-{pstd}Note that this command takes no arguements at all.{p_end}
+{pstd}Note that this command takes no arguments at all.{p_end}
 
 {marker desc}
 {title:Description}
 
-{pstd}{cmdab:iegraph} This command returns the version of ietoolkit installed. It 
-	can be used in the beginning of a Master Do-file that is intended to be used 
-	by mutliple users to programmatically test if ietoolkit is not installed for 
-	the user and therefore need to be installed, or if the version the user has 
+{pstd}{cmdab:iegraph} This command returns the version of ietoolkit installed. It
+	can be used in the beginning of a Master Do-file that is intended to be used
+	by multiple users to programmatically test if ietoolkit is not installed for
+	the user and therefore need to be installed, or if the version the user has
 	installed is too old and needs to be upgraded.
 
 {marker optslong}
@@ -35,12 +35,12 @@ command please see the {browse "https://dimewiki.worldbank.org/wiki/Ietoolkit":D
 {marker example}
 {title:Examples}
 
-{pstd}The code below is an example code that can be added to the top of any dofile. 
-	the example code first test if the command is installed, and install it if not. If it is 
-	installed, it test if the version is less than version 5.0. If it is, it 
+{pstd}The code below is an example code that can be added to the top of any do-file.
+	the example code first test if the command is installed, and install it if not. If it is
+	installed, it test if the version is less than version 5.0. If it is, it
 	replaces the ietoolkit file with the latest version. In your code you can skip
-	the second part if you are not sure which version is required. But you should 
-	always have the first part testing that {inp:r(version)} has a value before using 
+	the second part if you are not sure which version is required. But you should
+	always have the first part testing that {inp:r(version)} has a value before using
 	it in less than or greater than expressions.
 
 {inp}    cap ietoolkit
@@ -64,7 +64,7 @@ command please see the {browse "https://dimewiki.worldbank.org/wiki/Ietoolkit":D
 {phang}Kristoffer Bjarkefur, The World Bank, DECIE
 
 {phang}Please send bug-reports, suggestions and requests for clarifications
-		 writing "ietoolkit ietoolkit" in the subject line to the email address 
+		 writing "ietoolkit ietoolkit" in the subject line to the email address
 		 found {browse "https://github.com/worldbank/ietoolkit":here}
 
 {phang}You can also see the code, make comments to the code, see the version
