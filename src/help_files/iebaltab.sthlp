@@ -8,6 +8,9 @@ help for {hi:iebaltab}
 
 {phang2}{cmdab:iebaltab} {hline 2} produces balance tables with multiple groups or treatment arms
 
+{phang2}For a more descriptive discussion on the intended usage and work flow of this 
+command please see the {browse "https://dimewiki.worldbank.org/wiki/Iebaltab":DIME Wiki}.
+
 {title:Syntax}
 
 {phang2}

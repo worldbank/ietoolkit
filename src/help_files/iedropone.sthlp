@@ -8,7 +8,9 @@ help for {hi:iedropone}
 
 {phang2}{cmdab:iedropone} {hline 2} Same function as {help drop} but prevents 
 	that additional observations are unintentionally dropped. 
-	See {help iedropone##examples:examples below}.
+	
+{phang2}For a more descriptive discussion on the intended usage and work flow of this 
+command please see the {browse "https://dimewiki.worldbank.org/wiki/Iedropone":DIME Wiki}.	
 
 {title:Syntax}
 

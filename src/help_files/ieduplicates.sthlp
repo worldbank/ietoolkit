@@ -9,6 +9,9 @@ help for {hi:ieduplicates}
 {phang2}{cmdab:ieduplicates} {hline 2} Identify duplicates in ID variable and export them in 
 an Excel file that also can be used to correct the duplicates
 
+{phang2}For a more descriptive discussion on the intended usage and work flow of this 
+command please see the {browse "https://dimewiki.worldbank.org/wiki/Ieduplicates":DIME Wiki}.
+
 {title:Syntax}
 
 {phang2}

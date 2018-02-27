@@ -10,6 +10,11 @@ help for {hi:iecompdup}
 of the variables where the duplicates are identical and a list of the variables where the 
 duplicates differ
 
+{phang2}For a more descriptive discussion on the intended usage and work flow of this 
+command please see the {browse "https://dimewiki.worldbank.org/wiki/Ieduplicates":DIME Wiki}.
+Note that this command share wiki article with {help ieduplicates}.
+
+
 {title:Syntax}
 
 {phang2}
