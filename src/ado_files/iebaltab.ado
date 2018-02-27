@@ -1418,7 +1418,9 @@ qui {
 		
 		*Add another column if normalized difference is included
 		if `NORMDIFF_USED'{
-			local	colstring	"`colstring'c"		
+			forvalues repeat = 1/`testPairCount' {
+				local	colstring	"`colstring'c"
+			}
 		}
 		
 		*Create a temporary texfile
@@ -1537,10 +1539,9 @@ qui {
 	** Create locals that control the warning table
 					
 			*Mean test warnings
-			local warn_means_num    0
-			local warn_means_strlen 0
-			
-			
+			local warn_means_num    	0
+			local warn_ftest_num    	0
+						
 			*Joint test warnings
 			local warn_joint_novar_num	0
 			local warn_joint_lovar_num	0
@@ -1837,10 +1838,10 @@ qui {
 					if `varloc' == 0 {
 						
 						local warn_means_num  	= `warn_means_num' + 1
-						local warn_means_strlen = max(`warn_means_strlen', strlen("`balancevar'"))
 						
-						local warn_means_test`warn_means_num' "(`first_group')-(`second_group')"
-						local warn_means_bvar`warn_means_num' "`balancevar'"
+						local warn_means_name`warn_means_num'	"t-test"
+						local warn_means_group`warn_means_num' 	"(`first_group')-(`second_group')"
+						local warn_means_bvar`warn_means_num'	"`balancevar'"
 						
 						local tableRowUp	`" `tableRowUp' _tab "N/A" "'
 						local tableRowDo	`" `tableRowDo' _tab " " "'
@@ -1902,18 +1903,15 @@ qui {
 					
 					*Calculate standard deviation for sample of interest
 					sum `balancevar' if inlist(`groupOrder',`first_group',`second_group')
-					
-					*Create the local with the normalized difference
-					local normdiff_`normdiff_pair' = `diff_`normdiff_pair''/r(sd)
 
 					*Testing result and if valid, write to file with or without stars
 					if r(sd) == 0 {
 						
 						local warn_means_num  	= `warn_means_num' + 1
-						local warn_means_strlen = max(`warn_means_strlen', strlen("`balancevar'"))
 						
-						local warn_means_test`warn_means_num' "(`first_group')-(`second_group')"
-						local warn_means_bvar`warn_means_num' "`balancevar'"
+						local warn_means_name`warn_means_num'	"Norm diff"
+						local warn_means_group`warn_means_num' 	"(`first_group')-(`second_group')"
+						local warn_means_bvar`warn_means_num'	"`balancevar'"
 						
 						local tableRowUp	`" `tableRowUp' _tab "N/A" "'
 						local tableRowDo	`" `tableRowDo' _tab " " "'
@@ -1923,6 +1921,8 @@ qui {
 					}
 
 					else {
+						*Create the local with the normalized difference
+						local normdiff_`normdiff_pair' = `diff_`normdiff_pair''/r(sd)
 						
 						*Format the output
 						local normdiff_output : display `diformat' `normdiff_`normdiff_pair''
@@ -1958,20 +1958,36 @@ qui {
 				local pfeqtest 	= r(p)
 				local ffeqtest 	= r(F)
 				
-				*Format the output
-				local feqtest_output : display `diformat' `ffeqtest'
-			
-				*Add stars
-				foreach ftest_p_level in `p1star' `p2star' `p3star' {
+				*Check if the test is valid. If not, print N/A and error message.
+				*Is yes, print test
+				if "`ffeqtest'" == "." {
 				
-						if `pfeqtest' < `ftest_p_level' local feqtest_output "`feqtest_output'*"
+					local warn_ftest_num  	= `warn_ftest_num' + 1
+
+					local warn_ftest_bvar`warn_ftest_num'		"`balancevar'"
+					
+					local tableRowUp	`" `tableRowUp' _tab "N/A" "'
+					local tableRowDo	`" `tableRowDo' _tab " " "'
+					
+					local texRow		`" `texRow' " & N/A" "'
 				}
 				
-				*Print row
-				local tableRowUp 	`" `tableRowUp' _tab "`feqtest_output'" "'
-				local tableRowDo 	`" `tableRowDo' _tab " " "'
+				else {
+					*Format the output
+					local feqtest_output : display `diformat' `ffeqtest'
 				
-				local texRow	`" `texRow' " & `feqtest_output'" "'
+					*Add stars
+					foreach ftest_p_level in `p1star' `p2star' `p3star' {
+					
+							if `pfeqtest' < `ftest_p_level' local feqtest_output "`feqtest_output'*"
+					}
+					
+					*Print row
+					local tableRowUp 	`" `tableRowUp' _tab "`feqtest_output'" "'
+					local tableRowDo 	`" `tableRowDo' _tab " " "'
+					
+					local texRow	`" `texRow' " & `feqtest_output'" "'
+				}
 			}
 						
 	
@@ -2278,8 +2294,10 @@ qui {
 	/*************************************************
 	************************************************/
 
-	local anywarning	= max(`warn_means_num' ,`warn_joint_novar_num', `warn_joint_lovar_num' ,`warn_joint_robus_num')
+	local anywarning	= max(`warn_means_num',`warn_ftest_num',`warn_joint_novar_num', `warn_joint_lovar_num' ,`warn_joint_robus_num')
 	local anywarning_F	= max(`warn_joint_novar_num', `warn_joint_lovar_num' ,`warn_joint_robus_num')
+	
+	
 	
 	if `anywarning' > 0 {
 		
@@ -2290,17 +2308,33 @@ qui {
 		
 		if `warn_means_num' > 0 {
 			
-			noi di as text "{pmore}{bf:Difference-in-Means Tests:} The variance in both groups listed below is zero for the varaible indicated and a difference-in-means test between the two groups is therefore not valid. Tests are reported as N/A in the table.{p_end}" 
+			noi di as text "{pmore}{bf:Difference-in-Means Tests:} The variance in both groups listed below is zero for the variable indicated and a difference-in-means test between the two groups is therefore not valid. Tests are reported as N/A in the table.{p_end}" 
 			noi di as text ""
 			
-			noi di as text "{col 9}{c TLC}{hline 11}{c TT}{hline 36}{c TRC}"
-			noi di as text "{col 9}{c |}{col 13}Test{col 21}{c |}{col 24}Balance Variable{col 58}{c |}"
-			noi di as text "{col 9}{c LT}{hline 11}{c +}{hline 36}{c RT}"
+			noi di as text "{col 9}{c TLC}{hline 11}{c TT}{hline 12}{c TT}{hline 37}{c TRC}"
+			noi di as text "{col 9}{c |}{col 13}Test{col 21}{c |}{col 25}Group{col 34}{c |}{col 39}Balance Variable{col 72}{c |}"
+			noi di as text "{col 9}{c LT}{hline 11}{c +}{hline 12}{c +}{hline 37}{c RT}"
 			
 			forvalues warn_num = 1/`warn_means_num' {
-				noi di as text "{col 9}{c |}{col 12}`warn_means_test`warn_num''{col 21}{c |}{col 24}`warn_means_bvar`warn_num''{col 58}{c |}"
+				noi di as text "{col 9}{c |}{col 11}`warn_means_name`warn_num''{col 21}{c |}{col 23}`warn_means_group`warn_num''{col 34}{c |}{col 37}`warn_means_bvar`warn_num''{col 72}{c |}"
 			}
-			noi di as text "{col 9}{c BLC}{hline 11}{c BT}{hline 36}{c BRC}"
+			noi di as text "{col 9}{c BLC}{hline 11}{c BT}{hline 12}{c BT}{hline 37}{c BRC}"
+			noi di as text ""
+		}
+
+		if `warn_ftest_num' > 0 {
+		
+			noi di as text "{pmore}{bf:F-Test for Joint Orthogonality:} The variance all groups is zero for the varible indicated and a test of joint orthogonality for all groups is therefore not valid. Tests are reported as N/A in the table.{p_end}" 
+			noi di as text ""
+			
+			noi di as text "{col 9}{c TLC}{hline 25}{c TRC}"
+			noi di as text "{col 9}{c |}{col 13} Balance Variable{col 35}{c |}"
+			noi di as text "{col 9}{c LT}{hline 25}{c RT}"
+
+			forvalues warn_num = 1/`warn_ftest_num' {
+				noi di as text "{col 9}{c |}{col 12}`warn_ftest_bvar`warn_num''{col 35}{c |}"
+			}
+			noi di as text "{col 9}{c BLC}{hline 25}{c BRC}"
 			noi di as text ""
 		}
 		
@@ -2459,8 +2493,8 @@ qui {
 	
 	if `COVMISS_USED' == 1 | `COVMISSREG_USED' == 1 {
 		
-		if `COVMISS_USED'		== 1	local covmiss_note "All missing values in covariate varaibles are treated as zero."
-		if `COVMISSREG_USED'  	== 1	local covmiss_note "Regular missing values in covariate varaibles are treated as zero, {help missing:extended missing values} are still treated as missing."
+		if `COVMISS_USED'		== 1	local covmiss_note "All missing values in covariate variables are treated as zero."
+		if `COVMISSREG_USED'  	== 1	local covmiss_note "Regular missing values in covariate variables are treated as zero, {help missing:extended missing values} are still treated as missing."
 		
 		local COVMISS_USED = 1
 	}
