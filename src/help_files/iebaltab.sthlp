@@ -76,10 +76,11 @@ will test for differences across the catagories in grpvar({it:varname}).
 
 {marker displayoptions}{...}
 {pstd}{it:    Table display options:}{p_end}
-{synopt :{cmdab:not:test}}Supresses the column for pairwise t-tests{p_end}
 {synopt :{cmdab:pt:test}}Show p-values instead of difference-in-mean between the groups in the column for t-tests{p_end}
+{synopt :{cmdab:not:test}}Supresses the column for pairwise t-tests{p_end}
+{synopt :{cmdab:norm:iff}}Adds a column with pairwise normalized difference{p_end}
+{synopt :{cmdab:feqt:est}}Adds a column with F-test for joint orthogonality of treatment arms{p_end}
 {synopt :{cmdab:pf:test}}Show p-values instead of F-statistics in the row for F-tests{p_end}
-{synopt :{cmdab:feqt:est}}Add a column with F-test for joint orthogonality of treatment arms{p_end}
 {synopt :{cmdab:pb:oth}}Identical to specifying both {cmd:pttest} and {cmd:pftest}{p_end}
 {synopt :{cmdab:star:levels(}{it:{help numlist:numlist}}{cmd:)}}Manually set the three significance levels used for significance stars{p_end}
 {synopt :{cmdab:starsno:add}}Do not add any stars to the table{p_end}
@@ -326,6 +327,12 @@ are excluded from F-tests. Also see {cmd:balmiss()} and {cmd:balmissreg()} for o
 {pstd}{it:Table display options:}{p_end}
 
 {phang}{cmdab:pt:test} makes this command show p-values instead of difference-in-mean between the groups in the column for t-tests.{p_end}
+
+{phang}{cmdab:not:test} supresses the column for pairwise t-tests across treatment arms.{p_end}
+
+{phang}{cmdab:norm:iff} adds a column with pairwise normalized difference across treatment arms.{p_end}
+
+{phang}{cmdab:feqt:est} adds a column with F-test for joint orthogonality of treatment arms.{p_end}
 
 {phang}{cmdab:pf:test} makes this command show p-values instead of F-statistics in the row for F-tests.{p_end}
 
