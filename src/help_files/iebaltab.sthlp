@@ -8,7 +8,7 @@ help for {hi:iebaltab}
 
 {phang2}{cmdab:iebaltab} {hline 2} produces balance tables with multiple groups or treatment arms
 
-{phang2}For a more descriptive discussion on the intended usage and work flow of this 
+{phang2}For a more descriptive discussion on the intended usage and work flow of this
 command please see the {browse "https://dimewiki.worldbank.org/wiki/Iebaltab":DIME Wiki}.
 
 {title:Syntax}
@@ -17,9 +17,9 @@ command please see the {browse "https://dimewiki.worldbank.org/wiki/Iebaltab":DI
 {cmdab:iebaltab} {it:balancevarlist} [{help if:if}] [{help in:in}]
 , {cmdab:grpv:ar(}{it:varname}{cmd:)} {c -(} {cmdab:save(}{it:{help filename}}{cmd:)} | {cmdab:savet:ex(}{it:{help filename}}{cmd:)} | {cmdab:browse} {c )-}
 [
-{it:{help iebaltab##columnoptions:column_options} {help iebaltab##labeloptions:label_options}} 
-{it:{help iebaltab##statsoptions:stats_options} {help iebaltab##ftestoptions:ftest_options}} 
-{it: {help iebaltab##display:display_options} {help iebaltab##exportoptions:export_options}}  
+{it:{help iebaltab##columnoptions:column_options} {help iebaltab##labeloptions:label_options}}
+{it:{help iebaltab##statsoptions:stats_options} {help iebaltab##ftestoptions:ftest_options}}
+{it: {help iebaltab##display:display_options} {help iebaltab##exportoptions:export_options}}
 ]
 
 {phang2}where {it:balancevarlist} is one or several variables (from here on called balance variables) for which the command
@@ -78,7 +78,7 @@ will test for differences across the catagories in grpvar({it:varname}).
 {pstd}{it:    Table display options:}{p_end}
 {synopt :{cmdab:pt:test}}Show p-values instead of difference-in-mean between the groups in the column for t-tests{p_end}
 {synopt :{cmdab:not:test}}Supresses the column for pairwise t-tests{p_end}
-{synopt :{cmdab:norm:iff}}Adds a column with pairwise normalized difference{p_end}
+{synopt :{cmdab:normd:iff}}Adds a column with pairwise normalized difference{p_end}
 {synopt :{cmdab:feqt:est}}Adds a column with F-test for joint orthogonality of treatment arms{p_end}
 {synopt :{cmdab:pf:test}}Show p-values instead of F-statistics in the row for F-tests{p_end}
 {synopt :{cmdab:pb:oth}}Identical to specifying both {cmd:pttest} and {cmd:pftest}{p_end}
@@ -262,7 +262,7 @@ in the {it:nametitlestring}. The title can consist of several words. Everything 
 of a string or a "@" will be included in the title.{p_end}
 
 {phang}{cmdab:onerow} displays the number of observations in additional row at the bottom of the table if each group has the same
-number of observations for all variables in {it:balancevarlist}. This also applies to number of clusters. If not specified, the 
+number of observations for all variables in {it:balancevarlist}. This also applies to number of clusters. If not specified, the
 number of observations (and clusters) per variable per group is displayed on the same row in additional column besides the mean value.{p_end}
 
 {pstd}{it:    Statistics and data modification:}{p_end}
@@ -330,7 +330,7 @@ are excluded from F-tests. Also see {cmd:balmiss()} and {cmd:balmissreg()} for o
 
 {phang}{cmdab:not:test} supresses the column for pairwise t-tests across treatment arms.{p_end}
 
-{phang}{cmdab:norm:iff} adds a column with pairwise normalized difference across treatment arms.{p_end}
+{phang}{cmdab:normd:iff} adds a column with pairwise normalized difference across treatment arms.{p_end}
 
 {phang}{cmdab:feqt:est} adds a column with F-test for joint orthogonality of treatment arms.{p_end}
 
@@ -374,9 +374,9 @@ The note width is a multiple of text width. If not specified, default width is t
 {phang}{cmdab:texdoc:ument}  creates a stand-alone TeX document that can be readily compiled, without the need to import it to a different file.
  As default, {cmd:savetex()} creates a fragmented TeX file consisting only of a tabular environment.{p_end}
 
-{phang}{cmd:texvspace(}{it:string}{cmd:)} sets the size of the line space between two variable rows. {it:string} must consist of a numeric value 
-and one of the following units: "cm", "mm", "pt", "in", "ex" or "em". Note that the resulting line space displayed will be equal to the 
-specified value minus the height of one line of text. Default is "3ex". For more information on units, 
+{phang}{cmd:texvspace(}{it:string}{cmd:)} sets the size of the line space between two variable rows. {it:string} must consist of a numeric value
+and one of the following units: "cm", "mm", "pt", "in", "ex" or "em". Note that the resulting line space displayed will be equal to the
+specified value minus the height of one line of text. Default is "3ex". For more information on units,
 {browse "https://en.wikibooks.org/wiki/LaTeX/Lengths":check LaTeX lengths manual}. {p_end}
 
 {phang}{cmd:texcolwidth(}{it:string}{cmd:)} limits the width of table's first column so that a line break is added when a variable's name
