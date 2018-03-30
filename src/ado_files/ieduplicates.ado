@@ -840,11 +840,11 @@
 		* Drop the duplicates (they are exported in Excel)
 		drop 						if `dropDup' != 0
 		
-		* Test if varlist is now uniqely and fully identifying the data set 
+		* Test if varlist is now uniquely and fully identifying the data set 
 		cap isid `varlist'
 		if _rc {
 		
-			di as error "{phang}The data set is not returned with `varlist' uniqely and fully identifying the data set. Please report this bug to kbjarkefur@worldbank.org{p_end}"
+			di as error "{phang}The data set is not returned with `varlist' uniquely and fully identifying the data set. Please report this bug to kbjarkefur@worldbank.org{p_end}"
 			error 119
 			exit
 			
@@ -852,7 +852,7 @@
 		
 		if `:list sizeof dup_ids' == 0 {
 		
-			noi di	"{phang}There are no unresolved duplicates in this data set. The data set is returned with `varlist' uniqely and fully identifying the data set.{p_end}"
+			noi di	"{phang}There are no unresolved duplicates in this data set. The data set is returned with `varlist' uniquely and fully identifying the data set.{p_end}"
 		}
 		else {
 			noi di	"{phang}There are `:list sizeof dup_ids' duplicates unresolved. IDs still contining duplicates: `dup_ids'. The unresolved duplicate observations were exported in the Excel file. The data set is returned without those duplicates and with `varlist' uniquely and fully identifying the data set.{p_end}"
