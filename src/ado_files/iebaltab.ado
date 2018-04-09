@@ -45,7 +45,6 @@
 				PTtest														///
 				PFtest														///
 				FEQTest														///
-				NORMDiff													///
 				PBoth														///
 				STDev														///
 				STARlevels(numlist descending min=3 max=3 >0 <1)			///
@@ -230,13 +229,9 @@ qui {
 		if "`weight'" 			== "" local WEIGHT_USED = 0 
 		if "`weight'" 			!= "" local WEIGHT_USED = 1 
 		
-		*Is option feqtest() used:
+		*Is option feqtest() user:
 		if "`feqtest'" 			== "" local FEQTEST_USED = 0 
 		if "`feqtest'" 			!= "" local FEQTEST_USED = 1 
-		
-		*Is option normdiff() used:
-		if "`normdiff'" 		== "" local NORMDIFF_USED = 0 
-		if "`normdiff'" 		!= "" local NORMDIFF_USED = 1 
 	
 	
 	** Output Options	
@@ -1249,7 +1244,7 @@ qui {
 	************************************************
 	*Generating titles for each test of diff in mean
 		
-		if `TTEST_USED' | `NORMDIFF_USED' {
+		if `TTEST_USED' == 1 {
 		
 			local ttest_pairs ""
 		
@@ -1264,27 +1259,18 @@ qui {
 					*Include all groups apart from the control group itself
 					if `second_ttest_group' != `ctrlGrpPos' {
 					
-						if `TTEST_USED' {
-							*Adding title rows for the t-test. 
-							local titlerow1 `"`titlerow1' _tab "t-test""'
-							local titlerow2 `"`titlerow2' _tab "(`ctrlGrpPos')-(`second_ttest_group')""'
-							
-							if `PTTEST_USED' == 1 {
-								local titlerow3 `"`titlerow3' _tab "p-value""'
-							}
-							else {
-								local titlerow3 `"`titlerow3' _tab "Difference""'
-							}
-							local texrow3  `" `texrow3'  & (`ctrlGrpPos')-(`second_ttest_group') "'
+						*Adding title rows for the t-test. 
+						local titlerow1 `"`titlerow1' _tab "t-test""'
+						local titlerow2 `"`titlerow2' _tab "(`ctrlGrpPos') - (`second_ttest_group')""'
+						
+						if `PTTEST_USED' == 1 {
+							local titlerow3 `"`titlerow3' _tab "p-value""'
 						}
-						if `NORMDIFF_USED' {
-							*Adding title rows for the t-test. 
-							local titlerow1 `"`titlerow1' _tab "Normalized""'
-							local titlerow2 `"`titlerow2' _tab "difference""'
-							local titlerow3 `"`titlerow3' _tab "(`ctrlGrpPos')-(`second_ttest_group')""'
-							
-							local texrow3  `" `texrow3'  & (`ctrlGrpPos')-(`second_ttest_group') "'
+						else {
+							local titlerow3 `"`titlerow3' _tab "Difference""'
 						}
+											
+						local texrow3  `" `texrow3'  & (`ctrlGrpPos')-(`second_ttest_group') "'
 						
 						*Storing a local of all the test pairs
 						local ttest_pairs "`ttest_pairs' `ctrlGrpPos'_`second_ttest_group'"
@@ -1303,28 +1289,18 @@ qui {
 					
 					forvalues second_ttest_group = `nextPossGroup'/`GRPVAR_NUM_GROUPS' {
 						
-						if `TTEST_USED' {
-							*Adding title rows for the t-test.
-							local titlerow1  `"`titlerow1' _tab "t-test""'
-							local titlerow2  `"`titlerow2' _tab "(`first_ttest_group')-(`second_ttest_group')""'
+						*Adding title rows for the t-test.
+						local titlerow1  `"`titlerow1' _tab "t-test""'
+						local titlerow2  `"`titlerow2' _tab "(`first_ttest_group')-(`second_ttest_group')""'
+					
+						if `PTTEST_USED' == 1 {
+							local titlerow3 `"`titlerow3' _tab "p-value""'
+						}
+						else {
+							local titlerow3 `"`titlerow3' _tab "Difference""'
+						}
 						
-							if `PTTEST_USED' == 1 {
-								local titlerow3 `"`titlerow3' _tab "p-value""'
-							}
-							else {
-								local titlerow3 `"`titlerow3' _tab "Difference""'
-							}
-							
-							local texrow3  `" `texrow3' & (`first_ttest_group')-(`second_ttest_group') "'
-						}
-						if `NORMDIFF_USED' {
-							*Adding title rows for the t-test. 
-							local titlerow1 `"`titlerow1' _tab "Normalized""'
-							local titlerow2 `"`titlerow2' _tab "difference""'
-							local titlerow3 `"`titlerow3' _tab "(`first_ttest_group') - (`second_ttest_group')""'
-							
-							local texrow3  `" `texrow3'  & (`first_ttest_group')-(`second_ttest_group') "'
-						}
+						local texrow3  `" `texrow3' & (`first_ttest_group')-(`second_ttest_group') "'
 						
 						*Storing a local of all the test pairs
 						local ttest_pairs "`ttest_pairs' `first_ttest_group'_`second_ttest_group'"
@@ -1338,19 +1314,13 @@ qui {
 			
 			if `testPairCount' > 0 {
 				
-				if `TTEST_USED' {
-					local texrow1 	`" `texrow1' & \multicolumn{`testPairCount'}{c}{T-test} "'
-					
-					if `PTTEST_USED' == 1 {
-						local texrow2 `"`texrow2' & \multicolumn{`testPairCount'}{c}{P-value} "'
-					}
-					else {
-						local texrow2 `"`texrow2' & \multicolumn{`testPairCount'}{c}{Difference} "'
-					}
+				local texrow1 	`" `texrow1' & \multicolumn{`testPairCount'}{c}{T-test} "'
+				
+				if `PTTEST_USED' == 1 {
+					local texrow2 `"`texrow2' & \multicolumn{`testPairCount'}{c}{P-value} "'
 				}
-				if `NORMDIFF_USED' {
-					local texrow1 	`"`texrow1' & \multicolumn{`testPairCount'}{c}{Normalized} "'
-					local texrow2 	`"`texrow2' & \multicolumn{`testPairCount'}{c}{difference} "'
+				else {
+					local texrow2 `"`texrow2' & \multicolumn{`testPairCount'}{c}{Difference} "'
 				}
 			}
 			*texrow3 created in loop above
