@@ -628,6 +628,14 @@ qui {
 			}
 		}
 		
+		if `FTEST_USED' & !`TTEST_USED' & !`NORMDIFF_USED' {
+			*Error for F-test used, but not t-test of normalized difference:
+			*no columns are created for F-test to be displayed
+			noi di as error "{phang}Option ftest may not only be used if either t-tests or normalized differences are used. F-test for joing significance of balance variables will not be displayed. In order to display it, either use option normdiff or remove option nottest.{p_end}"
+			local FTEST_USED = 0
+		
+		}
+		
 		*Testing input in these for options. See function at the end of this command
 		if `BALMISS_USED' == 1 		iereplacestringtest "balmiss" 		"`balmiss'"
 		if `BALMISSREG_USED' == 1 	iereplacestringtest "balmissreg" 	"`balmissreg'"
