@@ -1367,7 +1367,7 @@ qui {
 	************************************************
 	*Add column for F-test of joint equality
 	
-		if `FEQTEST_USED' == 1 {
+		if `FEQTEST_USED' {
 		
 			local titlerow1 `"`titlerow1' _tab "F-test""'
 			local titlerow2 `"`titlerow2' _tab "for joint""'
@@ -1946,7 +1946,7 @@ qui {
 			
 		*** Create the columns with F-tests for this row	
 		
-			if `FEQTEST_USED' == 1 {
+			if `FEQTEST_USED' {
 			
 				* Run regression
 				reg `balancevar' i.`grpvar' `covariates' i.`fixedeffect' `weight_option', `error_estm'
@@ -1981,20 +1981,35 @@ qui {
 				}
 				
 				else {
-					*Format the output
-					local feqtest_output : display `diformat' `ffeqtest'
 				
-					*Add stars
-					foreach ftest_p_level in `p1star' `p2star' `p3star' {
+					*Create the F-test output
 					
-							if `pfeqtest' < `ftest_p_level' local feqtest_output "`feqtest_output'*"
+					*If p-test option is used, display p-value
+					if `PFTEST_USED' {
+						
+						local feqtest_output = `pfeqtest'
+					}
+					*Otherwise display differences
+					else {
+					
+						local feqtest_output = `ffeqtest'
+					}				
+					
+					
+					*Store f-value
+					local feqtest_output 	: display `diformat' `feqtest_output'
+					
+					*Adding stars
+					foreach feqtest_p_level in `p1star' `p2star' `p3star' {
+					
+							if `pfeqtest' < `feqtest_p_level' local feqtest_output `feqtest_output'*
 					}
 					
 					*Print row
 					local tableRowUp 	`" `tableRowUp' _tab "`feqtest_output'" "'
 					local tableRowDo 	`" `tableRowDo' _tab " " "'
 					
-					local texRow	`" `texRow' " & `feqtest_output'" "'
+					local texRow		`" `texRow' " & `feqtest_output'" "'
 				}
 			}
 						
@@ -2071,7 +2086,7 @@ qui {
 	/************************************************
 	************************************************/
 
-	if `FTEST_USED' == 1 {
+	if `FTEST_USED' {
 	
 		if `ONEROW_USED' == 0 {
 			local ftestMulticol = 1 + (2*`NUM_COL_GRP_TOT')
@@ -2081,7 +2096,7 @@ qui {
 		}
 
 	
-		if `PFTEST_USED' == 1 {
+		if `PFTEST_USED' {
 			local Fstat_row 	`" "F-test of joint significance (p-value)"  "'
 			local Fstat_texrow 	`" "\multicolumn{`ftestMulticol'}{@{} l}{F-test of joint significance (p-value)}"  "'
 		}
@@ -2234,7 +2249,7 @@ qui {
 				}				
 				
 				*If p-test option is used
-				if `PFTEST_USED' == 1 {
+				if `PFTEST_USED' {
 					
 					local ftest_output = `test_F_p'
 				}

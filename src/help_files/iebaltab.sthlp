@@ -80,7 +80,7 @@ will test for differences across the catagories in grpvar({it:varname}).
 {synopt :{cmdab:not:test}}Supresses the column for pairwise t-tests{p_end}
 {synopt :{cmdab:normd:iff}}Adds a column with pairwise normalized difference{p_end}
 {synopt :{cmdab:feqt:est}}Adds a column with F-test for joint orthogonality of each balance variable across all treatment arms{p_end}
-{synopt :{cmdab:pf:test}}Show p-values instead of F-statistics in the row for F-tests{p_end}
+{synopt :{cmdab:pf:test}}Show p-values instead of F-statistics for all F-tests{p_end}
 {synopt :{cmdab:pb:oth}}Identical to specifying both {cmd:pttest} and {cmd:pftest}{p_end}
 {synopt :{cmdab:star:levels(}{it:{help numlist:numlist}}{cmd:)}}Manually set the three significance levels used for significance stars{p_end}
 {synopt :{cmdab:starsno:add}}Do not add any stars to the table{p_end}
@@ -335,7 +335,7 @@ are excluded from F-tests. Also see {cmd:balmiss()} and {cmd:balmissreg()} for o
 {phang}{cmdab:feqt:est} adds a column with an F-test for joint orthogonality of each variable across all treatment arms. Please note that this F-test is different from the one performed by option {cmd:ftest},
 which adds a row indicating if all variables are jointly significant when each pair of treatment arms is compared.{p_end}
 
-{phang}{cmdab:pf:test} makes this command show p-values instead of F-statistics in the row for F-tests.{p_end}
+{phang}{cmdab:pf:test} makes this command show p-values instead of F-statistics in the row for F-tests created using option {cmd:ftest} and/or the columns for F-test created using option {cmd:feqtest}.{p_end}
 
 {phang}{cmdab:pb:oth} is identical to specifying both {cmd:pttest} and {cmd:pftest}.{p_end}
 
