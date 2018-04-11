@@ -70,7 +70,7 @@ will test for differences across the catagories in grpvar({it:varname}).
 
 {marker ftestoptions}{...}
 {pstd}{it:    F-test:}{p_end}
-{synopt :{cmdab:ft:est}}Include an F-test for joint significance{p_end}
+{synopt :{cmdab:ft:est}}Include a row with the F-test for joint significance of all balance variables{p_end}
 {synopt :{cmdab:fm:issok}}Suppress the error caused by missing values in F-test{p_end}
 {synopt :{cmd:fnoobs}}Do not display number of observations from the F-test regressions{p_end}
 
@@ -79,7 +79,7 @@ will test for differences across the catagories in grpvar({it:varname}).
 {synopt :{cmdab:pt:test}}Show p-values instead of difference-in-mean between the groups in the column for t-tests{p_end}
 {synopt :{cmdab:not:test}}Supresses the column for pairwise t-tests{p_end}
 {synopt :{cmdab:normd:iff}}Adds a column with pairwise normalized difference{p_end}
-{synopt :{cmdab:feqt:est}}Adds a column with F-test for joint orthogonality of treatment arms{p_end}
+{synopt :{cmdab:feqt:est}}Adds a column with F-test for joint orthogonality of each balance variable across all treatment arms{p_end}
 {synopt :{cmdab:pf:test}}Show p-values instead of F-statistics in the row for F-tests{p_end}
 {synopt :{cmdab:pb:oth}}Identical to specifying both {cmd:pttest} and {cmd:pftest}{p_end}
 {synopt :{cmdab:star:levels(}{it:{help numlist:numlist}}{cmd:)}}Manually set the three significance levels used for significance stars{p_end}
@@ -314,8 +314,8 @@ missing, but regular missing values will be replaced.{p_end}
 
 {pstd}{it:    F-test:}{p_end}
 
-{phang}{cmdab:ft:est} includes an F-test for joint significance across all balance variables. See the description section above for details on how the F-test estimation
-regressions are specified. All options specified in the {it:Statistics and data modification} section above, also applies to the F-tests.{p_end}
+{phang}{cmdab:ft:est} includes a row with an F-test for joint significance of all balance variables. See the description section above for details on how the F-test estimation
+regressions are specified. All options specified in the {it:Statistics and data modification} section above also apply to the F-tests.{p_end}
 
 {phang}{cmdab:fm:issok} suppress the error caused by missing values in any of the balance variables in the F-test. Stata always drops observations
 with missing values in at least one the variables used in a regression. This command throws an error if any observation has missing
@@ -332,7 +332,8 @@ are excluded from F-tests. Also see {cmd:balmiss()} and {cmd:balmissreg()} for o
 
 {phang}{cmdab:normd:iff} adds a column with pairwise normalized difference across treatment arms.{p_end}
 
-{phang}{cmdab:feqt:est} adds a column with F-test for joint orthogonality of treatment arms.{p_end}
+{phang}{cmdab:feqt:est} adds a column with an F-test for joint orthogonality of each variable across all treatment arms. Please note that this F-test is different from the one performed by option {cmd:ftest},
+which adds a row indicating if all variables are jointly significant when each pair of treatment arms is compared.{p_end}
 
 {phang}{cmdab:pf:test} makes this command show p-values instead of F-statistics in the row for F-tests.{p_end}
 
