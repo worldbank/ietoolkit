@@ -1268,26 +1268,13 @@ qui {
 				
 				if `TTEST_USED' {
 				
-					forvalues second_ttest_group = 1/`GRPVAR_NUM_GROUPS' {	
-						
-						*Include all groups apart from the control group itself
-						if `second_ttest_group' != `ctrlGrpPos' {
-						
-							*Adding title rows for the t-test. 
-							local titlerow1 `"`titlerow1' _tab "t-test""'
-							local titlerow3 `"`titlerow3' _tab "(`ctrlGrpPos')-(`second_ttest_group')""'
-							
-							if `PTTEST_USED' == 1 {
-								local titlerow2 `"`titlerow2' _tab "p-value""'
-							}
-							else {
-								local titlerow2 `"`titlerow2' _tab "Difference""'
-							}
-												
-							local texrow3  `" `texrow3'  & (`ctrlGrpPos')-(`second_ttest_group') "'
-								
-						}	
-					}
+					iettestheader 	`GRPVAR_NUM_GROUPS' `ctrlGrpPos' `PTTEST_USED' `" `titlerow1' "' `" `titlerow2' "' `" `titlerow3' "' `" `texrow3' "'
+
+					local titlerow1	`"`r(titlerow1)'"'
+					local titlerow2	`"`r(titlerow2)'"'
+					local titlerow3	`"`r(titlerow3)'"'
+					
+					local texrow3	`"`r(texrow3)'"'
 				}
 				
 				if `NORMDIFF_USED' {
@@ -2820,4 +2807,59 @@ program define iereplacemiss
 		
 		}
 
+end
+
+*This function creates the local with the line for t-test header when the value
+*displayed is the difference in means
+cap program drop iettestheader
+program define iettestheader, rclass
+	
+	args grpvar_num_groups ctrlGrpPos pvalue titlerow1 titlerow2 titlerow3 texrow3
+	
+	forvalues second_ttest_group = 1/`grpvar_num_groups' {	
+	
+		*Include all groups apart from the control group itself
+		if `second_ttest_group' != `ctrlGrpPos' {
+	noi di as error "`pvalue'"	
+			*Adding title rows for the t-test. 
+							local titlerow1 `"`titlerow1' _tab "t-test""'
+			if !`pvalue'	local titlerow2 `"`titlerow2' _tab "Difference""'
+			if  `pvalue'	local titlerow2 `"`titlerow2' _tab "p-value""'
+							local titlerow3 `"`titlerow3' _tab "(`ctrlGrpPos')-(`second_ttest_group')""'
+								
+			local texrow3  `" `texrow3'  & (`ctrlGrpPos')-(`second_ttest_group') "'
+				
+		}	
+	}
+	
+	return local titlerow1 	`"`titlerow1'"'
+	return local titlerow2 	`"`titlerow2'"'
+	return local titlerow3 	`"`titlerow3'"'
+	
+	return local texrow3	`"`texrow3'"'
+		
+end
+
+*This function creates the local with the line for t-test header when the value
+*displayed is the p-value
+cap program drop iepvalueheader
+program define iepvalueheader
+	
+	args grpvar_num_groups ctrlGrpPos titlerow1 titlerow2 titlerow3 texrow3
+	
+	forvalues second_ttest_group = 1/`grpvar_num_groups' {	
+
+		*Include all groups apart from the control group itself
+		if `second_ttest_group' != `ctrlGrpPos' {
+		
+			*Adding title rows for the t-test. 
+			local titlerow1 `"`titlerow1' _tab "t-test""'
+			local titlerow2 `"`titlerow2' _tab "p-value""'
+			local titlerow3 `"`titlerow3' _tab "(`ctrlGrpPos')-(`second_ttest_group')""'
+								
+			local texrow3  `" `texrow3'  & (`ctrlGrpPos')-(`second_ttest_group') "'
+				
+		}	
+	}
+	
 end
