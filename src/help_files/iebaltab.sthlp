@@ -79,6 +79,7 @@ will test for differences across the catagories in grpvar({it:varname}).
 {synopt :{cmdab:pt:test}}Show p-values instead of difference-in-mean between the groups in the column for t-tests{p_end}
 {synopt :{cmdab:pf:test}}Show p-values instead of F-statistics in the row for F-tests{p_end}
 {synopt :{cmdab:pb:oth}}Identical to specifying both {cmd:pttest} and {cmd:pftest}{p_end}
+{synopt :{cmdab:std:ev}}Displays standard deviations instead of standard errors{p_end}
 {synopt :{cmdab:star:levels(}{it:{help numlist:numlist}}{cmd:)}}Manually set the three significance levels used for significance stars{p_end}
 {synopt :{cmdab:starsno:add}}Do not add any stars to the table{p_end}
 {synopt :{cmdab:form:at(}{it:{help format:%fmt}}{cmd:)}}Apply Stata formats to the values outputted in the table{p_end}
@@ -328,6 +329,8 @@ are excluded from F-tests. Also see {cmd:balmiss()} and {cmd:balmissreg()} for o
 {phang}{cmdab:pf:test} makes this command show p-values instead of F-statistics in the row for F-tests.{p_end}
 
 {phang}{cmdab:pb:oth} is identical to specifying both {cmd:pttest} and {cmd:pftest}.{p_end}
+
+{phang}{cmdab:std:ev} displays standard deviations in parenthesis instead of standard errors.{p_end}
 
 {phang}{cmdab:star:levels(}{it:{help numlist:numlist}}{cmd:)} manually sets the three significance levels
 used for significance stars. Use decimals in descending order. The default is (.1 .05 .01) where .1 corresponds
