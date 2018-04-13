@@ -42,10 +42,10 @@
 																			///
 				/*Output display*/											///
 				NOTtest														///
+				NORMDiff													///
 				PTtest														///
 				PFtest														///
 				FEQTest														///
-				NORMDiff													///
 				PBoth														///
 				STDev														///
 				STARlevels(numlist descending min=3 max=3 >0 <1)			///
@@ -230,7 +230,7 @@ qui {
 		if "`weight'" 			== "" local WEIGHT_USED = 0 
 		if "`weight'" 			!= "" local WEIGHT_USED = 1 
 		
-		*Is option feqtest() used:
+		*Is option feqtest() user:
 		if "`feqtest'" 			== "" local FEQTEST_USED = 0 
 		if "`feqtest'" 			!= "" local FEQTEST_USED = 1 
 		
@@ -1259,87 +1259,25 @@ qui {
 		
 		if `TTEST_USED' | `NORMDIFF_USED' {
 		
-			local ttest_pairs ""
-		
 			if `CONTROL_USED' {
-			
-				*Get the order of the control group
-				local ctrlGrpPos : list posof "`control'" in ORDER_OF_GROUPS
-			
-				*The t-tests will only be between control and each of the other groups
-				forvalues second_ttest_group = 1/`GRPVAR_NUM_GROUPS' {	
-					
-					*Include all groups apart from the control group itself
-					if `second_ttest_group' != `ctrlGrpPos' {
-					
-						if `TTEST_USED' {
-							*Adding title rows for the t-test. 
-							local titlerow1 `"`titlerow1' _tab "t-test""'
-							local titlerow2 `"`titlerow2' _tab "(`ctrlGrpPos')-(`second_ttest_group')""'
-							
-							if `PTTEST_USED' == 1 {
-								local titlerow3 `"`titlerow3' _tab "p-value""'
-							}
-							else {
-								local titlerow3 `"`titlerow3' _tab "Difference""'
-							}
-							local texrow3  `" `texrow3'  & (`ctrlGrpPos')-(`second_ttest_group') "'
-						}
-						if `NORMDIFF_USED' {
-							*Adding title rows for the t-test. 
-							local titlerow1 `"`titlerow1' _tab "Normalized""'
-							local titlerow2 `"`titlerow2' _tab "difference""'
-							local titlerow3 `"`titlerow3' _tab "(`ctrlGrpPos')-(`second_ttest_group')""'
-							
-							local texrow3  `" `texrow3'  & (`ctrlGrpPos')-(`second_ttest_group') "'
-						}
-						
-						*Storing a local of all the test pairs
-						local ttest_pairs "`ttest_pairs' `ctrlGrpPos'_`second_ttest_group'"
-					}
-				}		
+		
+				iecontrolheader 	"`control'" "`ORDER_OF_GROUPS'" "`GRPVAR_NUM_GROUPS'" ///
+									`TTEST_USED' `PTTEST_USED' `NORMDIFF_USED' ///
+									`" `titlerow1' "' `" `titlerow2' "' `" `titlerow3' "' `" `texrow3' "'
 			}
 			else {
-				
-				*The t-tests will be all cominations of groups
-				forvalues first_ttest_group = 1/`GRPVAR_NUM_GROUPS' {
+			
+				ienocontrolheader	 "`GRPVAR_NUM_GROUPS'" ///
+									`TTEST_USED' `PTTEST_USED' `NORMDIFF_USED' ///
+									`" `titlerow1' "' `" `titlerow2' "' `" `titlerow3' "' `" `texrow3' "'
 					
-					** To guarantee that all combination of groups are included 
-					*  but no duplicates are possible, start next loop one integer
-					*  higher than the first group
-					local nextPossGroup = `first_ttest_group' + 1
-					
-					forvalues second_ttest_group = `nextPossGroup'/`GRPVAR_NUM_GROUPS' {
-						
-						if `TTEST_USED' {
-							*Adding title rows for the t-test.
-							local titlerow1  `"`titlerow1' _tab "t-test""'
-							local titlerow2  `"`titlerow2' _tab "(`first_ttest_group')-(`second_ttest_group')""'
-						
-							if `PTTEST_USED' == 1 {
-								local titlerow3 `"`titlerow3' _tab "p-value""'
-							}
-							else {
-								local titlerow3 `"`titlerow3' _tab "Difference""'
-							}
-							
-							local texrow3  `" `texrow3' & (`first_ttest_group')-(`second_ttest_group') "'
-						}
-						if `NORMDIFF_USED' {
-							*Adding title rows for the t-test. 
-							local titlerow1 `"`titlerow1' _tab "Normalized""'
-							local titlerow2 `"`titlerow2' _tab "difference""'
-							local titlerow3 `"`titlerow3' _tab "(`first_ttest_group') - (`second_ttest_group')""'
-							
-							local texrow3  `" `texrow3'  & (`first_ttest_group')-(`second_ttest_group') "'
-						}
-						
-						*Storing a local of all the test pairs
-						local ttest_pairs "`ttest_pairs' `first_ttest_group'_`second_ttest_group'"
-
-					}
-				}
 			}
+			
+			local titlerow1		`"`r(titlerow1)'"'
+			local titlerow2		`"`r(titlerow2)'"'
+			local titlerow3		`"`r(titlerow3)'"'	
+			local texrow3		`"`r(texrow3)'"'
+			local ttest_pairs	`"`r(ttest_pairs)'"'
 			
 			
 			local testPairCount : list sizeof ttest_pairs
@@ -1356,6 +1294,7 @@ qui {
 						local texrow2 `"`texrow2' & \multicolumn{`testPairCount'}{c}{Difference} "'
 					}
 				}
+				
 				if `NORMDIFF_USED' {
 					local texrow1 	`"`texrow1' & \multicolumn{`testPairCount'}{c}{Normalized} "'
 					local texrow2 	`"`texrow2' & \multicolumn{`testPairCount'}{c}{difference} "'
@@ -2805,5 +2744,141 @@ program define iereplacemiss
 			}
 		
 		}
+
+end
+
+
+cap program drop iecontrolheader
+program define iecontrolheader, rclass
+
+	args control ORDER_OF_GROUPS GRPVAR_NUM_GROUPS TTEST_USED PTTEST_USED NORMDIFF_USED titlerow1 titlerow2 titlerow3 texrow3 
+	
+	local ttest_pairs ""
+
+	*The t-tests will only be between control and each of the other groups
+	*Get the order of the control group
+	local ctrlGrpPos : list posof "`control'" in ORDER_OF_GROUPS
+				
+	*Storing a local of all the test pairs
+	forvalues second_ttest_group = 1/`GRPVAR_NUM_GROUPS' {	
+		if `second_ttest_group' != `ctrlGrpPos' {
+			local ttest_pairs "`ttest_pairs' `ctrlGrpPos'_`second_ttest_group'"
+		}
+	}
+	
+	if `TTEST_USED' {
+				
+		forvalues second_ttest_group = 1/`GRPVAR_NUM_GROUPS' {	
+			
+			*Include all groups apart from the control group itself
+			if `second_ttest_group' != `ctrlGrpPos' {
+			
+				*Adding title rows for the t-test. 
+									local titlerow1 `"`titlerow1' _tab "t-test""'
+				if `PTTEST_USED' 	local titlerow2 `"`titlerow2' _tab "p-value""'
+				else 				local titlerow2 `"`titlerow2' _tab "Difference""'
+									local titlerow3 `"`titlerow3' _tab "(`ctrlGrpPos')-(`second_ttest_group')""'
+									
+									local texrow3  `" `texrow3'  & (`ctrlGrpPos')-(`second_ttest_group') "'
+					
+			}	
+		}
+	}
+				
+	if `NORMDIFF_USED' {
+	
+		forvalues second_ttest_group = 1/`GRPVAR_NUM_GROUPS' {	
+			
+			*Include all groups apart from the control group itself
+			if `second_ttest_group' != `ctrlGrpPos' {
+			
+				local titlerow1 `"`titlerow1' _tab "Normalized""'
+				local titlerow2 `"`titlerow2' _tab "difference""'
+				local titlerow3 `"`titlerow3' _tab "(`ctrlGrpPos')-(`second_ttest_group')""'
+				
+				local texrow3  `" `texrow3'  & (`ctrlGrpPos')-(`second_ttest_group') "'								
+			}	
+		}
+	}
+	
+	return local titlerow1 		`"`titlerow1'"'
+	return local titlerow2 		`"`titlerow2'"'
+	return local titlerow3 		`"`titlerow3'"'
+	
+	return local texrow3		`"`texrow3'"'
+	
+	return local ttest_pairs	`"`ttest_pairs'"' 
+
+end
+
+cap program drop ienocontrolheader
+program define ienocontrolheader, rclass
+
+	args GRPVAR_NUM_GROUPS TTEST_USED PTTEST_USED NORMDIFF_USED titlerow1 titlerow2 titlerow3 texrow3
+	
+	local ttest_pairs ""
+
+	*The t-tests will be all cominations of groups
+	forvalues first_ttest_group = 1/`GRPVAR_NUM_GROUPS' {
+	
+		** To guarantee that all combination of groups are included 
+		*  but no duplicates are possible, start next loop one integer
+		*  higher than the first group
+		local nextPossGroup = `first_ttest_group' + 1
+
+		*Storing a local of all the test pairs
+		forvalues second_ttest_group = `nextPossGroup'/`GRPVAR_NUM_GROUPS' {
+			local ttest_pairs "`ttest_pairs' `first_ttest_group'_`second_ttest_group'"
+		}
+	}
+		
+	*Adding title rows for the t-test.
+	if `TTEST_USED' {
+		forvalues first_ttest_group = 1/`GRPVAR_NUM_GROUPS' {
+			
+			** To guarantee that all combination of groups are included 
+			*  but no duplicates are possible, start next loop one integer
+			*  higher than the first group
+			local nextPossGroup = `first_ttest_group' + 1
+			
+			forvalues second_ttest_group = `nextPossGroup'/`GRPVAR_NUM_GROUPS' {
+				
+									local titlerow1 `"`titlerow1' _tab "t-test""'
+				if `PTTEST_USED' 	local titlerow2 `"`titlerow2' _tab "p-value""'
+				else 				local titlerow2 `"`titlerow2' _tab "Difference""'
+									local titlerow3  `"`titlerow3' _tab "(`first_ttest_group')-(`second_ttest_group')""'
+				
+									local texrow3  `" `texrow3' & (`first_ttest_group')-(`second_ttest_group') "'
+			}
+		}
+	}
+		
+	*Adding title rows for the normalized differences.
+	if `NORMDIFF_USED' {
+		forvalues first_ttest_group = 1/`GRPVAR_NUM_GROUPS' {
+		
+			** To guarantee that all combination of groups are included 
+			*  but no duplicates are possible, start next loop one integer
+			*  higher than the first group
+			local nextPossGroup = `first_ttest_group' + 1
+		
+			forvalues second_ttest_group = `nextPossGroup'/`GRPVAR_NUM_GROUPS' {
+				
+				local titlerow1 `"`titlerow1' _tab "Normalized""'
+				local titlerow2 `"`titlerow2' _tab "difference""'
+				local titlerow3 `"`titlerow3' _tab "(`first_ttest_group')-(`second_ttest_group')""'
+				
+				local texrow3  `" `texrow3'  & (`first_ttest_group')-(`second_ttest_group') "'
+			}
+		}
+	}
+	
+	return local titlerow1 		`"`titlerow1'"'
+	return local titlerow2 		`"`titlerow2'"'
+	return local titlerow3 		`"`titlerow3'"'
+	
+	return local texrow3		`"`texrow3'"'
+	
+	return local ttest_pairs	`"`ttest_pairs'"' 
 
 end
