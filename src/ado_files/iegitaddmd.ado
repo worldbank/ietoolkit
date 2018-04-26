@@ -1,4 +1,4 @@
-*! version 5.4 15DEC2017  DIME Analytics lcardosodeandrad@worldbank.org
+*! version 5.5 26APR2018 DIME Analytics lcardosodeandrad@worldbank.org
 
 cap program drop   iegitaddmd
 	program define iegitaddmd
@@ -46,13 +46,13 @@ cap program drop   writeGitKeep
 	program define writeGitKeep
 
 		args folder
-		
+
 		* Do not create a README.md file if one already exist. This issue could
 		* happen if the option [all] is used on a repository that already has at
 		* least one README.md file
 		cap confirm file `"`folder'/README.md"'
 		if _rc {
-		
+
 			*Create file
 			tempname 	newHandle
 			cap file close 	`newHandle'
@@ -74,7 +74,7 @@ cap program drop   writeGitKeep
 
 			*Closing the file
 			file close 		`newHandle'
-			
+
 		}
 
 end

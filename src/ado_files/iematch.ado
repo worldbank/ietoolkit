@@ -1,8 +1,8 @@
-*! version 5.4 15DEC2017  DIME Analytics lcardosodeandrad@worldbank.org
+*! version 5.5 26APR2018 DIME Analytics lcardosodeandrad@worldbank.org
 
 	cap program drop 	iematch
 	    program define	iematch
-				
+
 		syntax  [if] [in]  , 					///
 			GRPdummy(varname) 					///
 			MATCHvar(varname) 					///
@@ -22,51 +22,51 @@
 		*****
 
 	qui {
-		
+
 		* Set version
 		version 11.0
-		
+
 		********************************
 		*
 		*	Gen temp sort and merge var
 		*
 		********************************
-		
+
 		tempvar originalSort ifinvar
-		
-		**Generate a variable that is used 
+
+		**Generate a variable that is used
 		* to restore original sort.
 		gen `originalSort' = _n
 
 		preserve
-			
-			* String used to store why and how 
+
+			* String used to store why and how
 			*  many observations are excluded.
 			local obsexcludstring ""
-			
+
 			*Dummy local that is 1 if replace is used
 			if "`replace'" == "" local REPLACE_USED 0
 			if "`replace'" != "" local REPLACE_USED 1
-			
-			*Deal with if and in and display info. 
+
+			*Deal with if and in and display info.
 			if "`if'`in'" != "" {
-				
+
 				* Gen dummy that is 1 when if/in is true. Then
-				* count when this dummy is not 1. Ther is no way 
+				* count when this dummy is not 1. Ther is no way
 				* to negate `if'`in'
 				gen 	 `ifinvar'  = 1 `if'`in'
 				count if `ifinvar' != 1
 				if `r(N)' > 0 {
-					
+
 					*This is not an error just outputting the number
 					local obsexcludstring "`obsexcludstring'`r(N)' observation(s) were excluded in {inp:if}/{inp:in}: (`if'`in').{break}"
-					
+
 				}
-				
+
 				*Drop variables excluded by `if'`in'
 				keep `if'`in'
 			}
-			
+
 		********************************
 		*
 		*	Checking ID var (and create if needed)
@@ -82,14 +82,14 @@
 				*Make sure that the default name _ID is not already used
 				cap confirm variable `idvar'
 				if _rc == 0 {
-					
+
 					*Test if option replace is used
 					if `REPLACE_USED' == 1 {
 						*Replace option is used, drop the variable with the name specified
 						drop `idvar'
 					}
 					else {
-						*Replace is not used, throw an error. 
+						*Replace is not used, throw an error.
 						di as error "{pstd}A variable with name `idvar' is already defined. Either drop this variable manually, use the replace option or specify a variable using idvar() that fully and uniquely identifies the data set.{p_end}"
 						error 110
 					}
@@ -98,8 +98,8 @@
 				*Generate the ID var from row number
 				gen `idvar' = _n
 			}
-			
-			*Make sure that idvar is uniquelly and fully identifying 
+
+			*Make sure that idvar is uniquelly and fully identifying
 			cap isid `idvar'
 			if _rc != 0 {
 
@@ -107,20 +107,20 @@
 				error 450
 			}
 
-			*local indicating assume ID is string 
-			local IDtypeNumeric 0	
-			
+			*local indicating assume ID is string
+			local IDtypeNumeric 0
+
 			*Change local to 1 if ID actally string
 			cap confirm numeric variable `idvar'
 			if _rc == 0 local IDtypeNumeric 1
 
-			
+
 		********************************
 		*
 		*	Checking duplicates in variable names in options
 		*
 		********************************
-			
+
 			*Create a local of all varnames used in any option
 			local allnewvars `idvar' `matchidname' `matchdiffname' `matchresultname' `matchcountname'
 
@@ -133,31 +133,31 @@
 
 				noi di as error "{pstd}The variable name(s) [`dupnewvars'] was used twice or more in the options that manually name the outcome varaibles. Go back and make sure that no name is used more than once.{p_end}"
 				error 198
-			}			
+			}
 
 		********************************
 		*
 		*	Test the names used for output vars
 		*
 		********************************
-			
-			iematchMatchVarCheck 	_matchResult 	`REPLACE_USED' "`matchresultname'" 
+
+			iematchMatchVarCheck 	_matchResult 	`REPLACE_USED' "`matchresultname'"
 			local matchResultName 	"`r(validVarName)'"
-			
+
 			iematchMatchVarCheck 	_matchID 		`REPLACE_USED' "`matchidname'"
 			local matchIDname 		"`r(validVarName)'"
-			
+
 			iematchMatchVarCheck 	_matchDiff 		`REPLACE_USED' "`matchdiffname'"
 			local matchDiffName 	"`r(validVarName)'"
-			
+
 			if "`m1'" != "" {
 			   iematchMatchVarCheck _matchCount 	`REPLACE_USED' "`matchcountname'"
 			   local matchCountName "`r(validVarName)'"
 			}
-			
+
 			*List of output vars used to delete vars that should be replaced by new output vars, used after restore
 			local outputNames `matchResultName' `matchIDname' `matchDiffName' `matchCountName'
-			
+
 			*Option matchcountname() is not allowed if it is not a many-one match
 			if "`matchcountname'" != "" & "`m1'" == "" {
 				di as error "{pstd}Option {inp:matchcountname()} is only allowed in combination with option {inp:m1}.{p_end}"
@@ -169,43 +169,43 @@
 		*	Create and label output vars
 		*
 		********************************
-			
+
 			* MATCH RESULT VAR
 			label define 	 matchLabel 0 "Not Matched" 1 "Matched" .i "Obs excluded due to if/in" 			///
 										.g "Missing value in `grpdummy'" .m "Missing value in `matchvar'" 	///
 										.d "No match within maxdiff" .t "No more eligible target obs", replace
-			
+
 			gen 			`matchResultName' = .
 			label variable	`matchResultName' "Matched obs = 1, not mathched = 0, all other different missing values"
 			label value 	`matchResultName' matchLabel
-			
+
 			* MATCH ID VAR
 			if `IDtypeNumeric' == 1 gen  `matchIDname' = .	//Main ID var is numeric
 			if `IDtypeNumeric' == 0 gen  `matchIDname' = "" //Main ID var is string
 
 			if "`m1'" != "" label variable	`matchIDname' "The ID of the target var in each matched group"	//If many to one
-			if "`m1'" == "" label variable	`matchIDname' "The ID of the target var in each matched pair"	//If one to one			
-			
+			if "`m1'" == "" label variable	`matchIDname' "The ID of the target var in each matched pair"	//If one to one
+
 			* MATCH DIFF VAR
 			gen 	`matchDiffName' = .
 			if "`m1'" != "" label variable	`matchDiffName' "The difference in matchvar() between base obs and the target obs it matched with" 	//If many to one
 			if "`m1'" == "" label variable	`matchDiffName' "The difference in matchvar() between base and target obs in each pair" 			//If one to one
-			
+
 			*Match count, only many-one
 			if "`m1'" != "" {
 				gen 			`matchCountName' = .
 				label variable	`matchCountName' "The number of base obs this target obs matched with"
 			}
-		
+
 		********************************
 		*
 		*	Keep only relevant vars
 		*
 		********************************
-			
+
 			*Keep only input vars and output vars
 			keep  `grpdummy' `idvar' `matchvar'	`originalSort' `matchResultName' `matchIDname' `matchDiffName' `matchCountName'
-			
+
 		********************************
 		*
 		*	Checking group dummy
@@ -219,18 +219,18 @@
 				di as error "{pstd}The variable in grpdummy(`grpdummy') is not a dummy variable. The variable is only allowed to have the values 1, 0 or missing. Observations with missing varaibles in the grpdummy are ignored by this command.{p_end}"
 				error _rc
 			}
-			
+
 			**********
 			**Exclude obs with missing value in groupdummy
 
 			*Count number of obs to be dropped and and output that number if more than zero
 			count if missing(`grpdummy')
 			if `r(N)' > 0 {
-			
+
 				*Prepare the local to be outputted with info on observations excluded
 				local obsexcludstring  "`obsexcludstring'`r(N)' observation(s) were excluded due to missing value in  grpdummy(`grpdummy').{break}"
 			}
-			
+
 			*Drop obs with missing value in groupvar
 			drop if missing(`grpdummy')
 
@@ -249,33 +249,33 @@
 				error 109
 			}
 
-			**All variables with value 1 or 0 in the group dummy and 
-			* not excluded by if/in must have a value in matchvar 
+			**All variables with value 1 or 0 in the group dummy and
+			* not excluded by if/in must have a value in matchvar
 			count if missing(`matchvar')
 			if `r(N)' > 0 {
-				
+
 				*Prepare the local to be outputted with info on observations excluded
-				local obsexcludstring  "`obsexcludstring'`r(N)' observation(s) were excluded due to missing value in matchvar(`matchvar').{break}"	
+				local obsexcludstring  "`obsexcludstring'`r(N)' observation(s) were excluded due to missing value in matchvar(`matchvar').{break}"
 			}
-			
+
 			*Drop obs with missing values in match var
 			drop if missing(`matchvar')
-		
-			
+
+
 		********************************
 		*
 		*	Checking match var and group dummy are unique
 		*
-		********************************			
-			
+		********************************
+
 			if "`seedok'" == "" {
-				
-				**test that there are no duplicates in match 
+
+				**test that there are no duplicates in match
 				* var within each type of observation
 				cap isid `matchvar' `grpdummy'
-				
+
 				if _rc != 0 {
-					
+
 					*Output the error message
 					noi di as error "{pstd}There are base observations or target observations {...}"
 					noi di as error "with duplicate values in matchvar(`matchvar'). To guarantee {...}"
@@ -283,62 +283,62 @@
 					noi di as error "this error message after you have set a the seed, or if a {...}"
 					noi di as error "replicable match is not important to you, use option {inp:seedok}{p_end}"
 					error 198
-				
+
 				}
 			}
-			
+
 
 		********************************
 		*
-		*	Checking that there are more target 
+		*	Checking that there are more target
 		*	obs than base obs in a 1-to-1 match
 		*
-		********************************			
-			
+		********************************
+
 			if "`m1'" == "" {
-				
+
 				*Count number of base vars
 				count if `grpdummy' == 1
 				local numBaseObs `r(N)'
-				
+
 				*Count number of target vars
 				count if `grpdummy' == 0
 				local numTrgtObs `r(N)'
-				
+
 				*Test that there are more target
-				cap assert `numTrgtObs' >= `numBaseObs' 
-				
+				cap assert `numTrgtObs' >= `numBaseObs'
+
 				if _rc != 0 {
-					
+
 					noi di as error "{pstd}There are more base observations than target observations. This is not allowed in a one-to-one match. See option {inp:m1} for an alternative matching where it is allowed to have more base observations than target ovbservations.{p_end}"
 					error _rc
 				}
-			}	
-			
+			}
+
 		********************************
 		*
-		*	Checking that matchCount is only used with  
+		*	Checking that matchCount is only used with
 		*	many-to-one matching
 		*
-		********************************		
-		
+		********************************
+
 		if "`m1'" == "" & "`maxmatch'" != "" {
-			
+
 			noi di as error "{pstd}The option {inp:maxmatch()} can only be used when option {inp:m1} is used, as restricting to a maximum number of matches is only applicable in a many-to-one match.{p_end}"
 			error 198
 		}
-		
+
 		********************************
 		*
 		*	Output exclude string
 		*
-		********************************				
-			
-			*The exclude string is created above but only displayed 
-			*after all testing of input is done. 
-			
+		********************************
+
+			*The exclude string is created above but only displayed
+			*after all testing of input is done.
+
 			if "`obsexcludstring'" != "" {
-				
+
 				noi di ""
 				noi di "{hline}"
 				noi di ""
@@ -350,8 +350,8 @@
 	********************************
 	*	Start matching
 	********************************
-		
-		
+
+
 		********************************
 		*
 		*	Creating tempvar used in matching
@@ -373,10 +373,10 @@
 			gen  `prefID' 			= ""
 			gen  `maxmatchprefid' 	= ""
 		}
-		
-		*Gen a variable that indicates for target vars if the max match is reached 
-		gen `matchcount' 	= . 
-		
+
+		*Gen a variable that indicates for target vars if the max match is reached
+		gen `matchcount' 	= .
+
 
 		** Generate the inverse of the matchvar to sort descending (gsort is too slow),
 		*  a random var to seperate two values with the same match var, and the inverse
@@ -393,28 +393,28 @@
 		*Tempvars for matching
 
 		*Diffvars, they are always numeric
-		tempvar					 diffup   diffdo   valUp_0   valDo_0   valUp_1   valDo_1   
+		tempvar					 diffup   diffdo   valUp_0   valDo_0   valUp_1   valDo_1
 		local 	 updownTempVars `diffup' `diffdo' `valUp_0' `valDo_0' `valUp_1' `valDo_1'
 
 		foreach tempVar of local updownTempVars {
 
 			gen `tempVar' = .
 		}
-		
+
 		*ID vars, allowed to be both numeric and string
 		tempvar					  	IDup   IDdo   IDup_0   IDdo_0   IDup_1   IDdo_1
 		local 	 updownIDTempVars  `IDup' `IDdo' `IDup_0' `IDdo_0' `IDup_1' `IDdo_1'
 
 		foreach tempVar of local updownIDTempVars {
-			
+
 			*Allow the ID var used to be string
 			if `IDtypeNumeric' == 1 {
 				gen  `tempVar' = .
 			}
 			else {
 				gen  `tempVar' = ""
-			}					
-		}			
+			}
+		}
 
 		***************************
 		*
@@ -428,28 +428,28 @@
 			noi di ""
 			noi di "{hline}{break}"
 			noi di "{pstd}{ul:Matching one-to-one. Base observations left to match:}{p_end}"
-			
+
 			*Create local to display "obs left to match" and to use in while loop
 			count if `grpdummy' == 1 & `matched' == 0
 			local left2Match = `r(N)'
 			noi di "{pstd}`left2Match' " _c
-			
+
 			*Match until no more observations to match.
 			while (`left2Match' > 0) {
-				
+
 				**For all observations still to be matched, assign the preferred
 				* match among the other unmatched observations
 				qui updatePrefDiffPreffID `prefID' `prefDiff' `matchvar' `invsort' `idvar' `grpdummy' `matched' `rand' `invrand' `updownTempVars' `updownIDTempVars'
-				
+
 				*Restrict matches to within maxdiff() if that option is used.
 				if "`maxdiff'" != "" {
-					
+
 					*Omit base observation from matching if diff is to big
 					replace `matched' 			= 1		if `prefDiff' > `maxdiff' & `grpdummy' == 1
-					
+
 					*Indicate in result var that this obs did not have valid match within maxdiff()
 					replace `matchResultName' 	= .d 	if `prefDiff' > `maxdiff' & `grpdummy' == 1
-					
+
 					*Removed preferred match
 					if `IDtypeNumeric' == 1 {
 						*IDvar is numeric
@@ -458,9 +458,9 @@
 					else {
 						*IDvar is string
 						replace `prefID'		= ""	if `prefDiff' > `maxdiff'
-					}	
+					}
 				}
-				
+
 				*If two observations mutually prefer each other, then indicate both of them as matched.
 				replace `matched' = 1 if `matched' == 0 & `prefID' == `idvar'[_n-1] & `prefID'[_n-1] == `idvar'
 				replace `matched' = 1 if `matched' == 0 & `prefID' == `idvar'[_n+1] & `prefID'[_n+1] == `idvar'
@@ -471,7 +471,7 @@
 				noi di "`left2Match' " _c
 
 			}
-			
+
 			*End formatting for the "base obs left to match"
 			noi di "{p_end}" _c
 		}
@@ -485,18 +485,18 @@
 			*Start outputting the countdown
 			noi di ""
 			noi di "{hline}{break}"
-			noi di "{pstd}{ul:Matching many-to-one.}{p_end}"	
-		
+			noi di "{pstd}{ul:Matching many-to-one.}{p_end}"
+
 			**For all observations to be matched, assign the preferred
 			* match among the other unmatched observations
 			updatePrefDiffPreffID `prefID' `prefDiff' `matchvar' `invsort' `idvar' `grpdummy' `matched' `rand' `invrand' `updownTempVars' `updownIDTempVars'
 
 			*Restrict matches to within maxdiff() if that option is used.
 			if "`maxdiff'" != "" {
-				
+
 				*Indicate in result var that this obs did not have valid match within maxdiff()
 				replace `matchResultName' 	= .d 	if `prefDiff' > `maxdiff' & `grpdummy' == 1
-				
+
 				*Removed preferred match
 				if `IDtypeNumeric' == 1 {
 					*IDvar is numeric
@@ -505,34 +505,34 @@
 				else {
 					*IDvar is string
 					replace `prefID'		= ""	if `prefDiff' > `maxdiff'
-				}	
+				}
 			}
-			
+
 			*Assign it's own ID as pref ID for all target vars
 			replace `prefID'			=  `idvar' if `grpdummy' == 0
-				
-			* Replace the _matchCount var with number of base observations in each 
-			* match group. Each group is all base observation plus the target 
+
+			* Replace the _matchCount var with number of base observations in each
+			* match group. Each group is all base observation plus the target
 			* observation, therefore (_N - 1)
 			bys 	`prefID' 			:   replace `matchCountName' = _N - 1 if !missing(`prefID')
-			
-			**Replace prefID to missing for target obs that had no base 
+
+			**Replace prefID to missing for target obs that had no base
 			* obs matched to it. T
-			if `IDtypeNumeric' == 1 { 
+			if `IDtypeNumeric' == 1 {
 				*IDvar is numeric
 				replace `prefID'		= .		if `matchCountName' == 0
 			}
 			else {
 				*IDvar is string
 				replace `prefID'		= ""	if `matchCountName' == 0
-			}					
-			
+			}
+
 			*Only target obs with base obs prefering it are matched
 			replace	 `matched' 			= 1		if `matchCountName' != 0
-		
+
 			*Remove values for target obs that were not matched
 			replace  `matchCountName'	= . 	if `matchCountName' == 0
-			
+
 		}
 		***************************
 		*
@@ -540,36 +540,36 @@
 		*
 		***************************
 		else {
-			
+
 			noi di "max count"
 			*pause
-			
+
 			*Start outputting the countdown
 			noi di ""
 			noi di "{hline}{break}"
-			noi di "{pstd}{ul:Matching many-to-one. Base observations left to match:}{p_end}"	
-			
+			noi di "{pstd}{ul:Matching many-to-one. Base observations left to match:}{p_end}"
+
 			*Create local to display "obs left to match" and to use in while loop
 			count if `grpdummy' == 1 & `matched' == 0
 			local left2Match = `r(N)'
 			noi di "{pstd}`left2Match' " _c
-			
+
 			*Match until no more observations to match.
 			while (`left2Match' > 0) {
-			
+
 				**For all observations to be matched, assign the preferred
 				* match among the other unmatched observations
 				updatePrefDiffPreffID `prefID' `prefDiff' `matchvar' `invsort' `idvar' `grpdummy' `matched' `rand' `invrand' `updownTempVars' `updownIDTempVars'
 
 				*Restrict matches to within maxdiff() if that option is used.
 				if "`maxdiff'" != "" {
-					
+
 					*Omit base observation from matching if diff is to big
 					replace `matched' 			= 1		if `prefDiff' > `maxdiff' & `grpdummy' == 1
-					
+
 					*Indicate in result var that this obs did not have valid match within maxdiff()
 					replace `matchResultName' 	= .d 	if `prefDiff' > `maxdiff' & `grpdummy' == 1
-					
+
 					*Removed preferred match
 					if `IDtypeNumeric' == 1 {
 						*IDvar is numeric
@@ -578,62 +578,62 @@
 					else {
 						*IDvar is string
 						replace `prefID'		= ""	if `prefDiff' > `maxdiff'
-					}	
+					}
 				}
-				
+
 				*If a base observation is mutually preferred by a target observation
 				replace `matched' = 1 if `grpdummy' == 1 & `matched' == 0 & `prefID' == `idvar'[_n-1] & `prefID'[_n-1] == `idvar'
 				replace `matched' = 1 if `grpdummy' == 1 & `matched' == 0 & `prefID' == `idvar'[_n+1] & `prefID'[_n+1] == `idvar'
-				
+
 				*Set maxmatchprefid to the matched id for matched base obs, and its own id for target obs
-				replace `maxmatchprefid' = `prefID' if `grpdummy' == 1 & `matched' == 1 
+				replace `maxmatchprefid' = `prefID' if `grpdummy' == 1 & `matched' == 1
 				replace `maxmatchprefid' = `idvar'  if `grpdummy' == 0
-				
-				*By the maxmatchprefid, count how many base observations (all obs 
+
+				*By the maxmatchprefid, count how many base observations (all obs
 				* minus target) that are matched to this target obs
 				bys 	`maxmatchprefid' : replace `matchcount' = _N - 1 if  `matchResultName' 	!= .d
-				
+
 				*Set the target obs as matched if the max match count is reached (matching one at the time so no risk of overstepping)
 				replace `matched' 	= 1  if `grpdummy' == 0 & `matchcount' == (`maxmatch') & `matchResultName' != .d
-				
+
 				*Update local to display "obs left to match" and to use in while loop
 				count if `grpdummy' == 1 & `matched' == 0
 				local left2Match = `r(N)'
 				noi di "`left2Match' " _c
-				
+
 				*Test that there are still target obs left to match against
 				count if `grpdummy' == 0 & `matched' == 0
 				if `r(N)' == 0 {
-					
+
 					*set left to match to -1 to exit while loop and to output message after loop
 					local left2Match = -1
-					
+
 					*Set all unmatched base obs to .t (no more eligible target obs)
 					replace `matchResultName' 	= .t 	if `grpdummy' == 1 & `matched' == 0
 				}
-				
+
 			}
-			
+
 			*End the outputted count down on how many observations left to match
-			noi di "{p_end}" _c	
-			
+			noi di "{p_end}" _c
+
 			*If ran out of target out put that
 			if `left2Match' == -1 {
-				
+
 				noi di ""
 				noi di ""
 				noi di "{pstd}No more target obs to match{p_end}"
 			}
-			
+
 			*Set all target obs with at least 1 matched base obs as matched
 			replace `matched' 	= 1 if `grpdummy' == 0 & `matchcount' >= 1 & `matchResultName' != .d
-			
+
 			*Remove match diff for target obs (does not make sense with mutliple obs)
-			replace `prefDiff' 	= . if `grpdummy' == 0 
-			
+			replace `prefDiff' 	= . if `grpdummy' == 0
+
 			*Set the match count output var to the number of matched base obs
 			replace `matchCountName' = `matchcount' if  `matched' 	== 1 & `matchResultName' != .d
-			
+
 		}
 
 		*Update all return vars
@@ -643,10 +643,10 @@
 
 		*Remove the best match value in obs that did not have a match within maxdiff()
 		replace `matchDiffName'  = . 				if `matchResultName' == .d
-		
+
 		*Matched observations are give value 1 in result var
 		replace `matchResultName' = 1 				if `matched' == 1 & `matchResultName' != .d
-		
+
 		*Target obs not used
 		replace `matchResultName' = 0 if `matched' == 0 & `grpdummy' == 0
 
@@ -661,44 +661,44 @@
 
 	***************************
 	*
-	*	Merge match results to 
+	*	Merge match results to
 	*	original data and assign
 	*	remaining missing values
 	*	to the result var
 	*
-	***************************		
-	
+	***************************
+
 	**Drop any vars with same name as the output vars. The command has already
 	* tested that replace was used if variable already exists. If variable does
 	* not exist nothing is done
 	foreach outputVar of local outputNames {
 
-		*Drop vars with same name as output vars. 
+		*Drop vars with same name as output vars.
 		cap drop `outputVar'
 	}
 
 	*Merge the results with the original data
-	tempvar mergevar 
-	merge 1:1  `originalSort' using `mergefile', gen(`mergevar')	
-	
-	*remaining missing values are listed in ascending order of importance. 
+	tempvar mergevar
+	merge 1:1  `originalSort' using `mergefile', gen(`mergevar')
+
+	*remaining missing values are listed in ascending order of importance.
 	*Meaning that if a variable is both .m and .i then it will be .i as it
 	*is assigned afterwards below.
 
 	*Missing matching var
 	replace `matchResultName' = .m if missing(`matchvar')
-	
+
 	*Msising dummy var
 	replace `matchResultName' = .g if missing(`grpdummy')
-	
+
 	*Excluded in if/in
 	if "`if'`in'" != "" {
-		
+
 		tempvar  ifinvar
 		gen 	`ifinvar' = 1 `if'`in'
 		replace `matchResultName' = .i if `ifinvar' != 1
 	}
-	
+
 	*comress the variables generated
 	compress  `matchIDname' `matchDiffName' `matchResultName' `matchCountName'
 
@@ -706,7 +706,7 @@
 	noi outputTable `matchResultName' `grpdummy'
 
 	*Restore the oridinal sort
-	sort `originalSort'		
+	sort `originalSort'
 
 }
 
@@ -717,7 +717,7 @@ end
 		program define 	iematchMatchVarCheck  , rclass
 
 		args defaultName replace_used userName
-		
+
 		if "`defaultName'" == "_matchID" 		local optionName matchidname
 		if "`defaultName'" == "_matchDiff" 		local optionName matchdiffname
 		if "`defaultName'" == "_matchResult" 	local optionName matchresult
@@ -740,7 +740,7 @@ end
 			noi di as error "{pstd}The new name specified in `optionName'(`userName') is not allowed to be _ID, `Oth1', `Oth2', or `Oth3'{p_end}"
 			error 198
 		}
-		
+
 		*Test if name is set manually
 		if "`userName'" != "" {
 			*Use the manually set name
@@ -750,19 +750,19 @@ end
 			*No manually set name, use deafult name
 			local validMatchVarname `defaultName'
 		}
-				
+
 		*Make sure that the manually entered name is not already used
 		cap confirm variable `validMatchVarname'
 		if _rc == 0 {
-			
+
 			if `replace_used' == 1 {
 				//Replace is used, drop the old var
 				drop `validMatchVarname'
 			}
 			else {
-				
+
 				*Replace is not used. Prepare an error message and throw error
-				
+
 				if "`userName'" != "" {
 					*Error message for user specified name s
 					local nameErrorString "The variable name specified in `optionName'(`userName')"
@@ -771,7 +771,7 @@ end
 					*Error message for user specified name s
 					local nameErrorString "A variable with name `validMatchVarname'"
 				}
-				
+
 				*Throw error
 				noi di as error "{pstd}`nameErrorString' is already defined in the data set. Either drop this variable, use the replace option or specify a another variable name using `optionName'()."
 				error 110
@@ -850,13 +850,13 @@ end
 		program define 	updateBestValID
 
 		args grpvl matchval idvar grpvar matched bestVal bestID
-		
-		*Test if ID var is string or numeric		
+
+		*Test if ID var is string or numeric
 		local IDNumeric 0
-		cap confirm numeric variable `idvar'					
+		cap confirm numeric variable `idvar'
 		if _rc == 0 local IDNumeric 1
-		
-		
+
+
 		*Reset all values
 		replace `bestVal' 	= .
 		if `IDNumeric' == 1 replace `bestID' 	= .
@@ -875,14 +875,14 @@ end
 
 
 
-	** This function creates the output table. 
+	** This function creates the output table.
 	cap program drop 	outputTable
-		program define 	outputTable	
-		
+		program define 	outputTable
+
 		qui {
-			args resultVar grpdum 
-			
-			*List the texts used in the first column in the 
+			args resultVar grpdum
+
+			*List the texts used in the first column in the
 			local text_1 " 1 Matched"
 			local text_0 " 0 Not matched"
 			local text_d ".d No match within maxdiff()"
@@ -890,40 +890,40 @@ end
 			local text_g ".g Missing grpdummy()"
 			local text_m ".m Missing matchvar()"
 			local text_t ".t No more target obs"
-			
-			*The minimum width of the 
-			local firstColWidth = max(strlen(" `resultVar'") , strlen(" value and result")) 
 
-			levelsof `resultVar' , missing local(resultsUsed)  
-			
+			*The minimum width of the
+			local firstColWidth = max(strlen(" `resultVar'") , strlen(" value and result"))
+
+			levelsof `resultVar' , missing local(resultsUsed)
+
 			foreach result of local resultsUsed {
-				
+
 				*Remove the . from the local to match the string
 				local result = subinstr("`result'",".","",1)
-				
-				* Test if the text in the first column is longer 
+
+				* Test if the text in the first column is longer
 				* for this row than previous row
 				local firstColWidth = max(`firstColWidth' , strlen("`text_`result''"))
 			}
-			
-			* Create a local that indicates if there is column 
+
+			* Create a local that indicates if there is column
 			* for obs with missing value in tmt dummy
 			local missingGrpDum 0
 			count if missing(`grpdum')
 			if `r(N)' > 0 local missingGrpDum 1
-			
-			
+
+
 			*Set all locals that determins column width
-			
+
 			local C1 "{col 4}{c |}"
-			
+
 			di "`firstColWidth'"
-			
-			local col1width = `firstColWidth'  + 1 
-			local hli1 "{hline `col1width'}" 
+
+			local col1width = `firstColWidth'  + 1
+			local hli1 "{hline `col1width'}"
 			local cen1 "{center `col1width':"
-			
-			local col2border = `firstColWidth' + 6 
+
+			local col2border = `firstColWidth' + 6
 			local C2  "{col `col2border'}{c |}"
 			local C2a "{col `col2border'}"
 
@@ -931,112 +931,109 @@ end
 			local C3 "{col `col3border'}{c |}"
 
 			local col4border = `firstColWidth' + 30
-			local C4 "{col `col4border'}{c |}"		
-			
+			local C4 "{col `col4border'}{c |}"
+
 			local grpdumCentre 23 //Overspills automatically
-			
+
 			local lastT  	"{c RT}"
 			local lastTdown	"{c RT}"
 			local lastC  	"{c BRC}"
-			
+
 			if `missingGrpDum' {
-				
+
 				local lastT 		"{c +}{hline 9}{c RT}"
 				local lastTdown 	"{c BT}{hline 9}{c RT}"
 				local lastC 		"{c BT}{hline 9}{c BRC}"
 				local missTitle 	"  missing "
 				local grpdumCentre 	33
-				
+
 			}
-			
+
 			noi di ""
 			noi di ""
 			noi di "{hline}"
 			noi di ""
 			noi di "{pstd}{ul:Output of Matching Result:}{p_end}"
 			noi di ""
-			noi di "{col 5}`cen1'`resultVar'}`C2a' {centre `grpdumCentre':`grpdum' }" 
+			noi di "{col 5}`cen1'`resultVar'}`C2a' {centre `grpdumCentre':`grpdum' }"
 			noi di "{col 4}{c LT}`hli1'{c +}{hline `grpdumCentre'}{c RT}"
 			noi di "`C1'`cen1'value and result}`C2' 1 (base)   0 (target) `missTitle'{c |}"
 			noi di "{col 4}{c LT}`hli1'{c +}{hline 10}{c +}{hline 12}`lastT'"
-			
+
 			*This is the roworder for the output table
-			local resultTableOrder 1 0 .d .t .i .g .m 
-			
+			local resultTableOrder 1 0 .d .t .i .g .m
+
 			foreach result of local resultTableOrder {
-				
+
 				*Test if this result was used
 				if `:list result in resultsUsed' {
-					
+
 					*Count base observations in this result type
 					qui count if `resultVar' == `result' & `grpdum' == 1
 					local numBase = trim("`: display %16.0gc  `r(N)''")
-					
+
 					*Count target observations in this result type
 					qui count if `resultVar' == `result' & `grpdum' == 0
-					local numTarg = trim("`: display %16.0gc  `r(N)''")			
-					
+					local numTarg = trim("`: display %16.0gc  `r(N)''")
+
 					*Count observations that are neither base or target in this result type
 					if `missingGrpDum' {
-					
+
 						qui count if `resultVar' == `result' & missing(`grpdum')
 						local numMiss = trim("`: display %16.0gc  `r(N)''")
-						
+
 						local missCol "{ralign 9 :`numMiss' }{c |}"
-					
+
 					}
-					
+
 					*Prepare the local that displays the columns with numbers
 					local numCols "`C2'{ralign 10 :`numBase' }`C3'{ralign 12 :`numTarg' }`C4'`missCol'"
-					
+
 					*Remove the . from the local to match the string
 					local result = subinstr("`result'",".","",1)
-					
+
 					*Output the table row
 					noi di "`C1'`text_`result''`numCols'"
-	
-				}	
+
+				}
 			}
-			
+
 			*Output line before N per group row
 			noi di "{col 4}{c LT}`hli1'{c +}{hline 10}{c +}{hline 12}`lastT'"
-			
+
 			*Caculate N per group row for base observations
 			qui count if `grpdum' == 1
 			local numBase = trim("`: display %16.0gc  `r(N)''")
-			
+
 			*Caculate N per group row for target observations
 			qui count if `grpdum' == 0
 			local numTarg = trim("`: display %16.0gc  `r(N)''")
-			
-			
+
+
 			*Caculate N per group row for observations neither base or target
 			if `missingGrpDum' {
-			
+
 				qui count if missing(`grpdum')
 				local numMiss = trim("`: display %16.0gc  `r(N)''")
-				
+
 				local missCol "{ralign 9 :`numMiss' }{c |}"
-			
-			}			
-			
+
+			}
+
 			*Output N per group row
 			noi di "`C1'`cen1'N per group}`C2'{ralign 10 :`numBase' }`C3'{ralign 12 :`numTarg' }`C4'`missCol'"
-			
+
 			*Output line before total N row
 			noi di "{col 4}{c LT}`hli1'{c +}{hline 10}{c BT}{hline 12}`lastTdown'"
-			
+
 			*Count total N
 			qui count
 			local numTot = trim("`: display %16.0gc  `r(N)''")
-			
+
 			*Output total N row
 			noi di "`C1'`cen1'Total N}`C2'{centre `grpdumCentre':`numTot'}`C4'"
-			
+
 			*Output bottom line
 			noi di "{col 4}{c BLC}`hli1'{c BT}{hline `grpdumCentre'}{c BRC}"
 		}
 	end
-
-
-

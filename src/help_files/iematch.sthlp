@@ -1,5 +1,5 @@
 {smcl}
-{* 15 Dec 2017}{...}
+{* 26 Apr 2018}{...}
 {hline}
 help for {hi:iematch}
 {hline}
@@ -8,13 +8,13 @@ help for {hi:iematch}
 
 {phang2}{cmdab:iematch} {hline 2} Matching base observations towards target observations using on a single continous variable.
 
-{phang2}For a more descriptive discussion on the intended usage and work flow of this 
+{phang2}For a more descriptive discussion on the intended usage and work flow of this
 command please see the {browse "https://dimewiki.worldbank.org/wiki/Iematch":DIME Wiki}.
 
 {title:Syntax}
 
 {phang2}
-{cmdab:iematch} {ifin} 
+{cmdab:iematch} {ifin}
 , {cmdab:grp:dummy(}{it:varname}{cmd:)} {cmdab:match:var(}{it:varname}{cmd:)}
 [{cmdab:id:var(}{it:varname}{cmd:)} {cmdab:m1} {cmdab:maxdiff(}{it:numlist}{cmd:)} {cmd:seedok}
 {cmdab:matchid:name(}{it:string}{cmd:)} {cmdab:matchdi:ffname(}{it:string}{cmd:)}
@@ -37,8 +37,8 @@ command please see the {browse "https://dimewiki.worldbank.org/wiki/Iematch":DIM
  then it will remain unmatched{p_end}
 {synopt :{cmdab:m1}}Allows many-to-one matches. The default is to allow only
 	one-to-one matches. See the {help iematch##desc:description} section.{p_end}
-{synopt :{cmdab:maxmatch(}{it:integer}{cmd:)}}Sets the maximum number of base 
-	observations that each target observation is allowed to match with in a {cmd:m1} 
+{synopt :{cmdab:maxmatch(}{it:integer}{cmd:)}}Sets the maximum number of base
+	observations that each target observation is allowed to match with in a {cmd:m1}
 	(many-to-one) match.{p_end}
 {synopt :{cmd:seedok}}Supresses the error maessage thrown when there are duplicates
 	in {cmd:matchvar()}. When there are duplicates, the seed needs to be set in order
@@ -55,7 +55,7 @@ command please see the {browse "https://dimewiki.worldbank.org/wiki/Iematch":DIM
 {synopt :{cmdab:matchco:untname(}{it:string}{cmd:)}}Manually sets the name of the
 	variable that indicates how many observations a target obsersvation is matched
 	with in a many-to-one matches. The default is _matchCount{p_end}
-{synopt :{cmd:replace}}Replaces variables in memory if there are name conflicts 
+{synopt :{cmd:replace}}Replaces variables in memory if there are name conflicts
 	when generating the output variables.{p_end}
 {synoptline}
 
@@ -164,40 +164,40 @@ command please see the {browse "https://dimewiki.worldbank.org/wiki/Iematch":DIM
 	that will be used in the variable that indicates which target observation each
 	base observations matched against. If this option is omitted, a variable called
 	_ID will be generated. The observation in the first row is given the value 1,
-	the second row value 2 and so fourth. 
-	
-{pmore}This command assumes only one ID variable as that is the best practice this command 
-	follows (see next paragraph for the exception of panel data sets). Here follows two 
-	suggested solutions if a data set this command will be used on has more than one ID 
+	the second row value 2 and so fourth.
+
+{pmore}This command assumes only one ID variable as that is the best practice this command
+	follows (see next paragraph for the exception of panel data sets). Here follows two
+	suggested solutions if a data set this command will be used on has more than one ID
 	variable. {bf:1.} Do not use the {cmd:idvar()} option and after the mathcing copy the mutliple
-	ID variables yourself. {bf:2.} Combine your ID variables into one ID variable. Here are two 
-	examples on how that can be done (the examples below work just as well when combining more 
+	ID variables yourself. {bf:2.} Combine your ID variables into one ID variable. Here are two
+	examples on how that can be done (the examples below work just as well when combining more
 	than two ID variables to one.):
-	
+
 {pmore2}{inp:egen }{it:new_ID_var }{inp:= group(}{it:old_ID_var1 old_ID_var2}{inp:)}
 
 {pmore2}{inp:gen}{space 2}{it:new_ID_var }{inp:= }{it:old_ID_var1 }{inp:+ "_" + }{it:old_ID_var2}{space 4}//Works only with string vars
 
-{pmore}Panel data sets are one of the few cases where multiple ID variables is good practice. However, 
-	in the case of matching it is unlikely that it is correct to include multiple time rounds for 
-	the same observation. That would lead to some base observations being matched to 
-	one target observation in the first round, and one another in the second. In impact 
+{pmore}Panel data sets are one of the few cases where multiple ID variables is good practice. However,
+	in the case of matching it is unlikely that it is correct to include multiple time rounds for
+	the same observation. That would lead to some base observations being matched to
+	one target observation in the first round, and one another in the second. In impact
 	evaluations, matchings are almost exclusively done only on the baseline data.
 
 {phang}{cmdab:maxdiff(}{it:numlist}{cmd:)} sets a maximum allowed difference between
 	a base observation and a target observation for a match to be valid. Any base
-	observation without a valid match within this difference will end up unmatched.	
-	
+	observation without a valid match within this difference will end up unmatched.
+
 {phang}{cmdab:m1} sets the match to a many-to-one match (see {help iematch##desc:description}).
 	This allows multiple base observations to be matched towards a single target observation.
 	The default is the one-to-one match where a maximum one base observation is matched towards
 	each target observation. This option allows the number of base observations
 	to be larger then the number of target observations.
 
-{phang}{cmdab:maxmatch(}{it:integer}{cmd:)} sets the maximum number of base observations a 
-	target observation is allowed to match with in a {cmd:m1} (many-to-one) match. The integer 
-	in {cmd:maxmatch()} is the maximum number of base observations in group but there is also a 
-	always a target observation in the group, so in a maxed out match group it will be {cmd:maxmatch()} 
+{phang}{cmdab:maxmatch(}{it:integer}{cmd:)} sets the maximum number of base observations a
+	target observation is allowed to match with in a {cmd:m1} (many-to-one) match. The integer
+	in {cmd:maxmatch()} is the maximum number of base observations in group but there is also a
+	always a target observation in the group, so in a maxed out match group it will be {cmd:maxmatch()}
 	plus one observations.
 
 {phang}{cmd:seedok} supresses the error message throwned when there are duplicates among
@@ -232,9 +232,9 @@ command please see the {browse "https://dimewiki.worldbank.org/wiki/Iematch":DIM
 	name is {inp:_matchCount}. The names {inp:_ID}, {inp:_matchID}, {inp:_matchDiff}
 	and {inp:_matchResult} are not allowed.
 
-{phang}{cmdab:replace} allows {cmd:iematch} to replace variables in memory when 
+{phang}{cmdab:replace} allows {cmd:iematch} to replace variables in memory when
 	encountering name conflicts while creating the variables with the results of the matching.
-	
+
 {title:Examples}
 
 {pstd} {hi:Example 1.}
@@ -252,7 +252,7 @@ command please see the {browse "https://dimewiki.worldbank.org/wiki/Iematch":DIM
 	towards the nearest, in terms of {it:p_hat}, observations with value 0 in {it:tmt} as
 	long as the difference in {it:p_hat} is less than .001. Only observations that has the
 	value 1 in variable {it:baseline} will be included in the match.
-	
+
 {pstd} {hi:Example 3.}
 
 {pmore}{inp:iematch , grpdummy({it:tmt}) m1 maxmatch(5) matchvar({it:p_hat}) maxdiff(.001)}
@@ -260,10 +260,10 @@ command please see the {browse "https://dimewiki.worldbank.org/wiki/Iematch":DIM
 {pmore}In the example above, the observations with value 1 in {it:tmt} will be matched
 	towards the nearest, in terms of {it:p_hat}, observations with value 0 in {it:tmt} as
 	long as the difference in {it:p_hat} is less than .001. So far this example is identical
-	to example 2. However, in this example each target observation is allowed to match with up 
-	to 5 base observations. Hence, instead of a result with only pairs of exactly one target 
-	observation and one base observation in each pair, the result is instead match groups 
-	with one target observation and up to 5 base observations. If {cmd:maxmatch()} is omitted 
+	to example 2. However, in this example each target observation is allowed to match with up
+	to 5 base observations. Hence, instead of a result with only pairs of exactly one target
+	observation and one base observation in each pair, the result is instead match groups
+	with one target observation and up to 5 base observations. If {cmd:maxmatch()} is omitted
 	any number of base observations may match with each target observation.
 
 {title:Acknowledgements}

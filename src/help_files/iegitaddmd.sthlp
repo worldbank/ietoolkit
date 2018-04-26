@@ -1,5 +1,5 @@
 {smcl}
-{* 15 Dec 2017}{...}
+{* 26 Apr 2018}{...}
 {hline}
 help for {hi:iegitaddmd}
 {hline}
@@ -8,7 +8,7 @@ help for {hi:iegitaddmd}
 
 {phang}{cmdab:iegitaddmd} {hline 2} Creates a placeholder README.md file in subfolders of a GitHub repository folder, which is often needed to sync standardized folder structures.
 
-{phang2}For a more descriptive discussion on the intended usage and work flow of this 
+{phang2}For a more descriptive discussion on the intended usage and work flow of this
 command please see the {browse "https://dimewiki.worldbank.org/wiki/Iegitaddmd":DIME Wiki}.
 
 {title:Syntax}
@@ -27,14 +27,14 @@ command please see the {browse "https://dimewiki.worldbank.org/wiki/Iegitaddmd":
 {title:Description}
 
 {pstd}GitHub does not sync empty folders, or folder that only contain ignored files.
-	However, it is common in research projects 
-	that a folder structure is added to the GitHub repository at the beginning of a project. At 
-	the time the folder structure is added to the repository, several folders might still 
+	However, it is common in research projects
+	that a folder structure is added to the GitHub repository at the beginning of a project. At
+	the time the folder structure is added to the repository, several folders might still
 	be empty and GitHub will not sync them, meaning that they will not be available to the full
 	team. {cmd:iegitaddmd} is a Stata adaptation of {it:Solution B} in {browse "http://bytefreaks.net/gnulinux/bash/how-to-add-automatically-all-empty-folders-in-git-repository" :this post}.
 
-{pstd}{cmd:iegitaddmd} creates a placeholder README.md file in all empty subfolders of 
-	the folder specified in {cmd:folder()}. The placeholder file may be removed as 
+{pstd}{cmd:iegitaddmd} creates a placeholder README.md file in all empty subfolders of
+	the folder specified in {cmd:folder()}. The placeholder file may be removed as
 	soon as actual files have been added to the folder. Alternatively, if the option
 	{cmd:all} is used, {cmd:iegitaddmd} will create one README.md file in each subfolder
 	of {cmd:folder()}, regardless of them being empty or not.
@@ -44,18 +44,18 @@ command please see the {browse "https://dimewiki.worldbank.org/wiki/Iegitaddmd":
 
 {phang}{cmd:folder(}{it:file_path}{cmd:)} is the folder path to the repository with empty folders where the file {it:README.md} will be created in each empty folder.
 
-{phang}{cmd:all} creates one {it:README.md} in every subfolder of {cmd:folder()}, whether empty or not. This allows the user to edit the {it:README.md} files and 
+{phang}{cmd:all} creates one {it:README.md} in every subfolder of {cmd:folder()}, whether empty or not. This allows the user to edit the {it:README.md} files and
 	add instructions on the purpose and usage of each subfolder. It is also important when a .{it:gitignore} is used, as {cmd:iegitaddmd} will not
 	create add files to subfolders that are not empty, but only contain ignored files -- in which case the subfolder will not be synced.
-				 
+
 
 {title:Example}
 
 {pstd}{inp:global github_folder "C:\Users\JohnSmith\Documents\GitHub\ProjectA"}{break}{inp:iegitaddmd , folder({it:"$github_folder"})}
 
-{pstd}In the example above, there is a GitHub repository in the folder ProjectA. This 
-	repository has a folder structure where some folders are still empty but will later 
-	be populated with files. In order to have all folders, even the empty ones, synced on all 
+{pstd}In the example above, there is a GitHub repository in the folder ProjectA. This
+	repository has a folder structure where some folders are still empty but will later
+	be populated with files. In order to have all folders, even the empty ones, synced on all
 	collaborators' cloned local copies of the repository, the folders need to contain at least
 	one file, which is being created by the command.
 
@@ -75,4 +75,3 @@ command please see the {browse "https://dimewiki.worldbank.org/wiki/Iegitaddmd":
 {pstd}You can also see the code, make comments to the code, see the version
 		 history of the code, and submit additions or edits to the code through
 		 the {browse "https://github.com/worldbank/ietoolkit" :ietoolkit github repository}.
-		 
