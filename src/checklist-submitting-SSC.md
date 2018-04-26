@@ -4,7 +4,8 @@
 1. **Test in different operative systems** - This step is not necessary every time, but testing the commands in Stata on each of the PC, Mac and Linux operative systems should be done from time to time. A particularly good time to do this is after writing or editing code that depends on file paths, the console, special settings etc.
 1. **Update version and date** - In the `develop` branch, update the version number and date in all ado-files and all dates in all help files. See section below for details.
 1. **Update version locals in ietoolkit** - In the _ietoolkit.ado_ file, update the _version_ and _versionDate_ locals at the top of the file.
-1. **Merge to *master*** - Merge the `develop` branch to the `master` branch.
+1. **Create pull request from *develop* to *master*** - Create a pull request from the `develop` branch to the `master` branch, but do not merge it yet. We only want to merge after the content is published on SSC. The reason why we still want to create the pull request at this point is that any merge conflicts require us to make edits to the code we are sumbitting to SSC.
+1. **Make sure that there is no conflicts in the pull request you just created** - Make sure to include any edits this step requires you to do in the version you are sending to SSC.
 1. **Copy files to archive folder** - Make a folder with the version name in the archive folder Dropbox\DIME Analytics\Data Coordinator\ietoolkit\ietoolkit archive\ and copy all ado-files and help files for all *ietoolkit* commands there.
 1. **Create a .zip file** - Create a .zip file with all ado-files and help files in the folder you just created in the archive folder. Then remove all files but the .zip file from the archive folder.
 1. **Email Prof. Baum** - Email the .zip file to **kit.baum@bc.edu**.
