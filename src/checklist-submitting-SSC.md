@@ -8,7 +8,7 @@
 1. **Make sure that there is no conflicts in the pull request you just created** - Make sure to include any edits this step requires you to do in the version you are sending to SSC. Do not merge yet.
 1. **Copy files to archive folder** - Make a folder with named after the new version number in the archive folder Dropbox\DIME Analytics\Data Coordinator\ietoolkit\ietoolkit archive\ and copy all ado-files and help files for all *ietoolkit* commands there.
 1. **Create a .zip file** - Create a .zip file with all ado-files and help files in the folder you just created in the archive folder. Then remove all files but the .zip file from the archive folder.
-1. **Email Prof. Baum** - Email the .zip file to **kit.baum@bc.edu**.
+1. **Email Prof. Baum** - Email the .zip file to **kit.baum@bc.edu**. If any commands are added or deleted, make note of that in the email.
 1. **Draft release note** - Go to the [release notes](https://github.com/worldbank/ietoolkit/releases) and draft a new release note for the new version. Follow the format from previous releases with links to [issues](https://github.com/worldbank/ietoolkit/issues) solved.
 1. **Wait for publication confirmation** - Do not proceed pass this step until Prof. Baum has confirmed that the new version is uploaded to the servers.
 1. **Merge the pull request** - Merge the pull request for this new version. It should not have any conflicts, so just merge it. Remeber to delete the *develop* branch and create a new *develop* branch from the most recent version of the *master* branch.
