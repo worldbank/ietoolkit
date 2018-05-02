@@ -1,5 +1,5 @@
 {smcl}
-{* 15 Dec 2017}{...}
+{* 26 Apr 2018}{...}
 {hline}
 help for {hi:iegitaddmd}
 {hline}
@@ -7,6 +7,9 @@ help for {hi:iegitaddmd}
 {title:Title}
 
 {phang}{cmdab:iegitaddmd} {hline 2} Creates a placeholder file in subfolders of a GitHub repository folder, which allows committing folder structures with empty folders.
+
+{phang2}For a more descriptive discussion on the intended usage and work flow of this
+command please see the {browse "https://dimewiki.worldbank.org/wiki/Iegitaddmd":DIME Wiki}.
 
 {title:Syntax}
 
@@ -27,9 +30,9 @@ help for {hi:iegitaddmd}
 {title:Description}
 
 {pstd}GitHub does not sync empty folders, or folder that only contain ignored files.
-	However, it is common in research projects 
-	that a folder structure is added to the GitHub repository at the beginning of a project. At 
-	the time the folder structure is added to the repository, several folders might still 
+	However, it is common in research projects
+	that a folder structure is added to the GitHub repository at the beginning of a project. At
+	the time the folder structure is added to the repository, several folders might still
 	be empty and GitHub will not sync them, meaning that they will not be available to the full
 	team. {cmd:iegitaddmd} is a Stata adaptation of {it:Solution B} in {browse "http://bytefreaks.net/gnulinux/bash/how-to-add-automatically-all-empty-folders-in-git-repository" :this post}.
 
@@ -75,9 +78,9 @@ help for {hi:iegitaddmd}
 
 {pstd}{inp:global github_folder "C:\Users\JohnSmith\Documents\GitHub\ProjectA"}{break}{inp:iegitaddmd , folder({it:"$github_folder"})}
 
-{pstd}In the example above, there is a GitHub repository in the folder ProjectA. This 
-	repository has a folder structure where some folders are still empty but will later 
-	be populated with files. In order to have all folders, even the empty ones, synced on all 
+{pstd}In the example above, there is a GitHub repository in the folder ProjectA. This
+	repository has a folder structure where some folders are still empty but will later
+	be populated with files. In order to have all folders, even the empty ones, synced on all
 	collaborators' cloned local copies of the repository, the folders need to contain at least
 	one file, which is being created by the command.
 
@@ -97,4 +100,3 @@ help for {hi:iegitaddmd}
 {pstd}You can also see the code, make comments to the code, see the version
 		 history of the code, and submit additions or edits to the code through
 		 the {browse "https://github.com/worldbank/ietoolkit" :ietoolkit github repository}.
-		 

@@ -1,5 +1,5 @@
 {smcl}
-{* 15 Dec 2017}{...}
+{* 26 Apr 2018}{...}
 {hline}
 help for {hi:ieboilstart}
 {hline}
@@ -8,6 +8,8 @@ help for {hi:ieboilstart}
 
 {phang}{cmdab:ieboilstart} {hline 2} Harmonizes settings across team members in the same project to the longest extent technically possible.
 
+{phang2}For a more descriptive discussion on the intended usage and work flow of this
+command please see the {browse "https://dimewiki.worldbank.org/wiki/Ieboilstart":DIME Wiki}.
 
 {phang}{hi:DISCLAIMER} {hline 1} Due to technical reasons, it is
 impossible to guarantee that different types of Stata (version number, Small/IC/SE/MP
@@ -173,8 +175,8 @@ details {help ieboilstart##comp:below}.
 	unless there is something specific to a newer version that is required for any
 	dofile. Only major and recent versions are allowed in order to reduce errors and
 	complexity. The valid versions are 11.0, 11.1, 11.2, 12.0, 12.1, 13.0, 13.1,
-	14.0, 14.1, 14.2, 15.0 and all versions without decimals. However, it is recommended 
-	to use a .1 over a .0 version. .1 is free of charge if you already have the 
+	14.0, 14.1, 14.2, 15.0 and all versions without decimals. However, it is recommended
+	to use a .1 over a .0 version. .1 is free of charge if you already have the
 	corresponding .0 and .1 includes bug fixes to the functions introduced in .0.
 	All versions of Stata can be set to run any older version of Stata but not a newer. {p_end}
 

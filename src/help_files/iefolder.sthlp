@@ -1,5 +1,5 @@
 {smcl}
-{* 15 Dec 2017}{...}
+{* 26 Apr 2018}{...}
 {hline}
 help for {hi:iefolder}
 {hline}
@@ -7,6 +7,9 @@ help for {hi:iefolder}
 {title:Title}
 
 {phang2}{cmdab:iefolder} {hline 2} sets up project folders and master do-files according to World Bank DIME's standards.{p_end}
+
+{phang2}For a more descriptive discussion on the intended usage and work flow of this
+command please see the {browse "https://dimewiki.worldbank.org/wiki/Iefolder":DIME Wiki}.
 
 {title:Syntax}
 
@@ -51,7 +54,7 @@ help for {hi:iefolder}
 
 {pstd}{ul:{hi:itemtypes}}{break} This command can create either a new DataWork folder or add folders to an
 	existing DataWork folder. The existing DataWork folder must have been created
-	with {cmd:iefolder} for the additions to work. A new DataWork folder is created using specifying {ul:project}. There are three types of folders that can be added to an existing folder by specifying {ul:round}, {ul:untiofobs} or {ul:subfolder}. See
+	with {cmd:iefolder} for the additions to work. A new DataWork folder is created using specifying {ul:project}. There are three types of folders that can be added to an existing folder by specifying {ul:round}, {ul:unitofobs} or {ul:subfolder}. See
 	next paragraphs for descriptions.
 
 {pstd}{ul:{it:project}} sets up a new DataWork folder and its initial folder structure. You must always do this before you can do anything else. It also sets up the main master do-file for this DataWork folder. {cmd:iefolder} is implemented so that you can keep working for years with your project in between adding folders. The command reads and preserves changes made manually to the DataWork folder and master do-file before adding more folders using {cmd:iefolder}.
