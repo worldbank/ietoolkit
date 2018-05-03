@@ -20,6 +20,7 @@ While we have a slight preference of receiving any kind of feedback here on GitH
 
 **ietoolkit** provides a set of commands that address different aspects of data management and data analysis in relation to Impact Evaluations. The list of commands will be extended continuously, and suggestions for new commands are greatly appreciated. Some of the commands are related to standardized best practices developed at DIME (The World Bank’s unit for Impact Evaluations). For these commands, the corresponding help files provide justifications for the standardized best practices applied. 
 
+ - **ietoolkit** returns meta info on the _ietoolkit_ versions of installed. Can be used to make sure the team runs the same version.
  - **ieduplicates** and **iecompdup** are useful tools to identify and correct for duplicates, particulary in primary survey data
  - **iefolder** sets up project folders and creates master do-files that links to all sub-folders
  - **iebaltab** is a tool for multiple treatment arm balance tables
