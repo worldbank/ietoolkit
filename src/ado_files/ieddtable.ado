@@ -13,17 +13,21 @@
 	gen var_b = runiform()
 	gen var_c = runiform()
 	gen var_d = runiform()
+
+	gen cov_a = runiform()
+	gen cov_b = runiform()	
 	
 	
-	local varlist var_a var_b var_c var_d
+	local varlist 		var_a var_b var_c var_d
+	local covariates 	cov_a cov_b 
 
 	
 	/* the rest will be inside the command */
 	
-	local colnames BC_Mean BC_err BT_Mean BT_err EC_Mean EC_err ET_Mean ET_err B1stDiff B1stDiff_err E1stDiff E1stDiff_err 2ndDiff 2ndDiff_err
+	local colnames 2ndDiff 2ndDiff_err 2ndDiff_N B1stDiff B1stDiff_err B1stDiff_N E1stDiff E1stDiff_err E1stDiff_N BC_Mean BC_err BC_N BT_Mean BT_err BT_N EC_Mean EC_err EC_N ET_Mean ET_err ET_N  
 	
 	*Define default row here. The results for each var will be one row that starts with all missing vlaues
-	mat startRow = (.,.,.,.,.,.,.,.,.,.,.,.,.,.)
+	mat startRow = (.,.,.,.,.,.,.,.,.,.,.,.,.,.,.,.,.,.,.,.,.)
 	mat colnames startRow = `colnames'
 	
 	matlist startRow // See the default row with its column names
@@ -43,45 +47,91 @@
 		*Local that keeps track of which column to fill
 		local colindex 0
 		
-		*Get the means in each group
-		forvalues t01 = 0/1 {
-			forvalues tmt01 = 0/1 {
-				
-				*Summary stats on this group
-				qui sum `var' if tmt == `t01' & t == `tmt01'
-				
-				*Store the mean. Stored for all groups regardless if means or first differences will be displayed. Output sub-commands will select which one to use according to options used by user
-				local ++colindex
-				mat `var'[1,`colindex'] = `r(mean)'
-				
-				*Store the standard deviation (allow the option for different variance here)
-				local ++colindex
-				mat `var'[1,`colindex'] = `r(sd)'				
-			}
-		}
+		tempvar regsample
+		
+		/************* 
+		
+			Calculating 2nd difference and restict the sample 
+			for this output var 
+			
+		*************/
 		
 		*Run the regression to get the double difference
-		reg `var' tmt#t
+		qui reg `var' tmt#t `covariates'
 		mat resTable = r(table)
-		matlist resTable
 		
-		*Loop over the two first difference coefficients and then over the second difference
-		forvalues coeffcolumn = 2/4 {
+		**This is why this is done first. All other calculations 
+		* for this outcome var should be restricted to this sample.
+		gen `regsample' = e(sample)
 		
-			//Get the second differnce
-			local ++colindex
-			mat `var'[1,`colindex'] =  el(resTable,1,`coeffcolumn') 
+		//Get the second differnce
+		local ++colindex
+		mat `var'[1,`colindex'] =  el(resTable,1,4) 
+		
+		*Get the standard error of second difference
+		local ++colindex
+		mat `var'[1,`colindex'] =  el(resTable,2,4) 
+		
+		*Get the N of second difference regression
+		local ++colindex
+		mat `var'[1,`colindex'] =  `e(N)' 		
+		
+		/************* 
+		
+			Calculating 1st differences
 			
-			*Get the standard error fo
+		*************/		
+		
+		forvalues tmt01 = 0/1 {
+		
+			qui reg `var' t `covariates' if tmt == `tmt01' & `regsample' == 1
+			mat resTable = r(table)
+	
+			//Get the 1st diff
 			local ++colindex
-			mat `var'[1,`colindex'] =  el(resTable,2,`coeffcolumn') 
+			mat `var'[1,`colindex'] =  el(resTable,1,1) 
 			
+			*Get the standard error of 1st diff
+			local ++colindex
+			mat `var'[1,`colindex'] =  el(resTable,2,1) 
+			
+			*Get the N of first difference regression
+			local ++colindex
+			mat `var'[1,`colindex'] =  `e(N)' 	
+		
+		}
+				
+		
+		*Get the means for each group
+		forvalues tmt01 = 0/1 {
+			forvalues t01 = 0/1 {
+				
+				*Summary stats on this group
+				qui mean `var' if tmt == `t01' & t == `tmt01' & `regsample' == 1
+			
+				mat resTable = r(table)
+
+				//Get the mean
+				local ++colindex
+				mat `var'[1,`colindex'] =  el(resTable,1,1) 
+				
+				*Get the standard error of the mean
+				local ++colindex
+				mat `var'[1,`colindex'] =  el(resTable,2,1) 	
+				
+				*Get the N of the ordinary means regressions
+				local ++colindex
+				mat `var'[1,`colindex'] =  `e(N)' 	
+			}
 		}
 		
 		*Append this row to the result table
 		mat 	resultMat = (resultMat \ `var')
 	
 	}
+	
+	*Remove placeholder row
+	matrix resultMat = resultMat[2..., 1...]
 	
 	*Show the final matrix will all data needed to start building the output
 	matlist resultMat
