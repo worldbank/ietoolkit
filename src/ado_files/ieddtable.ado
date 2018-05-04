@@ -17,10 +17,10 @@
 	gen cov_a = runiform()
 	gen cov_b = runiform()	
 	
-	
 	local varlist 		var_a var_b var_c var_d
 	local covariates 	cov_a cov_b 
 
+	
 	
 	/* the rest will be inside the command */
 	
@@ -63,6 +63,11 @@
 		**This is why this is done first. All other calculations 
 		* for this outcome var should be restricted to this sample.
 		gen `regsample' = e(sample)
+		local N `e(N)'
+		
+		**Test that the dummy vars creates for valid groups for each 
+		* combination of time and treat in the sample used for this outcome var
+		//testDDdums t tmt `regsample' `var'  //comment in when this is made into a command
 		
 		//Get the second differnce
 		local ++colindex
@@ -74,7 +79,7 @@
 		
 		*Get the N of second difference regression
 		local ++colindex
-		mat `var'[1,`colindex'] =  `e(N)' 		
+		mat `var'[1,`colindex'] = `N' 		
 		
 		/************* 
 		
@@ -136,6 +141,16 @@
 	*Show the final matrix will all data needed to start building the output
 	matlist resultMat
 	
+
+/***************************************
+****************************************
+
+	Write sub-commands for outputs
+	
+****************************************
+***************************************/	
+	
+	
 	******
 	*Then the result matrix can be passed into subcommands that output in either Excel, LaTeX or in the main window.
 	
@@ -145,4 +160,41 @@
 	
 	matlist A
 	di `a'
+
+/***************************************
+****************************************
+
+	Write sub-commands for input testing
+	
+****************************************
+***************************************/
+			
+	
+	
+cap program drop 	testDDdums
+	program define	testDDdums
+
+		args time treat samplevar outputvar
+
+		**Test that for only two of three dummies there are observations
+		* that has only that dummy. I.e. the two that is not the
+		* interaction. If the interaction is 1, all three shluld be 1.
+
+		*Test that there is some observations in each group
+		forvalues tmt01 = 0/1 {
+			forvalues t01 = 0/1 {
+				
+				*Summary stats on this group
+				count if `treat' == `t01' & `time' == `tmt01' & `samplevar' == 1
+				
+				if `r(N)' < 2 {
+					noi di as error "{phang}In the difference in differnce regression for outputvar `outputvar' there were not enough observations in each combination of treatment and time. The tab below is restricted to the observations that are not excluded due to missing values etc. in the difference in differnce regression.{p_end}""
+					noi tab `treat' `time' if `samplevar' == 1, missing
+					error 480
+				
+				}
+			}
+		}
+
+	end
 
