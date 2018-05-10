@@ -1,25 +1,8 @@
-	
-	/* Create some dummy datat */
-	
-	clear 
-	
-	*set seed 12345
-	set obs 10000
-	
-	gen tmt = (runiform()<.5)
-	gen t	= (runiform()<.5)
-	
-	gen var_a = runiform()
-	gen var_b = runiform()
-	gen var_c = runiform()
-	gen var_d = runiform()
 
-	gen cov_a = runiform()
-	gen cov_b = runiform()	
+cap program drop 	ieddtable
+	program define	ieddtable
 	
-	local varlist 		var_a var_b var_c var_d
-	local covariates 	cov_a cov_b 
-
+	syntax varlist, t(varname numeric) tmt(varname numeric) [COVARiates(varlist numeric)]
 	
 	
 	/* the rest will be inside the command */
@@ -30,6 +13,7 @@
 	mat startRow = (.,.,.,.,.,.,.,.,.,.,.,.,.,.,.,.,.,.,.,.,.)
 	mat colnames startRow = `colnames'
 	
+	noi di "Start row to see headers, remove for production"
 	matlist startRow // See the default row with its column names
 	
 	*Initiate the result matrix with a place holder row that will not be used for anything. Matrices cannot be initiated empty
@@ -57,7 +41,7 @@
 		*************/
 		
 		*Run the regression to get the double difference
-		qui reg `var' tmt#t `covariates'
+		qui reg `var' `tmt'#`t' `covariates'
 		mat resTable = r(table)
 		
 		**This is why this is done first. All other calculations 
@@ -67,7 +51,7 @@
 		
 		**Test that the dummy vars creates for valid groups for each 
 		* combination of time and treat in the sample used for this outcome var
-		//testDDdums t tmt `regsample' `var'  //comment in when this is made into a command
+		testDDdums `t' `tmt' `regsample' `var'  //comment in when this is made into a command
 		
 		//Get the second differnce
 		local ++colindex
@@ -89,7 +73,7 @@
 		
 		forvalues tmt01 = 0/1 {
 		
-			qui reg `var' t `covariates' if tmt == `tmt01' & `regsample' == 1
+			qui reg `var' `t' `covariates' if `tmt' == `tmt01' & `regsample' == 1
 			mat resTable = r(table)
 	
 			//Get the 1st diff
@@ -107,12 +91,16 @@
 		}
 				
 		
-		*Get the means for each group
+		/************* 
+		
+			Calculating standard means for all groups
+			
+		*************/	
 		forvalues tmt01 = 0/1 {
 			forvalues t01 = 0/1 {
 				
 				*Summary stats on this group
-				qui mean `var' if tmt == `t01' & t == `tmt01' & `regsample' == 1
+				qui mean `var' if `tmt' == `t01' & `t' == `tmt01' & `regsample' == 1
 			
 				mat resTable = r(table)
 
@@ -139,8 +127,12 @@
 	matrix resultMat = resultMat[2..., 1...]
 	
 	*Show the final matrix will all data needed to start building the output
+	noi di "Matlist with results"
 	matlist resultMat
 	
+	
+	
+end
 
 /***************************************
 ****************************************
@@ -155,11 +147,11 @@
 	*Then the result matrix can be passed into subcommands that output in either Excel, LaTeX or in the main window.
 	
 	*The results can be accessed like this, which makes the sub-commands less sensitive to changing column order in the section above.
-	mat A = resultMat[3, "BC_Mean"] // returns a 1x1 matrix
-	local a = el(A,1,1)				// returns the value
+	//mat A = resultMat[3, "BC_Mean"] // returns a 1x1 matrix
+	//local a = el(A,1,1)				// returns the value
 	
-	matlist A
-	di `a'
+	//matlist A
+	//di `a'
 
 /***************************************
 ****************************************
