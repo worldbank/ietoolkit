@@ -493,7 +493,7 @@ qui {
 
 				*Testing that no label is missing
 				if "`label'" == "" {
-					noi display as error "{phang}For variable [`name'] listed in rowlabels(`rowlabels') you have not specified any label. Labels are requried for all variables listed in rowlabels(). The variable name itself will be used for any variables omitted from rowlabels(). See also option {help dmtab:rowvarlabels}"
+					noi display as error "{phang}For variable [`name'] listed in rowlabels(`rowlabels') you have not specified any label. Labels are requried for all variables listed in rowlabels(). The variable name itself will be used for any variables omitted from rowlabels(). See also option {help iebaltab:rowvarlabels}"
 					noi tab `grpvar', nol
 					error 198
 				}
@@ -2225,7 +2225,7 @@ qui {
 			*Remove the first comman before the first variable
 			local fmiss_error_list = subinstr("`fmiss_error_list'" ,",","",1)
 
-			noi di as error "{phang}F-test is possible but perhaps not advisable. Some observations have missing values in some of the balance variables and therfore dropped from the f-stat regression. This happened in the f-tests for the following group(s): [`fmiss_error_list']. Solve this by manually restricting the balance table using if or in, or disable the f-test, or by using option {help dmtab:balmiss()}. Suppress this error message by using option {help dmtab:fmissok}"
+			noi di as error "{phang}F-test is possible but perhaps not advisable. Some observations have missing values in some of the balance variables and therfore dropped from the f-stat regression. This happened in the f-tests for the following group(s): [`fmiss_error_list']. Solve this by manually restricting the balance table using if or in, or disable the f-test, or by using option {help iebaltab:balmiss()}. Suppress this error message by using option {help iebaltab:fmissok}"
 			error 416
 		}
 
