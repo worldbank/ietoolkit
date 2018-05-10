@@ -34,8 +34,10 @@
 	
 	qui do "$ietoolkitfolder\src\ado_files\ieddtable.ado"
 	
-	local outvars death //marriage divorce
+	local outvars death marriage divorce
 	
-	ieddtable `outvars' , t(t) tmt(tmt) covar(pop5_17 pop18p pop65p)
+	ieddtable `outvars' , t(t) tmt(tmt) covar(pop5_17 pop18p pop65p) 
+	
+	ieddtable `outvars' , t(t) tmt(tmt) covar(pop5_17 pop18p pop65p) starl(.05 .01 .001)
 
 	

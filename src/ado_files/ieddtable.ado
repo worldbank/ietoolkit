@@ -2,15 +2,37 @@
 cap program drop 	ieddtable
 	program define	ieddtable
 	
-	syntax varlist, t(varname numeric) tmt(varname numeric) [COVARiates(varlist numeric)]
+	syntax varlist, ///
+					///
+		t(varname numeric) tmt(varname numeric) 			///
+		[ 													///
+		COVARiates(varlist numeric)							///
+		STARLevels(numlist descending min=3 max=3 >0 <1)	///
+		STARSNOadd											///
+		]
 	
 	
-	/* the rest will be inside the command */
+	/************* 
+		
+		Prepare the result matrix
+			
+	*************/
 	
-	local colnames 2ndDiff 2ndDiff_err 2ndDiff_N B1stDiff B1stDiff_err B1stDiff_N E1stDiff E1stDiff_err E1stDiff_N BC_Mean BC_err BC_N BT_Mean BT_err BT_N EC_Mean EC_err EC_N ET_Mean ET_err ET_N  
+	local 2ndDiff_cols 			2D 2D_err 2D_Stars 2D_N
+	
+	local 1stDiff_C_cols		1DC 1DC_err 1DC_stars 1DC_N 
+	local 1stDiff_T_cols		1DT 1DT_err 1DT_stars 1DT_N 
+	
+	local basicMean_C0_cols		C0_mean C0_err C0_N
+	local basicMean_T0_cols		T0_mean T0_err T0_N
+	local basicMean_C1_cols		C1_mean C1_err C1_N
+	local basicMean_T1_cols		T1_mean T1_err T1_N
+	
+	
+	local colnames `2ndDiff_cols' `1stDiff_C_cols' `1stDiff_T_cols' `basicMean_C0_cols' `basicMean_T0_cols' `basicMean_C1_cols' `basicMean_T0_cols'
 	
 	*Define default row here. The results for each var will be one row that starts with all missing vlaues
-	mat startRow = (.,.,.,.,.,.,.,.,.,.,.,.,.,.,.,.,.,.,.,.,.)
+	mat startRow = (.,.,.,.,.,.,.,.,.,.,.,.,.,.,.,.,.,.,.,.,.,.,.,.)
 	mat colnames startRow = `colnames'
 	
 	noi di "Start row to see headers, remove for production"
@@ -20,7 +42,12 @@ cap program drop 	ieddtable
 	mat resultMat = startRow
 	mat rownames resultMat = placeholder
 	
-	*Loop over all varlist
+	/************* 
+		
+		Loop over all variables and prepare the data
+			
+	*************/
+	
 	foreach var of local varlist {
 		
 		*Each variable is a row in the result matrix
@@ -61,18 +88,28 @@ cap program drop 	ieddtable
 		local ++colindex
 		mat `var'[1,`colindex'] =  el(resTable,2,4) 
 		
+		matlist resTable
+		
+		*Get the number of stars using sub-command countStars
+		local ++colindex
+		local pvalue = el(resTable,4,4) 
+		countStars `pvalue' `starlevels'
+		mat `var'[1,`colindex'] = `r(stars)'		
+		 
+		
 		*Get the N of second difference regression
 		local ++colindex
 		mat `var'[1,`colindex'] = `N' 		
+		
 		
 		/************* 
 		
 			Calculating 1st differences
 			
 		*************/		
-		
 		forvalues tmt01 = 0/1 {
 		
+			*Regress time against the outcome var one tmt group at the time
 			qui reg `var' `t' `covariates' if `tmt' == `tmt01' & `regsample' == 1
 			mat resTable = r(table)
 	
@@ -83,6 +120,12 @@ cap program drop 	ieddtable
 			*Get the standard error of 1st diff
 			local ++colindex
 			mat `var'[1,`colindex'] =  el(resTable,2,1) 
+			
+			*Get the number of stars using sub-command countStars
+			local ++colindex
+			local pvalue = el(resTable,4,4) 
+			countStars `pvalue' `starlevels'
+			mat `var'[1,`colindex'] = `r(stars)'	
 			
 			*Get the N of first difference regression
 			local ++colindex
@@ -147,7 +190,7 @@ end
 	*Then the result matrix can be passed into subcommands that output in either Excel, LaTeX or in the main window.
 	
 	*The results can be accessed like this, which makes the sub-commands less sensitive to changing column order in the section above.
-	//mat A = resultMat[3, "BC_Mean"] // returns a 1x1 matrix
+	//mat A = resultMat[3, "C0_Mean"] // returns a 1x1 matrix with the baseline mean for the countrol grop for the thrid outcome var
 	//local a = el(A,1,1)				// returns the value
 	
 	//matlist A
@@ -202,3 +245,36 @@ cap program drop 	testDDdums
 
 	end
 
+/***************************************
+****************************************
+
+	Write sub-commands for stats
+	
+****************************************
+***************************************/
+
+	
+cap program drop 	countStars
+	program define	countStars, rclass
+	
+	args pvalue star1 star2 star3
+	
+	*Test if custom star levels are used
+	if "`star1'" == "" {
+
+		*Set default levels for 1, 2 and 3 stars
+		local star1 .1
+		local star2 .05
+		local star3 .01
+	}
+	
+	local stars 0
+	foreach star_p_level in `star1' `star2' `star3' {
+
+		if `pvalue' < `star_p_level' local ++stars
+	}
+	
+	return local stars `stars'
+
+end
+	
