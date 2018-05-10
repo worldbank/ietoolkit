@@ -9,6 +9,7 @@ cap program drop 	ieddtable
 		COVARiates(varlist numeric)							///
 		STARLevels(numlist descending min=3 max=3 >0 <1)	///
 		STARSNOadd											///
+		firstdiff											///
 		]
 	
 	
@@ -18,22 +19,9 @@ cap program drop 	ieddtable
 			
 	*************/
 	
-	local 2ndDiff_cols 			2D 2D_err 2D_Stars 2D_N
-	
-	local 1stDiff_C_cols		1DC 1DC_err 1DC_stars 1DC_N 
-	local 1stDiff_T_cols		1DT 1DT_err 1DT_stars 1DT_N 
-	
-	local basicMean_C0_cols		C0_mean C0_err C0_N
-	local basicMean_T0_cols		T0_mean T0_err T0_N
-	local basicMean_C1_cols		C1_mean C1_err C1_N
-	local basicMean_T1_cols		T1_mean T1_err T1_N
-	
-	
-	local colnames `2ndDiff_cols' `1stDiff_C_cols' `1stDiff_T_cols' `basicMean_C0_cols' `basicMean_T0_cols' `basicMean_C1_cols' `basicMean_T0_cols'
-	
-	*Define default row here. The results for each var will be one row that starts with all missing vlaues
-	mat startRow = (.,.,.,.,.,.,.,.,.,.,.,.,.,.,.,.,.,.,.,.,.,.,.,.)
-	mat colnames startRow = `colnames'
+	templateResultMatrix
+	return list
+	mat startRow = r(startRow)
 	
 	noi di "Start row to see headers, remove for production"
 	matlist startRow // See the default row with its column names
@@ -252,6 +240,29 @@ cap program drop 	testDDdums
 	
 ****************************************
 ***************************************/
+cap program drop 	templateResultMatrix
+	program define	templateResultMatrix, rclass
+	
+	
+	local 2ndDiff_cols 			2D 2D_err 2D_Stars 2D_N
+	
+	local 1stDiff_C_cols		1DC 1DC_err 1DC_stars 1DC_N 
+	local 1stDiff_T_cols		1DT 1DT_err 1DT_stars 1DT_N 
+	
+	local basicMean_C0_cols		C0_mean C0_err C0_N
+	local basicMean_T0_cols		T0_mean T0_err T0_N
+	local basicMean_C1_cols		C1_mean C1_err C1_N
+	local basicMean_T1_cols		T1_mean T1_err T1_N
+	
+	local colnames `2ndDiff_cols' `1stDiff_C_cols' `1stDiff_T_cols' `basicMean_C0_cols' `basicMean_T0_cols' `basicMean_C1_cols' `basicMean_T0_cols'
+	
+	*Define default row here. The results for each var will be one row that starts with all missing vlaues
+	mat startRow = (.,.,.,.,.,.,.,.,.,.,.,.,.,.,.,.,.,.,.,.,.,.,.,.)
+	mat colnames startRow = `colnames'
+	
+	return matrix startRow startRow
+	
+end 
 
 	
 cap program drop 	countStars
