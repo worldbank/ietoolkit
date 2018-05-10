@@ -167,6 +167,17 @@ cap program drop 	testDDdums
 	program define	testDDdums
 
 		args time treat samplevar outputvar
+		
+		*Test taht the dummies are dummies
+		foreach dummy in `time' `treat' {
+
+			cap assert inlist(`dummy',1,0) | missing(`dummy') | `samplevar' == 0
+			if _rc {
+				noi di as error "{phang}In the difference in differnce regression for outputvar [`outputvar'], the dummy [`dummy'] is not a real dummy as it has values differnt from 1 and 0. See tab below. The tab is restricted to the observations that are not excluded due to missing values etc. in the difference in differnce regression.{p_end}""
+				noi tab `dummy' if `samplevar' == 1, missing
+				error 480
+			}
+		}
 
 		**Test that for only two of three dummies there are observations
 		* that has only that dummy. I.e. the two that is not the
@@ -179,8 +190,9 @@ cap program drop 	testDDdums
 				*Summary stats on this group
 				count if `treat' == `t01' & `time' == `tmt01' & `samplevar' == 1
 				
+				//There got to be more than 1 observation in each group for the regression to make sense
 				if `r(N)' < 2 {
-					noi di as error "{phang}In the difference in differnce regression for outputvar `outputvar' there were not enough observations in each combination of treatment and time. The tab below is restricted to the observations that are not excluded due to missing values etc. in the difference in differnce regression.{p_end}""
+					noi di as error "{phang}In the difference in differnce regression for outputvar [`outputvar'] there were not enough observations in each combination of treatment [`treat'] and time [`time']. The tab below is restricted to the observations that are not excluded due to missing values etc. in the difference in differnce regression.{p_end}""
 					noi tab `treat' `time' if `samplevar' == 1, missing
 					error 480
 				
