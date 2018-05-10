@@ -36,8 +36,16 @@
 	
 	local outvars death marriage divorce
 	
+	*Simple possible specification
+	ieddtable `outvars' , t(t) tmt(tmt)
+	
+	*Including covariates
 	ieddtable `outvars' , t(t) tmt(tmt) covar(pop5_17 pop18p pop65p) 
 	
+	*Manually set significance level
 	ieddtable `outvars' , t(t) tmt(tmt) covar(pop5_17 pop18p pop65p) starl(.05 .01 .001)
+	
+	*Options for row labels instead of just using varname
+	ieddtable `outvars' , t(t) tmt(tmt) covar(pop5_17 pop18p pop65p) rowlabtext("death Death Rate @@ divorce Divorce Rate") rowlabtype("varlab")
 
 	

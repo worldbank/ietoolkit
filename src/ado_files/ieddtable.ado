@@ -10,19 +10,22 @@ cap program drop 	ieddtable
 		STARLevels(numlist descending min=3 max=3 >0 <1)	///
 		STARSNOadd											///
 		firstdiff											///
+		rowlabtype(string) 									///
+		rowlabtext(string)									///
 		]
 	
 	
 	/************* 
 		
-		Prepare the result matrix
+		Initiate the result matrix
 			
 	*************/
 	
+	*Creates the template for the result matrix in a subfunction
 	templateResultMatrix
-	return list
 	mat startRow = r(startRow)
 	
+	*Remove this when ready for production
 	noi di "Start row to see headers, remove for production"
 	matlist startRow // See the default row with its column names
 	
@@ -160,8 +163,16 @@ cap program drop 	ieddtable
 	*Show the final matrix will all data needed to start building the output
 	noi di "Matlist with results"
 	matlist resultMat
+
+	/************* 
 	
+		Call subcommands that prepares labels in the table
+		
+	*************/		
 	
+	prepRowLabels `varlist', rowlabtype("`rowlabtype'") rowlabtext("`rowlabtext'") 
+	return list
+	di "`r(rowlabels)'"
 	
 end
 
@@ -187,12 +198,110 @@ end
 /***************************************
 ****************************************
 
-	Write sub-commands for input testing
+	Write sub-commands for input handling
 	
 ****************************************
 ***************************************/
 			
+cap program drop 	prepRowLabels
+	program define	prepRowLabels, rclass
+		
+	syntax varlist, [rowlabtype(string) rowlabtext(string)]
 	
+	*First test input
+	if "`rowlabtype'" == "varlab" | "`rowlabtype'" == "" | "`rowlabtype'" == "varname" {
+		//All is good do nothing
+	}
+	else {
+		noi display as error "{phang}Row label type [`rowlabtype'] is not a valid row label type. Enter either {it:varlab} or {it:varname} (the default if not specified is {it:varname}). See option {help ieddtable:rowlabtype} for details."
+		error 198
+	}
+
+	/************* 
+		Parse through the manually entered labels
+	*************/	
+	
+	*Create a local with the rowlabel input to be tokenized
+	local row_labels_to_tokenize `rowlabtext'
+	
+	while "`row_labels_to_tokenize'" != "" {
+
+		*Parsing name and label pair
+		gettoken nameAndLabel row_labels_to_tokenize : row_labels_to_tokenize, parse("@@")
+
+		*Splitting name and label
+		gettoken name label : nameAndLabel
+		
+		/*
+			We store two locals, one with varnames and one with label. They are
+			stored in the same order, so if we find varname we know we will find 
+			the corresponding label in the same order in the other local.		
+		*/
+
+		*** Tests
+
+		*Checking that the variables used in rowlabels() are included in the table
+		local name_correct : list name in varlist
+		if `name_correct' == 0 {
+			noi display as error "{phang}Variable [`name'] listed in rowlabtext(`rowlabtext') is not found among the outcome variables."
+			error 111
+		}
+
+		*Testing that no label is missing
+		if "`label'" == "" {
+			noi display as error "{phang}For variable [`name'] listed in rowlabtext(`rowlabels') you have not specified any label. Labels are requried for all variables listed in rowlabels(). Variables omitted from rowlabtext() will be assigned labels according to the rule in rowlabtype(). See also option {help ieddtable:rowlabtext}"
+			error 198
+		}
+		
+		*Storing the name in local to be used to get index of corresponding label in the second local
+		local rowLabelNames `"`rowLabelNames' "`name'" "'
+		
+		*Removing leading or trailing spaces and store label with the same index as in the name local above
+		local label = trim("`label'")
+		local rowLabelLabels `"`rowLabelLabels' "`label'" "'
+
+		
+		*Parse char is not removed by gettoken, so remove it and start over
+		local row_labels_to_tokenize = subinstr("`row_labels_to_tokenize'" ,"@@","",1)
+	}
+	
+	**Set up locals to be returned. One with row labels without varname but in 
+	* final order, and one local with length of longest label
+	local preppedRowLabels
+	local maxLen 0
+	
+	*Loop over all varaibles and prepare the labels
+	foreach var of local varlist {
+		
+		**Get the index of this variable in manually entered labels. Index is 
+		* zero if no manually entered label for this variable
+		local rowLabPos : list posof "`var'" in rowLabelNames
+		
+		if `rowLabPos' == 0 {
+
+			*No label was manually entered for this variable, use the other rules
+			if "`rowlabtype'" == "varlab" {
+				local this_label : variable label `var'		//Use variable label
+			} 
+			else {
+				local this_label `var'						//Default, use varname
+			}
+		} 
+		else {
+			*Getting the manually defined label corresponding to this variable
+			local this_label : word `rowLabPos' of `rowLabelLabels'
+		}
+
+		*Update the two locals that will be returned
+		local preppedRowLabels "`preppedRowLabels' @@`this_label'"	//Prepare the final list
+		local maxLen = max(strlen("`this_label'"),`maxLen')	//Store the length on the longest label, used on some outputs
+	}
+	
+	*Return the locals
+	return local rowlabels `preppedRowLabels'
+	return local rowlabel_maxlen `maxLen'
+	
+end 	
 	
 cap program drop 	testDDdums
 	program define	testDDdums
@@ -232,6 +341,8 @@ cap program drop 	testDDdums
 		}
 
 	end
+	
+	
 
 /***************************************
 ****************************************
@@ -240,6 +351,7 @@ cap program drop 	testDDdums
 	
 ****************************************
 ***************************************/
+
 cap program drop 	templateResultMatrix
 	program define	templateResultMatrix, rclass
 	
