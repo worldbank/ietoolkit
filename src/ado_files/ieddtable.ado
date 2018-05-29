@@ -217,9 +217,9 @@ end
 ****************************************
 ***************************************/
 
-
-	
-			
+**Program to prepare row labels for each outcome var, using variable name, 
+* variable label or manually entered labels depedning on user input. Variable 
+* names are used if no input.
 cap program drop 	prepRowLabels
 	program define	prepRowLabels, rclass
 		
@@ -302,6 +302,7 @@ cap program drop 	prepRowLabels
 				local this_label `var'						//Default, use varname
 			}
 			else {
+				*Since name is the default it should always be name if it is not label, but in case there is some corner case bug
 				noi display as error `"{phang}This error is never supposed to happen, please report this on {browse "https://www.github.com/worldbank/ietoolkit/issues"} or contact kbjarkefur@worldbank.org.{p_end}"'
 				error 198
 			}
