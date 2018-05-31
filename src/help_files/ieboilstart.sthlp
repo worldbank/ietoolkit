@@ -53,6 +53,7 @@ details {help ieboilstart##comp:below}.
 {synopt :{cmdab:setmem(}{it:string}{cmd:)}}manually sets the memory for	Stata 11 users.{p_end}
 {synopt :{cmdab:c:ustom(}{it:string}{cmd:)}}allows the user to enter custom lines
 	of code to be added.{p_end}
+{synopt :{cmdab:noperm:anently(}{it:string}{cmd:)}}is used to not change settings for future sessions of Stata.{p_end}
 {synoptline}
 
 {marker desc}{...}
@@ -214,9 +215,14 @@ details {help ieboilstart##comp:below}.
 {phang}{cmdab:c:ustom(}{it:string}{cmd:)} allows the user to add one or multiple custom lines of code. Each line of code should be seperated with a "@". See example 2
 	below for more details.{p_end}
 
-{phang}{cmdab:c:ustom(}{it:string}{cmd:)}This option is only relevant for users of Stata 11. This value must be an integer followed by the letter B, K, M or G. The default if omitted is 50M. Cannot be used if
+{phang}{cmdab:setmem(}{it:string}{cmd:)}This option is only relevant for users of Stata 11. This value must be an integer followed by the letter B, K, M or G. The default if omitted is 50M. Cannot be used if
 	versionnumber() is set to version 12.0 or more recent. See {help set memory} for more details. This link will only display options relevant to Stata 11 when clicking it in Stata 11. Otherwise it will show the options relevant to Stata 12 and later.
 
+{phang}{cmdab:noperm:anently(}{it:string}{cmd:)} is used to not change settings for future sessions 
+	of Stata. The default is that all settings are 	set as defaults so that they apply each time Stata 
+	starts after using this command. This option disable that. See option permanently in {help memory:memory} for 
+	mroe details. {cmd:set more off} is always set permanently.{p_end}
+	
 {title:Examples}
 
 {pstd}{hi:Example 1.}
