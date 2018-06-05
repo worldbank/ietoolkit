@@ -478,7 +478,7 @@
 
 					*Drop all but one duplicates in duplicate
 					*groups that are duplicated in all variables
-					duplicates drop 	if `id_string' == "`alldupID'",  force
+					duplicates drop 	if `id_string' == "`alldupID'"
 				}
 
 				*Add an empty row after the output
