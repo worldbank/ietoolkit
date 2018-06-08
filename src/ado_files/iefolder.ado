@@ -894,7 +894,7 @@ cap program drop 	mdofle_p0
 			_col(4)"foreach command of local user_commands {" _n ///
 			_col(8)		"cap which " _char(96) "command'" _n ///
 			_col(8)		"if _rc == 111 {" _n ///
-			_col(12)		"cap ssc install " _char(96) "command'" _n ///
+			_col(12)		"ssc install " _char(96) "command'" _n ///
 			_col(8)		"}" _n ///
 			_col(4)"}" _n ///
 			_n	 ///
