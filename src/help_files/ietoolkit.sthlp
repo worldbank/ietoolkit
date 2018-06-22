@@ -9,7 +9,7 @@ help for {hi:ietoolkit}
 {phang}{cmdab:ietoolkit} {hline 2} Returns information on the version of ietoolkit installed
 
 {phang}For a more descriptive discussion on the intended usage and work flow of this
-command please see the {browse "https://dimewiki.worldbank.org/wiki/Ietoolkit":DIME Wiki}.
+command please see the {browse "https://dimewiki.worldbank.org/wiki/Stata_Coding_Practices#ietoolkit":DIME Wiki}.
 
 {title:Syntax}
 
