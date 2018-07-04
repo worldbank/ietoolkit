@@ -112,7 +112,15 @@
 
 			*Set locals with the max and min values fox maxvar and matsize
 			if "`maxlocal'" == "maxvar" {
-				local max 32767
+				
+				*Stata 15 MP has a higher maximum number of maxvar
+				if c(stata_version) >= 15 & c(MP) == 1 {
+					local max 120000
+				}
+				else {
+					*For Stata 15 SE and MP and SE for all lower versions
+					local max 32767
+				}
 				local min 2048
 			}
 			if "`maxlocal'" == "matsize" {
