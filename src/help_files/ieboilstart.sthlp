@@ -40,7 +40,8 @@ details {help ieboilstart##comp:below}.
 {synopt :{cmdab:v:ersionnumber(}{it:string}{cmd:)}}sets a stable version of Stata
 	for all users. This option does {ul:nothing} unless "`r(version)'" is included as in the example above.{p_end}
 {synopt :{cmdab:maxvar(}{it:numlist}{cmd:)}}manually sets the maximum number of
-	variables allowed in a data set. The default if omitted is 32,767.{p_end}
+	variables allowed in a data set. The default if omitted is the maximum number of variables 
+	allowed depending on the version of Stata used.{p_end}
 {synopt :{cmdab:matsize(}{it:numlist}{cmd:)}}manually sets the maximum number of
 	variables allowed in an estimation command, for example {help regress:regress}.
 	The default if omitted is 400.{p_end}
@@ -118,8 +119,14 @@ details {help ieboilstart##comp:below}.
 {p2line}
 {pstd}{it: Basic Settings:}{p_end}
 {p2col :{cmdab:set maxvar}}sets the maximum number of variables allowed. The
-	default value is 32,767 the maximum allowed in Stata MP or SE. A lower maximum number can manually be set by the option {cmdab:maxvar()}. This setting is skipped using an if-statement if the dofile is executed in Stata Small or IC. See {help set maxvar:set maxvar}.{p_end}
-{p2col :{cmdab:set matsize}}sets the maximum number of variables that can be included in estimation commands such as {cmd:regress}. The {cmdab:ieboilstart} default value is 400 which is the default value for Stata. The maximum number can manually be set by the option {cmdab:matsize()} as long as the number does not violate the limitations in your version of Stata. See {help set matsize:set matsize}.{p_end}
+	default value is the maximum allowed in the version of Stata used which is 32,767 in Stata MP or SE, and 120,000 in Stata MP 15. A lower maximum 
+	number can manually be set by the option {cmdab:maxvar()}. The maxvar is fixed in Stata Small or IC so this setting is ignored when any of 
+	those versions of Stata is used. See {help set maxvar:set maxvar}.{p_end}
+{p2col :{cmdab:set matsize}}sets the maximum number of variables that can be included 
+	in estimation commands such as {cmd:regress}. The {cmdab:ieboilstart} default value 
+	is 400 which is the default value for Stata. A higher value is often allowed but it slows down 
+	Stata and is only needed when running very complex analysis. This option can be used to set a higher 
+	value, as long as the value does not violate the limitations in the version of Stata used. See {help set matsize:set matsize}.{p_end}
 {break}
 {pstd}{it: Dynamic Memory Settings (see {help memory:memory} for details and reasons for default values. Few users ever need to change these values):}{p_end}
 {p2col :{cmdab:set min_memory}}sets a lower bound for the amount of memory assigned to Stata. The default value is no lower bound.{p_end}
