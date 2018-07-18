@@ -5,7 +5,7 @@ cap	program drop	iegraph
 
 	syntax varlist, [noconfbars BASICTItle(string) save(string) ignoredummytest confbarsnone(varlist) 	///
 						confintval(numlist min=1 max=1 >0 <1) VARLabels BAROPTions(string) norestore  	///
-						GREYscale yzero *]
+						BARLabel barlabelformat(string) GREYscale yzero *]
 
 	if "`restore'" == "" preserve
 
@@ -65,6 +65,24 @@ cap	program drop	iegraph
 	else if "`confbars'" 	== "" {
 		local CONFINT_BAR 	= 1
 	}
+	
+	*Checking to see if the barlabel option has been used and assigning 1 and 0 based
+	*on that to the LABEL_BAR variable.
+	if "`barlabel'" 		!= "" {
+		local LABEL_BAR 	= 1
+	}
+	else if "`barlabel'" 	== "" {
+		local LABEL_BAR 	= 0
+	}
+	
+	*Checking to see if the barlabelformat option has been used and assigning 1 and 0 based
+	*on that to the LABEL_FORMAT variable.
+	if "`barlabelformat'" 		!= "" {
+		local LABEL_FORMAT 	= 1
+	}
+	else if "`barlabelformat'" 	== "" {
+		local LABEL_FORMAT 	= 0
+	}
 
 	*Testing to see if the variables used in confbarsnone are
 	*actually in the list of
@@ -78,7 +96,21 @@ cap	program drop	iegraph
 		error 111
 	}
 
-
+	*Checking barlabelformat option
+	if `LABEL_FORMAT' == 1 {
+	
+		* Can only be used if the bar label is displayed
+		if `LABEL_BAR' == 0 {
+			noi display as error "{phang} Option barlabelformat() can only be specified when option barlabel is used. {p_end}"
+			error 198
+		}
+		
+		* Check that specified format is valid
+		if substr("`barlabelformat'",1,1) != "%" | !inlist(substr("`barlabelformat'",-1,1), "e", "f") | !regex("`barlabelformat'", "\.") {
+			noi display as error "{phang} Option barlabelformat() was incorrectly specified. Only fixed and exponencial formats are currently allowed. See {help format} for more information on how to specify a variable format.{p_end}"
+			error 198
+		}
+	}
 
 	*Checking to see if the save option is used what is the extension related to it.
 	if "`save'" != "" {
@@ -341,6 +373,24 @@ cap	program drop	iegraph
 		else if `CONFINT_BAR' == 1 {
 		local confIntGraph = `"(rcap conf_int_max conf_int_min position, lc(gs)) (scatter mean position,  msym(none)  mlabs(medium) mlabpos(10) mlabcolor(black))"'
 	}
+	
+	*Create the bar label
+	if `LABEL_BAR' == 0 {
+		local barLabel = ""
+	}
+	else if `LABEL_BAR' == 1 {
+	
+		gen label = mean
+		
+		if `LABEL_FORMAT' == 1 {
+			format label `barlabelformat'
+		}
+		else if `LABEL_FORMAT' == 0 {
+			format label %9.1f
+		}
+		
+		local barLabel = `"(scatter mean position,  msym(none)  mlab(label) mlabpos(12) mlabcolor(black))"'
+	}
 
 	local titleOption `" , xtitle("") ytitle("`e(depvar)'") "'
 
@@ -432,7 +482,7 @@ cap	program drop	iegraph
 	*******************************************************************************
 
 	*Store all the options in one local
-	local commandline 		`" `tmtGroupBars' `confIntGraph' `titleOption'  `legendOption' `xAxisLabels' title("`basictitle'") `yzero_option' `options'  "'
+	local commandline 		`" `tmtGroupBars' `confIntGraph' `barLabel' `titleOption'  `legendOption' `xAxisLabels' title("`basictitle'") `yzero_option' `options'  "'
 
 	*Error message used in both save-option cases below.
 	local graphErrorMessage `" Something went wrong while trying to generate the graph. Click {stata di r(cmd) :display graph options } to see what graph options iegraph used. This can help in locating the source of the error in the command. "'
