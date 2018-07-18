@@ -15,8 +15,8 @@ command please see the {browse "https://dimewiki.worldbank.org/wiki/Iegraph":DIM
 
 {phang2}
 {cmdab:iegraph} {varlist}
-, [ {cmdab:basicti:tle(}{it:string}{cmd:)} {cmdab:varl:abels}
-{cmdab:save(}{it:string}{cmd:)} {cmdab:grey:scale} {cmdab:yzero}
+, [{cmdab:basicti:tle(}{it:string}{cmd:)} {cmdab:varl:abels}
+{cmdab:save(}{it:string}{cmd:)} {cmdab:grey:scale} {cmdab:yzero} {cmdab:barl:abel} {cmd:barlabelformat}
 {cmd:noconfbars} {cmdab:confbarsnone(}{it:varlist}{cmd:)} {cmdab:confintval(}{it:numlist}{cmd:)}
 {cmd:norestore} {cmdab:baropt:ions(}{it:string}{cmd:)} {cmdab:ignoredummytest}
 {it:{help scatter##twoway_options:twoway_scatter_options}}
@@ -31,6 +31,8 @@ command please see the {browse "https://dimewiki.worldbank.org/wiki/Iegraph":DIM
 {synopt :{cmdab:save(}{it:string}{cmd:)}} Sets the filename and the directory to which the graph will be set/exported.{p_end}
 {synopt :{cmdab:grey:scale}} Uses greyscales for the bars instead of colors.{p_end}
 {synopt :{cmdab:yzero}} Forces y-axis on the graph to start at 0.{p_end}
+{synopt :{cmdab:barl:abel}} Adds a label on top of the bars with their respective values.{p_end}
+{synopt :{cmd:barlabelformat}} Customizes format of bar label. Must be used with {it:barlabel}.{p_end}
 {synopt :{cmd:noconfbars}} Removes the confidence interval bars from graphs for all treatments.{p_end}
 {synopt :{cmdab:confbarsnone(}{it:varlist}{cmd:)}} Removes confidence interval bars from only the {it:varlist} listed.{p_end}
 {synopt :{cmdab:confintval(}{it:numlist}{cmd:)}} Sets the confidence interval for the confidence interval bars. Default is .95.{p_end}
@@ -109,6 +111,14 @@ command please see the {browse "https://dimewiki.worldbank.org/wiki/Iegraph":DIM
 	be forced to zero i.e. where the values in the graph extend beyond zero, both positively
 	or negatively. A warning will be displayed telling the user that the option has
 	been ignored. Despite the warning, the graph will be produced correctly.{p_end}
+
+{phang}{cmdab:barl:abel} Adds a label on top of the bars with their respective values. Equivalent 
+	to specifying option {help help blabel_option:blabel(bar)} in a 
+	{help graph_bar: bar graph}. {p_end}
+	
+{phang}{cmd:barlabelformat} Customize barlabel format. Must be used with {it:barlabel}. Options 
+	allowed have the formats %#.#f or %#.#e. Default if %9.1f. See {help format} for
+	more information. {p_end}
 
 {phang}{cmd:noconfbars} Removes the confidence interval bars from graphs for all
 	treatments. The default value for the confidence interval bars is 95%. {p_end}
