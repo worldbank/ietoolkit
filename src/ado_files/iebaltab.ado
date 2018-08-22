@@ -676,7 +676,7 @@ qui {
 				if `MISSMINMEAN_USED' == 0			local replaceoptions `" `replaceoptions' minobsmean(10) "'
 
 				*Excute the command. Code is found at the bottom of this ado file
-				if (`COVMISS_USED' | `COVMISSREG_USED')  iereplacemiss `covancevar', `replaceoptions'
+				if (`COVMISS_USED' | `COVMISSREG_USED')  iereplacemiss `covariates', `replaceoptions'
 
 				if `COVARMISSOK_USED' != 1 {
 
