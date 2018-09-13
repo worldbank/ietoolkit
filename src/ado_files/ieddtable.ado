@@ -33,6 +33,30 @@ cap program drop 	ieddtable
 	mat resultMat = startRow
 	mat rownames resultMat = placeholder
 	
+	/*
+		Column name dictionary
+			Differences:
+			- 2D : Second differnce coefficient (t*tmt == 1)
+			- 1DC : First  differnce coefficient control (t == 0)
+			- 1DT : First  differnce coefficient treatment (tmt == 0)
+			
+			for each coefficent these stats are also provided:
+				- _err : Second differnce errors (type of errors is set in command)
+				- _Stars :  Second Differene - The number of significance stars (sig level set in command)
+				- _N : Second Difference - Number of observtions in the regression
+				
+			Group means:
+			- C0 - Control time 0
+			- T0 - Treatment time 0
+			- C1 - Control time 1
+			- T1 - Treatment time 1
+			
+			for each group these stats are also provided:
+				- _mean : the mean of the group
+				- _err : the error in the mean (type of errors is set in command)
+	
+	*/
+	
 	/************* 
 		
 		Loop over all variables and prepare the data
