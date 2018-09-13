@@ -2,42 +2,18 @@
 cap program drop 	ieddtable
 	program define	ieddtable
 	
-	syntax varlist , 										///
-															///
+	syntax varlist, ///
+					///
 		t(varname numeric) tmt(varname numeric) 			///
 		[ 													///
 		COVARiates(varlist numeric)							///
 		STARLevels(numlist descending min=3 max=3 >0 <1)	///
 		STARSNOadd											///
 		firstdiff											///
-		ROWLabels(string) 									///
+		rowlabtype(string) 									///
+		rowlabtext(string)									///
 		]
-
-	/***************************************
-	****************************************
-
-		Input testing
-		
-	****************************************
-	***************************************/			
 	
-	/************* 
-	
-		Call subcommands that prepares labels in the table
-		
-	*************/		
-	
-	prepRowLabels `varlist', rowlabels("`rowlabels'") 
-	
-	
-	/***************************************
-	****************************************
-
-		Calculate results and prepare 
-		result matrix
-		
-	****************************************
-	***************************************/		
 	
 	/************* 
 		
@@ -103,7 +79,7 @@ cap program drop 	ieddtable
 		local ++colindex
 		mat `var'[1,`colindex'] =  el(resTable,2,4) 
 		
-		//matlist resTable
+		matlist resTable
 		
 		*Get the number of stars using sub-command countStars
 		local ++colindex
@@ -187,6 +163,16 @@ cap program drop 	ieddtable
 	*Show the final matrix will all data needed to start building the output
 	noi di "Matlist with results"
 	matlist resultMat
+
+	/************* 
+	
+		Call subcommands that prepares labels in the table
+		
+	*************/		
+	
+	prepRowLabels `varlist', rowlabtype("`rowlabtype'") rowlabtext("`rowlabtext'") 
+	return list
+	di "`r(rowlabels)'"
 	
 end
 
@@ -216,28 +202,34 @@ end
 	
 ****************************************
 ***************************************/
+<<<<<<< HEAD
 
 **Program to prepare row labels for each outcome var, using variable name, 
 * variable label or manually entered labels depedning on user input. Variable 
 * names are used if no input.
+=======
+			
+>>>>>>> parent of 5cd8a56... combine rowlabels into one option
 cap program drop 	prepRowLabels
 	program define	prepRowLabels, rclass
 		
-	syntax varlist, [rowlabels(string)]
+	syntax varlist, [rowlabtype(string) rowlabtext(string)]
 	
-	*Run subcommand that parse the sub-options in rowlabels
-	local rowlabels = subinstr(`"`rowlabels'"', ",", "", 1)
-	testRowlabelsinput ,`rowlabels'
-	local rowlabeltype 	`s(rowlabeltype)'
-	local rowlabeltext	`s(rowlabeltext)'
-	
+	*First test input
+	if "`rowlabtype'" == "varlab" | "`rowlabtype'" == "" | "`rowlabtype'" == "varname" {
+		//All is good do nothing
+	}
+	else {
+		noi display as error "{phang}Row label type [`rowlabtype'] is not a valid row label type. Enter either {it:varlab} or {it:varname} (the default if not specified is {it:varname}). See option {help ieddtable:rowlabtype} for details."
+		error 198
+	}
 
 	/************* 
 		Parse through the manually entered labels
 	*************/	
 	
 	*Create a local with the rowlabel input to be tokenized
-	local row_labels_to_tokenize `rowlabeltext'
+	local row_labels_to_tokenize `rowlabtext'
 	
 	while "`row_labels_to_tokenize'" != "" {
 
@@ -258,13 +250,13 @@ cap program drop 	prepRowLabels
 		*Checking that the variables used in rowlabels() are included in the table
 		local name_correct : list name in varlist
 		if `name_correct' == 0 {
-			noi display as error "{phang}Variable [`name'] listed in rowlabels(`rowlabtext') is not found among the outcome variables. See option {help ieddtable:rowlabels} for more details{p_end}"
+			noi display as error "{phang}Variable [`name'] listed in rowlabtext(`rowlabtext') is not found among the outcome variables."
 			error 111
 		}
 
 		*Testing that no label is missing
 		if "`label'" == "" {
-			noi display as error "{phang}For variable [`name'] listed in rowlabels(`rowlabels') you have not specified any label. Labels are requried for all variables listed in rowlabels(,text(`rowlabeltext')). See option {help ieddtable:rowlabels} for more details and for explination on what happens to variables not listed in rowlabels(,text()){p_end}"
+			noi display as error "{phang}For variable [`name'] listed in rowlabtext(`rowlabels') you have not specified any label. Labels are requried for all variables listed in rowlabels(). Variables omitted from rowlabtext() will be assigned labels according to the rule in rowlabtype(). See also option {help ieddtable:rowlabtext}"
 			error 198
 		}
 		
@@ -275,7 +267,7 @@ cap program drop 	prepRowLabels
 		local label = trim("`label'")
 		local rowLabelLabels `"`rowLabelLabels' "`label'" "'
 
-			
+		
 		*Parse char is not removed by gettoken, so remove it and start over
 		local row_labels_to_tokenize = subinstr("`row_labels_to_tokenize'" ,"@@","",1)
 	}
@@ -293,18 +285,19 @@ cap program drop 	prepRowLabels
 		local rowLabPos : list posof "`var'" in rowLabelNames
 		
 		if `rowLabPos' == 0 {
-			di ":: `rowlabeltype'"
+
 			*No label was manually entered for this variable, use the other rules
-			if "`rowlabeltype'" == "label" {
+			if "`rowlabtype'" == "varlab" {
 				local this_label : variable label `var'		//Use variable label
 			} 
-			else if "`rowlabeltype'" == "name" {
-				local this_label `var'						//Default, use varname
-			}
 			else {
+<<<<<<< HEAD
 				*Since name is the default it should always be name if it is not label, but in case there is some corner case bug
 				noi display as error `"{phang}This error is never supposed to happen, please report this on {browse "https://www.github.com/worldbank/ietoolkit/issues"} or contact kbjarkefur@worldbank.org.{p_end}"'
 				error 198
+=======
+				local this_label `var'						//Default, use varname
+>>>>>>> parent of 5cd8a56... combine rowlabels into one option
 			}
 		} 
 		else {
@@ -322,30 +315,6 @@ cap program drop 	prepRowLabels
 	return local rowlabel_maxlen `maxLen'
 	
 end 	
-
-*Parses and test the sub-options inside the option rowlabels
-cap program drop 	testRowlabelsinput
-	program define	testRowlabelsinput, sclass
-
-		syntax  , [name label text(string)] 
-		
-		*Test that both name and label are not used at the same time
-		if "`name'" != "" & "`label'" != "" {
-		
-			noi display as error "{phang}You may not use both label and name in the option rowlabel(`rowlabel'). See option {help ieddtable:rowlabels} for details."
-			error 198
-		} 
-		
-		*If neither is used, use name as default
-		if "`name'`label'" == "" {
-			local name "name"
-		}
-		
-		sreturn local rowlabeltype "`name'`label'"
-		sreturn local rowlabeltext "`text'"
-		
-	end
-	
 	
 cap program drop 	testDDdums
 	program define	testDDdums
