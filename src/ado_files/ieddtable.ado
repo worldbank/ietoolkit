@@ -12,6 +12,7 @@ cap program drop 	ieddtable
 		firstdiff											///
 		rowlabtype(string) 									///
 		rowlabtext(string)									///
+		errortype(string)									///
 		]
 	
 	
@@ -26,6 +27,22 @@ cap program drop 	ieddtable
 	prepRowLabels `varlist', rowlabtype("`rowlabtype'") rowlabtext("`rowlabtext'") 
 	local ddtable_rowlabels "`r(rowlabels)'"	
 	local ddtable_labmaxlen "`r(rowlabel_maxlen)'"	
+	
+	*ERRORTYPES
+	*If error type is used test that it is only one word and that word is an allowed error type
+	if "`errortype'" != "" {
+		local errortype = lower("`errortype'")
+		if (`: word count `errortype'' != 1) | !inlist("`errortype'", "sd", "se") {
+			noi di as error "Value in option errortype(`errortype') can only one out of the following words; se, sd."
+			error 198
+		}
+	}
+	else {
+		*No errortype specified use default which is standard errors
+		local errortype "se"
+	}
+	
+	
 	/************* 
 		
 		Initiate the result matrix
@@ -53,7 +70,7 @@ cap program drop 	ieddtable
 			- 1DT : First  differnce coefficient treatment (tmt == 0)
 			
 			for each coefficent these stats are also provided:
-				- _err : Second differnce errors (type of errors is set in command)
+				- _err : Second differnce errors (type of errors is set in command errortype)
 				- _Stars :  Second Differene - The number of significance stars (sig level set in command)
 				- _N : Second Difference - Number of observtions in the regression
 				
@@ -65,7 +82,7 @@ cap program drop 	ieddtable
 			
 			for each group these stats are also provided:
 				- _mean : the mean of the group
-				- _err : the error in the mean (type of errors is set in command)
+				- _err : the error in the mean (type of errors is set in command errortype)
 	
 	*/
 	
@@ -76,6 +93,8 @@ cap program drop 	ieddtable
 	*************/
 	
 	foreach var of local varlist {
+	
+		noi di "Variable `var'"
 		
 		*Each variable is a row in the result matrix
 		mat `var' = startRow
@@ -98,6 +117,9 @@ cap program drop 	ieddtable
 		qui reg `var' `tmt'#`t' `covariates'
 		mat resTable = r(table)
 		
+		noi di "Rest table 2nd diff: reg `var' `tmt'#`t' `covariates'"
+		matlist resTable		
+		
 		**This is why this is done first. All other calculations 
 		* for this outcome var should be restricted to this sample.
 		gen `regsample' = e(sample)
@@ -113,9 +135,8 @@ cap program drop 	ieddtable
 		
 		*Get the standard error of second difference
 		local ++colindex
-		mat `var'[1,`colindex'] =  el(resTable,2,4) 
-		
-		matlist resTable
+		convertErrs el(resTable,2,4) `N' "`errortype'"
+		mat `var'[1,`colindex'] =  `r(converted_error)' 
 		
 		*Get the number of stars using sub-command countStars
 		local ++colindex
@@ -139,6 +160,9 @@ cap program drop 	ieddtable
 			*Regress time against the outcome var one tmt group at the time
 			qui reg `var' `t' `covariates' if `tmt' == `tmt01' & `regsample' == 1
 			mat resTable = r(table)
+			
+			noi di "Rest table 1st diff: reg `var' `t' `covariates' if `tmt' == `tmt01' & `regsample' == 1"
+			matlist resTable
 	
 			//Get the 1st diff
 			local ++colindex
@@ -146,7 +170,8 @@ cap program drop 	ieddtable
 			
 			*Get the standard error of 1st diff
 			local ++colindex
-			mat `var'[1,`colindex'] =  el(resTable,2,1) 
+			convertErrs el(resTable,2,1) `e(N)' "`errortype'"
+			mat `var'[1,`colindex'] =  `r(converted_error)' 
 			
 			*Get the number of stars using sub-command countStars
 			local ++colindex
@@ -179,8 +204,9 @@ cap program drop 	ieddtable
 				mat `var'[1,`colindex'] =  el(resTable,1,1) 
 				
 				*Get the standard error of the mean
-				local ++colindex
-				mat `var'[1,`colindex'] =  el(resTable,2,1) 	
+				local ++colindex				
+				convertErrs el(resTable,2,1)  `e(N)' "`errortype'"
+				mat `var'[1,`colindex'] =  `r(converted_error)' 
 				
 				*Get the N of the ordinary means regressions
 				local ++colindex
@@ -361,7 +387,7 @@ cap program drop 	testDDdums
 			forvalues t01 = 0/1 {
 				
 				*Summary stats on this group
-				count if `treat' == `t01' & `time' == `tmt01' & `samplevar' == 1
+				qui count if `treat' == `t01' & `time' == `tmt01' & `samplevar' == 1
 				
 				//There got to be more than 1 observation in each group for the regression to make sense
 				if `r(N)' < 2 {
@@ -385,6 +411,7 @@ cap program drop 	testDDdums
 ****************************************
 ***************************************/
 
+*Sets up template for the result matrix
 cap program drop 	templateResultMatrix
 	program define	templateResultMatrix, rclass
 	
@@ -410,7 +437,7 @@ cap program drop 	templateResultMatrix
 	
 end 
 
-	
+*Take the significance levels and count number of starts	
 cap program drop 	countStars
 	program define	countStars, rclass
 	
@@ -434,4 +461,25 @@ cap program drop 	countStars
 	return local stars `stars'
 
 end
+
+*Take the significance levels and count number of starts	
+cap program drop 	convertErrs
+	program define	convertErrs, rclass
+	
+	args se_err N errortype
+	
+	*Test if custom star levels are used
+	if "`errortype'" == "se" {
+		local err `se_err'
+	}
+	else if "`errortype'" == "sd" {
+		local err = `se_err' * sqrt(`N')
+	}
+	
+	return local converted_error `err'
+	
+end
+
+
+
 	
