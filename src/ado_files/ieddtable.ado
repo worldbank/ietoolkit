@@ -16,6 +16,17 @@ cap program drop 	ieddtable
 	
 	
 	/************* 
+	
+		Input handling
+		
+	*************/		
+	
+	*LABELS
+	*Test and prepare the row lables and test how long the longest label is.
+	prepRowLabels `varlist', rowlabtype("`rowlabtype'") rowlabtext("`rowlabtext'") 
+	local ddtable_rowlabels "`r(rowlabels)'"	
+	local ddtable_labmaxlen "`r(rowlabel_maxlen)'"	
+	/************* 
 		
 		Initiate the result matrix
 			
@@ -189,15 +200,7 @@ cap program drop 	ieddtable
 	noi di "Matlist with results"
 	matlist resultMat
 
-	/************* 
-	
-		Call subcommands that prepares labels in the table
-		
-	*************/		
-	
-	prepRowLabels `varlist', rowlabtype("`rowlabtype'") rowlabtext("`rowlabtext'") 
-	return list
-	di "`r(rowlabels)'"
+
 	
 end
 
