@@ -25,8 +25,9 @@ cap program drop 	ieddtable
 	*LABELS
 	*Test and prepare the row lables and test how long the longest label is.
 	prepRowLabels `varlist', rowlabtype("`rowlabtype'") rowlabtext("`rowlabtext'") 
-	local ddtable_rowlabels "`r(rowlabels)'"	
-	local ddtable_labmaxlen "`r(rowlabel_maxlen)'"	
+	local rowlabels "`r(rowlabels)'"	
+	local labmaxlen "`r(rowlabel_maxlen)'"	
+	return list
 	
 	*ERRORTYPES
 	*If error type is used test that it is only one word and that word is an allowed error type
@@ -59,8 +60,8 @@ cap program drop 	ieddtable
 	matlist startRow // See the default row with its column names
 	
 	*Initiate the result matrix with a place holder row that will not be used for anything. Matrices cannot be initiated empty
-	mat resultMat = startRow
-	mat rownames resultMat = placeholder
+	mat ddtab_resultMap = startRow
+	mat rownames ddtab_resultMap = placeholder
 	
 	/*
 		Column name dictionary
@@ -215,18 +216,15 @@ cap program drop 	ieddtable
 		}
 		
 		*Append this row to the result table
-		mat 	resultMat = (resultMat \ `var')
+		mat 	ddtab_resultMap = (ddtab_resultMap \ `var')
 	
 	}
 	
 	*Remove placeholder row
-	matrix resultMat = resultMat[2..., 1...]
+	matrix ddtab_resultMap = ddtab_resultMap[2..., 1...]
 	
 	*Show the final matrix will all data needed to start building the output
 	noi di "Matlist with results"
-	matlist resultMat
-
-
 	
 end
 
@@ -234,6 +232,7 @@ end
 ****************************************
 
 	Write sub-commands for outputs
+	matlist ddtab_resultMap
 	
 ****************************************
 ***************************************/	
