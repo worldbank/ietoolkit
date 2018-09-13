@@ -56,8 +56,8 @@ cap program drop 	ieddtable
 	local colnames = "`r(colnames)'"
 	
 	*Remove this when ready for production
-	noi di "Start row to see headers, remove for production"
-	matlist startRow // See the default row with its column names
+	//noi di "Start row to see headers, remove for production"
+	//matlist startRow // See the default row with its column names
 	
 	*Initiate the result matrix with a place holder row that will not be used for anything. Matrices cannot be initiated empty
 	mat ddtab_resultMap = startRow
@@ -118,8 +118,8 @@ cap program drop 	ieddtable
 		qui reg `var' `tmt'#`t' `covariates'
 		mat resTable = r(table)
 		
-		noi di "Rest table 2nd diff: reg `var' `tmt'#`t' `covariates'"
-		matlist resTable		
+		//noi di "Rest table 2nd diff: reg `var' `tmt'#`t' `covariates'"
+		//matlist resTable		
 		
 		**This is why this is done first. All other calculations 
 		* for this outcome var should be restricted to this sample.
@@ -130,7 +130,7 @@ cap program drop 	ieddtable
 		* combination of time and treat in the sample used for this outcome var
 		testDDdums `t' `tmt' `regsample' `var'  //comment in when this is made into a command
 		
-		//Get the second differnce
+		*Get the second differnce
 		local ++colindex
 		mat `var'[1,`colindex'] =  el(resTable,1,4) 
 		
@@ -162,8 +162,8 @@ cap program drop 	ieddtable
 			qui reg `var' `t' `covariates' if `tmt' == `tmt01' & `regsample' == 1
 			mat resTable = r(table)
 			
-			noi di "Rest table 1st diff: reg `var' `t' `covariates' if `tmt' == `tmt01' & `regsample' == 1"
-			matlist resTable
+			//noi di "Rest table 1st diff: reg `var' `t' `covariates' if `tmt' == `tmt01' & `regsample' == 1"
+			//matlist resTable
 	
 			//Get the 1st diff
 			local ++colindex
