@@ -225,28 +225,33 @@ cap program drop 	ieddtable
 	
 	*Show the final matrix will all data needed to start building the output
 	noi di "Matlist with results"
-	
-end
-
-/***************************************
-****************************************
-
-	Write sub-commands for outputs
 	matlist ddtab_resultMap
 	
-****************************************
-***************************************/	
+	/************* 
+		
+		Output table in result window
+			
+	*************/
 	
+	outputwindow `varlist' , ddtab_resultMap(ddtab_resultMap) labmaxlen(`labmaxlen') rwlbls(`rowlabels')
+
+	/************* 
+		
+		Output table in LaTeX
+			
+	*************/
 	
-	******
-	*Then the result matrix can be passed into subcommands that output in either Excel, LaTeX or in the main window.
+	if "`savetex'" != "" {
+		
+		//outputtex `varlist' , ddtab_resultMap(ddtab_resultMap) savetex(`savetex') 
 	
-	*The results can be accessed like this, which makes the sub-commands less sensitive to changing column order in the section above.
-	//mat A = resultMat[3, "C0_Mean"] // returns a 1x1 matrix with the baseline mean for the countrol grop for the thrid outcome var
-	//local a = el(A,1,1)				// returns the value
+	}
 	
 	//matlist A
 	//di `a'
+
+end
+
 
 /***************************************
 ****************************************
@@ -479,6 +484,67 @@ cap program drop 	convertErrs
 	
 end
 
+/***************************************
+****************************************
 
+	Write sub-commands for outputs
+	
+****************************************
+***************************************/	
+	
+	
+	******
+	*Then the result matrix can be passed into subcommands that output in either Excel, LaTeX or in the main window.
+	
+	*The results can be accessed like this, which makes the sub-commands less sensitive to changing column order in the section above.
+	//mat A = ddtab_resultMap[3, "C0_Mean"] // returns a 1x1 matrix with the baseline mean for the countrol grop for the thrid outcome var
+	//local a = el(A,1,1)				// returns the value
+	
+	//matlist A
+	//di `a'
 
+	
+	cap program drop 	outputwindow
+		program define	outputwindow
+		syntax varlist , ddtab_resultMap(name) labmaxlen(numlist) rwlbls(string)
+			
+		local numVars = `:word count `varlist''
+		
+		
+		matlist ddtab_resultMap[2, "C0_mean"]
+		
+		mat A = ddtab_resultMap[2, "C0_mean"]
+		local a = el(A,1,1)
+		di `a'
+		
+		local statlist 2D 1DT 1DC C0_mean T0_mean
+		local diformat = "%8.3f"
+		
+		local first_hhline = 2 + `labmaxlen' 
+		local first_col = 4 + `labmaxlen'
+	
+		noi di as text "{c TLC}{hline `first_hhline'}{c TT}{hline 23}{c TT}{hline 23}{c TT}{hline 15}{c TRC}"
+		noi di as text "{c |}{col `first_col'}{c |}        Control        {c |}       Treatment       {c |} Difference-in {c |}"
+		noi di as text "{c |}{col 3}Variable{col `first_col'}{c |} Baseline {c |} Difference {c |} Baseline {c |} Difference {c |}  -difference  {c |}"
+		noi di as text "{c LT}{hline `first_hhline'}{c +}{hline 10}{c +}{hline 12}{c +}{hline 10}{c +}{hline 12}{c +}{hline 15}{c RT}"	
+		
+		forvalues row = 1/`numVars' {
+			
+			local rwlbls = trim(subinstr("`rwlbls'", "@@","", 1))
+			gettoken label rwlbls : rwlbls, parse("@@")	
+			
+			foreach stat of local statlist {
+				mat temp = ddtab_resultMap[`row', "`stat'"]
+				local `stat' = el(temp,1,1)
+				local `stat' 	: display `diformat' ``stat''
+			}
+			
+			noi di as text "{c |} `label'{col `first_col'}{c |} `C0_mean' {c |}   `1DC' {c |} `T0_mean' {c |}   `1DT' {c |}      `2D' {c |}"
+		
+		}
+	
+		noi di as text "{c BLC}{hline `first_hhline'}{c BT}{hline 10}{c BT}{hline 12}{c BT}{hline 10}{c BT}{hline 12}{c BT}{hline 15}{c BRC}"
+		
+	end
+	
 	
