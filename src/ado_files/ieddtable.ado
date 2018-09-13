@@ -24,6 +24,7 @@ cap program drop 	ieddtable
 	*Creates the template for the result matrix in a subfunction
 	templateResultMatrix
 	mat startRow = r(startRow)
+	local colnames = "`r(colnames)'"
 	
 	*Remove this when ready for production
 	noi di "Start row to see headers, remove for production"
@@ -402,6 +403,7 @@ cap program drop 	templateResultMatrix
 	mat colnames startRow = `colnames'
 	
 	return matrix startRow startRow
+	return local colnames `colnames'
 	
 end 
 
