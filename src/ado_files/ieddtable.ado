@@ -247,8 +247,6 @@ cap program drop 	ieddtable
 	
 	}
 	
-	//matlist A
-	//di `a'
 
 end
 
@@ -506,6 +504,16 @@ end
 	
 	cap program drop 	outputwindow
 		program define	outputwindow
+		
+		/*
+		Todo: 
+			errors
+			format and change size of columns
+			stars - note on stars
+		
+		
+		*/
+		
 		syntax varlist , ddtab_resultMap(name) labmaxlen(numlist) rwlbls(string)
 			
 		local numVars = `:word count `varlist''
