@@ -27,7 +27,6 @@ cap program drop 	ieddtable
 	prepRowLabels `varlist', rowlabtype("`rowlabtype'") rowlabtext("`rowlabtext'") 
 	local rowlabels "`r(rowlabels)'"	
 	local labmaxlen "`r(rowlabel_maxlen)'"	
-	return list
 	
 	*ERRORTYPES
 	*If error type is used test that it is only one word and that word is an allowed error type
@@ -63,29 +62,6 @@ cap program drop 	ieddtable
 	mat ddtab_resultMap = startRow
 	mat rownames ddtab_resultMap = placeholder
 	
-	/*
-		Column name dictionary
-			Differences:
-			- 2D : Second differnce coefficient (t*tmt == 1)
-			- 1DC : First  differnce coefficient control (t == 0)
-			- 1DT : First  differnce coefficient treatment (tmt == 0)
-			
-			for each coefficent these stats are also provided:
-				- _err : Second differnce errors (type of errors is set in command errortype)
-				- _stars :  Second Differene - The number of significance stars (sig level set in command)
-				- _N : Second Difference - Number of observtions in the regression
-				
-			Group means:
-			- C0 - Control time 0
-			- T0 - Treatment time 0
-			- C1 - Control time 1
-			- T1 - Treatment time 1
-			
-			for each group these stats are also provided:
-				- _mean : the mean of the group
-				- _err : the error in the mean (type of errors is set in command errortype)
-	
-	*/
 	
 	/************* 
 		
@@ -95,7 +71,7 @@ cap program drop 	ieddtable
 	
 	foreach var of local varlist {
 	
-		noi di "Variable `var'"
+		//noi di "Variable `var'"
 		
 		*Each variable is a row in the result matrix
 		mat `var' = startRow
@@ -224,8 +200,8 @@ cap program drop 	ieddtable
 	matrix ddtab_resultMap = ddtab_resultMap[2..., 1...]
 	
 	*Show the final matrix will all data needed to start building the output
-	noi di "Matlist with results"
-	matlist ddtab_resultMap
+	//noi di "Matlist with results"
+	//matlist ddtab_resultMap
 	
 	/************* 
 		
@@ -259,7 +235,7 @@ end
 	
 ****************************************
 ***************************************/
-if 1 {
+
 **Program to prepare row labels for each outcome var, using variable name, 
 * variable label or manually entered labels depedning on user input. Variable 
 * names are used if no input.
@@ -483,7 +459,6 @@ cap program drop 	convertErrs
 	
 end
 
-}
 
 /***************************************
 ****************************************
@@ -503,6 +478,31 @@ end
 	
 	//matlist A
 	//di `a'
+	
+	/*
+		Column name dictionary
+			Differences:
+			- 2D : Second differnce coefficient (t*tmt == 1)
+			- 1DC : First  differnce coefficient control (t == 0)
+			- 1DT : First  differnce coefficient treatment (tmt == 0)
+			
+			for each coefficent these stats are also provided:
+				- _err : Second differnce errors (type of errors is set in command errortype)
+				- _stars :  Second Differene - The number of significance stars (sig level set in command)
+				- _N : Second Difference - Number of observtions in the regression
+				
+			Group means:
+			- C0 - Control time 0
+			- T0 - Treatment time 0
+			- C1 - Control time 1
+			- T1 - Treatment time 1
+			
+			for each group these stats are also provided:
+				- _mean : the mean of the group
+				- _err : the error in the mean (type of errors is set in command errortype)
+	
+	*/
+		
 	
 	
 	cap program drop 	outputwindow
