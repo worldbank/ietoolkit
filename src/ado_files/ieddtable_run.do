@@ -1,9 +1,15 @@
 	
-	/* Create some dummy datat */
+
+	/******************************************
+		Create some dummy datat 
+		No need to edit anything, but you may 
+	********************************************/
 	
 	clear all
 	
 	sysuse census
+	
+	set seed 1234567
 	
 	*Convert vars to precentage of total population
 	local censusvars poplt5 pop5_17 pop18p pop65p popurban death marriage divorce
@@ -17,17 +23,14 @@
 	gen tmt = (runiform()<.5)
 	gen t	= (runiform()<.5)
 	
-/* 
-	*Include this to see how the command test for non dummy values in dummies
-	replace t = 2 if _n == 1
-*/
+	replace death = death * 1000
 	
-/* 
-	*Include this to see how the command test that there are too few groups
-			replace tmt = 0
-	bys t : replace tmt = 1 if _n == 1
-*/
+	replace death = death ^ 2 if tmt == 1
 	
+	/******************************************
+		Add your file path here and 
+		try the command
+	********************************************/	
 	
 	*Add your own file path to be able to run the command
 	if "`c(username)'" == "kbrkb" global ietoolkitfolder "C:\Users\kbrkb\Documents\GitHub\ietoolkit"
@@ -49,3 +52,4 @@
 	ieddtable `outvars' , t(t) tmt(tmt) covar(pop5_17 pop18p pop65p) rowlabtext("death Death Rate @@ divorce Divorce Rate") rowlabtype("varlab")
 
 	
+	ieddtable `outvars' , t(t) tmt(tmt) covar(pop5_17) rowlabtext("death LOOOOOOOOOOOOOOOOOOOOOOOOOOOOONG label  @@ divorce Divorce Rate") rowlabtype("varlab") errortype(errhide)
