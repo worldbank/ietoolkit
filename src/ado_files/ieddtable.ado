@@ -15,7 +15,6 @@ cap program drop 	ieddtable
 		errortype(string)									///
 		]
 	
-	
 	/************* 
 	
 		Input handling
@@ -32,8 +31,8 @@ cap program drop 	ieddtable
 	*If error type is used test that it is only one word and that word is an allowed error type
 	if "`errortype'" != "" {
 		local errortype = lower("`errortype'")
-		if (`: word count `errortype'' != 1) | !inlist("`errortype'", "sd", "se") {
-			noi di as error "Value in option errortype(`errortype') can only one out of the following words; se, sd."
+		if (`: word count `errortype'' != 1) | !inlist("`errortype'", "sd", "se", "errhide") {
+			noi di as error "Value in option errortype(`errortype') can only one out of the following words; se, sd, errhide."
 			error 198
 		}
 	}
@@ -210,7 +209,7 @@ cap program drop 	ieddtable
 	*************/
 	
 	outputwindow `varlist' , ddtab_resultMap(ddtab_resultMap) labmaxlen(`labmaxlen') rwlbls(`rowlabels') ///
-		covariates(`covariates')
+		covariates(`covariates') `errortype'
 
 	/************* 
 		
@@ -448,11 +447,12 @@ cap program drop 	convertErrs
 	args se_err N errortype
 	
 	*Test if custom star levels are used
-	if "`errortype'" == "se" {
-		local err `se_err'
-	}
-	else if "`errortype'" == "sd" {
+	if "`errortype'" == "sd" {
 		local err = `se_err' * sqrt(`N')
+	}
+	else {
+		//For se keep se, for errhide keep se as matrix must have some value even if it will not be used
+		local err = `se_err'
 	}
 	
 	return local converted_error `err'
@@ -516,11 +516,11 @@ end
 		
 		*/
 		
-		syntax varlist , ddtab_resultMap(name) labmaxlen(numlist) rwlbls(string) [covariates(string)]
+		syntax varlist , ddtab_resultMap(name) labmaxlen(numlist) rwlbls(string) [covariates(string) errhide sd se]
 			
 		local numVars = `:word count `varlist''
 		
-		local statlist 2D 1DT 1DC C0_mean T0_mean
+		local statlist 2D 1DT 1DC C0_mean T0_mean 2D_err 1DT_err 1DC_err C0_err T0_err
 		local diformat = "%9.2f"
 		
 		local first_hhline = 2 + `labmaxlen' 
@@ -562,7 +562,13 @@ end
 			
 			*Disaplay each variable row at the same time
 			noi di as text "{c |} `label'{col `first_col'}{c |}{dup `C0_mean_space': }`C0_mean'{dup `1DC_space': }`1DC'{dup `T0_mean_space': }`T0_mean'{dup `1DT_space': }`1DT'{dup `2D_space': }`2D'"
-		
+			
+			if "`errhide'" == "" {  //Error hide is not nothing if errortype() is noerr
+			
+				noi di as text "{c |}{col `first_col'}{c |}{dup `C0_err_space': }`C0_err'{dup `1DC_err_space': }`1DC_err'{dup `T0_err_space': }`T0_err'{dup `1DT_err_space': }`1DT_err'{dup `2D_err_space': }`2D_err'"
+			}
+			
+			
 		}
 	
 		noi di as text "{c BLC}{hline `first_hhline'}{c BT}{hline `bsln_width'}{c BT}{hline `diff_width'}{c BT}{hline `bsln_width'}{c BT}{hline `diff_width'}{c BT}{hline 17}{c BRC}"
@@ -590,14 +596,20 @@ cap program drop 	displayformatter
 			mat starNumMat = ddtab_resultMap[`row', "`statname'_stars"]
 			local starNum = el(starNumMat,1,1)		
 		
-			if `starNum' == 0 local `statname' "``statname''   "
-			if `starNum' == 1 local `statname' "``statname''*  "
-			if `starNum' == 2 local `statname' "``statname''** "
-			if `starNum' == 3 local `statname' "``statname''***"	
+			if `starNum' == 0 local `statname' "``statname''    "
+			if `starNum' == 1 local `statname' "``statname''*   "
+			if `starNum' == 2 local `statname' "``statname''**  "
+			if `starNum' == 3 local `statname' "``statname''*** "	
 		}
 		
-		
 		local `statname' = ltrim("``statname''")
+		
+		if inlist("`statname'", "2D_err", "1DT_err", "1DC_err", "C0_err", "T0_err") {
+			
+			*Add brackets to errors
+			local `statname' "(``statname'')"
+		}
+		
 		
 		local len = strlen("``statname''")
 		//noi di "|``statname''|"
@@ -605,20 +617,37 @@ cap program drop 	displayformatter
 		
 		local numSpace 0
 		
-		if inlist("`statname'", "C0_mean", "T0_mean") {
+		if inlist("`statname'", "C0_mean", "T0_mean","C0_err", "T0_err") {
 			local numSpace = `bslnw' - `len' - 1
 		}	
-		else if inlist("`statname'", "1DT", "1DC") {
+		else if inlist("`statname'", "1DT", "1DC", "1DT_err", "1DC_err") {
 			local numSpace = `diffw' - `len' - 1
 		}
-		else if inlist("`statname'", "2D") {
+		else if inlist("`statname'", "2D", "2D_err") {
 			local numSpace = 16 - `len'
 		}
 		
 		if `numSpace' < 0 local numSpace 0
 		
+		
+		if inlist("`statname'", "C0_err", "T0_err") {
+			
+			*Add brackets to errors
+			return local disp_stata "``statname''{c |}"
+			local ++numSpace 
+		}
+		else if inlist("`statname'", "2D_err", "1DT_err", "1DC_err")  {
+			*Add brackets to errors
+			return local disp_stata "``statname''    {c |}"
+			local numSpace = `numSpace' - 3
+		}
+		else {
+		
+			return local disp_stata "``statname'' {c |}"
+		
+		}
+		
 		return local disp_pre_space = `numSpace'
 		return local disp_len = `len'
-		return local disp_stata "``statname'' {c |}"
 		
 	end
