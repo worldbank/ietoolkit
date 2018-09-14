@@ -72,7 +72,7 @@ cap program drop 	ieddtable
 			
 			for each coefficent these stats are also provided:
 				- _err : Second differnce errors (type of errors is set in command errortype)
-				- _Stars :  Second Differene - The number of significance stars (sig level set in command)
+				- _stars :  Second Differene - The number of significance stars (sig level set in command)
 				- _N : Second Difference - Number of observtions in the regression
 				
 			Group means:
@@ -418,7 +418,7 @@ cap program drop 	templateResultMatrix
 	program define	templateResultMatrix, rclass
 	
 	
-	local 2ndDiff_cols 			2D 2D_err 2D_Stars 2D_N
+	local 2ndDiff_cols 			2D 2D_err 2D_stars 2D_N
 	
 	local 1stDiff_C_cols		1DC 1DC_err 1DC_stars 1DC_N 
 	local 1stDiff_T_cols		1DT 1DT_err 1DT_stars 1DT_N 
