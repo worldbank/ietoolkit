@@ -258,7 +258,7 @@ end
 	
 ****************************************
 ***************************************/
-
+if 1 {
 **Program to prepare row labels for each outcome var, using variable name, 
 * variable label or manually entered labels depedning on user input. Variable 
 * names are used if no input.
@@ -481,6 +481,8 @@ cap program drop 	convertErrs
 	return local converted_error `err'
 	
 end
+
+}
 
 /***************************************
 ****************************************
