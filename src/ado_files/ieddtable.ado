@@ -233,7 +233,8 @@ cap program drop 	ieddtable
 			
 	*************/
 	
-	outputwindow `varlist' , ddtab_resultMap(ddtab_resultMap) labmaxlen(`labmaxlen') rwlbls(`rowlabels')
+	outputwindow `varlist' , ddtab_resultMap(ddtab_resultMap) labmaxlen(`labmaxlen') rwlbls(`rowlabels') ///
+		covariates(`covariates')
 
 	/************* 
 		
@@ -502,41 +503,48 @@ end
 	
 	//matlist A
 	//di `a'
-
+	
 	
 	cap program drop 	outputwindow
 		program define	outputwindow
 		
 		/*
 		Todo: 
-			errors
-			format and change size of columns
-			stars - note on stars
+			note on stars
+			Add errors on second line
 		
 		
 		*/
 		
-		syntax varlist , ddtab_resultMap(name) labmaxlen(numlist) rwlbls(string)
+		syntax varlist , ddtab_resultMap(name) labmaxlen(numlist) rwlbls(string) [covariates(string)]
 			
 		local numVars = `:word count `varlist''
 		
-		
-		matlist ddtab_resultMap[2, "C0_mean"]
-		
-		mat A = ddtab_resultMap[2, "C0_mean"]
-		local a = el(A,1,1)
-		di `a'
-		
 		local statlist 2D 1DT 1DC C0_mean T0_mean
-		local diformat = "%8.3f"
+		local diformat = "%9.2f"
 		
 		local first_hhline = 2 + `labmaxlen' 
 		local first_col = 4 + `labmaxlen'
+		
+		local bsln_space = 2
+		local diff_space = 3
+		
+		local bsln_width = ((`bsln_space' * 2) + 8)
+		local diff_width = ((`diff_space' * 2) + 10)		
+		
+		local ctrl_hline = `bsln_width' + 1 + `diff_width'
+		local ctrl_space = (`ctrl_hline' - 7) / 2
+		
+		local tmt_hline = `bsln_width' + 1 + `diff_width'
+		local tmt_space = (`tmt_hline' - 9) / 2	
 	
-		noi di as text "{c TLC}{hline `first_hhline'}{c TT}{hline 23}{c TT}{hline 23}{c TT}{hline 15}{c TRC}"
-		noi di as text "{c |}{col `first_col'}{c |}        Control        {c |}       Treatment       {c |} Difference-in {c |}"
-		noi di as text "{c |}{col 3}Variable{col `first_col'}{c |} Baseline {c |} Difference {c |} Baseline {c |} Difference {c |}  -difference  {c |}"
-		noi di as text "{c LT}{hline `first_hhline'}{c +}{hline 10}{c +}{hline 12}{c +}{hline 10}{c +}{hline 12}{c +}{hline 15}{c RT}"	
+		noi di as text "{c TLC}{hline `first_hhline'}{c TT}{hline `ctrl_hline'}{c TT}{hline `tmt_hline'}{c TT}{hline 17}{c TRC}"
+		noi di as text "{c |}{col `first_col'}{c |}{dup `ctrl_space': }Control{dup `ctrl_space': }{c |}{dup `tmt_space': }Treatment{dup `tmt_space': }{c |}  Difference-in  {c |}"
+		noi di as text "{c |}{col 3}Variable{col `first_col'}{c |}{dup `bsln_space': }Baseline{dup `bsln_space': }{c |}{dup `diff_space': }Difference{dup `diff_space': }{c |}{dup `bsln_space': }Baseline{dup `bsln_space': }{c |}{dup `diff_space': }Difference{dup `diff_space': }{c |}   -difference   {c |}"
+		noi di as text "{c LT}{hline `first_hhline'}{c +}{hline `bsln_width'}{c +}{hline `diff_width'}{c +}{hline `bsln_width'}{c +}{hline `diff_width'}{c +}{hline 17}{c RT}"	
+		
+		//noi di "diff w : `diff_width'"
+		//noi di "bsln w : `bsln_width'"
 		
 		forvalues row = 1/`numVars' {
 			
@@ -544,17 +552,73 @@ end
 			gettoken label rwlbls : rwlbls, parse("@@")	
 			
 			foreach stat of local statlist {
-				mat temp = ddtab_resultMap[`row', "`stat'"]
-				local `stat' = el(temp,1,1)
-				local `stat' 	: display `diformat' ``stat''
+
+				displayformatter , statname("`stat'") row(`row') ddtab_resultMap(ddtab_resultMap) diformat("`diformat'") bslnw(`bsln_width') diffw(`diff_width')	
+				local `stat' `r(disp_stata)'
+				local `stat'_space = `r(disp_pre_space)'
+				
+				//noi di "`stat' : ``stat'' : `r(disp_len)' : `r(disp_pre_space)'"	
 			}
 			
-			noi di as text "{c |} `label'{col `first_col'}{c |} `C0_mean' {c |}   `1DC' {c |} `T0_mean' {c |}   `1DT' {c |}      `2D' {c |}"
+			*Disaplay each variable row at the same time
+			noi di as text "{c |} `label'{col `first_col'}{c |}{dup `C0_mean_space': }`C0_mean'{dup `1DC_space': }`1DC'{dup `T0_mean_space': }`T0_mean'{dup `1DT_space': }`1DT'{dup `2D_space': }`2D'"
 		
 		}
 	
-		noi di as text "{c BLC}{hline `first_hhline'}{c BT}{hline 10}{c BT}{hline 12}{c BT}{hline 10}{c BT}{hline 12}{c BT}{hline 15}{c BRC}"
+		noi di as text "{c BLC}{hline `first_hhline'}{c BT}{hline `bsln_width'}{c BT}{hline `diff_width'}{c BT}{hline `bsln_width'}{c BT}{hline `diff_width'}{c BT}{hline 17}{c BRC}"
+		
+		if ("`covariates'" != "") {
+		
+			noi di as text "  The following variables was included as covariates [`covariates']"
+		
+		}
 		
 	end
 	
 	
+cap program drop 	displayformatter
+	program define	displayformatter, rclass
+	
+	syntax , statname(string) row(numlist) ddtab_resultMap(name) diformat(string)  bslnw(numlist) diffw(numlist)	
+	
+		mat temp = ddtab_resultMap[`row', "`statname'"]
+		local `statname' = el(temp,1,1)
+		local `statname' 	: display `diformat' ``statname''
+		
+		if inlist("`statname'", "2D", "1DT", "1DC") {
+			
+			mat starNumMat = ddtab_resultMap[`row', "`statname'_stars"]
+			local starNum = el(starNumMat,1,1)		
+		
+			if `starNum' == 0 local `statname' "``statname''   "
+			if `starNum' == 1 local `statname' "``statname''*  "
+			if `starNum' == 2 local `statname' "``statname''** "
+			if `starNum' == 3 local `statname' "``statname''***"	
+		}
+		
+		
+		local `statname' = ltrim("``statname''")
+		
+		local len = strlen("``statname''")
+		//noi di "|``statname''|"
+		//noi di `len'
+		
+		local numSpace 0
+		
+		if inlist("`statname'", "C0_mean", "T0_mean") {
+			local numSpace = `bslnw' - `len' - 1
+		}	
+		else if inlist("`statname'", "1DT", "1DC") {
+			local numSpace = `diffw' - `len' - 1
+		}
+		else if inlist("`statname'", "2D") {
+			local numSpace = 16 - `len'
+		}
+		
+		if `numSpace' < 0 local numSpace 0
+		
+		return local disp_pre_space = `numSpace'
+		return local disp_len = `len'
+		return local disp_stata "``statname'' {c |}"
+		
+	end
