@@ -343,8 +343,12 @@ cap program drop 	prepRowLabels
 	return local rowlabels `preppedRowLabels'
 	return local rowlabel_maxlen `maxLen'
 	
-end 	
-	
+end 
+
+** Program that test the t and tmt variables are valid dummies 
+*  for a Diff-in-Diff. I.e. they are both dummies and there are 
+*  at least 2 observations in each combination (0,0), (1,0), 
+*  (0,1) and (1,1) 
 cap program drop 	testDDdums
 	program define	testDDdums
 
@@ -399,6 +403,7 @@ cap program drop 	templateResultMatrix
 	program define	templateResultMatrix, rclass
 	
 	
+	*Set the names of the different columns in the result Matrix
 	local 2ndDiff_cols 			2D 2D_err 2D_stars 2D_N
 	
 	local 1stDiff_C_cols		1DC 1DC_err 1DC_stars 1DC_N 
@@ -436,7 +441,8 @@ cap program drop 	countStars
 
 end
 
-*Take the significance levels and count number of starts	
+**Convert the errors to the display stats picked 
+* by the user. Standard errors is the default.
 cap program drop 	convertErrs
 	program define	convertErrs, rclass
 	
@@ -499,7 +505,12 @@ end
 	
 	*/
 		
-	
+		
+	/************* 
+		
+		Output table in result window
+			
+	*************/	
 	
 	cap program drop 	outputwindow
 		program define	outputwindow
@@ -507,41 +518,63 @@ end
 		/*
 		Todo: 
 			Add N somewhere
-		
+			Make format specifiable by user
 		
 		*/
 		
-		syntax varlist , ddtab_resultMap(name) labmaxlen(numlist) rwlbls(string) [covariates(string) errhide sd se]
-			
+		syntax varlist , ddtab_resultMap(name) labmaxlen(numlist) rwlbls(string) starlevels(string) [covariates(string) errhide sd se] 
+		
+		*Prepare lables for the erorrs to be displayed (in case any)
 		if "`sd'" != "" local errlabel "SD"
 		if "`se'" != "" local errlabel "SE"	
 		
+		*Count numbers of variables to loop over
 		local numVars = `:word count `varlist''
 		
+		*List of variabls to display and loop over when formatting
 		local statlist 2D 1DT 1DC C0_mean T0_mean 2D_err 1DT_err 1DC_err C0_err T0_err
 		local diformat = "%9.2f"
+		
+		*************************
+		* Table width for label column
 		
 		local first_hhline = 2 + `labmaxlen' 
 		local first_col = 4 + `labmaxlen'
 		
+		*************************
+		* Table width for basline columns
+		
 		local bsln_space = 2
-		local diff_space = 3
-		
 		local bsln_stat_right = `bsln_space' - 1
+		local bsln_width = ((`bsln_space' * 2) + 8)	
 		
-		local bsln_width = ((`bsln_space' * 2) + 8)
-		local diff_width = ((`diff_space' * 2) + 10)		
+		*************************
+		* Table width for first difference column
+		
+		local diff_space = 3
+		local diff_width = ((`diff_space' * 2) + 10)
+		
+		*************************
+		* Table width control column
 		
 		local ctrl_hline = `bsln_width' + 1 + `diff_width'
 		local ctrl_space = (`ctrl_hline' - 7) / 2
 		
+		*************************
+		* Table width treatment column		
+		
 		local tmt_hline = `bsln_width' + 1 + `diff_width'
 		local tmt_space = (`tmt_hline' - 9) / 2	
+		
+		
+		*************************
+		* Start writing table	
 	
 		noi di as text "{c TLC}{hline `first_hhline'}{c TT}{hline `ctrl_hline'}{c TT}{hline `tmt_hline'}{c TT}{hline 17}{c TRC}"
 		noi di as text "{c |}{col `first_col'}{c |}{dup `ctrl_space': }Control{dup `ctrl_space': }{c |}{dup `tmt_space': }Treatment{dup `tmt_space': }{c |}  Difference-in  {c |}"
 		noi di as text "{c |}{col 3}{col `first_col'}{c |}{dup `bsln_space': }Baseline{dup `bsln_space': }{c |}{dup `diff_space': }Difference{dup `diff_space': }{c |}{dup `bsln_space': }Baseline{dup `bsln_space': }{c |}{dup `diff_space': }Difference{dup `diff_space': }{c |}   -difference   {c |}"
 
+		*Stat lable row different if errors are shown or not
 		if "`errhide'" == "" { 
 			noi di as text "{c |}{col 3}Variable{col `first_col'}{c |}{dup `bsln_space': }Mean/(`errlabel'){dup `bsln_stat_right': }{c |}{dup `diff_space': }Coef/(`errlabel') {dup `diff_space': }{c |}{dup `bsln_space': }Mean/(`errlabel'){dup `bsln_stat_right': }{c |}{dup `diff_space': }Coef/(`errlabel') {dup `diff_space': }{c |}     Coef/(`errlabel')   {c |}"
 		}
@@ -549,37 +582,44 @@ end
 			noi di as text "{c |}{col 3}Variable{col `first_col'}{c |}{dup `bsln_space': }  Mean   {dup `bsln_stat_right': }{c |}{dup `diff_space': }   Coef   {dup `diff_space': }{c |}{dup `bsln_space': }  Mean   {dup `bsln_stat_right': }{c |}{dup `diff_space': }   Coef   {dup `diff_space': }{c |}       Coef      {c |}"
 		}
 		
-		
+		*Bottom row to table header
 		noi di as text "{c LT}{hline `first_hhline'}{c +}{hline `bsln_width'}{c +}{hline `diff_width'}{c +}{hline `bsln_width'}{c +}{hline `diff_width'}{c +}{hline 17}{c RT}"	
 		
-		//noi di "diff w : `diff_width'"
-		//noi di "bsln w : `bsln_width'"
 		
+		*Loop over each variable and prepare the row
 		forvalues row = 1/`numVars' {
 			
+			*Get lables from the list of lables previosly prepared
 			local rwlbls = trim(subinstr("`rwlbls'", "@@","", 1))
 			gettoken label rwlbls : rwlbls, parse("@@")	
 			
+			*Loop over all the stats for this variable
 			foreach stat of local statlist {
-
-				displayformatter , statname("`stat'") row(`row') ddtab_resultMap(ddtab_resultMap) diformat("`diformat'") bslnw(`bsln_width') diffw(`diff_width')	
-				local `stat' `r(disp_stata)'
-				local `stat'_space = `r(disp_pre_space)'
 				
-				//noi di "`stat' : ``stat'' : `r(disp_len)' : `r(disp_pre_space)'"	
+				**Run sub command that gets value from matrix and prepares it 
+				* in the format suitable for the result window table (and adding
+				* stars if applicable)
+				displayformatter , statname("`stat'") row(`row') ddtab_resultMap(ddtab_resultMap) diformat("`diformat'") bslnw(`bsln_width') diffw(`diff_width')	
+				
+				*The main stat
+				local `stat' `r(disp_stata)'
+				
+				*The number of spaces before the stat in the colum
+				local `stat'_space = `r(disp_pre_space)'	
 			}
 			
 			*Disaplay each variable row at the same time
 			noi di as text "{c |} `label'{col `first_col'}{c |}{dup `C0_mean_space': }`C0_mean'{dup `1DC_space': }`1DC'{dup `T0_mean_space': }`T0_mean'{dup `1DT_space': }`1DT'{dup `2D_space': }`2D'"
 			
-			if "`errhide'" == "" {  //Error hide is not nothing if errortype() is noerr
-			
+			*Unless error type is errhide, show the errors on a seperate row
+			if "`errhide'" == "" { 
 				noi di as text "{c |}{col `first_col'}{c |}{dup `C0_err_space': }`C0_err'{dup `1DC_err_space': }`1DC_err'{dup `T0_err_space': }`T0_err'{dup `1DT_err_space': }`1DT_err'{dup `2D_err_space': }`2D_err'"
 			}
 			
 			
 		}
-	
+		
+		*Add bottom notes to the table
 		noi di as text "{c BLC}{hline `first_hhline'}{c BT}{hline `bsln_width'}{c BT}{hline `diff_width'}{c BT}{hline `bsln_width'}{c BT}{hline `diff_width'}{c BT}{hline 17}{c BRC}"
 		
 		*************************
@@ -590,9 +630,15 @@ end
 		local star2_value : word 2 of `starlevels'
 		local star3_value : word 3 of `starlevels'
 		
-			noi di as text "  The following variables was included as covariates [`covariates']"
 		
+		noi di as text "  ***, **, and * indicate significance at the `star3_value', `star2_value', and `star1_value' percent critical level. "
+		
+		*List covariates used
+		if ("`covariates'" != "") {
+			noi di as text "  The following variables was included as covariates [`covariates']"
 		}
+		
+		
 		
 	end
 	
