@@ -511,13 +511,16 @@ end
 		/*
 		Todo: 
 			note on stars
-			Add errors on second line
+			Add N somewhere
 		
 		
 		*/
 		
 		syntax varlist , ddtab_resultMap(name) labmaxlen(numlist) rwlbls(string) [covariates(string) errhide sd se]
 			
+		if "`sd'" != "" local errlabel "SD"
+		if "`se'" != "" local errlabel "SE"	
+		
 		local numVars = `:word count `varlist''
 		
 		local statlist 2D 1DT 1DC C0_mean T0_mean 2D_err 1DT_err 1DC_err C0_err T0_err
@@ -528,6 +531,8 @@ end
 		
 		local bsln_space = 2
 		local diff_space = 3
+		
+		local bsln_stat_right = `bsln_space' - 1
 		
 		local bsln_width = ((`bsln_space' * 2) + 8)
 		local diff_width = ((`diff_space' * 2) + 10)		
@@ -540,7 +545,16 @@ end
 	
 		noi di as text "{c TLC}{hline `first_hhline'}{c TT}{hline `ctrl_hline'}{c TT}{hline `tmt_hline'}{c TT}{hline 17}{c TRC}"
 		noi di as text "{c |}{col `first_col'}{c |}{dup `ctrl_space': }Control{dup `ctrl_space': }{c |}{dup `tmt_space': }Treatment{dup `tmt_space': }{c |}  Difference-in  {c |}"
-		noi di as text "{c |}{col 3}Variable{col `first_col'}{c |}{dup `bsln_space': }Baseline{dup `bsln_space': }{c |}{dup `diff_space': }Difference{dup `diff_space': }{c |}{dup `bsln_space': }Baseline{dup `bsln_space': }{c |}{dup `diff_space': }Difference{dup `diff_space': }{c |}   -difference   {c |}"
+		noi di as text "{c |}{col 3}{col `first_col'}{c |}{dup `bsln_space': }Baseline{dup `bsln_space': }{c |}{dup `diff_space': }Difference{dup `diff_space': }{c |}{dup `bsln_space': }Baseline{dup `bsln_space': }{c |}{dup `diff_space': }Difference{dup `diff_space': }{c |}   -difference   {c |}"
+
+		if "`errhide'" == "" { 
+			noi di as text "{c |}{col 3}Variable{col `first_col'}{c |}{dup `bsln_space': }Mean/(`errlabel'){dup `bsln_stat_right': }{c |}{dup `diff_space': }Coef/(`errlabel') {dup `diff_space': }{c |}{dup `bsln_space': }Mean/(`errlabel'){dup `bsln_stat_right': }{c |}{dup `diff_space': }Coef/(`errlabel') {dup `diff_space': }{c |}     Coef/(`errlabel')   {c |}"
+		}
+		else {
+			noi di as text "{c |}{col 3}Variable{col `first_col'}{c |}{dup `bsln_space': }  Mean   {dup `bsln_stat_right': }{c |}{dup `diff_space': }   Coef   {dup `diff_space': }{c |}{dup `bsln_space': }  Mean   {dup `bsln_stat_right': }{c |}{dup `diff_space': }   Coef   {dup `diff_space': }{c |}       Coef      {c |}"
+		}
+		
+		
 		noi di as text "{c LT}{hline `first_hhline'}{c +}{hline `bsln_width'}{c +}{hline `diff_width'}{c +}{hline `bsln_width'}{c +}{hline `diff_width'}{c +}{hline 17}{c RT}"	
 		
 		//noi di "diff w : `diff_width'"
