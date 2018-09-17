@@ -42,6 +42,11 @@ cap program drop 	ieddtable
 	}
 	
 	
+	*DEFAULT STAR LEVELS
+	*Default star levels if option not used
+	if "`starlevels'" == "" local starlevels ".1 .05 .01"
+
+	
 	/************* 
 		
 		Initiate the result matrix
@@ -209,7 +214,7 @@ cap program drop 	ieddtable
 	*************/
 	
 	outputwindow `varlist' , ddtab_resultMap(ddtab_resultMap) labmaxlen(`labmaxlen') rwlbls(`rowlabels') ///
-		covariates(`covariates') `errortype'
+		starlevels("`starlevels'") covariates(`covariates') `errortype'
 
 	/************* 
 		
@@ -421,15 +426,6 @@ cap program drop 	countStars
 	
 	args pvalue star1 star2 star3
 	
-	*Test if custom star levels are used
-	if "`star1'" == "" {
-
-		*Set default levels for 1, 2 and 3 stars
-		local star1 .1
-		local star2 .05
-		local star3 .01
-	}
-	
 	local stars 0
 	foreach star_p_level in `star1' `star2' `star3' {
 
@@ -510,7 +506,6 @@ end
 		
 		/*
 		Todo: 
-			note on stars
 			Add N somewhere
 		
 		
@@ -587,7 +582,13 @@ end
 	
 		noi di as text "{c BLC}{hline `first_hhline'}{c BT}{hline `bsln_width'}{c BT}{hline `diff_width'}{c BT}{hline `bsln_width'}{c BT}{hline `diff_width'}{c BT}{hline 17}{c BRC}"
 		
-		if ("`covariates'" != "") {
+		*************************
+		* Write notes below the table
+		
+		*Show stars levels
+		local star1_value : word 1 of `starlevels'
+		local star2_value : word 2 of `starlevels'
+		local star3_value : word 3 of `starlevels'
 		
 			noi di as text "  The following variables was included as covariates [`covariates']"
 		
