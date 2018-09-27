@@ -659,6 +659,10 @@ cap program drop 	displayformatter
 		local `statname' = el(temp,1,1)
 		local `statname' 	: display `diformat' ``statname''
 		
+		*Trime spaces on left from left.
+		local `statname' = ltrim("``statname''")
+		
+		*For coefficients, add stars if applicable
 		if inlist("`statname'", "2D", "1DT", "1DC") {
 			
 			mat starNumMat = ddtab_resultMap[`row', "`statname'_stars"]
@@ -669,8 +673,6 @@ cap program drop 	displayformatter
 			if `starNum' == 2 local `statname' "``statname''**  "
 			if `starNum' == 3 local `statname' "``statname''*** "	
 		}
-		
-		local `statname' = ltrim("``statname''")
 		
 		*Add brackets to errors
 		if inlist("`statname'", "2D_err", "1DT_err", "1DC_err", "C0_err", "T0_err") {
