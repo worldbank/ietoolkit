@@ -588,6 +588,7 @@ cap program drop 	createRoundMasterDofile
 		*Create DataSets sub-folder and add global to round master dofile
 		file write  `roundHandle' _n	_col(4)"*DataSets sub-folder globals" _n
 		createFolderWriteGlobal	"DataSets" 						"`rnd'" 		"`rnd'_dt" 		`roundHandle'
+		createFolderWriteGlobal "Deidentified" 					"`rnd'_dt" 		"`rnd'_dtDeID" 	`roundHandle'
 		createFolderWriteGlobal "Intermediate" 					"`rnd'_dt" 		"`rnd'_dtInt" 	`roundHandle'
 		createFolderWriteGlobal "Final"  						"`rnd'_dt" 		"`rnd'_dtFin" 	`roundHandle'
 
