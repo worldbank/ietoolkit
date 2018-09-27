@@ -566,6 +566,11 @@ end
 		local tmt_hline = `bsln_width' + 1 + `diff_width'
 		local tmt_space = (`tmt_hline' - 9) / 2	
 		
+		*************************
+		* Table width diff diff column	
+		
+		local diffdiff_width  = 17
+		
 		
 		*************************
 		* Start writing table	
@@ -599,7 +604,7 @@ end
 				**Run sub command that gets value from matrix and prepares it 
 				* in the format suitable for the result window table (and adding
 				* stars if applicable)
-				displayformatter , statname("`stat'") row(`row') ddtab_resultMap(ddtab_resultMap) diformat("`diformat'") bslnw(`bsln_width') diffw(`diff_width')	
+				displayformatter , statname("`stat'") row(`row') ddtab_resultMap(ddtab_resultMap) diformat("`diformat'") bslnw(`bsln_width') diffw(`diff_width') ddw(`diffdiff_width')		
 				
 				*The main stat
 				local `stat' `r(disp_stata)'
@@ -646,7 +651,9 @@ end
 cap program drop 	displayformatter
 	program define	displayformatter, rclass
 	
-	syntax , statname(string) row(numlist) ddtab_resultMap(name) diformat(string)  bslnw(numlist) diffw(numlist)	
+	syntax , statname(string) row(numlist) ddtab_resultMap(name) diformat(string)  bslnw(numlist) diffw(numlist) ddw(numlist)
+	
+		local numSpace 0
 	
 		mat temp = ddtab_resultMap[`row', "`statname'"]
 		local `statname' = el(temp,1,1)
@@ -665,48 +672,51 @@ cap program drop 	displayformatter
 		
 		local `statname' = ltrim("``statname''")
 		
+		*Add brackets to errors
 		if inlist("`statname'", "2D_err", "1DT_err", "1DC_err", "C0_err", "T0_err") {
-			
-			*Add brackets to errors
 			local `statname' "(``statname'')"
 		}
 		
-		
+		*Get the lengt of the characters to display
 		local len = strlen("``statname''")
-		//noi di "|``statname''|"
-		//noi di `len'
+
+		*Which column for this stat
+		local colName = substr("`statname'", 1, 2)
 		
-		local numSpace 0
+		*Get corresponding width for that col
+		if "`colName'" == "C0" local colw = `bslnw'
+		if "`colName'" == "T0" local colw = `bslnw'
+		if "`colName'" == "1D" local colw = `diffw'
+		if "`colName'" == "2D" local colw = `ddw'
 		
-		if inlist("`statname'", "C0_mean", "T0_mean","C0_err", "T0_err") {
-			local numSpace = `bslnw' - `len' - 1
-		}	
-		else if inlist("`statname'", "1DT", "1DC", "1DT_err", "1DC_err") {
-			local numSpace = `diffw' - `len' - 1
+		* Calculate the number of spaces needed bofore 
+		* the value and add spaces after it
+		if inlist("`statname'", "C0_mean", "T0_mean") {
+			*Baseline mean values
+			return local disp_stata "``statname''  {c |}"
+			local numSpace = `colw' - `len' - 2
 		}
-		else if inlist("`statname'", "2D", "2D_err") {
-			local numSpace = 16 - `len'
-		}
-		
-		if `numSpace' < 0 local numSpace 0
-		
-		
-		if inlist("`statname'", "C0_err", "T0_err") {
-			
-			*Add brackets to errors
-			return local disp_stata "``statname''{c |}"
-			local ++numSpace 
-		}
-		else if inlist("`statname'", "2D_err", "1DT_err", "1DC_err")  {
-			*Add brackets to errors
-			return local disp_stata "``statname''    {c |}"
-			local numSpace = `numSpace' - 3
-		}
-		else {
-		
+		else if inlist("`statname'", "C0_err", "T0_err") {
+			*Baseline mean values errors
 			return local disp_stata "``statname'' {c |}"
-		
+			local numSpace = `colw' - `len' - 1
 		}
+		else if inlist("`statname'", "1DT", "1DC", "2D") {
+			*First difference coefficent
+			return local disp_stata "``statname''{c |}"
+			local numSpace = `colw' - `len'
+		}
+		else if inlist("`statname'", "1DT_err", "1DC_err", "2D_err")  {
+			*First difference coefficient error
+			return local disp_stata "``statname''   {c |}"
+			local numSpace = `colw' - `len' - 3
+		}
+				
+		
+		**If numbers are so big that numSapce is negative, set it to 0 as
+		* numSpace cannot be negative. Table will show incorrectly but 
+		* will display.
+		if `numSpace' < 0 local numSpace 0
 		
 		return local disp_pre_space = `numSpace'
 		return local disp_len = `len'
