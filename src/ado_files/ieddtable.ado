@@ -502,6 +502,7 @@ end
 			for each group these stats are also provided:
 				- _mean : the mean of the group
 				- _err : the error in the mean (type of errors is set in command errortype)
+				- _N : number of observations in baseline means
 	
 	*/
 		
@@ -532,7 +533,7 @@ end
 		local numVars = `:word count `varlist''
 		
 		*List of variabls to display and loop over when formatting
-		local statlist 2D 1DT 1DC C0_mean T0_mean 2D_err 1DT_err 1DC_err C0_err T0_err
+		local statlist 2D 1DT 1DC C0_mean T0_mean 2D_err 1DT_err 1DC_err C0_err T0_err 2D_N 1DT_N 1DC_N C0_N T0_N
 		local diformat = "%9.2f"
 		
 		*************************
@@ -545,13 +546,14 @@ end
 		* Table width for basline columns
 		
 		local bsln_space = 2
-		local bsln_stat_right = `bsln_space' - 1
+		local bsln_stat_left = `bsln_space' + 1
 		local bsln_width = ((`bsln_space' * 2) + 8)	
 		
 		*************************
 		* Table width for first difference column
 		
 		local diff_space = 3
+		local diff_stat_left = `diff_space' + 1
 		local diff_width = ((`diff_space' * 2) + 10)
 		
 		*************************
@@ -569,7 +571,17 @@ end
 		*************************
 		* Table width diff diff column	
 		
+		local didi_stat_left = 4
 		local diffdiff_width  = 17
+		
+		*************************
+		* Calculate stats column indexes	
+		
+		local bsln_c_col	= `first_col'  + `bsln_width' + 1
+		local diff_c_col	= `bsln_c_col' + `diff_width' + 1
+		local bsln_t_col	= `diff_c_col' + `bsln_width' + 1
+		local diff_t_col	= `bsln_t_col' + `diff_width' + 1
+		local didi_col		= `diff_t_col' + `diffdiff_width' + 1
 		
 		
 		*************************
@@ -577,15 +589,14 @@ end
 	
 		noi di as text "{c TLC}{hline `first_hhline'}{c TT}{hline `ctrl_hline'}{c TT}{hline `tmt_hline'}{c TT}{hline 17}{c TRC}"
 		noi di as text "{c |}{col `first_col'}{c |}{dup `ctrl_space': }Control{dup `ctrl_space': }{c |}{dup `tmt_space': }Treatment{dup `tmt_space': }{c |}  Difference-in  {c |}"
-		noi di as text "{c |}{col 3}{col `first_col'}{c |}{dup `bsln_space': }Baseline{dup `bsln_space': }{c |}{dup `diff_space': }Difference{dup `diff_space': }{c |}{dup `bsln_space': }Baseline{dup `bsln_space': }{c |}{dup `diff_space': }Difference{dup `diff_space': }{c |}   -difference   {c |}"
+		noi di as text "{c |}{col `first_col'}{c |}{dup `bsln_space': }Baseline{dup `bsln_space': }{c |}{dup `diff_space': }Difference{dup `diff_space': }{c |}{dup `bsln_space': }Baseline{dup `bsln_space': }{c |}{dup `diff_space': }Difference{dup `diff_space': }{c |}   -difference   {c |}"
 
 		*Stat lable row different if errors are shown or not
+		noi di as text "{c |}{col `first_col'}{c |}{dup `bsln_stat_left': } Mean{col `bsln_c_col'}{c |}{dup `diff_stat_left': } Coef{col `diff_c_col'}{c |}{dup `bsln_stat_left': } Mean{col `bsln_t_col'}{c |}{dup `diff_stat_left': } Coef{col `diff_t_col'}{c |}{dup `didi_stat_left': } Coef{col `didi_col'}{c |}"
 		if "`errhide'" == "" { 
-			noi di as text "{c |}{col 3}Variable{col `first_col'}{c |}{dup `bsln_space': }Mean/(`errlabel'){dup `bsln_stat_right': }{c |}{dup `diff_space': }Coef/(`errlabel') {dup `diff_space': }{c |}{dup `bsln_space': }Mean/(`errlabel'){dup `bsln_stat_right': }{c |}{dup `diff_space': }Coef/(`errlabel') {dup `diff_space': }{c |}     Coef/(`errlabel')   {c |}"
-		}
-		else {
-			noi di as text "{c |}{col 3}Variable{col `first_col'}{c |}{dup `bsln_space': }  Mean   {dup `bsln_stat_right': }{c |}{dup `diff_space': }   Coef   {dup `diff_space': }{c |}{dup `bsln_space': }  Mean   {dup `bsln_stat_right': }{c |}{dup `diff_space': }   Coef   {dup `diff_space': }{c |}       Coef      {c |}"
-		}
+			noi di as text "{c |}{col `first_col'}{c |}{dup `bsln_stat_left': }(`errlabel'){col `bsln_c_col'}{c |}{dup `diff_stat_left': }(`errlabel'){col `diff_c_col'}{c |}{dup `bsln_stat_left': }(`errlabel'){col `bsln_t_col'}{c |}{dup `diff_stat_left': }(`errlabel'){col `diff_t_col'}{c |}{dup `didi_stat_left': }(`errlabel'){col `didi_col'}{c |}"
+		}	
+		noi di as text "{c |}{col 3}Variable{col `first_col'}{c |}{dup `bsln_stat_left': } N{col `bsln_c_col'}{c |}{dup `diff_stat_left': } N{col `diff_c_col'}{c |}{dup `bsln_stat_left': } N{col `bsln_t_col'}{c |}{dup `diff_stat_left': } N{col `diff_t_col'}{c |}{dup `didi_stat_left': } N{col `didi_col'}{c |}"
 		
 		*Bottom row to table header
 		noi di as text "{c LT}{hline `first_hhline'}{c +}{hline `bsln_width'}{c +}{hline `diff_width'}{c +}{hline `bsln_width'}{c +}{hline `diff_width'}{c +}{hline 17}{c RT}"	
@@ -620,6 +631,8 @@ end
 			if "`errhide'" == "" { 
 				noi di as text "{c |}{col `first_col'}{c |}{dup `C0_err_space': }`C0_err'{dup `1DC_err_space': }`1DC_err'{dup `T0_err_space': }`T0_err'{dup `1DT_err_space': }`1DT_err'{dup `2D_err_space': }`2D_err'"
 			}
+			
+			noi di as text "{c |}{col `first_col'}{c |}{dup `C0_N_space': }`C0_N'{dup `1DC_N_space': }`1DC_N'{dup `T0_N_space': }`T0_N'{dup `1DT_N_space': }`1DT_N'{dup `2D_N_space': }`2D_N'"
 			
 			
 		}
@@ -657,7 +670,13 @@ cap program drop 	displayformatter
 	
 		mat temp = ddtab_resultMap[`row', "`statname'"]
 		local `statname' = el(temp,1,1)
-		local `statname' 	: display `diformat' ``statname''
+		
+		if substr("`statname'", -2,.) == "_N" {
+			local `statname'	: display %9.0f ``statname''
+		}
+		else {
+			local `statname' 	: display `diformat' ``statname''
+		}
 		
 		*Trime spaces on left from left.
 		local `statname' = ltrim("``statname''")
@@ -693,7 +712,7 @@ cap program drop 	displayformatter
 		
 		* Calculate the number of spaces needed bofore 
 		* the value and add spaces after it
-		if inlist("`statname'", "C0_mean", "T0_mean") {
+		if inlist("`statname'", "C0_mean", "T0_mean", "C0_N", "T0_N") {
 			*Baseline mean values
 			return local disp_stata "``statname''  {c |}"
 			local numSpace = `colw' - `len' - 2
@@ -707,6 +726,11 @@ cap program drop 	displayformatter
 			*First difference coefficent
 			return local disp_stata "``statname''{c |}"
 			local numSpace = `colw' - `len'
+		}
+		else if inlist("`statname'", "1DT_N", "1DC_N", "2D_N") {
+			*First difference coefficent
+			return local disp_stata "``statname''    {c |}"
+			local numSpace = `colw' - `len' - 4
 		}
 		else if inlist("`statname'", "1DT_err", "1DC_err", "2D_err")  {
 			*First difference coefficient error
