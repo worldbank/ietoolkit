@@ -713,6 +713,8 @@ end
 		*************************
 		* Write notes below the table
 		
+		noi di as text "  The baseline means only includes observations not omitted in the 1st and 2nd differences."
+		
 		*Show stars levels
 		local star1_value : word 1 of `starlevels'
 		local star2_value : word 2 of `starlevels'
