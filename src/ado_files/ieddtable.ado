@@ -13,6 +13,7 @@ cap program drop 	ieddtable
 		rowlabtype(string) 									///
 		rowlabtext(string)									///
 		errortype(string)									///
+		diformat(string)									///
 		]
 	
 	/************* 
@@ -45,6 +46,74 @@ cap program drop 	ieddtable
 	*DEFAULT STAR LEVELS
 	*Default star levels if option not used
 	if "`starlevels'" == "" local starlevels ".1 .05 .01"
+	
+	** If the format option is specified, then test if there is a valid format specified
+	if "`diformat'" != "" {
+
+			** Creating a numeric mock variable that we attempt to apply the format
+			*  to. This allows us to piggy back on Stata's internal testing to be
+			*  sure that the format specified is at least one of the valid numeric
+			*  formats in Stata
+				tempvar  formattest
+				gen 	`formattest' = 1
+			cap	format  `formattest' `diformat'
+			
+			** Some error with the format
+			if _rc == 120 {
+				di as error "{phang}The format specified in diformat(`diformat') is not a valid Stata format. See {help format} for a list of valid Stata formats. This command only accept the f, fc, g, gc and e format.{p_end}"
+				error 120
+			}
+			else if _rc != 0 {
+				di as error "{phang}Something unexpected happened related to the option diformat(`diformat'). Make sure that the format you specified is a valid format. See {help format} for a list of valid Stata formats. If this problem remains, please report this error at https://github.com/worldbank/ietoolkit.{p_end}"
+				error _rc
+			}
+			
+			** Format is a valid format, but is it one we allow
+			else {
+				
+				local fomrmatAllowed 0
+				local charLast  = substr("`diformat'", -1,.)
+				local char2Last = substr("`diformat'", -2,.)
+
+				if  "`charLast'" == "f" | "`charLast'" == "e" {
+					local fomrmatAllowed 1
+				}
+				else if "`charLast'" == "g" {
+					if "`char2Last'" == "tg" {
+						*format tg not allowed. all other valid formats ending on g are allowed
+						local fomrmatAllowed 0
+					}
+					else {
+
+						*Formats that end in g that is not tg can only be g which is allowed.
+						local fomrmatAllowed 1
+					}
+				}
+				else if  "`charLast'" == "c" {
+					if "`char2Last'" != "gc" & "`char2Last'" != "fc" {
+						*format ends on c but is neither fc nor gc
+						local fomrmatAllowed 0
+					}
+					else {
+
+						*Formats that end in c that are either fc or gc are allowed.
+						local fomrmatAllowed 1
+					}
+				}
+				else {
+					*format is neither f, fc, g, gc nor e
+					local fomrmatAllowed 0
+				}
+				if `fomrmatAllowed' == 0 {
+					di as error "{phang}The format specified in diformat(`diformat') is not allowed. Only format f, fc, g, gc and e are allowed. See {help format} for details on Stata formats.{p_end}"
+					error 120
+				}
+			}
+		}
+		else {
+			*Default value if fomramt not specified
+			local diformat = "%9.2f"
+		}
 
 	
 	/************* 
@@ -214,7 +283,7 @@ cap program drop 	ieddtable
 	*************/
 	
 	outputwindow `varlist' , ddtab_resultMap(ddtab_resultMap) labmaxlen(`labmaxlen') rwlbls(`rowlabels') ///
-		starlevels("`starlevels'") covariates(`covariates') `errortype'
+		starlevels("`starlevels'") covariates(`covariates') `errortype' diformat(`diformat')
 
 	/************* 
 		
@@ -471,8 +540,15 @@ end
 ***************************************/	
 	
 	
-	******
-	*Then the result matrix can be passed into subcommands that output in either Excel, LaTeX or in the main window.
+	/******
+	The result matrix can be passed into subcommands that output in either Excel, LaTeX or in the main window.
+	
+	The name of the result matrix is ddtab_resultMap. It can be refernced like this ddtab_resultMap[row, col] where 
+	row is the variable order where 1 is the first varaible in the varlist and col is the name of the stat.
+	
+	You always must make it first in to a 1x1 matrix, and then make that a local.
+	
+	*/
 	
 	*The results can be accessed like this, which makes the sub-commands less sensitive to changing column order in the section above.
 	//mat A = ddtab_resultMap[3, "C0_Mean"] // returns a 1x1 matrix with the baseline mean for the countrol grop for the thrid outcome var
@@ -516,14 +592,7 @@ end
 	cap program drop 	outputwindow
 		program define	outputwindow
 		
-		/*
-		Todo: 
-			Add N somewhere
-			Make format specifiable by user
-		
-		*/
-		
-		syntax varlist , ddtab_resultMap(name) labmaxlen(numlist) rwlbls(string) starlevels(string) [covariates(string) errhide sd se] 
+		syntax varlist , ddtab_resultMap(name) labmaxlen(numlist) rwlbls(string) starlevels(string) diformat(string) [covariates(string) errhide sd se] 
 		
 		*Prepare lables for the erorrs to be displayed (in case any)
 		if "`sd'" != "" local errlabel "SD"
@@ -534,7 +603,6 @@ end
 		
 		*List of variabls to display and loop over when formatting
 		local statlist 2D 1DT 1DC C0_mean T0_mean 2D_err 1DT_err 1DC_err C0_err T0_err 2D_N 1DT_N 1DC_N C0_N T0_N
-		local diformat = "%9.2f"
 		
 		*************************
 		* Table width for label column
@@ -586,12 +654,13 @@ end
 		
 		*************************
 		* Start writing table	
-	
+		
+		*Three title rows
 		noi di as text "{c TLC}{hline `first_hhline'}{c TT}{hline `ctrl_hline'}{c TT}{hline `tmt_hline'}{c TT}{hline 17}{c TRC}"
 		noi di as text "{c |}{col `first_col'}{c |}{dup `ctrl_space': }Control{dup `ctrl_space': }{c |}{dup `tmt_space': }Treatment{dup `tmt_space': }{c |}  Difference-in  {c |}"
 		noi di as text "{c |}{col `first_col'}{c |}{dup `bsln_space': }Baseline{dup `bsln_space': }{c |}{dup `diff_space': }Difference{dup `diff_space': }{c |}{dup `bsln_space': }Baseline{dup `bsln_space': }{c |}{dup `diff_space': }Difference{dup `diff_space': }{c |}   -difference   {c |}"
 
-		*Stat lable row different if errors are shown or not
+		*Stats titels, show the stats displayed for each column in the order they are displayed
 		noi di as text "{c |}{col `first_col'}{c |}{dup `bsln_stat_left': } Mean{col `bsln_c_col'}{c |}{dup `diff_stat_left': } Coef{col `diff_c_col'}{c |}{dup `bsln_stat_left': } Mean{col `bsln_t_col'}{c |}{dup `diff_stat_left': } Coef{col `diff_t_col'}{c |}{dup `didi_stat_left': } Coef{col `didi_col'}{c |}"
 		if "`errhide'" == "" { 
 			noi di as text "{c |}{col `first_col'}{c |}{dup `bsln_stat_left': }(`errlabel'){col `bsln_c_col'}{c |}{dup `diff_stat_left': }(`errlabel'){col `diff_c_col'}{c |}{dup `bsln_stat_left': }(`errlabel'){col `bsln_t_col'}{c |}{dup `diff_stat_left': }(`errlabel'){col `diff_t_col'}{c |}{dup `didi_stat_left': }(`errlabel'){col `didi_col'}{c |}"
@@ -615,7 +684,7 @@ end
 				**Run sub command that gets value from matrix and prepares it 
 				* in the format suitable for the result window table (and adding
 				* stars if applicable)
-				displayformatter , statname("`stat'") row(`row') ddtab_resultMap(ddtab_resultMap) diformat("`diformat'") bslnw(`bsln_width') diffw(`diff_width') ddw(`diffdiff_width')		
+				windowdiformat , statname("`stat'") row(`row') ddtab_resultMap(ddtab_resultMap) diformat("`diformat'") bslnw(`bsln_width') diffw(`diff_width') ddw(`diffdiff_width')		
 				
 				*The main stat
 				local `stat' `r(disp_stata)'
@@ -632,6 +701,7 @@ end
 				noi di as text "{c |}{col `first_col'}{c |}{dup `C0_err_space': }`C0_err'{dup `1DC_err_space': }`1DC_err'{dup `T0_err_space': }`T0_err'{dup `1DT_err_space': }`1DT_err'{dup `2D_err_space': }`2D_err'"
 			}
 			
+			*The number of observations are shown on a separate row
 			noi di as text "{c |}{col `first_col'}{c |}{dup `C0_N_space': }`C0_N'{dup `1DC_N_space': }`1DC_N'{dup `T0_N_space': }`T0_N'{dup `1DT_N_space': }`1DT_N'{dup `2D_N_space': }`2D_N'"
 			
 			
@@ -647,22 +717,18 @@ end
 		local star1_value : word 1 of `starlevels'
 		local star2_value : word 2 of `starlevels'
 		local star3_value : word 3 of `starlevels'
-		
-		
 		noi di as text "  ***, **, and * indicate significance at the `star3_value', `star2_value', and `star1_value' percent critical level. "
 		
 		*List covariates used
 		if ("`covariates'" != "") {
-			noi di as text "  The following variables was included as covariates [`covariates']"
+			noi di as text "  The following variable(s) was included as covariates [`covariates']"
 		}
-		
-		
-		
+
 	end
 	
 	
-cap program drop 	displayformatter
-	program define	displayformatter, rclass
+cap program drop 	windowdiformat
+	program define	windowdiformat, rclass
 	
 	syntax , statname(string) row(numlist) ddtab_resultMap(name) diformat(string)  bslnw(numlist) diffw(numlist) ddw(numlist)
 	
