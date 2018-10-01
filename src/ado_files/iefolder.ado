@@ -866,7 +866,7 @@ cap program drop 	mdofle_p0
 			_n	///
 			_col(8)"** NOTES:" _n ///
 			_n ///
-			_col(8)"** WRITEN BY:" _col(25) "names_of_contributors" _n ///
+			_col(8)"** WRITTEN BY:" _col(25) "names_of_contributors" _n ///
 			_n ///
 			_col(8)"** Last date modified: `c(current_date)'" _n ///
 			_col(8)"*/" _n
@@ -1200,7 +1200,7 @@ cap program drop 	mdofle_task
 			 _n 	///
 			_col(4)"** IDS VAR:" _col(25) "list_ID_var_here		//Uniquely identifies households (update for your project)" _n ///
 			_col(4)"** NOTES:" _n ///
-			_col(4)"** WRITEN BY:" _col(25) "names_of_contributors" _n ///
+			_col(4)"** WRITTEN BY:" _col(25) "names_of_contributors" _n ///
 			_col(4)"** Last date modified: `c(current_date)'" _n _n ///
 			_n ///
 			_col(4)"* ***************************************************** *" _n ///
