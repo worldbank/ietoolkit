@@ -14,14 +14,25 @@ cap program drop 	ieddtable
 		rowlabtext(string)									///
 		errortype(string)									///
 		diformat(string)									///
+															///
+		/* Output display */								///
+		SAVETex(string)										///
+		onerow												///
+															///
+		/* Tex output options */							///
+		TEXDOCument											///
+		TEXCaption(string)									///
+		TEXLabel(string)									///
+		TEXNotewidth(numlist min=1 max=1)					///
+		texreplace											///
 		]
 	
 	/************* 
 	
 		Input handling
 		
-	*************/		
-	
+	*************/	
+		
 	*LABELS
 	*Test and prepare the row lables and test how long the longest label is.
 	prepRowLabels `varlist', rowlabtype("`rowlabtype'") rowlabtext("`rowlabtext'") 
@@ -290,10 +301,13 @@ cap program drop 	ieddtable
 		Output table in LaTeX
 			
 	*************/
-	
 	if "`savetex'" != "" {
 		
-		//outputtex `varlist' , ddtab_resultMap(ddtab_resultMap) savetex(`savetex') 
+		outputtex `varlist', 	ddtab_resultMap(ddtab_resultMap) 	///
+								savetex(`savetex') `texreplace'  ///
+								`texdocument' texcaption("`texcaption'") texlabel("`texlabel'") texnotewidth(`texnotewidth') ///
+								`onerow' starlevels("`starlevels'") diformat(`diformat')
+
 	
 	}
 	
@@ -816,3 +830,321 @@ cap program drop 	windowdiformat
 		return local disp_len = `len'
 		
 	end
+
+	/************* 
+		
+		Output table in LaTeX
+			
+	*************/
+		
+	***************
+	* Output header
+	***************
+cap program drop 	outputtex
+	program define	outputtex	
+	
+	syntax varlist, ddtab_resultMap(name) savetex(string) ///
+					[texreplace onerow starlevels(string) diformat(string) ///
+					texdocument texcaption(string) texlabel(string) texnotewidth(numlist)]
+	
+	******** Prepare inputs
+	
+		if "`texreplace'" != ""		local texreplace	replace
+	
+		* Test filename input
+		**Find the last . in the file path and assume that
+		* the file extension is what follows. If a file path has a . then
+		* the file extension must be explicitly specified by the user.
+
+		*Copy the full file path to the file suffix local
+		local tex_file_suffix 	= "`savetex'"
+
+		** Find index for where the file type suffix start
+		local tex_dot_index 	= strpos("`tex_file_suffix'",".")
+
+		*If no dot then no file extension
+		if `tex_dot_index' == 0  local tex_file_suffix 	""
+
+		**If there is one or many . in the file path than loop over
+		* the file path until we have found the last one.
+		while `tex_dot_index' > 0 {
+
+			*Extract the file index
+			local tex_file_suffix 	= substr("`tex_file_suffix'", `tex_dot_index' + 1, .)
+
+			*Find index for where the file type suffix start
+			local tex_dot_index 	= strpos("`tex_file_suffix'",".")
+		}
+
+		*If no file format suffix is specified, use the default .tex
+		if "`tex_file_suffix'" == "" {
+
+			local savetex `"`savetex'.tex"'
+		}
+
+		*If a file format suffix is specified make sure that it is one of the two allowed.
+		else if !("`tex_file_suffix'" == "tex" | "`tex_file_suffix'" == "txt") {
+
+			noi display as error "{phang}The file format specified in savetex(`savetex') is other than .tex or .txt. Only those two formats are allowed. If no format is specified .tex is the default. If you have a . in your file path, for example in a folder name, then you must specify the file extension .tex or .txt.{p_end}"
+			error 198
+		}
+
+
+		tempname 	texname
+		tempfile	texfile
+		
+	cap file close `texname'	
+		file open  `texname' using 	"`texfile'", text write replace
+		file write `texname' 		`"%%% Table created in Stata by ieddtable (https://github.com/worldbank/ietoolkit)"' _n _n
+		file close `texname'
+		
+		* Create preamble for standalone document
+		if "`texdocument'" != "" {
+			texpreamble, texname("`texname'") texfile("`texfile'") texcaption("`texcaption'") texlabel("`texlabel'")
+		}
+		
+			texheader, texname("`texname'") texfile("`texfile'") `onerow'
+		
+			texresults `varlist', ddtab_resultMap(ddtab_resultMap) ///
+								  diformat("`diformat'")  ///
+								  texname("`texname'") texfile("`texfile'") `onerow'
+
+		if "`onerow'" != "" {
+			texonerow, ddtab_resultMap(ddtab_resultMap) texname("`texname'") texfile("`texfile'")
+		}
+			texfooter, texname("`texname'") texfile("`texfile'") texnotewidth(`texnotewidth') `onerow'
+		
+	copy "`texfile'" `"`savetex'"', `texreplace'
+
+	noi di as result `"{phang}Balance table saved to: {browse "`savetex'":`savetex'} "'
+	
+end
+
+cap program drop	texresults
+	program define	texresults
+	
+	syntax	varlist, ddtab_resultMap(name) texname(string) texfile(string) diformat(string) [onerow]
+
+		*Count numbers of variables to loop over
+		local numVars = `:word count `varlist''
+		
+		*List of variabls to display and loop over when formatting
+		local statlist 2D 1DT 1DC C0_mean T0_mean 2D_err 1DT_err 1DC_err C0_err T0_err 2D_N 1DT_N 1DC_N C0_N T0_N
+
+		* Loop over variables
+		forvalues row = 1/`numVars' {
+			foreach stat of local statlist {
+			
+				**Run sub command that gets value from matrix and prepares it 
+				* in the format suitable for the LaTeX table (and adding
+				* stars if applicable)
+				texdiformat , statname("`stat'") row(`row') ddtab_resultMap(ddtab_resultMap) diformat("`diformat'")	`onerow'
+				
+				*The main stat
+				local `stat' `r(disp_tex)'
+				
+			}
+				
+
+			file open  `texname' using 	"`texfile'", text write append
+			file write `texname'		"name `C0_N'  & \begin{tabular}[t]{@{}c@{}} `C0_mean' \\ `C0_err'  \end{tabular}" ///
+											" `1DC_N' & \begin{tabular}[t]{@{}c@{}} `1DC'     \\ `1DC_err' \end{tabular}" ///
+											" `T0_N'  & \begin{tabular}[t]{@{}c@{}} `T0_mean' \\ `T0_err'  \end{tabular}" ///
+											" `1DT_N' & \begin{tabular}[t]{@{}c@{}} `1DT'     \\ `1DT_err' \end{tabular}" ///
+											" `2D_N'  & \begin{tabular}[t]{@{}c@{}} `2D'      \\ `2D_err'  \end{tabular} \rule{0pt}{0pt}\\" _n
+			file close `texname'
+		}
+		
+end
+
+cap program drop 	texdiformat
+	program define	texdiformat, rclass
+	
+	syntax , statname(string) row(numlist) ddtab_resultMap(name) diformat(string) [onerow]
+	
+		mat temp = ddtab_resultMap[`row', "`statname'"]
+		local `statname' = el(temp,1,1)
+		
+		if substr("`statname'", -2,.) == "_N" {
+			local `statname'	: display %9.0f ``statname''
+		}
+		else {
+			local `statname' 	: display `diformat' ``statname''
+		}
+		
+		*Trime spaces on left from left.
+		local `statname' = ltrim("``statname''")
+		
+		*For coefficients, add stars if applicable
+		if inlist("`statname'", "2D", "1DT", "1DC") {
+			
+			mat starNumMat = ddtab_resultMap[`row', "`statname'_stars"]
+			local starNum = el(starNumMat,1,1)		
+		
+			if `starNum' == 0 local `statname' "``statname''    "
+			if `starNum' == 1 local `statname' "``statname''*   "
+			if `starNum' == 2 local `statname' "``statname''**  "
+			if `starNum' == 3 local `statname' "``statname''*** "	
+		}
+		
+		*Add brackets to errors
+		if inlist("`statname'", "2D_err", "1DT_err", "1DC_err", "C0_err", "T0_err") {
+			local `statname' "(``statname'')"
+		}
+		
+		*Only add number of observations of onerow is not specified
+		if inlist("`statname'", "2D_N", "1DT_N", "1DC_N", "C0_N", "T0_N") {
+			if "`onerow'" == "" {
+				local `statname' `" & ``statname'' "'
+			}
+			else {
+				local `statname'	""
+			}
+		}
+		
+		return local disp_tex "``statname''"
+end
+
+cap program drop	texpreamble
+	program define	texpreamble
+	
+	syntax	, texname(string) texfile(string)[texcaption(string) texlabel(string)]
+					
+		file open  `texname' using 	`"`texfile'"', text write append
+		file write `texname' 		`"\documentclass{article}"' _n ///
+									`""' _n ///
+									`"% ----- Preamble "' _n ///
+									`"\usepackage[utf8]{inputenc}"' _n ///
+									`"\usepackage{adjustbox}"' _n ///
+									`"% ----- End of preamble "' _n ///
+									`""' _n ///
+									`" \begin{document}"' _n ///
+									`""' _n ///
+									`"\begin{table}[!htbp]"' _n ///
+									`"\centering"' _n
+									
+		* Write tex caption if specified
+		if "`texcaption'" != "" {
+		
+			* Make sure special characters are displayed correctly
+			local texcaption : subinstr local texcaption "%"  "\%" , all
+			local texcaption : subinstr local texcaption "_"  "\_" , all
+			local texcaption : subinstr local texcaption "&"  "\&" , all
+
+			file write `texname' 	`"\caption{`texcaption'}"' _n
+
+		}
+		
+		* Write tex label if specified
+		if "`texlabel'" != "" {
+
+			file write `texname' 	`"\label{`texlabel'}"' _n
+
+		}
+
+		
+		file write `texname'		`"\begin{adjustbox}{max width=\textwidth}"' _n
+		file close `texname'
+	
+end
+
+cap program drop	texheader
+	program define	texheader
+	
+	syntax	, texname(string) texfile(string) [onerow]
+	
+			
+		if "`onerow'" != "" {
+		
+			local	toprowcols		2
+			local	bottomrowcols	1
+			local 	colstring		lccccc
+			local	ncol			""
+		
+		}
+		else {
+			
+			local	toprowcols		4
+			local	bottomrowcols	2
+			local 	colstring		lcccccccccc
+			local	ncol			"& N "
+
+		}
+		
+	
+		* Write tex header
+		file open  `texname' using 	"`texfile'", text write append
+		file write `texname'		"\begin{tabular}{@{\extracolsep{5pt}}`colstring'}" _n ///
+									"\hline \hline \\[-1.8ex]" _n ///
+									"& \multicolumn{`toprowcols'}{c}{Control} & \multicolumn{`toprowcols'}{c}{Treatment}  & \multicolumn{`bottomrowcols'}{c}{Difference-in-differences} \\" _n ///
+									"& \multicolumn{`bottomrowcols'}{c}{Baseline} & \multicolumn{`bottomrowcols'}{c}{Difference} & \multicolumn{`bottomrowcols'}{c}{Baseline} & \multicolumn{`bottomrowcols'}{c}{Difference} & \multicolumn{`bottomrowcols'}{c}{} \\" _n ///
+									"Variable `ncol' & Mean`errortitle' `ncol' & Coef`errortitle' `ncol' & Mean`errortitle' `ncol' & Coef`errortitle' `ncol' & Coef`errortitle' \\ \hline \\[-1.8ex]" _n
+		file close `texname'
+		
+end
+
+cap program drop	texfooter
+	program define	texfooter
+	
+	syntax	, texname(string) texfile(string) [texnotewidth(numlist) onerow]
+
+		if "`onerow'" != "" {
+			local	countcols		6
+		}
+		else {
+			local 	countcols		11
+		}
+		
+		if "`texnotewidth'" == "" {
+			local 	texnotewidth 	1
+		}
+			
+		file open  `texname' using 	"`texfile'", text write append		
+		file write `texname'		"\hline \hline \\[-1.8ex]" _n ///
+									"%%% This is the note. If it does not have the correct margins, use texnotewidth() option or change the number before '\textwidth' in line below to fit it to table size." _n ///
+									"\multicolumn{`countcols'}{@{} p{`texnotewidth'\textwidth}}" _n ///
+									"{\textit{Notes}: `tblnote'}" _n ///
+									"\end{tabular}" _n ///
+									"\end{adjustbox}" _n ///
+									"\end{table}" _n _n ///
+									"\end{document}" _n
+
+		file close `texname'
+		
+end
+
+cap program drop	texonerow
+	program define	texonerow
+	
+	syntax	, texname(string) texfile(string) ddtab_resultMap(name)
+	
+		*Check that all rows have the same number of obs
+
+		*List of variabls to add
+		local statlist 2D_N 1DT_N 1DC_N C0_N T0_N
+
+		*Get their values
+		foreach stat of local statlist {
+		
+			mat temp = ddtab_resultMap[`row', "`statname'"]
+			local `statname' = el(temp,1,1)
+			
+			if substr("`statname'", -2,.) == "_N" {
+				local `statname'	: display %9.0f ``statname''
+			}
+			else {
+				local `statname' 	: display `diformat' ``statname''
+			}
+			
+			*Trime spaces on left from left.
+			local `statname' = ltrim("``statname''")
+			
+		}
+			
+		file open  `texname' using 	"`texfile'", text write append
+		file write `texname'		
+		file close `texname'
+	
+		
+end
+
