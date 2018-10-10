@@ -45,8 +45,8 @@ cap	program drop	iegraph
 	
 	*Checking to see if the mlabposition option has been used and assigning 1 and 0 based
 	*on that to the LABEL_POS variable.
-	if "`mlabposition'" != "" 			local LABEL_POS 	= 1
-	if "`mlabposition'" == "" 			local LABEL_POS 	= 0
+	if "`mlabposition'" != "" 		local LABEL_POS 	= 1
+	if "`mlabposition'" == "" 		local LABEL_POS 	= 0
 	
 	*Checking to see if the mlabcolor option has been used and assigning 1 and 0 based
 	*on that to the LABEL_COL variable.
@@ -63,7 +63,6 @@ cap	program drop	iegraph
 	if "`barlabelformat'" != "" 	local LABEL_FORMAT 	= 1
 	if "`barlabelformat'" == ""		local LABEL_FORMAT 	= 0
 	
-
 /*******************************************************************************
 							
 							Prepare inputs
@@ -134,12 +133,42 @@ cap	program drop	iegraph
 		}
 	}
 	else {	
-		if `LABEL_FORMAT' == 1 {
-			* Check that specified format is valid
+	
+		**************************************
+		* Check that specified format is valid
+		**************************************
+		
+		if `LABEL_FORMAT' {
 			if substr("`barlabelformat'",1,1) != "%" | !inlist(substr("`barlabelformat'",-1,1), "e", "f") | !regex("`barlabelformat'", "\.") {
 				noi display as error "{phang} Option barlabelformat() was incorrectly specified. Only fixed and exponencial formats are currently allowed. See {help format} for more information on how to specify a variable format.{p_end}"
 				error 198
 			}
+		}
+		
+		***************************************************************************
+		* Check that label position is valid. If not, print warning and turn switch
+		* off so default will be used
+		***************************************************************************
+		if `LABEL_POS' {
+			if !inlist(`mlabposition', 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12) {
+				noi di "{phang} WARNING: Option mlabposition() was incorrectly specified. Only {help clockposstyle} values are accepted. Default position used.{p_end}"
+				local 	LABEL_POS 	0
+			}		
+		}
+		***************************************************************************
+		* Check that label size is valid. If not, print warning and turn switch
+		* off so default will be used
+		***************************************************************************
+		if `LABEL_SIZE' {
+			if !(inlist("`mlabsize'",	"zero", "minuscule", "quarter_tiny", "third_tiny", ///
+										"tiny", "vsmall", "small", "medsmall") | ///
+				 inlist("`mlabsize'", 	"medium", "medlarge", "large", "vlarge", "huge", ///
+										"vhuge", "tenth", "quarter", "third") | ///
+				 inlist("`mlabsize'", 	"half_tiny", "half", "full")) {
+				 
+					noi di "{phang} WARNING: Option mlabsize() was incorrectly specified. Only {help textsizestyle} values are accepted. Default size used.{p_end}"
+					local 	LABEL_SIZE 	0
+			}		
 		}
 	}
 
