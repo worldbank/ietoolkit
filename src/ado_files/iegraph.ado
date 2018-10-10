@@ -3,9 +3,23 @@
 cap	program drop	iegraph
 	program define 	iegraph, rclass
 
-	syntax varlist, [noconfbars BASICTItle(string) save(string) ignoredummytest confbarsnone(varlist) 	///
-						confintval(numlist min=1 max=1 >0 <1) VARLabels BAROPTions(string) norestore  	///
-						BARLabel barlabelformat(string) GREYscale yzero *]
+	syntax varlist, 							///
+	   [noconfbars 								///
+		confbarsnone(varlist) 					///
+		confintval(numlist min=1 max=1 >0 <1) 	///
+		BARLabel								///
+		MLABColor(string)						///
+		MLABPosition(numlist)					///
+		MLABSize(string)						///
+		BAROPTions(string)						///
+		barlabelformat(string)					///
+		GREYscale								///
+		yzero									///
+		BASICTItle(string) 						///
+		VARLabels								///
+		ignoredummytest 						///
+		norestore								///
+		save(string) *]
 
 	if "`restore'" == "" preserve
 
@@ -13,13 +27,56 @@ cap	program drop	iegraph
 
 	version 11
 
+/*******************************************************************************
+
+						Identify options used
+						
+********************************************************************************/
+
+	*Checking to see if the noconfbars option has been used and assigning 1 and 0 based
+	*on that to the CONFINT_BAR variable.
+	if "`confbars'" != ""  			local CONFINT_BAR 	= 0
+	if "`confbars'" == ""  			local CONFINT_BAR 	= 1
+	
+	*Checking to see if the barlabel option has been used and assigning 1 and 0 based
+	*on that to the LABEL_BAR variable.
+	if "`barlabel'" != "" 			local LABEL_BAR 	= 1
+	if "`barlabel'" == "" 			local LABEL_BAR 	= 0
+	
+	*Checking to see if the mlabposition option has been used and assigning 1 and 0 based
+	*on that to the LABEL_POS variable.
+	if "`mlabposition'" != "" 			local LABEL_POS 	= 1
+	if "`mlabposition'" == "" 			local LABEL_POS 	= 0
+	
+	*Checking to see if the mlabcolor option has been used and assigning 1 and 0 based
+	*on that to the LABEL_COL variable.
+	if "`mlabcolor'" != "" 			local LABEL_COL 	= 1
+	if "`mlabcolor'" == "" 			local LABEL_COL 	= 0
+	
+	*Checking to see if the mlabcolor option has been used and assigning 1 and 0 based
+	*on that to the LABEL_COL variable.
+	if "`mlabsize'" != "" 			local LABEL_SIZE	= 1
+	if "`mlabsize'" == "" 			local LABEL_SIZE 	= 0
+	
+	*Checking to see if the barlabelformat option has been used and assigning 1 and 0 based
+	*on that to the LABEL_FORMAT variable.
+	if "`barlabelformat'" != "" 	local LABEL_FORMAT 	= 1
+	if "`barlabelformat'" == ""		local LABEL_FORMAT 	= 0
+	
+
+/*******************************************************************************
+							
+							Prepare inputs
+							
+********************************************************************************/
+
 	*Only keep the observations in the regressions
 	keep if e(sample) == 1
 
 	*Copy beta matrix to a regular matrix
 	mat BETA = e(b)
 
-	*Unabbriviate and varlists
+	*Unabbreviate and varlists
 	unab varlist : `varlist'
 
 	*Testing to see if the variables used in the regressions are actual dummy variables as treatment vars need to be dummy variables.
@@ -57,33 +114,6 @@ cap	program drop	iegraph
 	if "`ignoredummytest'" == "" testDums `varlist'
 
 
-	*Checking to see if the noconfbars option has been used and assigning 1 and 0 based
-	*on that to the CONFINT_BAR variable.
-	if "`confbars'" 		!= "" {
-		local CONFINT_BAR 	= 0
-	}
-	else if "`confbars'" 	== "" {
-		local CONFINT_BAR 	= 1
-	}
-	
-	*Checking to see if the barlabel option has been used and assigning 1 and 0 based
-	*on that to the LABEL_BAR variable.
-	if "`barlabel'" 		!= "" {
-		local LABEL_BAR 	= 1
-	}
-	else if "`barlabel'" 	== "" {
-		local LABEL_BAR 	= 0
-	}
-	
-	*Checking to see if the barlabelformat option has been used and assigning 1 and 0 based
-	*on that to the LABEL_FORMAT variable.
-	if "`barlabelformat'" 		!= "" {
-		local LABEL_FORMAT 	= 1
-	}
-	else if "`barlabelformat'" 	== "" {
-		local LABEL_FORMAT 	= 0
-	}
-
 	*Testing to see if the variables used in confbarsnone are
 	*actually in the list of
 	*variables used for the regression/graph.
@@ -96,19 +126,20 @@ cap	program drop	iegraph
 		error 111
 	}
 
-	*Checking barlabelformat option
-	if `LABEL_FORMAT' == 1 {
-	
-		* Can only be used if the bar label is displayed
-		if `LABEL_BAR' == 0 {
-			noi display as error "{phang} Option barlabelformat() can only be specified when option barlabel is used. {p_end}"
+	* Can only be used if the bar label is displayed
+	if `LABEL_BAR' == 0 {	
+		if `LABEL_FORMAT' | `LABEL_POS' | `LABEL_COL' | `LABEL_SIZE' {
+			noi display as error "{phang} Options barlabelformat(), mlabsize(), mlabposition() and mlabcolor() can only be specified when option barlabel is used. {p_end}"
 			error 198
 		}
-		
-		* Check that specified format is valid
-		if substr("`barlabelformat'",1,1) != "%" | !inlist(substr("`barlabelformat'",-1,1), "e", "f") | !regex("`barlabelformat'", "\.") {
-			noi display as error "{phang} Option barlabelformat() was incorrectly specified. Only fixed and exponencial formats are currently allowed. See {help format} for more information on how to specify a variable format.{p_end}"
-			error 198
+	}
+	else {	
+		if `LABEL_FORMAT' == 1 {
+			* Check that specified format is valid
+			if substr("`barlabelformat'",1,1) != "%" | !inlist(substr("`barlabelformat'",-1,1), "e", "f") | !regex("`barlabelformat'", "\.") {
+				noi display as error "{phang} Option barlabelformat() was incorrectly specified. Only fixed and exponencial formats are currently allowed. See {help format} for more information on how to specify a variable format.{p_end}"
+				error 198
+			}
 		}
 	}
 
@@ -201,6 +232,19 @@ cap	program drop	iegraph
 
 	}
 
+	* Set default barlabel options
+	if `LABEL_BAR' {
+		if !`LABEL_POS'		local mlabposition 	12
+		if !`LABEL_COL'	 	local mlabcolor		black
+		if !`LABEL_SIZE' 	local mlabsize		medium
+	}
+
+
+/*******************************************************************************
+	
+						Get values from regression
+
+*******************************************************************************/
 
 	local count: word count `varlist' // Counting the number of total vars used as treatment.
 	local graphCount = `count' + 1 // Number of vars needed for the graph is total treatment vars plus one(control).
@@ -263,11 +307,13 @@ cap	program drop	iegraph
 		scalar tmt_mean_`var' = ctl_mean + coeff_`var'
 	}
 
-	/*************************************
+	
+/*******************************************************************************
+	
+			Set up temp file where results are written
 
-		Set up temp file where results are written
+*******************************************************************************/
 
-	*************************************/
 
 	tempfile		 newTextFile
 	tempname 		 newHandle
@@ -317,11 +363,12 @@ cap	program drop	iegraph
 
 	file close `newHandle'
 
-	/*************************************
+/*******************************************************************************
 
-		Create the graph
+						Create the graph
 
-	*************************************/
+*******************************************************************************/
+
 
 	*Read file with results
 	insheet using `newTextFile', clear
@@ -371,7 +418,7 @@ cap	program drop	iegraph
 		local confIntGraph = ""
 	}
 		else if `CONFINT_BAR' == 1 {
-		local confIntGraph = `"(rcap conf_int_max conf_int_min position, lc(gs)) (scatter mean position,  msym(none)  mlabs(medium) mlabpos(10) mlabcolor(black))"'
+		local confIntGraph = `"(rcap conf_int_max conf_int_min position, lc(gs)) (scatter mean position,  msym(none)  mlabsize(`mlabsize') mlabposition(`mlabposition') mlabcolor(`mlabcolor'))"'
 	}
 	
 	*Create the bar label
@@ -389,7 +436,7 @@ cap	program drop	iegraph
 			format label %9.1f
 		}
 		
-		local barLabel = `"(scatter mean position,  msym(none)  mlab(label) mlabpos(12) mlabcolor(black))"'
+		local barLabel = `"(scatter mean position,  msym(none)  mlab(label) mlabposition(`mlabposition') mlabcolor(`mlabcolor'))"'
 	}
 
 	local titleOption `" , xtitle("") ytitle("`e(depvar)'") "'
