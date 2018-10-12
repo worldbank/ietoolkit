@@ -22,39 +22,38 @@
 		* message to this that is more informative.
 
 		preserve
-
-			noi di ""
-
-			** Making one macro with all variables that will be
-			*  imported and exported from the Excel file
-			local agrumentVars `varlist' `uniquevars' `keepvars'
-
-			** When migrating data from Stata to Excel format, time variables loose precision.
-			*  If time varaibles are used for uniquely identifying observations, then this loss
-			*  of precision might make a time variable unfit to merge the observations back
-			*  to Stata after they have been exported to Excel.
-			if "`minprecision'" != "" local milliprecision = `minprecision' * 1000 * 60
-
-			local excelvars dupListID dateListed dateFixed correct drop newID initials notes
-
-			local  date = subinstr(c(current_date)," ","",.)
-
+			
 			/***********************************************************************
 			************************************************************************
 
-				Section 1
+				Section 1 - Set up locals needed in data
 
-				Storing format and type of the variables that will be imported and
-				exported from the Excel file. The export and import function may
-				sometimes alter type and format. Merging with different types results
-				in an error and format is required for date and time variabels.
-				By using the information stored in this loop, the code can enusre
-				that the variables have correct type and format before merging.
-				For more information, see below.
+				Saving a version of the data to be used before merging corrections 
+				back to the original data set and before correcting duplicates
 
 			************************************************************************
 			***********************************************************************/
+			
+			*Tempfiles to be uses
+			tempfile originalData preppedReport datawithreportmerged dataToReturn
+			
+			** Save a version of original data that can be brought 
+			*  back withing the preserve/restore section
+			save 	`originalData'		
+			
+			* Create a local with todays date to date the reports
+			local  date = subinstr(c(current_date)," ","",.)
+			
+			*Put idvar in a local with a more descriptive name
+			local idvar `varlist'
 
+			** Making one macro with all variables that will be
+			*  imported and exported from the Excel file
+			local argumentVars `idvar' `uniquevars' `keepvars'
+			
+			* Create a list of the varaibles created by this command to put in the report
+			local excelvars dupListID dateListed dateFixed correct drop newID initials notes			
+			
 			/***********************************************************************
 			************************************************************************
 
