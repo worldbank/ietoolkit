@@ -93,8 +93,6 @@
 			}			
 			
 
-			tempfile restart
-			save 	`restart'
 
 			/***********************************************************************
 			************************************************************************
@@ -404,7 +402,7 @@
 			* Generate variable that is not 0
 			* if observation is a duplicate
 			tempvar dup
-			duplicates tag `varlist', gen(`dup')
+			duplicates tag `idvar', gen(`dup')
 
 			*Test if there are any duplicates
 			cap assert `dup'==0
@@ -423,18 +421,18 @@
 					* If Excel file exists keep excel vars and
 					* variables passed as arguments in the
 					* command
-					keep 	`agrumentVars' `excelvars'
+					keep 	`argumentVars' `excelvars'
 				}
 				else {
 					* Keep only variables passed as arguments in
 					* the command and the string ID var as no Excel file exists
-					keep 	`agrumentVars'
+					keep 	`argumentVars'
 
 					*Generate the excel variables used for indicating correction
 					foreach excelvar of local excelvars {
 
 						*Create all variables apart from dupListID as string vars
-						if "`excelvar'" == "dupListID" {
+						if inlist("`excelvar'", "dupListID", "newID") {
 							gen `excelvar' = .
 						}
 						else {
@@ -451,7 +449,7 @@
 
 				* Generate a local that is 1 if there are new duplicates
 				local unaddressedNewExcel 0
-				count if dateFixed == ""
+				count if missing(dateFixed)
 				if `r(N)' > 0 local unaddressedNewExcel 1
 
 				/******************
@@ -459,11 +457,11 @@
 				******************/
 
 				* Add date first time duplicvate was identified
-				replace dateListed 	= "`date'" if dateListed == ""
+				replace dateListed 	= "`date'" if missing(dateListed)
 
 				** Add today's date to variable dateFixed if dateFixed
 				*  is empty and at least one correction is added
-				replace dateFixed 	= "`date'" if dateFixed == "" & (correct != "" | drop != "" | newID != "")
+				replace dateFixed 	= "`date'" if missing(dateFixed) & (!missing(correct) | !missing(drop) | !missing(newID))
 
 				/******************
 					Section 6.4.2 Duplicate report list ID
@@ -471,19 +469,18 @@
 
 				** Sort after dupListID and after ID var for
 				*  duplicates currently without dupListID
-				sort dupListID `varlist'
+				sort dupListID `idvar'
 
 				** Assign dupListID 1 to the top row if no duplicate
 				*  list IDs have been generated so far.
-				replace dupListID = 1 if _n == 1 & dupListID == .
+				replace dupListID = 1 if _n == 1 & missing(dupListID)
 
 				** Generate new IDs based on the row above instead of directly
 				*  from the row number. That prevents duplicates in the list in
 				*  case an observation is deleted. The first observation with
 				*  missing value will have an ID that is one digit higher than
 				*  the highest ID already in the list
-				replace dupListID = dupListID[_n - 1] + 1 if dupListID == .
-
+				replace dupListID = dupListID[_n - 1] + 1 if missing(dupListID)
 
 				/******************
 					Section 6.5
@@ -493,8 +490,8 @@
 				* If cases unaddressed then update the Excel file
 				if `unaddressedNewExcel'  {
 
-					keep 	`agrumentVars' `excelvars'
-					order	`varlist' `excelvars' `uniquevars' `keepvars'
+					keep 	`argumentVars' `excelvars'
+					order	`idvar' `excelvars' `uniquevars' `keepvars'
 
 					if "`daily'" == "" {
 
@@ -549,8 +546,8 @@
 
 		* Load the original data set merged with correction. Duplicates
 		* in all variables are already dropped in this data set
-		use 	`restart', clear
-
+		use 	`datawithreportmerged', clear
+		
 		* If excel file exists, apply any corrections indicated (if any)
 		if `fileExists' {
 
@@ -666,14 +663,14 @@
 
 		* Generate a variable that is 1 if the observation is a duplicate in varlist
 		tempvar dropDup
-		duplicates tag `varlist',  gen(`dropDup')
+		duplicates tag `idvar',  gen(`dropDup')
 		* Generate a list of the IDs that are still duplicates
-		levelsof `varlist' 			if `dropDup' != 0 , local(dup_ids) clean
+		levelsof `idvar' 			if `dropDup' != 0 , local(dup_ids) clean
 		* Drop the duplicates (they are exported in Excel)
 		drop 						if `dropDup' != 0
 
 		* Test if varlist is now uniquely and fully identifying the data set
-		cap isid `varlist'
+		cap isid `idvar'
 		if _rc {
 
 			di as error "{phang}The data set is not returned with `varlist' uniquely and fully identifying the data set. Please report this bug to kbjarkefur@worldbank.org{p_end}"
@@ -681,16 +678,18 @@
 			exit
 
 		}
+		
+		*Count number of duplicate groups still in the data
+		local numDup	= `:list sizeof dup_ids'
 
-		if `:list sizeof dup_ids' == 0 {
-
-			noi di	"{phang}There are no unresolved duplicates in this data set. The data set is returned with `varlist' uniquely and fully identifying the data set.{p_end}"
+		if `numDup' == 0 {
+			noi di	"{phang}There are no unresolved duplicates in this data set. The data set is returned with `idvar' uniquely and fully identifying the data set.{p_end}"
 		}
 		else {
-			noi di	"{phang}There are `:list sizeof dup_ids' duplicates unresolved. IDs still contining duplicates: `dup_ids'. The unresolved duplicate observations were exported in the Excel file. The data set is returned without those duplicates and with `varlist' uniquely and fully identifying the data set.{p_end}"
+			noi di	"{phang}There are `numDup' duplicated IDs still unresolved. IDs still containing duplicates: `dup_ids'. The unresolved duplicate observations were exported in the Excel file. The data set is returned without those duplicates and with `idvar' uniquely and fully identifying the data set.{p_end}"
 		}
 
-		return scalar numDup	= `:list sizeof dup_ids'
+		return scalar numDup	= `numDup'
 
 		/***********************************************************************
 		************************************************************************
@@ -704,14 +703,13 @@
 		************************************************************************
 		***********************************************************************/
 
-		tempfile returndata
-		save 	`returndata'
+		save 	`dataToReturn'
 
 		restore
 
 		** Using restore above to return the data to
 		*  the orignal data set in case of error.
-		use `returndata', clear
+		use `dataToReturn', clear
 
 	}
 	end
