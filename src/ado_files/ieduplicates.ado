@@ -55,20 +55,6 @@
 			************************************************************************
 			***********************************************************************/
 
-			local i 0
-			foreach var in `agrumentVars' {
-
-				local type_`i'		: type		`var'
-				local format_`i'	: format 	`var'
-
-				if substr("`format_`i''",1,2) == "%t" & substr("`format_`i''",1,3) != "%td" {
-
-					if "`minprecision'" != "" replace `var' =  (floor(`var' / `milliprecision')*`milliprecision')
-				}
-
-				local ++i
-			}
-
 			/***********************************************************************
 			************************************************************************
 
@@ -115,10 +101,18 @@
 			if `fileExists' {
 
 				*Load excel file. Load all vars as string and use meta data from Section 1
-				import excel "`folder'/iedupreport`suffix'.xlsx"	, clear firstrow allstring
-
-				*dupListID is always numeric
-				destring dupListID, replace
+				import excel "`folder'/iedupreport`suffix'.xlsx"	, clear firstrow
+				
+				** All excelvars but dupListID and newID should be string. dupListID 
+				*  should be numeric and the type of newID should be based on the user input
+				foreach excelvar of local excelvars {
+					if !inlist("`excelvar'", "dupListID", "newID") {
+						
+						* Make original ID var string
+						tostring `excelvar' , replace
+						replace  `excelvar' = "" if `excelvar' == "."
+					}
+				}
 
 				/******************
 					Section 3.2.1
@@ -146,72 +140,6 @@
 					noi di ""
 					error 111
 					exit
-				}
-
-				/******************
-					Section 3.2.2
-					Make sure that all variables are same
-					type and format as in original Stata
-					file regardless of how they were
-					imported from Excel.
-				******************/
-
-				local i 0
-				foreach argVar in `agrumentVars' {
-
-
-					cap confirm variable `argVar' //In case the variable was added since last export
-					if !_rc {
-
-						if substr("`type_`i''",1,3) == "str" {
-
-							*No need for any action since all varaibles are loaded as string
-
-						}
-						else if substr("`format_`i''",1,2) == "%t" {
-
-							** All variables are loaded as strings. The letters
-							*  in date/time varibles makes -destring- not
-							*  applicable. The code generates a new variable
-							*  that read the date/time string using the date()
-							*  and clock() functions. Then the format from
-							*  Section 1 is applied to the new variable. The old
-							*  string variable is dropped and the newly
-							*  generated variable takes its place.
-							if substr("`format_`i''",1,3) == "%td" {
-
-								*Read date var from string
-								gen double	`argVar'_tmp = date(`argVar', "MDY")
-							}
-							else {
-
-								*Read time var from string
-								gen double	`argVar'_tmp = clock( `argVar', "MDY hm")
-								*Manually applying lower precision. Read more in Section 0 for details
-
-								if "`minprecision'" != "" replace `argVar'_tmp =  (floor(`argVar'_tmp / `milliprecision')*`milliprecision')
-
-							}
-
-							** Order the newly generated var after the imported
-							*  string var, and then drop the string var
-							order 	`argVar'_tmp, after(`argVar')
-							drop 	`argVar'
-
-							** Format the new variable to match its format in
-							*  the original Stata file and then take away the
-							*  _tmp suffix
-							format  `argVar'_tmp `format_`i''
-							rename 	`argVar'_tmp `argVar'
-
-						}
-						else {
-
-							*Destring numeric variables
-							destring `argVar' , replace
-						}
-					}
-					local ++i
 				}
 
 				/******************
@@ -427,29 +355,6 @@
 			***********************************************************************/
 
 			tempvar id_string allDup
-
-			/******************
-				Section 5.1
-				Next section 5.2 needs the ID var in the same type for the
-				if statement in duplicates drop. And since all numeric variables
-				can be expressed as string, we generate an temporary variable
-				that is always string.
-			******************/
-
-			*Test if ID var is already string
-			cap confirm string variable `varlist'
-
-			*if ID var not string:
-			if _rc {
-				*Generate string copy of ID var
-				tostring `varlist' , generate(`id_string') force
-			}
-
-			*if ID var is string:
-			else {
-				*Simply copy the ID var to the temporary variable
-				gen `id_string' = `varlist'
-			}
 
 			/******************
 				Section 5.2
@@ -696,62 +601,29 @@
 				is made string. Easy.
 			******************/
 
-			* If ID variable is string in original Stata file
-			if substr("`type_0'",1,3) == "str" {
+			*Test if there are any corrections by new ID
+			cap assert missing(newID)
+			if _rc {
 
-				* Tostring the newID
-				tostring newID , replace
-				* Replace missing value with the empty string
-				replace  newID = "" if newID == "."
-				* Update ID
-				replace `varlist' = newID if newID != ""
-			}
+				local idtype 	: type `idvar'
+				local idtypeNew : type newID
+				
+				*If ID var is string but newID is not, then just make it string
+				if substr("`idtype'",1,3) == "str" & substr("`idtypeNew'",1,3) != "str" {
 
-
-			/******************
-				Section 7.2.2
-				ID var in original file is numeric. Test first
-				if newID is numeric or can be made numeric.
-			******************/
-
-			* ID var is numeric
-			else {
-
-				** Trying to convert newID. If newID is already numeric, nothing
-				*  happens. If it is not possible to make it numeric (having
-				*  non-numeric characters), then it will remain as string.
-				destring newID, replace
-				* Test if newID now is numeric
-				cap confirm numeric variable newID
-
-
-				/******************
-					Section 7.2.2.1
-					newID is numeric and original ID can easily be updated.
-				******************/
-
-				if !_rc {
-					replace `varlist' = newID if newID != .
+					tostring newID , replace
+					replace  newID = "" if newID == "."
 				}
-
-				/******************
-					Section 7.2.2.2
-					newID cannot be made numeric but origianl ID var is numeric.
-					To update original ID var, it has to be made a string, but
-					that will be allowed only if option tostringok is specified.
-				******************/
-
-				else {
-
+				
+				*If ID var is numeric but the newID is loaded as string
+				else if substr("`idtype'",1,3) != "str" & substr("`idtypeNew'",1,3) == "str" {
+				
 					* Check if -tostringok- is specificed:
 					if "`tostringok'" != "" {
 
 						* Make original ID var string
-						tostring `varlist' , replace
-						* Replace any missing values with empty string
-						replace  `varlist' = "" if `varlist' == "."
-						* Update the original ID var with value in newID
-						replace  `varlist' = newID if newID != ""
+						tostring `idvar' , replace
+						replace  `idvar' = "" if `idvar' == "."
 
 					}
 
@@ -759,56 +631,22 @@
 					else {
 
 						* Create a local with all non-numeric values
-						levelsof newID if missing(real(newID)), local(NaN_values)
+						levelsof newID if missing(real(newID)), local(NaN_values) clean
 
 						* Output error message
-						di as error "{phang}`varlist' is numeric but newID has thes non-numeric values `NaN_values'. Update newID to only contain numeric values or see option tostringok{p_end}"
+						di as error "{phang}The ID varaible `idvar' is numeric but newID has thes non-numeric values: `NaN_values'. Update newID to only contain numeric values or see option tostringok.{p_end}"
 						error 109
 						exit
 					}
 				}
-			}
+		
+				*After making sure that type is ok, update the IDs
+				replace `idvar' = newID if !missing(newID)
+				
 
-			/******************
-				Section 7.3
-				Test that values in newID
-				were neither used twice
-				nor already existed
-			******************/
-
-			* Loop over all values in newID
-			levelsof newID
-			foreach  newID in `r(levels)' {
 
 				/******************
-					Section 7.1
-					Different test depending on ID var being string
-					or numeric. Count number of observations with each
-					of the values used in newID and test that that
-					the number is exactly one for each value.
 				******************/
-
-				if substr("`type_0'",1,3) == "str" {
-					count if `varlist' 	== "`newID'"
-				}
-				else {
-					count if `varlist' 	== `newID'
-				}
-
-				if `r(N)'	== 1 {
-
-					*Do nothing, each value in newID should be used exactly once.
-				}
-				else if `r(N)' 	== 0 {
-
-					di as error "{phang}New ID value `newID' listed in the Excel file was never used on any observation. Please ensure that `newID' is a valid input. If problem remains, please report this bug to kbjarkefur@worldbank.org{p_end}"
-					error 119
-					exit
-				}
-				else {
-
-					di as error "{phang}New ID value `newID' listed in the Excel file is expected to be used only once, but it is after corrections used in `r(N)' obsevations. New ID value `newID' is already used in original data or is used more than once in the Excel file to correct duplicates{p_end}"
-					error 119
 					exit
 				}
 			}
