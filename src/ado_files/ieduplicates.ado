@@ -6,7 +6,7 @@
 
 	qui {
 
-		syntax varname ,  FOLder(string) UNIQUEvars(varlist) [ KEEPvars(varlist) MINprecision(numlist >0) tostringok droprest nodaily SUFfix(string)]
+		syntax varname ,  FOLder(string) UNIQUEvars(varlist) [KEEPvars(varlist) tostringok droprest nodaily SUFfix(string)]
 
 		version 11.0
 
@@ -57,13 +57,41 @@
 			/***********************************************************************
 			************************************************************************
 
-				Section 2
+				Section 2 - Test unique vars
 
-				Saving a version of the data to be used before mergin and
-				before correcting duplicates
+				Test the unique vars so that they are identifying the data set and 
+				are not in a time format that might get corrupted by exporting to 
+				and importing from Excel. This is needed as the uniquevars are needed
+				to merge the correct correction to the correct duplicat
 
 			************************************************************************
 			***********************************************************************/
+			
+			*Test that the unique vars fully and uniquely identifies the data set
+			cap isid `uniquevars'
+			if _rc {
+			
+				noi display as error "{phang}The variable(s) listed in uniquevars() does not uniquely and fully identifies all observations in the data set.{p_end}"
+				isid `uniquevars'
+				error 198
+				exit			
+			}
+			
+			** Test that no unique vars are time format. Time values might be corrupted 
+			*  and changed a tiny bit when importing and exporting to Excel, which make merge not possible
+			foreach uniquevar of local uniquevars {
+			
+				*Test if format is time format
+				local format : format `uniquevar'
+				if substr("`format'",1,2) == "%t" {
+				
+					noi display as error `"{phang}The variable {inp:`uniquevar'} listed in {inp:uniquevars()} is using time format which is not allowed. Stata and Excel stores and displays time slightly differently which can lead to small changes in the value when the value is imported and exported between Stata and Excel, and then the variable can no longer be used to merge the report back to the original data. Use another variable or create a string variable out of your time variable using this code: {inp: generate `uniquevar'_str = string(`uniquevar',"%tc")}.{p_end}"'
+					noi di ""
+					error 198
+					exit	
+				}
+			}			
+			
 
 			tempfile restart
 			save 	`restart'
@@ -290,13 +318,17 @@
 				exit
 				}
 
-
+				
+				/******************
+					Section 3.5
+					Save the prepared report to be used later
+				******************/				
+				
 				*Keep only the variables needed for matching and variables used for input in the Excel file
-				keep 	`varlist' `uniquevars' `excelvars'
-
+				keep 	`idvar' `uniquevars' `excelvars' `groupAnyCorrection'
+				
 				*Save imported data set with all corrections
-				tempfile imputfile_merge
-				save	`imputfile_merge'
+				save	`preppedReport'
 			}
 
 
@@ -321,7 +353,7 @@
 				tempvar iedup_merge
 
 				*Merge the corrections with the data set
-				merge 1:1 `varlist' `uniquevars' using `imputfile_merge', generate(`iedup_merge')
+				merge 1:1 `uniquevars' using `preppedReport', generate(`iedup_merge')
 
 				*Make sure that obsrevations listed in the duplicate report is still in the data set
 				cap assert `iedup_merge' != 2
@@ -332,8 +364,6 @@
 					display as error "{phang}One or several observations in the Excel report are no longer found in the data set. Always run ieduplicates on the raw data set that include all the duplicates, both new duplicates and those you have already identified. After removing duplicates, save the data set using a different name. You might also recieve this error if you are using an old ieduplicates Excel report on a new data set.{p_end}"
 					error 9
 					exit
-
-
 				}
 
 				*Explicitly drop temporary variable. Temporary variables might
@@ -342,6 +372,9 @@
 				drop `iedup_merge'
 
 			}
+			
+			*save the data set to be used when correcting the data
+			save `datawithreportmerged'
 
 			/***********************************************************************
 			************************************************************************
@@ -372,21 +405,6 @@
 			if _rc {
 
 				/******************
-					Section 6.2
-					Test if the variables passed as ID var and unique var
-					uniquely and fully identify the data set. It should be
-					possible to merge corrections back to the main file.
-
-				******************/
-
-				cap isid 	`varlist' `uniquevars'
-				if _rc {
-
-					display as error "{phang}ID variable `varlist' does not uniquely identify the observations in the data set together with the uniquevars: `uniquevars'. This is needed for exactly merging the right correction to the right observation{p_end}"
-					error 119
-					exit
-				}
-
 				/******************
 					Section 6.3
 					Keep only duplicates for the report
