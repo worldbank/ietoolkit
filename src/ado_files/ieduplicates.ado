@@ -97,18 +97,20 @@
 			/***********************************************************************
 			************************************************************************
 
-				Section 3
+				Section 3 - Test input from Excel file
 
-				Import and prepare Corrections (if file exists)
+				If Excel repirt exist, import it and test for invalid corrections 
+				made in the excel report.
 
 			************************************************************************
 			***********************************************************************/
 
 			/******************
 				Section 3.1
-				Check if earlier report exists.
+				Check if report exists from before.
 			******************/
-
+			
+			*Check if file exist. Suffix option can be used to create multiple reports in the same folder
 			cap confirm file "`folder'/iedupreport`suffix'.xlsx"
 
 			if !_rc {
@@ -120,7 +122,7 @@
 
 			/******************
 				Section 3.2
-				If report exist, load file and check input
+				If report exist, load file and check input, otherwise skip to section 4
 			******************/
 
 			if `fileExists' {
@@ -141,24 +143,25 @@
 
 				/******************
 					Section 3.2.1
-					Make sure that the
-					ID variable and
-					the uniquevars are
-					not changed since
-					last report.
+					Make sure that the ID variable and the uniquevars are
+					not changed since last report.
 				******************/
-
+				
+				*Copy a list of all variables in the imported report to the local existingexcelvars
 				ds
 				local existingexcelvars  `r(varlist)'
+				
+				*Test that the ID variable is in the imported report
+				if `:list idvar in existingexcelvars' == 0 {
 
-				if `:list varlist in existingexcelvars' == 0 {
-
-					noi display as error "{phang}ID variable [`varlist'] does not exist in the previously exported Excle file. If you renamed or changed the ID variable, you need to start over with a new file. Rename or move the already existing file. Create a new file and carefully copy any corrections from the old file to the new.{p_end}"
+					noi display as error "{phang}The ID variable `idvar' does not exist in the previously exported Excle file. If you renamed the ID variable you need to rename it manually in the Excel report or start a new Excel report by renaming or moving the original report, then run the command again and create a new file and manually copy any corrections from the old file to the new. If you changed the ID varaible you need to start with a new report.{p_end}"
 					noi di ""
 					error 111
 					exit
 
 				}
+				
+				*Test that the unique variables are in the imported report
 				if `:list uniquevars in existingexcelvars' == 0 {
 
 					noi display as error "{phang}One or more unique variables in [`uniquevars'] do not exist in the previously exported Excel file. If you renamed or changed any variable used in uniquevars(), you need to start over with a new file. Rename or move the already existing file. Create a new file and carefully copy any corrections from the old file to the new.{p_end}"
@@ -339,16 +342,17 @@
 			/***********************************************************************
 			************************************************************************
 
-				Section 4
+				Section 4 - Merge report to original data
 
-				Merge corrections with original data
+				Merge corrections with original data, test that there are no 
+				obs in report that are not in main data, and save this data 
+				in temp file
 
 			************************************************************************
 			***********************************************************************/
 
-
-			*Re-load original
-			use `restart', clear
+			*Re-load original data
+			use `originalData', clear
 
 			* Merge original data with imported Excel file (if Excel file exists)
 			if `fileExists'  {
@@ -383,19 +387,16 @@
 			/***********************************************************************
 			************************************************************************
 
-			/***********************************************************************
-			************************************************************************
-
-				Section 6
+				Section 5 - Generate the Excel report
 
 				Test if there are duplicates in ID var. If any duplicates exist,
-				tehn update the Excel file with new and unaddressed cases
+				then update the Excel file with new and unaddressed cases
 
 			************************************************************************
 			***********************************************************************/
 
 			/******************
-				Section 6.1
+				Section 5.1
 				Test if there are any duplicates in ID var
 			******************/
 
@@ -409,8 +410,7 @@
 			if _rc {
 
 				/******************
-				/******************
-					Section 6.3
+					Section 5.2
 					Keep only duplicates for the report
 				******************/
 
@@ -439,11 +439,10 @@
 							gen `excelvar' = ""
 						}
 					}
-
 				}
 
 				/******************
-					Section 6.4
+					Section 5.3
 					Update the excel vars that are not updated manually
 				******************/
 
@@ -453,7 +452,7 @@
 				if `r(N)' > 0 local unaddressedNewExcel 1
 
 				/******************
-					Section 6.4.1 Date variables
+					Section 5.3.1 Date variables
 				******************/
 
 				* Add date first time duplicvate was identified
@@ -464,7 +463,7 @@
 				replace dateFixed 	= "`date'" if missing(dateFixed) & (!missing(correct) | !missing(drop) | !missing(newID))
 
 				/******************
-					Section 6.4.2 Duplicate report list ID
+					Section 5.3.2 Duplicate report list ID
 				******************/
 
 				** Sort after dupListID and after ID var for
@@ -483,7 +482,7 @@
 				replace dupListID = dupListID[_n - 1] + 1 if missing(dupListID)
 
 				/******************
-					Section 6.5
+					Section 5.4
 					Keep and order the variables and output the Excel files
 				******************/
 
@@ -494,7 +493,6 @@
 					order	`idvar' `excelvars' `uniquevars' `keepvars'
 
 					if "`daily'" == "" {
-
 
 						*Returns 0 if folder does not exist, 1 if it does
 						mata : st_numscalar("r(dirExist)", direxists("`folder'/Daily"))
@@ -512,32 +510,28 @@
 						*Print error if daily report cannot be saved
 						if _rc {
 
-							display as error "{phang}There the Daily copy could not be saved to the `folder'/Daily folder. Make sure to close any old daily copy or see the option nodaily{p_end}"
+							display as error "{phang}The Daily copy could not be saved to the `folder'/Daily folder. Make sure to close any old daily copy or see the option nodaily.{p_end}"
 							error 603
 							exit
-
 						}
 
 						*Prepare local for output
-						local daily_output "and a daily copy have been saved to the Daily folder"
-					}
-
+						local daily_output " and a daily copy have been saved to the Daily folder"
+					}				
 
 					*Export main report
 					export excel using "`folder'/iedupreport`suffix'.xlsx"	, firstrow(variables) replace  nolabel
 
 					*Produce output
-					noi di `"{phang}Excel file created at: {browse "`folder'/iedupreport`suffix'.xlsx":`folder'/iedupreport`suffix'.xlsx} `daily_output'{p_end}"'
+					noi di `"{phang}Excel file created at: {browse "`folder'/iedupreport`suffix'.xlsx":`folder'/iedupreport`suffix'.xlsx}`daily_output'.{p_end}"'
 					noi di ""
 				}
 			}
 
-
-
 		/***********************************************************************
 		************************************************************************
 
-			Section 7
+			Section 6
 
 			Update the data set and with the new corrections.
 
@@ -552,14 +546,14 @@
 		if `fileExists' {
 
 			/******************
-				Section 7.1
+				Section 6.1
 				Drop duplicates listed for drop
 			******************/
 
 			drop if drop == "yes"
 
 			/******************
-				Section 7.2
+				Section 6.2
 				Update new ID. ID var can be either numeric or
 				string. All numbers can be made strings but not
 				all strings can be numeric. Therefore this
@@ -567,7 +561,7 @@
 			******************/
 
 			/******************
-				Section 7.2.1
+				Section 6.2.1
 				ID var in original file is string. Either
 				newID was imported as string or the variable
 				is made string. Easy.
@@ -643,7 +637,7 @@
 			}
 
 			/******************
-				Section 7.4
+				Section 6.4
 				Drop Excel vars
 			******************/
 
@@ -653,7 +647,7 @@
 		/***********************************************************************
 		************************************************************************
 
-			Section 8
+			Section 7
 
 			Return the data set without duplicates and
 			output information regarding unresolved duplicates.
@@ -673,7 +667,7 @@
 		cap isid `idvar'
 		if _rc {
 
-			di as error "{phang}The data set is not returned with `varlist' uniquely and fully identifying the data set. Please report this bug to kbjarkefur@worldbank.org{p_end}"
+			di as error "{phang}The data set is not returned with `idvar' uniquely and fully identifying the data set. Please report this bug to kbjarkefur@worldbank.org{p_end}"
 			error 119
 			exit
 
@@ -694,7 +688,7 @@
 		/***********************************************************************
 		************************************************************************
 
-			Section 9
+			Section 8
 
 			Save data set to be returned outside preserve/restore.
 			Preserve/restore is used so that original data is returned
@@ -712,4 +706,4 @@
 		use `dataToReturn', clear
 
 	}
-	end
+end
