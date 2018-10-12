@@ -175,7 +175,7 @@
 				******************/
 
 				*Temporary variables needed for checking input
-				tempvar tmpvar_multiInp tmpvar_inputNotYes tmpvar_maxMultiInp tmpvar_notDrop tempvar_yescorrect tempvar_numcorrect
+				tempvar multiInp inputNotYes maxMultiInp notDrop yesCorrect groupNumCorrect toDrop anyCorrection groupAnyCorrection
 
 				*Locals indicating in which ways input is incorrect (if any)
 				local local_multiInp 		0
@@ -186,26 +186,7 @@
 
 				/******************
 					Section 3.3.1
-					Make sure there are not too many corrections
-				******************/
-
-				* Count the number of corrections (correct drop newID) per
-				* observation. Only one correction per observation is allowed.
-				egen `tmpvar_multiInp' = rownonmiss(correct drop newID), strok
-
-				*Check that all rows have utmost one correction
-				cap assert `tmpvar_multiInp' == 0 | `tmpvar_multiInp' == 1
-
-				if _rc {
-
-					*Error will be outputted below
-					local local_multiInp 	1
-				}
-
-
-				/******************
-					Section 3.3.2
-					Make sure string input is yes or y
+					Make sure input is yes or y for the correct and drop columns
 				******************/
 
 				* Make string input lower case and change "y" to "yes"
@@ -214,48 +195,77 @@
 				replace correct = "yes" if correct 	== "y"
 				replace drop 	= "yes" if drop 	== "y"
 
-				*Check that varaibles are wither empty or "yes"
-				gen `tmpvar_inputNotYes' = !((correct  == "yes" | correct == "") & (drop  == "yes" | drop == ""))
-
-				cap assert `tmpvar_inputNotYes' == 0
-				if _rc {
-
-					*Error will be outputted below
-					local local_inputNotYes 	1
-				}
-
+				*Check that varaibles are either empty or "yes"
+				gen `inputNotYes' = !((correct  == "yes" | correct == "") & (drop  == "yes" | drop == ""))
+				
+				*Set local to 1 if error should be outputted
+				cap assert `inputNotYes' == 0
+				if _rc local local_inputNotYes 	1
 
 				/******************
+					Section 3.3.2
+					Make sure there are not too many corrections for a single observation
+				******************/
+
+				* Count the number of corrections (correct drop newID) per
+				* observation. Only one correction per observation is allowed.
+				egen `multiInp' = rownonmiss(correct drop newID), strok
+
+				*Check that all rows have utmost one correction
+				cap assert `multiInp' == 0 | `multiInp' == 1
+				
+				*Error will be outputted below
+				if _rc local local_multiInp 	1
+				
+				/******************
 					Section 3.3.3
+					Test that maximum one duplicate per duplicate group is indicated as correct
+
+				******************/
+
+				*Generate dummy if correct column is set to yes
+				gen `yesCorrect' = (correct == "yes")
+				
+				*Count number of duplicates within duplicates where that dummy is 1
+				bys `idvar' : egen `groupNumCorrect' =  total(`yesCorrect')
+				
+				*Test if more than 1 duplicate in that duplicate group is correct
+				count if `groupNumCorrect' > 1
+				
+				*Output error is more than one duplicate in a duplicate group is yes
+				if `r(N)' != 0 local local_multiCorr 1	
+
+				
+				/******************
+					Section 3.3.4
 					Make sure that either option droprest is specified, or that
 					drop was correctly indicated for all observations. i.e.; if
 					correct or newID was indicated for at least one duplicate in
 					a duplicate group, then all other observations should be
 					indicated as drop (unless droprest is specified)
 
-				******************/
-
-				*Check if any other duplicate in duplicate group has at least one correction
-				gen `tempvar_yescorrect' = (correct == "yes")
-				bys `varlist' : egen `tempvar_numcorrect' =  total(`tempvar_yescorrect')
-				count if `tempvar_numcorrect' > 1
-				if `r(N)' != 0 local local_multiCorr 1
-
-
-				*Check if any other duplicate in duplicate group has at least one correction
-				bys `varlist' : egen `tmpvar_maxMultiInp' = max(`tmpvar_multiInp')
-
-				*Check that drops are explicitly indicated
-				gen `tmpvar_notDrop' = (`tmpvar_multiInp' == 0 & `tmpvar_maxMultiInp' > 0)
-
+				******************/	
+				
+				*Generate dummy if there is any correction for this observation
+				gen `anyCorrection' = !missing(correct) | !missing(newID)
+				
+				*Count number of observations with any correction in suplicates group
+				bys `idvar' : egen `groupAnyCorrection' =  total(`anyCorrection')
+				
+				*Create dummy that indicates each place this error happens
+				gen `notDrop' = (missing(drop) & `groupAnyCorrection' > 0 & `anyCorrection' == 0)
+				
 				* Check if option droprest is specified
-				if "`droprest'" != "" {
-					cap assert `tmpvar_notDrop' == 0
-					if _rc {
-
-						*Error will be outputted below
-						local local_notDrop 	1
-					}
+				if "`droprest'" == "" {
+				
+					** If option droprest is not used, then all observations in a duplicate
+					*  group where at least one observation has a correction must have a 
+					*  correction or have drop set to yes.
+					cap assert `notDrop' == 0
+					
+					*Error will be outputted below
+					if _rc local local_notDrop 	1
+					
 				}
 				else {
 
@@ -263,59 +273,55 @@
 					*  for any observations without drop or any other correction
 					*  explicitly specified if the observation is in a duplicate
 					*  group with at least one observation has a correction
-					replace drop 	= "yes" if `tmpvar_notDrop' 	== 1
+					replace drop 	= "yes" if `notDrop' == 1
 
 				}
-
 
 				/******************
 					Section 3.4
 					Throw errors if any of the tests were not passed
 				******************/
 
-				*Was any error detected
+				*Output errors if errors in the report were detected
 				if `local_multiInp' == 1 | `local_inputNotYes' == 1 | `local_notDrop' == 1 | `local_multiCorr' == 1  {
+					noi {
+						di ""
+						di ""
+						di as error "{phang}{ul:The corrections made in the Excel report has the following errors:}{p_end}"
+						di ""
 
-					*Error multiple input
-					if `local_multiInp' == 1 {
-						noi {
+						*Error multiple input
+						if `local_multiInp' == 1 {
 							display as error "{phang}The following observations have more than one correction. Only one correction (correct, drop or newID) per row is allowed{p_end}"
-							list `varlist' dupListID correct drop newID if `tmpvar_multiInp' > 1
+							list `idvar' dupListID correct drop newID `uniquevars' if `multiInp' > 1
 							di ""
 						}
-					}
 
-					*Error multiple correct
-					if `local_multiCorr' == 1 {
-						noi {
+						*Error multiple correct
+						if `local_multiCorr' == 1 {
 							display as error "{phang}The following observations are in a duplicate group where more than one observation is listed as correct. Only one observation per duplicate group can be correct{p_end}"
-							list `varlist' dupListID correct drop newID if `tempvar_numcorrect' > 1
+							list `idvar' dupListID correct drop newID `uniquevars' if `groupNumCorrect' > 1
 							di ""
 						}
 
-					}
-
-					*Error in incorrect string
-					if `local_inputNotYes' == 1 {
-						noi {
+						*Error in incorrect string
+						if `local_inputNotYes' == 1 {
 							display as error "{phang}The following observations have an answer in either correct or drop that is neither yes nor y{p_end}"
-							list `varlist' dupListID correct drop if `tmpvar_inputNotYes' == 1
+							list `idvar' dupListID correct drop `uniquevars' if `inputNotYes' == 1
 							di ""
 						}
-					}
 
-					*Error is not specfied as drop
-					if `local_notDrop' == 1 {
-						noi {
+						*Error is not specfied as drop
+						if `local_notDrop' == 1 {
 							display as error "{phang}The following observations are not explicitly indicated as drop while other duplicates in the same duplicate group are corrected. Either manually indicate as drop or see option droprest{p_end}"
-							list `varlist' dupListID correct drop newID if `tmpvar_notDrop' == 1
-							di ""
+							list `idvar' dupListID correct drop newID `uniquevars' if `notDrop' == 1
+							di ""				
 						}
-					}
 
-				*Same error for any incorrect input
-				error 119
-				exit
+						*Same error for any incorrect input
+						error 198
+						exit
+					}
 				}
 
 				
@@ -615,7 +621,26 @@
 
 
 				/******************
+					Section 6.3
+					Test that values in newID
+					were neither used twice
+					nor already existed
 				******************/
+				
+				
+				*Test if there are any duplicates after corrections (excluding observations in duplicate groups not yet corrected)
+				tempvar newDup
+				duplicates tag `idvar' if `groupAnyCorrection' != 0, generate(`newDup')
+
+				*Consider missing values as no new duplicates, make conditions below easier
+				replace `newDup' = 0 if missing(`newDup')
+				
+				cap assert `newDup' == 0
+				if _rc {		
+				
+					levelsof `idvar' if `newDup' != 0  , local(newDuplist)
+					di as error "{phang}No corrections from the report are applied as it would lead to new duplicates in the following value(s): `newDuplist'.{p_end}"
+					error 198
 					exit
 				}
 			}
