@@ -19,7 +19,7 @@ command please see the {browse "https://dimewiki.worldbank.org/wiki/Ieduplicates
 {it:ID_varname}
 , {cmdab:fol:der(}{it:string}{cmd:)} {cmdab:unique:vars(}{it:varlist}{cmd:)}
 [{cmdab:keep:vars(}{it:varlist}{cmd:)} {cmdab:tostringok} {cmdab:droprest}
-{cmdab:nodaily} {cmdab:suf:fix(}{it:string}{cmd:)} {cmdab:min:precision(}{it:numlist}{cmd:)]}
+{cmdab:nodaily} {cmdab:suf:fix(}{it:string}{cmd:)}
 
 {phang2}where {it:ID_varname} is the variable that will be controlled for duplicates
 
@@ -28,13 +28,12 @@ command please see the {browse "https://dimewiki.worldbank.org/wiki/Ieduplicates
 {synopthdr:options}
 {synoptline}
 {synopt :{cmdab:fol:der(}{it:string}{cmd:)}}folder in which the duplicate report will be saved{p_end}
-{synopt :{cmdab:unique:vars(}{it:varlist}{cmd:)}}variables used as unique ID within groups of duplicates in {it:ID_varname}{p_end}
+{synopt :{cmdab:unique:vars(}{it:varlist}{cmd:)}}variables used as unique ID within groups of duplicates in {it:ID_varname}. May not be in date or time format.{p_end}
 {synopt :{cmdab:keep:vars(}{it:varlist}{cmd:)}}variables used to be included in the Excel report in addition to {it:ID_varname} and {cmdab:unique:vars()} {p_end}
 {synopt :{cmdab:tostringok}}allows {it:ID_varname} to be recasted to string if required{p_end}
 {synopt :{cmdab:droprest}}disables the requirement that duplicates must be explicitly deleted{p_end}
 {synopt :{cmdab:suf:fix(}{it:string}{cmd:)}}allows the user to add a suffix to the filename of the Excel report{p_end}
 {synopt :{cmdab:nodaily}}disables daily back-up copies of the Excel report{p_end}
-{synopt :{cmdab:min:precision(}{it:numlist}{cmd:)}}({it:rarely used}) manually set the precision when exporting and importing time variables to and from the Excel file{p_end}
 {synoptline}
 
 {title:Description}
@@ -43,7 +42,7 @@ command please see the {browse "https://dimewiki.worldbank.org/wiki/Ieduplicates
 {pstd}{cmd:ieduplicates} outputs a report with any duplicates in {it:ID_varname} to an Excel file
 and return the data set without those duplicates. Each time {cmd:ieduplicates} executes, it first
 looks for an already created version of the Excel report, and applies any corrections already listed in it
-before generating a new report. Note that there is no need import the corrections manually. This command
+before generating a new report. Note that there is no need to import the corrections manually. This command
 reads the corrections directly from the Excel file as long as the is saved at the same folder location
 with the same file name.
 
@@ -51,26 +50,22 @@ with the same file name.
 {pstd}{cmd:ieduplicates} takes duplicates observations in {it:ID_varname} and export
 them to an Excel report in directory {cmdab:fol:der(}{it:string}{cmd:)}. {it:ID_varname}
 is per definition not unique in this Excel Report and {cmdab:unique:vars(}{it:varlist}{cmd:)}
-needs to be specified in order to have a unique reference for each row in the Excel report. The
+needs to be specified in order to have a unique reference for each row in the Excel report when merging the corrections back to the original data set. The
 {it:varlist} in {cmdab:unique:vars(}{it:varlist}{cmd:)} must uniquely and fully identify all
 observations in the Excel report, either on its own or together with {it:ID_varname}. {cmd:ieduplicates}
 then returns the data set without these duplicates.
 
 {pstd}The Excel report includes three columns called {it:correct}, {it:drop} and {it:newID}.
 Each of them represents one way to correct the duplicates. If {it:correct} is indicated with
-a "Yes" then that observation is kept unchanged, if {it:drop} is indicated with a "yes" then
+a "Yes" then that observation is kept unchanged, if {it:drop} is indicated with a "Yes" then
 that observation is deleted and if {it:newID} is indicated then that observation is assigned
 a new ID using the value in column {it:newID}. After corrections are entered, the report should
 be saved in the same location {cmdab:fol:der(}{it:string}{cmd:)} without any changes to its name.
 
-{pstd}Before outputting a new report {cmd:ieduplicates} always checks if there already are an
+{pstd}Before outputting a new report {cmd:ieduplicates} always checks if there already is an
 Excel report with corrections and applies those corrections before generating a new report. It is
 at this stage that {cmdab:unique:vars(}{it:varlist}{cmd:)} is required as it otherwise is impossible
 to know which duplicate within a group of duplicates that should be corrected in which way.
-
-{pstd}{cmd:ieduplicates} keeps only one observation if a group of duplicates are duplicates in
-all variables across the data set without any action is needed in the Excel report. These cases
-are not even exported to the Excel report.
 
 {pstd}{cmdab:keep:vars(}{it:varlist}{cmd:)} allows the user to include more variables in the Excel report
 that can help identifying each duplicate is supposed to be corrected. The report also includes two
@@ -91,8 +86,10 @@ file is backed up daily.
 {phang}{cmdab:unique:vars(}{it:varlist}{cmd:)} list variables that by themselves or together
 with {it:ID_varname} uniquely identifies all observations. This varlist is required when the corrections are
 imported back into Stata and merged with the original data set. Time variables
-should always be avoided if possible in {cmdab:uniquevars()}. See option {cmdab:min:precision()} for
-an explanation of why time variables should be avoided. Data that has been downloaded from
+are not allowed in {cmdab:uniquevars()} as Stata and Excel stores date and time slightly different, which 
+can casue errors when using these varaibles to merge the input in the Excel report back 
+into Stata. The time variable can be turned into a string variable using {inp: generate timevar_str = string(timevar,"%tc")} and 
+then be used in this options. Data that has been downloaded from
 a server usually has a variable called "KEY" or similar. Such a variable would be optimal
 for {cmdab:unique:vars(}{it:varlist}{cmd:)}.
 
@@ -134,22 +131,6 @@ Excel report. The default is that the command saves dated copies of the Excel
 report in a sub-folder called Daily in the folder specified in {cmdab:folder()}. If
 the folder Daily does not exist, then it is creaetd unless the
 option {cmdab:nodaily} is used.
-
-{phang}{cmdab:min:precision(}{it:numlist}{cmd:)} is rarely used but can be used
-to manually set the precision (in minutes) when exporting and importing a time
-variable to and from the Excel report. Time variables should always be avoided
-if possible in {cmdab:uniquevars()}, but sometimes they are the only option. While
-Stata and Excel both keep a very high precision in time variables, they do so
-slightly differently, and this can generate a difference of a few seconds after
-a time variable was exported to Excel and then imported back to Stata. If the
-time variable is used in {cmdab:uniquevars()}, then the time variable may no
-longer be identical to its original value after it is imported back to Stata, and it
-may therefore no longer be possible to use it to merge the Excel data to the correct Stata
-observation. If this happens, then {cmdab:min:precision()} can be used to set the
-precision manually. This should only be considered a solution of last resort,
-as lowering the precision increases the risk the time variable no longer uniquely
-identifies each observation. The typical user will never use this option.
-
 
 {title:The Excel Report}
 
@@ -299,11 +280,13 @@ observation. One is kept and one is dropped, usually it does not matter which yo
 
 {title:Author}
 
-{phang}Kristoffer Bjärkefur, The World Bank, DECIE
+{phang}All commands in ietoolkit is developed by DIME Analytics at DECIE, The World Bank's unit for Development Impact Evaluations.
+
+{phang}Main author: Kristoffer Bjarkefur, DIME Analystics, The World Bank
 
 {phang}Please send bug-reports, suggestions and requests for clarifications
 		 writing "ietools ieduplicates" in the subject line to:{break}
-		 kbjarkefur@worldbank.org
+		 lcardosodeandrad@worldbank.org
 
 {phang}You can also see the code, make comments to the code, see the version
 		 history of the code, and submit additions or edits to the code through
