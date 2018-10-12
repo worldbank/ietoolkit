@@ -347,54 +347,6 @@
 			/***********************************************************************
 			************************************************************************
 
-				Section 5
-
-				Drop all but one observations that are duplicates in all variables
-
-			************************************************************************
-			***********************************************************************/
-
-			tempvar id_string allDup
-
-			/******************
-				Section 5.2
-				Throw errors if any of the tests was not passed
-			******************/
-
-			** Generate variables that are not 0 if any observations are
-			*  duplicates in all variables
-			duplicates tag , gen(`allDup')
-
-			*Test if any observations is duplicates in all variables
-			count if `allDup' != 0
-			if `r(N)' != 0 {
-
-				* Output message indicating that some observations
-				* were dropped automatically as they were duplicates
-				* in all variables.
-				noi di "{phang}The following IDs are duplicates in all variable so only one version is kept. The other observations in the same duplicate group are automatically dropped:{p_end}"
-
-				*Create a local of all IDs that are to be deleted.
-				levelsof `id_string' if `allDup' != 0
-				foreach alldupID in `r(levels)' {
-
-					*Output the ID
-					noi di "{phang2}ID: `alldupID'{p_end}"
-
-					*Drop all but one duplicates in duplicate
-					*groups that are duplicated in all variables
-					duplicates drop 	if `id_string' == "`alldupID'"
-				}
-
-				*Add an empty row after the output
-				noi di ""
-			}
-
-
-			** Save data set including dropping duplicates in all variables.
-			*  The command returns the data set without these observations.
-			save `restart', replace
-
 			/***********************************************************************
 			************************************************************************
 
