@@ -146,30 +146,23 @@ cap	program drop	iegraph
 		}
 		
 		***************************************************************************
-		* Check that label position is valid. If not, print warning and turn switch
+		* Check that label options are valid. If not, print warning and turn switch
 		* off so default will be used
 		***************************************************************************
 		if `LABEL_POS' {
-			if !inlist(`mlabposition', 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12) {
-				noi di "{phang} WARNING: Option mlabposition() was incorrectly specified. Only {help clockposstyle} values are accepted. Default position used.{p_end}"
-				local 	LABEL_POS 	0
-			}		
+			noi 	clockname `mlabposition'	
+			local 	LABEL_POS = r(LABEL_POS)
 		}
-		***************************************************************************
-		* Check that label size is valid. If not, print warning and turn switch
-		* off so default will be used
-		***************************************************************************
 		if `LABEL_SIZE' {
-			if !(inlist("`mlabsize'",	"zero", "minuscule", "quarter_tiny", "third_tiny", ///
-										"tiny", "vsmall", "small", "medsmall") | ///
-				 inlist("`mlabsize'", 	"medium", "medlarge", "large", "vlarge", "huge", ///
-										"vhuge", "tenth", "quarter", "third") | ///
-				 inlist("`mlabsize'", 	"half_tiny", "half", "full")) {
-				 
-					noi di "{phang} WARNING: Option mlabsize() was incorrectly specified. Only {help textsizestyle} values are accepted. Default size used.{p_end}"
-					local 	LABEL_SIZE 	0
-			}		
-		}
+			noi 	sizename `mlabsize'			
+			local 	LABEL_SIZE = r(LABEL_SIZE)
+		}		
+		if `LABEL_COL' {
+			if !inlist("`mlabcolor'", "background", "bg", "foreground", "fg") {
+				noi 	colorname `mlabcolor'			
+				local 	LABEL_COL = r(LABEL_COL)
+			}
+		}		
 	}
 
 	*Checking to see if the save option is used what is the extension related to it.
@@ -786,3 +779,51 @@ end
 		if `counter' != 2	error 480
 
 	end
+	
+	* Test inputs for label
+	cap prog drop sizename
+ 		prog def sizename, rclass
+
+		args name
+
+		capture findfile gsize-`name'.style
+
+		if ( _rc == 601 ) {
+
+			noi di "{phang} WARNING: Option mlabsize() was incorrectly specified. Only {help textsizestyle} values are accepted. Default size used.{p_end}"
+			return local 	LABEL_SIZE 	0
+		}
+
+	end
+
+	cap prog drop colorname
+		prog def colorname, rclass
+
+		args name
+
+		capture findfile color-`name'.style
+
+		if ( _rc == 601 ) {
+
+			noi di "{phang} WARNING: Option mlabcolor() was incorrectly specified. Only named colors in {help colorstyle} are accepted. Default color used.{p_end}"
+			return local 	LABEL_COL 	0
+		}
+
+	end
+	
+	
+	cap prog drop clockname
+		prog def clockname, rclass
+
+		args name
+
+		capture findfile clockdir-`name'.style
+
+		if ( _rc == 601 ) {
+
+			noi di "{phang} WARNING: Option mlabposition() was incorrectly specified. Only {help clockposstyle} values are accepted. Default position used.{p_end}"
+			return local 	LABEL_POS 	0
+		}
+
+	end
+
