@@ -259,13 +259,15 @@ details {help ieboilstart##comp:below}.
 {marker auth}{...}
 {title:Author}
 
-{phang}Kristoffer Bjarkefur, The World Bank, DECIE
+{phang}All commands in ietoolkit is developed by DIME Analytics at DECIE, The World Bank's unit for Development Impact Evaluations.
+
+{phang}Main author: Kristoffer Bjarkefur, DIME Analytics, The World Bank Group
 
 {phang}Please send bug-reports, suggestions and requests for clarifications
-		 writing "ietools ieboilstart" in the subject line to:{break}
-		 kbjarkefur@worldbank.org
+		 writing "ietoolkit ieboilstart" in the subject line to:{break}
+		 dimeanalytics@worldbank.org
 
 {phang}You can also see the code, make comments to the code, see the version
 		 history of the code, and submit additions or edits to the code through
-		 the github repository of ietoolkit:{break}
-		 {browse "https://github.com/worldbank/ietoolkit"}
+		 {browse "https://github.com/worldbank/ietoolkit":the GitHub repository of ietoolkit}.{p_end}
+		 

@@ -14,7 +14,7 @@ If you are familiar with GitHub go to the **Contributions** section below for ad
 
 An easy but still very efficient way to provide any feedback on these commands is to create an *issue* in GitHub. You can read *issues* submitted by other users or create a new *issue* in the top menu below [**worldbank**/**ietoolkit**](https://github.com/worldbank/ietoolkit) at [https://github.com/worldbank/ietoolkit](https://github.com/worldbank/ietoolkit). While the word *issue* has a negative connotation outside GitHub, it can be used for any kind of feedback. If you have an idea for a new command, or a new feature on an existing command, creating an *issue* is a great tool for suggesting that. Please read already existing *issues* to check whether someone else has made the same suggestion or reported the same error before creating a new *issue*.
 
-While we have a slight preference of receiving any kind of feedback here on GitHub, you are still very welcomed to send a regular email with your feedback to lcardosodeandrad@worldbank.org.
+While we have a slight preference of receiving any kind of feedback here on GitHub, you are still very welcomed to send a regular email with your feedback to dimeanalytics@worldbank.org.
 
 ### **Content**
 
@@ -33,7 +33,7 @@ While we have a slight preference of receiving any kind of feedback here on GitH
 ### **Contributions**
 If you are not familiar with GitHub see the **Bug reports and feature requests** section above for a less technical but still very helpful way to contribute to **ietoolkit**.
 
-GitHub is a wonderful tool for collaboration on code. We appreciate contributions directly to the code and will of course give credit to anyone providing contributions that we merge to the master branch. If you have any questions on anything in this section, please do not hesitate to email lcardosodeandrad@worldbank.org. See [CONTRIBUTING.md](https://github.com/worldbank/ietoolkit/blob/master/CONTRIBUTING.md) for some more details on for example naming conventions.
+GitHub is a wonderful tool for collaboration on code. We appreciate contributions directly to the code and will of course give credit to anyone providing contributions that we merge to the master branch. If you have any questions on anything in this section, please do not hesitate to email dimeanalytics@worldbank.org. See [CONTRIBUTING.md](https://github.com/worldbank/ietoolkit/blob/master/CONTRIBUTING.md) for some more details on for example naming conventions.
 
 The Stata files on the `master` branch are the files most recently released on the SSC server. README, LICENSE and similar files are updated directly to `master` in between releases. Check out any of the `develop` branches (if there are any) if you want to see what future updates we are currently working on.
 
@@ -41,7 +41,7 @@ Please make pull requests to the `master` branch **only** if you wish to contrib
 
 All Stata commands we are working on that we have yet to release a first version of, are found in the branches called `develop-NAME` where *NAME* corresponds to the working name of the command that is yet to be published. If you wish to contribute to any of those commands, then please fork from the branch of the command you want to contribute to, and only make edits to the .ado/.do and .sthlp that correspond to that command. If you want to make contributions to multiple commands that have yet to be released, then you will have to fork from and make pull request to multiple branches.
 
-If you wish to make a contribution by making *forks and pull requests* but are not exactly sure how to do so, feel free to send an email to lcardosodeandrad@worldbank.org.
+If you wish to make a contribution by making *forks and pull requests* but are not exactly sure how to do so, feel free to send an email to dimeanalytics@worldbank.org.
 
 ### Other DIME Anlytics Repositories
 * [Stata adofiles repository](https://github.com/worldbank/stata)
@@ -52,7 +52,7 @@ If you wish to make a contribution by making *forks and pull requests* but are n
 **ietoolkit** is developed under MIT license. See http://adampritchard.mit-license.org/ or see [the `LICENSE` file](https://github.com/worldbank/ietoolkit/blob/master/LICENSE) for details.
 
 ### **Main Contact**
-Luiza Cardoso de Andrade (lcardosodeandrad@worldbank.org)
+Luiza Cardoso de Andrade (dimeanalytics@worldbank.org)
 
 ### **Authors**
 Kristoffer Bjärkefur, Mrijan Rimal, and Luiza Cardoso de Andrade.
