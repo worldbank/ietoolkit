@@ -275,18 +275,18 @@ observation. One is kept and one is dropped, usually it does not matter which yo
 
 {title:Acknowledgements}
 
-{phang}I would like to acknowledge the help in testing and proofreading I received in relation to this command and help file from (in alphabetic order):{p_end}
+{phang}We would like to acknowledge the help in testing and proofreading we received in relation to this command and help file from (in alphabetic order):{p_end}
 {pmore}Mehrab Ali{break}Michell Dong{break}Paula Gonzalez{break}Seungmin Lee
 
 {title:Author}
 
 {phang}All commands in ietoolkit is developed by DIME Analytics at DECIE, The World Bank's unit for Development Impact Evaluations.
 
-{phang}Main author: Kristoffer Bjarkefur, DIME Analystics, The World Bank
+{phang}Main author: Kristoffer Bjarkefur, DIME Analytics, The World Bank Group
 
 {phang}Please send bug-reports, suggestions and requests for clarifications
-		 writing "ietools ieduplicates" in the subject line to:{break}
-		 lcardosodeandrad@worldbank.org
+		 writing "ietoolkit ieduplicates" in the subject line to:{break}
+		 dimeanalytics@worldbank.org
 
 {phang}You can also see the code, make comments to the code, see the version
 		 history of the code, and submit additions or edits to the code through
