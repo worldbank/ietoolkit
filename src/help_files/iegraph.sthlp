@@ -32,6 +32,9 @@ command please see the {browse "https://dimewiki.worldbank.org/wiki/Iegraph":DIM
 {synopt :{cmdab:grey:scale}} Uses greyscales for the bars instead of colors.{p_end}
 {synopt :{cmdab:yzero}} Forces y-axis on the graph to start at 0.{p_end}
 {synopt :{cmdab:barl:abel}} Adds a label on top of the bars with their respective values.{p_end}
+{synopt :{cmdab:mlabc:olor:(}{it:{help colorstyle:colorname}}{cmd:)}} Set color of bar label.{p_end}
+{synopt :{cmdab:mlabp:osition:(}{it:{help clockposstyle:clockpos}}{cmd:)}} Set position of bar label.{p_end}
+{synopt :{cmdab:mlabs:ize:(}{it:{help textsizestyle:size}}{cmd:)}} Set font size of bar label.{p_end}
 {synopt :{cmd:barlabelformat}} Customizes format of bar label. Must be used with {it:barlabel}.{p_end}
 {synopt :{cmd:noconfbars}} Removes the confidence interval bars from graphs for all treatments.{p_end}
 {synopt :{cmdab:confbarsnone(}{it:varlist}{cmd:)}} Removes confidence interval bars from only the {it:varlist} listed.{p_end}
@@ -115,6 +118,15 @@ command please see the {browse "https://dimewiki.worldbank.org/wiki/Iegraph":DIM
 {phang}{cmdab:barl:abel} Adds a label on top of the bars with their respective values. Equivalent 
 	to specifying option {help help blabel_option:blabel(bar)} in a 
 	{help graph_bar: bar graph}. {p_end}
+	
+{phang}{cmdab:mlabc:olor:(}{it:{help colorstyle:colorname}}{cmd:)} Set color of bar label. 
+	Must be used with {it:barlabel}.{p_end}
+
+{phang}{cmdab:mlabp:osition:(}{it:{help clockposstyle:clockpos}}{cmd:)} Set position of bar label. 
+	Must be used with {it:barlabel}.{p_end}
+
+{phang}{cmdab:mlabs:ize:(}{it:{help textsizestyle:size}}{cmd:)} Set font size of bar label. 
+	Must be used with {it:barlabel}.{p_end}
 	
 {phang}{cmd:barlabelformat} Customize barlabel format. Must be used with {it:barlabel}. Options 
 	allowed have the formats %#.#f or %#.#e. Default if %9.1f. See {help format} for
