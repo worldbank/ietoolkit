@@ -52,7 +52,20 @@
 			local argumentVars `idvar' `uniquevars' `keepvars'
 			
 			* Create a list of the varaibles created by this command to put in the report
-			local excelvars dupListID dateListed dateFixed correct drop newID initials notes			
+			local excelvars dupListID dateListed dateFixed correct drop newID initials notes	
+			
+			* Test that nu variable with the name needed for the excel report already exist in the data set
+			foreach excelvar of local excelvars {
+				cap confirm variable `excelvar'
+				if _rc == 0 {
+					*Variable exist, output error
+					noi display as error "{phang}The data set already have a variable called {inp:`excelvar'} which is a name that this command requires to be availible. Please change the name of the variable already in the data set. Future versions of this command will allow the user to rename the variables used by this command.{p_end}"
+					noi di ""
+					error 198
+					exit	
+				}
+			}
+			
 			
 			/***********************************************************************
 			************************************************************************
