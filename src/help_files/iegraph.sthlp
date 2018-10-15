@@ -202,17 +202,19 @@ command please see the {browse "https://dimewiki.worldbank.org/wiki/Iegraph":DIM
 {title:Acknowledgements}
 
 {phang}We would like to acknowledge the help in testing and proofreading we received in relation to this command and help file from (in alphabetic order):{p_end}
-{pmore}Luiza Cardoso De Andrade{break}Michael Orevba{break}Ahmad Zia Wahdat{break}
+{pmore}Michael Orevba{break}Ahmad Zia Wahdat{break}
+ 
+{title:Author}
 
-{title:Authors}
+{phang}All commands in ietoolkit is developed by DIME Analytics at DECIE, The World Bank's unit for Development Impact Evaluations.
 
-{phang}Kristoffer Bjarkefur & Mrijan Rimal, The World Bank, DECIE
+{phang}Main author: Kristoffer Bjarkefur, Mrijan Rimal, Luiza Cardoso De Andrade, DIME Analytics, The World Bank Group
 
 {phang}Please send bug-reports, suggestions and requests for clarifications
 		 writing "ietoolkit iegraph" in the subject line to:{break}
-		 kbjarkefur@worldbank.org
+		 dimeanalytics@worldbank.org
 
 {phang}You can also see the code, make comments to the code, see the version
 		 history of the code, and submit additions or edits to the code through
-		 the github repository of ietoolkit:{break}
-		 {browse "https://github.com/worldbank/ietoolkit"}
+		 {browse "https://github.com/worldbank/ietoolkit":the GitHub repository of ietoolkit}.{p_end}
+		 

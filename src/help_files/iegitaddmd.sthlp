@@ -39,7 +39,7 @@ command please see the {browse "https://dimewiki.worldbank.org/wiki/Iegitaddmd":
 {pstd}{cmd:iegitaddmd} creates a placeholder file in all empty subfolders of 
 	the folder specified in {cmd:folder()}. The default file used if no file is specified 
 	using option {cmd:file()} is called README.md, which is a name and format recognized by 
-	github.com so that the content of the file is displayed if the folder with that file is 
+	GitHub.com so that the content of the file is displayed if the folder with that file is 
 	browsed on GitHub.com. The placeholder file may be removed as 
 	soon as actual files have been added to the folder. Alternatively, if the option
 	{cmd:all} is used, {cmd:iegitaddmd} will create the placeholder file in each subfolder
@@ -91,12 +91,15 @@ command please see the {browse "https://dimewiki.worldbank.org/wiki/Iegitaddmd":
 
 {title:Author}
 
-{phang}Kristoffer Bjarkefur, The World Bank, DECIE
+{phang}All commands in ietoolkit is developed by DIME Analytics at DECIE, The World Bank's unit for Development Impact Evaluations.
 
-{pstd}Please send bug-reports, suggestions and requests for clarifications
+{phang}Main author: Kristoffer Bjarkefur, DIME Analytics, The World Bank Group
+
+{phang}Please send bug-reports, suggestions and requests for clarifications
 		 writing "ietoolkit iegitaddmd" in the subject line to:{break}
-		 lcardosodeandrad@worldbank.org
+		 dimeanalytics@worldbank.org
 
-{pstd}You can also see the code, make comments to the code, see the version
+{phang}You can also see the code, make comments to the code, see the version
 		 history of the code, and submit additions or edits to the code through
-		 the {browse "https://github.com/worldbank/ietoolkit" :ietoolkit github repository}.
+		 {browse "https://github.com/worldbank/ietoolkit":the GitHub repository of ietoolkit}.{p_end}
+		 
