@@ -492,7 +492,6 @@ cap	program drop	iegraph
 		local max_value `r(max)'
 
 		*Locals used for logic below
-		noi di "local signcheck = ((`r(max)' * `r(min)') >= 0) "
 		local signcheck = ((`max_value' * `min_value') >= 0) 	// dummy local for both signs the same (positive or negative)
 		local negative	=  (`max_value' <= 0)				// dummy for max value still negative (including 0)
 
