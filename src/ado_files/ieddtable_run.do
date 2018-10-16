@@ -51,8 +51,10 @@
 	*Manually set significance level
 	ieddtable `outvars' , t(t) tmt(tmt) covar(pop5_17 pop18p pop65p) starl(.05 .01 .001) diformat(%9.5f)	
 	
+	replace marriage = . if _n == 36
+	
 	*Options for row labels instead of just using varname
-	ieddtable `outvars' , t(t) tmt(tmt) covar(pop5_17 pop18p pop65p) rowlabtext("death Death Rate @@ divorce Divorce Rate") rowlabtype("varlab")
+	ieddtable `outvars' , t(t) tmt(tmt) covar(pop5_17 pop18p pop65p) rowlabtext("death Death Rate @@ divorce Divorce Rate") rowlabtype("varlab") onerow
 
 	
 	ieddtable `outvars' , t(t) tmt(tmt) covar(pop5_17) rowlabtext("death LOOOOOOOOOOOOOOOOOOOOOOOOOOOOONG label  @@ divorce Divorce Rate") rowlabtype("varlab") errortype(errhide)
