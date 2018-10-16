@@ -924,12 +924,11 @@ cap program drop 	outputtex
 		file write `texname' 		`"%%% Table created in Stata by ieddtable (https://github.com/worldbank/ietoolkit)"' _n _n
 		file close `texname'
 		
-		* Create preamble for standalone document
-		if "`texdocument'" != "" {
-			texpreamble, texname("`texname'") texfile("`texfile'") texcaption("`texcaption'") texlabel("`texlabel'")
-		}
+		* Create preamble for standalone document if option texdocument was selected
+		texpreamble	, texname("`texname'") texfile("`texfile'") texcaption("`texcaption'") texlabel("`texlabel'") `texdocument'
 		
-			texheader, texname("`texname'") texfile("`texfile'") `onerow'
+		* Write table header
+		texheader	, texname("`texname'") texfile("`texfile'") `onerow'
 		
 
 		if "`onerow'" != "" {
@@ -1094,43 +1093,46 @@ end
 cap program drop	texpreamble
 	program define	texpreamble
 	
-	syntax	, texname(string) texfile(string)[texcaption(string) texlabel(string)]
+	syntax	, texname(string) texfile(string) [texcaption(string) texlabel(string) texdocument]
 					
-		file open  `texname' using 	`"`texfile'"', text write append
-		file write `texname' 		`"\documentclass{article}"' _n ///
-									`""' _n ///
-									`"% ----- Preamble "' _n ///
-									`"\usepackage[utf8]{inputenc}"' _n ///
-									`"\usepackage{adjustbox}"' _n ///
-									`"% ----- End of preamble "' _n ///
-									`""' _n ///
-									`" \begin{document}"' _n ///
-									`""' _n ///
-									`"\begin{table}[!htbp]"' _n ///
-									`"\centering"' _n
-									
-		* Write tex caption if specified
-		if "`texcaption'" != "" {
+		if "`texdocument'"	!= "" {
 		
-			* Make sure special characters are displayed correctly
-			local texcaption : subinstr local texcaption "%"  "\%" , all
-			local texcaption : subinstr local texcaption "_"  "\_" , all
-			local texcaption : subinstr local texcaption "&"  "\&" , all
+			file open  `texname' using 	`"`texfile'"', text write append
+			file write `texname' 		`"\documentclass{article}"' _n ///
+										`""' _n ///
+										`"% ----- Preamble "' _n ///
+										`"\usepackage[utf8]{inputenc}"' _n ///
+										`"\usepackage{adjustbox}"' _n ///
+										`"% ----- End of preamble "' _n ///
+										`""' _n ///
+										`" \begin{document}"' _n ///
+										`""' _n ///
+										`"\begin{table}[!htbp]"' _n ///
+										`"\centering"' _n
+										
+			* Write tex caption if specified
+			if "`texcaption'" != "" {
+			
+				* Make sure special characters are displayed correctly
+				local texcaption : subinstr local texcaption "%"  "\%" , all
+				local texcaption : subinstr local texcaption "_"  "\_" , all
+				local texcaption : subinstr local texcaption "&"  "\&" , all
 
-			file write `texname' 	`"\caption{`texcaption'}"' _n
+				file write `texname' 	`"\caption{`texcaption'}"' _n
 
-		}
-		
-		* Write tex label if specified
-		if "`texlabel'" != "" {
+			}
+			
+			* Write tex label if specified
+			if "`texlabel'" != "" {
 
-			file write `texname' 	`"\label{`texlabel'}"' _n
+				file write `texname' 	`"\label{`texlabel'}"' _n
 
-		}
+			}
 
-		
-		file write `texname'		`"\begin{adjustbox}{max width=\textwidth}"' _n
-		file close `texname'
+			
+			file write `texname'		`"\begin{adjustbox}{max width=\textwidth}"' _n
+			file close `texname'
+	}
 	
 end
 
