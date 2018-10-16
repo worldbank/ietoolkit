@@ -18,6 +18,8 @@ cap program drop 	ieddtable
 		/* Output display */								///
 		SAVETex(string)										///
 		onerow												///
+		TBLNote(string)										///
+		TBLNONote											///
 															///
 		/* Tex output options */							///
 		TEXDOCument											///
@@ -299,6 +301,40 @@ cap program drop 	ieddtable
 		noi testonerow `varlist', ddtab_resultMap(ddtab_resultMap) 
 	}
 	
+	/***************************************
+
+		Prepare notes
+	
+	***************************************/	
+
+	*Error for tblnonote incorrectly used together with notecombine
+	local note_obs	"The baseline means only includes observations not omitted in the 1st and 2nd differences."
+	local note_cov	"The following variable(s) was included as covariates [`covariates']."
+	
+	*Show stars levels
+	local star1_value : word 1 of `starlevels'
+	local star2_value : word 2 of `starlevels'
+	local star3_value : word 3 of `starlevels'
+	local note_stars "***, **, and * indicate significance at the `star3_value', `star2_value', and `star1_value' percent critical level."
+	
+	if ("`tblnote'" == "" & "`tblnonote'" != "") {
+		local note	"nonote"
+	}
+	else {
+		if "`tblnote'" != "" {
+			local note	"`tblnote'"
+		}
+		if "`tblnonote'" == "" {
+			local note	`"`note' `note_obs' `note_stars'"'
+			
+			if "`covariates'" != "" {
+				local note	`"`note' `note_cov'"'
+			}
+		}
+		
+		local note = strtrim("`note'")
+		local note = stritrim("`note'")
+	}
 	
 	/************* 
 		
@@ -319,7 +355,8 @@ cap program drop 	ieddtable
 		outputtex `varlist', 	ddtab_resultMap(ddtab_resultMap) 	///
 								savetex(`savetex') `texreplace'  ///
 								`texdocument' texcaption("`texcaption'") texlabel("`texlabel'") texnotewidth(`texnotewidth') ///
-								`onerow' starlevels("`starlevels'") diformat(`diformat') rwlbls("`rowlabels'") errortype(`errortype')
+								`onerow' starlevels("`starlevels'") diformat(`diformat') rwlbls("`rowlabels'") errortype(`errortype') ///
+								note(`note')
 	
 	}
 	
@@ -586,9 +623,9 @@ qui {
 			else if `n' != `ncol' {
 			
 				*Prepare string with explanatory column name
-				if "`ncolname'" == "2D_N"	local colstring "2nd difference regregression"
-				if "`ncolname'" == "1DC_N"	local colstring "1st difference regregression in control group"
-				if "`ncolname'" == "1DT_N"	local colstring "1st difference regregression in treatment group"
+				if "`ncolname'" == "2D_N"	local colstring "2nd difference regression"
+				if "`ncolname'" == "1DC_N"	local colstring "1st difference regression in control group"
+				if "`ncolname'" == "1DT_N"	local colstring "1st difference regression in treatment group"
 				if "`ncolname'" == "C0_N"	local colstring "mean of control group in time = 0"
 				if "`ncolname'" == "T0_N"	local colstring "mean of treatment group in time = 0"
 				if "`ncolname'" == "C1_N"	local colstring "mean of control group in time = 1"
@@ -605,7 +642,8 @@ qui {
 	}
 }
 end
-
+	
+	
 /***************************************
 ****************************************
 
@@ -904,10 +942,10 @@ cap program drop 	windowdiformat
 cap program drop 	outputtex
 	program define	outputtex	
 	
-	syntax varlist, ddtab_resultMap(name) savetex(string) ///
+	syntax varlist, ddtab_resultMap(name) savetex(string) note(string) ///
 					[texreplace onerow starlevels(string) diformat(string) rwlbls(string) errortype(string) ///
 					texdocument texcaption(string) texlabel(string) texnotewidth(numlist)]
-	
+
 		* Replace tex file?
 		if "`texreplace'" != ""		local texreplace	replace
 	
@@ -940,7 +978,7 @@ cap program drop 	outputtex
 		texonerow, ddtab_resultMap(ddtab_resultMap) texname("`texname'") texfile("`texfile'") `onerow' 
 		
 		* Write tex footer
-		texfooter, texname("`texname'") texfile("`texfile'") texnotewidth(`texnotewidth') `onerow' errortype(`errortype')
+		texfooter, texname("`texname'") texfile("`texfile'") texnotewidth(`texnotewidth') `onerow' errortype(`errortype') note(`note')
 		
 		* Save final tex file
 		copy "`texfile'" `"`savetex'"', `texreplace'
@@ -1212,8 +1250,13 @@ end
 cap program drop	texfooter
 	program define	texfooter
 	
-	syntax	, texname(string) texfile(string) errortype(string) [texnotewidth(numlist) onerow]
+	syntax	, texname(string) texfile(string) errortype(string) note(string) [texnotewidth(numlist) onerow ]
 
+		******************
+		* Calculate inputs
+		******************
+
+		* Number of columns in the table
 		if ("`onerow'" != "" | "`errortype'" == "errhide") {
 			local	countcols		6
 		}
@@ -1221,22 +1264,34 @@ cap program drop	texfooter
 			local 	countcols		11
 		}
 		
-		if "`texnotewidth'" == "" {
-			local 	texnotewidth 	1
+		* Note width
+		if "`note'" != "nonote" {
+			if "`texnotewidth'" == "" {
+				local 	texnotewidth 	1
+			}
+
+			local note = subinstr("`note'", "&", "\&", .)
+			local note = subinstr("`note'", "%", "\%", .)
+			local note = subinstr("`note'", "_", "\_", .)
 		}
+		
 			
+		* Note contents		
 		file open  `texname' using 	"`texfile'", text write append		
-		file write `texname'		"\hline \hline \\[-1.8ex]" _n ///
-									"%%% This is the note. If it does not have the correct margins, use texnotewidth() option or change the number before '\textwidth' in line below to fit it to table size." _n ///
+		file write `texname'		"\hline \hline \\[-1.8ex]" _n
+		
+		if "`note'" != "nonote" {
+			file write `texname'	"%%% This is the note. If it does not have the correct margins, use texnotewidth() option or change the number before '\textwidth' in line below to fit it to table size." _n ///
 									"\multicolumn{`countcols'}{@{} p{`texnotewidth'\textwidth}}" _n ///
-									"{\textit{Notes}: `tblnote'}" _n ///
-									"\end{tabular}" _n ///
+									"{\textit{Notes}: `note'}" _n
+		}
+	
+		file write `texname'		"\end{tabular}" _n ///
 									"\end{adjustbox}" _n ///
 									"\end{table}" _n _n ///
 									"\end{document}" _n
-
 		file close `texname'
-		
+
 end
 
 cap program drop	texonerow
