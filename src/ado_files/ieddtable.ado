@@ -319,7 +319,7 @@ cap program drop 	ieddtable
 		outputtex `varlist', 	ddtab_resultMap(ddtab_resultMap) 	///
 								savetex(`savetex') `texreplace'  ///
 								`texdocument' texcaption("`texcaption'") texlabel("`texlabel'") texnotewidth(`texnotewidth') ///
-								`onerow' starlevels("`starlevels'") diformat(`diformat') rwlbls("`rowlabels'")
+								`onerow' starlevels("`starlevels'") diformat(`diformat') rwlbls("`rowlabels'") errortype(`errortype')
 	
 	}
 	
@@ -905,7 +905,7 @@ cap program drop 	outputtex
 	program define	outputtex	
 	
 	syntax varlist, ddtab_resultMap(name) savetex(string) ///
-					[texreplace onerow starlevels(string) diformat(string) rwlbls(string) ///
+					[texreplace onerow starlevels(string) diformat(string) rwlbls(string) errortype(string) ///
 					texdocument texcaption(string) texlabel(string) texnotewidth(numlist)]
 	
 		* Replace tex file?
@@ -928,29 +928,32 @@ cap program drop 	outputtex
 		texpreamble	, texname("`texname'") texfile("`texfile'") texcaption("`texcaption'") texlabel("`texlabel'") `texdocument'
 		
 		* Write table header
-		texheader	, texname("`texname'") texfile("`texfile'") `onerow'
+		texheader	, texname("`texname'") texfile("`texfile'") `onerow'  errortype(`errortype')
 		
 		* Write results
 		texresults `varlist', ddtab_resultMap(ddtab_resultMap) ///
-							  diformat("`diformat'") rwlbls("`rwlbls'") ///
+							  diformat("`diformat'") rwlbls("`rwlbls'") errortype("`errortype'") ///
 							  texname("`texname'") texfile("`texfile'") ///
 							  `onerow' 
 		
 		* Write row with number of observations if option onerow was selected
-		texonerow, ddtab_resultMap(ddtab_resultMap) texname("`texname'") texfile("`texfile'") `onerow'
+		texonerow, ddtab_resultMap(ddtab_resultMap) texname("`texname'") texfile("`texfile'") `onerow' 
 		
-		texfooter, texname("`texname'") texfile("`texfile'") texnotewidth(`texnotewidth') `onerow'
+		* Write tex footer
+		texfooter, texname("`texname'") texfile("`texfile'") texnotewidth(`texnotewidth') `onerow' errortype(`errortype')
 		
-	copy "`texfile'" `"`savetex'"', `texreplace'
+		* Save final tex file
+		copy "`texfile'" `"`savetex'"', `texreplace'
 
-	noi di as result `"{phang}Balance table saved to: {browse "`savetex'":`savetex'} "'
+		* Print confirmation message
+		noi di as result `"{phang}Balance table saved to: {browse "`savetex'":`savetex'} "'
 	
 end
 
 cap program drop	texresults
 	program define	texresults
 	
-	syntax	varlist, ddtab_resultMap(name) texname(string) texfile(string) diformat(string) rwlbls(string) [onerow]
+	syntax	varlist, ddtab_resultMap(name) texname(string) texfile(string) errortype(string) diformat(string) rwlbls(string) [onerow]
 
 		*Count numbers of variables to loop over
 		local numVars = `:word count `varlist''
@@ -975,21 +978,38 @@ cap program drop	texresults
 				**Run sub command that gets value from matrix and prepares it 
 				* in the format suitable for the LaTeX table (and adding
 				* stars if applicable)
-				texdiformat , statname("`stat'") row(`row') ddtab_resultMap(ddtab_resultMap) diformat("`diformat'")	`onerow'
+				texdiformat , statname("`stat'") row(`row') ddtab_resultMap(ddtab_resultMap) diformat("`diformat'")	errortype(`errortype') `onerow'
 				
 				*The main stat
 				local `stat' `r(disp_tex)'
 				
 			}
 				
-
-			file open  `texname' using 	"`texfile'", text write append
-			file write `texname'		"`label' `C0_N'  & \begin{tabular}[t]{@{}c@{}} `C0_mean' \\ `C0_err'  \end{tabular}" ///
-											   " `1DC_N' & \begin{tabular}[t]{@{}c@{}} `1DC'     \\ `1DC_err' \end{tabular}" ///
-											   " `T0_N'  & \begin{tabular}[t]{@{}c@{}} `T0_mean' \\ `T0_err'  \end{tabular}" ///
-											   " `1DT_N' & \begin{tabular}[t]{@{}c@{}} `1DT'     \\ `1DT_err' \end{tabular}" ///
-											   " `2D_N'  & \begin{tabular}[t]{@{}c@{}} `2D'      \\ `2D_err'  \end{tabular} \rule{0pt}{0pt}\\" _n
-			file close `texname'
+			if "`errortype'" == "errhide" {
+				if "`onerow'" != "" {
+					file open  `texname' using 	"`texfile'", text write append
+					file write `texname'		"`label' & `C0_mean' & `1DC' & `T0_mean' & `1DT' &  `2D' \rule{0pt}{0pt}\\" _n
+					file close `texname'
+				}
+				else {
+					file open  `texname' using 	"`texfile'", text write append
+					file write `texname'		"`label' & \begin{tabular}[t]{@{}c@{}} `C0_mean' \\ `C0_N'  \end{tabular}" ///
+													   " & \begin{tabular}[t]{@{}c@{}} `1DC'     \\ `1DC_N' \end{tabular}" ///
+													   " & \begin{tabular}[t]{@{}c@{}} `T0_mean' \\ `T0_N'  \end{tabular}" ///
+													   " & \begin{tabular}[t]{@{}c@{}} `1DT'     \\ `1DT_N' \end{tabular}" ///
+													   " & \begin{tabular}[t]{@{}c@{}} `2D'      \\ `2D_N'  \end{tabular} \rule{0pt}{0pt}\\" _n
+					file close `texname'
+				}
+			}
+			else {
+				file open  `texname' using 	"`texfile'", text write append
+				file write `texname'		"`label' `C0_N'  & \begin{tabular}[t]{@{}c@{}} `C0_mean' \\ `C0_err'  \end{tabular}" ///
+												   " `1DC_N' & \begin{tabular}[t]{@{}c@{}} `1DC'     \\ `1DC_err' \end{tabular}" ///
+												   " `T0_N'  & \begin{tabular}[t]{@{}c@{}} `T0_mean' \\ `T0_err'  \end{tabular}" ///
+												   " `1DT_N' & \begin{tabular}[t]{@{}c@{}} `1DT'     \\ `1DT_err' \end{tabular}" ///
+												   " `2D_N'  & \begin{tabular}[t]{@{}c@{}} `2D'      \\ `2D_err'  \end{tabular} \rule{0pt}{0pt}\\" _n
+				file close `texname'
+			}
 		}
 		
 end
@@ -1045,7 +1065,7 @@ end
 cap program drop 	texdiformat
 	program define	texdiformat, rclass
 	
-	syntax , statname(string) row(numlist) ddtab_resultMap(name) diformat(string) [onerow]
+	syntax , statname(string) row(numlist) ddtab_resultMap(name) diformat(string) errortype(string) [onerow]
 	
 		mat temp = ddtab_resultMap[`row', "`statname'"]
 		local `statname' = el(temp,1,1)
@@ -1080,7 +1100,12 @@ cap program drop 	texdiformat
 		*Only add number of observations of onerow is not specified
 		if inlist("`statname'", "2D_N", "1DT_N", "1DC_N", "C0_N", "T0_N") {
 			if "`onerow'" == "" {
-				local `statname' `" & ``statname'' "'
+				if "`errortype'" == "errhide" {
+					local `statname'	"``statname''"
+				}
+				else {
+					local `statname' `" & ``statname'' "'
+				}
 			}
 			else {
 				local `statname'	""
@@ -1139,16 +1164,14 @@ end
 cap program drop	texheader
 	program define	texheader
 	
-	syntax	, texname(string) texfile(string) [onerow]
+	syntax	, texname(string) texfile(string)  errortype(string) [onerow]
 	
-			
-		if "`onerow'" != "" {
+		if ("`onerow'" != "" | "`errortype'" == "errhide") {
 		
 			local	toprowcols		2
 			local	bottomrowcols	1
 			local 	colstring		lccccc
 			local	ncol			""
-		
 		}
 		else {
 			
@@ -1157,6 +1180,21 @@ cap program drop	texheader
 			local 	colstring		lcccccccccc
 			local	ncol			"& N "
 
+		}
+		
+		if "`errortype'" == "errhide" {
+			if "`onerow'" != "" {
+				local errortitle	""
+			}
+			else {
+				local errortitle	"/N"
+			}
+		}
+		else if "`errortype'" == "se" {
+			local errortitle	"/(SE)"
+		}
+		else if "`errortype'" == "sd" {
+			local errortitle	"/(SD)"
 		}
 		
 	
@@ -1174,9 +1212,9 @@ end
 cap program drop	texfooter
 	program define	texfooter
 	
-	syntax	, texname(string) texfile(string) [texnotewidth(numlist) onerow]
+	syntax	, texname(string) texfile(string) errortype(string) [texnotewidth(numlist) onerow]
 
-		if "`onerow'" != "" {
+		if ("`onerow'" != "" | "`errortype'" == "errhide") {
 			local	countcols		6
 		}
 		else {
