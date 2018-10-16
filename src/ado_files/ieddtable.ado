@@ -908,49 +908,14 @@ cap program drop 	outputtex
 					[texreplace onerow starlevels(string) diformat(string) rwlbls(string) ///
 					texdocument texcaption(string) texlabel(string) texnotewidth(numlist)]
 	
-	******** Prepare inputs
-	
+		* Replace tex file?
 		if "`texreplace'" != ""		local texreplace	replace
 	
-		* Test filename input
-		**Find the last . in the file path and assume that
-		* the file extension is what follows. If a file path has a . then
-		* the file extension must be explicitly specified by the user.
-
-		*Copy the full file path to the file suffix local
-		local tex_file_suffix 	= "`savetex'"
-
-		** Find index for where the file type suffix start
-		local tex_dot_index 	= strpos("`tex_file_suffix'",".")
-
-		*If no dot then no file extension
-		if `tex_dot_index' == 0  local tex_file_suffix 	""
-
-		**If there is one or many . in the file path than loop over
-		* the file path until we have found the last one.
-		while `tex_dot_index' > 0 {
-
-			*Extract the file index
-			local tex_file_suffix 	= substr("`tex_file_suffix'", `tex_dot_index' + 1, .)
-
-			*Find index for where the file type suffix start
-			local tex_dot_index 	= strpos("`tex_file_suffix'",".")
-		}
-
-		*If no file format suffix is specified, use the default .tex
-		if "`tex_file_suffix'" == "" {
-
-			local savetex `"`savetex'.tex"'
-		}
-
-		*If a file format suffix is specified make sure that it is one of the two allowed.
-		else if !("`tex_file_suffix'" == "tex" | "`tex_file_suffix'" == "txt") {
-
-			noi display as error "{phang}The file format specified in savetex(`savetex') is other than .tex or .txt. Only those two formats are allowed. If no format is specified .tex is the default. If you have a . in your file path, for example in a folder name, then you must specify the file extension .tex or .txt.{p_end}"
-			error 198
-		}
-
-
+		* Test tex name
+		texnametest	, savetex(`savetex')
+		local 		  savetex = r(savetex)
+		
+		* Create temporary file
 		tempname 	texname
 		tempfile	texfile
 		
@@ -1027,6 +992,54 @@ cap program drop	texresults
 											   " `2D_N'  & \begin{tabular}[t]{@{}c@{}} `2D'      \\ `2D_err'  \end{tabular} \rule{0pt}{0pt}\\" _n
 			file close `texname'
 		}
+		
+end
+
+cap program drop 	texnametest
+	program define	texnametest, rclass
+	
+	syntax	, savetex(string)
+
+		* Test filename input
+		**Find the last . in the file path and assume that
+		* the file extension is what follows. If a file path has a . then
+		* the file extension must be explicitly specified by the user.
+
+		*Copy the full file path to the file suffix local
+		local tex_file_suffix 	= "`savetex'"
+
+		** Find index for where the file type suffix start
+		local tex_dot_index 	= strpos("`tex_file_suffix'",".")
+
+		*If no dot then no file extension
+		if `tex_dot_index' == 0  local tex_file_suffix 	""
+
+		**If there is one or many . in the file path than loop over
+		* the file path until we have found the last one.
+		while `tex_dot_index' > 0 {
+
+			*Extract the file index
+			local tex_file_suffix 	= substr("`tex_file_suffix'", `tex_dot_index' + 1, .)
+
+			*Find index for where the file type suffix start
+			local tex_dot_index 	= strpos("`tex_file_suffix'",".")
+		}
+
+		*If no file format suffix is specified, use the default .tex
+		if "`tex_file_suffix'" == "" {
+
+			local savetex `"`savetex'.tex"'
+
+		}
+
+		*If a file format suffix is specified make sure that it is one of the two allowed.
+		else if !("`tex_file_suffix'" == "tex" | "`tex_file_suffix'" == "txt") {
+
+			noi display as error "{phang}The file format specified in savetex(`name') is other than .tex or .txt. Only those two formats are allowed. If no format is specified .tex is the default. If you have a . in your file path, for example in a folder name, then you must specify the file extension .tex or .txt.{p_end}"
+			error 198
+		}
+
+		return local savetex `savetex'
 		
 end
 
