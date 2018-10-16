@@ -289,6 +289,19 @@ cap program drop 	ieddtable
 	
 	/************* 
 		
+		Test the matrix
+			
+	*************/
+	
+	*Test that onerow option is valid, i.e. the N in each column is the same across all rows
+
+	if "`onerow'" != "" {
+		noi testonerow `varlist', ddtab_resultMap(ddtab_resultMap) 
+	}
+	
+	
+	/************* 
+		
 		Output table in result window
 			
 	*************/
@@ -544,6 +557,55 @@ cap program drop 	convertErrs
 	
 end
 
+cap program drop 	testonerow
+	program define	testonerow, rclass
+	
+	syntax varlist, ddtab_resultMap(name) 
+
+qui {	
+	local numVars :word count `varlist'
+	
+	*List of all columns that must be the same in case onerow is used
+	local ncols 2D_N 1DC_N 1DT_N  C0_N T0_N
+	
+	*Loop over the columns with N
+	foreach ncolname of local ncols {
+
+		*Loop over the rows in the matrix
+		forvalues row = 1/`numVars' {
+			
+			*Get the value from the matrix
+			mat temp = ddtab_resultMap[`row', "`ncolname'"]
+			local ncol = el(temp,1,1)
+			
+			*If it is the first row, save to be compared to later rows
+			if `row' == 1 {
+				local n = `ncol'
+			}
+			
+			*If not the first row, compare this row to the first row, if it is not the same for all rows, then the option onerow is not valid.
+			else if `n' != `ncol' {
+			
+				*Prepare string with explanatory column name
+				if "`ncolname'" == "2D_N"	local colstring "2nd difference regregression"
+				if "`ncolname'" == "1DC_N"	local colstring "1st difference regregression in control group"
+				if "`ncolname'" == "1DT_N"	local colstring "1st difference regregression in treatment group"
+				if "`ncolname'" == "C0_N"	local colstring "mean of control group in time = 0"
+				if "`ncolname'" == "T0_N"	local colstring "mean of treatment group in time = 0"
+				if "`ncolname'" == "C1_N"	local colstring "mean of control group in time = 1"
+				if "`ncolname'" == "T1_N"	local colstring "mean of treatment group in time = 1"
+
+				*Name of the variables
+				local firstVar : word 1 	of `varlist'
+				local thisVar  : word `row' of `varlist'
+				
+				noi di as error "{phang}There are different number of observations in the variables `firstVar' and `thisVar' in the `colstring'. The number of observations for each statistic must be same in all variables for the option {inp:onerow} to be valid. Either remove the {inp:onerow} option or investigate why the N is different accross variables.{p_end}"
+				error 480				
+			}
+		}
+	}
+}
+end
 
 /***************************************
 ****************************************
