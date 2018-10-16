@@ -35,7 +35,6 @@
 	*Add your own file path to be able to run the command
 	if "`c(username)'" == "kbrkb" global ietoolkitfolder "C:\Users\kbrkb\Documents\GitHub\ietoolkit"
 	if "`c(username)'" == "luiza" global ietoolkitfolder "C:\Users\luiza\Documents\GitHub\ietoolkit"
-	if "`c(username)'" == "WB501238" global ietoolkitfolder "C:\Users\WB501238\Documents\GitHub\ietoolkit"
 	
 	qui do "$ietoolkitfolder\src\ado_files\ieddtable.ado"
 	

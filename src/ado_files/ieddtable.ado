@@ -319,7 +319,8 @@ cap program drop 	ieddtable
 		outputtex `varlist', 	ddtab_resultMap(ddtab_resultMap) 	///
 								savetex(`savetex') `texreplace'  ///
 								`texdocument' texcaption("`texcaption'") texlabel("`texlabel'") texnotewidth(`texnotewidth') ///
-								`onerow' starlevels("`starlevels'") diformat(`diformat') rwlbls("`rowlabels'") 
+								`onerow' starlevels("`starlevels'") diformat(`diformat')
+
 	
 	}
 	
@@ -905,7 +906,7 @@ cap program drop 	outputtex
 	program define	outputtex	
 	
 	syntax varlist, ddtab_resultMap(name) savetex(string) ///
-					[texreplace onerow starlevels(string) diformat(string) rwlbls(string) ///
+					[texreplace onerow starlevels(string) diformat(string) ///
 					texdocument texcaption(string) texlabel(string) texnotewidth(numlist)]
 	
 	******** Prepare inputs
@@ -967,9 +968,8 @@ cap program drop 	outputtex
 			texheader, texname("`texname'") texfile("`texfile'") `onerow'
 		
 			texresults `varlist', ddtab_resultMap(ddtab_resultMap) ///
-								  diformat("`diformat'") rwlbls("`rwlbls'") ///
-								  texname("`texname'") texfile("`texfile'") ///
-								  `onerow' 
+								  diformat("`diformat'")  ///
+								  texname("`texname'") texfile("`texfile'") `onerow'
 
 		if "`onerow'" != "" {
 			texonerow, ddtab_resultMap(ddtab_resultMap) texname("`texname'") texfile("`texfile'")
@@ -985,7 +985,7 @@ end
 cap program drop	texresults
 	program define	texresults
 	
-	syntax	varlist, ddtab_resultMap(name) texname(string) texfile(string) diformat(string) rwlbls(string) [onerow]
+	syntax	varlist, ddtab_resultMap(name) texname(string) texfile(string) diformat(string) [onerow]
 
 		*Count numbers of variables to loop over
 		local numVars = `:word count `varlist''
@@ -995,11 +995,6 @@ cap program drop	texresults
 
 		* Loop over variables
 		forvalues row = 1/`numVars' {
-		
-			*Get lables from the list of lables previosly prepared
-			local rwlbls = trim(subinstr("`rwlbls'", "@@","", 1))
-			gettoken label rwlbls : rwlbls, parse("@@")	
-			
 			foreach stat of local statlist {
 			
 				**Run sub command that gets value from matrix and prepares it 
@@ -1014,11 +1009,11 @@ cap program drop	texresults
 				
 
 			file open  `texname' using 	"`texfile'", text write append
-			file write `texname'		"`label' `C0_N'  & \begin{tabular}[t]{@{}c@{}} `C0_mean' \\ `C0_err'  \end{tabular}" ///
-											   " `1DC_N' & \begin{tabular}[t]{@{}c@{}} `1DC'     \\ `1DC_err' \end{tabular}" ///
-											   " `T0_N'  & \begin{tabular}[t]{@{}c@{}} `T0_mean' \\ `T0_err'  \end{tabular}" ///
-											   " `1DT_N' & \begin{tabular}[t]{@{}c@{}} `1DT'     \\ `1DT_err' \end{tabular}" ///
-											   " `2D_N'  & \begin{tabular}[t]{@{}c@{}} `2D'      \\ `2D_err'  \end{tabular} \rule{0pt}{0pt}\\" _n
+			file write `texname'		"name `C0_N'  & \begin{tabular}[t]{@{}c@{}} `C0_mean' \\ `C0_err'  \end{tabular}" ///
+											" `1DC_N' & \begin{tabular}[t]{@{}c@{}} `1DC'     \\ `1DC_err' \end{tabular}" ///
+											" `T0_N'  & \begin{tabular}[t]{@{}c@{}} `T0_mean' \\ `T0_err'  \end{tabular}" ///
+											" `1DT_N' & \begin{tabular}[t]{@{}c@{}} `1DT'     \\ `1DT_err' \end{tabular}" ///
+											" `2D_N'  & \begin{tabular}[t]{@{}c@{}} `2D'      \\ `2D_err'  \end{tabular} \rule{0pt}{0pt}\\" _n
 			file close `texname'
 		}
 		
