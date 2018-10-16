@@ -930,16 +930,16 @@ cap program drop 	outputtex
 		* Write table header
 		texheader	, texname("`texname'") texfile("`texfile'") `onerow'
 		
-
-		if "`onerow'" != "" {
-			texonerow, ddtab_resultMap(ddtab_resultMap) texname("`texname'") texfile("`texfile'")
-		}
-			texfooter, texname("`texname'") texfile("`texfile'") texnotewidth(`texnotewidth') `onerow'
 		* Write results
 		texresults `varlist', ddtab_resultMap(ddtab_resultMap) ///
 							  diformat("`diformat'") rwlbls("`rwlbls'") ///
 							  texname("`texname'") texfile("`texfile'") ///
 							  `onerow' 
+		
+		* Write row with number of observations if option onerow was selected
+		texonerow, ddtab_resultMap(ddtab_resultMap) texname("`texname'") texfile("`texfile'") `onerow'
+		
+		texfooter, texname("`texname'") texfile("`texfile'") texnotewidth(`texnotewidth') `onerow'
 		
 	copy "`texfile'" `"`savetex'"', `texreplace'
 
@@ -1204,35 +1204,32 @@ end
 cap program drop	texonerow
 	program define	texonerow
 	
-	syntax	, texname(string) texfile(string) ddtab_resultMap(name)
+	syntax	, texname(string) texfile(string) ddtab_resultMap(name) [onerow]
 	
-		*Check that all rows have the same number of obs
+		if "`onerow'" != "" {
+			
+			*Check that all rows have the same number of obs
 
-		*List of variabls to add
-		local statlist 2D_N 1DT_N 1DC_N C0_N T0_N
+			*List of variabls to add
+			local statlist 2D_N 1DT_N 1DC_N C0_N T0_N
 
-		*Get their values
-		foreach stat of local statlist {
-		
-			mat temp = ddtab_resultMap[`row', "`statname'"]
-			local `statname' = el(temp,1,1)
+			*Get their values
+			foreach stat of local statlist {
 			
-			if substr("`statname'", -2,.) == "_N" {
-				local `statname'	: display %9.0f ``statname''
+				mat temp = ddtab_resultMap[1, "`stat'"]
+				local `stat' = el(temp,1,1)
+				
+				local `stat'	: display %9.0f ``stat''
+				
+				*Trime spaces on left from left.
+				local `stat' = ltrim("``stat''")
+				
 			}
-			else {
-				local `statname' 	: display `diformat' ``statname''
-			}
-			
-			*Trime spaces on left from left.
-			local `statname' = ltrim("``statname''")
-			
+				
+			file open  `texname' using 	"`texfile'", text write append
+			file write `texname'		"N & `C0_N' & `1DC_N' & `T0_N' & `1DT_N' & `2D_N' \\" _n
+			file close `texname'
 		}
 			
-		file open  `texname' using 	"`texfile'", text write append
-		file write `texname'		
-		file close `texname'
-	
-		
 end
 
