@@ -935,7 +935,7 @@ cap program drop 	windowdiformat
 cap program drop 	outputtex
 	program define	outputtex	
 	
-	syntax varlist, ddtab_resultMap(name) savetex(string) note(string) ///
+	syntax varlist, ddtab_resultMap(name) savetex(string) ///
 					[texreplace onerow starlevels(string) diformat(string) rwlbls(string) errortype(string) ///
 					texdocument texcaption(string) texlabel(string) texnotewidth(numlist) note(string)]
 
