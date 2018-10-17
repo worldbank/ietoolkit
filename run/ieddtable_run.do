@@ -35,6 +35,7 @@
 	*Add your own file path to be able to run the command
 	if "`c(username)'" == "kbrkb" global ietoolkitfolder "C:\Users\kbrkb\Documents\GitHub\ietoolkit"
 	if "`c(username)'" == "luiza" global ietoolkitfolder "C:\Users\luiza\Documents\GitHub\ietoolkit"
+	if "`c(username)'" == "WB501238" global ietoolkitfolder "C:\Users\WB501238\Documents\GitHub\ietoolkit"
 	
 	qui do "$ietoolkitfolder\src\ado_files\ieddtable.ado"
 	
@@ -55,7 +56,13 @@
 	
 	ieddtable `outvars' , t(t) tmt(tmt) covar(pop5_17) rowlabtext("death LOOOOOOOOOOOOOOOOOOOOOOOOOOOOONG label  @@ divorce Divorce Rate") rowlabtype("varlab") errortype(errhide)
 
-	
+	lab var death "Death (%) &_oi"
 	/* Test save tex option  */
 	local outvars death marriage divorce
-	ieddtable `outvars' , t(t) tmt(tmt) covar(pop5_17) savetex(oi) texdocument texreplace texcaption(ble) texlabel(foo)
+	ieddtable `outvars' , t(t) tmt(tmt) covar(pop5_17) savetex(oi) texdocument texreplace texcaption(ble) texlabel(foo) rowlabtype(varlab) onerow tblnote(This is a custom note.) tblnonote
+		
+	ieddtable `outvars' , t(t) tmt(tmt) covar(pop5_17) savetex(oi) texdocument texreplace texcaption(ble) texlabel(foo) rowlabtype(varlab) errortype(errhide)
+	ieddtable `outvars' , t(t) tmt(tmt) covar(pop5_17) savetex(oi) texdocument texreplace texcaption(ble) texlabel(foo) rowlabtype(varlab) onerow
+	ieddtable `outvars' , t(t) tmt(tmt) covar(pop5_17) savetex(oi) texdocument texreplace texcaption(ble) texlabel(foo) rowlabtype(varlab) onerow texnotewidth(1.3)
+
+	ieddtable `outvars' , t(t) tmt(tmt) covar(pop5_17) savetex(oi) texdocument texreplace texcaption(ble) texlabel(foo) rowlabtext("death LOOOOOOOOOOOOOOOOOOOOOOOOOOOOONG label  @@ divorce Divorce Rate")

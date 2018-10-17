@@ -937,7 +937,7 @@ cap program drop 	outputtex
 	
 	syntax varlist, ddtab_resultMap(name) savetex(string) note(string) ///
 					[texreplace onerow starlevels(string) diformat(string) rwlbls(string) errortype(string) ///
-					texdocument texcaption(string) texlabel(string) texnotewidth(numlist)]
+					texdocument texcaption(string) texlabel(string) texnotewidth(numlist) note(string)]
 
 		* Replace tex file?
 		if "`texreplace'" != ""		local texreplace	replace
@@ -1243,7 +1243,7 @@ end
 cap program drop	texfooter
 	program define	texfooter
 	
-	syntax	, texname(string) texfile(string) errortype(string) note(string) [texnotewidth(numlist) onerow ]
+	syntax	, texname(string) texfile(string) errortype(string) [texnotewidth(numlist) onerow note(string)]
 
 		******************
 		* Calculate inputs
@@ -1258,22 +1258,25 @@ cap program drop	texfooter
 		}
 		
 		* Note width
-		if "`note'" != "nonote" {
+		if "`note'" != "" {
 			if "`texnotewidth'" == "" {
 				local 	texnotewidth 	1
 			}
 
+		* Special characters in note
 			local note = subinstr("`note'", "&", "\&", .)
 			local note = subinstr("`note'", "%", "\%", .)
 			local note = subinstr("`note'", "_", "\_", .)
 		}
 		
 			
-		* Note contents		
+		**************
+		* Write footer
+		**************
 		file open  `texname' using 	"`texfile'", text write append		
 		file write `texname'		"\hline \hline \\[-1.8ex]" _n
 		
-		if "`note'" != "nonote" {
+		if "`note'" != "" {
 			file write `texname'	"%%% This is the note. If it does not have the correct margins, use texnotewidth() option or change the number before '\textwidth' in line below to fit it to table size." _n ///
 									"\multicolumn{`countcols'}{@{} p{`texnotewidth'\textwidth}}" _n ///
 									"{\textit{Notes}: `note'}" _n
