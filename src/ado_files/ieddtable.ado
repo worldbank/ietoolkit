@@ -344,7 +344,7 @@ cap program drop 	ieddtable
 	*************/
 	
 	outputwindow `varlist' , ddtab_resultMap(ddtab_resultMap) labmaxlen(`labmaxlen') rwlbls(`rowlabels') ///
-		starlevels("`starlevels'") covariates(`covariates') `errortype' diformat(`diformat')
+		starlevels("`starlevels'") covariates(`covariates') `errortype' diformat(`diformat') note(`note')
 
 	/************* 
 		
@@ -706,7 +706,7 @@ end
 	cap program drop 	outputwindow
 		program define	outputwindow
 		
-		syntax varlist , ddtab_resultMap(name) labmaxlen(numlist) rwlbls(string) starlevels(string) diformat(string) [covariates(string) errhide sd se] 
+		syntax varlist , ddtab_resultMap(name) labmaxlen(numlist) rwlbls(string) starlevels(string) diformat(string) [covariates(string) errhide sd se note(string)] 
 		
 		*Prepare lables for the erorrs to be displayed (in case any)
 		if "`sd'" != "" local errlabel "SD"
@@ -826,18 +826,10 @@ end
 		
 		*************************
 		* Write notes below the table
-		
-		noi di as text "  The baseline means only includes observations not omitted in the 1st and 2nd differences."
-		
-		*Show stars levels
-		local star1_value : word 1 of `starlevels'
-		local star2_value : word 2 of `starlevels'
-		local star3_value : word 3 of `starlevels'
-		noi di as text "  ***, **, and * indicate significance at the `star3_value', `star2_value', and `star1_value' percent critical level. "
-		
+			
 		*List covariates used
-		if ("`covariates'" != "") {
-			noi di as text "  The following variable(s) was included as covariates [`covariates']"
+		if (`"`note'"' != "") {
+			noi di as text `"{pstd}`note'{p_end}"'
 		}
 
 	end
