@@ -306,35 +306,36 @@ cap program drop 	ieddtable
 		Prepare notes
 	
 	***************************************/	
+	
+	*Prepare the automated table not unless it was disabled by option tblnonote
+	if "`tblnonote'" == "" {
+	
+		*Error for tblnonote incorrectly used together with notecombine
+		local note_obs	"The baseline means only includes observations not omitted in the 1st and 2nd differences. The number of observations in the 1st and 2nd differences includes both baseline and follow-up observations."
 
-	*Error for tblnonote incorrectly used together with notecombine
-	local note_obs	"The baseline means only includes observations not omitted in the 1st and 2nd differences."
-	local note_cov	"The following variable(s) was included as covariates [`covariates']."
-	
-	*Show stars levels
-	local star1_value : word 1 of `starlevels'
-	local star2_value : word 2 of `starlevels'
-	local star3_value : word 3 of `starlevels'
-	local note_stars "***, **, and * indicate significance at the `star3_value', `star2_value', and `star1_value' percent critical level."
-	
-	if ("`tblnote'" == "" & "`tblnonote'" != "") {
-		local note	"nonote"
-	}
-	else {
-		if "`tblnote'" != "" {
-			local note	"`tblnote'"
-		}
-		if "`tblnonote'" == "" {
-			local note	`"`note' `note_obs' `note_stars'"'
-			
-			if "`covariates'" != "" {
-				local note	`"`note' `note_cov'"'
-			}
+		*Show stars levels
+		local star1_value : word 1 of `starlevels'
+		local star2_value : word 2 of `starlevels'
+		local star3_value : word 3 of `starlevels'
+		local note_stars "***, **, and * indicate significance at the `star3_value', `star2_value', and `star1_value' percent critical level."
+		
+		*Only include note on covariates if covariates were used
+		if "`covariates'" != "" {
+			local note_cov	"The following variable(s) was included as covariates [`covariates']."
 		}
 		
-		local note = strtrim("`note'")
-		local note = stritrim("`note'")
+		local note `"`note_obs' `note_stars' `note_cov'"'
 	}
+	
+	**if a manual note was added in tblnote(), combine the manually added 
+	* tblnote to note (which is still empty if tblnonote was used) 
+	if "`tblnote'" != "" {
+		local note	`"`tblnote' `note'"'
+	}
+	
+	*Remove leading, trailing or multiple spaces from the string.
+	local note = stritrim(strtrim(`"`note'"'))
+
 	
 	/************* 
 		
