@@ -8,12 +8,11 @@ cap program drop 	ieddtable
 		[ 													///
 		COVARiates(varlist numeric)							///
 		STARLevels(numlist descending min=3 max=3 >0 <1)	///
-		STARSNOadd											///
-		firstdiff											///
-		rowlabtype(string) 									///
+		ROWLabtype(string) 									///
 		rowlabtext(string)									///
-		errortype(string)									///
-		diformat(string)									///
+		ERRortype(string)									///
+		DIFormat(string)									///
+		replace												///
 															///
 		/* Output display */								///
 		SAVETex(string)										///
@@ -26,7 +25,6 @@ cap program drop 	ieddtable
 		TEXCaption(string)									///
 		TEXLabel(string)									///
 		TEXNotewidth(numlist min=1 max=1)					///
-		texreplace											///
 		]
 	
 	/************* 
@@ -354,7 +352,7 @@ cap program drop 	ieddtable
 	if "`savetex'" != "" {
 		
 		outputtex `varlist', 	ddtab_resultMap(ddtab_resultMap) 	///
-								savetex(`savetex') `texreplace'  ///
+								savetex(`savetex') `replace'  ///
 								`texdocument' texcaption("`texcaption'") texlabel("`texlabel'") texnotewidth(`texnotewidth') ///
 								`onerow' starlevels("`starlevels'") diformat(`diformat') rwlbls("`rowlabels'") errortype(`errortype') ///
 								note(`note')
@@ -935,12 +933,12 @@ cap program drop 	windowdiformat
 cap program drop 	outputtex
 	program define	outputtex	
 	
-	syntax varlist, ddtab_resultMap(name) savetex(string) ///
-					[texreplace onerow starlevels(string) diformat(string) rwlbls(string) errortype(string) ///
-					texdocument texcaption(string) texlabel(string) texnotewidth(numlist) note(string)]
+	syntax varlist, ddtab_resultMap(name) savetex(string) note(string) ///
+					[replace onerow starlevels(string) diformat(string) rwlbls(string) errortype(string) ///
+					texdocument texcaption(string) texlabel(string) texnotewidth(numlist)]
 
 		* Replace tex file?
-		if "`texreplace'" != ""		local texreplace	replace
+		if "`replace'" != ""		local texreplace	replace
 	
 		* Test tex name
 		texnametest	, savetex(`savetex')
@@ -1243,7 +1241,7 @@ end
 cap program drop	texfooter
 	program define	texfooter
 	
-	syntax	, texname(string) texfile(string) errortype(string) [texnotewidth(numlist) onerow note(string)]
+	syntax	, texname(string) texfile(string) errortype(string) note(string) [texnotewidth(numlist) onerow ]
 
 		******************
 		* Calculate inputs
@@ -1258,25 +1256,22 @@ cap program drop	texfooter
 		}
 		
 		* Note width
-		if "`note'" != "" {
+		if "`note'" != "nonote" {
 			if "`texnotewidth'" == "" {
 				local 	texnotewidth 	1
 			}
 
-		* Special characters in note
 			local note = subinstr("`note'", "&", "\&", .)
 			local note = subinstr("`note'", "%", "\%", .)
 			local note = subinstr("`note'", "_", "\_", .)
 		}
 		
 			
-		**************
-		* Write footer
-		**************
+		* Note contents		
 		file open  `texname' using 	"`texfile'", text write append		
 		file write `texname'		"\hline \hline \\[-1.8ex]" _n
 		
-		if "`note'" != "" {
+		if "`note'" != "nonote" {
 			file write `texname'	"%%% This is the note. If it does not have the correct margins, use texnotewidth() option or change the number before '\textwidth' in line below to fit it to table size." _n ///
 									"\multicolumn{`countcols'}{@{} p{`texnotewidth'\textwidth}}" _n ///
 									"{\textit{Notes}: `note'}" _n
