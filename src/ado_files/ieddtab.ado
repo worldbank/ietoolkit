@@ -11,7 +11,7 @@ cap program drop 	ieddtab
 		ROWLabtype(string) 									///
 		rowlabtext(string)									///
 		ERRortype(string)									///
-		DIFormat(string)									///
+		format(string)									///
 		replace												///
 															///
 		/* Output display */								///
@@ -72,7 +72,7 @@ cap program drop 	ieddtab
 	if "`starlevels'" == "" local starlevels ".1 .05 .01"
 
 	** If the format option is specified, then test if there is a valid format specified
-	if "`diformat'" != "" {
+	if "`format'" != "" {
 
 			** Creating a numeric mock variable that we attempt to apply the format
 			*  to. This allows us to piggy back on Stata's internal testing to be
@@ -80,15 +80,15 @@ cap program drop 	ieddtab
 			*  formats in Stata
 				tempvar  formattest
 				gen 	`formattest' = 1
-			cap	format  `formattest' `diformat'
+			cap	format  `formattest' `format'
 
 			** Some error with the format
 			if _rc == 120 {
-				di as error "{phang}The format specified in diformat(`diformat') is not a valid Stata format. See {help format} for a list of valid Stata formats. This command only accept the f, fc, g, gc and e format.{p_end}"
+				di as error "{phang}The format specified in format(`format') is not a valid Stata format. See {help format} for a list of valid Stata formats. This command only accept the f, fc, g, gc and e format.{p_end}"
 				error 120
 			}
 			else if _rc != 0 {
-				di as error "{phang}Something unexpected happened related to the option diformat(`diformat'). Make sure that the format you specified is a valid format. See {help format} for a list of valid Stata formats. If this problem remains, please report this error at https://github.com/worldbank/ietoolkit.{p_end}"
+				di as error "{phang}Something unexpected happened related to the option format(`format'). Make sure that the format you specified is a valid format. See {help format} for a list of valid Stata formats. If this problem remains, please report this error at https://github.com/worldbank/ietoolkit.{p_end}"
 				error _rc
 			}
 
@@ -96,8 +96,8 @@ cap program drop 	ieddtab
 			else {
 
 				local fomrmatAllowed 0
-				local charLast  = substr("`diformat'", -1,.)
-				local char2Last = substr("`diformat'", -2,.)
+				local charLast  = substr("`format'", -1,.)
+				local char2Last = substr("`format'", -2,.)
 
 				if  "`charLast'" == "f" | "`charLast'" == "e" {
 					local fomrmatAllowed 1
@@ -129,14 +129,14 @@ cap program drop 	ieddtab
 					local fomrmatAllowed 0
 				}
 				if `fomrmatAllowed' == 0 {
-					di as error "{phang}The format specified in diformat(`diformat') is not allowed. Only format f, fc, g, gc and e are allowed. See {help format} for details on Stata formats.{p_end}"
+					di as error "{phang}The format specified in format(`format') is not allowed. Only format f, fc, g, gc and e are allowed. See {help format} for details on Stata formats.{p_end}"
 					error 120
 				}
 			}
 		}
 		else {
 			*Default value if fomramt not specified
-			local diformat = "%9.2f"
+			local format = "%9.2f"
 		}
 
 
@@ -332,7 +332,7 @@ cap program drop 	ieddtab
 	}
 
 	**if a manual note was added in tblnote(), combine the manually added
-	* tblnote to note (which is still empty if nonotes was used)
+	* tblnote to note (which is still empty if tblnonote was used)
 	if "`tblnote'" != "" {
 		local note	`"`tblnote' `note'"'
 	}
@@ -348,7 +348,7 @@ cap program drop 	ieddtab
 	*************/
 
 	outputwindow `varlist' , ddtab_resultMap(ddtab_resultMap) labmaxlen(`labmaxlen') rwlbls(`rowlabels') ///
-		starlevels("`starlevels'") covariates(`covariates') `errortype' diformat(`diformat') note(`note')
+		starlevels("`starlevels'") covariates(`covariates') `errortype' format(`format') note(`note')
 
 	/*************
 
@@ -360,7 +360,7 @@ cap program drop 	ieddtab
 		outputtex `varlist', 	ddtab_resultMap(ddtab_resultMap) 	///
 								savetex(`savetex') `replace'  ///
 								`texdocument' texcaption("`texcaption'") texlabel("`texlabel'") texnotewidth(`texnotewidth') ///
-								`onerow' starlevels("`starlevels'") diformat(`diformat') rwlbls("`rowlabels'") errortype(`errortype') ///
+								`onerow' starlevels("`starlevels'") format(`format') rwlbls("`rowlabels'") errortype(`errortype') ///
 								note(`note') texvspace("`texvspace'")
 
 	}
@@ -710,7 +710,7 @@ end
 	cap program drop 	outputwindow
 		program define	outputwindow
 
-		syntax varlist , ddtab_resultMap(name) labmaxlen(numlist) rwlbls(string) starlevels(string) diformat(string) [covariates(string) errhide sd se note(string)]
+		syntax varlist , ddtab_resultMap(name) labmaxlen(numlist) rwlbls(string) starlevels(string) format(string) [covariates(string) errhide sd se note(string)]
 
 		*Prepare lables for the erorrs to be displayed (in case any)
 		if "`sd'" != "" local errlabel "SD"
@@ -802,7 +802,7 @@ end
 				**Run sub command that gets value from matrix and prepares it
 				* in the format suitable for the result window table (and adding
 				* stars if applicable)
-				windowdiformat , statname("`stat'") row(`row') ddtab_resultMap(ddtab_resultMap) diformat("`diformat'") bslnw(`bsln_width') diffw(`diff_width') ddw(`diffdiff_width')
+				windowdiformat , statname("`stat'") row(`row') ddtab_resultMap(ddtab_resultMap) format("`format'") bslnw(`bsln_width') diffw(`diff_width') ddw(`diffdiff_width')
 
 				*The main stat
 				local `stat' `r(disp_stata)'
@@ -842,7 +842,7 @@ end
 cap program drop 	windowdiformat
 	program define	windowdiformat, rclass
 
-	syntax , statname(string) row(numlist) ddtab_resultMap(name) diformat(string)  bslnw(numlist) diffw(numlist) ddw(numlist)
+	syntax , statname(string) row(numlist) ddtab_resultMap(name) format(string)  bslnw(numlist) diffw(numlist) ddw(numlist)
 
 		local numSpace 0
 
@@ -853,7 +853,7 @@ cap program drop 	windowdiformat
 			local `statname'	: display %9.0f ``statname''
 		}
 		else {
-			local `statname' 	: display `diformat' ``statname''
+			local `statname' 	: display `format' ``statname''
 		}
 
 		*Trime spaces on left from left.
@@ -940,7 +940,7 @@ cap program drop 	outputtex
 	program define	outputtex
 
 	syntax varlist, ddtab_resultMap(name) savetex(string) note(string) ///
-					[replace onerow starlevels(string) diformat(string) rwlbls(string) errortype(string) ///
+					[replace onerow starlevels(string) format(string) rwlbls(string) errortype(string) ///
 					texdocument texcaption(string) texlabel(string) texnotewidth(numlist) texvspace(string)]
 
 		* Replace tex file?
@@ -967,7 +967,7 @@ cap program drop 	outputtex
 
 		* Write results
 		texresults `varlist', ddtab_resultMap(ddtab_resultMap) ///
-							  diformat("`diformat'") rwlbls("`rwlbls'") errortype("`errortype'") ///
+							  format("`format'") rwlbls("`rwlbls'") errortype("`errortype'") ///
 							  texname("`texname'") texfile("`texfile'") ///
 							  `onerow'  texvspace("`texvspace'")
 
@@ -988,7 +988,7 @@ end
 cap program drop	texresults
 	program define	texresults
 
-	syntax	varlist, ddtab_resultMap(name) texname(string) texfile(string) errortype(string) diformat(string) rwlbls(string) [onerow texvspace(string)]
+	syntax	varlist, ddtab_resultMap(name) texname(string) texfile(string) errortype(string) format(string) rwlbls(string) [onerow texvspace(string)]
 
 		****************
 		* Prepare inputs
@@ -1043,7 +1043,7 @@ cap program drop	texresults
 				**Run sub command that gets value from matrix and prepares it
 				* in the format suitable for the LaTeX table (and adding
 				* stars if applicable)
-				texdiformat , statname("`stat'") row(`row') ddtab_resultMap(ddtab_resultMap) diformat("`diformat'")	errortype(`errortype') `onerow'
+				texdiformat , statname("`stat'") row(`row') ddtab_resultMap(ddtab_resultMap) format("`format'")	errortype(`errortype') `onerow'
 
 				*The main stat
 				local `stat' `r(disp_tex)'
@@ -1130,7 +1130,7 @@ end
 cap program drop 	texdiformat
 	program define	texdiformat, rclass
 
-	syntax , statname(string) row(numlist) ddtab_resultMap(name) diformat(string) errortype(string) [onerow]
+	syntax , statname(string) row(numlist) ddtab_resultMap(name) format(string) errortype(string) [onerow]
 
 		mat temp = ddtab_resultMap[`row', "`statname'"]
 		local `statname' = el(temp,1,1)
@@ -1139,7 +1139,7 @@ cap program drop 	texdiformat
 			local `statname'	: display %9.0f ``statname''
 		}
 		else {
-			local `statname' 	: display `diformat' ``statname''
+			local `statname' 	: display `format' ``statname''
 		}
 
 		*Trime spaces on left from left.
