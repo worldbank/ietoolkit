@@ -18,7 +18,7 @@ command please see the {browse "https://dimewiki.worldbank.org/wiki/ieddtab":DIM
 	[
 		{cmdab:covar:iates(}{it:varlist}{cmd:)} {cmdab:starl:evels(}{it:numlist}{cmd:)}
 		{cmdab:err:ortype(}{it:string}{cmd:)} {cmdab:rowl:abtype(}{it:string}{cmd:)}
-		{cmdab:rowlabtext(}{it:label_string}{cmd:)} {cmdab:dif:ormat(}{it:{help format:%fmt}}{cmd:)}
+		{cmdab:rowlabtext(}{it:label_string}{cmd:)} {cmdab:format(}{it:{help format:%fmt}}{cmd:)}
 		{cmdab:replace} {cmdab:savet:ex(}{it:filepath}{cmd:)} {cmdab:onerow}
 		{cmdab:nonotes} {cmdab:addn:otes(}{it:string}{cmd:)}  {cmdab:texdoc:ument}
 		{cmdab:texc:aption(}{it:string}{cmd:)} {cmdab:texl:abel(}{it:string}{cmd:)}
@@ -44,7 +44,7 @@ command please see the {browse "https://dimewiki.worldbank.org/wiki/ieddtab":DIM
 {synopt :{cmdab:nonote}}Disable that the automatically generated note is displayed below the table.{p_end}
 {synopt :{cmdab:addn:otes(}{it:string}{cmd:)}}Manually add a note to be displayed below the regression result table.{p_end}
 {synopt :{cmdab:onerow}}Display the number of observations on one row at the last row of the table.{p_end}
-{synopt :{cmdab:dif:ormat(}{it:{help format:%fmt}}{cmd:)}}Set the rounding format of the calculated statistics in the table.{p_end}
+{synopt :{cmdab:format(}{it:{help format:%fmt}}{cmd:)}}Set the rounding format of the calculated statistics in the table.{p_end}
 {synopt :{cmdab:replace}}Replace the file on disk if it already exist. Has no effect if no option with file path is used.{p_end}
 
 {pstd}{it:LaTeX options:}{p_end}
@@ -102,7 +102,7 @@ command please see the {browse "https://dimewiki.worldbank.org/wiki/ieddtab":DIM
 
 {phang}{cmdab:onerow} indicated that the number of observations should be displayed on one row at the last row of the table instead on each row. This requires that the number of observations are the same across all rows for each column.{p_end}
 
-{phang}{cmdab:dif:ormat(}{it:{help format:%fmt}}{cmd:)} sets the number formatting/rounding rule for all calculated statistics in the table, that is all numbers in the table apart from the number of observations. Only valid {help format:Stata number formats} are allowed. The default is {it:%9.2f}.{p_end}
+{phang}{cmdab:format(}{it:{help format:%fmt}}{cmd:)} sets the number formatting/rounding rule for all calculated statistics in the table, that is all numbers in the table apart from the number of observations. Only valid {help format:Stata number formats} are allowed. The default is {it:%9.2f}.{p_end}
 
 {phang}{cmdab:replace} if an option is used that output a file and a file with that name already exists at that location, then Stata will throw an error unless this option is used. If this option is used then Stata overwrites the file on disk with the new output. This option has no effect if no option with file path is used.{p_end}
 
