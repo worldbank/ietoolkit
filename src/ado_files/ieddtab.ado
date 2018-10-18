@@ -33,7 +33,19 @@ cap program drop 	ieddtab
 		Input handling
 
 	*************/
-
+	
+	*TIME AND TREATMENT NOT IN OUTCOMEVARS
+	
+	*Test that the variables listed in time() and treatment() is not also in the main varlist
+	if `:list time in varlist' != 0 {
+		noi di as error "{phang}The variable `time' listed in option {inp:time(`time')} is also listed in the outcome variables which is not allowed.{p_end}"
+		error 198
+	}
+	if `:list treatment in varlist' != 0 {
+		noi di as error "{phang}The variable `treatment' listed in option {inp:treatment(`treatment')} is also listed in the outcome variables which is not allowed.{p_end}"
+		error 198
+	}	
+	
 	*LABELS
 	*Test and prepare the row lables and test how long the longest label is.
 	prepRowLabels `varlist', rowlabtype("`rowlabtype'") rowlabtext("`rowlabtext'")
