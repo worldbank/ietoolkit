@@ -1,6 +1,6 @@
 
-cap program drop 	ieddtable
-	program define	ieddtable
+cap program drop 	ieddtab
+	program define	ieddtab
 	
 	syntax varlist, ///
 					///
@@ -384,7 +384,7 @@ cap program drop 	prepRowLabels
 		//All is good do nothing
 	}
 	else {
-		noi display as error "{phang}Row label type [`rowlabtype'] is not a valid row label type. Enter either {it:varlab} or {it:varname} (the default if not specified is {it:varname}). See option {help ieddtable:rowlabtype} for details."
+		noi display as error "{phang}Row label type [`rowlabtype'] is not a valid row label type. Enter either {it:varlab} or {it:varname} (the default if not specified is {it:varname}). See option {help ieddtab:rowlabtype} for details."
 		error 198
 	}
 
@@ -420,7 +420,7 @@ cap program drop 	prepRowLabels
 
 		*Testing that no label is missing
 		if "`label'" == "" {
-			noi display as error "{phang}For variable [`name'] listed in rowlabtext(`rowlabels') you have not specified any label. Labels are requried for all variables listed in rowlabels(). Variables omitted from rowlabtext() will be assigned labels according to the rule in rowlabtype(). See also option {help ieddtable:rowlabtext}"
+			noi display as error "{phang}For variable [`name'] listed in rowlabtext(`rowlabels') you have not specified any label. Labels are requried for all variables listed in rowlabels(). Variables omitted from rowlabtext() will be assigned labels according to the rule in rowlabtype(). See also option {help ieddtab:rowlabtext}"
 			error 198
 		}
 		

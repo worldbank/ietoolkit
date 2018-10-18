@@ -18,12 +18,13 @@ While we have a slight preference of receiving any kind of feedback here on GitH
 
 ### **Content**
 
-**ietoolkit** provides a set of commands that address different aspects of data management and data analysis in relation to Impact Evaluations. The list of commands will be extended continuously, and suggestions for new commands are greatly appreciated. Some of the commands are related to standardized best practices developed at DIME (The World Bank’s unit for Impact Evaluations). For these commands, the corresponding help files provide justifications for the standardized best practices applied. 
+**ietoolkit** provides a set of commands that address different aspects of data management and data analysis in relation to Impact Evaluations. The list of commands will be extended continuously, and suggestions for new commands are greatly appreciated. Some of the commands are related to standardized best practices developed at DIME (The World Bank’s unit for Impact Evaluations). For these commands, the corresponding help files provide justifications for the standardized best practices applied.
 
- - **ieduplicates** and **iecompdup** are useful tools to identify and correct for duplicates, particulary in primary survey data
+ - **ieduplicates** and **iecompdup** are useful tools to identify and correct for duplicates, particularly in primary survey data
  - **iefolder** sets up project folders and creates master do-files that links to all sub-folders
  - **iebaltab** is a tool for multiple treatment arm balance tables
- - **iematch** is an algortihm for matching observations in one group to "the most similar" observations in another group
+ - **ieddtab** is a tool for difference-in-difference regression tables
+ - **iematch** is an algorithm for matching observations in one group to "the most similar" observations in another group
  - **iegraph** produces graphs of estimation results in common impact evaluation regression models
  - **ieboilstart** standardizes the boilerplate code at the top of all do-files
  - **iedropone** drops observations and controls that the correct number was dropped
