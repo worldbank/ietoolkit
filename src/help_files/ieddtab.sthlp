@@ -162,8 +162,10 @@ specified value minus the height of one line of text. Default is "3ex". For more
 
 {title:Acknowledgements}
 
+{phang}This command was initally suggested by Esteban J. Quinones{p_end}
+
 {phang}We would like to acknowledge the help in testing and proofreading we received in relation to this command and help file from (in alphabetic order):{p_end}
-{pmore}Esteban J. Quinones
+{pmore}Benjamin Daniel{break}Jonas Guthoff{break}Sakina Shibuya{break}
 
 {title:Author}
 
