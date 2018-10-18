@@ -14,6 +14,9 @@ do "$ietoolkitRepo/src/ado_files/iebaltab.ado"
 
 If it is a new command or you do not have the command installed already you would still follow the same steps to temporarily install a command in Stata.
 
+### How to view a new help file or a new version of a help file
+If you type `help iebaltab` you will see the help file of already installed version of iebaltab. When you want to read the help file for a new command or the new version of a helpfile that includes the new features of the command you instead have to use the *View* option in the *File* drop-down menu. After you click *View* you browse to the location on your computer where you have the new version of the help file and select that file. 
+
 ### What to test for when testing a Stata commands
 
 There are two main aspects when testing a command which are, **Does the command work?** and **Does the command make sense?**. The two questions are equally important as it does not matter how good a command works if it makes sense to anyone but the person who developed it. *Making sense* should be interpreted in the broadest possible sense here. For example, *Is it intuitive what the purpose of the command is?*, *Is it intuitive how the command is specified?*, *Does the documentation make sense?*, *Does the error messages make sense and are they helpful?* etc. The developer can do a lot to test if the command works, but will ultimately need help from the user base to know if it make sense.
