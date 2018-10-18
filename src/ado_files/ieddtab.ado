@@ -1,7 +1,7 @@
 
 cap program drop 	ieddtab
 	program define	ieddtab
-	
+		
 	syntax varlist, ///
 					///
 		t(varname numeric) tmt(varname numeric) 			///
@@ -25,6 +25,7 @@ cap program drop 	ieddtab
 		TEXCaption(string)									///
 		TEXLabel(string)									///
 		TEXNotewidth(numlist min=1 max=1)					///
+		texvspace(string)									///
 		]
 	
 	/************* 
@@ -355,7 +356,7 @@ cap program drop 	ieddtab
 								savetex(`savetex') `replace'  ///
 								`texdocument' texcaption("`texcaption'") texlabel("`texlabel'") texnotewidth(`texnotewidth') ///
 								`onerow' starlevels("`starlevels'") diformat(`diformat') rwlbls("`rowlabels'") errortype(`errortype') ///
-								note(`note')
+								note(`note') texvspace("`texvspace'")
 	
 	}
 	
@@ -935,7 +936,7 @@ cap program drop 	outputtex
 	
 	syntax varlist, ddtab_resultMap(name) savetex(string) note(string) ///
 					[replace onerow starlevels(string) diformat(string) rwlbls(string) errortype(string) ///
-					texdocument texcaption(string) texlabel(string) texnotewidth(numlist)]
+					texdocument texcaption(string) texlabel(string) texnotewidth(numlist) texvspace(string)]
 
 		* Replace tex file?
 		if "`replace'" != ""		local texreplace	replace
@@ -963,7 +964,7 @@ cap program drop 	outputtex
 		texresults `varlist', ddtab_resultMap(ddtab_resultMap) ///
 							  diformat("`diformat'") rwlbls("`rwlbls'") errortype("`errortype'") ///
 							  texname("`texname'") texfile("`texfile'") ///
-							  `onerow' 
+							  `onerow'  texvspace("`texvspace'")
 		
 		* Write row with number of observations if option onerow was selected
 		texonerow, ddtab_resultMap(ddtab_resultMap) texname("`texname'") texfile("`texfile'") `onerow' 
@@ -982,8 +983,12 @@ end
 cap program drop	texresults
 	program define	texresults
 	
-	syntax	varlist, ddtab_resultMap(name) texname(string) texfile(string) errortype(string) diformat(string) rwlbls(string) [onerow]
+	syntax	varlist, ddtab_resultMap(name) texname(string) texfile(string) errortype(string) diformat(string) rwlbls(string) [onerow texvspace(string)]
 
+		****************
+		* Prepare inputs
+		****************
+		
 		*Count numbers of variables to loop over
 		local numVars = `:word count `varlist''
 		
@@ -994,6 +999,32 @@ cap program drop	texresults
 		local rwlbls = subinstr("`rwlbls'", "&", "\&", .)
 		local rwlbls = subinstr("`rwlbls'", "%", "\%", .)
 		local rwlbls = subinstr("`rwlbls'", "_", "\_", .)
+		
+		* Line spacing
+		if "`texvspace'" == ""	{
+			local texvspace	3ex
+		}
+		else {
+			* Test if width unit is correctly specified
+			local 	vspace_unit = substr("`texvspace'",-2,2)
+			if 	!inlist("`vspace_unit'","cm","mm","pt","in","ex","em") {
+				noi display as error `"{phang}Option texvspace is incorrectly specified. Vertical space unit must be one of "cm", "mm", "pt", "in", "ex" or "em". For more information, {browse "https://en.wikibooks.org/wiki/LaTeX/Lengths":check LaTeX lengths manual}.{p_end}"'
+				error 198
+			}
+
+			* Test if width value is correctly specified
+			local 	vspace_value = subinstr("`texvspace'","`vspace_unit'","",.)
+			capture confirm number `vspace_value'
+			if _rc & inlist("`vspace_unit'","cm","mm","pt","in","ex","em") {
+				noi display as error "{phang}Option texvspace is incorrectly specified. Vertical space value must be numeric. See {help iebaltab:iebaltab help}. {p_end}"
+				error 198
+			}
+		}
+		
+		
+		***************
+		* Write results
+		***************
 		
 		* Loop over variables
 		forvalues row = 1/`numVars' {
@@ -1017,7 +1048,7 @@ cap program drop	texresults
 			if "`errortype'" == "errhide" {
 				if "`onerow'" != "" {
 					file open  `texname' using 	"`texfile'", text write append
-					file write `texname'		"`label' & `C0_mean' & `1DC' & `T0_mean' & `1DT' &  `2D' \rule{0pt}{0pt}\\" _n
+					file write `texname'		"`label' & `C0_mean' & `1DC' & `T0_mean' & `1DT' &  `2D' \rule{0pt}{`texvspace'}\\" _n
 					file close `texname'
 				}
 				else {
@@ -1026,7 +1057,7 @@ cap program drop	texresults
 													   " & \begin{tabular}[t]{@{}c@{}} `1DC'     \\ `1DC_N' \end{tabular}" ///
 													   " & \begin{tabular}[t]{@{}c@{}} `T0_mean' \\ `T0_N'  \end{tabular}" ///
 													   " & \begin{tabular}[t]{@{}c@{}} `1DT'     \\ `1DT_N' \end{tabular}" ///
-													   " & \begin{tabular}[t]{@{}c@{}} `2D'      \\ `2D_N'  \end{tabular} \rule{0pt}{0pt}\\" _n
+													   " & \begin{tabular}[t]{@{}c@{}} `2D'      \\ `2D_N'  \end{tabular} \rule{0pt}{`texvspace'}\\" _n
 					file close `texname'
 				}
 			}
@@ -1036,7 +1067,7 @@ cap program drop	texresults
 												   " `1DC_N' & \begin{tabular}[t]{@{}c@{}} `1DC'     \\ `1DC_err' \end{tabular}" ///
 												   " `T0_N'  & \begin{tabular}[t]{@{}c@{}} `T0_mean' \\ `T0_err'  \end{tabular}" ///
 												   " `1DT_N' & \begin{tabular}[t]{@{}c@{}} `1DT'     \\ `1DT_err' \end{tabular}" ///
-												   " `2D_N'  & \begin{tabular}[t]{@{}c@{}} `2D'      \\ `2D_err'  \end{tabular} \rule{0pt}{0pt}\\" _n
+												   " `2D_N'  & \begin{tabular}[t]{@{}c@{}} `2D'      \\ `2D_err'  \end{tabular} \rule{0pt}{`texvspace'}\\" _n
 				file close `texname'
 			}
 		}
@@ -1259,6 +1290,10 @@ cap program drop	texfooter
 		if "`note'" != "nonote" {
 			if "`texnotewidth'" == "" {
 				local 	texnotewidth 	1
+			}
+			else if `texnotewidth' <= 0 {
+				noi display as error `"{phang}The value specified in texnotewidth(`texnotewidth') is non-positive. Only positive numbers are allowed. For more information, {net "from http://en.wikibooks.org/wiki/LaTeX/Lengths.smcl":check LaTeX lengths manual}.{p_end}"'
+				error 198
 			}
 
 			local note = subinstr("`note'", "&", "\&", .)
