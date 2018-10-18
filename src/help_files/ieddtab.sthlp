@@ -58,9 +58,21 @@ command please see the {browse "https://dimewiki.worldbank.org/wiki/ieddtab":DIM
 {marker desc}
 {title:Description}
 
-{pstd}{cmdab:commandname} is a command that ...{p_end}
+{pstd}{cmdab:commandname} is a command that makes it easy to run and display results of Difference-in Difference (diff-in-diff) regressions. The table that presents the results from the diff-in-diff regression also presents the mean when the variable in {inp:t()} is 0 (i.e. baseline) for the two groups defined by the variable {inp:tmt()} is 0 and 1 (i.e. control and treatment), and the table also presents the coefficient of the first difference regression in control and treatment.{p_end}
 
-{pstd}Second paragraph{p_end}
+{pstd}The sample for each row in the table is defined by the sample included in the second difffernce regression shown below, where {it:outcome_var} is a variable the varlist (one per row) for {inp:ieddtab}, {inp:`t'#`tmt'} means the dummy listed in {inp:t()}, the dummy listed in {inp:tmt()} and the interaction of the two, and where {inp:`covariates'} is the list of covariates included in {inp:covariates()} if any. This means that any observation that has any missing value in either of the two dummies or in any of the covariates will be omitted from all statistics presented in the table. The coefficient presented in the table for the diff-in-diff regression is the interaction of the time and treatment variable.{p_end}
+
+{pstd}{inp:regress} {it:outcome_var} {inp:`t'#`tmt' `covariates'}{p_end}
+
+{pstd}The baseline means are then calculated using the following code where the first line is control and the second line is treatment, and the variable {inp:regsample} is dummy indicating if the observation was included in the second difference regression.{p_end}
+
+{pstd}{inp:mean} {it:outcome_var} {inp:if `tmt' == 0 & `t' == 0 & regsample == 1}{p_end}
+{pstd}{inp:mean} {it:outcome_var} {inp:if `tmt' == 1 & `t' == 0 & regsample == 1}{p_end}
+
+{pstd}The first difference coefficients are then calculated using the following code where the first line is control and the second line is treatment. The coefficient displayed in the table is the coefficient of the variable `t' which is the variable listed in {inp:t()}.{p_end}
+
+{pstd}{inp:regress} {it:outcome_var} {inp: `t' `covariates' if `tmt' == 0 & regsample == 1}{p_end}
+{pstd}{inp:regress} {it:outcome_var} {inp: `t' `covariates' if `tmt' == 1 & regsample == 1}{p_end}
 
 
 {marker optslong}
@@ -152,7 +164,7 @@ command please see the {browse "https://dimewiki.worldbank.org/wiki/ieddtab":DIM
 {phang}Main author: Kristoffer Bjarkefur, Luiza Cardoso De Andrade, DIME Analytics, The World Bank Group
 
 {phang}Please send bug-reports, suggestions and requests for clarifications
-		 writing "ietoolkit commandname" in the subject line to:{break}
+		 writing "ietoolkit ieddtab" in the subject line to:{break}
 		 dimeanalytics@worldbank.org
 
 {phang}You can also see the code, make comments to the code, see the version
