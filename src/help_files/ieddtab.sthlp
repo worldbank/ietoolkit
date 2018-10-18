@@ -80,7 +80,7 @@ command please see the {browse "https://dimewiki.worldbank.org/wiki/ieddtab":DIM
 {title:Options}
 
 {pstd}{it:{ul:{hi:Required options:}}}{p_end}
-{phang}{cmdab:t(}{it:varname}{cmd:)} indicates which variable should be used as the time dummy to use in diff-in-diff regression. This must be a dummy variable, i.e. only have 0, 1 or missing as values.{p_end}
+{phang}{cmdab:t(}{it:varname}{cmd:)} indicates which variable should be used as the time dummy to use in diff-in-diff regression. This must be a dummy variable, i.e. only have 0, 1 or missing as values, where 0 is baseline and 1 is follow-up.{p_end}
 
 {phang}{cmdab:tmt(}{it:varname}{cmd:)} indicates which variable should be used as the treatment dummy to use in diff-in-diff regression. This must be a dummy variable, i.e. only have 0, 1 or missing as values.{p_end}
 
