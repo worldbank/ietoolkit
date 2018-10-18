@@ -22,7 +22,7 @@ command please see the {browse "https://dimewiki.worldbank.org/wiki/ieddtab":DIM
 		{cmdab:replace} {cmdab:savet:ex(}{it:filepath}{cmd:)} {cmdab:onerow}
 		{cmdab:tblnon:ote} {cmdab:tbln:ote(}{it:string}{cmd:)}  {cmdab:texdoc:ument}
 		{cmdab:texc:aption(}{it:string}{cmd:)} {cmdab:texl:abel(}{it:string}{cmd:)}
-		{cmdab:texn:otewidth(}{it:numlist}{cmd:)}
+		{cmdab:texn:otewidth(}{it:numlist}{cmd:)} {cmdab:texvspace(}{it:string}{cmd:)}
 	]
 
 {marker opts}{...}
