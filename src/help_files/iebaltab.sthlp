@@ -369,11 +369,11 @@ only this manually entered note will be added to the table.{p_end}
 {phang}{cmdab:savebr:owse} views the table in the browser window similarly to {cmd:browse} after saving the table to file using {cmd:save}.{p_end}
 
 {phang}{cmdab:texn:otewidth(}{it:{help numlist:numlist}}{cmd:)} manually adjusts the width of the note to fit the size of the table.
-The note width is a multiple of text width. If not specified, default width is text width.{p_end}
+The note width is a multiple of text width. If not specified, default is one, which makes the table width equal to text width.{p_end}
 
-{phang}{cmdab:texc:aption(}{it:string}{cmd:)} writes table's caption in LaTeX file.{p_end}
+{phang}{cmdab:texc:aption(}{it:string}{cmd:)} writes table's caption in TeX file. Can only be used with option texdocument.{p_end}
 
-{phang}{cmdab:texl:abel(}{it:string}{cmd:)} specifies table's label, used for meta-reference across TeX file.{p_end}
+{phang}{cmdab:texl:abel(}{it:string}{cmd:)} specifies table's label, used for meta-reference across TeX file. Can only be used with option texdocument.{p_end}
 
 {phang}{cmdab:texdoc:ument}  creates a stand-alone TeX document that can be readily compiled, without the need to import it to a different file.
  As default, {cmd:savetex()} creates a fragmented TeX file consisting only of a tabular environment.{p_end}

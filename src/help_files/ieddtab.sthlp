@@ -21,7 +21,7 @@ command please see the {browse "https://dimewiki.worldbank.org/wiki/ieddtab":DIM
 		{cmdab:rowlabtext(}{it:label_string}{cmd:)} {cmdab:dif:ormat(}{it:{help format:%fmt}}{cmd:)}
 		{cmdab:replace} {cmdab:savet:ex(}{it:filepath}{cmd:)} {cmdab:onerow}
 		{cmdab:tblnon:ote} {cmdab:tbln:ote(}{it:string}{cmd:)}  {cmdab:texdoc:ument}
-		{cmdab:texc:aption(}{it:string}{cmd:)} {cmdab:texl:able(}{it:string}{cmd:)}
+		{cmdab:texc:aption(}{it:string}{cmd:)} {cmdab:texl:abel(}{it:string}{cmd:)}
 		{cmdab:texn:otewidth(}{it:numlist}{cmd:)}
 	]
 
@@ -49,10 +49,11 @@ command please see the {browse "https://dimewiki.worldbank.org/wiki/ieddtab":DIM
 
 {pstd}{it:LaTeX options:}{p_end}
 {synopt :{cmdab:savet:ex(}{it:filepath}{cmd:)}}Generate a LaTeX table of the result and save to the location of the file path.{p_end}
-{synopt :{cmdab:texdoc:ument}}LUIZA{p_end}
-{synopt :{cmdab:texc:aption(}{it:string}{cmd:)}}LUIZA{p_end}
-{synopt :{cmdab:texl:able(}{it:string}{cmd:)}}LUIZA{p_end}
-{synopt :{cmdab:texn:otewidth(}{it:numlist}{cmd:)}}LUIZA{p_end}
+{synopt :{cmdab:texdoc:ument}}Creates a stand-alone TeX document.{p_end}
+{synopt :{cmdab:texc:aption(}{it:string}{cmd:)}}Specify table's caption on TeX file.{p_end}
+{synopt :{cmdab:texl:abel(}{it:string}{cmd:)}}Specify table's label, used for meta-reference across TeX file.{p_end}
+{synopt :{cmdab:texn:otewidth(}{it:numlist}{cmd:)}}Manually entre the width of the note on the TeX file.{p_end}
+{synopt :{cmd:texvspace(}{it:string}{cmd:)}}Manually set size of the line space between two rows on TeX output.{p_end}
 {synoptline}
 
 {marker desc}
@@ -94,16 +95,22 @@ command please see the {browse "https://dimewiki.worldbank.org/wiki/ieddtab":DIM
 {phang}{cmdab:replace} If an option is used that output a file and a file with that name already exists at that location, then Stata will throw an error unless this option is used. If this option is used then Stata overwrites the file on disk with the new output. This option has no effect if no option with file path is used.{p_end}
 
 {pstd}{it:{ul:{hi:LaTeX options:}}}{p_end}
-{phang}{cmdab:savet:ex(}{it:filepath}{cmd:)}Generate a LaTeX table of the result and save to the location of the file path.{p_end}
+{phang}{cmdab:savet:ex(}{it:filepath}{cmd:)} saves the table in TeX format to the location of the file path.{p_end}
 
-{phang}{cmdab:texdoc:ument}LUIZA{p_end}
+{phang}{cmdab:texdoc:ument} creates a stand-alone TeX document that can be readily compiled, without the need to import it to a different file.
+ As default, {cmd:savetex()} creates a fragmented TeX file consisting only of a tabular environment.
 
-{phang}{cmdab:texc:aption(}{it:string}{cmd:)}LUIZA{p_end}
+{phang}{cmdab:texc:aption(}{it:string}{cmd:)} writes table's caption in TeX file. Can only be used with option texdocument. {p_end}
 
-{phang}{cmdab:texl:able(}{it:string}{cmd:)}LUIZA{p_end}
+{phang}{cmdab:texl:able(}{it:string}{cmd:)} specifies table's label, used for meta-reference across TeX file. Can only be used with option texdocument.{p_end}
 
-{phang}{cmdab:texn:otewidth(}{it:numlist}{cmd:)}LUIZA{p_end}
+{phang}{cmdab:texn:otewidth(}{it:numlist}{cmd:)} manually adjusts the width of the note to fit the size of the table.
+The note width is a multiple of text width. If not specified, default is one, which makes the table width equal to text width.{p_end}
 
+{phang}{cmd:texvspace(}{it:string}{cmd:)} sets the size of the line space between two variable rows. {it:string} must consist of a numeric value
+and one of the following units: "cm", "mm", "pt", "in", "ex" or "em". Note that the resulting line space displayed will be equal to the
+specified value minus the height of one line of text. Default is "3ex". For more information on units,
+{browse "https://en.wikibooks.org/wiki/LaTeX/Lengths":check LaTeX lengths manual}. {p_end}
 
 {marker optslong}
 {title:Examples}
