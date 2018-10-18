@@ -4,7 +4,7 @@ cap program drop 	ieddtab
 
 	syntax varlist, ///
 					///
-		t(varname numeric) tmt(varname numeric) 			///
+		Time(varname numeric) TREATment(varname numeric) 			///
 		[ 													///
 		COVARiates(varlist numeric)							///
 		STARLevels(numlist descending min=3 max=3 >0 <1)	///
@@ -176,11 +176,8 @@ cap program drop 	ieddtab
 		*************/
 
 		*Run the regression to get the double difference
-		qui reg `var' `tmt'#`t' `covariates'
+		qui reg `var' `treatment'#`time' `covariates'
 		mat resTable = r(table)
-
-		//noi di "Rest table 2nd diff: reg `var' `tmt'#`t' `covariates'"
-		//matlist resTable
 
 		**This is why this is done first. All other calculations
 		* for this outcome var should be restricted to this sample.
@@ -189,7 +186,7 @@ cap program drop 	ieddtab
 
 		**Test that the dummy vars creates for valid groups for each
 		* combination of time and treat in the sample used for this outcome var
-		testDDdums `t' `tmt' `regsample' `var'  //comment in when this is made into a command
+		testDDdums `time' `treatment' `regsample' `var'  //comment in when this is made into a command
 
 		*Get the second differnce
 		local ++colindex
@@ -220,11 +217,8 @@ cap program drop 	ieddtab
 		forvalues tmt01 = 0/1 {
 
 			*Regress time against the outcome var one tmt group at the time
-			qui reg `var' `t' `covariates' if `tmt' == `tmt01' & `regsample' == 1
+			qui reg `var' `time' `covariates' if `treatment' == `tmt01' & `regsample' == 1
 			mat resTable = r(table)
-
-			//noi di "Rest table 1st diff: reg `var' `t' `covariates' if `tmt' == `tmt01' & `regsample' == 1"
-			//matlist resTable
 
 			//Get the 1st diff
 			local ++colindex
@@ -257,7 +251,7 @@ cap program drop 	ieddtab
 			forvalues t01 = 0/1 {
 
 				*Summary stats on this group
-				qui mean `var' if `tmt' == `t01' & `t' == `tmt01' & `regsample' == 1
+				qui mean `var' if `treatment' == `t01' & `time' == `tmt01' & `regsample' == 1
 
 				mat resTable = r(table)
 

@@ -14,7 +14,7 @@ command please see the {browse "https://dimewiki.worldbank.org/wiki/ieddtab":DIM
 {title:Syntax}
 
 {phang2} {cmdab:ieddtab} {it:varlist},
-	{cmdab:t(}{it:varname}{cmd:)} {cmdab:tmt(}{it:varname}{cmd:)}
+	{cmdab:t:ime(}{it:varname}{cmd:)} {cmdab:treat:ment(}{it:varname}{cmd:)}
 	[
 		{cmdab:covar:iates(}{it:varlist}{cmd:)} {cmdab:starl:evels(}{it:numlist}{cmd:)}
 		{cmdab:err:ortype(}{it:string}{cmd:)} {cmdab:rowl:abtype(}{it:string}{cmd:)}
@@ -30,8 +30,8 @@ command please see the {browse "https://dimewiki.worldbank.org/wiki/ieddtab":DIM
 {synopthdr:options}
 {synoptline}
 {pstd}{it:Required options:}{p_end}
-{synopt :{cmdab:t(}{it:varname}{cmd:)}}Time dummy to use in diff-in-diff regression{p_end}
-{synopt :{cmdab:tmt(}{it:varname}{cmd:)}}Treatment dummy to use in diff-in-diff regression{p_end}
+{synopt :{cmdab:t:ime(}{it:varname}{cmd:)}}Time dummy to use in diff-in-diff regression{p_end}
+{synopt :{cmdab:treat:ment(}{it:varname}{cmd:)}}Treatment dummy to use in diff-in-diff regression{p_end}
 
 {pstd}{it:Statistics options:}{p_end}
 {synopt :{cmdab:covar:iates(}{it:varlist}{cmd:)}}Covariates to use in diff-in-diff regression{p_end}
@@ -59,30 +59,30 @@ command please see the {browse "https://dimewiki.worldbank.org/wiki/ieddtab":DIM
 {marker desc}
 {title:Description}
 
-{pstd}{cmdab:commandname} is a command that makes it easy to run and display results of Difference-in Difference (diff-in-diff) regressions. The table that presents the results from the diff-in-diff regression also presents the mean when the variable in {inp:t()} is 0 (i.e. baseline) for the two groups defined by the variable {inp:tmt()} is 0 and 1 (i.e. control and treatment), and the table also presents the coefficient of the first difference regression in control and treatment.{p_end}
+{pstd}{cmdab:commandname} is a command that makes it easy to run and display results of Difference-in Difference (diff-in-diff) regressions. The table that presents the results from the diff-in-diff regression also presents the mean when the variable in {inp:time()} is 0 (i.e. baseline) for the two groups defined by the variable {inp:treatment()} is 0 and 1 (i.e. control and treatment), and the table also presents the coefficient of the first difference regression in control and treatment.{p_end}
 
-{pstd}The sample for each row in the table is defined by the sample included in the second difffernce regression shown below, where {it:outcome_var} is a variable the varlist (one per row) for {inp:ieddtab}, {inp:`t'#`tmt'} means the dummy listed in {inp:t()}, the dummy listed in {inp:tmt()} and the interaction of the two, and where {inp:`covariates'} is the list of covariates included in {inp:covariates()} if any. This means that any observation that has any missing value in either of the two dummies or in any of the covariates will be omitted from all statistics presented in the table. The coefficient presented in the table for the diff-in-diff regression is the interaction of the time and treatment variable.{p_end}
+{pstd}The sample for each row in the table is defined by the sample included in the second difffernce regression shown below, where {it:outcome_var} is a variable the varlist (one per row) for {inp:ieddtab}, {inp:`time'#`treatment'} means the dummy listed in {inp:time()}, the dummy listed in {inp:treatment()} and the interaction of the two, and where {inp:`covariates'} is the list of covariates included in {inp:covariates()} if any. This means that any observation that has any missing value in either of the two dummies or in any of the covariates will be omitted from all statistics presented in the table. The coefficient presented in the table for the diff-in-diff regression is the interaction of the time and treatment variable.{p_end}
 
-{pstd}{inp:regress} {it:outcome_var} {inp:`t'#`tmt' `covariates'}{p_end}
+{pstd}{inp:regress} {it:outcome_var} {inp:`time'#`treatment' `covariates'}{p_end}
 
 {pstd}The baseline means are then calculated using the following code where the first line is control and the second line is treatment, and the variable {inp:regsample} is dummy indicating if the observation was included in the second difference regression.{p_end}
 
-{pstd}{inp:mean} {it:outcome_var} {inp:if `tmt' == 0 & `t' == 0 & regsample == 1}{p_end}
-{pstd}{inp:mean} {it:outcome_var} {inp:if `tmt' == 1 & `t' == 0 & regsample == 1}{p_end}
+{pstd}{inp:mean} {it:outcome_var} {inp:if `treatment' == 0 & `time' == 0 & regsample == 1}{p_end}
+{pstd}{inp:mean} {it:outcome_var} {inp:if `treatment' == 1 & `time' == 0 & regsample == 1}{p_end}
 
-{pstd}The first difference coefficients are then calculated using the following code where the first line is control and the second line is treatment. The coefficient displayed in the table is the coefficient of the variable `t' which is the variable listed in {inp:t()}.{p_end}
+{pstd}The first difference coefficients are then calculated using the following code where the first line is control and the second line is treatment. The coefficient displayed in the table is the coefficient of the variable `time' which is the variable listed in {inp:time()}.{p_end}
 
-{pstd}{inp:regress} {it:outcome_var} {inp: `t' `covariates' if `tmt' == 0 & regsample == 1}{p_end}
-{pstd}{inp:regress} {it:outcome_var} {inp: `t' `covariates' if `tmt' == 1 & regsample == 1}{p_end}
+{pstd}{inp:regress} {it:outcome_var} {inp: `time' `covariates' if `treatment' == 0 & regsample == 1}{p_end}
+{pstd}{inp:regress} {it:outcome_var} {inp: `time' `covariates' if `treatment' == 1 & regsample == 1}{p_end}
 
 
 {marker optslong}
 {title:Options}
 
 {pstd}{it:{ul:{hi:Required options:}}}{p_end}
-{phang}{cmdab:t(}{it:varname}{cmd:)} indicates which variable should be used as the time dummy to use in diff-in-diff regression. This must be a dummy variable, i.e. only have 0, 1 or missing as values, where 0 is baseline and 1 is follow-up.{p_end}
+{phang}{cmdab:t:ime(}{it:varname}{cmd:)} indicates which variable should be used as the time dummy to use in diff-in-diff regression. This must be a dummy variable, i.e. only have 0, 1 or missing as values, where 0 is baseline and 1 is follow-up.{p_end}
 
-{phang}{cmdab:tmt(}{it:varname}{cmd:)} indicates which variable should be used as the treatment dummy to use in diff-in-diff regression. This must be a dummy variable, i.e. only have 0, 1 or missing as values.{p_end}
+{phang}{cmdab:treat:ment(}{it:varname}{cmd:)} indicates which variable should be used as the treatment dummy to use in diff-in-diff regression. This must be a dummy variable, i.e. only have 0, 1 or missing as values.{p_end}
 
 {pstd}{it:{ul:{hi:Statistics options:}}}{p_end}
 {phang}{cmdab:covar:iates(}{it:varlist}{cmd:)} lists the variables that should be included as covariates (independent variables not reported in the table) in the two first difference regressions and the second diffrence regression. Unless the option {cmdab:tblnon:ote} is used a list of covariate variables is included below the table.{p_end}
@@ -139,24 +139,24 @@ specified value minus the height of one line of text. Default is "3ex". For more
 
 {pstd}*Randomly assign time and treatment dummies{p_end}
 {pstd}{inp:gen t	= (runiform()<.5)}{p_end}
-{pstd}{inp:gen tmt = (runiform()<.5)}{p_end}
+{pstd}{inp:gen treat = (runiform()<.5)}{p_end}
 
 
 {pstd} {hi:Example 1.}
 
-{pstd} {inp:ieddtab} {it:death marriage divorce} , {inp:t(}{it:t}{inp:)} {inp:tmt(}{it:tmt}{inp:)}
+{pstd} {inp:ieddtab} {it:death marriage divorce} , {inp:time(}{it:t}{inp:)} {inp:treatement(}{it:treat}{inp:)}
 
-{pstd}This is the most basic way to run this command with three variables. This will output a table with the baseline means for tmt = 0 and tmt = 1, the first difference regression coefficient for tmt = 0 and tmt = 1 as well as the 2nd difference regression coefficient for tmt = 0 and tmt = 1.
+{pstd}This is the most basic way to run this command with three variables. This will output a table with the baseline means (time = 0) for treat = 0 and treat = 1, the first difference regression coefficient for treat = 0 and treat = 1 as well as the 2nd difference regression coefficient.
 
 {pstd} {hi:Example 2.}
 
-{pstd} {inp:ieddtab} {it:death marriage divorce} ,  {inp:t(}{it:t}{inp:)} {inp:tmt(}{it:tmt}{inp:)}  {inp:rowlabtext(}{it:"death Death Rate @@ divorce Divorce Rate"}{inp:)} {inp:rowlabtype(}{it:"varlab"}{inp:)}
+{pstd} {inp:ieddtab} {it:death marriage divorce} ,  {inp:time(}{it:t}{inp:)} {inp:treatement(}{it:treat}{inp:)}  {inp:rowlabtext(}{it:"death Death Rate @@ divorce Divorce Rate"}{inp:)} {inp:rowlabtype(}{it:"varlab"}{inp:)}
 
 {pstd}The table generated by example 2 will have the same statistics as in example 1 but the row title for the variables death and divorce are entered manually and the row title for marriage will be its variable label instead of its variable name.
 
 {pstd} {hi:Example 3.}
 
-{pstd} {inp:ieddtab} {it:death marriage divorce} ,  {inp:t(}{it:t}{inp:)} {inp:tmt(}{it:tmt}{inp:)}  {inp:rowlabtype(}{it:"varlab"}{inp:)} {inp:savetex(}{it:"DID table.tex"}{inp:)} {inp:replace}
+{pstd} {inp:ieddtab} {it:death marriage divorce} ,  {inp:time(}{it:t}{inp:)} {inp:treatement(}{it:treat}{inp:)}  {inp:rowlabtype(}{it:"varlab"}{inp:)} {inp:savetex(}{it:"DID table.tex"}{inp:)} {inp:replace}
 
 {pstd}The table will be saved in the current directory under the name "DID table.tex". It will will have the same statistics as in examples 1 and 2, and the row titles will be its variable labels.
 
