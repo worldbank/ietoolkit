@@ -94,7 +94,7 @@ command please see the {browse "https://dimewiki.worldbank.org/wiki/ieddtab":DIM
 {pstd}{it:{ul:{hi:Output options:}}}{p_end}
 {phang}{cmdab:rowl:abtype(}{it:string}{cmd:)} indicates what to use as row titles. The allowed values are {inp:varname} using the variable name as row titles, {inp:varlab} using the variable labels as row titles (varname will still be used if the variable does not have a variable label). The default is to use the variable name.{p_end}
 
-{phang}{cmdab:rowlabtext(}{it:label_string}{cmd:)}Manually enter the row titles using label strings. A label string is a list of variable names followed by the row title for that variable separated by "@@". For example {it:varA Row title variable A @@ varB Row title variable B}, where {it:varA} and {it:varB} are outcome variables used in this command. For variable not listed in {cmdab:rowlabtext()} row titles will be determined by the input value or default value in {cmdab:rowl:abtype()}.{p_end}
+{phang}{cmdab:rowlabtext(}{it:label_string}{cmd:)} manually specifies the row titles using label strings. A label string is a list of variable names followed by the row title for that variable separated by "@@". For example {it:varA Row title variable A @@ varB Row title variable B}, where {it:varA} and {it:varB} are outcome variables used in this command. For variable not listed in {cmdab:rowlabtext()} row titles will be determined by the input value or default value in {cmdab:rowl:abtype()}.{p_end}
 
 {phang}{cmdab:tblnon:ote} disable that the command automatically generates and displays a note below the table describing the output in the table. The note includes description on how number of calculations are calculated, the significance levels used for stars and which covariates were uses if any were used.{p_end}
 
@@ -104,7 +104,7 @@ command please see the {browse "https://dimewiki.worldbank.org/wiki/ieddtab":DIM
 
 {phang}{cmdab:dif:ormat(}{it:{help format:%fmt}}{cmd:)} sets the number formatting/rounding rule for all calculated statistics in the table, that is all numbers in the table apart from the number of observations. Only valid {help format:Stata number formats} are allowed. The default is {it:%9.2f}.{p_end}
 
-{phang}{cmdab:replace} If an option is used that output a file and a file with that name already exists at that location, then Stata will throw an error unless this option is used. If this option is used then Stata overwrites the file on disk with the new output. This option has no effect if no option with file path is used.{p_end}
+{phang}{cmdab:replace} if an option is used that output a file and a file with that name already exists at that location, then Stata will throw an error unless this option is used. If this option is used then Stata overwrites the file on disk with the new output. This option has no effect if no option with file path is used.{p_end}
 
 {pstd}{it:{ul:{hi:LaTeX options:}}}{p_end}
 {phang}{cmdab:savet:ex(}{it:filepath}{cmd:)} saves the table in TeX format to the location of the file path.{p_end}
@@ -114,7 +114,7 @@ command please see the {browse "https://dimewiki.worldbank.org/wiki/ieddtab":DIM
 
 {phang}{cmdab:texc:aption(}{it:string}{cmd:)} writes table's caption in TeX file. Can only be used with option texdocument. {p_end}
 
-{phang}{cmdab:texl:able(}{it:string}{cmd:)} specifies table's label, used for meta-reference across TeX file. Can only be used with option texdocument.{p_end}
+{phang}{cmdab:texl:abel(}{it:string}{cmd:)} specifies table's label, used for meta-reference across TeX file. Can only be used with option texdocument.{p_end}
 
 {phang}{cmdab:texn:otewidth(}{it:numlist}{cmd:)} manually adjusts the width of the note to fit the size of the table.
 The note width is a multiple of text width. If not specified, default is one, which makes the table width equal to text width.{p_end}
@@ -167,15 +167,15 @@ specified value minus the height of one line of text. Default is "3ex". For more
 
 {title:Author}
 
-{phang}All commands in ietoolkit is developed by DIME Analytics at DECIE, The World Bank's unit for Development Impact Evaluations.
+{phang}All commands in ietoolkit is developed by DIME Analytics at DECIE, The World Bank's unit for Development Impact Evaluations.{p_end}
 
-{phang}Main author: Kristoffer Bjarkefur, Luiza Cardoso De Andrade, DIME Analytics, The World Bank Group
+{phang}Main author: Kristoffer Bjarkefur, Luiza Cardoso De Andrade, DIME Analytics, The World Bank Group{p_end}
 
 {phang}Please send bug-reports, suggestions and requests for clarifications
 		 writing "ietoolkit ieddtab" in the subject line to:{break}
-		 dimeanalytics@worldbank.org
+		 dimeanalytics@worldbank.org{p_end}
 
 {phang}You can also see the code, make comments to the code, see the version
 		 history of the code, and submit additions or edits to the code through
 		 the github repository of ietoolkit:{break}
-{browse "https://github.com/worldbank/ietoolkit"}
+{browse "https://github.com/worldbank/ietoolkit"}{p_end}
