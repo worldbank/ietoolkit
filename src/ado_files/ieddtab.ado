@@ -975,8 +975,7 @@ cap program drop 	outputtex
 		texonerow, ddtab_resultMap(ddtab_resultMap) texname("`texname'") texfile("`texfile'") `onerow'
 
 		* Write tex footer
-		texfooter, texname("`texname'") texfile("`texfile'") texnotewidth(`texnotewidth') `onerow' errortype(`errortype') note(`note')
-
+		texfooter, texname("`texname'") texfile("`texfile'") texnotewidth(`texnotewidth') `onerow' errortype(`errortype') note(`note') `texdocument'
 		* Save final tex file
 		copy "`texfile'" `"`savetex'"', `texreplace'
 
@@ -1277,7 +1276,7 @@ end
 cap program drop	texfooter
 	program define	texfooter
 
-	syntax	, texname(string) texfile(string) errortype(string) note(string) [texnotewidth(numlist) onerow ]
+	syntax	, texname(string) texfile(string) errortype(string) note(string) [texnotewidth(numlist) onerow texdocument]
 
 		******************
 		* Calculate inputs
@@ -1317,10 +1316,14 @@ cap program drop	texfooter
 									"{\textit{Notes}: `note'}" _n
 		}
 
-		file write `texname'		"\end{tabular}" _n ///
-									"\end{adjustbox}" _n ///
+		file write `texname'		"\end{tabular}" _n
+
+		if "`texdocument'" != "" {
+			file write `texname'	"\end{adjustbox}" _n ///
 									"\end{table}" _n _n ///
 									"\end{document}" _n
+		}
+
 		file close `texname'
 
 end
