@@ -17,7 +17,7 @@ cap program drop 	ieddtab
 		/* Output display */								///
 		SAVETex(string)										///
 		onerow												///
-		TBLNote(string)										///
+		ADDNotes(string)									///
 		nonotes												///
 															///
 		/* Tex output options */							///
@@ -331,10 +331,11 @@ cap program drop 	ieddtab
 		local note `"`note_obs' `note_stars' `note_cov'"'
 	}
 
-	**if a manual note was added in tblnote(), combine the manually added
-	* tblnote to note (which is still empty if nonotes was used)
-	if "`tblnote'" != "" {
 		local note	`"`tblnote' `note'"'
+	**if a manual note was added in addnotes(), combine the manually added
+	* addnotes to note (which is still empty if nonotes was used)
+	if "`addnotes'" != "" {
+		local note	`"`addnotes' `note'"'
 	}
 
 	*Remove leading, trailing or multiple spaces from the string.

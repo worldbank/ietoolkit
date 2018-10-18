@@ -20,7 +20,7 @@ command please see the {browse "https://dimewiki.worldbank.org/wiki/ieddtab":DIM
 		{cmdab:err:ortype(}{it:string}{cmd:)} {cmdab:rowl:abtype(}{it:string}{cmd:)}
 		{cmdab:rowlabtext(}{it:label_string}{cmd:)} {cmdab:dif:ormat(}{it:{help format:%fmt}}{cmd:)}
 		{cmdab:replace} {cmdab:savet:ex(}{it:filepath}{cmd:)} {cmdab:onerow}
-		{cmdab:nonotes} {cmdab:tbln:ote(}{it:string}{cmd:)}  {cmdab:texdoc:ument}
+		{cmdab:nonotes} {cmdab:addn:otes(}{it:string}{cmd:)}  {cmdab:texdoc:ument}
 		{cmdab:texc:aption(}{it:string}{cmd:)} {cmdab:texl:abel(}{it:string}{cmd:)}
 		{cmdab:texn:otewidth(}{it:numlist}{cmd:)} {cmdab:texvspace(}{it:string}{cmd:)}
 	]
@@ -42,7 +42,7 @@ command please see the {browse "https://dimewiki.worldbank.org/wiki/ieddtab":DIM
 {synopt :{cmdab:rowl:abtype(}{it:string}{cmd:)}}Indicate what to use as row titles, default is variable name.{p_end}
 {synopt :{cmdab:rowlabtext(}{it:label_string}{cmd:)}}Manually enter the row titles using label strings (see below).{p_end}
 {synopt :{cmdab:nonote}}Disable that the automatically generated note is displayed below the table.{p_end}
-{synopt :{cmdab:tbln:ote(}{it:string}{cmd:)}}Manually add a note to be displayed below the regression result table.{p_end}
+{synopt :{cmdab:addn:otes(}{it:string}{cmd:)}}Manually add a note to be displayed below the regression result table.{p_end}
 {synopt :{cmdab:onerow}}Display the number of observations on one row at the last row of the table.{p_end}
 {synopt :{cmdab:dif:ormat(}{it:{help format:%fmt}}{cmd:)}}Set the rounding format of the calculated statistics in the table.{p_end}
 {synopt :{cmdab:replace}}Replace the file on disk if it already exist. Has no effect if no option with file path is used.{p_end}
@@ -98,7 +98,7 @@ command please see the {browse "https://dimewiki.worldbank.org/wiki/ieddtab":DIM
 
 {phang}{cmdab:nonotes} disable that the command automatically generates and displays a note below the table describing the output in the table. The note includes description on how number of calculations are calculated, the significance levels used for stars and which covariates were uses if any were used.{p_end}
 
-{phang}{cmdab:tbln:ote(}{it:string}{cmd:)} is used to manually add a note to be displayed below the regression result table. This note is put before the automatically generated note, unless option {cmdab:nonotes} is specified, in which case only the manually added note is displayed.{p_end}
+{phang}{cmdab:addn:otes(}{it:string}{cmd:)} is used to manually add a note to be displayed below the regression result table. This note is put before the automatically generated note, unless option {cmdab:nonotes} is specified, in which case only the manually added note is displayed.{p_end}
 
 {phang}{cmdab:onerow} indicated that the number of observations should be displayed on one row at the last row of the table instead on each row. This requires that the number of observations are the same across all rows for each column.{p_end}
 
