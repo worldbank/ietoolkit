@@ -35,6 +35,7 @@ command please see the {browse "https://dimewiki.worldbank.org/wiki/ieddtab":DIM
 
 {pstd}{it:Statistics options:}{p_end}
 {synopt :{cmdab:covar:iates(}{it:varlist}{cmd:)}}Covariates to use in diff-in-diff regression{p_end}
+{synopt :{cmdab:vce:(}{it:{help vce_option:vce_types}}{cmd:)}}Options for variance estimation. {hi:Robust}, {hi:cluster} {it:clustervar} or {hi:bootstrap}{p_end}
 {synopt :{cmdab:starl:evels(}{it:numlist}{cmd:)}}Significance levels used for significance stars, default values are .1, .05 and .01{p_end}
 {synopt :{cmdab:err:ortype(}{it:string}{cmd:)}}Type of errors to display, default is standard errors.{p_end}
 
@@ -86,6 +87,10 @@ command please see the {browse "https://dimewiki.worldbank.org/wiki/ieddtab":DIM
 
 {pstd}{it:{ul:{hi:Statistics options:}}}{p_end}
 {phang}{cmdab:covar:iates(}{it:varlist}{cmd:)} lists the variables that should be included as covariates (independent variables not reported in the table) in the two first difference regressions and the second diffrence regression. Unless the option {cmdab:nonotes} is used a list of covariate variables is included below the table.{p_end}
+
+{phang}{cmdab:vce:(}{it:{help vce_option:vce_types}{cmd:)}} sets the type of variance estimator to be used in all regressions for this
+command. See {help vce_option:vce_types} for more details. The only vce types allowed in this command are {hi:robust}, {hi:cluster} {it:clustervar} or {hi:bootstrap}.{p_end}
+
 
 {phang}{cmdab:starl:evels(}{it:numlist}{cmd:)} sets the significance levels used for significance stars. Exactly three values must be listed if this option is used, all three values must be descending order, and must be between 0 and 1. The default values are .1, .05 and .01{p_end}
 

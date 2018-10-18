@@ -4,23 +4,25 @@ cap program drop 	ieddtab
 
 	syntax varlist(numeric), ///
 					///
-		Time(varname numeric) TREATment(varname numeric) 			///
+		Time(varname numeric) TREATment(varname numeric) 	///
 		[ 													///
+		/* Regression options */							///
 		COVARiates(varlist numeric)							///
+		vce(string) 										///
+															///
+		/* Output display */								///
 		STARLevels(numlist descending min=3 max=3 >0 <1)	///
 		ROWLabtype(string) 									///
 		rowlabtext(string)									///
 		ERRortype(string)									///
-		format(string)									///
-		replace												///
-															///
-		/* Output display */								///
-		SAVETex(string)										///
+		format(string)										///
 		onerow												///
 		ADDNotes(string)									///
 		nonotes												///
 															///
 		/* Tex output options */							///
+		SAVETex(string)										///
+		replace												///
 		TEXDOCument											///
 		TEXCaption(string)									///
 		TEXLabel(string)									///
@@ -66,7 +68,47 @@ cap program drop 	ieddtab
 		local errortype "se"
 	}
 
+	*VCE OPTIONS
+	if "`vce'" != "" {
+		local vce_nocomma = subinstr("`vce'", "," , " ", 1)
 
+		tokenize "`vce_nocomma'"
+		local vce_type `1'
+
+		if "`vce_type'" == "robust" {
+
+			*Robust is allowed and not other tests needed
+		}
+		else if "`vce_type'" == "cluster" {
+
+			*Create a local for displaying number of clusters
+			local cluster_var `2'
+
+			cap confirm variable `cluster_var'
+
+			if _rc {
+
+				*Error for vce(cluster) incorrectly applied
+				noi display as error "{phang}The cluster variable in vce(`vce') does not exist or is invalid for any other reason. See {help vce_option :help vce_option} for more information. "
+				error _rc
+
+			}
+		}
+		else if  "`vce_type'" == "bootstrap" {
+
+			*bootstrap is allowed and not other tests needed. Error checking is more comlex, add tests here in the future.
+		}
+		else {
+
+			*Error for vce() incorrectly applied
+			noi display as error "{phang}The vce type `vce_type' in vce(`vce') is not allowed. Only robust, cluster and bootstrap is allowed. See {help vce_option :help vce_option} for more information."
+			error 198
+
+		}
+		
+		local error_estm vce(`vce')
+	}
+	
 	*DEFAULT STAR LEVELS
 	*Default star levels if option not used
 	if "`starlevels'" == "" local starlevels ".1 .05 .01"
@@ -188,7 +230,7 @@ cap program drop 	ieddtab
 		*************/
 
 		*Run the regression to get the double difference
-		qui reg `var' `treatment'#`time' `covariates'
+		qui reg `var' `treatment'#`time' `covariates', `error_estm'
 		mat resTable = r(table)
 
 		**This is why this is done first. All other calculations
@@ -229,7 +271,7 @@ cap program drop 	ieddtab
 		forvalues tmt01 = 0/1 {
 
 			*Regress time against the outcome var one tmt group at the time
-			qui reg `var' `time' `covariates' if `treatment' == `tmt01' & `regsample' == 1
+			qui reg `var' `time' `covariates' if `treatment' == `tmt01' & `regsample' == 1, `error_estm'
 			mat resTable = r(table)
 
 			//Get the 1st diff
@@ -327,8 +369,26 @@ cap program drop 	ieddtab
 		if "`covariates'" != "" {
 			local note_cov	"The following variable(s) was included as covariates [`covariates']."
 		}
+		
+		if "`vce'" != "" & "`errortype'" != "errhide" {
 
-		local note `"`note_obs' `note_stars' `note_cov'"'
+			*Display variation in Standard errors (default) or in Standard Deviations
+			if "`errortype'" == "se" {
+				*Standard Errors string
+				local 	variance_type_name 	"standard errors"
+			}
+			else if "`errortype'" == "sd" {
+				*Standard Deviation string
+				local 	variance_type_name 	"standard deviations"
+			}
+
+			if "`vce_type'" == "robust"		local note_error	"1st and 2nd difference `variance_type_name' are robust. "
+			if "`vce_type'" == "cluster"  	local note_error	"1st and 2nd difference `variance_type_name' are clustered at variable `cluster_var'. "
+			if "`vce_type'" == "bootstrap"  local note_error	"1st and 2nd difference `variance_type_name' are estimated using bootstrap. "
+		}
+	
+		local note `"`note_obs' `note_stars' `note_cov' `note_error'"'
+	
 	}
 
 	**if a manual note was added in addnotes(), combine the manually added
