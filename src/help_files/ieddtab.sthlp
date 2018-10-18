@@ -1,0 +1,144 @@
+{smcl}
+{* 26 Apr 2018}{...}
+{hline}
+help for {hi:ieddtab}
+{hline}
+
+{title:Title}
+
+{phang2}{cmdab:ieddtab} {hline 2} This command runs a Diff-in-Diff regression and displays the baseline values, the two 1st differences and the 2nd difference.
+
+{phang2}For a more descriptive discussion on the intended usage and work flow of this
+command please see the {browse "https://dimewiki.worldbank.org/wiki/ieddtab":DIME Wiki}.
+
+{title:Syntax}
+
+{phang2} {cmdab:ieddtab} {it:varlist},
+	{cmdab:t(}{it:varname}{cmd:)} {cmdab:tmt(}{it:varname}{cmd:)}
+	[
+		{cmdab:covar:iates(}{it:varlist}{cmd:)} {cmdab:star:levels(}{it:numlist}{cmd:)}
+		{cmdab:err:ortype(}{it:string}{cmd:)} {cmdab:rowl:abtype(}{it:string}{cmd:)}
+		{cmdab:rowlabtext(}{it:label_string}{cmd:)} {cmdab:dif:ormat(}{it:{help format:%fmt}}{cmd:)}
+		{cmdab:replace} {cmdab:savet:ex(}{it:filepath}{cmd:)} {cmdab:onerow}
+		{cmdab:tblnon:ote} {cmdab:tbln:ote(}{it:string}{cmd:)}  {cmdab:texdoc:ument}
+		{cmdab:texc:aption(}{it:string}{cmd:)} {cmdab:texl:able(}{it:string}{cmd:)}
+		{cmdab:texn:otewidth(}{it:numlist}{cmd:)}
+	]
+
+{marker opts}{...}
+{synoptset 24}{...}
+{synopthdr:options}
+{synoptline}
+{pstd}{it:Required options:}{p_end}
+{synopt :{cmdab:t(}{it:varname}{cmd:)}}Time dummy to use in diff-in-diff regression{p_end}
+{synopt :{cmdab:tmt(}{it:varname}{cmd:)}}Treatment dummy to use in diff-in-diff regression{p_end}
+
+{pstd}{it:Statistics options:}{p_end}
+{synopt :{cmdab:covar:iates(}{it:varlist}{cmd:)}}Covariates to use in diff-in-diff regression{p_end}
+{synopt :{cmdab:star:levels(}{it:numlist}{cmd:)}}Significance levels used for significance stars, default values are .1, .05 and .01{p_end}
+{synopt :{cmdab:err:ortype(}{it:string}{cmd:)}}Type of errors to display, default is standard errors.{p_end}
+
+{pstd}{it:Output options:}{p_end}
+{synopt :{cmdab:rowl:abtype(}{it:string}{cmd:)}}Indicate what to use as row titles, default is variable name.{p_end}
+{synopt :{cmdab:rowlabtext(}{it:label_string}{cmd:)}}Manually enter the row titles using label strings (see below).{p_end}
+{synopt :{cmdab:tblnon:ote}}Disable that the automatically generated note is displayed below the table.{p_end}
+{synopt :{cmdab:tbln:ote(}{it:string}{cmd:)}}Manually add a note to be displayed below the regression result table.{p_end}
+{synopt :{cmdab:onerow}}Display the number of observations on one row at the last row of the table.{p_end}
+{synopt :{cmdab:dif:ormat(}{it:{help format:%fmt}}{cmd:)}}Set the rounding format of the calculated statistics in the table.{p_end}
+{synopt :{cmdab:replace}}Replace the file on disk if it already exist. Has no effect if no option with file path is used.{p_end}
+
+{pstd}{it:LaTeX options:}{p_end}
+{synopt :{cmdab:savet:ex(}{it:filepath}{cmd:)}}Generate a LaTeX table of the result and save to the location of the file path.{p_end}
+{synopt :{cmdab:texdoc:ument}}LUIZA{p_end}
+{synopt :{cmdab:texc:aption(}{it:string}{cmd:)}}LUIZA{p_end}
+{synopt :{cmdab:texl:able(}{it:string}{cmd:)}}LUIZA{p_end}
+{synopt :{cmdab:texn:otewidth(}{it:numlist}{cmd:)}}LUIZA{p_end}
+{synoptline}
+
+{marker desc}
+{title:Description}
+
+{pstd}{cmdab:commandname} is a command that ...{p_end}
+
+{pstd}Second paragraph{p_end}
+
+
+{marker optslong}
+{title:Options}
+
+{pstd}{it:{ul:{hi:Required options:}}}{p_end}
+{phang}{cmdab:t(}{it:varname}{cmd:)} indicates which variable should be used as the time dummy to use in diff-in-diff regression. This must be a dummy variable, i.e. only have 0, 1 or missing as values.{p_end}
+
+{phang}{cmdab:tmt(}{it:varname}{cmd:)} indicates which variable should be used as the treatment dummy to use in diff-in-diff regression. This must be a dummy variable, i.e. only have 0, 1 or missing as values.{p_end}
+
+{pstd}{it:{ul:{hi:Statistics options:}}}{p_end}
+{phang}{cmdab:covar:iates(}{it:varlist}{cmd:)} lists the variables that should be included as covariates (independent variables not reported in the table) in the two first difference regressions and the second diffrence regression. Unless the option {cmdab:tblnon:ote} is used a list of covariate variables is included below the table.{p_end}
+
+{phang}{cmdab:star:levels(}{it:numlist}{cmd:)} sets the significance levels used for significance stars. Exactly three values must be listed if this option is used, all three values must be descending order, and must be between 0 and 1. The default values are .1, .05 and .01{p_end}
+
+{phang}{cmdab:err:ortype(}{it:string}{cmd:)} sets the type of error to display. Allowed values for this iption is {inp:se} for standard errors, {inp:sd} for standard deviation and {inp:errhide} for not displaying any errors in the table. The default is to display standard errors.{p_end}
+
+{pstd}{it:{ul:{hi:Output options:}}}{p_end}
+{phang}{cmdab:rowl:abtype(}{it:string}{cmd:)} indicates what to use as row titles. The allowed values are {inp:varname} using the variable name as row titles, {inp:varlab} using the variable labels as row titles (varname will still be used if the variable does not have a variable label). The default is to use the variable name.{p_end}
+
+{phang}{cmdab:rowlabtext(}{it:label_string}{cmd:)}Manually enter the row titles using label strings. A label string is a list of variable names followed by the row title for that variable separated by "@@". For example {it:varA Row title variable A @@ varB Row title variable B}, where {it:varA} and {it:varB} are outcome variables used in this command. For variable not listed in {cmdab:rowlabtext()} row titles will be determined by the input value or default value in {cmdab:rowl:abtype()}.{p_end}
+
+{phang}{cmdab:tblnon:ote} disable that the command automatically generates and displays a note below the table describing the output in the table. The note includes description on how number of calculations are calculated, the significance levels used for stars and which covariates were uses if any were used.{p_end}
+
+{phang}{cmdab:tbln:ote(}{it:string}{cmd:)} is used to manually add a note to be displayed below the regression result table. This note is put before the automatically generated note, unless {cmdab:tblnon:ote} is displayed when only the manually added note is displayed.{p_end}
+
+{phang}{cmdab:onerow} indicated that the number of observations should be displayed on one row at the last row of the table instead on each row. This requires that the number of observations are the same across all rows for each column.{p_end}
+
+{phang}{cmdab:dif:ormat(}{it:{help format:%fmt}}{cmd:)} sets the number formatting/rounding rule for all calculated statistics in the table, that is all numbers in the table apart from the number of observations. Only valid {help format:Stata number formats} are allowed. The default is {it:%9.2f}.{p_end}
+
+{phang}{cmdab:replace} If an option is used that output a file and a file with that name already exists at that location, then Stata will throw an error unless this option is used. If this option is used then Stata overwrites the file on disk with the new output. This option has no effect if no option with file path is used.{p_end}
+
+{pstd}{it:{ul:{hi:LaTeX options:}}}{p_end}
+{phang}{cmdab:savet:ex(}{it:filepath}{cmd:)}Generate a LaTeX table of the result and save to the location of the file path.{p_end}
+
+{phang}{cmdab:texdoc:ument}LUIZA{p_end}
+
+{phang}{cmdab:texc:aption(}{it:string}{cmd:)}LUIZA{p_end}
+
+{phang}{cmdab:texl:able(}{it:string}{cmd:)}LUIZA{p_end}
+
+{phang}{cmdab:texn:otewidth(}{it:numlist}{cmd:)}LUIZA{p_end}
+
+
+
+{marker optslong}
+{title:Examples}
+
+{pstd} {hi:Example 1.}
+
+{pmore} {inp:ieddtab}
+
+{pstd} {hi:Example 2.}
+
+{pmore} {inp:ieddtab}
+
+{pstd} {hi:Example 3.}
+
+{pmore} {inp:ieddtab}
+
+
+
+{title:Acknowledgements}
+
+{phang}We would like to acknowledge the help in testing and proofreading we received in relation to this command and help file from (in alphabetic order):{p_end}
+{pmore}Name name
+
+{title:Author}
+
+{phang}All commands in ietoolkit is developed by DIME Analytics at DECIE, The World Bank's unit for Development Impact Evaluations.
+
+{phang}Main author: Kristoffer Bjarkefur, Luiza Cardoso De Andrade, DIME Analytics, The World Bank Group
+
+{phang}Please send bug-reports, suggestions and requests for clarifications
+		 writing "ietoolkit commandname" in the subject line to:{break}
+		 dimeanalytics@worldbank.org
+
+{phang}You can also see the code, make comments to the code, see the version
+		 history of the code, and submit additions or edits to the code through
+		 the github repository of ietoolkit:{break}
+{browse "https://github.com/worldbank/ietoolkit"}
