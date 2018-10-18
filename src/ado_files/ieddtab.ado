@@ -2,7 +2,7 @@
 cap program drop 	ieddtab
 	program define	ieddtab
 
-	syntax varlist, ///
+	syntax varlist(numeric), ///
 					///
 		Time(varname numeric) TREATment(varname numeric) 			///
 		[ 													///
