@@ -57,7 +57,7 @@ cap program drop 	ieddtab
 	if "`errortype'" != "" {
 		local errortype = lower("`errortype'")
 		if (`: word count `errortype'' != 1) | !inlist("`errortype'", "sd", "se", "errhide") {
-			noi di as error "Value in option errortype(`errortype') can only one out of the following words; se, sd, errhide."
+			noi di as error "{phang}Value in option errortype(`errortype') can only one out of the following words; se, sd, errhide.{p_end}"
 			error 198
 		}
 	}
