@@ -365,7 +365,10 @@ cap program drop 	ieddtab
 
 	}
 
-
+	
+	*Returning the result matrix for advanced users to do their own thing with
+	return matrix ieddtabResults ddtab_resultMap
+	
 end
 
 
