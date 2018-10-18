@@ -18,7 +18,7 @@ cap program drop 	ieddtab
 		SAVETex(string)										///
 		onerow												///
 		TBLNote(string)										///
-		TBLNONote											///
+		nonotes												///
 															///
 		/* Tex output options */							///
 		TEXDOCument											///
@@ -312,10 +312,9 @@ cap program drop 	ieddtab
 
 	***************************************/
 
-	*Prepare the automated table not unless it was disabled by option tblnonote
-	if "`tblnonote'" == "" {
+	*Prepare the automated table not unless it was disabled by option nonote
+	if "`notes'" == "" {
 
-		*Error for tblnonote incorrectly used together with notecombine
 		local note_obs	"The baseline means only includes observations not omitted in the 1st and 2nd differences. The number of observations in the 1st and 2nd differences includes both baseline and follow-up observations."
 
 		*Show stars levels
@@ -333,7 +332,7 @@ cap program drop 	ieddtab
 	}
 
 	**if a manual note was added in tblnote(), combine the manually added
-	* tblnote to note (which is still empty if tblnonote was used)
+	* tblnote to note (which is still empty if nonotes was used)
 	if "`tblnote'" != "" {
 		local note	`"`tblnote' `note'"'
 	}
