@@ -230,7 +230,7 @@ cap program drop 	ieddtab
 		*Local that keeps track of which column to fill
 		local colindex 0
 
-		tempvar regsample
+		tempvar regsample interactionvar
 
 		/*************
 
@@ -238,9 +238,12 @@ cap program drop 	ieddtab
 			for this output var
 
 		*************/
-
+		
+		*Generate the interaction var
+		gen `interactionvar' = `treatment' * `time'
+	
 		*Run the regression to get the double difference
-		qui reg `var' `treatment'#`time' `covariates', `error_estm'
+		qui reg `var' `treatment' `time' `interactionvar' `covariates', `error_estm'
 		mat resTable = r(table)
 
 		**This is why this is done first. All other calculations
@@ -254,16 +257,16 @@ cap program drop 	ieddtab
 
 		*Get the second differnce
 		local ++colindex
-		mat `var'[1,`colindex'] =  el(resTable,1,4)
+		mat `var'[1,`colindex'] =  el(resTable,1,3)
 
 		*Get the standard error of second difference
 		local ++colindex
-		convertErrs el(resTable,2,4) `N' "`errortype'"
+		convertErrs el(resTable,2,3) `N' "`errortype'"
 		mat `var'[1,`colindex'] =  `r(converted_error)'
 
 		*Get the number of stars using sub-command countStars
 		local ++colindex
-		local pvalue = el(resTable,4,4)
+		local pvalue = el(resTable,4,3)
 		countStars `pvalue' `starlevels'
 		mat `var'[1,`colindex'] = `r(stars)'
 
@@ -301,7 +304,7 @@ cap program drop 	ieddtab
 
 			*Get the number of stars using sub-command countStars
 			local ++colindex
-			local pvalue = el(resTable,4,4)
+			local pvalue = el(resTable,4,1)
 			countStars `pvalue' `starlevels'
 			mat `var'[1,`colindex'] = `r(stars)'
 
