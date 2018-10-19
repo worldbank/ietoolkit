@@ -36,11 +36,11 @@ command please see the {browse "https://dimewiki.worldbank.org/wiki/Iegitaddmd":
 	be empty and GitHub will not sync them, meaning that they will not be available to the full
 	team. {cmd:iegitaddmd} is a Stata adaptation of {it:Solution B} in {browse "http://bytefreaks.net/gnulinux/bash/how-to-add-automatically-all-empty-folders-in-git-repository" :this post}.
 
-{pstd}{cmd:iegitaddmd} creates a placeholder file in all empty subfolders of
-	the folder specified in {cmd:folder()}. The default file used if no file is specified
-	using option {cmd:file()} is called README.md, which is a name and format recognized by
-	github.com so that the content of the file is displayed if the folder with that file is
-	browsed on GitHub.com. The placeholder file may be removed as
+{pstd}{cmd:iegitaddmd} creates a placeholder file in all empty subfolders of 
+	the folder specified in {cmd:folder()}. The default file used if no file is specified 
+	using option {cmd:file()} is called README.md, which is a name and format recognized by 
+	GitHub.com so that the content of the file is displayed if the folder with that file is 
+	browsed on GitHub.com. The placeholder file may be removed as 
 	soon as actual files have been added to the folder. Alternatively, if the option
 	{cmd:all} is used, {cmd:iegitaddmd} will create the placeholder file in each subfolder
 	of {cmd:folder()}, regardless of them being empty or not.
@@ -91,12 +91,13 @@ command please see the {browse "https://dimewiki.worldbank.org/wiki/Iegitaddmd":
 
 {title:Author}
 
-{phang}Kristoffer Bjarkefur, The World Bank, DECIE
+{phang}All commands in ietoolkit is developed by DIME Analytics at DECIE, The World Bank's unit for Development Impact Evaluations.
 
-{pstd}Please send bug-reports, suggestions and requests for clarifications
+{phang}Main author: Kristoffer Bjarkefur, DIME Analytics, The World Bank Group
+
+{phang}Please send bug-reports, suggestions and requests for clarifications
 		 writing "ietoolkit iegitaddmd" in the subject line to:{break}
-		 lcardosodeandrad@worldbank.org
+		 dimeanalytics@worldbank.org
 
-{pstd}You can also see the code, make comments to the code, see the version
-		 history of the code, and submit additions or edits to the code through
-		 the {browse "https://github.com/worldbank/ietoolkit" :ietoolkit GitHUb repository}.
+{phang}You can also see the code, make comments to the code, see the version
+		 history of the code, and submit additions or edits to the code through {browse "https://github.com/worldbank/ietoolkit":the GitHub repository of ietoolkit}.{p_end}

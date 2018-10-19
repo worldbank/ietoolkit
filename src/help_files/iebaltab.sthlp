@@ -424,14 +424,13 @@ For more information on these units, {browse "https://en.wikibooks.org/wiki/LaTe
 
 {title:Author}
 
-{phang}Luiza Cardoso De Andrade, The World Bank, DECIE{p_end}
-{phang}Kristoffer Bjarkefur, The World Bank, DECIE{p_end}
+{phang}All commands in ietoolkit is developed by DIME Analytics at DECIE, The World Bank's unit for Development Impact Evaluations.
+
+{phang}Main author: Kristoffer Bjarkefur, Luiza Cardoso De Andrade, DIME Analytics, The World Bank Group
 
 {phang}Please send bug-reports, suggestions and requests for clarifications
 		 writing "ietoolkit iebaltab" in the subject line to:{break}
-		 kbjarkefur@worldbank.org
+		 dimeanalytics@worldbank.org
 
 {phang}You can also see the code, make comments to the code, see the version
-		 history of the code, and submit additions or edits to the code through
-		 the GitHub repository of ietoolkit:{break}
-		 {browse "https://github.com/worldbank/ietoolkit"}
+		 history of the code, and submit additions or edits to the code through {browse "https://github.com/worldbank/ietoolkit":the GitHub repository of ietoolkit}.{p_end}

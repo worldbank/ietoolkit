@@ -31,6 +31,11 @@ command please see the {browse "https://dimewiki.worldbank.org/wiki/Iegraph":DIM
 {synopt :{cmdab:save(}{it:string}{cmd:)}} Sets the filename and the directory to which the graph will be set/exported.{p_end}
 {synopt :{cmdab:gray:scale}} Uses grayscales for the bars instead of colors.{p_end}
 {synopt :{cmdab:yzero}} Forces y-axis on the graph to start at 0.{p_end}
+{synopt :{cmdab:barl:abel}} Adds a label on top of the bars with their respective values.{p_end}
+{synopt :{cmdab:mlabc:olor:(}{it:{help colorstyle:colorname}}{cmd:)}} Set color of bar label.{p_end}
+{synopt :{cmdab:mlabp:osition:(}{it:{help clockposstyle:clockpos}}{cmd:)}} Set position of bar label.{p_end}
+{synopt :{cmdab:mlabs:ize:(}{it:{help textsizestyle:size}}{cmd:)}} Set font size of bar label.{p_end}
+{synopt :{cmd:barlabelformat}} Customizes format of bar label. Must be used with {it:barlabel}.{p_end}
 {synopt :{cmd:noconfbars}} Removes the confidence interval bars from graphs for all treatments.{p_end}
 {synopt :{cmdab:confbarsnone(}{it:varlist}{cmd:)}} Removes confidence interval bars from only the {it:varlist} listed.{p_end}
 {synopt :{cmdab:confintval(}{it:numlist}{cmd:)}} Sets the confidence interval for the confidence interval bars. Default is .95.{p_end}
@@ -109,6 +114,23 @@ command please see the {browse "https://dimewiki.worldbank.org/wiki/Iegraph":DIM
 	be forced to zero i.e. where the values in the graph extend beyond zero, both positively
 	or negatively. A warning will be displayed telling the user that the option has
 	been ignored. Despite the warning, the graph will be produced correctly.{p_end}
+
+{phang}{cmdab:barl:abel} Adds a label on top of the bars with their respective values. Equivalent 
+	to specifying option {help help blabel_option:blabel(bar)} in a 
+	{help graph_bar: bar graph}. {p_end}
+	
+{phang}{cmdab:mlabc:olor:(}{it:{help colorstyle:colorname}}{cmd:)} Set color of bar label. 
+	Must be used with {it:barlabel}.{p_end}
+
+{phang}{cmdab:mlabp:osition:(}{it:{help clockposstyle:clockpos}}{cmd:)} Set position of bar label. 
+	Must be used with {it:barlabel}.{p_end}
+
+{phang}{cmdab:mlabs:ize:(}{it:{help textsizestyle:size}}{cmd:)} Set font size of bar label. 
+	Must be used with {it:barlabel}.{p_end}
+	
+{phang}{cmd:barlabelformat} Customize barlabel format. Must be used with {it:barlabel}. Options 
+	allowed have the formats %#.#f or %#.#e. Default if %9.1f. See {help format} for
+	more information. {p_end}
 
 {phang}{cmd:noconfbars} Removes the confidence interval bars from graphs for all
 	treatments. The default value for the confidence interval bars is 95%. {p_end}
@@ -202,17 +224,17 @@ command please see the {browse "https://dimewiki.worldbank.org/wiki/Iegraph":DIM
 {title:Acknowledgements}
 
 {phang}We would like to acknowledge the help in testing and proofreading we received in relation to this command and help file from (in alphabetic order):{p_end}
-{pmore}Luiza Cardoso De Andrade{break}Michael Orevba{break}Ahmad Zia Wahdat{break}
+{pmore}Michael Orevba{break}Ahmad Zia Wahdat{break}
+ 
+{title:Author}
 
-{title:Authors}
+{phang}All commands in ietoolkit is developed by DIME Analytics at DECIE, The World Bank's unit for Development Impact Evaluations.
 
-{phang}Kristoffer Bjarkefur & Mrijan Rimal, The World Bank, DECIE
+{phang}Main author: Kristoffer Bjarkefur, Mrijan Rimal, Luiza Cardoso De Andrade, DIME Analytics, The World Bank Group
 
 {phang}Please send bug-reports, suggestions and requests for clarifications
 		 writing "ietoolkit iegraph" in the subject line to:{break}
-		 kbjarkefur@worldbank.org
+		 dimeanalytics@worldbank.org
 
 {phang}You can also see the code, make comments to the code, see the version
-		 history of the code, and submit additions or edits to the code through
-		 the GitHub repository for ietoolkit:{break}
-		 {browse "https://github.com/worldbank/ietoolkit"}
+		 history of the code, and submit additions or edits to the code through {browse "https://github.com/worldbank/ietoolkit":the GitHub repository of ietoolkit}.{p_end}

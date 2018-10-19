@@ -1,4 +1,4 @@
-*! version 5.5 26APR2018 DIME Analytics lcardosodeandrad@worldbank.org
+*! version 5.5 26APR2018 DIME Analytics dimeanalytics@worldbank.org
 
 cap	program drop	iegraph
 	program define 	iegraph, rclass
@@ -12,6 +12,48 @@ cap	program drop	iegraph
 	qui {
 
 	version 11
+
+/*******************************************************************************
+
+						Identify options used
+						
+********************************************************************************/
+
+	*Checking to see if the noconfbars option has been used and assigning 1 and 0 based
+	*on that to the CONFINT_BAR variable.
+	if "`confbars'" != ""  			local CONFINT_BAR 	= 0
+	if "`confbars'" == ""  			local CONFINT_BAR 	= 1
+	
+	*Checking to see if the barlabel option has been used and assigning 1 and 0 based
+	*on that to the LABEL_BAR variable.
+	if "`barlabel'" != "" 			local LABEL_BAR 	= 1
+	if "`barlabel'" == "" 			local LABEL_BAR 	= 0
+	
+	*Checking to see if the mlabposition option has been used and assigning 1 and 0 based
+	*on that to the LABEL_POS variable.
+	if "`mlabposition'" != "" 		local LABEL_POS 	= 1
+	if "`mlabposition'" == "" 		local LABEL_POS 	= 0
+	
+	*Checking to see if the mlabcolor option has been used and assigning 1 and 0 based
+	*on that to the LABEL_COL variable.
+	if "`mlabcolor'" != "" 			local LABEL_COL 	= 1
+	if "`mlabcolor'" == "" 			local LABEL_COL 	= 0
+	
+	*Checking to see if the mlabcolor option has been used and assigning 1 and 0 based
+	*on that to the LABEL_COL variable.
+	if "`mlabsize'" != "" 			local LABEL_SIZE	= 1
+	if "`mlabsize'" == "" 			local LABEL_SIZE 	= 0
+	
+	*Checking to see if the barlabelformat option has been used and assigning 1 and 0 based
+	*on that to the LABEL_FORMAT variable.
+	if "`barlabelformat'" != "" 	local LABEL_FORMAT 	= 1
+	if "`barlabelformat'" == ""		local LABEL_FORMAT 	= 0
+	
+/*******************************************************************************
+							
+							Prepare inputs
+							
+********************************************************************************/
 
 	*Only keep the observations in the regressions
 	keep if e(sample) == 1
@@ -60,15 +102,6 @@ cap	program drop	iegraph
 	if "`ignoredummytest'" == "" testDums `varlist'
 
 
-	*Checking to see if the noconfbars option has been used and assigning 1 and 0 based
-	*on that to the CONFINT_BAR variable.
-	if "`confbars'" 		!= "" {
-		local CONFINT_BAR 	= 0
-	}
-	else if "`confbars'" 	== "" {
-		local CONFINT_BAR 	= 1
-	}
-
 	*Testing to see if the variables used in confbarsnone are
 	*actually in the list of
 	*variables used for the regression/graph.
@@ -81,7 +114,45 @@ cap	program drop	iegraph
 		error 111
 	}
 
-
+	* Can only be used if the bar label is displayed
+	if `LABEL_BAR' == 0 {	
+		if `LABEL_FORMAT' | `LABEL_POS' | `LABEL_COL' | `LABEL_SIZE' {
+			noi display as error "{phang} Options barlabelformat(), mlabsize(), mlabposition() and mlabcolor() can only be specified when option barlabel is used. {p_end}"
+			error 198
+		}
+	}
+	else {	
+	
+		**************************************
+		* Check that specified format is valid
+		**************************************
+		
+		if `LABEL_FORMAT' {
+			if substr("`barlabelformat'",1,1) != "%" | !inlist(substr("`barlabelformat'",-1,1), "e", "f") | !regex("`barlabelformat'", "\.") {
+				noi display as error "{phang} Option barlabelformat() was incorrectly specified. Only fixed and exponencial formats are currently allowed. See {help format} for more information on how to specify a variable format.{p_end}"
+				error 198
+			}
+		}
+		
+		***************************************************************************
+		* Check that label options are valid. If not, print warning and turn switch
+		* off so default will be used
+		***************************************************************************
+		if `LABEL_POS' {
+			noi 	clockname `mlabposition'	
+			local 	LABEL_POS = r(LABEL_POS)
+		}
+		if `LABEL_SIZE' {
+			noi 	sizename `mlabsize'			
+			local 	LABEL_SIZE = r(LABEL_SIZE)
+		}		
+		if `LABEL_COL' {
+			if !inlist("`mlabcolor'", "background", "bg", "foreground", "fg") {
+				noi 	colorname `mlabcolor'			
+				local 	LABEL_COL = r(LABEL_COL)
+			}
+		}		
+	}
 
 	*Checking to see if the save option is used what is the extension related to it.
 	if "`save'" != "" {
@@ -172,6 +243,19 @@ cap	program drop	iegraph
 
 	}
 
+	* Set default barlabel options
+	if `LABEL_BAR' {
+		if !`LABEL_POS'		local mlabposition 	12
+		if !`LABEL_COL'	 	local mlabcolor		black
+		if !`LABEL_SIZE' 	local mlabsize		medium
+	}
+
+
+/*******************************************************************************
+	
+						Get values from regression
+
+*******************************************************************************/
 
 	local count: word count `varlist' // Counting the number of total vars used as treatment.
 	local graphCount = `count' + 1 // Number of vars needed for the graph is total treatment vars plus one(control).
@@ -234,11 +318,13 @@ cap	program drop	iegraph
 		scalar tmt_mean_`var' = ctl_mean + coeff_`var'
 	}
 
-	/*************************************
+	
+/*******************************************************************************
+	
+			Set up temp file where results are written
 
-		Set up temp file where results are written
+*******************************************************************************/
 
-	*************************************/
 
 	tempfile		 newTextFile
 	tempname 		 newHandle
@@ -288,11 +374,12 @@ cap	program drop	iegraph
 
 	file close `newHandle'
 
-	/*************************************
+/*******************************************************************************
 
-		Create the graph
+						Create the graph
 
-	*************************************/
+*******************************************************************************/
+
 
 	*Read file with results
 	insheet using `newTextFile', clear
@@ -342,7 +429,25 @@ cap	program drop	iegraph
 		local confIntGraph = ""
 	}
 		else if `CONFINT_BAR' == 1 {
-		local confIntGraph = `"(rcap conf_int_max conf_int_min position, lc(gs)) (scatter mean position,  msym(none)  mlabs(medium) mlabpos(10) mlabcolor(black))"'
+		local confIntGraph = `"(rcap conf_int_max conf_int_min position, lc(gs)) (scatter mean position,  msym(none)  mlabsize(`mlabsize') mlabposition(`mlabposition') mlabcolor(`mlabcolor'))"'
+	}
+	
+	*Create the bar label
+	if `LABEL_BAR' == 0 {
+		local barLabel = ""
+	}
+	else if `LABEL_BAR' == 1 {
+	
+		gen label = mean
+		
+		if `LABEL_FORMAT' == 1 {
+			format label `barlabelformat'
+		}
+		else if `LABEL_FORMAT' == 0 {
+			format label %9.1f
+		}
+		
+		local barLabel = `"(scatter mean position,  msym(none)  mlab(label) mlabposition(`mlabposition') mlabcolor(`mlabcolor'))"'
 	}
 
 	local titleOption `" , xtitle("") ytitle("`e(depvar)'") "'
@@ -376,7 +481,6 @@ cap	program drop	iegraph
 		local max_value `r(max)'
 
 		*Locals used for logic below
-		noi di "local signcheck = ((`r(max)' * `r(min)') >= 0) "
 		local signcheck = ((`max_value' * `min_value') >= 0) 	// dummy local for both signs the same (positive or negative)
 		local negative	=  (`max_value' <= 0)				// dummy for max value still negative (including 0)
 
@@ -435,7 +539,7 @@ cap	program drop	iegraph
 	*******************************************************************************
 
 	*Store all the options in one local
-	local commandline 		`" `tmtGroupBars' `confIntGraph' `titleOption'  `legendOption' `xAxisLabels' title("`basictitle'") `yzero_option' `options'  "'
+	local commandline 		`" `tmtGroupBars' `confIntGraph' `barLabel' `titleOption'  `legendOption' `xAxisLabels' title("`basictitle'") `yzero_option' `options'  "'
 
 	*Error message used in both save-option cases below.
 	local graphErrorMessage `" Something went wrong while trying to generate the graph. Click {stata di r(cmd) :display graph options } to see what graph options iegraph used. This can help in locating the source of the error in the command. "'
@@ -663,3 +767,51 @@ end
 		if `counter' != 2	error 480
 
 	end
+	
+	* Test inputs for label
+	cap prog drop sizename
+ 		prog def sizename, rclass
+
+		args name
+
+		capture findfile gsize-`name'.style
+
+		if ( _rc == 601 ) {
+
+			noi di "{phang} WARNING: Option mlabsize() was incorrectly specified. Only {help textsizestyle} values are accepted. Default size used.{p_end}"
+			return local 	LABEL_SIZE 	0
+		}
+
+	end
+
+	cap prog drop colorname
+		prog def colorname, rclass
+
+		args name
+
+		capture findfile color-`name'.style
+
+		if ( _rc == 601 ) {
+
+			noi di "{phang} WARNING: Option mlabcolor() was incorrectly specified. Only named colors in {help colorstyle} are accepted. Default color used.{p_end}"
+			return local 	LABEL_COL 	0
+		}
+
+	end
+	
+	
+	cap prog drop clockname
+		prog def clockname, rclass
+
+		args name
+
+		capture findfile clockdir-`name'.style
+
+		if ( _rc == 601 ) {
+
+			noi di "{phang} WARNING: Option mlabposition() was incorrectly specified. Only {help clockposstyle} values are accepted. Default position used.{p_end}"
+			return local 	LABEL_POS 	0
+		}
+
+	end
+

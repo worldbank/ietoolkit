@@ -1,4 +1,4 @@
-*! version 5.5 26APR2018 DIME Analytics lcardosodeandrad@worldbank.org
+*! version 5.5 26APR2018 DIME Analytics dimeanalytics@worldbank.org
 
 cap program drop 	iefolder
 	program define	iefolder
@@ -588,6 +588,7 @@ cap program drop 	createRoundMasterDofile
 		*Create DataSets sub-folder and add global to round master dofile
 		file write  `roundHandle' _n	_col(4)"*DataSets sub-folder globals" _n
 		createFolderWriteGlobal	"DataSets" 						"`rnd'" 		"`rnd'_dt" 		`roundHandle'
+		createFolderWriteGlobal "Deidentified" 					"`rnd'_dt" 		"`rnd'_dtDeID" 	`roundHandle'
 		createFolderWriteGlobal "Intermediate" 					"`rnd'_dt" 		"`rnd'_dtInt" 	`roundHandle'
 		createFolderWriteGlobal "Final"  						"`rnd'_dt" 		"`rnd'_dtFin" 	`roundHandle'
 
@@ -865,7 +866,7 @@ cap program drop 	mdofle_p0
 			_n	///
 			_col(8)"** NOTES:" _n ///
 			_n ///
-			_col(8)"** WRITEN BY:" _col(25) "names_of_contributors" _n ///
+			_col(8)"** WRITTEN BY:" _col(25) "names_of_contributors" _n ///
 			_n ///
 			_col(8)"** Last date modified: `c(current_date)'" _n ///
 			_col(8)"*/" _n
@@ -890,13 +891,14 @@ cap program drop 	mdofle_p0
 
 		file write  `subHandle' 	///
 			_col(4)"*Install all packages that this project requires:" _n ///
-			_col(4)"local user_commands ietoolkit" _col(40) "//Fill this list with all user-written commands this project requires" _n ///
+			_col(4)"*(Note that this never updates outdated versions of already installed commands, to update commands use adoupdate)" _n ///
+			_col(4)"local user_commands ietoolkit" _col(40) "//Fill this list will all user-written commands this project requires" _n ///
 			_col(4)"foreach command of local user_commands {" _n ///
 			_col(8)		"cap which " _char(96) "command'" _n ///
 			_col(8)		"if _rc == 111 {" _n ///
-			_col(12)		"cap ssc install " _char(96) "command'" _n ///
+			_col(12)		"ssc install " _char(96) "command'" _n ///
 			_col(8)		"}" _n ///
-			_col(4)"}" _n ///
+			_col(4)"}" _n /// 
 			_n	 ///
 			_col(4)"*Standardize settings accross users" _n ///
 			_col(4)"ieboilstart, version(12.1)" _col(40) "//Set the version number to the oldest version used by anyone in the project team" _n ///
@@ -1198,7 +1200,7 @@ cap program drop 	mdofle_task
 			 _n 	///
 			_col(4)"** IDS VAR:" _col(25) "list_ID_var_here		// Uniquely identifies households (update for your project)" _n ///
 			_col(4)"** NOTES:" _n ///
-			_col(4)"** WRITEN BY:" _col(25) "names_of_contributors" _n ///
+			_col(4)"** WRITTEN BY:" _col(25) "names_of_contributors" _n ///
 			_col(4)"** Last date modified: `c(current_date)'" _n _n ///
 			_n ///
 			_col(4)"* ***************************************************** *" _n ///
