@@ -1,5 +1,5 @@
 {smcl}
-{* 26 Apr 2018}{...}
+{* 19 Oct 2018}{...}
 {hline}
 help for {hi:iegraph}
 {hline}
@@ -115,20 +115,20 @@ command please see the {browse "https://dimewiki.worldbank.org/wiki/Iegraph":DIM
 	or negatively. A warning will be displayed telling the user that the option has
 	been ignored. Despite the warning, the graph will be produced correctly.{p_end}
 
-{phang}{cmdab:barl:abel} Adds a label on top of the bars with their respective values. Equivalent 
-	to specifying option {help help blabel_option:blabel(bar)} in a 
+{phang}{cmdab:barl:abel} Adds a label on top of the bars with their respective values. Equivalent
+	to specifying option {help help blabel_option:blabel(bar)} in a
 	{help graph_bar: bar graph}. {p_end}
-	
-{phang}{cmdab:mlabc:olor:(}{it:{help colorstyle:colorname}}{cmd:)} Set color of bar label. 
+
+{phang}{cmdab:mlabc:olor:(}{it:{help colorstyle:colorname}}{cmd:)} Set color of bar label.
 	Must be used with {it:barlabel}.{p_end}
 
-{phang}{cmdab:mlabp:osition:(}{it:{help clockposstyle:clockpos}}{cmd:)} Set position of bar label. 
+{phang}{cmdab:mlabp:osition:(}{it:{help clockposstyle:clockpos}}{cmd:)} Set position of bar label.
 	Must be used with {it:barlabel}.{p_end}
 
-{phang}{cmdab:mlabs:ize:(}{it:{help textsizestyle:size}}{cmd:)} Set font size of bar label. 
+{phang}{cmdab:mlabs:ize:(}{it:{help textsizestyle:size}}{cmd:)} Set font size of bar label.
 	Must be used with {it:barlabel}.{p_end}
-	
-{phang}{cmd:barlabelformat} Customize barlabel format. Must be used with {it:barlabel}. Options 
+
+{phang}{cmd:barlabelformat} Customize barlabel format. Must be used with {it:barlabel}. Options
 	allowed have the formats %#.#f or %#.#e. Default if %9.1f. See {help format} for
 	more information. {p_end}
 
@@ -225,7 +225,7 @@ command please see the {browse "https://dimewiki.worldbank.org/wiki/Iegraph":DIM
 
 {phang}We would like to acknowledge the help in testing and proofreading we received in relation to this command and help file from (in alphabetic order):{p_end}
 {pmore}Michael Orevba{break}Ahmad Zia Wahdat{break}
- 
+
 {title:Author}
 
 {phang}All commands in ietoolkit is developed by DIME Analytics at DECIE, The World Bank's unit for Development Impact Evaluations.

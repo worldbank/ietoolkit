@@ -1,5 +1,5 @@
 {smcl}
-{* 26 Apr 2018}{...}
+{* 19 Oct 2018}{...}
 {hline}
 help for {hi:ieboilstart}
 {hline}
@@ -40,7 +40,7 @@ differently on different computers. See more details {help ieboilstart##comp:bel
 {synopt :{cmdab:v:ersionnumber(}{it:string}{cmd:)}}sets a stable version of Stata
 	for all users. This option does {ul:nothing} unless "`r(version)'" is included as in the example above.{p_end}
 {synopt :{cmdab:maxvar(}{it:numlist}{cmd:)}}manually sets the maximum number of
-	variables allowed in a data set. The default if omitted is the maximum number of variables 
+	variables allowed in a data set. The default if omitted is the maximum number of variables
 	allowed depending on the version of Stata used.{p_end}
 {synopt :{cmdab:matsize(}{it:numlist}{cmd:)}}manually sets the maximum number of
 	variables allowed in an estimation command, for example {help regress:regress}.
@@ -119,13 +119,13 @@ differently on different computers. See more details {help ieboilstart##comp:bel
 {p2line}
 {pstd}{it: Basic Settings:}{p_end}
 {p2col :{cmdab:set maxvar}}sets the maximum number of variables allowed. The
-	default value is the maximum allowed in the version of Stata used which is 32,767 in Stata MP or SE, and 120,000 in Stata MP 15. A lower maximum 
-	number can manually be set by the option {cmdab:maxvar()}. The maxvar is fixed in Stata Small or IC so this setting is ignored when any of 
+	default value is the maximum allowed in the version of Stata used which is 32,767 in Stata MP or SE, and 120,000 in Stata MP 15. A lower maximum
+	number can manually be set by the option {cmdab:maxvar()}. The maxvar is fixed in Stata Small or IC so this setting is ignored when any of
 	those versions of Stata is used. See {help set maxvar:set maxvar}.{p_end}
-{p2col :{cmdab:set matsize}}sets the maximum number of variables that can be included 
-	in estimation commands such as {cmd:regress}. The {cmdab:ieboilstart} default value 
-	is 400 which is the default value for Stata. A higher value is often allowed but it slows down 
-	Stata and is only needed when running very complex analysis. This option can be used to set a higher 
+{p2col :{cmdab:set matsize}}sets the maximum number of variables that can be included
+	in estimation commands such as {cmd:regress}. The {cmdab:ieboilstart} default value
+	is 400 which is the default value for Stata. A higher value is often allowed but it slows down
+	Stata and is only needed when running very complex analysis. This option can be used to set a higher
 	value, as long as the value does not violate the limitations in the version of Stata used. See {help set matsize:set matsize}.{p_end}
 {break}
 {pstd}{it: Dynamic Memory Settings (see {help memory:memory} for details and reasons for default values. Few users ever need to change these values):}{p_end}
@@ -225,11 +225,11 @@ differently on different computers. See more details {help ieboilstart##comp:bel
 {phang}{cmdab:setmem(}{it:string}{cmd:)}This option is only relevant for users of Stata 11. This value must be an integer followed by the letter B, K, M or G. The default if omitted is 50M. Cannot be used if
 	versionnumber() is set to version 12.0 or more recent. See {help set memory} for more details. This link will only display options relevant to Stata 11 when clicking it in Stata 11. Otherwise it will show the options relevant to Stata 12 and later.
 
-{phang}{cmdab:noperm:anently(}{it:string}{cmd:)} is used to not change settings for future sessions 
-	of Stata. The default is that all settings are 	set as defaults so that they apply each time Stata 
-	starts after using this command. This option disable that. See option permanently in {help memory:memory} for 
+{phang}{cmdab:noperm:anently(}{it:string}{cmd:)} is used to not change settings for future sessions
+	of Stata. The default is that all settings are 	set as defaults so that they apply each time Stata
+	starts after using this command. This option disable that. See option permanently in {help memory:memory} for
 	mroe details. {cmd:set more off} is always set permanently.{p_end}
-	
+
 {title:Examples}
 
 {pstd}{hi:Example 1.}

@@ -1,4 +1,4 @@
-*! version 5.5 26APR2018 DIME Analytics dimeanalytics@worldbank.org
+*! version 6.0 19OCT2018 DIME Analytics dimeanalytics@worldbank.org
 
 cap program drop 	iefolder
 	program define	iefolder
@@ -898,7 +898,7 @@ cap program drop 	mdofle_p0
 			_col(8)		"if _rc == 111 {" _n ///
 			_col(12)		"ssc install " _char(96) "command'" _n ///
 			_col(8)		"}" _n ///
-			_col(4)"}" _n /// 
+			_col(4)"}" _n ///
 			_n	 ///
 			_col(4)"*Standardize settings accross users" _n ///
 			_col(4)"ieboilstart, version(12.1)" _col(40) "//Set the version number to the oldest version used by anyone in the project team" _n ///

@@ -1,5 +1,5 @@
 {smcl}
-{* 26 Apr 2018}{...}
+{* 19 Oct 2018}{...}
 {hline}
 help for {hi:iematch}
 {hline}
@@ -271,7 +271,7 @@ command please see the {browse "https://dimewiki.worldbank.org/wiki/Iematch":DIM
 {phang}I would like to acknowledge the help in testing and proofreading I received in relation to this command and help file from (in alphabetic order):{p_end}
 {pmore}Luiza Cardoso De Andrade{break}Seungmin Lee{break}Mrijan Rimal{break}
 
- 
+
 {title:Author}
 
 {phang}All commands in ietoolkit is developed by DIME Analytics at DECIE, The World Bank's unit for Development Impact Evaluations.

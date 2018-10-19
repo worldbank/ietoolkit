@@ -1,4 +1,4 @@
-*! version 5.5 26APR2018 DIME Analytics dimeanalytics@worldbank.org
+*! version 6.0 19OCT2018 DIME Analytics dimeanalytics@worldbank.org
 
 	capture program drop ieduplicates
 	program ieduplicates , rclass
@@ -22,38 +22,38 @@
 		* message to this that is more informative.
 
 		preserve
-			
+
 			/***********************************************************************
 			************************************************************************
 
 				Section 1 - Set up locals needed in data
 
-				Saving a version of the data to be used before merging corrections 
+				Saving a version of the data to be used before merging corrections
 				back to the original data set and before correcting duplicates
 
 			************************************************************************
 			***********************************************************************/
-			
+
 			*Tempfiles to be uses
 			tempfile originalData preppedReport datawithreportmerged dataToReturn
-			
-			** Save a version of original data that can be brought 
+
+			** Save a version of original data that can be brought
 			*  back withing the preserve/restore section
-			save 	`originalData'		
-			
+			save 	`originalData'
+
 			* Create a local with todays date to date the reports
 			local  date = subinstr(c(current_date)," ","",.)
-			
+
 			*Put idvar in a local with a more descriptive name
 			local idvar `varlist'
 
 			** Making one macro with all variables that will be
 			*  imported and exported from the Excel file
 			local argumentVars `idvar' `uniquevars' `keepvars'
-			
+
 			* Create a list of the variables created by this command to put in the report
-			local excelVars dupListID dateListed dateFixed correct drop newID initials notes	
-			
+			local excelVars dupListID dateListed dateFixed correct drop newID initials notes
+
 			* Test that nu variable with the name needed for the excel report already exist in the data set
 			foreach excelvar of local excelVars {
 				cap confirm variable `excelvar'
@@ -62,49 +62,49 @@
 					noi display as error "{phang}The data set already have a variable called {inp:`excelvar'} which is a name that this command requires to be availible. Please change the name of the variable already in the data set. Future versions of this command will allow the user to rename the variables used by this command.{p_end}"
 					noi di ""
 					error 198
-					exit	
+					exit
 				}
 			}
-			
-			
+
+
 			/***********************************************************************
 			************************************************************************
 
 				Section 2 - Test unique vars
 
-				Test the unique vars so that they are identifying the data set and 
-				are not in a time format that might get corrupted by exporting to 
+				Test the unique vars so that they are identifying the data set and
+				are not in a time format that might get corrupted by exporting to
 				and importing from Excel. This is needed as the uniquevars are needed
 				to merge the correct correction to the correct duplicat
 
 			************************************************************************
 			***********************************************************************/
-			
+
 			*Test that the unique vars fully and uniquely identifies the data set
 			cap isid `uniquevars'
 			if _rc {
-			
+
 				noi display as error "{phang}The variable(s) listed in uniquevars() does not uniquely and fully identifies all observations in the data set.{p_end}"
 				isid `uniquevars'
 				error 198
-				exit			
+				exit
 			}
-			
-			** Test that no unique vars are time format. Time values might be corrupted 
+
+			** Test that no unique vars are time format. Time values might be corrupted
 			*  and changed a tiny bit when importing and exporting to Excel, which make merge not possible
 			foreach uniquevar of local uniquevars {
-			
+
 				*Test if format is time format
 				local format : format `uniquevar'
 				if substr("`format'",1,2) == "%t" {
-				
+
 					noi display as error `"{phang}The variable {inp:`uniquevar'} listed in {inp:uniquevars()} is using time format which is not allowed. Stata and Excel stores and displays time slightly differently which can lead to small changes in the value when the value is imported and exported between Stata and Excel, and then the variable can no longer be used to merge the report back to the original data. Use another variable or create a string variable out of your time variable using this code: {inp: generate `uniquevar'_str = string(`uniquevar',"%tc")}.{p_end}"'
 					noi di ""
 					error 198
-					exit	
+					exit
 				}
-			}			
-			
+			}
+
 
 
 			/***********************************************************************
@@ -112,7 +112,7 @@
 
 				Section 3 - Test input from Excel file
 
-				If Excel repirt exist, import it and test for invalid corrections 
+				If Excel repirt exist, import it and test for invalid corrections
 				made in the excel report.
 
 			************************************************************************
@@ -122,7 +122,7 @@
 				Section 3.1
 				Check if report exists from before.
 			******************/
-			
+
 			*Check if file exist. Suffix option can be used to create multiple reports in the same folder
 			cap confirm file "`folder'/iedupreport`suffix'.xlsx"
 
@@ -142,12 +142,12 @@
 
 				*Load excel file. Load all vars as string and use metadata from Section 1
 				import excel "`folder'/iedupreport`suffix'.xlsx"	, clear firstrow
-				
-				** All excelVars but dupListID and newID should be string. dupListID 
+
+				** All excelVars but dupListID and newID should be string. dupListID
 				*  should be numeric and the type of newID should be based on the user input
 				foreach excelvar of local excelVars {
 					if !inlist("`excelvar'", "dupListID", "newID") {
-						
+
 						* Make original ID var string
 						tostring `excelvar' , replace
 						replace  `excelvar' = "" if `excelvar' == "."
@@ -159,11 +159,11 @@
 					Make sure that the ID variable and the uniquevars are
 					not changed since last report.
 				******************/
-				
+
 				*Copy a list of all variables in the imported report to the local existingExcelVars
 				ds
 				local existingExcelVars  `r(varlist)'
-				
+
 				*Test that the ID variable is in the imported report
 				if `:list idvar in existingExcelVars' == 0 {
 
@@ -173,7 +173,7 @@
 					exit
 
 				}
-				
+
 				*Test that the unique variables are in the imported report
 				if `:list uniquevars in existingExcelVars' == 0 {
 
@@ -211,7 +211,7 @@
 
 				*Check that variables are either empty or "yes"
 				gen `inputNotYes' = !((correct  == "yes" | correct == "") & (drop  == "yes" | drop == ""))
-				
+
 				*Set local to 1 if error should be outputted
 				cap assert `inputNotYes' == 0
 				if _rc local local_inputNotYes 	1
@@ -227,10 +227,10 @@
 
 				*Check that all rows have at most one correction
 				cap assert `multiInp' == 0 | `multiInp' == 1
-				
+
 				*Error will be outputted below
 				if _rc local local_multiInp 	1
-				
+
 				/******************
 					Section 3.3.3
 					Test that maximum one duplicate per duplicate group is indicated as correct
@@ -239,17 +239,17 @@
 
 				*Generate dummy if correct column is set to yes
 				gen `yesCorrect' = (correct == "yes")
-				
+
 				*Count number of duplicates within duplicates where that dummy is 1
 				bys `idvar' : egen `groupNumCorrect' =  total(`yesCorrect')
-				
+
 				*Test if more than 1 duplicate in that duplicate group is correct
 				count if `groupNumCorrect' > 1
-				
-				*Output error is more than one duplicate in a duplicate group is yes
-				if `r(N)' != 0 local local_multiCorr 1	
 
-				
+				*Output error is more than one duplicate in a duplicate group is yes
+				if `r(N)' != 0 local local_multiCorr 1
+
+
 				/******************
 					Section 3.3.4
 					Make sure that either option droprest is specified, or that
@@ -258,28 +258,28 @@
 					a duplicate group, then all other observations should be
 					indicated as drop (unless droprest is specified)
 
-				******************/	
-				
+				******************/
+
 				*Generate dummy if there is any correction for this observation
 				gen `anyCorrection' = !missing(correct) | !missing(newID)
-				
+
 				*Count number of observations with any correction in suplicates group
 				bys `idvar' : egen `groupAnyCorrection' =  total(`anyCorrection')
-				
+
 				*Create dummy that indicates each place this error happens
 				gen `notDrop' = (missing(drop) & `groupAnyCorrection' > 0 & `anyCorrection' == 0)
-				
+
 				* Check if option droprest is specified
 				if "`droprest'" == "" {
-				
+
 					** If option droprest is not used, then all observations in a duplicate
-					*  group where at least one observation has a correction must have a 
+					*  group where at least one observation has a correction must have a
 					*  correction or have drop set to yes.
 					cap assert `notDrop' == 0
-					
+
 					*Error will be outputted below
 					if _rc local local_notDrop 	1
-					
+
 				}
 				else {
 
@@ -329,7 +329,7 @@
 						if `local_notDrop' == 1 {
 							display as error "{phang}The following observations are not explicitly indicated as drop while other duplicates in the same duplicate group are corrected. Either manually indicate as drop or see option droprest{p_end}"
 							list `idvar' dupListID correct drop newID `uniquevars' if `notDrop' == 1
-							di ""				
+							di ""
 						}
 
 						*Same error for any incorrect input
@@ -338,15 +338,15 @@
 					}
 				}
 
-				
+
 				/******************
 					Section 3.5
 					Save the prepared report to be used later
-				******************/				
-				
+				******************/
+
 				*Keep only the variables needed for matching and variables used for input in the Excel file
 				keep 	`idvar' `uniquevars' `excelVars' `groupAnyCorrection'
-				
+
 				*Save imported data set with all corrections
 				save	`preppedReport'
 			}
@@ -357,8 +357,8 @@
 
 				Section 4 - Merge report to original data
 
-				Merge corrections with original data, test that there are no 
-				obs in report that are not in main data, and save this data 
+				Merge corrections with original data, test that there are no
+				obs in report that are not in main data, and save this data
 				in temp file
 
 			************************************************************************
@@ -393,7 +393,7 @@
 				drop `iedup_merge'
 
 			}
-			
+
 			*save the data set to be used when correcting the data
 			save `datawithreportmerged'
 
@@ -530,7 +530,7 @@
 
 						*Prepare local for output
 						local daily_output " and a daily copy have been saved to the Daily folder"
-					}				
+					}
 
 					*Export main report
 					export excel using "`folder'/iedupreport`suffix'.xlsx"	, firstrow(variables) replace  nolabel
@@ -554,7 +554,7 @@
 		* Load the original data set merged with correction. Duplicates
 		* in all variables are already dropped in this data set
 		use 	`datawithreportmerged', clear
-		
+
 		* If excel file exists, apply any corrections indicated (if any)
 		if `fileExists' {
 
@@ -586,17 +586,17 @@
 
 				local idtype 	: type `idvar'
 				local idtypeNew : type newID
-				
+
 				*If ID var is string but newID is not, then just make it string
 				if substr("`idtype'",1,3) == "str" & substr("`idtypeNew'",1,3) != "str" {
 
 					tostring newID , replace
 					replace  newID = "" if newID == "."
 				}
-				
+
 				*If ID var is numeric but the newID is loaded as string
 				else if substr("`idtype'",1,3) != "str" & substr("`idtypeNew'",1,3) == "str" {
-				
+
 					* Check if [tostringok] is specificed:
 					if "`tostringok'" != "" {
 
@@ -618,10 +618,10 @@
 						exit
 					}
 				}
-		
+
 				*After making sure that type is ok, update the IDs
 				replace `idvar' = newID if !missing(newID)
-				
+
 
 
 				/******************
@@ -630,18 +630,18 @@
 					were neither used twice
 					nor already existed
 				******************/
-				
-				
+
+
 				*Test if there are any duplicates after corrections (excluding observations in duplicate groups not yet corrected)
 				tempvar newDup
 				duplicates tag `idvar' if `groupAnyCorrection' != 0, generate(`newDup')
 
 				*Consider missing values as no new duplicates, make conditions below easier
 				replace `newDup' = 0 if missing(`newDup')
-				
+
 				cap assert `newDup' == 0
-				if _rc {		
-				
+				if _rc {
+
 					levelsof `idvar' if `newDup' != 0  , local(newDuplist)
 					di as error "{phang}No corrections from the report are applied as it would lead to new duplicates in the following value(s): `newDuplist'.{p_end}"
 					error 198
@@ -685,7 +685,7 @@
 			exit
 
 		}
-		
+
 		*Count number of duplicate groups still in the data
 		local numDup	= `:list sizeof dup_ids'
 

@@ -1,5 +1,5 @@
 {smcl}
-{* 26 Apr 2018}{...}
+{* 19 Oct 2018}{...}
 {hline}
 help for {hi:iegitaddmd}
 {hline}
@@ -36,11 +36,11 @@ command please see the {browse "https://dimewiki.worldbank.org/wiki/Iegitaddmd":
 	be empty and GitHub will not sync them, meaning that they will not be available to the full
 	team. {cmd:iegitaddmd} is a Stata adaptation of {it:Solution B} in {browse "http://bytefreaks.net/gnulinux/bash/how-to-add-automatically-all-empty-folders-in-git-repository" :this post}.
 
-{pstd}{cmd:iegitaddmd} creates a placeholder file in all empty subfolders of 
-	the folder specified in {cmd:folder()}. The default file used if no file is specified 
-	using option {cmd:file()} is called README.md, which is a name and format recognized by 
-	GitHub.com so that the content of the file is displayed if the folder with that file is 
-	browsed on GitHub.com. The placeholder file may be removed as 
+{pstd}{cmd:iegitaddmd} creates a placeholder file in all empty subfolders of
+	the folder specified in {cmd:folder()}. The default file used if no file is specified
+	using option {cmd:file()} is called README.md, which is a name and format recognized by
+	GitHub.com so that the content of the file is displayed if the folder with that file is
+	browsed on GitHub.com. The placeholder file may be removed as
 	soon as actual files have been added to the folder. Alternatively, if the option
 	{cmd:all} is used, {cmd:iegitaddmd} will create the placeholder file in each subfolder
 	of {cmd:folder()}, regardless of them being empty or not.

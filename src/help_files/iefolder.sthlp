@@ -1,5 +1,5 @@
 {smcl}
-{* 26 Apr 2018}{...}
+{* 19 Oct 2018}{...}
 {hline}
 help for {hi:iefolder}
 {hline}
@@ -201,7 +201,6 @@ command please see the {browse "https://dimewiki.worldbank.org/wiki/Iefolder":DI
 {phang}Please send bug-reports, suggestions and requests for clarifications
 		 writing "ietoolkit iefolder" in the subject line to:{break}
 		 dimeanalytics@worldbank.org
-		 
+
 {phang}You can also see the code, make comments to the code, see the version
 		 history of the code, and submit additions or edits to the code through  {browse "https://github.com/worldbank/ietoolkit":the GitHub repository of ietoolkit}.{p_end}
-

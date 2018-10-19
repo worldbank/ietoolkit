@@ -1,3 +1,4 @@
+*! version 6.0 19OCT2018 DIME Analytics dimeanalytics@worldbank.org
 
 cap program drop 	ieddtab
 	program define	ieddtab, rclass
@@ -41,7 +42,7 @@ cap program drop 	ieddtab
 	*Remove observations excluded by if and in
 	marksample touse,  novarlist
 	keep if `touse'
-		
+
 	*TIME AND TREATMENT NOT IN OUTCOMEVARS
 
 	*Test that the variables listed in time() and treatment() is not also in the main varlist
@@ -99,7 +100,7 @@ cap program drop 	ieddtab
 				error _rc
 
 			}
-			
+
 			*Add a local names cluster to be passed to commands
 			local cluster cluster
 		}
@@ -116,7 +117,7 @@ cap program drop 	ieddtab
 		}
 
 			local error_estm 		vce(`vce')
-			
+
 		if "`vce_type'" != "robust" {
 			local error_estm_mean 	vce(`vce')
 		}
@@ -241,10 +242,10 @@ cap program drop 	ieddtab
 			for this output var
 
 		*************/
-		
+
 		*Generate the interaction var
 		gen `interactionvar' = `treatment' * `time'
-	
+
 		*Run the regression to get the double difference
 		qui reg `var' `treatment' `time' `interactionvar' `covariates', `error_estm'
 		mat resTable = r(table)
@@ -372,8 +373,8 @@ cap program drop 	ieddtab
 
 	*Returning the result matrix for advanced users to do their own thing with
 	mat returnMat = ddtab_resultMap
-	return matrix ieddtabResults returnMat	
-	
+	return matrix ieddtabResults returnMat
+
 	*Show the final matrix will all data needed to start building the output
 	//noi di "Matlist with results"
 	//matlist ddtab_resultMap
@@ -468,6 +469,7 @@ cap program drop 	ieddtab
 	}
 
 	restore
+
 end
 
 
@@ -710,8 +712,8 @@ qui {
 
 	*List of all columns that must be the same in case onerow is used
 	local ncols 2D_N 1DC_N 1DT_N C0_N T0_N
-	
-	*Add cluster 
+
+	*Add cluster
 	if "`cluster'" == "cluster" {
 		local ncols `ncols' 2D_clus 1DC_clus 1DT_clus C0_clus T0_clus
 	}
@@ -733,7 +735,7 @@ qui {
 
 			*If not the first row, compare this row to the first row, if it is not the same for all rows, then the option onerow is not valid.
 			else if `n' != `ncol' {
-				
+
 				*Split the n colname to column (2D, C0, 1DT etc.) and stat (N or clus)
 				tokenize "`ncolname'", parse("_")
 				local onerowcol `1'
@@ -747,7 +749,7 @@ qui {
 				if "`onerowcol'" == "T0"	local colstring "mean of treatment group in time = 0"
 				if "`onerowcol'" == "C1"	local colstring "mean of control group in time = 1"
 				if "`onerowcol'" == "T1"	local colstring "mean of treatment group in time = 1"
-				
+
 				*Prepare string with stat name
 				if "`onerowstat'" == "N"	local statstring "observations"
 				if "`onerowstat'" == "clus" local statstring "clusters"
@@ -840,7 +842,7 @@ end
 
 		*List of variabls to display and loop over when formatting
 		local statlist 2D 1DT 1DC C0_mean T0_mean 2D_err 1DT_err 1DC_err C0_err T0_err 2D_N 1DT_N 1DC_N C0_N T0_N
-		
+
 		*Add cluster columns to the list if clusters were used
 		if "`cluster'" == "cluster" {
 			local statlist `statlist'  2D_clus 1DT_clus 1DC_clus C0_clus T0_clus
@@ -852,7 +854,7 @@ end
 		** Add minumum lenght in case all row titles are shorter
 		*  than "Variable" that is the title of this column
 		local labmaxlen = max(`labmaxlen', 8)
-		
+
 		local first_hhline = 2 + `labmaxlen'
 		local first_col = 4 + `labmaxlen'
 
@@ -908,17 +910,17 @@ end
 
 		*Stats titles, show the stats displayed for each column in the order they are displayed
 		noi di as text "{c |}{col `first_col'}{c |}{dup `bsln_stat_left': } Mean{col `bsln_c_col'}{c |}{dup `diff_stat_left': } Coef.{col `diff_c_col'}{c |}{dup `bsln_stat_left': } Mean{col `bsln_t_col'}{c |}{dup `diff_stat_left': } Coef.{col `diff_t_col'}{c |}{dup `didi_stat_left': } Coef.{col `didi_col'}{c |}"
-		
+
 		*Display error type in title unless errhide was used
 		if "`errhide'" == "" {
 			noi di as text "{c |}{col `first_col'}{c |}{dup `bsln_stat_left': }(`errlabel'){col `bsln_c_col'}{c |}{dup `diff_stat_left': }(`errlabel'){col `diff_c_col'}{c |}{dup `bsln_stat_left': }(`errlabel'){col `bsln_t_col'}{c |}{dup `diff_stat_left': }(`errlabel'){col `diff_t_col'}{c |}{dup `didi_stat_left': }(`errlabel'){col `didi_col'}{c |}"
 		}
-		
+
 		*Display cluster in title if clusters were used
 		if "`cluster'" == "cluster" {
 			noi di as text "{c |}{col `first_col'}{c |}{dup `bsln_stat_left': }Clusters{col `bsln_c_col'}{c |}{dup `diff_stat_left': }Clusters{col `diff_c_col'}{c |}{dup `bsln_stat_left': }Clusters{col `bsln_t_col'}{c |}{dup `diff_stat_left': }Clusters{col `diff_t_col'}{c |}{dup `didi_stat_left': }Clusters{col `didi_col'}{c |}"
 		}
-		
+
 		*Last row with N in title as well as "Variable" in the first column
 		noi di as text "{c |}{col 3}Variable{col `first_col'}{c |}{dup `bsln_stat_left': } N{col `bsln_c_col'}{c |}{dup `diff_stat_left': } N{col `diff_c_col'}{c |}{dup `bsln_stat_left': } N{col `bsln_t_col'}{c |}{dup `diff_stat_left': } N{col `diff_t_col'}{c |}{dup `didi_stat_left': } N{col `didi_col'}{c |}"
 
@@ -959,8 +961,8 @@ end
 			*Unless error type is errhide, show the errors on a seperate row
 			if "`cluster'" == "cluster" {
 				noi di as text "{c |}{col `first_col'}{c |}{dup `C0_clus_space': }`C0_clus'{dup `1DC_clus_space': }`1DC_clus'{dup `T0_clus_space': }`T0_clus'{dup `1DT_clus_space': }`1DT_clus'{dup `2D_clus_space': }`2D_clus'"
-			}			
-			
+			}
+
 			*The number of observations are shown on a separate row
 			noi di as text "{c |}{col `first_col'}{c |}{dup `C0_N_space': }`C0_N'{dup `1DC_N_space': }`1DC_N'{dup `T0_N_space': }`T0_N'{dup `1DT_N_space': }`1DT_N'{dup `2D_N_space': }`2D_N'"
 
@@ -1140,10 +1142,10 @@ cap program drop	texresults
 
 		*List of variables to display and loop over when formatting
 		local statlist 2D 1DT 1DC C0_mean T0_mean 2D_err 1DT_err 1DC_err C0_err T0_err 2D_N 1DT_N 1DC_N C0_N T0_N
-		
+
 		*Add cluster columns to the list if clusters were used
 		if "`cluster'" == "cluster" {
-			local statlist 	`statlist' 2D_clus 1DT_clus 1DC_clus C0_clus T0_clus 
+			local statlist 	`statlist' 2D_clus 1DT_clus 1DC_clus C0_clus T0_clus
 		}
 		* Make sure special characters are displayed correctly in the labels
 		local rwlbls = subinstr("`rwlbls'", "&", "\&", .)
@@ -1193,47 +1195,47 @@ cap program drop	texresults
 				local `stat' `r(disp_tex)'
 
 			}
-	
+
 			/*****************************************
-			
+
 			 Prepare content of that variable's line
-			 
+
 			*****************************************/
 			* First column: label
 			local 	varline		"`label'"
-		
+
 			* Then other columns with statistics
-			foreach column in C0 1DC T0 1DT 2D {		
-				
+			foreach column in C0 1DC T0 1DT 2D {
+
 				/***********************************
 				 Column with number of observations
 				***********************************/
-				
+
 				* Starts with nothing and will only have content if one row was not selected
 				local `column'_obs	""
-				
+
 				* If no cluster, add only number of observation
 				if "`onerow'" == "" & "`cluster'" == "" {
 					local `column'_obs " & ``column'_N'"
 				}
 				* If cluster, will have two lines: one with number of obs, one with number of clusters
 				else if "`onerow'" == "" & "`cluster'" != "" {
-					local `column'_obs " & \begin{tabular}[t]{@{}c@{}} ``column'_N'  \\ ``column'_clus'  \end{tabular}" 
+					local `column'_obs " & \begin{tabular}[t]{@{}c@{}} ``column'_N'  \\ ``column'_clus'  \end{tabular}"
 				}
 
 				/*************************
 				 Column with coefficients
 				*************************/
-				
+
 				* Get name of stored coef
 				if inlist("`column'", "C0", "T0") {
 					local coef `column'_mean
 				}
-				else local coef `column'			
-				
+				else local coef `column'
+
 				* Starts with nothing, just to make sure
 				local `column'_coefs	""
-				
+
 				* If hiding error, add only the coefficient
 				if "`errortype'" == "errhide" {
 					local `column'_coefs	"& ``coef''"
@@ -1249,7 +1251,7 @@ cap program drop	texresults
 				local 	varline		`" `varline' ``column'_obs' ``column'_coefs' "'
 
 			}
-			
+
 		* Close variable line with vertical space
 		local 	varline		`" `varline' ``column'_obs' ``column'_coefs' \rule{0pt}{`texvspace'}\\"'
 
@@ -1257,7 +1259,7 @@ cap program drop	texresults
 		file open  `texname' using 	"`texfile'", text write append
 		file write `texname'		"`varline'" _n
 		file close `texname'
-		
+
 	}
 
 end
@@ -1404,7 +1406,7 @@ cap program drop	texheader
 	syntax	, texname(string) texfile(string)  errortype(string) [onerow cluster]
 
 		** Calculate number of rows
-		
+
 		if ("`onerow'" != "" | "`errortype'" == "errhide") {
 
 			local	toprowcols		2
@@ -1418,7 +1420,7 @@ cap program drop	texheader
 			local	bottomrowcols	2
 			local 	colstring		lcccccccccc
 			local	ncol			"& N "
-			
+
 			if "`cluster'" != "" {
 				local ncol			"`ncol'/{[}Clusters]"
 			}
@@ -1517,7 +1519,7 @@ cap program drop	texonerow
 
 			*List of variabls to add
 			local statlist 2D_N 1DT_N 1DC_N C0_N T0_N
-			
+
 			if "`cluster'" != "" {
 				local statlist `statlist'  2D_clus 1DT_clus 1DC_clus C0_clus T0_clus
 			}
@@ -1537,11 +1539,11 @@ cap program drop	texonerow
 
 				file open  `texname' using 	"`texfile'", text write append
 				file write `texname'		"N & `C0_N' & `1DC_N' & `T0_N' & `1DT_N' & `2D_N' \\" _n
-				
+
 			if "`cluster'" != "" {
 				file write `texname'		"Clusters & `C0_clus' & `1DC_clus' & `T0_clus' & `1DT_clus' & `2D_clus' \\" _n
 			}
-			
+
 				file close `texname'
 		}
 

@@ -1,4 +1,4 @@
-*! version 5.5 26APR2018 DIME Analytics dimeanalytics@worldbank.org
+*! version 6.0 19OCT2018 DIME Analytics dimeanalytics@worldbank.org
 
 	capture program drop ieboilstart
 	program ieboilstart , rclass
@@ -112,7 +112,7 @@
 
 			*Set locals with the max and min values fox maxvar and matsize
 			if "`maxlocal'" == "maxvar" {
-				
+
 				*Stata 15 MP has a higher maximum number of maxvar
 				if c(stata_version) >= 15 & c(MP) == 1 {
 					local max 120000
@@ -157,23 +157,23 @@
 				}
 			}
 		}
-		
+
 		/*********************************
 
 			Check other input
 
 		*********************************/
-		
-		**Default is that these values are set as default values so that 
+
+		**Default is that these values are set as default values so that
 		* these are the default values each time Stata starts.
 		if "`nopermanently'" == "" {
-		
+
 			local permanently 		" , permanently"
 			local permanently_col 	"{col 28}, permanently"
-		
-		} 
+
+		}
 		else {
-			
+
 			local permanently ""
 		}
 

@@ -1,5 +1,5 @@
 {smcl}
-{* 26 Apr 2018}{...}
+{* 19 Oct 2018}{...}
 {hline}
 help for {hi:ieduplicates}
 {hline}
@@ -86,9 +86,9 @@ file is backed up daily.
 {phang}{cmdab:unique:vars(}{it:varlist}{cmd:)} list variables that by themselves or together
 with {it:ID_varname} uniquely identifies all observations. This varlist is required when the corrections are
 imported back into Stata and merged with the original data set. Time variables
-are not allowed in {cmdab:uniquevars()} as Stata and Excel stores date and time slightly different, which 
-can casue errors when using these varaibles to merge the input in the Excel report back 
-into Stata. The time variable can be turned into a string variable using {inp: generate timevar_str = string(timevar,"%tc")} and 
+are not allowed in {cmdab:uniquevars()} as Stata and Excel stores date and time slightly different, which
+can casue errors when using these varaibles to merge the input in the Excel report back
+into Stata. The time variable can be turned into a string variable using {inp: generate timevar_str = string(timevar,"%tc")} and
 then be used in this options. Data that has been downloaded from
 a server usually has a variable called "KEY" or similar. Such a variable would be optimal
 for {cmdab:unique:vars(}{it:varlist}{cmd:)}.
