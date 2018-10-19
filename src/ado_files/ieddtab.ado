@@ -100,6 +100,9 @@ cap program drop 	ieddtab
 				error _rc
 
 			}
+			
+			*Add a local names cluster to be passed to commands
+			local cluster cluster
 		}
 		else if  "`vce_type'" == "bootstrap" {
 
@@ -347,7 +350,7 @@ cap program drop 	ieddtab
 				local ++colindex
 				if "`vce_type'" == "cluster" {
 					*Add the number of clusters if clusters are used
-					tab `cluster_var' if `treatment' == `t01' & `time' == `tmt01' & `regsample' == 1
+					qui tab `cluster_var' if `treatment' == `t01' & `time' == `tmt01' & `regsample' == 1
 					mat `var'[1,`colindex'] =  `r(r)'
 				}
 			}
@@ -374,7 +377,7 @@ cap program drop 	ieddtab
 	*Test that onerow option is valid, i.e. the N in each column is the same across all rows
 
 	if "`onerow'" != "" {
-		noi testonerow `varlist', ddtab_resultMap(ddtab_resultMap)
+		noi testonerow `varlist', ddtab_resultMap(ddtab_resultMap) `cluster'
 	}
 
 	/***************************************
@@ -695,13 +698,18 @@ end
 cap program drop 	testonerow
 	program define	testonerow, rclass
 
-	syntax varlist, ddtab_resultMap(name)
+	syntax varlist, ddtab_resultMap(name) [cluster]
 
 qui {
 	local numVars :word count `varlist'
 
 	*List of all columns that must be the same in case onerow is used
-	local ncols 2D_N 1DC_N 1DT_N  C0_N T0_N
+	local ncols 2D_N 1DC_N 1DT_N C0_N T0_N
+	
+	*Add cluster 
+	if "`cluster'" == "cluster" {
+		local ncols `ncols' 2D_clus 1DC_clus 1DT_clus C0_clus T0_clus
+	}
 
 	*Loop over the columns with N
 	foreach ncolname of local ncols {
@@ -720,21 +728,30 @@ qui {
 
 			*If not the first row, compare this row to the first row, if it is not the same for all rows, then the option onerow is not valid.
 			else if `n' != `ncol' {
+				
+				*Split the n colname to column (2D, C0, 1DT etc.) and stat (N or clus)
+				tokenize "`ncolname'", parse("_")
+				local onerowcol `1'
+				local onerowstat `3'
 
 				*Prepare string with explanatory column name
-				if "`ncolname'" == "2D_N"	local colstring "2nd difference regression"
-				if "`ncolname'" == "1DC_N"	local colstring "1st difference regression in control group"
-				if "`ncolname'" == "1DT_N"	local colstring "1st difference regression in treatment group"
-				if "`ncolname'" == "C0_N"	local colstring "mean of control group in time = 0"
-				if "`ncolname'" == "T0_N"	local colstring "mean of treatment group in time = 0"
-				if "`ncolname'" == "C1_N"	local colstring "mean of control group in time = 1"
-				if "`ncolname'" == "T1_N"	local colstring "mean of treatment group in time = 1"
+				if "`onerowcol'" == "2D"	local colstring "2nd difference regression"
+				if "`onerowcol'" == "1DC"	local colstring "1st difference regression in control group"
+				if "`onerowcol'" == "1DT"	local colstring "1st difference regression in treatment group"
+				if "`onerowcol'" == "C0"	local colstring "mean of control group in time = 0"
+				if "`onerowcol'" == "T0"	local colstring "mean of treatment group in time = 0"
+				if "`onerowcol'" == "C1"	local colstring "mean of control group in time = 1"
+				if "`onerowcol'" == "T1"	local colstring "mean of treatment group in time = 1"
+				
+				*Prepare string with stat name
+				if "`onerowstat'" == "N"	local statstring "observations"
+				if "`onerowstat'" == "clus" local statstring "clusters"
 
 				*Name of the variables
 				local firstVar : word 1 	of `varlist'
 				local thisVar  : word `row' of `varlist'
 
-				noi di as error "{phang}There are different number of observations in the variables `firstVar' and `thisVar' in the `colstring'. The number of observations for each statistic must be same in all variables for the option {inp:onerow} to be valid. Either remove the {inp:onerow} option or investigate why the N is different accross variables.{p_end}"
+				noi di as error "{phang}There are different number of `statstring' in the variables `firstVar' and `thisVar' in the `colstring'. The number of `statstring' for each statistic must be same in all variables for the option {inp:onerow} to be valid. Either remove the {inp:onerow} option or investigate why the number is different accross variables.{p_end}"
 				error 480
 			}
 		}
