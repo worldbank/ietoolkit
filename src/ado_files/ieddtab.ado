@@ -453,7 +453,7 @@ cap program drop 	ieddtab
 								savetex(`savetex') `replace'  ///
 								`texdocument' texcaption("`texcaption'") texlabel("`texlabel'") texnotewidth(`texnotewidth') ///
 								`onerow' starlevels("`starlevels'") format(`format') rwlbls("`rowlabels'") errortype(`errortype') ///
-								note(`note') texvspace("`texvspace'")
+								note(`note') texvspace("`texvspace'") `cluster'
 
 	}
 
@@ -1078,7 +1078,7 @@ cap program drop 	outputtex
 
 	syntax varlist, ddtab_resultMap(name) savetex(string) note(string) ///
 					[replace onerow starlevels(string) format(string) rwlbls(string) errortype(string) ///
-					texdocument texcaption(string) texlabel(string) texnotewidth(numlist) texvspace(string)]
+					texdocument texcaption(string) texlabel(string) texnotewidth(numlist) texvspace(string) cluster]
 
 		* Replace tex file?
 		if "`replace'" != ""		local texreplace	replace
@@ -1100,16 +1100,16 @@ cap program drop 	outputtex
 		texpreamble	, texname("`texname'") texfile("`texfile'") texcaption("`texcaption'") texlabel("`texlabel'") `texdocument'
 
 		* Write table header
-		texheader	, texname("`texname'") texfile("`texfile'") `onerow'  errortype(`errortype')
+		texheader	, texname("`texname'") texfile("`texfile'") `onerow'  errortype(`errortype') `cluster'
 
 		* Write results
 		texresults `varlist', ddtab_resultMap(ddtab_resultMap) ///
 							  format("`format'") rwlbls("`rwlbls'") errortype("`errortype'") ///
 							  texname("`texname'") texfile("`texfile'") ///
-							  `onerow'  texvspace("`texvspace'")
+							  `onerow'  texvspace("`texvspace'") `cluster'
 
 		* Write row with number of observations if option onerow was selected
-		texonerow, ddtab_resultMap(ddtab_resultMap) texname("`texname'") texfile("`texfile'") `onerow'
+		texonerow, ddtab_resultMap(ddtab_resultMap) texname("`texname'") texfile("`texfile'") `onerow' `cluster'
 
 		* Write tex footer
 		texfooter, texname("`texname'") texfile("`texfile'") texnotewidth(`texnotewidth') `onerow' errortype(`errortype') note(`note') `texdocument'
@@ -1124,7 +1124,7 @@ end
 cap program drop	texresults
 	program define	texresults
 
-	syntax	varlist, ddtab_resultMap(name) texname(string) texfile(string) errortype(string) format(string) rwlbls(string) [onerow texvspace(string)]
+	syntax	varlist, ddtab_resultMap(name) texname(string) texfile(string) errortype(string) format(string) rwlbls(string) [onerow texvspace(string) cluster]
 
 		****************
 		* Prepare inputs
@@ -1135,7 +1135,11 @@ cap program drop	texresults
 
 		*List of variabls to display and loop over when formatting
 		local statlist 2D 1DT 1DC C0_mean T0_mean 2D_err 1DT_err 1DC_err C0_err T0_err 2D_N 1DT_N 1DC_N C0_N T0_N
-
+		
+		*Add cluster columns to the list if clusters were used
+		if "`cluster'" == "cluster" {
+			local statlist 	`statlist' 2D_clus 1DT_clus 1DC_clus C0_clus T0_clus 
+		}
 		* Make sure special characters are displayed correctly in the labels
 		local rwlbls = subinstr("`rwlbls'", "&", "\&", .)
 		local rwlbls = subinstr("`rwlbls'", "%", "\%", .)
@@ -1163,17 +1167,16 @@ cap program drop	texresults
 		}
 
 
-		***************
-		* Write results
-		***************
-
+		*********************
 		* Loop over variables
+		*********************
 		forvalues row = 1/`numVars' {
 
-			*Get lables from the list of lables previosly prepared
+			*Get labels from the list of labels previosly prepared
 			local rwlbls = trim(subinstr("`rwlbls'", "@@","", 1))
 			gettoken label rwlbls : rwlbls, parse("@@")
 
+			*Prepare the display of each statistic
 			foreach stat of local statlist {
 
 				**Run sub command that gets value from matrix and prepares it
@@ -1185,33 +1188,72 @@ cap program drop	texresults
 				local `stat' `r(disp_tex)'
 
 			}
+	
+			/*****************************************
+			
+			 Prepare content of that variable's line
+			 
+			*****************************************/
+			* First column: label
+			local 	varline		"`label'"
+		
+			* Then other columns with statistics
+			foreach column in C0 1DC T0 1DT 2D {		
+				
+				/***********************************
+				 Column with number of observations
+				***********************************/
+				
+				* Starts with nothing and will only have content if one row was not selected
+				local `column'_obs	""
+				
+				* If no cluster, add only number of observation
+				if "`onerow'" == "" & "`cluster'" == "" {
+					local `column'_obs " & ``column'_N'"
+				}
+				* If cluster, will have two lines: one with number of obs, one with number of clusters
+				else if "`onerow'" == "" & "`cluster'" != "" {
+					local `column'_obs " & \begin{tabular}[t]{@{}c@{}} ``column'_N'  \\ ``column'_clus'  \end{tabular}" 
+				}
 
-			if "`errortype'" == "errhide" {
-				if "`onerow'" != "" {
-					file open  `texname' using 	"`texfile'", text write append
-					file write `texname'		"`label' & `C0_mean' & `1DC' & `T0_mean' & `1DT' &  `2D' \rule{0pt}{`texvspace'}\\" _n
-					file close `texname'
+				/*************************
+				 Column with coefficients
+				*************************/
+				
+				* Get name of stored coef
+				if inlist("`column'", "C0", "T0") {
+					local coef `column'_mean
 				}
+				else local coef `column'			
+				
+				* Starts with nothing, just to make sure
+				local `column'_coefs	""
+				
+				* If hiding error, add only the coefficient
+				if "`errortype'" == "errhide" {
+					local `column'_coefs	"& ``coef''"
+				}
+				* If not, display two lines: one with the coefficient, one the error
 				else {
-					file open  `texname' using 	"`texfile'", text write append
-					file write `texname'		"`label' & \begin{tabular}[t]{@{}c@{}} `C0_mean' \\ `C0_N'  \end{tabular}" ///
-													   " & \begin{tabular}[t]{@{}c@{}} `1DC'     \\ `1DC_N' \end{tabular}" ///
-													   " & \begin{tabular}[t]{@{}c@{}} `T0_mean' \\ `T0_N'  \end{tabular}" ///
-													   " & \begin{tabular}[t]{@{}c@{}} `1DT'     \\ `1DT_N' \end{tabular}" ///
-													   " & \begin{tabular}[t]{@{}c@{}} `2D'      \\ `2D_N'  \end{tabular} \rule{0pt}{`texvspace'}\\" _n
-					file close `texname'
+					local `column'_coefs	 "& \begin{tabular}[t]{@{}c@{}} ``coef'' \\ ``column'_err' \end{tabular}"
 				}
+
+				/*****************************
+				 Add both columns to the line
+				******************************/
+				local 	varline		`" `varline' ``column'_obs' ``column'_coefs' "'
+
 			}
-			else {
-				file open  `texname' using 	"`texfile'", text write append
-				file write `texname'		"`label' `C0_N'  & \begin{tabular}[t]{@{}c@{}} `C0_mean' \\ `C0_err'  \end{tabular}" ///
-												   " `1DC_N' & \begin{tabular}[t]{@{}c@{}} `1DC'     \\ `1DC_err' \end{tabular}" ///
-												   " `T0_N'  & \begin{tabular}[t]{@{}c@{}} `T0_mean' \\ `T0_err'  \end{tabular}" ///
-												   " `1DT_N' & \begin{tabular}[t]{@{}c@{}} `1DT'     \\ `1DT_err' \end{tabular}" ///
-												   " `2D_N'  & \begin{tabular}[t]{@{}c@{}} `2D'      \\ `2D_err'  \end{tabular} \rule{0pt}{`texvspace'}\\" _n
-				file close `texname'
-			}
-		}
+			
+		* Close variable line with vertical space
+		local 	varline		`" `varline' ``column'_obs' ``column'_coefs' \rule{0pt}{`texvspace'}\\"'
+
+		* Write line to tex file
+		file open  `texname' using 	"`texfile'", text write append
+		file write `texname'		"`varline'" _n
+		file close `texname'
+		
+	}
 
 end
 
@@ -1271,7 +1313,7 @@ cap program drop 	texdiformat
 		mat temp = ddtab_resultMap[`row', "`statname'"]
 		local `statname' = el(temp,1,1)
 
-		if substr("`statname'", -2,.) == "_N" {
+		if substr("`statname'", -2,.) == "_N" | substr("`statname'", -5,.) == "_clus" {
 			local `statname'	: display %9.0f ``statname''
 		}
 		else {
@@ -1293,24 +1335,13 @@ cap program drop 	texdiformat
 			if `starNum' == 3 local `statname' "``statname''*** "
 		}
 
-		*Add brackets to errors
+		*Add parenthesis to errors
 		if inlist("`statname'", "2D_err", "1DT_err", "1DC_err", "C0_err", "T0_err") {
 			local `statname' "(``statname'')"
 		}
-
-		*Only add number of observations of onerow is not specified
-		if inlist("`statname'", "2D_N", "1DT_N", "1DC_N", "C0_N", "T0_N") {
-			if "`onerow'" == "" {
-				if "`errortype'" == "errhide" {
-					local `statname'	"``statname''"
-				}
-				else {
-					local `statname' `" & ``statname'' "'
-				}
-			}
-			else {
-				local `statname'	""
-			}
+		*Add brackets to Number of cluster
+		if substr("`statname'", -5,.) == "_clus" {
+			local `statname' "{[}``statname'']"
 		}
 
 		return local disp_tex "``statname''"
@@ -1365,8 +1396,10 @@ end
 cap program drop	texheader
 	program define	texheader
 
-	syntax	, texname(string) texfile(string)  errortype(string) [onerow]
+	syntax	, texname(string) texfile(string)  errortype(string) [onerow cluster]
 
+		** Calculate number of rows
+		
 		if ("`onerow'" != "" | "`errortype'" == "errhide") {
 
 			local	toprowcols		2
@@ -1380,7 +1413,10 @@ cap program drop	texheader
 			local	bottomrowcols	2
 			local 	colstring		lcccccccccc
 			local	ncol			"& N "
-
+			
+			if "`cluster'" != "" {
+				local ncol			"`ncol'/{[}Clusters]"
+			}
 		}
 
 		if "`errortype'" == "errhide" {
@@ -1405,7 +1441,7 @@ cap program drop	texheader
 									"\hline \hline \\[-1.8ex]" _n ///
 									"& \multicolumn{`toprowcols'}{c}{Control} & \multicolumn{`toprowcols'}{c}{Treatment}  & \multicolumn{`bottomrowcols'}{c}{Difference-in-differences} \\" _n ///
 									"& \multicolumn{`bottomrowcols'}{c}{Baseline} & \multicolumn{`bottomrowcols'}{c}{Difference} & \multicolumn{`bottomrowcols'}{c}{Baseline} & \multicolumn{`bottomrowcols'}{c}{Difference} & \multicolumn{`bottomrowcols'}{c}{} \\" _n ///
-									"Variable `ncol' & Mean`errortitle' `ncol' & Coef`errortitle' `ncol' & Mean`errortitle' `ncol' & Coef`errortitle' `ncol' & Coef`errortitle' \\ \hline \\[-1.8ex]" _n
+									"Variable `ncol' & Mean`errortitle' `ncol' & Coef`errortitle' `ncol' & Mean`errortitle' `ncol' & Coef`errortitle' `ncol' & Coef`errortitle' \\ \hline" _n
 		file close `texname'
 
 end
@@ -1468,7 +1504,7 @@ end
 cap program drop	texonerow
 	program define	texonerow
 
-	syntax	, texname(string) texfile(string) ddtab_resultMap(name) [onerow]
+	syntax	, texname(string) texfile(string) ddtab_resultMap(name) [onerow cluster]
 
 		if "`onerow'" != "" {
 
@@ -1476,6 +1512,10 @@ cap program drop	texonerow
 
 			*List of variabls to add
 			local statlist 2D_N 1DT_N 1DC_N C0_N T0_N
+			
+			if "`cluster'" != "" {
+				local statlist `statlist'  2D_clus 1DT_clus 1DC_clus C0_clus T0_clus
+			}
 
 			*Get their values
 			foreach stat of local statlist {
@@ -1490,9 +1530,14 @@ cap program drop	texonerow
 
 			}
 
-			file open  `texname' using 	"`texfile'", text write append
-			file write `texname'		"N & `C0_N' & `1DC_N' & `T0_N' & `1DT_N' & `2D_N' \\" _n
-			file close `texname'
+				file open  `texname' using 	"`texfile'", text write append
+				file write `texname'		"N & `C0_N' & `1DC_N' & `T0_N' & `1DT_N' & `2D_N' \\" _n
+				
+			if "`cluster'" != "" {
+				file write `texname'		"Clusters & `C0_clus' & `1DC_clus' & `T0_clus' & `1DT_clus' & `2D_clus' \\" _n
+			}
+			
+				file close `texname'
 		}
 
 end
