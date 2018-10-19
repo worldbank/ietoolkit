@@ -83,7 +83,7 @@ qui {
 	version 11
 
 	*Remove observations excluded by if and in
-		marksample touse
+		marksample touse,  novarlist
 		keep if `touse'
 
 	if 1 {
