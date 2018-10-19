@@ -2,7 +2,7 @@
 cap program drop 	ieddtab
 	program define	ieddtab, rclass
 
-	syntax varlist(numeric), ///
+	syntax varlist(numeric) [if] [in], ///
 					///
 		Time(varname numeric) TREATment(varname numeric) 	///
 		[ 													///
@@ -35,6 +35,13 @@ cap program drop 	ieddtab
 		Input handling
 
 	*************/
+	
+	preserve
+	
+	*Remove observations excluded by if and in
+	if ("`if'`in'"!="") {
+		keep `if' `in'
+	}
 	
 	*TIME AND TREATMENT NOT IN OUTCOMEVARS
 	
@@ -429,6 +436,8 @@ cap program drop 	ieddtab
 	*Returning the result matrix for advanced users to do their own thing with
 	return matrix ieddtabResults ddtab_resultMap
 	
+	
+	restore
 end
 
 
