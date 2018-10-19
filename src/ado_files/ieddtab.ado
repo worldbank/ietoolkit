@@ -844,6 +844,10 @@ end
 		*************************
 		* Table width for label column
 
+		** Add minumum lenght in case all row titles are shorter
+		*  than "Variable" that is the title of this column
+		local labmaxlen = max(`labmaxlen', 8)
+		
 		local first_hhline = 2 + `labmaxlen'
 		local first_col = 4 + `labmaxlen'
 
