@@ -70,7 +70,4 @@ command please see the {browse "https://dimewiki.worldbank.org/wiki/Stata_Coding
 		 dimeanalytics@worldbank.org
 
 {phang}You can also see the code, make comments to the code, see the version
-		 history of the code, and submit additions or edits to the code through
-		 {browse "https://github.com/worldbank/ietoolkit":the GitHub repository of ietoolkit}.{p_end}
-		 
-		
+		 history of the code, and submit additions or edits to the code through {browse "https://github.com/worldbank/ietoolkit":the GitHub repository of ietoolkit}.{p_end}

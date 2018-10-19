@@ -51,11 +51,11 @@
 			*  imported and exported from the Excel file
 			local argumentVars `idvar' `uniquevars' `keepvars'
 			
-			* Create a list of the varaibles created by this command to put in the report
-			local excelvars dupListID dateListed dateFixed correct drop newID initials notes	
+			* Create a list of the variables created by this command to put in the report
+			local excelVars dupListID dateListed dateFixed correct drop newID initials notes	
 			
 			* Test that nu variable with the name needed for the excel report already exist in the data set
-			foreach excelvar of local excelvars {
+			foreach excelvar of local excelVars {
 				cap confirm variable `excelvar'
 				if _rc == 0 {
 					*Variable exist, output error
@@ -135,17 +135,17 @@
 
 			/******************
 				Section 3.2
-				If report exist, load file and check input, otherwise skip to section 4
+				If report exists, load file and check input, otherwise skip to section 4
 			******************/
 
 			if `fileExists' {
 
-				*Load excel file. Load all vars as string and use meta data from Section 1
+				*Load excel file. Load all vars as string and use metadata from Section 1
 				import excel "`folder'/iedupreport`suffix'.xlsx"	, clear firstrow
 				
-				** All excelvars but dupListID and newID should be string. dupListID 
+				** All excelVars but dupListID and newID should be string. dupListID 
 				*  should be numeric and the type of newID should be based on the user input
-				foreach excelvar of local excelvars {
+				foreach excelvar of local excelVars {
 					if !inlist("`excelvar'", "dupListID", "newID") {
 						
 						* Make original ID var string
@@ -160,12 +160,12 @@
 					not changed since last report.
 				******************/
 				
-				*Copy a list of all variables in the imported report to the local existingexcelvars
+				*Copy a list of all variables in the imported report to the local existingExcelVars
 				ds
-				local existingexcelvars  `r(varlist)'
+				local existingExcelVars  `r(varlist)'
 				
 				*Test that the ID variable is in the imported report
-				if `:list idvar in existingexcelvars' == 0 {
+				if `:list idvar in existingExcelVars' == 0 {
 
 					noi display as error "{phang}The ID variable `idvar' does not exist in the previously exported Excle file. If you renamed the ID variable you need to rename it manually in the Excel report or start a new Excel report by renaming or moving the original report, then run the command again and create a new file and manually copy any corrections from the old file to the new. If you changed the ID varaible you need to start with a new report.{p_end}"
 					noi di ""
@@ -175,7 +175,7 @@
 				}
 				
 				*Test that the unique variables are in the imported report
-				if `:list uniquevars in existingexcelvars' == 0 {
+				if `:list uniquevars in existingExcelVars' == 0 {
 
 					noi display as error "{phang}One or more unique variables in [`uniquevars'] do not exist in the previously exported Excel file. If you renamed or changed any variable used in uniquevars(), you need to start over with a new file. Rename or move the already existing file. Create a new file and carefully copy any corrections from the old file to the new.{p_end}"
 					noi di ""
@@ -209,7 +209,7 @@
 				replace correct = "yes" if correct 	== "y"
 				replace drop 	= "yes" if drop 	== "y"
 
-				*Check that varaibles are either empty or "yes"
+				*Check that variables are either empty or "yes"
 				gen `inputNotYes' = !((correct  == "yes" | correct == "") & (drop  == "yes" | drop == ""))
 				
 				*Set local to 1 if error should be outputted
@@ -225,7 +225,7 @@
 				* observation. Only one correction per observation is allowed.
 				egen `multiInp' = rownonmiss(correct drop newID), strok
 
-				*Check that all rows have utmost one correction
+				*Check that all rows have at most one correction
 				cap assert `multiInp' == 0 | `multiInp' == 1
 				
 				*Error will be outputted below
@@ -345,7 +345,7 @@
 				******************/				
 				
 				*Keep only the variables needed for matching and variables used for input in the Excel file
-				keep 	`idvar' `uniquevars' `excelvars' `groupAnyCorrection'
+				keep 	`idvar' `uniquevars' `excelVars' `groupAnyCorrection'
 				
 				*Save imported data set with all corrections
 				save	`preppedReport'
@@ -379,7 +379,7 @@
 				*Make sure that obsrevations listed in the duplicate report is still in the data set
 				cap assert `iedup_merge' != 2
 
-				*Display error message if assertion is not true and some duplicates in the excle file are no longer in the data set
+				*Display error message if assertion is not true and some duplicates in the Excel file are no longer in the data set
 				if _rc {
 
 					display as error "{phang}One or several observations in the Excel report are no longer found in the data set. Always run ieduplicates on the raw data set that include all the duplicates, both new duplicates and those you have already identified. After removing duplicates, save the data set using a different name. You might also recieve this error if you are using an old ieduplicates Excel report on a new data set.{p_end}"
@@ -434,7 +434,7 @@
 					* If Excel file exists keep excel vars and
 					* variables passed as arguments in the
 					* command
-					keep 	`argumentVars' `excelvars'
+					keep 	`argumentVars' `excelVars'
 				}
 				else {
 					* Keep only variables passed as arguments in
@@ -442,7 +442,7 @@
 					keep 	`argumentVars'
 
 					*Generate the excel variables used for indicating correction
-					foreach excelvar of local excelvars {
+					foreach excelvar of local excelVars {
 
 						*Create all variables apart from dupListID as string vars
 						if inlist("`excelvar'", "dupListID", "newID") {
@@ -468,7 +468,7 @@
 					Section 5.3.1 Date variables
 				******************/
 
-				* Add date first time duplicvate was identified
+				* Add date first time duplicate was identified
 				replace dateListed 	= "`date'" if missing(dateListed)
 
 				** Add today's date to variable dateFixed if dateFixed
@@ -502,8 +502,8 @@
 				* If cases unaddressed then update the Excel file
 				if `unaddressedNewExcel'  {
 
-					keep 	`argumentVars' `excelvars'
-					order	`idvar' `excelvars' `uniquevars' `keepvars'
+					keep 	`argumentVars' `excelVars'
+					order	`idvar' `excelVars' `uniquevars' `keepvars'
 
 					if "`daily'" == "" {
 
@@ -597,7 +597,7 @@
 				*If ID var is numeric but the newID is loaded as string
 				else if substr("`idtype'",1,3) != "str" & substr("`idtypeNew'",1,3) == "str" {
 				
-					* Check if -tostringok- is specificed:
+					* Check if [tostringok] is specificed:
 					if "`tostringok'" != "" {
 
 						* Make original ID var string
@@ -606,7 +606,7 @@
 
 					}
 
-					* Error, IDvar can not be updated
+					* Error, IDvar cannot be updated
 					else {
 
 						* Create a local with all non-numeric values
@@ -654,7 +654,7 @@
 				Drop Excel vars
 			******************/
 
-			drop `excelvars'
+			drop `excelVars'
 		}
 
 		/***********************************************************************

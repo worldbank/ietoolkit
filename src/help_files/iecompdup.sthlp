@@ -154,7 +154,7 @@ why some variables were changed. See the tips in example 3 below before followin
 
 {pmore}{ul:Solution 3. Many variables contain observation data.} If many
 observation data variables are displayed together with submission data variables,
-then it is likely that two different observations have accidently been given the
+then it is likely that two different observations have accidentally been given the
 same ID. That is especially likely if location variables or name variables are
 different, or if the values for enumerator and/or supervisor are different. See the
 tips in example 3 below before following up.
@@ -195,6 +195,4 @@ helpful to the field team can be entered in {inp:keepother()}.
 		 dimeanalytics@worldbank.org
 
 {phang}You can also see the code, make comments to the code, see the version
-		 history of the code, and submit additions or edits to the code through
-		 {browse "https://github.com/worldbank/ietoolkit":the GitHub repository of ietoolkit}.{p_end}
-		 
+		 history of the code, and submit additions or edits to the code through {browse "https://github.com/worldbank/ietoolkit":the GitHub repository of ietoolkit}.{p_end}
