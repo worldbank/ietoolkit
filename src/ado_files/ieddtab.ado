@@ -264,11 +264,17 @@ cap program drop 	ieddtab
 		countStars `pvalue' `starlevels'
 		mat `var'[1,`colindex'] = `r(stars)'
 
-
 		*Get the N of second difference regression
 		local ++colindex
 		mat `var'[1,`colindex'] = `N'
-
+		
+		**Increment column index regardless if clusters is 
+		* used. If it is not used column should be missing
+		local ++colindex
+		if "`vce_type'" == "cluster" {
+			*Add the number of clusters if clusters are used
+			mat `var'[1,`colindex'] =  `e(N_clust)'
+		}	
 
 		/*************
 
@@ -299,7 +305,14 @@ cap program drop 	ieddtab
 			*Get the N of first difference regression
 			local ++colindex
 			mat `var'[1,`colindex'] =  `e(N)'
-
+			
+			**Increment column index regardless if clusters is 
+			* used. If it is not used column should be missing
+			local ++colindex
+			if "`vce_type'" == "cluster" {
+				*Add the number of clusters if clusters are used
+				mat `var'[1,`colindex'] =  `e(N_clust)'
+			}
 		}
 
 
@@ -328,6 +341,15 @@ cap program drop 	ieddtab
 				*Get the N of the ordinary means regressions
 				local ++colindex
 				mat `var'[1,`colindex'] =  `e(N)'
+				
+				**Increment column index regardless if clusters is 
+				* used. If it is not used column should be missing
+				local ++colindex
+				if "`vce_type'" == "cluster" {
+					*Add the number of clusters if clusters are used
+					tab `cluster_var' if `treatment' == `t01' & `time' == `tmt01' & `regsample' == 1
+					mat `var'[1,`colindex'] =  `r(r)'
+				}
 			}
 		}
 
@@ -613,20 +635,20 @@ cap program drop 	templateResultMatrix
 
 
 	*Set the names of the different columns in the result Matrix
-	local 2ndDiff_cols 			2D 2D_err 2D_stars 2D_N
+	local 2ndDiff_cols 			2D 2D_err 2D_stars 2D_N 2D_clus
 
-	local 1stDiff_C_cols		1DC 1DC_err 1DC_stars 1DC_N
-	local 1stDiff_T_cols		1DT 1DT_err 1DT_stars 1DT_N
+	local 1stDiff_C_cols		1DC 1DC_err 1DC_stars 1DC_N 1DC_clus
+	local 1stDiff_T_cols		1DT 1DT_err 1DT_stars 1DT_N 1DT_clus
 
-	local basicMean_C0_cols		C0_mean C0_err C0_N
-	local basicMean_T0_cols		T0_mean T0_err T0_N
-	local basicMean_C1_cols		C1_mean C1_err C1_N
-	local basicMean_T1_cols		T1_mean T1_err T1_N
+	local basicMean_C0_cols		C0_mean C0_err C0_N C0_clus
+	local basicMean_T0_cols		T0_mean T0_err T0_N T0_clus
+	local basicMean_C1_cols		C1_mean C1_err C1_N C1_clus
+	local basicMean_T1_cols		T1_mean T1_err T1_N T1_clus
 
 	local colnames `2ndDiff_cols' `1stDiff_C_cols' `1stDiff_T_cols' `basicMean_C0_cols' `basicMean_T0_cols' `basicMean_C1_cols' `basicMean_T0_cols'
 
 	*Define default row here. The results for each var will be one row that starts with all missing vlaues
-	mat startRow = (.,.,.,.,.,.,.,.,.,.,.,.,.,.,.,.,.,.,.,.,.,.,.,.)
+	mat startRow = (.,.,.,.,.,.,.,.,.,.,.,.,.,.,.,.,.,.,.,.,.,.,.,.,.,.,.,.,.,.,.)
 	mat colnames startRow = `colnames'
 
 	return matrix startRow startRow
@@ -758,6 +780,7 @@ end
 				- _err : Second differnce errors (type of errors is set in command errortype)
 				- _stars :  Second Differene - The number of significance stars (sig level set in command)
 				- _N : Second Difference - Number of observtions in the regression
+				- _clus : number of clusters (missing value if cluster wsa not used)
 
 			Group means:
 			- C0 - Control time 0
@@ -769,6 +792,7 @@ end
 				- _mean : the mean of the group
 				- _err : the error in the mean (type of errors is set in command errortype)
 				- _N : number of observations in baseline means
+				- _clus : number of clusters (missing value if cluster wsa not used)
 
 	*/
 
