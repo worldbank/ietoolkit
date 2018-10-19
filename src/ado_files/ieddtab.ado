@@ -39,9 +39,9 @@ cap program drop 	ieddtab
 	preserve
 
 	*Remove observations excluded by if and in
-		marksample touse
-		keep if `touse'
-
+	marksample touse,  novarlist
+	keep if `touse'
+		
 	*TIME AND TREATMENT NOT IN OUTCOMEVARS
 
 	*Test that the variables listed in time() and treatment() is not also in the main varlist
