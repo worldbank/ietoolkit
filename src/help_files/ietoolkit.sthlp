@@ -69,5 +69,5 @@ command please see the {browse "https://dimewiki.worldbank.org/wiki/Ietoolkit":D
 
 {phang}You can also see the code, make comments to the code, see the version
 		 history of the code, and submit additions or edits to the code through
-		 the github repository of ietoolkit:{break}
+		 the GitHub repository for ietoolkit:{break}
 		 {browse "https://github.com/worldbank/ietoolkit"}

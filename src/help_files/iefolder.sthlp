@@ -60,8 +60,7 @@ command please see the {browse "https://dimewiki.worldbank.org/wiki/Iefolder":DI
 {pstd}{ul:{it:project}} sets up a new DataWork folder and its initial folder structure. You must always do this before you can do anything else. It also sets up the main master do-file for this DataWork folder. {cmd:iefolder} is implemented so that you can keep working for years with your project in between adding folders. The command reads and preserves changes made manually to the DataWork folder and master do-file before adding more folders using {cmd:iefolder}.
 
 {pstd}{ul:{it:round}} folders are folders specific to a data collection round, for example, {it:Baseline}, {it:Endline},
-	{it:Follow Up} etc. (See {it:subfolder} below if your project is more complex than that.) When adding a new round, a round folder are added to the DataWork
-	and inside it the round folder structure described {browse "https://dimewiki.worldbank.org/wiki/DataWork_Survey_Round":here}. {cmd:iefolder} also
+	{it:Follow Up} etc. (See {it:subfolder} below if your project is more complex than that.) When adding a new round, a round folder is added to the DataWork folder, and inside it the round folder structure described {browse "https://dimewiki.worldbank.org/wiki/DataWork_Survey_Round":here} is created. {cmd:iefolder} also
 	creates a master do-file specific for this round with globals referencing the main folders
 	in the folder structure specific to this round. Folders are created in two places, both in the DataWork folder, and in the Encrypted folder.
 
@@ -154,10 +153,10 @@ command please see the {browse "https://dimewiki.worldbank.org/wiki/Iefolder":DI
 	is households. We therefore need to set up folders for the unit of observation
 	"households". In the encrypted master folder for "housholds" you can create your
 	list over households and you have a subfolder called {it:Sampling} where you
-	can keep do files and data with identifying infomration. We create all of that by
-	using {it:{cmd:iefolder} new untiofobs household}.	Like this:
+	can keep do files and data with identifying information. We create all of that by
+	using {it:{cmd:iefolder} new unitofobs household}.	Like this:
 
-{pmore}{inp:iefolder new untiofobs household , projectfolder("C:\DropBox\ProjectABC") abbreviation("BL")}
+{pmore}{inp:iefolder new unitofobs household , projectfolder("C:\DropBox\ProjectABC") abbreviation("BL")}
 
 {pstd}When we are ready to start preparing for the baseline we want to create the
 	baseline folder. We do that using {it:{cmd:iefolder} new round baseline}. Like this:
@@ -171,9 +170,9 @@ command please see the {browse "https://dimewiki.worldbank.org/wiki/Iefolder":DI
 {pstd}Let's say that when we plan for midline we also want
 	to collect data about the villages that the households we interview in baseline
 	live in. Then we need to create a new master folder for the unit of observation
-	villages. We do that using {it:{cmd:iefolder} new untiofobs village}. Like this:
+	villages. We do that using {it:{cmd:iefolder} new unitofobs village}. Like this:
 
-{pmore}{inp:iefolder new untiofobs village , projectfolder("C:\DropBox\ProjectABC")}
+{pmore}{inp:iefolder new unitofobs village , projectfolder("C:\DropBox\ProjectABC")}
 
 {pstd}Then we need to create the rounds used for the midline round for both
 	households and for villages. Since this is separate data collection (although
@@ -203,5 +202,5 @@ command please see the {browse "https://dimewiki.worldbank.org/wiki/Iefolder":DI
 
 {phang}You can also see the code, make comments to the code, see the version
 		 history of the code, and submit additions or edits to the code through
-		 the github repository of ietoolkit:{break}
+		 the GitHub repository for ietoolkit:{break}
 		 {browse "https://github.com/worldbank/ietoolkit"}
