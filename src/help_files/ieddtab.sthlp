@@ -62,9 +62,11 @@ command please see the {browse "https://dimewiki.worldbank.org/wiki/ieddtab":DIM
 
 {pstd}{cmdab:ieddtab} is a command that makes it easy to run and display results of differences-in-differences (diff-in-diff) regressions. The table that presents the results from the diff-in-diff regression also presents the mean when the variable in {inp:time()} is 0 (i.e. baseline) for the two groups defined by the variable {inp:treatment()} is 0 and 1 (i.e. control and treatment), and the table also presents the coefficient of the first difference regression in control and treatment.{p_end}
 
-{pstd}The sample for each row in the table is defined by the sample included in the second difference regression shown below, where {it:outcome_var} is a variable the varlist (one per row) for {inp:ieddtab}, {inp:`time'#`treatment'} means the dummy listed in {inp:time()}, the dummy listed in {inp:treatment()} and the interaction of the two, and where {inp:`covariates'} is the list of covariates included in {inp:covariates()} if any. This means that any observation that has any missing value in either of the two dummies or in any of the covariates will be omitted from all statistics presented in the table. The coefficient presented in the table for the diff-in-diff regression is the interaction of the time and treatment variable.{p_end}
+{pstd}The sample for each row in the table is defined by the sample included in the second difference regression shown below, where {it:outcome_var} is a variable the varlist (one per row) for {inp:ieddtab}, {inp:`interaction'} is the interaction of the dummy listed in {inp:time()} and the dummy listed in {inp:treatment()}, and where {inp:`covariates'} is the list of covariates included in {inp:covariates()} if any. This means that any observation that has any missing value in either of the two dummies or in any of the covariates will be omitted from all statistics presented in the table. The coefficient presented in the table for the diff-in-diff regression is the interaction of the time and treatment variable.{p_end}
 
-{pstd}{inp:regress} {it:outcome_var} {inp:`time'#`treatment' `covariates'}{p_end}
+{pstd}{inp:tempvar} {it:interaction}{p_end}
+{pstd}{inp:generate `interaction' = `time' * `treatment'}{p_end}
+{pstd}{inp:regress} {it:outcome_var} {inp:`time' `treatment' `interaction' `covariates'}{p_end}
 
 {pstd}The baseline means are then calculated using the following code where the first line is control and the second line is treatment, and the variable {inp:regsample} is dummy indicating if the observation was included in the second difference regression.{p_end}
 
