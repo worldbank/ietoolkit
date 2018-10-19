@@ -17,7 +17,7 @@
 		*	for keeepvars in version 2 and 3 are dropped and not reloaded as those
 		*	obs are not in current memory
 
-		**Test that observations have not been deleted from the report before readind
+		**Test that observations have not been deleted from the report before reading
 		* it. Deleted in a way that the report does not make sense. Provide an error
 		* message to this that is more informative.
 
@@ -27,7 +27,7 @@
 
 			** Making one macro with all variables that will be
 			*  imported and exported from the Excel file
-			local agrumentVars `varlist' `uniquevars' `keepvars'
+			local argumentVars `varlist' `uniquevars' `keepvars'
 
 			** When migrating data from Stata to Excel format, time variables loose precision.
 			*  If time varaibles are used for uniquely identifying observations, then this loss
@@ -35,7 +35,7 @@
 			*  to Stata after they have been exported to Excel.
 			if "`minprecision'" != "" local milliprecision = `minprecision' * 1000 * 60
 
-			local excelvars dupListID dateListed dateFixed correct drop newID initials notes
+			local excelVars dupListID dateListed dateFixed correct drop newID initials notes
 
 			local  date = subinstr(c(current_date)," ","",.)
 
@@ -47,8 +47,8 @@
 				Storing format and type of the variables that will be imported and
 				exported from the Excel file. The export and import function may
 				sometimes alter type and format. Merging with different types results
-				in an error and format is required for date and time variabels.
-				By using the information stored in this loop, the code can enusre
+				in an error and format is required for date and time variables.
+				By using the information stored in this loop, the code can ensure
 				that the variables have correct type and format before merging.
 				For more information, see below.
 
@@ -56,7 +56,7 @@
 			***********************************************************************/
 
 			local i 0
-			foreach var in `agrumentVars' {
+			foreach var in `argumentVars' {
 
 				local type_`i'		: type		`var'
 				local format_`i'	: format 	`var'
@@ -74,7 +74,7 @@
 
 				Section 2
 
-				Saving a version of the data to be used before mergin and
+				Saving a version of the data to be used before merging and
 				before correcting duplicates
 
 			************************************************************************
@@ -109,12 +109,12 @@
 
 			/******************
 				Section 3.2
-				If report exist, load file and check input
+				If report exists, load file and check input
 			******************/
 
 			if `fileExists' {
 
-				*Load excel file. Load all vars as string and use meta data from Section 1
+				*Load excel file. Load all vars as string and use metadata from Section 1
 				import excel "`folder'/iedupreport`suffix'.xlsx"	, clear firstrow allstring
 
 				*dupListID is always numeric
@@ -130,9 +130,9 @@
 				******************/
 
 				ds
-				local existingexcelvars  `r(varlist)'
+				local existingexcelVars  `r(varlist)'
 
-				if `:list varlist in existingexcelvars' == 0 {
+				if `:list varlist in existingexcelVars' == 0 {
 
 					noi display as error "{phang}ID variable [`varlist'] does not exist in the previously exported Excle file. If you renamed or changed the ID variable, you need to start over with a new file. Rename or move the already existing file. Create a new file and carefully copy any corrections from the old file to the new.{p_end}"
 					noi di ""
@@ -140,7 +140,7 @@
 					exit
 
 				}
-				if `:list uniquevars in existingexcelvars' == 0 {
+				if `:list uniquevars in existingexcelVars' == 0 {
 
 					noi display as error "{phang}One or more unique variables in [`uniquevars'] do not exist in the previously exported Excel file. If you renamed or changed any variable used in uniquevars(), you need to start over with a new file. Rename or move the already existing file. Create a new file and carefully copy any corrections from the old file to the new.{p_end}"
 					noi di ""
@@ -157,7 +157,7 @@
 				******************/
 
 				local i 0
-				foreach argVar in `agrumentVars' {
+				foreach argVar in `argumentVars' {
 
 
 					cap confirm variable `argVar' //In case the variable was added since last export
@@ -165,7 +165,7 @@
 
 						if substr("`type_`i''",1,3) == "str" {
 
-							*No need for any action since all varaibles are loaded as string
+							*No need for any action since all variables are loaded as string
 
 						}
 						else if substr("`format_`i''",1,2) == "%t" {
@@ -238,7 +238,7 @@
 				* observation. Only one correction per observation is allowed.
 				egen `tmpvar_multiInp' = rownonmiss(correct drop newID), strok
 
-				*Check that all rows have utmost one correction
+				*Check that all rows have at most one correction
 				cap assert `tmpvar_multiInp' == 0 | `tmpvar_multiInp' == 1
 
 				if _rc {
@@ -259,7 +259,7 @@
 				replace correct = "yes" if correct 	== "y"
 				replace drop 	= "yes" if drop 	== "y"
 
-				*Check that varaibles are wither empty or "yes"
+				*Check that variables are either empty or "yes"
 				gen `tmpvar_inputNotYes' = !((correct  == "yes" | correct == "") & (drop  == "yes" | drop == ""))
 
 				cap assert `tmpvar_inputNotYes' == 0
@@ -365,7 +365,7 @@
 
 
 				*Keep only the variables needed for matching and variables used for input in the Excel file
-				keep 	`varlist' `uniquevars' `excelvars'
+				keep 	`varlist' `uniquevars' `excelVars'
 
 				*Save imported data set with all corrections
 				tempfile imputfile_merge
@@ -399,7 +399,7 @@
 				*Make sure that obsrevations listed in the duplicate report is still in the data set
 				cap assert `iedup_merge' != 2
 
-				*Display error message if assertion is not true and some duplicates in the excle file are no longer in the data set
+				*Display error message if assertion is not true and some duplicates in the excel file are no longer in the data set
 				if _rc {
 
 					display as error "{phang}One or several observations in the Excel report are no longer found in the data set. Always run ieduplicates on the raw data set that include all the duplicates, both new duplicates and those you have already identified. After removing duplicates, save the data set using a different name. You might also recieve this error if you are using an old ieduplicates Excel report on a new data set.{p_end}"
@@ -460,14 +460,14 @@
 			*  duplicates in all variables
 			duplicates tag , gen(`allDup')
 
-			*Test if any observations is duplicates in all variables
+			*Test if any observations are duplicates in all variables
 			count if `allDup' != 0
 			if `r(N)' != 0 {
 
 				* Output message indicating that some observations
 				* were dropped automatically as they were duplicates
 				* in all variables.
-				noi di "{phang}The following IDs are duplicates in all variable so only one version is kept. The other observations in the same duplicate group are automatically dropped:{p_end}"
+				noi di "{phang}The following IDs are duplicates in all variables so only one version is kept. The other observations in the same duplicate group are automatically dropped:{p_end}"
 
 				*Create a local of all IDs that are to be deleted.
 				levelsof `id_string' if `allDup' != 0
@@ -496,7 +496,7 @@
 				Section 6
 
 				Test if there are duplicates in ID var. If any duplicates exist,
-				tehn update the Excel file with new and unaddressed cases
+				update the Excel file with new and unaddressed cases
 
 			************************************************************************
 			***********************************************************************/
@@ -543,15 +543,15 @@
 					* If Excel file exists keep excel vars and
 					* variables passed as arguments in the
 					* command
-					keep 	`agrumentVars' `excelvars'
+					keep 	`argumentVars' `excelVars'
 				}
 				else {
 					* Keep only variables passed as arguments in
 					* the command and the string ID var as no Excel file exists
-					keep 	`agrumentVars'
+					keep 	`argumentVars'
 
 					*Generate the excel variables used for indicating correction
-					foreach excelvar of local excelvars {
+					foreach excelvar of local excelVars {
 
 						*Create all variables apart from dupListID as string vars
 						if "`excelvar'" == "dupListID" {
@@ -578,7 +578,7 @@
 					Section 6.4.1 Date variables
 				******************/
 
-				* Add date first time duplicvate was identified
+				* Add date first time duplicate was identified
 				replace dateListed 	= "`date'" if dateListed == ""
 
 				** Add today's date to variable dateFixed if dateFixed
@@ -613,8 +613,8 @@
 				* If cases unaddressed then update the Excel file
 				if `unaddressedNewExcel'  {
 
-					keep 	`agrumentVars' `excelvars'
-					order	`varlist' `excelvars' `uniquevars' `keepvars'
+					keep 	`argumentVars' `excelVars'
+					order	`varlist' `excelVars' `uniquevars' `keepvars'
 
 					if "`daily'" == "" {
 
@@ -736,14 +736,14 @@
 
 				/******************
 					Section 7.2.2.2
-					newID cannot be made numeric but origianl ID var is numeric.
+					newID cannot be made numeric but original ID var is numeric.
 					To update original ID var, it has to be made a string, but
 					that will be allowed only if option tostringok is specified.
 				******************/
 
 				else {
 
-					* Check if -tostringok- is specificed:
+					* Check if [tostringok] is specificed:
 					if "`tostringok'" != "" {
 
 						* Make original ID var string
@@ -755,7 +755,7 @@
 
 					}
 
-					* Error, IDvar can not be updated
+					* Error, IDvar cannot be updated
 					else {
 
 						* Create a local with all non-numeric values
@@ -818,7 +818,7 @@
 				Drop Excel vars
 			******************/
 
-			drop `excelvars'
+			drop `excelVars'
 		}
 
 		/***********************************************************************

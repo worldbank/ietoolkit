@@ -54,8 +54,8 @@
 				* Gen dummy that is 1 when if/in is true. Then
 				* count when this dummy is not 1. Ther is no way
 				* to negate `if'`in'
-				gen 	 `ifinvar'  = 1 `if'`in'
-				count if `ifinvar' != 1
+				marksample touse
+				count if `touse' != 1
 				if `r(N)' > 0 {
 
 					*This is not an error just outputting the number
@@ -64,7 +64,7 @@
 				}
 
 				*Drop variables excluded by `if'`in'
-				keep `if'`in'
+				keep if `touse'
 			}
 
 		********************************
@@ -99,7 +99,7 @@
 				gen `idvar' = _n
 			}
 
-			*Make sure that idvar is uniquelly and fully identifying
+			*Make sure that idvar is uniquely and fully identifying
 			cap isid `idvar'
 			if _rc != 0 {
 
@@ -216,7 +216,7 @@
 			cap assert inlist(`grpdummy', 1, 0, .) | `grpdummy' > .
 			if _rc != 0 {
 
-				di as error "{pstd}The variable in grpdummy(`grpdummy') is not a dummy variable. The variable is only allowed to have the values 1, 0 or missing. Observations with missing varaibles in the grpdummy are ignored by this command.{p_end}"
+				di as error "{pstd}The variable in grpdummy(`grpdummy') is not a dummy variable. The variable is only allowed to have the values 1, 0 or missing. Observations with missing variables in the grpdummy are ignored by this command.{p_end}"
 				error _rc
 			}
 
@@ -688,7 +688,7 @@
 	*Missing matching var
 	replace `matchResultName' = .m if missing(`matchvar')
 
-	*Msising dummy var
+	*Missing dummy var
 	replace `matchResultName' = .g if missing(`grpdummy')
 
 	*Excluded in if/in
@@ -699,13 +699,13 @@
 		replace `matchResultName' = .i if `ifinvar' != 1
 	}
 
-	*comress the variables generated
+	*compress the variables generated
 	compress  `matchIDname' `matchDiffName' `matchResultName' `matchCountName'
 
 	*Output result table
 	noi outputTable `matchResultName' `grpdummy'
 
-	*Restore the oridinal sort
+	*Restore the original sort
 	sort `originalSort'
 
 }
@@ -779,7 +779,7 @@ end
 			}
 		}
 
-		*Testing that the new name is valid by creating a variable that is dropped immedeatly afterwards
+		*Testing that the new name is valid by creating a variable that is dropped immediately afterwards
 		cap gen `validMatchVarname' = .
 
 		if _rc != 0 {
@@ -842,10 +842,10 @@ end
 	end
 
 
-	** This function goes through the observatioins from top to down and copying
+	** This function goes through the observatioins from top down and copies
 	*  the match value of the closest observation of the other group above to
-	*  (bestVal) and the ccoprresponding ID to (bestID) for obe group at the time.
-	*  To go from bottuom to top sort with invsort and apply this command.
+	*  (bestVal) and the corresponding ID to (bestID) for one group at the time.
+	*  To go from bottom to top sort with invsort and apply this command.
 	cap program drop 	updateBestValID
 		program define 	updateBestValID
 
@@ -913,7 +913,7 @@ end
 			if `r(N)' > 0 local missingGrpDum 1
 
 
-			*Set all locals that determins column width
+			*Set all locals that determines column width
 
 			local C1 "{col 4}{c |}"
 

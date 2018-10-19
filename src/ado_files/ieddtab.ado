@@ -7,7 +7,7 @@ cap program drop 	ieddtab
 		Time(varname numeric) TREATment(varname numeric) 	///
 		[ 													///
 		/* Regression options */							///
-		COVARiates(varlist numeric)							///
+		COVARiates(varlist numeric ts fv)					///
 		vce(string) 										///
 															///
 		/* Output display */								///
@@ -35,16 +35,15 @@ cap program drop 	ieddtab
 		Input handling
 
 	*************/
-	
+
 	preserve
-	
+
 	*Remove observations excluded by if and in
-	if ("`if'`in'"!="") {
-		keep `if' `in'
-	}
-	
+		marksample touse
+		keep if `touse'
+
 	*TIME AND TREATMENT NOT IN OUTCOMEVARS
-	
+
 	*Test that the variables listed in time() and treatment() is not also in the main varlist
 	if `:list time in varlist' != 0 {
 		noi di as error "{phang}The variable `time' listed in option {inp:time(`time')} is also listed in the outcome variables which is not allowed.{p_end}"
@@ -53,8 +52,8 @@ cap program drop 	ieddtab
 	if `:list treatment in varlist' != 0 {
 		noi di as error "{phang}The variable `treatment' listed in option {inp:treatment(`treatment')} is also listed in the outcome variables which is not allowed.{p_end}"
 		error 198
-	}	
-	
+	}
+
 	*LABELS
 	*Test and prepare the row lables and test how long the longest label is.
 	prepRowLabels `varlist', rowlabtype("`rowlabtype'") rowlabtext("`rowlabtext'")
@@ -96,7 +95,7 @@ cap program drop 	ieddtab
 			if _rc {
 
 				*Error for vce(cluster) incorrectly applied
-				noi display as error "{phang}The cluster variable in vce(`vce') does not exist or is invalid for any other reason. See {help vce_option :help vce_option} for more information. "
+				noi display as error "{phang}The cluster variable in vce(`vce') does not exist or is invalid for some other reason. See {help vce_option :help vce_option} for more information. "
 				error _rc
 
 			}
@@ -111,14 +110,14 @@ cap program drop 	ieddtab
 		else {
 
 			*Error for vce() incorrectly applied
-			noi display as error "{phang}The vce type `vce_type' in vce(`vce') is not allowed. Only robust, cluster and bootstrap is allowed. See {help vce_option :help vce_option} for more information."
+			noi display as error "{phang}The vce type `vce_type' in vce(`vce') is not allowed. Only robust, cluster or bootstrap is allowed. See {help vce_option :help vce_option} for more information."
 			error 198
 
 		}
-		
+
 		local error_estm vce(`vce')
 	}
-	
+
 	*DEFAULT STAR LEVELS
 	*Default star levels if option not used
 	if "`starlevels'" == "" local starlevels ".1 .05 .01"
@@ -136,7 +135,7 @@ cap program drop 	ieddtab
 
 			** Some error with the format
 			if _rc == 120 {
-				di as error "{phang}The format specified in format(`format') is not a valid Stata format. See {help format} for a list of valid Stata formats. This command only accept the f, fc, g, gc and e format.{p_end}"
+				di as error "{phang}The format specified in format(`format') is not a valid Stata format. See {help format} for a list of valid Stata formats. This command only accepts the f, fc, g, gc and e format.{p_end}"
 				error 120
 			}
 			else if _rc != 0 {
@@ -273,14 +272,14 @@ cap program drop 	ieddtab
 		*Get the N of second difference regression
 		local ++colindex
 		mat `var'[1,`colindex'] = `N'
-		
-		**Increment column index regardless if clusters is 
+
+		**Increment column index regardless if clusters is
 		* used. If it is not used column should be missing
 		local ++colindex
 		if "`vce_type'" == "cluster" {
 			*Add the number of clusters if clusters are used
 			mat `var'[1,`colindex'] =  `e(N_clust)'
-		}	
+		}
 
 		/*************
 
@@ -311,8 +310,8 @@ cap program drop 	ieddtab
 			*Get the N of first difference regression
 			local ++colindex
 			mat `var'[1,`colindex'] =  `e(N)'
-			
-			**Increment column index regardless if clusters is 
+
+			**Increment column index regardless if clusters is
 			* used. If it is not used column should be missing
 			local ++colindex
 			if "`vce_type'" == "cluster" {
@@ -347,8 +346,8 @@ cap program drop 	ieddtab
 				*Get the N of the ordinary means regressions
 				local ++colindex
 				mat `var'[1,`colindex'] =  `e(N)'
-				
-				**Increment column index regardless if clusters is 
+
+				**Increment column index regardless if clusters is
 				* used. If it is not used column should be missing
 				local ++colindex
 				if "`vce_type'" == "cluster" {
@@ -392,7 +391,7 @@ cap program drop 	ieddtab
 	*Prepare the automated table not unless it was disabled by option nonote
 	if "`notes'" == "" {
 
-		local note_obs	"The baseline means only includes observations not omitted in the 1st and 2nd differences. The number of observations in the 1st and 2nd differences includes both baseline and follow-up observations."
+		local note_obs	"The baseline means only include observations not omitted in the 1st and 2nd differences. The number of observations in the 1st and 2nd differences includes both baseline and follow-up observations."
 
 		*Show stars levels
 		local star1_value : word 1 of `starlevels'
@@ -404,7 +403,7 @@ cap program drop 	ieddtab
 		if "`covariates'" != "" {
 			local note_cov	"The following variable(s) was included as covariates [`covariates']."
 		}
-		
+
 		if "`vce'" != "" & "`errortype'" != "errhide" {
 
 			*Display variation in Standard errors (default) or in Standard Deviations
@@ -421,9 +420,9 @@ cap program drop 	ieddtab
 			if "`vce_type'" == "cluster"  	local note_error	"1st and 2nd difference `variance_type_name' are clustered at variable `cluster_var'. "
 			if "`vce_type'" == "bootstrap"  local note_error	"1st and 2nd difference `variance_type_name' are estimated using bootstrap. "
 		}
-	
+
 		local note `"`note_obs' `note_stars' `note_cov' `note_error'"'
-	
+
 	}
 
 	**if a manual note was added in addnotes(), combine the manually added
@@ -460,11 +459,11 @@ cap program drop 	ieddtab
 
 	}
 
-	
+
 	*Returning the result matrix for advanced users to do their own thing with
 	return matrix ieddtabResults ddtab_resultMap
-	
-	
+
+
 	restore
 end
 
@@ -526,7 +525,7 @@ cap program drop 	prepRowLabels
 
 		*Testing that no label is missing
 		if "`label'" == "" {
-			noi display as error "{phang}For variable [`name'] listed in rowlabtext(`rowlabels') you have not specified any label. Labels are requried for all variables listed in rowlabels(). Variables omitted from rowlabtext() will be assigned labels according to the rule in rowlabtype(). See also option {help ieddtab:rowlabtext}"
+			noi display as error "{phang}For variable [`name'] listed in rowlabtext(`rowlabels') you have not specified any label. Labels are required for all variables listed in rowlabels(). Variables omitted from rowlabtext() will be assigned labels according to the rule in rowlabtype(). See also option {help ieddtab:rowlabtext}"
 			error 198
 		}
 
@@ -596,7 +595,7 @@ cap program drop 	testDDdums
 
 			cap assert inlist(`dummy',1,0) | missing(`dummy') | `samplevar' == 0
 			if _rc {
-				noi di as error "{phang}In the difference in differnce regression for outputvar [`outputvar'], the dummy [`dummy'] is not a real dummy as it has values differnt from 1 and 0. See tab below. The tab is restricted to the observations that are not excluded due to missing values etc. in the difference in differnce regression.{p_end}""
+				noi di as error "{phang}In the differences-in-differences regression for outputvar [`outputvar'], the dummy [`dummy'] must contain only values 1 and 0. See tab below for a list of other values detected. The tab is restricted to the observations that are not excluded due to missing values etc. in the differences-in-differences regression.{p_end}""
 				noi tab `dummy' if `samplevar' == 1, missing
 				error 480
 			}
@@ -615,7 +614,7 @@ cap program drop 	testDDdums
 
 				//There got to be more than 1 observation in each group for the regression to make sense
 				if `r(N)' < 2 {
-					noi di as error "{phang}In the difference in differnce regression for outputvar [`outputvar'] there were not enough observations in each combination of treatment [`treat'] and time [`time']. The tab below is restricted to the observations that are not excluded due to missing values etc. in the difference in differnce regression.{p_end}""
+					noi di as error "{phang}In the differences-in-differences regression for outputvar [`outputvar'] there were not enough observations in each combination of treatment [`treat'] and time [`time']. See tab below for groups with insufficient observations. The tab below is restricted to the observations that are not excluded due to missing values etc. in the differences-in-differences regression.{p_end}""
 					noi tab `treat' `time' if `samplevar' == 1, missing
 					error 480
 
@@ -775,7 +774,7 @@ end
 	/******
 	The result matrix can be passed into subcommands that output in either Excel, LaTeX or in the main window.
 
-	The name of the result matrix is ddtab_resultMap. It can be refernced like this ddtab_resultMap[row, col] where
+	The name of the result matrix is ddtab_resultMap. It can be referenced like this ddtab_resultMap[row, col] where
 	row is the variable order where 1 is the first varaible in the varlist and col is the name of the stat.
 
 	You always must make it first in to a 1x1 matrix, and then make that a local.
@@ -792,14 +791,14 @@ end
 	/*
 		Column name dictionary
 			Differences:
-			- 2D : Second differnce coefficient (t*tmt == 1)
-			- 1DC : First  differnce coefficient control (t == 0)
-			- 1DT : First  differnce coefficient treatment (tmt == 0)
+			- 2D : Second difference coefficient (t*tmt == 1)
+			- 1DC : First  difference coefficient control (t == 0)
+			- 1DT : First  difference coefficient treatment (tmt == 0)
 
 			for each coefficent these stats are also provided:
-				- _err : Second differnce errors (type of errors is set in command errortype)
-				- _stars :  Second Differene - The number of significance stars (sig level set in command)
-				- _N : Second Difference - Number of observtions in the regression
+				- _err : Second difference errors (type of errors is set in command errortype)
+				- _stars :  Second difference - The number of significance stars (sig level set in command)
+				- _N : Second difference - Number of observtions in the regression
 				- _clus : number of clusters (missing value if cluster wsa not used)
 
 			Group means:
@@ -855,7 +854,7 @@ end
 		local first_col = 4 + `labmaxlen'
 
 		*************************
-		* Table width for basline columns
+		* Table width for baseline columns
 
 		local bsln_space = 2
 		local bsln_stat_left = `bsln_space' + 1
@@ -881,13 +880,13 @@ end
 		local tmt_space = (`tmt_hline' - 9) / 2
 
 		*************************
-		* Table width diff diff column
+		* Table width diff-in-diff column
 
 		local didi_stat_left = 4
 		local diffdiff_width  = 17
 
 		*************************
-		* Calculate stats column indexes
+		* Calculate stats column indices
 
 		local bsln_c_col	= `first_col'  + `bsln_width' + 1
 		local diff_c_col	= `bsln_c_col' + `diff_width' + 1
@@ -904,7 +903,7 @@ end
 		noi di as text "{c |}{col `first_col'}{c |}{dup `ctrl_space': }Control{dup `ctrl_space': }{c |}{dup `tmt_space': }Treatment{dup `tmt_space': }{c |}  Difference-in  {c |}"
 		noi di as text "{c |}{col `first_col'}{c |}{dup `bsln_space': }Baseline{dup `bsln_space': }{c |}{dup `diff_space': }Difference{dup `diff_space': }{c |}{dup `bsln_space': }Baseline{dup `bsln_space': }{c |}{dup `diff_space': }Difference{dup `diff_space': }{c |}   -difference   {c |}"
 
-		*Stats titels, show the stats displayed for each column in the order they are displayed
+		*Stats titles, show the stats displayed for each column in the order they are displayed
 		noi di as text "{c |}{col `first_col'}{c |}{dup `bsln_stat_left': } Mean{col `bsln_c_col'}{c |}{dup `diff_stat_left': } Coef.{col `diff_c_col'}{c |}{dup `bsln_stat_left': } Mean{col `bsln_t_col'}{c |}{dup `diff_stat_left': } Coef.{col `diff_t_col'}{c |}{dup `didi_stat_left': } Coef.{col `didi_col'}{c |}"
 		
 		*Display error type in title unless errhide was used
@@ -927,7 +926,7 @@ end
 		*Loop over each variable and prepare the row
 		forvalues row = 1/`numVars' {
 
-			*Get lables from the list of lables previosly prepared
+			*Get labels from the list of labels previously prepared
 			local rwlbls = trim(subinstr("`rwlbls'", "@@","", 1))
 			gettoken label rwlbls : rwlbls, parse("@@")
 
@@ -996,7 +995,7 @@ cap program drop 	windowdiformat
 			local `statname' 	: display `format' ``statname''
 		}
 
-		*Trime spaces on left from left.
+		*Trim spaces on left from left.
 		local `statname' = ltrim("``statname''")
 
 		*For coefficients, add stars if applicable
@@ -1016,7 +1015,7 @@ cap program drop 	windowdiformat
 			local `statname' "(``statname'')"
 		}
 
-		*Get the lengt of the characters to display
+		*Get the length of the characters to display
 		local len = strlen("``statname''")
 
 		*Which column for this stat
@@ -1028,7 +1027,7 @@ cap program drop 	windowdiformat
 		if "`colName'" == "1D" local colw = `diffw'
 		if "`colName'" == "2D" local colw = `ddw'
 
-		* Calculate the number of spaces needed bofore
+		* Calculate the number of spaces needed before
 		* the value and add spaces after it
 		if inlist("`statname'", "C0_mean", "T0_mean", "C0_N", "T0_N",  "C0_clus", "T0_clus") {
 			*Baseline mean values
@@ -1136,7 +1135,7 @@ cap program drop	texresults
 		*Count numbers of variables to loop over
 		local numVars = `:word count `varlist''
 
-		*List of variabls to display and loop over when formatting
+		*List of variables to display and loop over when formatting
 		local statlist 2D 1DT 1DC C0_mean T0_mean 2D_err 1DT_err 1DC_err C0_err T0_err 2D_N 1DT_N 1DC_N C0_N T0_N
 
 		* Make sure special characters are displayed correctly in the labels
@@ -1173,7 +1172,7 @@ cap program drop	texresults
 		* Loop over variables
 		forvalues row = 1/`numVars' {
 
-			*Get lables from the list of lables previosly prepared
+			*Get labels from the list of labels previosly prepared
 			local rwlbls = trim(subinstr("`rwlbls'", "@@","", 1))
 			gettoken label rwlbls : rwlbls, parse("@@")
 
@@ -1281,7 +1280,7 @@ cap program drop 	texdiformat
 			local `statname' 	: display `format' ``statname''
 		}
 
-		*Trime spaces on left from left.
+		*Trim spaces on left from left.
 		local `statname' = ltrim("``statname''")
 
 		*For coefficients, add stars if applicable
@@ -1488,7 +1487,7 @@ cap program drop	texonerow
 
 				local `stat'	: display %9.0f ``stat''
 
-				*Trime spaces on left from left.
+				*Trim spaces on left from left.
 				local `stat' = ltrim("``stat''")
 
 			}
