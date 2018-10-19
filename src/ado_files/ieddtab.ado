@@ -370,6 +370,10 @@ cap program drop 	ieddtab
 	*Remove placeholder row
 	matrix ddtab_resultMap = ddtab_resultMap[2..., 1...]
 
+	*Returning the result matrix for advanced users to do their own thing with
+	mat returnMat = ddtab_resultMap
+	return matrix ieddtabResults returnMat	
+	
 	*Show the final matrix will all data needed to start building the output
 	//noi di "Matlist with results"
 	//matlist ddtab_resultMap
@@ -462,11 +466,6 @@ cap program drop 	ieddtab
 								note(`note') texvspace("`texvspace'") `cluster'
 
 	}
-
-
-	*Returning the result matrix for advanced users to do their own thing with
-	return matrix ieddtabResults ddtab_resultMap
-
 
 	restore
 end
