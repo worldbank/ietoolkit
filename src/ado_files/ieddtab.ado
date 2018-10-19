@@ -39,9 +39,8 @@ cap program drop 	ieddtab
 	preserve
 
 	*Remove observations excluded by if and in
-	if ("`if'`in'"!="") {
-		keep `if' `in'
-	}
+		marksample touse
+		keep if `touse'
 
 	*TIME AND TREATMENT NOT IN OUTCOMEVARS
 

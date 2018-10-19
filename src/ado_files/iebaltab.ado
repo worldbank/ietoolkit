@@ -83,9 +83,8 @@ qui {
 	version 11
 
 	*Remove observations excluded by if and in
-	if ("`if'`in'"!="") {
-		keep `if' `in'
-	}
+		marksample touse
+		keep if `touse'
 
 	if 1 {
 

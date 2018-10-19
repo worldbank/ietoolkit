@@ -54,8 +54,8 @@
 				* Gen dummy that is 1 when if/in is true. Then
 				* count when this dummy is not 1. Ther is no way
 				* to negate `if'`in'
-				gen 	 `ifinvar'  = 1 `if'`in'
-				count if `ifinvar' != 1
+				marksample touse
+				count if `touse' != 1
 				if `r(N)' > 0 {
 
 					*This is not an error just outputting the number
@@ -64,7 +64,7 @@
 				}
 
 				*Drop variables excluded by `if'`in'
-				keep `if'`in'
+				keep if `touse'
 			}
 
 		********************************
