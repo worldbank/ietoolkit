@@ -6,8 +6,8 @@ help for {hi:ieboilsave}
 
 {title:Title}
 
-{phang2}{cmdab:ieboilsave} {hline 2} Checks that a data sets follows DECIE
-	standards for a data set, and tag the data set with meta data.
+{phang2}{cmdab:ieboilsave} {hline 2} Checks that a dataset follows DECIE
+	standards for a data set, and tags the dataset with metadata.
 
 {phang2}For a more descriptive discussion on the intended usage and work flow of this
 command please see the {browse "https://dimewiki.worldbank.org/wiki/Ieboilsave":DIME Wiki}.
@@ -24,7 +24,7 @@ command please see the {browse "https://dimewiki.worldbank.org/wiki/Ieboilsave":
 {synoptset 18}{...}
 {synopthdr:options}
 {synoptline}
-{synopt :{cmdab:idvar:name(}{it:varname}{cmd:)}}specifies the ID-variable
+{synopt :{cmdab:idvar:name(}{it:varname}{cmd:)}}specifies the ID variable
 	uniquely and fully identifying the data set{p_end}
 {synopt :{cmdab:missingok}}regular missing values are allowed{p_end}
 {synopt :{cmdab:diout:put}}display output summarizing results of tests made and meta data stored{p_end}
@@ -35,8 +35,8 @@ command please see the {browse "https://dimewiki.worldbank.org/wiki/Ieboilsave":
 {title:Description}
 
 {pstd}{cmdab:ieboilsave} standardizes the boilerplate (section of standardized
-	code) used at DECIE before saving a data set. This includes checking that
-	the ID variable is uniquely and fully identifying the data set. The test use the
+	code) used at DECIE before saving a dataset. This includes checking that
+	the ID variable is uniquely and fully identifying the dataset. The test uses the
 	command {help isid}, but provides a more useful output. Only one variable
 	is allowed to be the ID variable, see more in {help ieboilsave##IDnotes:Notes on ID variables} below.
 
@@ -96,17 +96,17 @@ command please see the {browse "https://dimewiki.worldbank.org/wiki/Ieboilsave":
 	see {help missing values}. Since changing regular missing values to extended
 	missing values is time consuming it might not always be a good use of a
 	Stata coder's time to do this for intermediary data sets. But since it should
-	be done for all final data sets, the default is to not allow regular missing
+	be done for all final datasets, the default is to not allow regular missing
 	values.{p_end}
 
-{phang}{cmdab:tagnoname} prevents the command to tag the data set with meta data
-	containing user name and computer (host) name. User name and computer name
+{phang}{cmdab:tagnoname} prevents the command from tagging the data set with metadata
+	containing user name and computer (host) name. Username and computer name
 	can be very useful when facing issues related to replicability. For privacy
 	reasons this can be disabled, but best practice is to keep it enabled at
 	least for all data sets that are not meant for public dissemination.{p_end}
 
 {phang}{cmdab:tagnohost} is similar to {cmdab:tagnoname} but it only prevents the
-	command to tag the data set with meta data containing the computer name.
+	command from tagging the data set with metadata containing the computer name.
 	Specifying {cmdab:tagnohost} is redundant if {cmdab:tagnoname} is already
 	specified.{p_end}
 
@@ -156,14 +156,14 @@ data set using char.
 	instance of the unit of observation. This is mostly the same unit as the
 	respondent during data collection.
 
-{pstd}For example let's say the respondents during a data collection was farmers,
-	then the data set is downloaded from the servers with farmers as unit of observation.
-	However, let's say that the analysis was carried out on plot level. The data
-	set prepared for the plot level regressions no longer has farmer as
-	unit of observation, it is plots and the data set should be identified using
+{pstd}For example, let's say the respondents during a data collection were farmers;
+	then the dataset is downloaded from the servers with farmers as the unit of observation.
+	However, let's say that the analysis was carried out at the plot level. The data
+	set prepared for the plot-level regressions no longer has farmer as
+	unit of observation, so it is plots and the dataset should be identified using
 	plot IDs not farmer IDs. If farmer IDs are unique for each farmer, and plot
-	IDs are unique among the plots for each farmer, then technically, those two
-	IDs uniquely identifies the data set. While it is technically true, it is
+	IDs are unique among the plots for each farmer those two
+	IDs combined uniquely identify the data set. While it is technically true, it is
 	not good practice. Impact Evaluations run over many years and there is
 	likely going to be several different people working with the data set, and
 	the slightest confusion in ID variables can lead to large analysis
@@ -174,15 +174,15 @@ data set using char.
 
 {pstd}Best practice is to always create a single variable that uniquely and fully
 	identifies every unit in the unit of observation before saving a data
-	set. Common practice is to make this the first (leftmost) variable in a data set
+	set. Common practice is to make this the first variable in a data set
 	using {help order:order}. It is also best practice to always start by making
-	sure you fully understand the unit of observation in data sets you get from
+	sure you fully understand the unit of observation in datasets you get from
 	someone else. After you think you know the unit of observation, make sure
 	that you have a single variable that uniquely and fully identifies the
 	unit of observation in the data set.
 
 {pstd}These concepts are also central to modern database design. It is approached
-	somewhat differently as databases mostly consists of more than one data set,
+	somewhat differently as databases mostly consists of more than one dataset,
 	but the principles are the same. There are a lot of reading material online
 	search for {it:primary keys} and {it:normalization} in database design resources.
 
@@ -201,5 +201,5 @@ data set using char.
 
 {phang}You can also see the code, make comments to the code, see the version
 		 history of the code, and submit additions or edits to the code through
-		 the github repository of ietoolkit:{break}
+		 the GitHub repository of ietoolkit:{break}
 		 {browse "https://github.com/worldbank/ietoolkit"}

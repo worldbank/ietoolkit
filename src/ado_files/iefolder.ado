@@ -31,7 +31,7 @@ qui {
 	gettoken itemName rest : itemName
 
 	*Clean up the input
-	local subcomand 	= trim("`subcommand'")
+	local subcommand 	= trim("`subcommand'")
 	local itemType 		= trim("`itemType'")
 	local itemName 		= trim("`itemName'")
 	local abbreviation 	= trim("`abbreviation'")
@@ -82,7 +82,7 @@ qui {
 	local space_pos = strpos(trim("`itemName'"), " ")
 	if "`rest'" != ""  | `space_pos' != 0 {
 
-		noi di as error `"{pstd}You have specified to many words in: [{it:iefolder `subcommand' `itemType' `itemName'`rest'}] or used a space in {it:itemname}. Spaces are not allowed in the {it:itemname}. Use underscores or camel case.{p_end}"'
+		noi di as error `"{pstd}You have specified too many words in: [{it:iefolder `subcommand' `itemType' `itemName'`rest'}] or used a space in {it:itemname}. Spaces are not allowed in the {it:itemname}. Use under_scores or camelCase.{p_end}"'
 		error 198
 	}
 
@@ -91,14 +91,14 @@ qui {
 	*  names on disk.
 	if !regexm("`itemName'", "^[a-zA-Z][a-zA-Z0-9_]*[a-zA-Z0-9_]$") & "`itemType'" != "project" {
 
-		noi di as error `"{pstd}Invalid {it:itemname}. The itemname [`itemName'] can only include letters, numbers or underscore and the first character must be a letter.{p_end}"'
+		noi di as error `"{pstd}Invalid {it:itemname}. The itemname [`itemName'] can only include letters, numbers, or underscores, and the first character must be a letter.{p_end}"'
 		error 198
 	}
 
 	** Test that also the abbreviation has valid characters
 	if !regexm("`abbreviation'", "^[a-zA-Z][a-zA-Z0-9_]*[a-zA-Z0-9_]$") & "`abbreviation'" != "" {
 
-		noi di as error `"{pstd}Invalid name in the option {it:abbreviation()}. The name [`abbreviation'] can only include letters, numbers or underscore and the first character must be a letter.{p_end}"'
+		noi di as error `"{pstd}Invalid name in the option {it:abbreviation()}. The name [`abbreviation'] can only include letters, numbers, or underscores, and the first character must be a letter.{p_end}"'
 		error 198
 	}
 
@@ -113,7 +113,7 @@ qui {
 	local space_pos = strpos(trim("`subfolder'"), " ")
 	if "`subfolder'" != ""  & `space_pos' != 0 {
 
-		noi di as error `"{pstd}You have specified to many words in: [{it:subfolder(`subfolder')}]. Spaces are not allowed, use underscores or camel case instead.{p_end}"'
+		noi di as error `"{pstd}You have specified too many words in: [{it:subfolder(`subfolder')}]. Spaces are not allowed, use under_scores or camelCase instead.{p_end}"'
 		error 198
 	}
 
@@ -152,7 +152,7 @@ qui {
 			iefolder_newProject "$projectFolder" `newHandle'
 
 			*Produce success output
-			noi di "{pstd}Command ran succesfully, a new DataWork folder was created here:{p_end}"
+			noi di "{pstd}Command ran succesfully, a new DataWork folder was created at:{p_end}"
 			noi di "{phang2}1) [${dataWorkFolder}]{p_end}"
 
 		}
@@ -258,7 +258,7 @@ cap program drop 	iefolder_newItem
 	args subHandle itemType itemName itemAbb subfolder
 
 	**Test that the folder where the new folder will
-	* be created exist and that a folder with the same
+	* be created exists and that a folder with the same
 	* name is created there already
 	if "`itemType'" == "round"  iefolder_testFolderPossible "dataWorkFolder" "`itemName'" "encryptFolder" "Round `itemName' Encrypted"
 	if "`itemType'" == "untObs" iefolder_testFolderPossible "mastData" 		 "`itemName'" "encryptFolder" "Master `itemName' Encrypted"
@@ -282,8 +282,8 @@ cap program drop 	iefolder_newItem
 
 		//di `"`line'"'
 
-		**Run funtion to read old project master dofile to check if any
-		* infomration should be added before this line
+		**Run function to read old project master dofile to check if any
+		* information should be added before this line
 		parseReadLine `"`line'"'
 
 		if `r(ief_line)' == 0 {
@@ -294,8 +294,8 @@ cap program drop 	iefolder_newItem
 		}
 		else if `r(ief_line)' == 1 {
 
-			**This is a line of code with a devisor written by
-			* iefodler. New additions to a section are always added right before an end of section line.
+			**This is a line of code with a divisor written by
+			* iefolder. New additions to a section are always added right before an end of section line.
 			return list
 
 			*Test if the line is a line with a name line
@@ -335,8 +335,8 @@ cap program drop 	iefolder_newItem
 				* but we test that there is no confict with previous names
 				if "`r(sectionName)'" == "endRounds" {
 
-					*Write devisor for this section
-					writeDevisor 			`subHandle' 1 RoundGlobals rounds `itemName' `itemAbb'
+					*Write divisor for this section
+					writeDivisor 			`subHandle' 1 RoundGlobals rounds `itemName' `itemAbb'
 
 					*Write the globals for this round to the proejct master dofile
 					newRndFolderAndGlobals 	`itemName' `itemAbb' `subHandle' round "`subfolder'"
@@ -344,7 +344,7 @@ cap program drop 	iefolder_newItem
 					*Create the round master dofile and create the subfolders for this round
 					createRoundMasterDofile "$dataWorkFolder/`itemName'" "`itemName'" "`itemAbb'" "`subfolder'"
 
-					*Write an empty line before the end devisor
+					*Write an empty line before the end divisor
 					file write		`subHandle' "" _n
 
 					*Copy the line as is
@@ -355,8 +355,8 @@ cap program drop 	iefolder_newItem
 				* before writing the end of section line
 				else if "`r(partName)'" == "End_RunDofiles" { //and test round
 
-					*Write devisor for this section
-					writeDevisor `subHandle' 3 RunDofiles `itemName' `itemAbb'
+					*Write divisor for this section
+					writeDivisor `subHandle' 3 RunDofiles `itemName' `itemAbb'
 
 					*Write the
 					file write  `subHandle' ///
@@ -365,7 +365,7 @@ cap program drop 	iefolder_newItem
 						_col(4)"}" ///
 						_n
 
-					*Write an empty line before the end devisor
+					*Write an empty line before the end divisor
 					file write		`subHandle' "" _n
 
 					*Then write original line
@@ -444,14 +444,14 @@ cap program drop 	iefolder_testFolderPossible
 	args mainFolderGlobal mainName encrptFolderGlobal encrptName
 
 
-	*Test if folder where to create new folder exist
+	*Test if folder where to create new folder exists
 	checkFolderExists "$`mainFolderGlobal'" "parent"
 	*Test that the new folder does not already exist
 	checkFolderExists "$`mainFolderGlobal'/`mainName'" "new"
 
 	*Encrypted branch
 
-	*Test if folder where to create new fodler exist
+	*Test if folder where to create new folder exists
 	checkFolderExists "$`encrptFolderGlobal'" "parent"
 	*Test that the new folder does not already exist
 	checkFolderExists "$`encrptFolderGlobal'/`encrptName'" "new"
@@ -492,14 +492,14 @@ cap program drop 	parseReadLine
 			return scalar ief_line 		= 1
 			return scalar ief_NameLine 	= 0
 
-			*parse the rest of the line (from tokenize above)
+			*Parse the rest of the line (from tokenize above)
 			local partNum  		"`4'"
 			local partName 		"`6'"
 			local sectionName 	"`8'"
 			local itemName 		"`10'"
 			local itemAbb	 	"`12'"
 
-			*Return the part name and number. All iefolder divisor lines has this
+			*Return the part name and number. All iefolder divisor lines have this
 			return local partNum  "`partNum'"
 			return local partName "`partName'"
 
@@ -611,8 +611,8 @@ cap program drop 	createRoundMasterDofile
 		createFolderWriteGlobal "PreloadData"	 				"`rnd'_quest"	"`rnd'_prld"	`roundHandle'
 		createFolderWriteGlobal "Questionnaire Documentation"	"`rnd'_quest"	"`rnd'_doc"		`roundHandle'
 
-		*Write sub devisor starting master and monitor data section section
-		writeDevisor 	`roundHandle' 1 End_FolderGlobals
+		*Write sub divisor starting master and monitor data section section
+		writeDivisor 	`roundHandle' 1 End_FolderGlobals
 
 		*Write constant global section here
 		mdofle_p2 `roundHandle'
@@ -661,28 +661,28 @@ end
 
 
 
-cap program drop 	writeDevisor
-	program define	writeDevisor , rclass
+cap program drop 	writeDivisor
+	program define	writeDivisor , rclass
 
 		args  subHandle partNum partName sectionName itemName itemAbb
 
-		local devisor "*iefolder*`partNum'*`partName'*`sectionName'*`itemName'*`itemAbb'*"
+		local divisor "*iefolder*`partNum'*`partName'*`sectionName'*`itemName'*`itemAbb'*"
 
-		local devisorLen = strlen("`devisor'")
+		local divisorLen = strlen("`divisor'")
 
-		*Make all devisors at least 80 characters wide by adding stars (just aesthetic reasons)
-		if (`devisorLen' < 80) {
+		*Make all divisors at least 80 characters wide by adding stars (just aesthetic reasons)
+		if (`divisorLen' < 80) {
 
-			local numStars = 80 - `devisorLen'
+			local numStars = 80 - `divisorLen'
 			local addedStars _dup(`numStars') _char(42)
 		}
 
-		file write  `subHandle' _n "`devisor'" `addedStars'
+		file write  `subHandle' _n "`divisor'" `addedStars'
 		file write  `subHandle' _n "*iefolder will not work properly if the line above is edited"  _n _n
 
 end
 
-*Program that checks if folder exist and provide errors if not.
+*Program that checks if folder exists and provides errors if not.
 cap program drop 	checkFolderExists
 	program define	checkFolderExists , rclass
 
@@ -711,7 +711,7 @@ cap program drop 	checkFolderExists
 
 end
 
-*Write or update the line that list all names used
+*Write or update the line that lists all names used
 cap program drop 	writeNameLine
 	program define	writeNameLine
 
@@ -737,7 +737,7 @@ cap program drop 	writeNameLine
 		*add new name (and abbrevation if applicable) to existing line
 		if "`name'" != "" local line "`line'*`name'"
 
-		*Make all devisors at least 80 characters wide by adding stars
+		*Make all divisors at least 80 characters wide by adding stars
 		if (strlen("`line'") < 80) {
 
 			local numStars = 80 - strlen("`line'")
@@ -782,7 +782,7 @@ cap program drop 	testNameAvailible
 			if "`item'" == "`nameTest'" & "`subfolder'" == "" {
 
 				*name already used, throw error
-				noi di as error "{phang}The name `nameTest' have already been used as a folder name or abreviation. No new folders are creaetd and the master do-files has not been changed.{p_end}"
+				noi di as error "{phang}The name `nameTest' have already been used as a folder name or abbreviation. No new folders are created and the master do-files have not been changed.{p_end}"
 				error 507
 			}
 			else if "`item'" == "`nameTest'" & "`subfolder'" != "" {
@@ -806,7 +806,7 @@ cap program drop 	testNameAvailible
 
 	*Test that subfolder was found
 	 if `subfolderFound' == 0 & "`subfolder'" != "" {
-		noi di as error "{phang}The subofolder `name' has not been created by iefolder. Please only create subfolders with iefolders, and do not change the names once they are created. No new folders are creaetd and the master do-files has not been changed.{p_end}"
+		noi di as error "{phang}The subfolder `name' has not been created by iefolder. Please only create subfolders with iefolder, and do not change the names once they are created. No new folders are created and the master do-files have not been changed.{p_end}"
 		error 507
 	 }
 
@@ -842,11 +842,11 @@ cap program drop 	mdofle_p0
 				_col(8)"** OUTLINE:" _col(25) "PART 0: Standardize settings and install packages" _n ///
 				_col(25) "PART 1: Set globals for dynamic file paths" _n ///
 				_col(25) "PART 2: Set globals for constants and varlist" _n ///
-				_col(32) "used across the project. Intall custom" _n ///
+				_col(32) "used across the project. Install all user-contributed" _n ///
 				_col(32) "commands needed." _n ///
-				_col(25) "PART 3: Call the task specific master do-files " _n ///
-				_col(32) "that call all do-files needed for that " _n ///
-				_col(32) "tas. Do not include Part 0-2 in a task" _n ///
+				_col(25) "PART 3: Call the task-specific master do-files " _n ///
+				_col(32) "that call all dofiles needed for that " _n ///
+				_col(32) "task. Do not include Part 0-2 in a task-" _n ///
 				_col(32) "specific master do-file" _n ///
 				_n _n
 		}
@@ -856,8 +856,8 @@ cap program drop 	mdofle_p0
 				_col(8)"** PURPOSE:" _col(25) "Write intro to survey round here" _n ///
 				_n ///
 				_col(8)"** OUTLINE:" _col(25) "PART 0: Standardize settings and install packages" _n ///
-				_col(25) "PART 1: Preparing folder path globals" _n ///
-				_col(25) "PART 2: Run the master do files for each high level task" _n _n
+				_col(25) "PART 1: Prepare folder path globals" _n ///
+				_col(25) "PART 2: Run the master dofiles for each high-level task" _n _n
 		}
 
 		file write  `subHandle'	///
@@ -870,8 +870,8 @@ cap program drop 	mdofle_p0
 			_col(8)"** Last date modified: `c(current_date)'" _n ///
 			_col(8)"*/" _n
 
-		*Write devisor starting setting standardize section
-		writeDevisor  `subHandle' 0 StandardSettings
+		*Write divisor starting setting standardize section
+		writeDivisor  `subHandle' 0 StandardSettings
 
 
 		file write  `subHandle'	///
@@ -879,18 +879,18 @@ cap program drop 	mdofle_p0
 			_col(4)"*" _n ///
 			_col(4)"*" _col(12) "PART 0:  INSTALL PACKAGES AND STANDARDIZE SETTINGS" _n ///
 			_col(4)"*" _n ///
-			_col(4)"*" _col(16) "-Install packages needed to run all dofiles called" _n ///
+			_col(4)"*" _col(16) "- Install packages needed to run all dofiles called" _n ///
 			_col(4)"*" _col(17) "by this master dofile." _n ///
-			_col(4)"*" _col(16) "-Use ieboilstart to harmonize settings across users" _n ///
+			_col(4)"*" _col(16) "- Use ieboilstart to harmonize settings across users" _n ///
 			_col(4)"*" _n ///
 			_col(4)"* ******************************************************************** *" _n
 
-		*Write devisor ending setting standardize section
-		writeDevisor `subHandle' 0 End_StandardSettings
+		*Write divisor ending setting standardize section
+		writeDivisor `subHandle' 0 End_StandardSettings
 
 		file write  `subHandle' 	///
 			_col(4)"*Install all packages that this project requires:" _n ///
-			_col(4)"local user_commands ietoolkit" _col(40) "//Fill this list will all commands this project requires" _n ///
+			_col(4)"local user_commands ietoolkit" _col(40) "//Fill this list with all user-written commands this project requires" _n ///
 			_col(4)"foreach command of local user_commands {" _n ///
 			_col(8)		"cap which " _char(96) "command'" _n ///
 			_col(8)		"if _rc == 111 {" _n ///
@@ -911,17 +911,17 @@ cap program drop 	mdofle_p1
 
 		args   subHandle projectfolder rndName rndAbb
 
-		*Write devisor starting globals section
-		writeDevisor  `subHandle' 1 FolderGlobals
+		*Write divisor starting globals section
+		writeDivisor  `subHandle' 1 FolderGlobals
 
 		file write  `subHandle' 	///
 			_col(4)"* ******************************************************************** *" _n ///
 			_col(4)"*" _n ///
 			_col(4)"*" _col(12) "PART 1:  PREPARING FOLDER PATH GLOBALS" _n ///
 			_col(4)"*" _n ///
-			_col(4)"*" _col(16) "-Set the global box to point to the project folder" _n ///
-			_col(4)"*" _col(17) "on each collaborators computer." _n ///
-			_col(4)"*" _col(16) "-Set other locals that point to other folders of interest." _n ///
+			_col(4)"*" _col(16) "- Set the global box to point to the project folder" _n ///
+			_col(4)"*" _col(17) "on each collaborator's computer." _n ///
+			_col(4)"*" _col(16) "- Set other locals that point to other folders of interest." _n ///
 			_col(4)"*" _n ///
 			_col(4)"* ******************************************************************** *" _n
 
@@ -931,8 +931,8 @@ cap program drop 	mdofle_p1
 			_col(4)"* -----------" _n ///
 			_n ///
 			_col(4)"*User Number:" _n ///
-			_col(4)"* You" _col(30) "1" _col(35) `"//Replace "You" with your name"' _n ///
-			_col(4)"* Next User" _col(30) "2" _col(35) "//Assign a user number to each additional collaborator of this code" _n ///
+			_col(4)"* You" _col(30) "1" _col(35) `"// Replace "You" with your name"' _n ///
+			_col(4)"* Next User" _col(30) "2" _col(35) "// Assign a user number to each additional collaborator of this code" _n ///
 			_n ///
 			_col(4)"*Set this value to the user currently using this file" _n ///
 			_col(4)"global user  1" _n ///
@@ -945,9 +945,9 @@ cap program drop 	mdofle_p1
 			_col(4)"}" _n ///
 			_n ///
 			_col(4)"if "_char(36)"user == 2 {" _n ///
-			_col(8)`"global projectfolder ""  //Enter the file path to the projectfolder of next user here"' _n ///
+			_col(8)`"global projectfolder ""  // Enter the file path to the project folder for the next user here"' _n ///
 			_col(4)"}" _n _n ///
-			"*These lines are used to test that name ois not already used (do not edit manually)"
+			"* These lines are used to test that the name is not already used (do not edit manually)"
 
 		*For new main master do file
 		if "`rndName'" == "" {
@@ -961,19 +961,19 @@ cap program drop 	mdofle_p1
 			_col(4)"* ---------------------" _n _n ///
 			_col(4)"global dataWorkFolder " _col(34) `"""' _char(36)`"projectfolder/DataWork""' _n
 
-		*Write sub devisor starting master and monitor data section section
-		if "`rndName'" == "" writeDevisor `subHandle' 1 FolderGlobals subfolder
+		*Write sub divisor starting master and monitor data section section
+		if "`rndName'" == "" writeDivisor `subHandle' 1 FolderGlobals subfolder
 
-		*Write sub devisor starting master and monitor data section section
-		writeDevisor `subHandle' 1 FolderGlobals master
+		*Write sub divisor starting master and monitor data section section
+		writeDivisor `subHandle' 1 FolderGlobals master
 
 		di `" if "`rndName'" == ""  "'
 		*Create master data folder and add global to folder in master do file
 		if "`rndName'" == "" createFolderWriteGlobal "MasterData" "dataWorkFolder" mastData	`subHandle' //For new project
 		if "`rndName'" != "" writeGlobal 			 "MasterData" "dataWorkFolder" mastData	`subHandle' //For new round
 
-		*Write sub devisor starting master and monitor data section section
-		writeDevisor `subHandle' 1 FolderGlobals encrypted
+		*Write sub divisor starting master and monitor data section section
+		writeDivisor `subHandle' 1 FolderGlobals encrypted
 
 		*Create master data folder and add global to folder in master do file
 		if "`rndName'" == "" createFolderWriteGlobal "EncryptedData"  "dataWorkFolder"  encryptFolder `subHandle' //For new project
@@ -982,19 +982,19 @@ cap program drop 	mdofle_p1
 		*For new main master do file
 		if "`rndName'" == "" {
 
-			*Write sub devisor starting master and monitor data section section
-			writeDevisor `subHandle' 1 FolderGlobals endRounds
+			*Write sub divisor starting master and monitor data section section
+			writeDivisor `subHandle' 1 FolderGlobals endRounds
 
-			*Write sub devisor starting master and monitor data section section
-			writeDevisor `subHandle' 1 End_FolderGlobals
+			*Write sub divisor starting master and monitor data section section
+			writeDivisor `subHandle' 1 End_FolderGlobals
 
 		}
 
 		*For new round master do file
 		if "`rndName'" != "" {
 
-			*Write sub devisor starting master and monitor data section section
-			writeDevisor `subHandle' 1 FolderGlobals `rndName'
+			*Write sub divisor starting master and monitor data section section
+			writeDivisor `subHandle' 1 FolderGlobals `rndName'
 
 		}
 
@@ -1008,18 +1008,18 @@ cap program drop 	mdofle_p2
 
 		di "masterDofilePart2 start"
 
-		*Write devisor starting standardization globals section
-		writeDevisor  `subHandle' 2 StandardGlobals
+		*Write divisor starting standardization globals section
+		writeDivisor  `subHandle' 2 StandardGlobals
 
 		file write  `subHandle'  ///
 			_col(4)"* Set all non-folder path globals that are constant accross" _n ///
 			_col(4)"* the project. Examples are conversion rates used in unit" _n  	///
-			_col(4)"* standardization, differnt set of control variables," _n 		///
-			_col(4)"* ado file paths etc." _n _n 									///
+			_col(4)"* standardization, different sets of control variables," _n 		///
+			_col(4)"* adofile paths etc." _n _n 									///
 			_col(4) `"do ""' _char(36) `"dataWorkFolder/global_setup.do" "' _n _n
 
-		*Write devisor ending standardization globals section
-		writeDevisor  `subHandle' 2 End_StandardGlobals
+		*Write divisor ending standardization globals section
+		writeDivisor  `subHandle' 2 End_StandardGlobals
 
 		di "masterDofilePart2 end"
 
@@ -1038,33 +1038,33 @@ cap program drop 	mdofle_p3
 		*Part number
 		local partNum = 3
 
-		*Write devisor starting the section running sub-master dofiles
-		writeDevisor  `subHandle' `partNum' RunDofiles
+		*Write divisor starting the section running sub-master dofiles
+		writeDivisor  `subHandle' `partNum' RunDofiles
 
 			file write  `subHandle' 	///
 				_col(4)"* ******************************************************************** *" _n 	///
 				_col(4)"*" _n 																			///
-				_col(4)"*" _col(12) "PART `partNum': - RUN DOFILES CALLED BY THIS MASTER DO FILE" _n 	///
+				_col(4)"*" _col(12) "PART `partNum': - RUN DOFILES CALLED BY THIS MASTER DOFILE" _n 	///
 				_col(4)"*" _n
 
 			if "`itemType'" == "project" {
 				file write  `subHandle' 																///
-					_col(4)"*" _col(16) "-When survey rounds are added, this section will" _n 			///
+					_col(4)"*" _col(16) "- When survey rounds are added, this section will" _n 			///
 					_col(4)"*" _col(17) "link to the master dofile for that round." _n 					///
-					_col(4)"*" _col(16) "-The default is that these dofiles are set to not"  _n 		///
-					_col(4)"*" _col(17) "run. It is rare that all round specfic master dofiles"  _n 	///
-					_col(4)"*" _col(17) "are called at the same time, the round specific master"  _n 	///
+					_col(4)"*" _col(16) "- The default is that these dofiles are set to not"  _n 		///
+					_col(4)"*" _col(17) "run. It is rare that all round-specfic master dofiles"  _n 	///
+					_col(4)"*" _col(17) "are called at the same time; the round specific master"  _n 	///
 					_col(4)"*" _col(17) "dofiles are almost always called individually. The"  _n 		///
 					_col(4)"*" _col(17) "exception is when reviewing or replicating a full project." _n
 			}
 			else if "`itemType'" == "round" {
 				file write  `subHandle' 																///
-					_col(4)"*" _col(16) "-A task master dofile has been created for each high"  _n 		///
-					_col(4)"*" _col(17) "level task (cleaning, construct, analyze). By "  _n 			///
+					_col(4)"*" _col(16) "- A task master dofile has been created for each high-"  _n 		///
+					_col(4)"*" _col(17) "level task (cleaning, construct, analysis). By "  _n 			///
 					_col(4)"*" _col(17) "running all of them all data work associated with the "  _n 	///
 					_col(4)"*" _col(17) "`rndName' should be replicated, including output of "  _n 		///
-					_col(4)"*" _col(17) "tablets, graphs, etc." _n 										///
-					_col(4)"*" _col(16) "-Feel free to add to this list if you have other high"  _n 	///
+					_col(4)"*" _col(17) "tables, graphs, etc." _n 										///
+					_col(4)"*" _col(16) "- Feel free to add to this list if you have other high-"  _n 	///
 					_col(4)"*" _col(17) "level tasks relevant to your project." _n
 			}
 
@@ -1075,7 +1075,7 @@ cap program drop 	mdofle_p3
 		if "`itemType'" == "round" {
 
 			file write  `subHandle' 	_n ///
-				_col(4)"**Set the locals corresponding to the taks you want" _n ///
+				_col(4)"**Set the locals corresponding to the tasks you want" _n ///
 				_col(4)"* run to 1. To not run a task, set the local to 0." _n ///
 				_col(4)"local importDo" _col(25) "0" _n ///
 				_col(4)"local cleaningDo" _col(25) "0" _n ///
@@ -1090,8 +1090,8 @@ cap program drop 	mdofle_p3
 
 		}
 
-		*Write devisor ending the section running sub-master dofiles
-		writeDevisor  `subHandle' `partNum' End_RunDofiles
+		*Write divisor ending the section running sub-master dofiles
+		writeDivisor  `subHandle' `partNum' End_RunDofiles
 
 		di "masterDofilePart3 end"
 
@@ -1119,7 +1119,7 @@ cap program drop 	highLevelTask
 
 		*Write section where task master files are called
 		file write  `roundHandle' 	_n ///
-			_col(4)"if (" _char(96) "`task'Do' == 1) { //Change the local above to run or not to run this file" _n ///
+			_col(4)"if (" _char(96) "`task'Do' == 1) { // Change the local above to run or not to run this file" _n ///
 			_col(8) `"do ""' _char(36) `"`taskdo_fldr'/`rnd'_`task'_MasterDofile.do" "' _n ///
 			_col(4)"}" _n
 
@@ -1196,7 +1196,7 @@ cap program drop 	mdofle_task
 			_col(4)"* ******************************************************************** *" _n ///
 			_col(4)"* ******************************************************************** *" _n ///
 			 _n 	///
-			_col(4)"** IDS VAR:" _col(25) "list_ID_var_here		//Uniquely identifies households (update for your project)" _n ///
+			_col(4)"** IDS VAR:" _col(25) "list_ID_var_here		// Uniquely identifies households (update for your project)" _n ///
 			_col(4)"** NOTES:" _n ///
 			_col(4)"** WRITEN BY:" _col(25) "names_of_contributors" _n ///
 			_col(4)"** Last date modified: `c(current_date)'" _n _n ///
@@ -1230,13 +1230,13 @@ cap program drop 	mdofle_task_dosection
 		_col(4)"*" _n ///
 		_col(4)"*" _col(8) "The purpose of this dofiles is:" _n ///
 		_col(4)"*" _col(10) "(The ideas below are examples on what to include here)" _n ///
-		_col(4)"*" _col(11) "-what additional data sets does this file require" _n ///
-		_col(4)"*" _col(11) "-what variables are created" _n ///
-		_col(4)"*" _col(11) "-what corrections are made" _n ///
+		_col(4)"*" _col(11) "- what additional data sets does this file require" _n ///
+		_col(4)"*" _col(11) "- what variables are created" _n ///
+		_col(4)"*" _col(11) "- what corrections are made" _n ///
 		_col(4)"*" _n ///
 		_col(4)"* ***************************************************** *"  _n ///
 		_n ///
-		_col(8) `"*do ""' _char(36) `"`rnd'`suffix'/dofile`number'.do" //Give your dofile a more informative name, this is just a place holder name"' _n _n
+		_col(8) `"*do ""' _char(36) `"`rnd'`suffix'/dofile`number'.do" //Give your dofile a more informative name, this is just a placeholder name"' _n _n
 
 end
 
@@ -1262,8 +1262,8 @@ program define		global_setup
 		_col(4)"*" _n 																			///
 		_col(4)"*" _col(12) "SET UP STANDARDIZATION GLOBALS AND OTHER CONSTANTS" _n 			///
 		_col(4)"*" _n 																			///
-		_col(4)"*" _col(16) "-Set globals used all across the projects" _n 						///
-		_col(4)"*" _col(16) "-It is bad practice to define these at mutliple locations" _n		///
+		_col(4)"*" _col(16) "- Set globals used all across the project" _n 						///
+		_col(4)"*" _col(16) "- It is bad practice to define these at multiple locations" _n		///
 		_col(4)"*" _n 																			///
 		_col(4)"* ******************************************************************** *" _n
 
@@ -1317,11 +1317,11 @@ program define		global_setup
 		_col(8)"*Example: global country_controls" 	 _col(50) "GDP inflation unemployment" _n 	///
 		_n 																						///
 		_col(4)"* ******************************************************************** *" _n 	///
-		_col(4)"* Set custom ado file path" _n 													///
+		_col(4)"* Set custom adofile path" _n 													///
 		_col(4)"* ******************************************************************** *" _n 	///
 		_n																						///
 		_col(4)"**It is possible to control exactly which version of each command that " _n 	///
-		_col(4)"* is used in the project. This prevents that different versions in " _n 		///
+		_col(4)"* is used in the project. This prevents that different versions of " _n 		///
 		_col(4)"* installed commands leads to different results." _n _n							///
 		_col(4)"/*"_n																			///
 		_col(8)"global ado" 	_col(24) `"""' _char(36) `"dataWorkFolder/your_ado_folder""' _n	///

@@ -36,7 +36,7 @@ command please see the {browse "https://dimewiki.worldbank.org/wiki/Iedropone":D
 	the {help iedropone##examples:examples below} before reading the
 	description or the explanations of the options.
 
-{pstd}{cmdab:iedropone} has the identical purpose as {help drop} when dropping
+{pstd}{cmdab:iedropone} has the same purpose as {help drop} when dropping
 	observations. However, {cmdab:iedropone} safeguards that no additional
 	observations are unintentionally dropped, or that changes are made to the
 	data so that the observations that are supposed to be dropped are no longer dropped.
@@ -105,7 +105,7 @@ command please see the {browse "https://dimewiki.worldbank.org/wiki/Iedropone":D
 
 {pmore}{inp:iedropone if household_id == 712047 & household_head == "Bob Smith"}
 
-{pmore}Let's say we have added a new household  with the ID 712047. In order to
+{pmore}Let's say we have added a new household with the ID 712047. In order to
 	drop only one of those observations we must expand the if condition to
 	indicate which one of them we want to drop.
 
@@ -123,7 +123,7 @@ command please see the {browse "https://dimewiki.worldbank.org/wiki/Iedropone":D
 {pmore}{inp:iedropone if village == 100, mvar(household_head) mvar(`" "Bob Smith" "Ann Davitt" "Blessing Johnson" "')}
 
 {pmore}If the values in {cmd:mvar()} are strings with empty spaces then then each
-	value have to be enclosed in double qoutes and the full list needs to start
+	value have to be enclosed in double quotes and the full list needs to start
 	with {inp:`"} and end with {inp:"'}.
 
 {title:Acknowledgements}
@@ -143,5 +143,5 @@ command please see the {browse "https://dimewiki.worldbank.org/wiki/Iedropone":D
 
 {phang}You can also see the code, make comments to the code, see the version
 		 history of the code, and submit additions or edits to the code through
-		 the github repository of ietoolkit:{break}
+		 the GitHub repository for ietoolkit:{break}
 		 {browse "https://github.com/worldbank/ietoolkit"}
