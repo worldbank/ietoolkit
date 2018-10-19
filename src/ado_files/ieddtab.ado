@@ -110,12 +110,16 @@ cap program drop 	ieddtab
 		else {
 
 			*Error for vce() incorrectly applied
-			noi display as error "{phang}The vce type `vce_type' in vce(`vce') is not allowed. Only robust, cluster or bootstrap is allowed. See {help vce_option :help vce_option} for more information."
+			noi display as error "{phang}The vce type `vce_type' in vce(`vce') is not allowed. Only robust, cluster or bootstrap are allowed. See {help vce_option :help vce_option} for more information."
 			error 198
 
 		}
 
-		local error_estm vce(`vce')
+			local error_estm 		vce(`vce')
+			
+		if "`vce_type'" != "robust" {
+			local error_estm_mean 	vce(`vce')
+		}
 	}
 
 	*DEFAULT STAR LEVELS
@@ -330,7 +334,7 @@ cap program drop 	ieddtab
 			forvalues t01 = 0/1 {
 
 				*Summary stats on this group
-				qui mean `var' if `treatment' == `t01' & `time' == `tmt01' & `regsample' == 1
+				qui mean `var' if `treatment' == `t01' & `time' == `tmt01' & `regsample' == 1, `error_estm_mean'
 
 				mat resTable = r(table)
 
@@ -417,8 +421,8 @@ cap program drop 	ieddtab
 			}
 
 			if "`vce_type'" == "robust"		local note_error	"1st and 2nd difference `variance_type_name' are robust. "
-			if "`vce_type'" == "cluster"  	local note_error	"1st and 2nd difference `variance_type_name' are clustered at variable `cluster_var'. "
-			if "`vce_type'" == "bootstrap"  local note_error	"1st and 2nd difference `variance_type_name' are estimated using bootstrap. "
+			if "`vce_type'" == "cluster"  	local note_error	"All columns display `variance_type_name' clustered at variable `cluster_var'. "
+			if "`vce_type'" == "bootstrap"  local note_error	"All columns display `variance_type_name' estimated using bootstrap. "
 		}
 
 		local note `"`note_obs' `note_stars' `note_cov' `note_error'"'
