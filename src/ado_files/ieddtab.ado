@@ -440,7 +440,7 @@ cap program drop 	ieddtab
 	*************/
 
 	outputwindow `varlist' , ddtab_resultMap(ddtab_resultMap) labmaxlen(`labmaxlen') rwlbls(`rowlabels') ///
-		starlevels("`starlevels'") covariates(`covariates') `errortype' format(`format') note(`note')
+		starlevels("`starlevels'") covariates(`covariates') `errortype' format(`format') note(`note') `cluster'
 
 	/*************
 
@@ -823,7 +823,8 @@ end
 	cap program drop 	outputwindow
 		program define	outputwindow
 
-		syntax varlist , ddtab_resultMap(name) labmaxlen(numlist) rwlbls(string) starlevels(string) format(string) [covariates(string) errhide sd se note(string)]
+		syntax varlist , ddtab_resultMap(name) labmaxlen(numlist) rwlbls(string) starlevels(string) format(string) ///
+			[covariates(string) errhide sd se note(string) cluster]
 
 		*Prepare lables for the erorrs to be displayed (in case any)
 		if "`sd'" != "" local errlabel "SD"
@@ -834,6 +835,11 @@ end
 
 		*List of variabls to display and loop over when formatting
 		local statlist 2D 1DT 1DC C0_mean T0_mean 2D_err 1DT_err 1DC_err C0_err T0_err 2D_N 1DT_N 1DC_N C0_N T0_N
+		
+		*Add cluster columns to the list if clusters were used
+		if "`cluster'" == "cluster" {
+			local statlist `statlist'  2D_clus 1DT_clus 1DC_clus C0_clus T0_clus
+		}
 
 		*************************
 		* Table width for label column
@@ -893,9 +899,18 @@ end
 
 		*Stats titels, show the stats displayed for each column in the order they are displayed
 		noi di as text "{c |}{col `first_col'}{c |}{dup `bsln_stat_left': } Mean{col `bsln_c_col'}{c |}{dup `diff_stat_left': } Coef.{col `diff_c_col'}{c |}{dup `bsln_stat_left': } Mean{col `bsln_t_col'}{c |}{dup `diff_stat_left': } Coef.{col `diff_t_col'}{c |}{dup `didi_stat_left': } Coef.{col `didi_col'}{c |}"
+		
+		*Display error type in title unless errhide was used
 		if "`errhide'" == "" {
 			noi di as text "{c |}{col `first_col'}{c |}{dup `bsln_stat_left': }(`errlabel'){col `bsln_c_col'}{c |}{dup `diff_stat_left': }(`errlabel'){col `diff_c_col'}{c |}{dup `bsln_stat_left': }(`errlabel'){col `bsln_t_col'}{c |}{dup `diff_stat_left': }(`errlabel'){col `diff_t_col'}{c |}{dup `didi_stat_left': }(`errlabel'){col `didi_col'}{c |}"
 		}
+		
+		*Display cluster in title if clusters were used
+		if "`cluster'" == "cluster" {
+			noi di as text "{c |}{col `first_col'}{c |}{dup `bsln_stat_left': }Clusters{col `bsln_c_col'}{c |}{dup `diff_stat_left': }Clusters{col `diff_c_col'}{c |}{dup `bsln_stat_left': }Clusters{col `bsln_t_col'}{c |}{dup `diff_stat_left': }Clusters{col `diff_t_col'}{c |}{dup `didi_stat_left': }Clusters{col `didi_col'}{c |}"
+		}
+		
+		*Last row with N in title as well as "Variable" in the first column
 		noi di as text "{c |}{col 3}Variable{col `first_col'}{c |}{dup `bsln_stat_left': } N{col `bsln_c_col'}{c |}{dup `diff_stat_left': } N{col `diff_c_col'}{c |}{dup `bsln_stat_left': } N{col `bsln_t_col'}{c |}{dup `diff_stat_left': } N{col `diff_t_col'}{c |}{dup `didi_stat_left': } N{col `didi_col'}{c |}"
 
 		*Bottom row to table header
@@ -932,6 +947,11 @@ end
 				noi di as text "{c |}{col `first_col'}{c |}{dup `C0_err_space': }`C0_err'{dup `1DC_err_space': }`1DC_err'{dup `T0_err_space': }`T0_err'{dup `1DT_err_space': }`1DT_err'{dup `2D_err_space': }`2D_err'"
 			}
 
+			*Unless error type is errhide, show the errors on a seperate row
+			if "`cluster'" == "cluster" {
+				noi di as text "{c |}{col `first_col'}{c |}{dup `C0_clus_space': }`C0_clus'{dup `1DC_clus_space': }`1DC_clus'{dup `T0_clus_space': }`T0_clus'{dup `1DT_clus_space': }`1DT_clus'{dup `2D_clus_space': }`2D_clus'"
+			}			
+			
 			*The number of observations are shown on a separate row
 			noi di as text "{c |}{col `first_col'}{c |}{dup `C0_N_space': }`C0_N'{dup `1DC_N_space': }`1DC_N'{dup `T0_N_space': }`T0_N'{dup `1DT_N_space': }`1DT_N'{dup `2D_N_space': }`2D_N'"
 
@@ -962,7 +982,7 @@ cap program drop 	windowdiformat
 		mat temp = ddtab_resultMap[`row', "`statname'"]
 		local `statname' = el(temp,1,1)
 
-		if substr("`statname'", -2,.) == "_N" {
+		if substr("`statname'", -2,.) == "_N" | substr("`statname'", -5,.) == "_clus" {
 			local `statname'	: display %9.0f ``statname''
 		}
 		else {
@@ -1003,7 +1023,7 @@ cap program drop 	windowdiformat
 
 		* Calculate the number of spaces needed bofore
 		* the value and add spaces after it
-		if inlist("`statname'", "C0_mean", "T0_mean", "C0_N", "T0_N") {
+		if inlist("`statname'", "C0_mean", "T0_mean", "C0_N", "T0_N",  "C0_clus", "T0_clus") {
 			*Baseline mean values
 			return local disp_stata "``statname''  {c |}"
 			local numSpace = `colw' - `len' - 2
@@ -1018,7 +1038,7 @@ cap program drop 	windowdiformat
 			return local disp_stata "``statname''{c |}"
 			local numSpace = `colw' - `len'
 		}
-		else if inlist("`statname'", "1DT_N", "1DC_N", "2D_N") {
+		else if inlist("`statname'", "1DT_N", "1DC_N", "2D_N", "1DT_clus", "1DC_clus", "2D_clus") {
 			*First difference coefficent
 			return local disp_stata "``statname''    {c |}"
 			local numSpace = `colw' - `len' - 4
