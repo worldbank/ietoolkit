@@ -170,7 +170,7 @@ specified value minus the height of one line of text. Default is "3ex". For more
 
 {title:Acknowledgements}
 
-{phang}This command was initally suggested by Esteban J. Quinnones, University of Wisconsin-Madison{p_end}
+{phang}This command was initally suggested by Esteban J. Quinones, University of Wisconsin-Madison{p_end}
 
 {phang}We would like to acknowledge the help in testing and proofreading we received in relation to this command and help file from (in alphabetic order):{p_end}
 {pmore}Benjamin Daniels{break}Jonas Guthoff{break}Michael Orevba{break}Matteo Ruzzante{break}Sakina Shibuya
