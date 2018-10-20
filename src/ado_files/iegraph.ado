@@ -3,11 +3,25 @@
 cap	program drop	iegraph
 	program define 	iegraph, rclass
 
-	syntax varlist, [noconfbars BASICTItle(string) save(string) ignoredummytest confbarsnone(varlist) 	///
-						confintval(numlist min=1 max=1 >0 <1) VARLabels BAROPTions(string) norestore  	///
-						GREYscale GRAYscale yzero *]
-
-	if "`restore'" == "" preserve
+	syntax varlist, 							///
+ 	   [noconfbars 								///
+ 		confbarsnone(varlist) 					///
+ 		confintval(numlist min=1 max=1 >0 <1) 	///
+ 		BARLabel								///
+ 		MLABColor(string)						///
+ 		MLABPosition(numlist)					///
+ 		MLABSize(string)						///
+ 		BAROPTions(string)						///
+ 		barlabelformat(string)					///
+ 		GREYscale								///
+ 		yzero									///
+ 		BASICTItle(string) 						///
+ 		VARLabels								///
+ 		ignoredummytest 						///
+ 		norestore								///
+ 		save(string) *]
+ 
+ 	if "`restore'" == "" preserve
 
 	qui {
 
