@@ -2,7 +2,7 @@
 
 ### How to _temporarily_ install a new command or a experimental version of an already installed command for testing
 
-This applies both (1) if you have made a change to an ado-file on disk, or (2) if someone else has edited and you have downloaded the file to your computer via GitHub or Dropbox.
+This applies both (1) if you are writing your own ado-file, or made changes to an ado-file on disk, or (2) if you would like to test a new user-written command, or a new version of an existing command that has not yet been deployed and you have downloaded the file to your computer via GitHub or Dropbox. For the purposes of this exercise, we will use `iebaltab` as an example, but it applies to any command you may like to test.
 
 When you install a command from SSC, Stata saves the ado-file that contains the code for the command in a special folder on your computer. Which folder this is differs between users and operative systems, but you can see the different possible folders that Stata may save commands by typing `sysdir` in Stata. You do not need to know the differences between these folders, and how Stata uses them. However, it might be helpful to know for this testing exercise that, by default, Stata looks in those folders for all ado-files whenever you type a command. For example, it will search there for *iebaltab.ado* if you use the command `iebaltab` in Stata.
 
