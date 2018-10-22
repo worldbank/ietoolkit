@@ -25,7 +25,7 @@ command please see the {browse "https://dimewiki.worldbank.org/wiki/ieddtab":DIM
 		{cmdab:texn:otewidth(}{it:numlist}{cmd:)} {cmdab:texvspace(}{it:string}{cmd:)}
 	]
 
-{pmore}Where {it:varlist} is a list of numeric continuous outcome variables (also called dependable variables or left hand variables) to be used in the difference-in-difference regression(s) this command runs and presents the results from.{p_end}	
+{pmore}Where {it:varlist} is a list of numeric continuous outcome variables (also called dependent variables or left hand side variables) to be used in the difference-in-difference regression(s) this command runs and presents the results from.{p_end}
 
 {marker opts}{...}
 {synoptset 24}{...}
