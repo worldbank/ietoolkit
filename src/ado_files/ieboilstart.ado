@@ -1,11 +1,11 @@
-*! version 5.5 26APR2018 DIME Analytics lcardosodeandrad@worldbank.org
+*! version 6.0 19OCT2018 DIME Analytics dimeanalytics@worldbank.org
 
 	capture program drop ieboilstart
 	program ieboilstart , rclass
 
 	qui {
 
-		syntax ,  Versionnumber(string) [noclear maxvar(numlist) matsize(numlist) Quietly veryquietly Custom(string) setmem(string) ]
+		syntax ,  Versionnumber(string) [noclear maxvar(numlist) matsize(numlist) Quietly veryquietly Custom(string) setmem(string) nopermanently ]
 
 		version 11.0
 
@@ -16,7 +16,7 @@
 
 		*********************************/
 
-		local stata_versions "11 11.0 11.1 11.2 12 12.0 12.1 13 13.0 13.1 14 14.0 14.1 14.2 15 15.0"
+		local stata_versions "11 11.0 11.1 11.2 12 12.0 12.1 13 13.0 13.1 14 14.0 14.1 14.2 15 15.0 15.1"
 
 		if `:list versionnumber in stata_versions' == 0 {
 
@@ -53,7 +53,7 @@
 
 			if `versionnumber' >= 12  {
 
-				di as error "{phang}Option setmem() is only allowed when setting the version number to 11. Setmem() is only applicable in Stata 11 or eralier, but those versions wont be able to run this file as the version number is set to 12 or higher.{p_end}"
+				di as error "{phang}Option setmem() is only allowed when setting the version number to 11. Setmem() is only applicable in Stata 11 or earlier, but those versions wont be able to run this file as the version number is set to 12 or higher.{p_end}"
 				error 198
 			}
 
@@ -112,7 +112,15 @@
 
 			*Set locals with the max and min values fox maxvar and matsize
 			if "`maxlocal'" == "maxvar" {
-				local max 32767
+
+				*Stata 15 MP has a higher maximum number of maxvar
+				if c(stata_version) >= 15 & c(MP) == 1 {
+					local max 120000
+				}
+				else {
+					*For Stata 15 SE and MP and SE for all lower versions
+					local max 32767
+				}
 				local min 2048
 			}
 			if "`maxlocal'" == "matsize" {
@@ -127,7 +135,7 @@
 				*If user specified a value, test that it is between the min and the max
 				if !(``maxlocal'' >= `min' & ``maxlocal'' <= `max') {
 
-					di as error "{phang}`maxlocal' must be between `min' and `max' (inclusive) if you are using Stata SE and Stata MP. You entered ``maxlocal''.{p_end}"
+					di as error "{phang}`maxlocal' must be between `min' and `max' (inclusive) if you are using Stata SE or Stata MP. You entered ``maxlocal''.{p_end}"
 					di ""
 					*Throw appropriate error if below or above error
 					if ``maxlocal'' < `min' error 910
@@ -150,6 +158,24 @@
 			}
 		}
 
+		/*********************************
+
+			Check other input
+
+		*********************************/
+
+		**Default is that these values are set as default values so that
+		* these are the default values each time Stata starts.
+		if "`nopermanently'" == "" {
+
+			local permanently 		" , permanently"
+			local permanently_col 	"{col 28}, permanently"
+
+		}
+		else {
+
+			local permanently ""
+		}
 
 		/*********************************
 
@@ -170,14 +196,14 @@
 			if 	(c(MP) == 1 | c(SE) == 1) {
 
 				*Setting
-				set maxvar `maxvar'
-				local setDispLocal "`setDispLocal'{break}{col 5}set maxvar {col 22}`maxvar'"
+				set maxvar `maxvar' `permanently'
+				local setDispLocal "`setDispLocal'{break}{col 5}set maxvar {col 22}`maxvar'`permanently_col'"
 			}
 		}
 
 		*Setting
-		set matsize `matsize'
-		local setDispLocal "`setDispLocal'{break}{col 5}set matsize {col 22}`matsize'"
+		set matsize `matsize' `permanently'
+		local setDispLocal "`setDispLocal'{break}{col 5}set matsize {col 22}`matsize'`permanently_col'"
 
 
 		****************
@@ -190,27 +216,27 @@
 		if c(stata_version) >= 12 {
 
 			*Setting
-			set niceness 5
-			local setDispLocal "`setDispLocal'{break}{col 5}set niceness{col 22}5"
+			set niceness 5  `permanently'
+			local setDispLocal "`setDispLocal'{break}{col 5}set niceness{col 22}5`permanently_col'"
 
 			*These settings cannot be modified with data in memory
 			if "`clear'" == "" {
 
 				*Settings
-				set min_memory 0
-				set max_memory .
-				local setDispLocal "`setDispLocal'{break}{col 5}set min_memory {col 22}0{break}{col 5}set max_memory {col 22}."
+				set min_memory 0  `permanently'
+				set max_memory .  `permanently'
+				local setDispLocal "`setDispLocal'{break}{col 5}set min_memory {col 22}0`permanently_col'{break}{col 5}set max_memory {col 22}.`permanently_col'"
 
 				*Set segment size to the largest value allowed by the operative system
 				if c(bit) == 64 {
 					*Setting
-					set segmentsize	32m
-					local setDispLocal "`setDispLocal'{break}{col 5}set segmentsize	{col 22}32m"
+					set segmentsize	32m  `permanently'
+					local setDispLocal "`setDispLocal'{break}{col 5}set segmentsize	{col 22}32m`permanently_col'"
 				}
 				else {
 					*Setting
-					set segmentsize	16m
-					local setDispLocal "`setDispLocal'{break}{col 5}set segmentsize	{col 22}16m"
+					set segmentsize	16m  `permanently'
+					local setDispLocal "`setDispLocal'{break}{col 5}set segmentsize	{col 22}16m`permanently_col'"
 				}
 			}
 		}
@@ -228,7 +254,7 @@
 
 		*********************
 		*Set default settings
-		set more 		off , perm
+		set more 		off `permanently'
 		pause 			on
 		set varabbrev 	off
 		local setDispLocal "`setDispLocal'{break}{col 5}set more {col 22}off {col 28}, perm"
@@ -275,7 +301,7 @@
 		if "`quietly'" == "" & "`veryquietly'" == "" {
 
 			noi di ""
-			noi di "{phang}{err:DISCLAIMER:} Due to how settings works in Stata, this command can only attempt to harmonize settings as much as possible across users, but no guarantee can be given that all commands will always behave identical unless the exact same version and type of Stata is used.{p_end}"
+			noi di "{phang}{err:DISCLAIMER:} Due to how settings work in Stata, this command can only attempt to harmonize settings as much as possible across users, but no guarantee can be given that all commands will always behave identically unless the exact same version and type of Stata is used, with the same releases of user-contributed commands installed.{p_end}"
 			noi di ""
 			noi di `"`setDispLocal'"'
 		}
@@ -283,7 +309,7 @@
 		if  "`veryquietly'" == "" {
 
 			noi di ""
-			noi di "{phang}{err:IMPORTANT:} The most important setting of this command cannot be set inside the command due to technical reasons. The setting has been prepared by this command, and you only need to write \`r(version)' after this command (include the apostrophes).{p_end}"
+			noi di "{phang}{err:IMPORTANT:} The most important setting of this command – the version – cannot be set inside the command due to technical reasons. The setting has been prepared by this command, and you only need to write \`r(version)' after this command (include the apostrophes).{p_end}"
 
 		}
 

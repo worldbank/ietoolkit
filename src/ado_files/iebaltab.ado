@@ -1,4 +1,4 @@
-*! version 5.5 26APR2018 DIME Analytics lcardosodeandrad@worldbank.org
+*! version 6.0 19OCT2018 DIME Analytics dimeanalytics@worldbank.org
 
 	capture program drop iebaltab
 	program iebaltab
@@ -25,7 +25,7 @@
 																			///
 				/*Statistics and data manipulation*/						///
 				FIXedeffect(varname)										///
-				COVariates(varlist)											///
+				COVariates(varlist ts fv)									///
 				COVARMISSOK													///
 				vce(string) 												///
 				BALMISS(string) 											///
@@ -83,9 +83,8 @@ qui {
 	version 11
 
 	*Remove observations excluded by if and in
-	if ("`if'`in'"!="") {
-		keep `if' `in'
-	}
+		marksample touse,  novarlist
+		keep if `touse'
 
 	if 1 {
 
@@ -493,7 +492,7 @@ qui {
 
 				*Testing that no label is missing
 				if "`label'" == "" {
-					noi display as error "{phang}For variable [`name'] listed in rowlabels(`rowlabels') you have not specified any label. Labels are requried for all variables listed in rowlabels(). The variable name itself will be used for any variables omitted from rowlabels(). See also option {help dmtab:rowvarlabels}"
+					noi display as error "{phang}For variable [`name'] listed in rowlabels(`rowlabels') you have not specified any label. Labels are requried for all variables listed in rowlabels(). The variable name itself will be used for any variables omitted from rowlabels(). See also option {help iebaltab:rowvarlabels}"
 					noi tab `grpvar', nol
 					error 198
 				}
@@ -552,7 +551,7 @@ qui {
 			else {
 
 				*Error for vce() incorrectly applied
-				noi display as error "{phang}The vce type `vce_type' in vce(`vce') is not allowed. Only robust, cluster and bootstrap is allowed. See {help vce_option :help vce_option} for more information."
+				noi display as error "{phang}The vce type `vce_type' in vce(`vce') is not allowed. Only robust, cluster and bootstrap are allowed. See {help vce_option :help vce_option} for more information."
 				error 198
 
 			}
@@ -676,14 +675,14 @@ qui {
 				if `MISSMINMEAN_USED' == 0			local replaceoptions `" `replaceoptions' minobsmean(10) "'
 
 				*Excute the command. Code is found at the bottom of this ado file
-				if (`COVMISS_USED' | `COVMISSREG_USED')  iereplacemiss `covancevar', `replaceoptions'
+				if (`COVMISS_USED' | `COVMISSREG_USED')  iereplacemiss `covariates', `replaceoptions'
 
 				if `COVARMISSOK_USED' != 1 {
 
 					cap assert `covar' < .
 					if _rc == 9 {
 
-						noi display as error  "{phang}The variable `covar' specified in covariates() has missing values for one or several observations. This would cause observations to be dropped in the estimation regressions. To allow for observations to be dropped see option covarmissok and to make the command treat missing values as zero see option covmiss() and covmissreg(). Click {stata tab `covar' `if' `in', m} to see the missing values.{p_end}"
+						noi display as error  "{phang}The variable `covar' specified in covariates() has missing values for one or more observations. This would cause observations to be dropped in the estimation regressions. To allow for observations to be dropped see option covarmissok and to make the command treat missing values as zero see option covmiss() and covmissreg(). Click {stata tab `covar' `if' `in', m} to see the missing values.{p_end}"
 						error 109
 					}
 				}
@@ -2225,7 +2224,7 @@ qui {
 			*Remove the first comman before the first variable
 			local fmiss_error_list = subinstr("`fmiss_error_list'" ,",","",1)
 
-			noi di as error "{phang}F-test is possible but perhaps not advisable. Some observations have missing values in some of the balance variables and therfore dropped from the f-stat regression. This happened in the f-tests for the following group(s): [`fmiss_error_list']. Solve this by manually restricting the balance table using if or in, or disable the f-test, or by using option {help dmtab:balmiss()}. Suppress this error message by using option {help dmtab:fmissok}"
+			noi di as error "{phang}F-test is possible but perhaps not advisable. Some observations have missing values in some of the balance variables and therfore dropped from the f-stat regression. This happened in the f-tests for the following group(s): [`fmiss_error_list']. Solve this by manually restricting the balance table using if or in, or disable the f-test, or by using option {help iebaltab:balmiss()}. Suppress this error message by using option {help iebaltab:fmissok}"
 			error 416
 		}
 
@@ -2286,7 +2285,7 @@ qui {
 
 		if `warn_ftest_num' > 0 {
 
-			noi di as text "{pmore}{bf:F-Test for Joint Orthogonality:} The variance all groups is zero for the varible indicated and a test of joint orthogonality for all groups is therefore not valid. Tests are reported as N/A in the table.{p_end}"
+			noi di as text "{pmore}{bf:F-Test for Joint Orthogonality:} The variance all groups is zero for the variable indicated and a test of joint orthogonality for all groups is therefore not valid. Tests are reported as N/A in the table.{p_end}"
 			noi di as text ""
 
 			noi di as text "{col 9}{c TLC}{hline 25}{c TRC}"
@@ -2306,7 +2305,7 @@ qui {
 
 			if `warn_joint_novar_num' > 0 {
 
-				noi di as text "{pmore}In the following tests, F-tests were not valid as all variables were omitted in the joint significance test due to colliniarity. Tests are reported as N/A in the table.{p_end}"
+				noi di as text "{pmore}In the following tests, F-tests were not valid as all variables were omitted in the joint significance test due to collinearity. Tests are reported as N/A in the table.{p_end}"
 				noi di as text ""
 
 				noi di as text "{col 9}{c TLC}{hline 12}{c TRC}"
@@ -2710,7 +2709,7 @@ program define iereplacemiss
 
 			*Test that there are enough observations to base the mean on
 			if `r(N)' < `minobs' {
-				noi display as error  "{phang}Not enough observations. There are less than `minobs' observations with a non missing value in `varlist'. Missing values can therefore not be set to the mean. Click {stata tab `varlist', missing} for detailed information.{p_end}"
+				noi display as error  "{phang}Not enough observations. There are less than `minobs' observations with a nonmissing value in `varlist'. Missing values can therefore not be set to the mean. Click {stata tab `varlist', missing} for detailed information.{p_end}"
 				error 2001
 			}
 

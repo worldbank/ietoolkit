@@ -1,4 +1,4 @@
-*! version 5.5 26APR2018 DIME Analytics lcardosodeandrad@worldbank.org
+*! version 6.0 19OCT2018 DIME Analytics dimeanalytics@worldbank.org
 
 	capture program drop 	iedropone
 			program define 	iedropone ,
@@ -126,7 +126,7 @@
 
 				}
 
-				*Add to teh counter how many observations will be dropped
+				*Add to the counter how many observations will be dropped
 				local num_obs_dropped = `num_obs_dropped' + `r(numtodrop)'
 			}
 		}
@@ -169,8 +169,8 @@
 
 	end
 
-	**Sub function that checks that the number of obswervations
-	* to drop is correct and it returns the number of obsevations
+	**Sub function that checks that the number of observations
+	* to drop is correct and it returns the number of observations
 	* that will be dropped.
 
 	capture program drop 	iedropone_test_match
@@ -227,7 +227,7 @@
 		else {
 
 			*Return error message
-			noi di as error "{pstd}The command is never supposed to reach this point, please notify the author if the command on kbjarkefur@worldbank.org"
+			noi di as error "{pstd}The command is never supposed to reach this point, please notify the author of the command at kbjarkefur@worldbank.org"
 			error 197
 		}
 

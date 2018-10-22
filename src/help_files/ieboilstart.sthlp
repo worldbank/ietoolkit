@@ -1,34 +1,34 @@
 {smcl}
-{* 26 Apr 2018}{...}
+{* 19 Oct 2018}{...}
 {hline}
 help for {hi:ieboilstart}
 {hline}
 
 {title:Title}
 
-{phang}{cmdab:ieboilstart} {hline 2} Harmonizes settings across team members in the same project to the longest extent technically possible.
+{phang}{cmdab:ieboilstart} {hline 2} harmonizes Stata settings across team members in the same project.
 
-{phang2}For a more descriptive discussion on the intended usage and work flow of this
+{phang2}For a more descriptive discussion on the intended usage and workflow of this
 command please see the {browse "https://dimewiki.worldbank.org/wiki/Ieboilstart":DIME Wiki}.
 
 {phang}{hi:DISCLAIMER} {hline 1} Due to technical reasons, it is
 impossible to guarantee that different types of Stata (version number, Small/IC/SE/MP
 or PC/Mac/Linux) work exactly the same in every possible context. This command does not
-guarantee against any version discrepancies, it is solely a collection of common practices
-to reduce the risk of the same code running differently on different computers. See more
-details {help ieboilstart##comp:below}.
+guarantee against any version discrepancies in Stata or in under-contributed commands,
+it is solely a collection of common practices to reduce the risk of the same code running
+differently on different computers. See more details {help ieboilstart##comp:below}.
 
 {marker synt}{...}
 {title:Syntax}
 
 {phang}Note that due to technical requirements in Stata, to include the most
-	important setting in this command you must include the second line below.{p_end}
+	important setting - version() - in this command you must include the second line below.{p_end}
 
 {pmore}
 {cmdab:ieboilstart} , {cmdab:v:ersionnumber(}{it:version_number}{cmd:)}  [{it:optional_options}]{break}
 `r(version)'
 
-{phang}The second line "`r(version)'" uses the command {help version} to set the same Stata version accross all
+{phang}The second line "`r(version)'" uses the command {help version} to set the same Stata version across all
 	users. "`r(version)'" is identical to setting the version to the version number set in {cmdab:v:ersionnumber()} but
 	both helps standardize this setting across different parts in the project and function as a reminder to
 	set the version number. {p_end}
@@ -40,11 +40,12 @@ details {help ieboilstart##comp:below}.
 {synopt :{cmdab:v:ersionnumber(}{it:string}{cmd:)}}sets a stable version of Stata
 	for all users. This option does {ul:nothing} unless "`r(version)'" is included as in the example above.{p_end}
 {synopt :{cmdab:maxvar(}{it:numlist}{cmd:)}}manually sets the maximum number of
-	variables allowed in a data set. The default if omitted is 32,767.{p_end}
+	variables allowed in a data set. The default if omitted is the maximum number of variables
+	allowed depending on the version of Stata used.{p_end}
 {synopt :{cmdab:matsize(}{it:numlist}{cmd:)}}manually sets the maximum number of
 	variables allowed in an estimation command, for example {help regress:regress}.
 	The default if omitted is 400.{p_end}
-{synopt :{cmdab:noclear}}prevents the command to clear all data which some settings
+{synopt :{cmdab:noclear}}prevents the command from clearing all data which some settings
 	require. Best practice is to use this command before opening any data.{p_end}
 {synopt :{cmdab:q:uietly}}suppresses the output with the disclaimer and the list
 	of settings.{p_end}
@@ -53,6 +54,7 @@ details {help ieboilstart##comp:below}.
 {synopt :{cmdab:setmem(}{it:string}{cmd:)}}manually sets the memory for	Stata 11 users.{p_end}
 {synopt :{cmdab:c:ustom(}{it:string}{cmd:)}}allows the user to enter custom lines
 	of code to be added.{p_end}
+{synopt :{cmdab:noperm:anently(}{it:string}{cmd:)}}is used to not change settings for future sessions of Stata.{p_end}
 {synoptline}
 
 {marker desc}{...}
@@ -60,14 +62,14 @@ details {help ieboilstart##comp:below}.
 
 {pstd}{cmdab:ieboilstart} standardizes best practice settings across all users using for a project.
 	Such standardized code is usually referred to as boilerplate code, and that is
-	where {cmdab:ieboilstart} lends it's name from. Standardizing the boilerplate code
+	where {cmdab:ieboilstart} gets its name. Standardizing the boilerplate code
 	in a project reduces the risk that code behaves differently across users regardless of
 	what version and type of Stata they are running.
 
 {pstd}A command like this is impossible to make comprehensive in terms of versions control. Therefore,
 	the ambition of this command is only to provide a convenient way to include boilerplate code based
 	on commonly used best practices, which is much better than having no boilerplate code at all. The default
-	values used are the values that are standard in boilerplate code for dofiles written or Impact
+	values used are the values that are standard in boilerplate code for dofiles written for Impact
 	Evaluations at DIME, World Bank. Suggestions for additions or improvements are very welcomed. See
 	the {help ieboilstart##auth:author} section	for contact details.
 
@@ -85,7 +87,7 @@ details {help ieboilstart##comp:below}.
 
 {pstd}Impact Evaluations and other research projects often span over many
 	years, which means that the same code is likely to run in different versions
-	of Stata. Stata provides an method to reduce the risk of discrepancies due to this. See {help version:version} settings for more details. This method is included in {cmdab:ieboilstart}, however, {cmd:version} is mainly intended for making code written in Stata 11 to work
+	of Stata. Stata provides a method to reduce the risk of discrepancies due to this. See {help version:version} settings for more details. This method is included in {cmdab:ieboilstart}, however, {cmd:version} is mainly intended for making code written in Stata 11 work
 	in Stata 14 and not necessarily the other way around. Setting the version is still best practice and perhaps the most important setting in {cmdab:ieboilstart}. Read the {help ieboilstart##synt:syntax section} on the extra step required for {cmdab:ieboilstart} to set the version.{p_end}
 
 {pstd}{hi:Warning:} Any dofiles containing randomization {ul:{hi:MUST}} set the version number
@@ -117,8 +119,14 @@ details {help ieboilstart##comp:below}.
 {p2line}
 {pstd}{it: Basic Settings:}{p_end}
 {p2col :{cmdab:set maxvar}}sets the maximum number of variables allowed. The
-	default value is 32,767 the maximum allowed in Stata MP or SE. A lower maximum number can manually be set by the option {cmdab:maxvar()}. This setting is skipped using an if-statement if the dofile is executed in Stata Small or IC. See {help set maxvar:set maxvar}.{p_end}
-{p2col :{cmdab:set matsize}}sets the maximum number of variables that can be included in estimation commands such as {cmd:regress}. The {cmdab:ieboilstart} default value is 400 which is the default value for Stata. The maximum number can manually be set by the option {cmdab:matsize()} as long as the number does not violate the limitations in your version of Stata. See {help set matsize:set matsize}.{p_end}
+	default value is the maximum allowed in the version of Stata used which is 32,767 in Stata MP or SE, and 120,000 in Stata MP 15. A lower maximum
+	number can manually be set by the option {cmdab:maxvar()}. The maxvar is fixed in Stata Small or IC so this setting is ignored when any of
+	those versions of Stata is used. See {help set maxvar:set maxvar}.{p_end}
+{p2col :{cmdab:set matsize}}sets the maximum number of variables that can be included
+	in estimation commands such as {cmd:regress}. The {cmdab:ieboilstart} default value
+	is 400 which is the default value for Stata. A higher value is often allowed but it slows down
+	Stata and is only needed when running very complex analysis. This option can be used to set a higher
+	value, as long as the value does not violate the limitations in the version of Stata used. See {help set matsize:set matsize}.{p_end}
 {break}
 {pstd}{it: Dynamic Memory Settings (see {help memory:memory} for details and reasons for default values. Few users ever need to change these values):}{p_end}
 {p2col :{cmdab:set min_memory}}sets a lower bound for the amount of memory assigned to Stata. The default value is no lower bound.{p_end}
@@ -155,7 +163,7 @@ details {help ieboilstart##comp:below}.
 		and consistency. While enabling variable abbreviation can speed up coding,
 		it is an error-prone technique unless all users using a dofile with
 		variable abbreviations organize their coding practices exactly the same
-		way. See {help set varabbrev:set varabbrev} for more details and carfully
+		way. See {help set varabbrev:set varabbrev} for more details and carefully
 		consider this caution before enabling variable abbreviations in a
 		collaborative dofile.{p_end}
 {p2line}
@@ -163,7 +171,7 @@ details {help ieboilstart##comp:below}.
 {title:Options}
 
 {phang}{cmdab:v:ersionnumber(}{it:string}{cmd:)} sets a stable version of Stata
-	for all users. Stata does not (for good reasons) allow a user written command
+	for all users. Stata does not (for good reasons) allow a user-written command
 	to alter the version setting from inside a command. Therefore, this option does
 	{ul:nothing} unless "`r(version)'" is included as described in the
 	{help ieboilstart##synt:syntax section}. While the version number cannot be set
@@ -175,7 +183,7 @@ details {help ieboilstart##comp:below}.
 	unless there is something specific to a newer version that is required for any
 	dofile. Only major and recent versions are allowed in order to reduce errors and
 	complexity. The valid versions are 11.0, 11.1, 11.2, 12.0, 12.1, 13.0, 13.1,
-	14.0, 14.1, 14.2, 15.0 and all versions without decimals. However, it is recommended
+	14.0, 14.1, 14.2, 15.0, 15.1, and all versions without decimals. However, it is recommended
 	to use a .1 over a .0 version. .1 is free of charge if you already have the
 	corresponding .0 and .1 includes bug fixes to the functions introduced in .0.
 	All versions of Stata can be set to run any older version of Stata but not a newer. {p_end}
@@ -185,15 +193,15 @@ details {help ieboilstart##comp:below}.
 	allowed. Reducing this number can occasionally improve performance, but modern
 	computers running Impact Evaluations analysis are more likely to
 	face the problem of too few variables allowed than running out of
-	memory. The maximum number allowed is 2047 in Stata IC and 32,767 in Stata MP
-	or SE. This setting is ignored for users that use Stata IC or Stata Small.{p_end}
+	memory. The maximum number allowed in Stata 15.1 is 2047 in Stata IC; 32,767 in Stata SE;
+	and 120,000 in Stata MP. This setting is ignored for users that use Stata IC or Small Stata.{p_end}
 
 {phang}{cmdab:matsize(}{it:numlist}{cmd:)} manually sets the maximum number of
 	variables allowed in estimation commands, for example {help reg:regress}.
 	The default is to set the number to the highest allowed in your version of Stata.
 	Reducing this number can occasionally improve performance, but modern
 	computers running Impact Evaluations analysis are more likely
-	to run into problems allowing too few variables than running out of memory.
+	to run into problems by allowing too few variables than running out of memory.
 	Although, this is more likely the case with {cmdab:maxvar} than
 	with {cmdab:matsize}. The maximum number allowed is 800 in Stata IC and 11,000 in Stata
 	MP or SE.{p_end}
@@ -211,11 +219,16 @@ details {help ieboilstart##comp:below}.
 
 {phang}{cmd:veryquietly} suppresses the third output this commands generates in the result window in addition to the two that {cmd:quietly} is suppressing. The third output is a reminder to set the version number using "`r(version)'" after running the command.
 
-{phang}{cmdab:c:ustom(}{it:string}{cmd:)} allows the user to add one or multiple custom lines of code. Each line of code should be seperated with a "@". See example 2
+{phang}{cmdab:c:ustom(}{it:string}{cmd:)} allows the user to add one or multiple custom lines of code. Each line of code should be separated with a "@". See example 2
 	below for more details.{p_end}
 
-{phang}{cmdab:c:ustom(}{it:string}{cmd:)}This option is only relevant for users of Stata 11. This value must be an integer followed by the letter B, K, M or G. The default if omitted is 50M. Cannot be used if
+{phang}{cmdab:setmem(}{it:string}{cmd:)}This option is only relevant for users of Stata 11. This value must be an integer followed by the letter B, K, M or G. The default if omitted is 50M. Cannot be used if
 	versionnumber() is set to version 12.0 or more recent. See {help set memory} for more details. This link will only display options relevant to Stata 11 when clicking it in Stata 11. Otherwise it will show the options relevant to Stata 12 and later.
+
+{phang}{cmdab:noperm:anently(}{it:string}{cmd:)} is used to not change settings for future sessions
+	of Stata. The default is that all settings are 	set as defaults so that they apply each time Stata
+	starts after using this command. This option disable that. See option permanently in {help memory:memory} for
+	mroe details. {cmd:set more off} is always set permanently.{p_end}
 
 {title:Examples}
 
@@ -246,13 +259,13 @@ details {help ieboilstart##comp:below}.
 {marker auth}{...}
 {title:Author}
 
-{phang}Kristoffer Bjarkefur, The World Bank, DECIE
+{phang}All commands in ietoolkit is developed by DIME Analytics at DECIE, The World Bank's unit for Development Impact Evaluations.
+
+{phang}Main author: Kristoffer Bjarkefur, DIME Analytics, The World Bank Group
 
 {phang}Please send bug-reports, suggestions and requests for clarifications
-		 writing "ietools ieboilstart" in the subject line to:{break}
-		 kbjarkefur@worldbank.org
+		 writing "ietoolkit ieboilstart" in the subject line to:{break}
+		 dimeanalytics@worldbank.org
 
 {phang}You can also see the code, make comments to the code, see the version
-		 history of the code, and submit additions or edits to the code through
-		 the github repository of ietoolkit:{break}
-		 {browse "https://github.com/worldbank/ietoolkit"}
+		 history of the code, and submit additions or edits to the code through {browse "https://github.com/worldbank/ietoolkit":the GitHub repository of ietoolkit}.{p_end}

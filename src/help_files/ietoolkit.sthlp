@@ -1,5 +1,5 @@
 {smcl}
-{* 26 Apr 2018}{...}
+{* 19 Oct 2018}{...}
 {hline}
 help for {hi:ietoolkit}
 {hline}
@@ -9,7 +9,7 @@ help for {hi:ietoolkit}
 {phang}{cmdab:ietoolkit} {hline 2} Returns information on the version of ietoolkit installed
 
 {phang}For a more descriptive discussion on the intended usage and work flow of this
-command please see the {browse "https://dimewiki.worldbank.org/wiki/Ietoolkit":DIME Wiki}.
+command please see the {browse "https://dimewiki.worldbank.org/wiki/Stata_Coding_Practices#ietoolkit":DIME Wiki}.
 
 {title:Syntax}
 
@@ -59,15 +59,15 @@ command please see the {browse "https://dimewiki.worldbank.org/wiki/Ietoolkit":D
  in relation to this command and help file from (in alphabetic order):{p_end}
 {pmore}Luiza Cardoso De Andrade{break}Seungmin Lee{break}
 
-{title:Authors}
+{title:Author}
 
-{phang}Kristoffer Bjarkefur, The World Bank, DECIE
+{phang}All commands in ietoolkit is developed by DIME Analytics at DECIE, The World Bank's unit for Development Impact Evaluations.
+
+{phang}Main author: Kristoffer Bjarkefur, DIME Analytics, The World Bank Group
 
 {phang}Please send bug-reports, suggestions and requests for clarifications
-		 writing "ietoolkit ietoolkit" in the subject line to the email address
-		 found {browse "https://github.com/worldbank/ietoolkit":here}
+		 writing "ietoolkit ietoolkit" in the subject line to:{break}
+		 dimeanalytics@worldbank.org
 
 {phang}You can also see the code, make comments to the code, see the version
-		 history of the code, and submit additions or edits to the code through
-		 the github repository of ietoolkit:{break}
-		 {browse "https://github.com/worldbank/ietoolkit"}
+		 history of the code, and submit additions or edits to the code through {browse "https://github.com/worldbank/ietoolkit":the GitHub repository of ietoolkit}.{p_end}
