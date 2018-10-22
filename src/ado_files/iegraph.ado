@@ -14,6 +14,7 @@ cap	program drop	iegraph
  		BAROPTions(string)						///
  		barlabelformat(string)					///
  		GREYscale								///
+		GRAYscale								///
  		yzero									///
  		BASICTItle(string) 						///
  		VARLabels								///
