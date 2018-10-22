@@ -17,14 +17,15 @@ An easy but still very efficient way to provide any feedback on these commands i
 While we have a slight preference for receiving feedback here on GitHub, you are still very welcome to send a regular email with your feedback to [dimeanalytics@worldbank.org](mailto:dimeanalytics@worldbank.org).
 
 ### **Content**
+**ietoolkit** provides a set of commands that address different aspects of data management and data analysis in relation to Impact Evaluations. The list of commands will be extended continuously, and suggestions for new commands are greatly appreciated. Some of the commands are related to standardized best practices developed at DIME (The World Bank’s unit for Impact Evaluations). For these commands, the corresponding help files provide justifications for the standardized best practices applied. 
 
- - **ietoolkit** provides a set of commands that address different aspects of data management and data analysis in relation to impact evaluations. The list of commands will be extended continuously, and suggestions for new commands are greatly appreciated. Some of the commands are related to standardized best practices developed at DIME (The World Bank’s unit for Impact Evaluations). For these commands, the corresponding help files provide justifications for the standardized best practices applied.
- - **iefolder** implements our recommended project folders and master do-file structure that DIME uses for all projects
- - **iegitaddmd** adds placeholder README.md files to all empty subfolders allowing them to be synced on GitHub
- - **ieboilstart** standardizes the boilerplate code at the top of all do-files
- - **ieduplicates** and **iecompdup** help identify and correct for duplicates, particularly in primary survey data
+ - **ietoolkit** returns meta info on the version of _ietoolkit_ installed. Can be used to ensure that the team uses the same version. 
  - **iebaltab** is a tool for multiple treatment arm balance tables
  - **ieddtab** is a tool for difference-in-difference regression tables
+ - **ieduplicates** and **iecompdup** are useful tools to identify and correct for duplicates, particulary in primary survey data
+ - **ieboilstart** standardizes the boilerplate code at the top of all do-files
+ - **iefolder** sets up project folders and master do-files according to DIME's recommended folder structure
+ - **iegitaddmd** adds placeholder README.md files to all empty subfolders allowing them to be synced on GitHub
  - **iematch** is an algorithm for matching observations in one group to the "most similar" observations in another group
  - **iegraph** produces graphs of estimation results in common impact evaluation regression models
  - **iedropone** drops observations and controls that the correct number was dropped
