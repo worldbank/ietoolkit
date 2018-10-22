@@ -31,6 +31,9 @@ cap program drop 	ieddtab
 		texvspace(string)									///
 		]
 
+		*Set minimum version for this command
+		version 11
+
 	/*************
 
 		Input handling
