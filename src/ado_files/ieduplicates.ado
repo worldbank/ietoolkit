@@ -333,6 +333,8 @@
 						}
 
 						*Same error for any incorrect input
+						
+						di as error "{phang}Since there was at least one error in the Excel report no corrections have been made to the duplicates in the data set. Please address the errors above and then run the command again.{p_end}"
 						error 198
 						exit
 					}
