@@ -19,7 +19,7 @@ command please see the {browse "https://dimewiki.worldbank.org/wiki/Iebaltab":DI
 [
 {it:{help iebaltab##columnoptions:column_options} {help iebaltab##labeloptions:label_options}}
 {it:{help iebaltab##statsoptions:stats_options} {help iebaltab##ftestoptions:ftest_options}}
-{it: {help iebaltab##display:display_options} {help iebaltab##exportoptions:export_options}}
+{it: {help iebaltab##displayoptioins:display_options} {help iebaltab##exportoptions:export_options}}
 ]
 
 {phang2}where {it:balancevarlist} is one or several variables (from here on called balance variables) for which the command
