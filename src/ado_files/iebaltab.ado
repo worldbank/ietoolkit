@@ -3,7 +3,7 @@
 	capture program drop iebaltab
 	program iebaltab
 
-		syntax varlist(numeric) [if] [in] [aw fw pw iw], 									///
+		syntax varlist(numeric) [if] [in], 									///
 																			///
 				/*Group variable*/											///
 				GRPVar(varname) 											///
