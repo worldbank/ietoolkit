@@ -3,7 +3,7 @@
 	capture program drop iebaltab
 	program iebaltab
 
-		syntax varlist(numeric) [if] [in], 									///
+		syntax varlist(numeric) [if] [in] [aw fw pw iw], 					///
 																			///
 				/*Group variable*/											///
 				GRPVar(varname) 											///
@@ -33,7 +33,7 @@
 				COVMISS(string) 											///
 				COVMISSReg(string)											///
 				MISSMINmean(numlist min=1 max=1 >0)							///
-				weight(string)												///
+				WEIGHTold(string)											///
 																			///
 				/*F-test*/													///
 				FTest 														///
@@ -83,13 +83,13 @@ qui {
 	version 11
 
 	* Backwards compatibility for weight option
-		if "`weight'" != "" & "`exp'" == "" {
-			tokenize `weight', parse(=)
+		if "`weightold'" != "" & "`exp'" == "" {
+			tokenize `weightold', parse(=)
 			local weight "`1'"
 			local exp = "= `3'"
 		}
 
-	*Remove observations excluded by if and in
+		*Remove observations excluded by if and in
 		marksample touse,  novarlist
 		keep if `touse'
 
