@@ -13,6 +13,7 @@ cap program drop 	ieddtab
 															///
 		/* Output display */								///
 		STARLevels(numlist descending min=3 max=3 >0 <1)	///
+		stardrop											///
 		ROWLabtype(string) 									///
 		rowlabtext(string)									///
 		ERRortype(string)									///
@@ -274,7 +275,7 @@ cap program drop 	ieddtab
 		*Get the number of stars using sub-command countStars
 		local ++colindex
 		local pvalue = el(resTable,4,3)
-		countStars `pvalue' `starlevels'
+		countStars `pvalue' `starlevels' `stardrop'
 		mat `var'[1,`colindex'] = `r(stars)'
 
 		*Get the N of second difference regression
@@ -312,7 +313,7 @@ cap program drop 	ieddtab
 			*Get the number of stars using sub-command countStars
 			local ++colindex
 			local pvalue = el(resTable,4,1)
-			countStars `pvalue' `starlevels'
+			countStars `pvalue' `starlevels' `stardrop'
 			mat `var'[1,`colindex'] = `r(stars)'
 
 			*Get the N of first difference regression
@@ -405,11 +406,13 @@ cap program drop 	ieddtab
 
 		local note_obs	"The baseline means only include observations not omitted in the 1st and 2nd differences. The number of observations in the 1st and 2nd differences includes both baseline and follow-up observations."
 
-		*Show stars levels
-		local star1_value : word 1 of `starlevels'
-		local star2_value : word 2 of `starlevels'
-		local star3_value : word 3 of `starlevels'
-		local note_stars "***, **, and * indicate significance at the `star3_value', `star2_value', and `star1_value' percent critical level."
+		*Only include note on stars levels if stardrop was NOT used
+		if "`stardrop'" == "" {
+			local star1_value : word 1 of `starlevels'
+			local star2_value : word 2 of `starlevels'
+			local star3_value : word 3 of `starlevels'
+			local note_stars "***, **, and * indicate significance at the `star3_value', `star2_value', and `star1_value' percent critical level."
+		}
 
 		*Only include note on covariates if covariates were used
 		if "`covariates'" != "" {
@@ -454,7 +457,7 @@ cap program drop 	ieddtab
 	*************/
 
 	outputwindow `varlist' , ddtab_resultMap(ddtab_resultMap) labmaxlen(`labmaxlen') rwlbls(`rowlabels') ///
-		starlevels("`starlevels'") covariates(`covariates') `errortype' format(`format') note(`note') `cluster'
+		 `errortype' format(`format') note(`note') `cluster'
 
 	/*************
 
@@ -466,7 +469,7 @@ cap program drop 	ieddtab
 		outputtex `varlist', 	ddtab_resultMap(ddtab_resultMap) 	///
 								savetex(`savetex') `replace'  ///
 								`texdocument' texcaption("`texcaption'") texlabel("`texlabel'") texnotewidth(`texnotewidth') ///
-								`onerow' starlevels("`starlevels'") format(`format') rwlbls("`rowlabels'") errortype(`errortype') ///
+								`onerow' format(`format') rwlbls("`rowlabels'") errortype(`errortype') ///
 								note(`note') texvspace("`texvspace'") `cluster'
 
 	}
@@ -673,12 +676,16 @@ end
 cap program drop 	countStars
 	program define	countStars, rclass
 
-	args pvalue star1 star2 star3
+	args pvalue star1 star2 star3 stardrop
 
 	local stars 0
-	foreach star_p_level in `star1' `star2' `star3' {
 
-		if `pvalue' < `star_p_level' local ++stars
+	*Option to suppress all stars
+	if "`stardrop'" == "" {
+		foreach star_p_level in `star1' `star2' `star3' {
+
+			if `pvalue' < `star_p_level' local ++stars
+		}
 	}
 
 	return local stars `stars'
@@ -833,8 +840,8 @@ end
 	cap program drop 	outputwindow
 		program define	outputwindow
 
-		syntax varlist , ddtab_resultMap(name) labmaxlen(numlist) rwlbls(string) starlevels(string) format(string) ///
-			[covariates(string) errhide sd se note(string) cluster]
+		syntax varlist , ddtab_resultMap(name) labmaxlen(numlist) rwlbls(string)  format(string) ///
+			[errhide sd se note(string) cluster]
 
 		*Prepare lables for the erorrs to be displayed (in case any)
 		if "`sd'" != "" local errlabel "SD"
@@ -977,8 +984,6 @@ end
 
 		*************************
 		* Write notes below the table
-
-		*List covariates used
 		if (`"`note'"' != "") {
 			noi di as text `"{pstd}`note'{p_end}"'
 		}
@@ -1087,7 +1092,7 @@ cap program drop 	outputtex
 	program define	outputtex
 
 	syntax varlist, ddtab_resultMap(name) savetex(string) note(string) ///
-					[replace onerow starlevels(string) format(string) rwlbls(string) errortype(string) ///
+					[replace onerow format(string) rwlbls(string) errortype(string) ///
 					texdocument texcaption(string) texlabel(string) texnotewidth(numlist) texvspace(string) cluster]
 
 		* Replace tex file?
