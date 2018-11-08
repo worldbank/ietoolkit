@@ -3,7 +3,7 @@
 	capture program drop iebaltab
 	program iebaltab
 
-		syntax varlist(numeric) [if] [in], 									///
+		syntax varlist(numeric) [if] [in] [aw fw pw iw], 					///
 																			///
 				/*Group variable*/											///
 				GRPVar(varname) 											///
@@ -33,7 +33,7 @@
 				COVMISS(string) 											///
 				COVMISSReg(string)											///
 				MISSMINmean(numlist min=1 max=1 >0)							///
-				weight(string)												///
+				WEIGHTold(string)											///
 																			///
 				/*F-test*/													///
 				FTest 														///
@@ -82,7 +82,14 @@ qui {
 	*Set minimum version for this command
 	version 11
 
-	*Remove observations excluded by if and in
+	* Backwards compatibility for weight option
+		if "`weightold'" != "" & "`exp'" == "" {
+			tokenize `weightold', parse(=)
+			local weight "`1'"
+			local exp = "= `3'"
+		}
+
+		*Remove observations excluded by if and in
 		marksample touse,  novarlist
 		keep if `touse'
 
@@ -692,13 +699,13 @@ qui {
 		if `WEIGHT_USED' == 1 {
 
 			* Parsing weight options
-			gettoken weight_type weight_var : weight, parse("=")
+			local weight_type = "`weight'"
 
 			* Parsing keeps the separating character
-			local weight_var : subinstr local weight_var "="  ""
+			local weight_var = subinstr("`exp'","=","",.)
 
 			* Test is weight type specified is valie
-			local weight_options "fweights pweights aweights iweights fw freq weight pw aw iw"
+			local weight_options "fweights pweights aweights iweights fweight pweight aweight iweight fw freq weight pw aw iw"
 
 			if `:list weight_type in weight_options' == 0 {
 
