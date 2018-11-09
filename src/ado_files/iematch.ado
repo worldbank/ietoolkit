@@ -1,4 +1,4 @@
-*! version 6.0 19OCT2018 DIME Analytics dimeanalytics@worldbank.org
+*! version 6.1 09112018 DIME Analytics dimeanalytics@worldbank.org
 
 	cap program drop 	iematch
 	    program define	iematch

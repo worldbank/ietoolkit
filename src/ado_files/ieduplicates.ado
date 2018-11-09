@@ -1,4 +1,4 @@
-*! version 6.0 19OCT2018 DIME Analytics dimeanalytics@worldbank.org
+*! version 6.1 09112018 DIME Analytics dimeanalytics@worldbank.org
 
 	capture program drop ieduplicates
 	program ieduplicates , rclass
@@ -333,7 +333,7 @@
 						}
 
 						*Same error for any incorrect input
-						
+
 						di as error "{phang}Since there was at least one error in the Excel report no corrections have been made to the duplicates in the data set. Please address the errors above and then run the command again.{p_end}"
 						error 198
 						exit
