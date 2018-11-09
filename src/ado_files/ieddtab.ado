@@ -433,7 +433,21 @@ cap program drop 	ieddtab
 			if "`vce_type'" == "bootstrap"  local note_error	"All columns display `variance_type_name' estimated using bootstrap. "
 		}
 
-		local note `"`note_obs' `note_stars' `note_cov' `note_error'"'
+		* Add note on weights
+		if "`weight'" != "" {
+			local weightvar = subinstr("`exp'", "=", "", .)
+			local weightvar = stritrim(strtrim(`"`weightvar'"'))
+			
+			noi di "`weight'"
+				 if "`weight'" == "aweight" local weightopt analytical
+			else if "`weight'" == "fweight" local weightopt frequency
+			else if "`weight'" == "pweight" local weightopt probability
+			else if "`weight'" == "iweight" local weightopt importance
+			
+			local note_weight "Variable `weightvar' used as `weightopt' weight. "
+		}
+		
+		local note `"`note_obs' `note_stars' `note_cov' `note_error' `note_weight'"'
 
 	}
 
