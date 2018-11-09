@@ -13,9 +13,9 @@ command please see the {browse "https://dimewiki.worldbank.org/wiki/ieddtab":DIM
 
 {title:Syntax}
 
-{phang2} {cmdab:ieddtab} {it:varlist},
+{phang2} {cmdab:ieddtab} {it:varlist} [{help if}] [{help in}] [{help weight}],
 	{cmdab:t:ime(}{it:varname}{cmd:)} {cmdab:treat:ment(}{it:varname}{cmd:)}
-	[
+		{break}[
 		{cmdab:covar:iates(}{it:varlist}{cmd:)} {cmdab:starl:evels(}{it:numlist}{cmd:)}
 		{cmdab:err:ortype(}{it:string}{cmd:)} {cmdab:rowl:abtype(}{it:string}{cmd:)}
 		{cmdab:rowlabtext(}{it:label_string}{cmd:)} {cmdab:format(}{it:{help format:%fmt}}{cmd:)}
