@@ -1125,7 +1125,7 @@ cap program drop 	outputtex
 		texpreamble	, texname("`texname'") texfile("`texfile'") texcaption("`texcaption'") texlabel("`texlabel'") `texdocument'
 
 		* Write table header
-		texheader	, texname("`texname'") texfile("`texfile'") `onerow'  errortype(`errortype') `cluster' `nonumbers'
+		texheader	, texname("`texname'") texfile("`texfile'") `onerow'  errortype(`errortype') `cluster' `numbers'
 
 		* Write results
 		texresults `varlist', ddtab_resultMap(ddtab_resultMap) ///
