@@ -1448,9 +1448,9 @@ cap program drop	texheader
 				local ncol			"`ncol'/{[}Clusters]"
 			}
 		}
-		
+
+		*Unless option nonumbers is used, number all columns in tex output
 		local colnorow = ""
-		
 		if "`numbers'" != "nonumbers" {
 			local colnomax = strlen("`colstring'") - 1
 			forvalues colno = 1/`colnomax' {
@@ -1459,6 +1459,7 @@ cap program drop	texheader
 			local colnorow = `"`colnorow' \\"'
 		}
 
+		*Write part of header that explains which type of errors are displayed
 		if "`errortype'" == "errhide" {
 			if "`onerow'" != "" {
 				local errortitle	""
