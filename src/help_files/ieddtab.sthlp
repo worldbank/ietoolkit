@@ -59,7 +59,7 @@ command please see the {browse "https://dimewiki.worldbank.org/wiki/ieddtab":DIM
 {synopt :{cmdab:texl:abel(}{it:string}{cmd:)}}Specify table's label, used for meta-reference across TeX file.{p_end}
 {synopt :{cmdab:texn:otewidth(}{it:numlist}{cmd:)}}Manually enter the width of the note on the TeX file.{p_end}
 {synopt :{cmd:texvspace(}{it:string}{cmd:)}}Manually set size of the line space between two rows on TeX output.{p_end}
-{synopt :{cmdab:nonumbers}}Ommit column numbers from table header in LaTeX output.{p_end}
+{synopt :{cmdab:nonumbers}}Omit column numbers from table header in LaTeX output.{p_end}
 {synoptline}
 
 {marker desc}
