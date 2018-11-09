@@ -3,7 +3,7 @@
 cap program drop 	ieddtab
 	program define	ieddtab, rclass
 
-	syntax varlist(numeric) [if] [in], ///
+	syntax varlist(numeric) [if] [in] [aw fw iw pw], ///
 					///
 		Time(varname numeric) TREATment(varname numeric) 	///
 		[ 													///
@@ -250,7 +250,7 @@ cap program drop 	ieddtab
 		gen `interactionvar' = `treatment' * `time'
 
 		*Run the regression to get the double difference
-		qui reg `var' `treatment' `time' `interactionvar' `covariates', `error_estm'
+		qui reg `var' `treatment' `time' `interactionvar' `covariates' [`weight'`exp'], `error_estm'
 		mat resTable = r(table)
 
 		**This is why this is done first. All other calculations
@@ -297,7 +297,7 @@ cap program drop 	ieddtab
 		forvalues tmt01 = 0/1 {
 
 			*Regress time against the outcome var one tmt group at the time
-			qui reg `var' `time' `covariates' if `treatment' == `tmt01' & `regsample' == 1, `error_estm'
+			qui reg `var' `time' `covariates' if `treatment' == `tmt01' & `regsample' == 1 [`weight'`exp'], `error_estm'
 			mat resTable = r(table)
 
 			//Get the 1st diff
@@ -338,7 +338,7 @@ cap program drop 	ieddtab
 			forvalues t01 = 0/1 {
 
 				*Summary stats on this group
-				qui mean `var' if `treatment' == `t01' & `time' == `tmt01' & `regsample' == 1, `error_estm_mean'
+				qui mean `var' if `treatment' == `t01' & `time' == `tmt01' & `regsample' == 1 [`weight'`exp'], `error_estm_mean'
 
 				mat resTable = r(table)
 
@@ -433,7 +433,21 @@ cap program drop 	ieddtab
 			if "`vce_type'" == "bootstrap"  local note_error	"All columns display `variance_type_name' estimated using bootstrap. "
 		}
 
-		local note `"`note_obs' `note_stars' `note_cov' `note_error'"'
+		* Add note on weights
+		if "`weight'" != "" {
+			local weightvar = subinstr("`exp'", "=", "", .)
+			local weightvar = stritrim(strtrim(`"`weightvar'"'))
+			
+			noi di "`weight'"
+				 if "`weight'" == "aweight" local weightopt analytical
+			else if "`weight'" == "fweight" local weightopt frequency
+			else if "`weight'" == "pweight" local weightopt probability
+			else if "`weight'" == "iweight" local weightopt importance
+			
+			local note_weight "Variable `weightvar' used as `weightopt' weight. "
+		}
+		
+		local note `"`note_obs' `note_stars' `note_cov' `note_error' `note_weight'"'
 
 	}
 
