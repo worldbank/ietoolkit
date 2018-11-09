@@ -17,6 +17,7 @@ command please see the {browse "https://dimewiki.worldbank.org/wiki/ieddtab":DIM
 	{cmdab:t:ime(}{it:varname}{cmd:)} {cmdab:treat:ment(}{it:varname}{cmd:)}
 		{break}[
 		{cmdab:covar:iates(}{it:varlist}{cmd:)} {cmdab:starl:evels(}{it:numlist}{cmd:)}
+		{cmdab:stardrop}
 		{cmdab:err:ortype(}{it:string}{cmd:)} {cmdab:rowl:abtype(}{it:string}{cmd:)}
 		{cmdab:rowlabtext(}{it:label_string}{cmd:)} {cmdab:format(}{it:{help format:%fmt}}{cmd:)}
 		{cmdab:replace} {cmdab:savet:ex(}{it:filepath}{cmd:)} {cmdab:onerow}
@@ -39,6 +40,7 @@ command please see the {browse "https://dimewiki.worldbank.org/wiki/ieddtab":DIM
 {synopt :{cmdab:covar:iates(}{it:varlist}{cmd:)}}Covariates to use in diff-in-diff regression{p_end}
 {synopt :{cmdab:vce:(}{it:{help vce_option:vce_types}}{cmd:)}}Options for variance estimation. {hi:Robust}, {hi:cluster} {it:clustervar} or {hi:bootstrap}{p_end}
 {synopt :{cmdab:starl:evels(}{it:numlist}{cmd:)}}Significance levels used for significance stars, default values are .1, .05 and .01{p_end}
+{synopt :{cmdab:stardrop}}Suppresses all significance stars in all tables.{p_end}
 {synopt :{cmdab:err:ortype(}{it:string}{cmd:)}}Type of errors to display, default is standard errors.{p_end}
 
 {pstd}{it:Output options:}{p_end}
@@ -97,7 +99,9 @@ command. See {help vce_option:vce_types} for more details. The only vce types al
 Option {hi:robust} only applied to first and second difference estimators, not to baseline means.{p_end}
 
 
-{phang}{cmdab:starl:evels(}{it:numlist}{cmd:)} sets the significance levels used for significance stars. Exactly three values must be listed if this option is used, all three values must be descending order, and must be between 0 and 1. The default values are .1, .05 and .01{p_end}
+{phang}{cmdab:starl:evels(}{it:numlist}{cmd:)} sets the significance levels used for significance stars. Exactly three values must be listed if this option is used, all three values must be descending order, and must be between 0 and 1. The default values are .1, .05 and .01. The levels specified in this option is ignored if {cmdab:stardrop} is used.{p_end}
+
+{phang}{cmdab:stardrop}} suppresses all significance stars in all tables and remove the note on significance levels from the table note.{p_end}
 
 {phang}{cmdab:err:ortype(}{it:string}{cmd:)} sets the type of error to display. Allowed values for this iption is {inp:se} for standard errors, {inp:sd} for standard deviation and {inp:errhide} for not displaying any errors in the table. The default is to display standard errors.{p_end}
 
