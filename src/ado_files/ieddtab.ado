@@ -30,6 +30,7 @@ cap program drop 	ieddtab
 		TEXLabel(string)									///
 		TEXNotewidth(numlist min=1 max=1)					///
 		texvspace(string)									///
+		nonumbers											///
 		]
 
 		*Set minimum version for this command
@@ -484,7 +485,7 @@ cap program drop 	ieddtab
 								savetex(`savetex') `replace'  ///
 								`texdocument' texcaption("`texcaption'") texlabel("`texlabel'") texnotewidth(`texnotewidth') ///
 								`onerow' format(`format') rwlbls("`rowlabels'") errortype(`errortype') ///
-								note(`note') texvspace("`texvspace'") `cluster'
+								note(`note') texvspace("`texvspace'") `cluster' `numbers'
 
 	}
 
@@ -1106,8 +1107,8 @@ cap program drop 	outputtex
 	program define	outputtex
 
 	syntax varlist, ddtab_resultMap(name) savetex(string) note(string) ///
-					[replace onerow format(string) rwlbls(string) errortype(string) ///
-					texdocument texcaption(string) texlabel(string) texnotewidth(numlist) texvspace(string) cluster]
+					[replace onerow starlevels(string) format(string) rwlbls(string) errortype(string) ///
+					texdocument texcaption(string) texlabel(string) texnotewidth(numlist) texvspace(string) cluster nonumbers]
 
 		* Replace tex file?
 		if "`replace'" != ""		local texreplace	replace
@@ -1129,7 +1130,7 @@ cap program drop 	outputtex
 		texpreamble	, texname("`texname'") texfile("`texfile'") texcaption("`texcaption'") texlabel("`texlabel'") `texdocument'
 
 		* Write table header
-		texheader	, texname("`texname'") texfile("`texfile'") `onerow'  errortype(`errortype') `cluster'
+		texheader	, texname("`texname'") texfile("`texfile'") `onerow'  errortype(`errortype') `cluster' `numbers'
 
 		* Write results
 		texresults `varlist', ddtab_resultMap(ddtab_resultMap) ///
@@ -1425,7 +1426,7 @@ end
 cap program drop	texheader
 	program define	texheader
 
-	syntax	, texname(string) texfile(string)  errortype(string) [onerow cluster]
+	syntax	, texname(string) texfile(string)  errortype(string) [onerow cluster nonumbers]
 
 		** Calculate number of rows
 
@@ -1448,6 +1449,17 @@ cap program drop	texheader
 			}
 		}
 
+		*Unless option nonumbers is used, number all columns in tex output
+		local colnorow = ""
+		if "`numbers'" != "nonumbers" {
+			local colnomax = strlen("`colstring'") - 1
+			forvalues colno = 1/`colnomax' {
+				local colnorow = `"`colnorow' & (`colno')"'
+			}
+			local colnorow = `"`colnorow' \\"'
+		}
+
+		*Write part of header that explains which type of errors are displayed
 		if "`errortype'" == "errhide" {
 			if "`onerow'" != "" {
 				local errortitle	""
@@ -1470,7 +1482,8 @@ cap program drop	texheader
 									"\hline \hline \\[-1.8ex]" _n ///
 									"& \multicolumn{`toprowcols'}{c}{Control} & \multicolumn{`toprowcols'}{c}{Treatment}  & \multicolumn{`bottomrowcols'}{c}{Difference-in-differences} \\" _n ///
 									"& \multicolumn{`bottomrowcols'}{c}{Baseline} & \multicolumn{`bottomrowcols'}{c}{Difference} & \multicolumn{`bottomrowcols'}{c}{Baseline} & \multicolumn{`bottomrowcols'}{c}{Difference} & \multicolumn{`bottomrowcols'}{c}{} \\" _n ///
-									"Variable `ncol' & Mean`errortitle' `ncol' & Coef`errortitle' `ncol' & Mean`errortitle' `ncol' & Coef`errortitle' `ncol' & Coef`errortitle' \\ \hline" _n
+									"Variable `ncol' & Mean`errortitle' `ncol' & Coef`errortitle' `ncol' & Mean`errortitle' `ncol' & Coef`errortitle' `ncol' & Coef`errortitle' \\" _n ///
+									"`colnorow' \hline" _n
 		file close `texname'
 
 end

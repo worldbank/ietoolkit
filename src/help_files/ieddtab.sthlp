@@ -20,7 +20,7 @@ command please see the {browse "https://dimewiki.worldbank.org/wiki/ieddtab":DIM
 		{cmdab:stardrop}
 		{cmdab:err:ortype(}{it:string}{cmd:)} {cmdab:rowl:abtype(}{it:string}{cmd:)}
 		{cmdab:rowlabtext(}{it:label_string}{cmd:)} {cmdab:format(}{it:{help format:%fmt}}{cmd:)}
-		{cmdab:replace} {cmdab:savet:ex(}{it:filepath}{cmd:)} {cmdab:onerow}
+		{cmdab:replace} {cmdab:savet:ex(}{it:filepath}{cmd:)} {cmdab:onerow} {cmdab:nonumbers}
 		{cmdab:nonotes} {cmdab:addn:otes(}{it:string}{cmd:)}  {cmdab:texdoc:ument}
 		{cmdab:texc:aption(}{it:string}{cmd:)} {cmdab:texl:abel(}{it:string}{cmd:)}
 		{cmdab:texn:otewidth(}{it:numlist}{cmd:)} {cmdab:texvspace(}{it:string}{cmd:)}
@@ -59,6 +59,7 @@ command please see the {browse "https://dimewiki.worldbank.org/wiki/ieddtab":DIM
 {synopt :{cmdab:texl:abel(}{it:string}{cmd:)}}Specify table's label, used for meta-reference across TeX file.{p_end}
 {synopt :{cmdab:texn:otewidth(}{it:numlist}{cmd:)}}Manually enter the width of the note on the TeX file.{p_end}
 {synopt :{cmd:texvspace(}{it:string}{cmd:)}}Manually set size of the line space between two rows on TeX output.{p_end}
+{synopt :{cmdab:nonumbers}}Omit column numbers from table header in LaTeX output.{p_end}
 {synoptline}
 
 {marker desc}
@@ -114,7 +115,7 @@ Option {hi:robust} only applied to first and second difference estimators, not t
 
 {phang}{cmdab:addn:otes(}{it:string}{cmd:)} is used to manually add a note to be displayed below the regression result table. This note is put before the automatically generated note, unless option {cmdab:nonotes} is specified, in which case only the manually added note is displayed.{p_end}
 
-{phang}{cmdab:onerow} indicated that the number of observations should be displayed on one row at the last row of the table instead on each row. This requires that the number of observations are the same across all rows for each column.{p_end}
+{phang}{cmdab:onerow} indicates that the number of observations should be displayed on one row at the last row of the table instead on each row. This requires that the number of observations are the same across all rows for each column.{p_end}
 
 {phang}{cmdab:format(}{it:{help format:%fmt}}{cmd:)} sets the number formatting/rounding rule for all calculated statistics in the table, that is all numbers in the table apart from the number of observations. Only valid {help format:Stata number formats} are allowed. The default is {it:%9.2f}.{p_end}
 
@@ -137,6 +138,8 @@ The note width is a multiple of text width. If not specified, default is one, wh
 and one of the following units: "cm", "mm", "pt", "in", "ex" or "em". Note that the resulting line space displayed will be equal to the
 specified value minus the height of one line of text. Default is "3ex". For more information on units,
 {browse "https://en.wikibooks.org/wiki/LaTeX/Lengths":check LaTeX lengths manual}. {p_end}
+
+{phang}{cmdab:nonumbers} ommits column numbers from table header in LaTeX output. Default is to display column numbers.{p_end}
 
 {marker optslong}
 {title:Examples}
