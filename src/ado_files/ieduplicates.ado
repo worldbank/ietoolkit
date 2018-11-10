@@ -1,4 +1,4 @@
-*! version 6.0 19OCT2018 DIME Analytics dimeanalytics@worldbank.org
+*! version 6.1 09112018 DIME Analytics dimeanalytics@worldbank.org
 
 	capture program drop ieduplicates
 	program ieduplicates , rclass
@@ -167,7 +167,7 @@
 				*Test that the ID variable is in the imported report
 				if `:list idvar in existingExcelVars' == 0 {
 
-					noi display as error "{phang}The ID variable `idvar' does not exist in the previously exported Excle file. If you renamed the ID variable you need to rename it manually in the Excel report or start a new Excel report by renaming or moving the original report, then run the command again and create a new file and manually copy any corrections from the old file to the new. If you changed the ID varaible you need to start with a new report.{p_end}"
+					noi display as error "{phang}The ID variable `idvar' does not exist in the previously exported Excle file. If you renamed the ID variable you need to rename it manually in the Excel report or start a new Excel report by renaming or moving the original report, then run the command again and create a new file and manually copy any corrections from the old file to the new. If you changed the ID variable you need to start with a new report.{p_end}"
 					noi di ""
 					error 111
 					exit
@@ -333,6 +333,8 @@
 						}
 
 						*Same error for any incorrect input
+
+						di as error "{phang}Since there was at least one error in the Excel report no corrections have been made to the duplicates in the data set. Please address the errors above and then run the command again.{p_end}"
 						error 198
 						exit
 					}
@@ -613,7 +615,7 @@
 						levelsof newID if missing(real(newID)), local(NaN_values) clean
 
 						* Output error message
-						di as error "{phang}The ID varaible `idvar' is numeric but newID has thes non-numeric values: `NaN_values'. Update newID to only contain numeric values or see option tostringok.{p_end}"
+						di as error "{phang}The ID variable `idvar' is numeric but newID has these non-numeric values: `NaN_values'. Update newID to only contain numeric values or see option tostringok.{p_end}"
 						error 109
 						exit
 					}

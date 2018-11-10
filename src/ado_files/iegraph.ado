@@ -1,4 +1,4 @@
-*! version 6.0 19OCT2018 DIME Analytics dimeanalytics@worldbank.org
+*! version 6.1 09112018 DIME Analytics dimeanalytics@worldbank.org
 
 cap	program drop	iegraph
 	program define 	iegraph, rclass
@@ -21,7 +21,7 @@ cap	program drop	iegraph
  		ignoredummytest 						///
  		norestore								///
  		save(string) *]
- 
+
  	if "`restore'" == "" preserve
 
 	qui {

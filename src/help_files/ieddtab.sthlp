@@ -1,5 +1,5 @@
 {smcl}
-{* 19 Oct 2018}{...}
+{* 09 Nov 2018}{...}
 {hline}
 help for {hi:ieddtab}
 {hline}
@@ -13,19 +13,20 @@ command please see the {browse "https://dimewiki.worldbank.org/wiki/ieddtab":DIM
 
 {title:Syntax}
 
-{phang2} {cmdab:ieddtab} {it:varlist},
+{phang2} {cmdab:ieddtab} {it:varlist} [{help if}] [{help in}] [{help weight}],
 	{cmdab:t:ime(}{it:varname}{cmd:)} {cmdab:treat:ment(}{it:varname}{cmd:)}
-	[
+		{break}[
 		{cmdab:covar:iates(}{it:varlist}{cmd:)} {cmdab:starl:evels(}{it:numlist}{cmd:)}
+		{cmdab:stardrop}
 		{cmdab:err:ortype(}{it:string}{cmd:)} {cmdab:rowl:abtype(}{it:string}{cmd:)}
 		{cmdab:rowlabtext(}{it:label_string}{cmd:)} {cmdab:format(}{it:{help format:%fmt}}{cmd:)}
-		{cmdab:replace} {cmdab:savet:ex(}{it:filepath}{cmd:)} {cmdab:onerow}
+		{cmdab:replace} {cmdab:savet:ex(}{it:filepath}{cmd:)} {cmdab:onerow} {cmdab:nonumbers}
 		{cmdab:nonotes} {cmdab:addn:otes(}{it:string}{cmd:)}  {cmdab:texdoc:ument}
 		{cmdab:texc:aption(}{it:string}{cmd:)} {cmdab:texl:abel(}{it:string}{cmd:)}
 		{cmdab:texn:otewidth(}{it:numlist}{cmd:)} {cmdab:texvspace(}{it:string}{cmd:)}
 	]
 
-{pmore}Where {it:varlist} is a list of numeric continuous outcome variables (also called dependable variables or left hand variables) to be used in the difference-in-difference regression(s) this command runs and presents the results from.{p_end}	
+{pmore}Where {it:varlist} is a list of numeric continuous outcome variables (also called dependent variables or left hand side variables) to be used in the difference-in-difference regression(s) this command runs and presents the results from.{p_end}
 
 {marker opts}{...}
 {synoptset 24}{...}
@@ -39,6 +40,7 @@ command please see the {browse "https://dimewiki.worldbank.org/wiki/ieddtab":DIM
 {synopt :{cmdab:covar:iates(}{it:varlist}{cmd:)}}Covariates to use in diff-in-diff regression{p_end}
 {synopt :{cmdab:vce:(}{it:{help vce_option:vce_types}}{cmd:)}}Options for variance estimation. {hi:Robust}, {hi:cluster} {it:clustervar} or {hi:bootstrap}{p_end}
 {synopt :{cmdab:starl:evels(}{it:numlist}{cmd:)}}Significance levels used for significance stars, default values are .1, .05 and .01{p_end}
+{synopt :{cmdab:stardrop}}Suppresses all significance stars in all tables.{p_end}
 {synopt :{cmdab:err:ortype(}{it:string}{cmd:)}}Type of errors to display, default is standard errors.{p_end}
 
 {pstd}{it:Output options:}{p_end}
@@ -57,6 +59,7 @@ command please see the {browse "https://dimewiki.worldbank.org/wiki/ieddtab":DIM
 {synopt :{cmdab:texl:abel(}{it:string}{cmd:)}}Specify table's label, used for meta-reference across TeX file.{p_end}
 {synopt :{cmdab:texn:otewidth(}{it:numlist}{cmd:)}}Manually enter the width of the note on the TeX file.{p_end}
 {synopt :{cmd:texvspace(}{it:string}{cmd:)}}Manually set size of the line space between two rows on TeX output.{p_end}
+{synopt :{cmdab:nonumbers}}Omit column numbers from table header in LaTeX output.{p_end}
 {synoptline}
 
 {marker desc}
@@ -97,7 +100,9 @@ command. See {help vce_option:vce_types} for more details. The only vce types al
 Option {hi:robust} only applied to first and second difference estimators, not to baseline means.{p_end}
 
 
-{phang}{cmdab:starl:evels(}{it:numlist}{cmd:)} sets the significance levels used for significance stars. Exactly three values must be listed if this option is used, all three values must be descending order, and must be between 0 and 1. The default values are .1, .05 and .01{p_end}
+{phang}{cmdab:starl:evels(}{it:numlist}{cmd:)} sets the significance levels used for significance stars. Exactly three values must be listed if this option is used, all three values must be descending order, and must be between 0 and 1. The default values are .1, .05 and .01. The levels specified in this option is ignored if {cmdab:stardrop} is used.{p_end}
+
+{phang}{cmdab:stardrop}} suppresses all significance stars in all tables and remove the note on significance levels from the table note.{p_end}
 
 {phang}{cmdab:err:ortype(}{it:string}{cmd:)} sets the type of error to display. Allowed values for this iption is {inp:se} for standard errors, {inp:sd} for standard deviation and {inp:errhide} for not displaying any errors in the table. The default is to display standard errors.{p_end}
 
@@ -110,7 +115,7 @@ Option {hi:robust} only applied to first and second difference estimators, not t
 
 {phang}{cmdab:addn:otes(}{it:string}{cmd:)} is used to manually add a note to be displayed below the regression result table. This note is put before the automatically generated note, unless option {cmdab:nonotes} is specified, in which case only the manually added note is displayed.{p_end}
 
-{phang}{cmdab:onerow} indicated that the number of observations should be displayed on one row at the last row of the table instead on each row. This requires that the number of observations are the same across all rows for each column.{p_end}
+{phang}{cmdab:onerow} indicates that the number of observations should be displayed on one row at the last row of the table instead on each row. This requires that the number of observations are the same across all rows for each column.{p_end}
 
 {phang}{cmdab:format(}{it:{help format:%fmt}}{cmd:)} sets the number formatting/rounding rule for all calculated statistics in the table, that is all numbers in the table apart from the number of observations. Only valid {help format:Stata number formats} are allowed. The default is {it:%9.2f}.{p_end}
 
@@ -133,6 +138,8 @@ The note width is a multiple of text width. If not specified, default is one, wh
 and one of the following units: "cm", "mm", "pt", "in", "ex" or "em". Note that the resulting line space displayed will be equal to the
 specified value minus the height of one line of text. Default is "3ex". For more information on units,
 {browse "https://en.wikibooks.org/wiki/LaTeX/Lengths":check LaTeX lengths manual}. {p_end}
+
+{phang}{cmdab:nonumbers} ommits column numbers from table header in LaTeX output. Default is to display column numbers.{p_end}
 
 {marker optslong}
 {title:Examples}

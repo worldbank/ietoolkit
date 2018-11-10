@@ -1,5 +1,5 @@
 {smcl}
-{* 19 Oct 2018}{...}
+{* 09 Nov 2018}{...}
 {hline}
 help for {hi:iebaltab}
 {hline}
@@ -14,12 +14,12 @@ command please see the {browse "https://dimewiki.worldbank.org/wiki/Iebaltab":DI
 {title:Syntax}
 
 {phang2}
-{cmdab:iebaltab} {it:balancevarlist} [{help if:if}] [{help in:in}]
+{cmdab:iebaltab} {it:balancevarlist} [{help if:if}] [{help in:in}] [{help weight}]
 , {cmdab:grpv:ar(}{it:varname}{cmd:)} {c -(} {cmdab:save(}{it:{help filename}}{cmd:)} | {cmdab:savet:ex(}{it:{help filename}}{cmd:)} | {cmdab:browse} {c )-}
 [
 {it:{help iebaltab##columnoptions:column_options} {help iebaltab##labeloptions:label_options}}
 {it:{help iebaltab##statsoptions:stats_options} {help iebaltab##ftestoptions:ftest_options}}
-{it: {help iebaltab##display:display_options} {help iebaltab##exportoptions:export_options}}
+{it: {help iebaltab##displayoptioins:display_options} {help iebaltab##exportoptions:export_options}}
 ]
 
 {phang2}where {it:balancevarlist} is one or several variables (from here on called balance variables) for which the command
@@ -66,7 +66,6 @@ will test for differences across the catagories in grpvar({it:varname}).
 {synopt :{cmdab:covmiss:(}{it:reptype}{cmd:)}}Replaces missing values in covariate variables with either zeros, the mean or the group mean. See details on {it:reptype} below.{p_end}
 {synopt :{cmdab:covmissr:eg(}{it:reptype}{cmd:)}}Similar to {cmd:covmiss()} but treats {help missing:extended missing values} still as missing. See details on {it:reptype} below.{p_end}
 {synopt :{cmdab:missmin:mean(}{it:{help numlist:numlist}}{cmd:)}}Sets a minimum number of observations that a mean or group mean must be based on in options requiring {it:reptype}.{p_end}
-{synopt :{cmdab:weight(}{it:weight_option}{cmd:)}}Determines weight variable and method. aweights, fweights, iweights, and pweights are allowed.{p_end}
 
 {marker ftestoptions}{...}
 {pstd}{it:    F-test:}{p_end}
@@ -285,9 +284,6 @@ The difference is that this option still treats {help missing:extended missing v
 
 {phang}{cmdab:missmin:mean(}{it:{help numlist:numlist}}{cmd:)} sets a minimum number of observations that a mean or group mean must be based
 on in {cmd:balmiss()}, {cmd:balmissreg()}, {cmd:covmiss()} and {cmd:covmissreg()}. The arbitrary default is 10.{p_end}
-
-{phang}{cmdab:weight(}{it:weight_option}{cmd:)} defines a variable to be used as weight. {it:weight_option} is a string in the following format {it:"weight_type = weight_variable"}, where
-weight_type is a Stata {help weight:weight} option, and weight_variable is a numeric variable.{p_end}
 
 {phang}{cmdab:vce:(}{it:{help vce_option:vce_types}{cmd:)}} sets the type of variance estimator to be used in all regressions for this
 command. See {help vce_option:vce_types} for more details. The only vce types allowed in this command are {hi:robust}, {hi:cluster} {it:clustervar} or {hi:bootstrap}.{p_end}
