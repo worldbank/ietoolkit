@@ -1,6 +1,47 @@
-# Instructions and best-practices for testing Stata Commands
+# Instructions and best-practices for testing **ietoolkit** (and Stata commands in general)
 
-### How to _temporarily_ install a new command or a experimental version of an already installed command for testing
+## Installing _not-yet released_ versions of **ietoolkit**
+**DO NOT** follow these instructions if you want to install the version of **ietoolkit** that is tested for public release. Use **`ssc install ietoolkit`** if that is what you want to do.
+
+There are two ways for how to install not-yet released versions of **ietoolkit** that we recommend. Through `net install` or `do`, the list below helps you decide what you want to do:
+* `net install`
+    * Automated and do not require that you manually clone or download any files to your computer.
+    * The version of the commands you install this way stays installed until you actively uninstall them and install the version you had installed before or any other version. This could be both good and bad.
+    * The help files can be viewed (if they exist already) the same way as you normally view a help file with the command `help`.
+    * This point only applies if you are setting up your own repository so that the command you wrote can be installed the same way,  **ietoolkit** already has these files. This method required a `.toc` and a `.pkg` file to be set up in the repository.
+    * This method can be used to install any version of **ietoolkit** since commit [22da4fb](https://github.com/worldbank/ietoolkit/commit/22da4fb) made on December 11, 2018.
+* `do`
+    * These instructions applies to any command written in any `.ado` or `.do` file, not just the **ietoolkit** files.
+    * Requires you to manually put the files on your computer, either by downloading or cloning the files, or if it is a command you are writing yourself the files are already on your computer.
+    * You cannot use the command `help` to view the help files of this version. If you use `help` you will see the help file of the version of the command previously installed, or get an error if the command was not installed previously. See instructions below how to read the help file.
+    * The commands are only installed until you close your Stata window or you run `clear all` after which you will have to repeat this installation. If you do not repeat the installation you will either go back to the version of the command you had before this installation, or to not having these commands installed if these commands were not installed before this installation.
+    * This method can be used to install any version of **ietoolkit** in the repository since the initial commit. Just go to [the repo](https://github.com/worldbank/ietoolkit) and download the files of the repository at the point of that commit.
+
+### How to install not-yet released version using `net install`
+
+First you must uninstall any installation of the same package that you already have installed to make sure that the version you end up having installed is the version you are installing through `net install`. If the version number is updated already the uninstallation step is not needed, but since these files are not prepared for release yet we do not know if that is the case and should therefore always uninstall first.
+
+```stata
+*uninstalling any version of ietoolkit already installed
+ado uninstall ietoolkit //will generate error that can be ignored if commands are not installed
+
+*Install the version of ietoolkit that is in the develop branch
+net install ietoolkit , from("https://raw.githubusercontent.com/worldbank/ietoolkit/develop/src")
+```
+
+The version of **ietoolkit** in the `develop` branch will not stay installed unless they are actively replaced. The code below shows how to uninstalled the version of **ietoolkit** you just installed and go back to having the most recently released version of **ietoolkit** installed.
+
+```stata
+*uninstalling any version of ietoolkit already installed
+ado uninstall ietoolkit //will generate error that can be ignored if commands are not installed
+
+*Install the most recent published version of ietoolkit
+ssc install ietoolkit
+```
+
+You can install **ietoolkit** from any branch in the repository. Just replace `develop` with the name of the branch you want to install from in `net install ietoolkit , from("https://raw.githubusercontent.com/worldbank/ietoolkit/develop/src")`.
+
+### How to install not-yet released version using `do`
 
 This applies both (1) if you are writing your own ado-file, or made changes to an ado-file on disk, or (2) if you would like to test a new user-written command, or a new version of an existing command that has not yet been deployed and you have downloaded the file to your computer via GitHub or Dropbox. For the purposes of this exercise, we will use `iebaltab` as an example, but it applies to any command you may like to test.
 
@@ -15,10 +56,10 @@ do "${ietoolkitRepo}/src/ado_files/iebaltab.ado"
 
 If it is a new command or you do not have the command installed already you would still follow the same steps to temporarily install a command in Stata.
 
-### How to view a new help file or a new version of a help file
-If you type `help iebaltab` you will see the help file of already installed version of iebaltab. When you want to read the help file for a new command or the new version of a helpfile that includes the new features of the command you instead have to use the *View* option in the *File* drop-down menu. After you click *View* you browse to the location on your computer where you have the new version of the help file and select that file. 
+#### How to view a new help file or a new version of a help file
+If you type `help iebaltab` you will see the help file of already installed version of iebaltab. When you want to read the help file for a new command or the new version of a helpfile that includes the new features of the command you instead have to use the *View* option in the *File* drop-down menu. After you click *View* you browse to the location on your computer where you have the new version of the help file and select that file.
 
-### What to test for when testing a Stata commands
+## What to test for when testing a Stata commands
 
 There are two main aspects when testing a command which are, **Does the command work?** and **Does the command make sense?**. The two questions are equally important as it does not matter how good a command works if it makes sense to anyone but the person who developed it. *Making sense* should be interpreted in the broadest possible sense here. For example, *Is it intuitive what the purpose of the command is?*, *Is it intuitive how the command is specified?*, *Does the documentation make sense?*, *Do the error messages make sense and are they helpful?* etc. The developer can do a lot to test if the command works, but will ultimately need help from the user base to know if it make sense.
 

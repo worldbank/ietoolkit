@@ -6,6 +6,8 @@ To install **ietoolkit**, type **`ssc install ietoolkit`** in Stata. If you see 
 
 Stata version 11 or later is required for this package of commands.
 
+While all users should use **`ssc install ietoolkit`** to install published versions of **ietoolkit** that are tested for public release, it is also possible to install versions of the command that we are currently developing. Anyone is free to do so, but this method is intended only for when testing not yet released versions of **ietoolkit**. The instructions for how to do so are found here [here](https://github.com/worldbank/ietoolkit/blob/master/admin/testfolder/test-instructions.md).
+
 ### **Background**
 These commands are developed by people that work at or with the Development Impact Evaluations (DIME) unit at the World Bank. While the commands are developed with best practices for impact evaluations in mind, these commands can be useful outside that field as well.
 
@@ -17,9 +19,9 @@ An easy but still very efficient way to provide any feedback on these commands i
 While we have a slight preference for receiving feedback here on GitHub, you are still very welcome to send a regular email with your feedback to [dimeanalytics@worldbank.org](mailto:dimeanalytics@worldbank.org).
 
 ### **Content**
-**ietoolkit** provides a set of commands that address different aspects of data management and data analysis in relation to Impact Evaluations. The list of commands will be extended continuously, and suggestions for new commands are greatly appreciated. Some of the commands are related to standardized best practices developed at DIME (The World Bank’s unit for Impact Evaluations). For these commands, the corresponding help files provide justifications for the standardized best practices applied. 
+**ietoolkit** provides a set of commands that address different aspects of data management and data analysis in relation to Impact Evaluations. The list of commands will be extended continuously, and suggestions for new commands are greatly appreciated. Some of the commands are related to standardized best practices developed at DIME (The World Bank’s unit for Impact Evaluations). For these commands, the corresponding help files provide justifications for the standardized best practices applied.
 
- - **ietoolkit** returns meta info on the version of _ietoolkit_ installed. Can be used to ensure that the team uses the same version. 
+ - **ietoolkit** returns meta info on the version of _ietoolkit_ installed. Can be used to ensure that the team uses the same version.
  - **iebaltab** is a tool for multiple treatment arm balance tables
  - **ieddtab** is a tool for difference-in-difference regression tables
  - **ieduplicates** and **iecompdup** are useful tools to identify and correct for duplicates, particulary in primary survey data
