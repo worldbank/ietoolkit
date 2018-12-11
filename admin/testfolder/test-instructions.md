@@ -10,6 +10,7 @@ There are two ways for how to install not-yet released versions of **ietoolkit**
     * The help files can be viewed (if they exist already) the same way as you normally view a help file with the command `help`.
     * This point only applies if you are setting up your own repository so that the command you wrote can be installed the same way,  **ietoolkit** already has these files. This method required a `.toc` and a `.pkg` file to be set up in the repository.
     * This method can be used to install any version of **ietoolkit** since commit [22da4fb](https://github.com/worldbank/ietoolkit/commit/22da4fb) made on December 11, 2018.
+    * This method does sometime not work if you do not have admin rights to your computer, which is common on work computer. For example, this does not work on World Bank computers unless you have specifically been given admin right by the World Bank IT team.
 * `do`
     * These instructions applies to any command written in any `.ado` or `.do` file, not just the **ietoolkit** files.
     * Requires you to manually put the files on your computer, either by downloading or cloning the files, or if it is a command you are writing yourself the files are already on your computer.
