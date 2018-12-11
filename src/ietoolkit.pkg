@@ -1,0 +1,30 @@
+v 6.1
+d ietoolkit. DIME Analytics ietoolkit version 6.1
+d DIME Analytics, World Bank Group, Development Economics Research
+d dimeanalytics@worldbank.org
+d https://github.com/worldbank/ietoolkit
+f /ado_files/ietoolkit.ado
+f /ado_files/iebaltab.ado
+f /ado_files/ieddtab.ado
+f /ado_files/ieduplicates.ado
+f /ado_files/iecompdup.ado
+f /ado_files/ieboilstart.ado
+f /ado_files/iefolder.ado
+f /ado_files/iegitaddmd.ado
+f /ado_files/iematch.ado
+f /ado_files/iegraph.ado
+f /ado_files/iedropone.ado
+f /ado_files/ieboilsave.ado
+f /help_files/ietoolkit.sthlp
+f /help_files/iebaltab.sthlp
+f /help_files/ieddtab.sthlp
+f /help_files/ieduplicates.sthlp
+f /help_files/iecompdup.sthlp
+f /help_files/ieboilstart.sthlp
+f /help_files/iefolder.sthlp
+f /help_files/iegitaddmd.sthlp
+f /help_files/iematch.sthlp
+f /help_files/iegraph.sthlp
+f /help_files/iedropone.sthlp
+f /help_files/ieboilsave.sthlp
+e

@@ -1,0 +1,4 @@
+v 6.1
+d DIME Analytics, World Bank Group, Development Economics Research
+d dimeanalytics@worldbank.org
+p ietoolkit DIME Analytics ietoolkit version 6.1
