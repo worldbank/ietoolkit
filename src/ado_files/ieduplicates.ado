@@ -142,12 +142,12 @@
 
 				*Load excel file. Load all vars as string and use metadata from Section 1
 				import excel "`folder'/iedupreport`suffix'.xlsx"	, clear firstrow
-				
-				*Drop empty rows that otherwise create error in merge
-				tempvar countmissing
-				egen `countmissing' = rownonmiss(_all), strok
-				drop if `countmissing' == 0
-				
+
+				*Drop empty rows that otherwise create error in merge that requires unique key
+				tempvar count_nonmissing_values
+				egen `count_nonmissing_values' = rownonmiss(_all), strok
+				drop if `count_nonmissing_values' == 0
+
 				** All excelVars but dupListID and newID should be string. dupListID
 				*  should be numeric and the type of newID should be based on the user input
 				foreach excelvar of local excelVars {
@@ -356,7 +356,7 @@
 
 				*Save imported data set with all corrections
 				save	`preppedReport'
-				
+
 			}
 
 
@@ -380,7 +380,7 @@
 
 				*Create a tempvar for merging results
 				tempvar iedup_merge
-				
+
 				*Merge the corrections with the data set
 				merge 1:1 `uniquevars' using `preppedReport', generate(`iedup_merge')
 
