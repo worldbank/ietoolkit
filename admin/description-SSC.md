@@ -3,10 +3,14 @@ See instructions for the content in this file here: http://repec.org/bocode/s/ss
 
 This is the information that will show when typing `ssc describe ietoolkit` and at https://ideas.repec.org/c/boc/bocode/s458137.html
 
-### What are keywords?
-This is an explanation to the keywords used below. I do not know how frequently they are used, but this is a list of keywords that are searchable. So if you search on _survey data_ (but I do not know where you do that search) you should find this command as it is one of the keywords.
+When updating this information at any point in the future, send the content of the 5 sections (Title, Description, Keywords, Required Stata Version and Author and Email) to Kit Baum when you are updating the package. Just copy the raw text to the body of the email.
+
+If you are not updating this meta information when updating the files in the `scto` package, then you do not have to submit this information with the files.
 
 ***
+
+### Title
+'IETOOLKIT': module providing commands specially developed for Impact Evaluations
 
 ### Description
 
@@ -23,3 +27,10 @@ Stata 11
 ### Author and Email
 * Author: DIME Analytics, The World Bank, DECIE
 * Support: email  dimeanalytics@worldbank.org
+
+
+***
+Do not send anything from below this line.
+
+### What are keywords?
+This is an explanation to the keywords used below. I do not know how frequently they are used, but this is a list of keywords that are searchable. So if you search on _field work_ (but I do not know where you do that search) you should find this command as it is one of the keywords.
