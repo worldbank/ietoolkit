@@ -11,7 +11,7 @@ To install **ietoolkit**, type **`ssc install ietoolkit`** in Stata. This will i
  When we are publishing new versions of **ietoolkit** then there could be a discrepancy between the master branch and the version on SSC as the master branch is updates a couple of days before. You can confirm if that could be the case by checking if we recently published a new [release](https://github.com/worldbank/ietoolkit/releases).
 
 #### Installing unpublished branches of this repository
-Follow the instructions above if you want the most recent published version of **ietoolkit**. If you want a yet to be published version of **ietoolkit** then you can use the code below. The code below installs the version currently in the `master` branch, but replace _master_ in the URL below with the name of the branch you want to install from. You can also install older version of **ietoolkit** like this but it will only go back to January 2019 when we set up this method of installing the package. 
+Follow the instructions above if you want the most recent published version of **ietoolkit**. If you want a yet to be published version of **ietoolkit** then you can use the code below. The code below installs the version currently in the `master` branch, but replace _master_ in the URL below with the name of the branch you want to install from. You can also install older version of **ietoolkit** like this but it will only go back to January 2019 when we set up this method of installing the package.
 
 ```
     net install ietoolkit , from("https://raw.githubusercontent.com/worldbank/ietoolkit/master/src") replace
@@ -36,7 +36,6 @@ While we have a slight preference for receiving feedback here on GitHub, you are
  - **ietoolkit** returns meta info on the version of _ietoolkit_ installed. Can be used to ensure that the team uses the same version.
  - **iebaltab** is a tool for multiple treatment arm balance tables
  - **ieddtab** is a tool for difference-in-difference regression tables
- - **ieduplicates** and **iecompdup** are useful tools to identify and correct for duplicates, particulary in primary survey data
  - **ieboilstart** standardizes the boilerplate code at the top of all do-files
  - **iefolder** sets up project folders and master do-files according to DIME's recommended folder structure
  - **iegitaddmd** adds placeholder README.md files to all empty subfolders allowing them to be synced on GitHub
