@@ -24,7 +24,7 @@ The version number is on the format `number.number` where the first number is in
 
 Version number and date in ado-file. Change both version number and date. Make sure that this line is the very first line in the ado-file.
 ```
-*! version 5.4 15DEC2017  DIME Analytics dimeanalytics@worldbank.org
+*! version 5.4 15DEC2017  DIME Analytics lcardosodeandrad@worldbank.org
 		
 	capture program drop ietoolkit
 	program ietoolkit
