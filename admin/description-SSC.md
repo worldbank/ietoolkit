@@ -14,12 +14,17 @@ If you are not updating this meta information when updating the files in the `sc
 
 ### Description
 
-ietookit provides a set of commands that address different aspects of data management and data analysis in relation to Impact Evaluations. The list of commands will be extended continuously, and suggestions on new commands are highly appreciated. Some of the commands are related to standardized practices developed at the World Bank's unit for Impact Evaluations (DIME) and might not apply to practices adopted at other institutions. For these commands, the corresponding help files provide justifications for the standardized practices applied. ieduplicates and iecompdup are useful tools to identify and correct for duplicates. iebaltab is a tool for multiple treatment arm balance tables. ieboilstart standardizes the boilerplate code at the top of all do-files. iegraph produces graphs based on common impact evaluation regression models. See https://github.com/worldbank/ietoolkit for more details.
+ietookit provides a set of commands that address different aspects of data management and data analysis in relation to Impact Evaluations. The list of commands will be extended continuously, and suggestions on new commands are highly appreciated. The commands were developed to standardize and simplify best practices across the World Bank's unit for Impact Evaluations (DIME). They are developed to be applicable to different contexts, but some might not apply to practices adopted at other institutions. For these commands, the corresponding help files provide justifications for the standardized practices applied. See https://github.com/worldbank/ietoolkit and https://dimewiki.worldbank.org/wiki/Stata_Coding_Practices for more details.
 
 
 ### Keywords
 * impact evaluations
+* data management
 * survey data
+* data analysis
+* balance tables
+* difference-in-differences
+* matching
 
 ### Required Stata Version      
 Stata 11
