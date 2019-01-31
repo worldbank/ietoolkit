@@ -4,10 +4,8 @@ d DIME Analytics, World Bank Group, Development Economics Research
 f /ado_files/iebaltab.ado
 f /ado_files/ieboilsave.ado
 f /ado_files/ieboilstart.ado
-f /ado_files/iecompdup.ado
 f /ado_files/ieddtab.ado
 f /ado_files/iedropone.ado
-f /ado_files/ieduplicates.ado
 f /ado_files/iefolder.ado
 f /ado_files/iegitaddmd.ado
 f /ado_files/iegraph.ado
@@ -16,10 +14,8 @@ f /ado_files/ietoolkit.ado
 f /help_files/iebaltab.sthlp
 f /help_files/ieboilsave.sthlp
 f /help_files/ieboilstart.sthlp
-f /help_files/iecompdup.sthlp
 f /help_files/ieddtab.sthlp
 f /help_files/iedropone.sthlp
-f /help_files/ieduplicates.sthlp
 f /help_files/iefolder.sthlp
 f /help_files/iegitaddmd.sthlp
 f /help_files/iegraph.sthlp
