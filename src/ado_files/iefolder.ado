@@ -1,4 +1,4 @@
-*! version 6.2 01JAN2019 DIME Analytics dimeanalytics@worldbank.org
+*! version 6.2 31JAN2019 DIME Analytics dimeanalytics@worldbank.org
 
 cap program drop 	iefolder
 	program define	iefolder

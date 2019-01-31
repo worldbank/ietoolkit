@@ -1,4 +1,4 @@
-*! version 6.2 01JAN2019 DIME Analytics dimeanalytics@worldbank.org
+*! version 6.2 31JAN2019 DIME Analytics dimeanalytics@worldbank.org
 
 capture program drop ietoolkit
 program ietoolkit, rclass
