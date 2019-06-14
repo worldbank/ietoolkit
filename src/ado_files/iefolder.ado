@@ -892,7 +892,7 @@ cap program drop 	mdofle_p0
 		file write  `subHandle' 	///
 			_col(4)"*Install all packages that this project requires:" _n ///
 			_col(4)"*(Note that this never updates outdated versions of already installed commands, to update commands use adoupdate)" _n ///
-			_col(4)"local user_commands ietoolkit iefieldkit" _col(40) "//Fill this list will all user-written commands this project requires" _n ///
+			_col(4)"local user_commands ietoolkit" _col(40) "//Fill this list will all user-written commands this project requires" _n ///
 			_col(4)"foreach command of local user_commands {" _n ///
 			_col(8)		"cap which " _char(96) "command'" _n ///
 			_col(8)		"if _rc == 111 {" _n ///
