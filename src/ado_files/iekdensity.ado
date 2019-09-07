@@ -22,102 +22,136 @@
 		    KDENSITYoptions(string)								/// Allows kernel options (namely [kernel], [bwidth], [n], and all the [cline_options]) for univariate kernel density estimation
 		    GRaphoptions(string)								/// Allows any normal options for twoway graphs
 		   ]
+		   
+/*******************************************************************************
+	Prepare settings
+*******************************************************************************/
 		
-		// Set minimum version for this command
-		version 11
+		qui {
 		
-		// Preserve current dataset
-		preserve
-		
-			qui {
-				
-				// Remove observations excluded by if and in conditions
-				marksample touse, novarlist
-				keep if   `touse'
+			// Set minimum version for this command
+			version 11
 			
-				// If no [color] is specified, keep standard Stata color palette
-				if  "`treatcolor'"   == "" local color_1 maroon
-				if  "`controlcolor'" == "" local color_0 navy
-				
-				// If [color] is specified, define new color palette
-				if  "`treatcolor'"   != "" local color_1 `treatcolor'
-				if  "`controlcolor'" != "" local color_0 `controlcolor'
-				
-				// If no [stat] is specified, do not attach any vertical line in the plot
-				if "`stat'" == "" {
-					
-					if "`statstyle'" != "" {
-						
-						noi di as error "{bf:statstyle()} requires the option {bf:stat()} to be specified."
-						noi di as error "If you want to use {bf:statstyle()}, you need to include the option {bf:stat()} too."
-								  exit 
-					}
-					
-					local STATxline ""
-				}
+			// Preserve current dataset
+			preserve
+							
+			// Remove observations excluded by if and in conditions
+			marksample touse, novarlist
+			keep if   `touse'
+			
+/*******************************************************************************
+	Prepare optional options
+*******************************************************************************/			
+			
+/*------------------------------------------------------------------------------
+	Color options
+------------------------------------------------------------------------------*/
 
-				// If [stat] option is specified, add option to graph vertical lines
-				if "`stat'" != "" {
+			// If no [color] is specified, keep standard Stata color palette.
+			// Otherwise, set user-specified colors
+			
+			* For treatment group
+			if  missing("`treatcolor'") {
+				local color_1 maroon
+			}
+			else {
+				local color_1 `treatcolor'
+			}
+			
+			* For control group
+			if  missing("`controlcolor'") {
+				local color_0 navy
+			}
+			else {
+				local color_0 `controlcolor'
+			}
 				
-					// List possible statistics
-					local statsList 	 mean min max p1 p5 p10 p25 p50 p75 p90 p95 p99
+/*------------------------------------------------------------------------------
+	Stat options
+------------------------------------------------------------------------------*/
+				
+				
+			*******************************************
+			* Test that option was correctly specified
+			*******************************************
+			
+			// If no [stat] is specified, option [statstyle] also shouldn't be
+			if missing("`stat'") & !missing("`statstyle'") {
+				
+				noi di as error "{bf:statstyle()} requires the option {bf:stat()} to be specified."
+				noi di as error "If you want to use {bf:statstyle()}, you need to include the option {bf:stat()} too."
+						  exit 
+				
+			}
+			// If no [stat] is specified, do not attach any vertical line in the plot
+			else if missing("`stat'") {
+				
+				local STATxline ""
+				
+			}
+			// If [stat] option is specified, add option to graph vertical lines
+			else if !missing("`stat'") {
+			
+				local statsList 	 mean min max p1 p5 p10 p25 p50 p75 p90 p95 p99
+				
+				foreach possibleStat of local statsList {
+				
+					local statIfList     `"`statIfList' "`stat'", "'
+					local statBoldString `"`statBoldString' {bf:`possibleStat'},"'
 					
-					// Make sure the [stat] chosen is part of this list and define line value
-					local statIfList     ""
-					local statBoldString ""
+				}
+				
+				// Check that the stat is among possible statistics
+				if !inlist("`stat'", `statIfList') {
 					
-					foreach possibleStat of local statsList {
+					noi di as error "The {bf:stat} you selected cannot be shown in the graph."
+					noi di as error "The available statistics are:`statBoldString'."
+							  exit	
+				}			
+				else {
 					
-						local statIfList     `" `statIfList' "`stat'" != "`possibleStat'" & "'
-						local statBoldString `"`statBoldString' {bf:`possibleStat'}"'
-					}
-									
-					// If it's not, return error message with list of available statistics
-					if `statIfList' 1 == 1 {
-						
-						noi di as error "The {bf:stat} you selected cannot be shown in the graph."
-						noi di as error "The available statistics are:`statBoldString'."
-								  exit	
-					}			
-					else {
-						
-						// Summarize variable and store locals with defined value
-						sum	  `varlist' if `treatvar' == 0 , d
-						local `varlist'_0 = `r(`stat')'
-						
-						sum	  `varlist' if `treatvar' == 1 , d
-						local `varlist'_1 = `r(`stat')'
-					}
+					// Summarize variable and store locals with defined value
+					sum	  `varlist' if `treatvar' == 0 , d
+					local `varlist'_0 = `r(`stat')'
 					
-					if "`statstyle'" != "" {
+					sum	  `varlist' if `treatvar' == 1 , d
+					local `varlist'_1 = `r(`stat')'
+				}
+				
+				if missing("`statstyle'") {
+				
+					// In the absence of [statstyle], we only use the 'dash' patttern
+					local STATxline `" xline( ``varlist'_0' , lcolor(`color_0'%80) lpattern(dash) ) xline(``varlist'_1' , lcolor(`color_1'%80) lpattern(dash) ) "'
 					
-						// Check that [statstyle] is correctly specified 
-						set graphics off //we set graphics off as the option [nograph] is conflicting with [xline]
-						cap kdensity `varlist' , xline( ``varlist'_0' , `statstyle' )
-						
-						if _rc != 0 {
-							
-							set graphics on
-							
-							// If it's not, replot the kernel density, which will automaticallty show the underlying error
-							kdensity `varlist' , xline( ``varlist'_0' , `statstyle' )
-						}
-						else {
-						
-							// Store local with [xline] option to be graphed
-							local STATxline `" xline( ``varlist'_0' , lcolor(`color_0'%80) `statstyle' ) xline(``varlist'_1' , lcolor(`color_1'%80) `statstyle' ) "'
-						}
+				}				
+				else if !missing("`statstyle'") {
+				
+					// Check that [statstyle] is correctly specified 
+					set graphics off //we set graphics off as the option [nograph] is conflicting with [xline]
+					cap kdensity `varlist' , xline( ``varlist'_0' , `statstyle' )
+					
+					if _rc != 0 {
 						
 						set graphics on
+						
+						// If it's not, replot the kernel density, which will automaticallty show the underlying error
+						kdensity `varlist' , xline( ``varlist'_0' , `statstyle' )
+					}
+					else {
+					
+						// Store local with [xline] option to be graphed
+						local STATxline `" xline( ``varlist'_0' , lcolor(`color_0'%80) `statstyle' ) xline(``varlist'_1' , lcolor(`color_1'%80) `statstyle' ) "'
 					}
 					
-					if "`statstyle'" == "" {
-					
-						// In the absence of [statstyle], we only use the 'dash' patttern
-						local STATxline `" xline( ``varlist'_0' , lcolor(`color_0'%80) lpattern(dash) ) xline(``varlist'_1' , lcolor(`color_1'%80) lpattern(dash) ) "'
-					}
+					set graphics on
 				}
 				
+			}
+				
+/*------------------------------------------------------------------------------
+	Treatment effect options
+------------------------------------------------------------------------------*/
+
 				// If [effectnote], [absorb], or [regressoptions] option is specified, check that [effect] was specified
 				if "`effect'" == "" {
 					
@@ -248,27 +282,23 @@
 			
 			// Record outcome variable label to be shown as x-axis title
 			local varLab : var label `varlist'
-			
-			// Plot final figure
-			#d	;
-				tw  (kdensity `varlist' if `treatvar' == 0 [`weight'`exp'] , `kdensityoptions' color(`color_0') )
-					(kdensity `varlist' if `treatvar' == 1 [`weight'`exp'] , `kdensityoptions' color(`color_1') )
-					,
-									 
-					`STATxline'
-					`EFFECTnote'
-					
-					ytitle(Density)
-					xtitle(`varLab')
-					
-					legend(order(0 "Treatment assignment:" 1 "Control" 2 "Treatment")
-						   row(1)
-						  )
-						   
-					`graphoptions'
-				;
-			#d	cr
-	
+		
+/*******************************************************************************
+	Plot the figure!
+*******************************************************************************/
+
+		tw  (kdensity `varlist' if `treatvar' == 0 [`weight'`exp'] , `kdensityoptions' color(`color_0') ) ///
+			(kdensity `varlist' if `treatvar' == 1 [`weight'`exp'] , `kdensityoptions' color(`color_1') ) ///
+			, 																							  ///			 
+			`STATxline' 																				  ///
+			`EFFECTnote' 																				  ///
+			ytitle	(Density) 																			  ///
+			xtitle	(`varLab') 																			  ///
+			legend	(order(0 "Treatment assignment:" 1 "Control" 2 "Treatment") 						  ///
+					 row(1) 																			  ///
+					) 																					  ///	   
+			`graphoptions'
+
 		// Restore original dataset
 		restore
 	
