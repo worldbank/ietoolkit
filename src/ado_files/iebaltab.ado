@@ -44,6 +44,7 @@
 				NOTtest														///
 				NORMDiff													///
 				PTtest														///
+				SETtest														///
 				PFtest														///
 				FEQTest														///
 				PBoth														///
@@ -217,6 +218,10 @@ qui {
 		*Is option pttest() used:
 		if "`pttest'" 			== "" local PTTEST_USED = 0
 		if "`pttest'" 			!= "" local PTTEST_USED = 1
+		
+		*Is option settest() used:
+		if "`settest'" 			== "" local SETTEST_USED = 0 
+		if "`settest'" 			!= "" local SETTEST_USED = 1 
 
 		*Is option pftest() used:
 		if "`pftest'" 			== "" local PFTEST_USED = 0
@@ -518,6 +523,13 @@ qui {
 			noi display as error "{phang}Option totallabel() may only be used together with the option total"
 			error 197
 		}
+	
+		if `SETTEST_USED' & `PTTEST_USED' {
+			
+			*Error for settest() and pttest() incorrectly applied together
+			noi display as error "{phang}Option settest may not be used in combination with the option pttest"
+			error 197
+		}	
 
 
 	** Stats Options
@@ -1808,6 +1820,12 @@ qui {
 						*Perform the t-test and store p-value in pttest
 						test `tempvar_thisGroupInPair'
 						local pttest = r(p)
+					
+						if `SETTEST_USED' {
+							local diffse = _se[`tempvar_thisGroupInPair']
+							local diffse : display `diformat' `diffse'
+							local diffse = trim("`diffse'")
+						}
 
 
 						*If p-test option is used
@@ -1834,8 +1852,9 @@ qui {
 						local tableRowUp 	`" `tableRowUp' _tab "`ttest_output'" "'
 						local tableRowDo 	`" `tableRowDo' _tab " " "'
 
-						local texRow	`" `texRow' " & `ttest_output'" "'
-					}
+						if `PTTEST_USED' | !`SETTEST_USED' local texRow	`" `texRow' " & `ttest_output'" "'
+						else local texRow	`" `texRow' " & \begin{tabular}[t]{@{}c@{}} `ttest_output' \\ (`diffse') \end{tabular}" "'
+				}
 				}
 			}
 
