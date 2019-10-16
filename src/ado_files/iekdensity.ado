@@ -91,16 +91,18 @@
 				// If it is smaller or larger, we throw an error
 				if   `color_num_groups' > `treatvar_num_groups' {
 					  
-					  noi di as error "{phang}The number of colors you specified in {bf:color()} is higher than the number of categories in the treatment variable {bf:treatvar()}."
-					  noi di as error "{phang}Please define one color for each category."
-								error 
+					  noi di as error "{phang}The number of colors you specified in {bf:color()} is higher than the number of categories in the treatment variable {bf:treatvar()}.{p_end}"
+					  noi di as error "{phang}Please define one color for each category.{p_end}"
+					  noi di 		  ""
+								error 198
 				}
 				
 				if   `color_num_groups' < `treatvar_num_groups' {
 					
-					noi di as error "{phang}The number of colors you specified in {bf:color()}  is smaller than the number of categories in the treatment variable {bf:treatvar()}."
-					noi di as error "{phang}Please define one color for each category."
-							  error 
+					  noi di as error "{phang}The number of colors you specified in {bf:color()}  is smaller than the number of categories in the treatment variable {bf:treatvar()}.{p_end}"
+					  noi di as error "{phang}Please define one color for each category.{p_end}"
+					  noi di 		  ""
+							    error 198
 				}
 				
 				else {
@@ -133,9 +135,10 @@
 			// If no [stat] is specified, option [statstyle] also shouldn't be
 			if missing("`stat'") & !missing("`statstyle'") {
 				
-				noi di as error "{phang}{bf:statstyle()} requires the option {bf:stat()} to be specified."
-				noi di as error "{phang}If you want to use {bf:statstyle()}, you need to include the option {bf:stat()} too."
-						  error 
+				noi di as error "{phang}{bf:statstyle()} requires the option {bf:stat()} to be specified..{p_end}"
+				noi di as error "{phang}If you want to use {bf:statstyle()}, you need to include the option {bf:stat()} too.{p_end}"
+				noi di 		    ""
+						  error 198
 				
 			}
 			// If no [stat] is specified, do not attach any vertical line in the plot
@@ -166,9 +169,10 @@
 				// Check that the stat is among possible statistics
 				if `statIfList' "ok" == "ok" {
 					
-					noi di as error "{phang}The {bf:stat()} you selected cannot be shown in the graph."
-					noi di as error "{phang}The available statistics are:`statBoldString'."
-							  error	
+					noi di as error "{phang}The {bf:stat()} you selected cannot be shown in the graph.{p_end}"
+					noi di as error "{phang}The available statistics are:`statBoldString'.{p_end}"
+					noi di 		    ""
+							  error 198	
 				}
 								
 				else {
@@ -231,9 +235,10 @@
 			
 			if   `control_correct' == 0 {
 			
-				  noi di as error "{phang}The code listed in {bf:control(`control')} is not used in {bf:tretavar(`treatvar')}. See tabulation of `treatvar' below:"
-				  noi tab `testvar', nol
-				  error 197
+				  noi di as error "{phang}The code listed in {bf:control(`control')} is not used in {bf:tretavar(`treatvar')}. See tabulation of {it:`treatvar'} below:{p_end}"
+				  noi tab  `treatvar', nol
+				  noi di 		  ""		    
+							error 197
 			}
 }			
 /*------------------------------------------------------------------------------
@@ -247,9 +252,10 @@
 				
 					if "``effectOption''" != "" {
 							
-						noi di as error "{phang}{bf:`effectOption'()} requires the option {bf:effect} to be specified."
-						noi di as error "{phang}If you want to use {bf:`effectOption'()}, you need to include the option {bf:effect} too."
-								  error 
+						noi di as error "{phang}{bf:`effectOption'()} requires the option {bf:effect} to be specified.{p_end}""
+						noi di as error "{phang}If you want to use {bf:`effectOption'()}, you need to include the option {bf:effect} too.{p_end}"
+						noi di 		    ""
+								  error 198 
 					}
 				}
 				
@@ -276,13 +282,15 @@
 
 					if _rc == 120 {
 
-						di as error "{phang}The format specified in effectformat(`effectformat') is not a valid Stata format. See {help format} for a list of valid Stata formats. This command only accept the f, fc, g, gc and e format.{p_end}"
-						error 120
+						noi di as error "{phang}The format specified in effectformat(`effectformat') is not a valid Stata format. See {help format} for a list of valid Stata formats. This command only accept the f, fc, g, gc and e format.{p_end}"
+						noi di 		    ""
+							      error 120
 					}
 					else if _rc != 0 {
 
-						di as error "{phang}Something unexpected happened related to the option format(`format'). Make sure that the format you specified is a valid format. See {help format} for a list of valid Stata formats. If this problem remains, please report this error to mruzzante@worldbank.org.{p_end}"
-						error _rc
+						noi di as error "{phang}Something unexpected happened related to the option format(`format'). Make sure that the format you specified is a valid format. See {help format} for a list of valid Stata formats. If this problem remains, please report this error to mruzzante@worldbank.org.{p_end}"
+						noi di 		    ""
+							      error _rc
 					}
 					else {
 						** We know here that the format is one of the numeric formats that Stata allows
@@ -321,8 +329,9 @@
 							local formatAllowed 0
 						}
 						if `formatAllowed' == 0 {
-							di as error "{phang}The format specified in effectformat(`effectformat') is not allowed. Only format f, fc, g, gc and e are allowed. See {help format} for details on Stata formats.{p_end}"
-							error 120
+							di as error "{phang}The format specified in {bf:effectformat(`effectformat')} is not allowed. Only format f, fc, g, gc and e are allowed. See {help format} for details on Stata formats.{p_end}"
+							noi di 		""
+								  error 120
 						}
 						*If format passed all tests, store it in the local used for display formats
 						local TEformat  "`effectformat'"
@@ -378,9 +387,11 @@
 					
 						if missing("`control'") {
 							
-							noi di as error "{phang}The treatment variable in {bf:treatvar()} is not a 0/1 dummy variable."
-							noi di as error "{phang}If you want to compute the treatment effect, you need to indicate which value is referred to the control group using the option {bf:control()}."
-									  error	
+							noi di as error "{phang}The treatment variable in {bf:treatvar()} is not a 0/1 dummy variable. See tabulation of {it:`treatvar'} below.{p_end}""
+							noi di as error "{phang}If you want to compute the treatment effect, you need to indicate which value is referred to the control group using the option {bf:control()}.{p_end}"
+							noi tab  `treatvar', nolab
+							noi di 		    ""
+									  error 198
 						}
 						
 						else if !missing("`control") {
@@ -427,9 +438,11 @@
 					// In this case, the control value must be specified
 					if  missing("`control'") {
 							
-						noi di as error "{phang}The treatment variable in {bf:treatvar()} is a factor variable."
-						noi di as error "{phang}If you want to compute the treatment effect, you need to indicate which value is referred to the control group using the option {bf:control()}."
-								  error	
+						noi di as error "{phang}The treatment variable in {bf:treatvar()} is a factor variable. See tabulation of {it:`treatvar'} below.{p_end}"
+						noi di as error "{phang}If you want to compute the treatment effect, you need to indicate which value is referred to the control group using the option {bf:control()}.{p_end}"
+						noi tab  `treatvar', nolab
+						noi di 		    ""
+								  error 198
 					}
 					
 					if !missing("`control'") {
@@ -448,6 +461,7 @@
 							replace `treatmentAux' = `treatvarCount' if `treatvar' == `treatvarNum'
 						}
 						
+						// Run regression with control as base group
 						if "`absorb'" == "" {
 							reg  `varlist' ib0.`treatmentAux' [`weight'`exp'] , `regressionoptions'
 						}
@@ -459,6 +473,7 @@
 
 						mat   results = r(table)
 
+						// Store estimates for each treatment
 						forv  estimateNum = 1/`treatvarCount' {
 							
 							local resultsMatCol = `estimateNum' + 1 //the first column of the matrix is left for the base group, i.e., the control
@@ -477,6 +492,7 @@
 								
 						local obs = e(N)
 						
+						// Stack each effect in a single note
 						forv  estimateNum = 1/`treatvarCount' {
 						
 							if	`estimateNum' == 1 {
