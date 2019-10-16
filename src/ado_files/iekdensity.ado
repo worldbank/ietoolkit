@@ -1,4 +1,4 @@
-*! version DEVELOP 12SEP2019 Matteo Ruzzante mruzzante@worldbank.org
+*! version DEVELOP 16OCT2019 Matteo Ruzzante mruzzante@worldbank.org
 	
 	cap prog drop    iekdensity
 		prog define  iekdensity
@@ -93,14 +93,14 @@
 					  
 					  noi di as error "{phang}The number of colors you specified in {bf:color()} is higher than the number of categories in the treatment variable {bf:treatvar()}."
 					  noi di as error "{phang}Please define one color for each category."
-								exit 
+								error 
 				}
 				
 				if   `color_num_groups' < `treatvar_num_groups' {
 					
 					noi di as error "{phang}The number of colors you specified in {bf:color()}  is smaller than the number of categories in the treatment variable {bf:treatvar()}."
 					noi di as error "{phang}Please define one color for each category."
-							  exit 
+							  error 
 				}
 				
 				else {
@@ -135,7 +135,7 @@
 				
 				noi di as error "{phang}{bf:statstyle()} requires the option {bf:stat()} to be specified."
 				noi di as error "{phang}If you want to use {bf:statstyle()}, you need to include the option {bf:stat()} too."
-						  exit 
+						  error 
 				
 			}
 			// If no [stat] is specified, do not attach any vertical line in the plot
@@ -168,7 +168,7 @@
 					
 					noi di as error "{phang}The {bf:stat()} you selected cannot be shown in the graph."
 					noi di as error "{phang}The available statistics are:`statBoldString'."
-							  exit	
+							  error	
 				}
 								
 				else {
@@ -231,7 +231,7 @@
 			
 			if   `control_correct' == 0 {
 			
-				  noi di as error "{phang}The code listed in control(`control') is not used in tretavar(`treatvar'). See tabulation of `treatvar' below:"
+				  noi di as error "{phang}The code listed in {bf:control(`control')} is not used in {bf:tretavar(`treatvar')}. See tabulation of `treatvar' below:"
 				  noi tab `testvar', nol
 				  error 197
 			}
@@ -249,7 +249,7 @@
 							
 						noi di as error "{phang}{bf:`effectOption'()} requires the option {bf:effect} to be specified."
 						noi di as error "{phang}If you want to use {bf:`effectOption'()}, you need to include the option {bf:effect} too."
-								  exit 
+								  error 
 					}
 				}
 				
@@ -380,28 +380,28 @@
 							
 							noi di as error "{phang}The treatment variable in {bf:treatvar()} is not a 0/1 dummy variable."
 							noi di as error "{phang}If you want to compute the treatment effect, you need to indicate which value is referred to the control group using the option {bf:control()}."
-									  exit	
+									  error	
 						}
 						
 						else if !missing("`control") {
 							
 							// When the binary variable is not 0/1, recode variable to be 0/1, depending on the control specified
 							tempvar  treatmentAux
-							gen	    `treatmentAux' = 0 if `treatvar' == `control'
-							replace `treatmentAux' = 1 if `treatvar' != `control'
+							gen	    `treatmentAux' = 0 if `treatvar' == `control' & !mi(`treatvar')
+							replace `treatmentAux' = 1 if `treatvar' != `control' & !mi(`treatvar')
 							
 							if "`absorb'" == "" {
-								reg  `varlist' ``treatmentAux'' [`weight'`exp'] , `regressionoptions'
+								reg  `varlist' `treatmentAux' [`weight'`exp'] , `regressionoptions'
 							}
 							
 							if "`absorb'" != "" {
 							
-								areg `varlist' ``treatmentAux'' [`weight'`exp'] , `regressionoptions' abs(`absorb') 
+								areg `varlist' `treatmentAux' [`weight'`exp'] , `regressionoptions' abs(`absorb') 
 							}
 
 							mat   results = r(table)
-							local beta	  = string( _b[``treatmentAux''] , "`TEformat'")
-							local se	  = string(_se[``treatmentAux''] , "`TEformat'")
+							local beta	  = string( _b[`treatmentAux'] , "`TEformat'")
+							local se	  = string(_se[`treatmentAux'] , "`TEformat'")
 							local pvalue  = results[4, 1]
 							
 							local obs	  = e(N)
@@ -422,34 +422,75 @@
 				// --------------------------
 				if `treatvar_num_groups'  > 2 {
 					
+					di "ok"
+					
 					// In this case, the control value must be specified
 					if  missing("`control'") {
 							
 						noi di as error "{phang}The treatment variable in {bf:treatvar()} is a factor variable."
 						noi di as error "{phang}If you want to compute the treatment effect, you need to indicate which value is referred to the control group using the option {bf:control()}."
-								  exit	
+								  error	
 					}
 					
 					if !missing("`control'") {
 					
-						// Generate dummies from factor variable
-						gen control = `treatvar' == `control'
-						
 						// Local with values other than [control]
 						levelsof `treatvar' if `treatvar' != `control', local(treatvar_comparison)
 						
-						foreach treatvarNum of local treatvar_comparison {
+						// Generate new treatment factor variable
+						tempvar  treatmentAux
+						gen 	`treatmentAux' = 0 if `treatvar' == `control'	// equal to 0 for the control group
+						
+						local    treatvarCount = 0
+						foreach  treatvarNum of local treatvar_comparison {
 							
-							// Generate treatment dummies
-							gen treat`treatvarNum' = `treatvar' == `treatvarNum'
-							
-							// Run regression versus control
-							
+							local    treatvarCount = `treatvarCount' + 1		// and going from 1 to the total number of treatment arms for the rest
+							replace `treatmentAux' = `treatvarCount' if `treatvar' == `treatvarNum'
 						}
+						
+						if "`absorb'" == "" {
+							reg  `varlist' ib0.`treatmentAux' [`weight'`exp'] , `regressionoptions'
+						}
+						
+						if "`absorb'" != "" {
+						
+							areg `varlist' ib0.`treatmentAux' [`weight'`exp'] , `regressionoptions' abs(`absorb') 
+						}
+
+						mat   results = r(table)
+
+						forv  estimateNum = 1/`treatvarCount' {
+							
+							local resultsMatCol = `estimateNum' + 1 //the first column of the matrix is left for the base group, i.e., the control
+							
+							local   beta`estimateNum' = string(results[1, `resultsMatCol'], "`TEformat'")
+							local     se`estimateNum' = string(results[2, `resultsMatCol'], "`TEformat'")
+							local pvalue`estimateNum' = 	   results[4, `resultsMatCol']
+							
+							local  stars`estimateNum'   ""
+						
+							foreach signLevel in 0.1 0.05 0.01 {
+
+								if `pvalue`estimateNum'' < `signLevel' local stars`estimateNum' "`stars`estimateNum''*"
+							}
+						}
+								
+						local obs = e(N)
+						
+						forv  estimateNum = 1/`treatvarCount' {
+						
+							if	`estimateNum' == 1 {
+								local EFFECTnote 				   "  [`treatvar' == `estimateNum'] `beta`estimateNum'' (`se`estimateNum'')`stars`estimateNum'';"
+							}
+							else {
+								local EFFECTnote `" "`EFFECTnote'" "  [`treatvar' == `estimateNum'] `beta`estimateNum'' (`se`estimateNum'')`stars`estimateNum'';" "'
+							}
+						}
+												
+						local EFFECTnote `" note("{bf:Treatment effects} =" `EFFECTnote' "  N = `obs'.") "'
 					}
 				}
-			}
-				
+			}				
 }			
 /*******************************************************************************
 	Prepare figure inputs

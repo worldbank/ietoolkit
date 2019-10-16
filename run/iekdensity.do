@@ -4,7 +4,7 @@
 *******************************************************************************/
 
 	* Add the path to your local clone of the [ietoolkit] repo
-	global 	ietoolkit "C:/Users/WB527265/Documents/GitHub/ietoolkit"  
+	global 	ietoolkit "C:/Users/ruzza/OneDrive/Documenti/GitHub/ietoolkit"  
 	qui		do 		  "${ietoolkit}/src/ado_files/iekdensity.ado"
 
 	* Load data
@@ -22,7 +22,7 @@
 		gen treatment_factor`factorCap' = ceil(`factorCap' * _n/_N)
 		tab treatment_factor`factorCap'
 	}
-	
+			
 /*******************************************************************************
 	No error
 *******************************************************************************/
@@ -43,9 +43,8 @@
 	** Statistic options
 	iekdensity price, treatvar(treatment_binary ) stat(p50)
 	
-	
 	* Add statistic with detailed style
-	iekdensity price, treatvar(treatment_binary ) stat(mean) statstyle(lpattern(dashed) lwidth(2))
+	iekdensity price, treatvar(treatment_binary ) stat(mean) statstyle(lpattern(dash) lwidth(2))
 	
 	** Effect options
 	iekdensity price, treatvar(treatment_binary ) stat(p50) color(eltblue edkblue) effect
@@ -59,10 +58,25 @@
 		
 	** Regression options
 	
+	* Fixed effects
+	iekdensity price, treatvar(treatment_binary ) stat(p50) color(eltblue edkblue) ///
+					  effect abs(foreign)
+	
+	* Clustered standard errors
+	iekdensity price, treatvar(treatment_binary ) stat(p50) color(eltblue edkblue) ///
+					  effect reg(cl(foreign))
+	
 	** Kernel options
+	iekdensity price, treatvar(treatment_binary ) stat(p50) color(eltblue edkblue) ///
+					  kdensity(biweight)
+
+	iekdensity price, treatvar(treatment_binary ) stat(p50) color(eltblue edkblue) ///
+					  kdensity(epan2 bwidth(5))			  
 	
 	** Graphic options
-	iekdensity price, treatvar(treatment_binary ) stat(p50) color(eltblue edkblue) effect effectformat(%9.0fc) gr(graphregion(color(white)))
+	iekdensity price, treatvar(treatment_binary ) stat(p50) color(eltblue edkblue) 	///
+					  effect effectformat(%9.0fc) 									///
+					  gr(graphregion(color(white)) ylab(, nogrid))
 	
 	
 	* Categorical treatment
@@ -74,9 +88,11 @@
 	
 	iekdensity price, treatvar(treatment_factor3) color(eltblue midblue edkblue)
 	
-	iekdensity price, treatvar(treatment_factor3) stat(mean)
+	iekdensity price, treatvar(treatment_factor3) color(eltblue midblue edkblue) stat(mean)
 	
-	iekdensity price, treatvar(treatment_factor3) color(eltblue midblue edkblue) effect
+	iekdensity price, treatvar(treatment_factor3) color(eltblue midblue edkblue) effect control(1)
+	iekdensity price, treatvar(treatment_factor3) color(eltblue midblue edkblue) effect control(2)
+	
 	
 /*******************************************************************************
 	Yes error
@@ -92,6 +108,10 @@
 	iekdensity price, treatvar(treatment_binary)  color(eltblue midblue edkblue)
 	
 	* Not enough colors
-	iekdensity price, treatvar(treatment_factor3) color(eltblue midblue) stat(mean) 
+	iekdensity price, treatvar(treatment_factor3) color(eltblue midblue) stat(mean)
+	
+	* Multiple treatment arms but control group not specified
+	iekdensity price, treatvar(treatment_factor3) color(eltblue midblue edkblue) effect
 	
 	
+***************************** End of do-file ***********************************
