@@ -22,7 +22,7 @@
 		gen treatment_factor`factorCap' = ceil(`factorCap' * _n/_N)
 		tab treatment_factor`factorCap'
 	}
-			
+	
 /*******************************************************************************
 	No error
 *******************************************************************************/
@@ -85,6 +85,11 @@
 	iekdensity price, treatvar(treatment_factor4) 
 	iekdensity price, treatvar(treatment_factor5)
 	iekdensity price, treatvar(treatment_factor6)
+	
+	lab def 				  treatment_factor3Lab 1 "Treatment 1" 2 "Treatment 2" 3 "Treatment 3", replace
+	lab val treatment_factor3 treatment_factor3Lab
+	
+	iekdensity price, treatvar(treatment_factor3)
 	
 	iekdensity price, treatvar(treatment_factor3) color(eltblue midblue edkblue)
 	

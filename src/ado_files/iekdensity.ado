@@ -113,12 +113,9 @@
 					foreach   treatvarNum of local treatvar_levels {
 											
 						local treatvar_`treatvarNum' 		 = word("`treatvar_levels'" , `colorNum')
-						di "`treatvar_`treatvarNum''"
 						
 						local color_`treatvar_`treatvarNum'' = word("`color'"		    , `colorNum')
-						
-						di "`color_`treatvar_`treatvarNum''''"
-						
+												
 						local colorNum = `colorNum' + 1
 					}
 				}
@@ -195,9 +192,7 @@
 						local STATxline `" `STATxline' xline( ``varlist'_`varNum'' , lcolor(`color_`varNum''%80) lpattern(dash) ) "'
 					}					
 				}		
-				
-				di "`STATxline'"
-				
+								
 				else if !missing("`statstyle'") {
 				
 					// Check that [statstyle] is correctly specified 
@@ -432,9 +427,7 @@
 				// Case with factor variables
 				// --------------------------
 				if `treatvar_num_groups'  > 2 {
-					
-					di "ok"
-					
+										
 					// In this case, the control value must be specified
 					if  missing("`control'") {
 							
@@ -447,7 +440,8 @@
 					
 					if !missing("`control'") {
 					
-						// Local with values other than [control]
+						// Local with values of [control] and other than [control]
+						levelsof `treatvar' if `treatvar' == `control', local(treatvar_control)
 						levelsof `treatvar' if `treatvar' != `control', local(treatvar_comparison)
 						
 						// Generate new treatment factor variable
@@ -461,8 +455,29 @@
 							replace `treatmentAux' = `treatvarCount' if `treatvar' == `treatvarNum'
 						}
 						
+						// Transfer labels from original variable
+						local    treatvarCount = 0
+						local 	 treatvarLab_`treatvarCount' : label (`treatvar') `treatvar_control'
+						di	   "`treatvarLab_`treatvarCount''"
+						lab def  treatvarLab `treatvarCount' "`treatvarLab_`treatvarCount''", replace
+						
+						foreach  treatvarNum of local treatvar_comparison {
+							
+							local treatvarCount = `treatvarCount' + 1
+							
+							local treatvarLab_`treatvarCount' : label (`treatvar') `treatvarNum'
+							
+							lab   def treatvarLab `treatvarCount' "`treatvarLab_`treatvarCount''", add
+						}
+												
+						lab val  `treatmentAux'   treatvarLab
+						
+						// Final levels of new treatment variable
+						levelsof `treatmentAux' , local(treatvarAux_levels)
+						
 						// Run regression with control as base group
 						if "`absorb'" == "" {
+						
 							reg  `varlist' ib0.`treatmentAux' [`weight'`exp'] , `regressionoptions'
 						}
 						
@@ -512,36 +527,76 @@
 	Prepare figure inputs
 *******************************************************************************/
 {		
-			// If the treatment variable has no defined label, we leave the value in the legend		
+			// If the treatment variable has no defined label, we leave the value in the legend	
 			if  missing("`treatvar_value_label'") {
 				
-				foreach treatvarNum of local treatvar_levels {
-						
-					local label_`treatvarNum' "`treatvarNum'"
+				//Multiple treatment case with effect option and control specified
+				if `treatvar_num_groups' > 2 & "`effect'" != "" {
+					
+					foreach treatvarNum of local treatvarAux_levels {
+							
+						local label_`treatvarNum' "`treatvarNum'"
+					}
+				}
+				
+				//Other cases
+				else {
+				
+					foreach treatvarNum of local treatvar_levels {
+							
+						local label_`treatvarNum' "`treatvarNum'"
+					}
 				}
 			}
 			
 			// If the treatmnet variable has labels, we will display it in the legend
 			if !missing("`treatvar_value_label'") {
-			
-				foreach treatvarNum of local treatvar_levels {
+				
+				if `treatvar_num_groups' > 2 & "`effect'" != "" {
 					
-					local label_`treatvarNum' : label (`treatvar') `treatvarNum'
+					foreach treatvarNum of local treatvarAux_levels {
+							
+						local label_`treatvarNum' : label (`treatmentAux') `treatvarNum'
+					}
+				}
+				
+				else {
+					
+					foreach treatvarNum of local treatvar_levels {
+					
+						local label_`treatvarNum' : label (`treatvar')     `treatvarNum'
+					}
 				}
 			}
 			
 			// Prepare [kdensity] code and legend argument
-			local     treatCount = 0 
 			local kdensityString  "tw"
 			local 	legendString `"legend(order(0 "Treatment assignment:" "'
 			 
-			foreach treatvarNum of local treatvar_levels {
+			if `treatvar_num_groups' > 2 & "`effect'" != "" {
 				
-				local treatCount	  = `treatCount' + 1
-				
-				local kdensityString `" `kdensityString' (kdensity `varlist' if `treatvar' == `treatvarNum' [`weight'`exp'] , `kdensityoptions' color(`color_`treatvarNum'') ) "'
-				
-				local   legendString `"   `legendString' `treatCount' "`label_`treatvarNum''" "'
+				local   treatCount = 0 
+				foreach treatvarNum of local treatvarAux_levels {
+					
+					local treatCount	  = `treatCount' + 1
+					
+					local kdensityString `" `kdensityString' (kdensity `varlist' if `treatmentAux' == `treatvarNum' [`weight'`exp'] , `kdensityoptions' color(`color_`treatvarNum'') ) "'
+					
+					local   legendString `"   `legendString' `treatCount' "`label_`treatvarNum''" "'
+				}
+			}
+			
+			else {
+			
+				local   treatCount = 0 
+				foreach treatvarNum of local treatvar_levels {
+					
+					local treatCount	  = `treatCount' + 1
+					
+					local kdensityString `" `kdensityString' (kdensity `varlist' if `treatvar' == `treatvarNum' [`weight'`exp'] , `kdensityoptions' color(`color_`treatvarNum'') ) "'
+					
+					local   legendString `"   `legendString' `treatCount' "`label_`treatvarNum''" "'
+				}
 			}
 			
 			// Add final parenthesis and number of rows (this can be changed by the user through graphoptions()
