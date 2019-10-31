@@ -5,7 +5,7 @@ cap program drop   iegitaddmd
 
 qui {
 
-		syntax , folder(string) [customfile(string) all skip replace]
+		syntax , folder(string) [customfile(string) all skip replace manual]
 
 		/******************************
 		*******************************
@@ -91,7 +91,7 @@ qui {
 		*Use the command on each subfolder to this folder (if any)
 		foreach dir of local dlist {
 			*Recursive call on each subfolder
-			noi iegitaddmd , folder(`"`folderStd'/`dir'"') `all' `customFileRecurse' `skip' `replace'
+			noi iegitaddmd , folder(`"`folderStd'/`dir'"') `all' `customFileRecurse' `skip' `replace' `manual'
 		}
 
 		******************************
@@ -99,24 +99,15 @@ qui {
 
 		*Test if all of those lists are empty, meaning there are
 		* no folders or files in this folder
-		if `"`flist'`dlist'`olist'"' == "" {
-
-			*If custom file was specified, you copy that one to empt folder
-			if "`customFileStd'" != "" copy "`customFileStd'" `"`newPlaceholderFile'"', replace
-			*No custom file so write default README.md file
-			else writeDefaultPlaceholder `"`newPlaceholderFile'"'
-		}
+		if `"`flist'`dlist'`olist'"' == "" noi writeDefaultPlaceholder, newfileinclone(`"`newPlaceholderFile'"') customfile(`"`customFileStd'"') `manual'
 
 		*If the folder is not empty, test if option all were used.
 		else if ("`all'" == "all") {
 
+				cap confirm file `"`newPlaceholderFile'"'
+
 				* No file with this name exists in this folder, create file without further ado
-				if _rc != 0 {
-					*If custom file was specified, you copy that one to empt folder
-					if "`customFileStd'" != "" copy "`customFileStd'" `"`newPlaceholderFile'"', replace
-					*No custom file so write default README.md file
-					else writeDefaultPlaceholder `"`newPlaceholderFile'"'
-				}
+				if _rc != 0 noi writeDefaultPlaceholder, newfileinclone(`"`newPlaceholderFile'"') customfile(`"`customFileStd'"') `manual'
 
 				* File exist, but no sintructions on how to deal with this has been given, throw error
 				else if missing("`skip'") & missing("`replace'")  {
@@ -125,12 +116,7 @@ qui {
 				}
 
 				* File exist, and instruction is to replace, create files and overwrite as needed
-				else if !missing("`replace'") {
-					*If custom file was specified, you copy that one to empt folder
-					if "`customFileStd'" != "" copy "`customFileStd'" `"`newPlaceholderFile'"', replace
-					*No custom file so write default README.md file
-					else writeDefaultPlaceholder `"`newPlaceholderFile'"'
-				}
+				else if !missing("`replace'") noi writeDefaultPlaceholder, newfileinclone(`"`newPlaceholderFile'"') customfile(`"`customFileStd'"') `manual'
 
 				* File exist, and instruction is to skip, do nothing
 				else if !missing("`skip'") {
@@ -151,30 +137,66 @@ end
 
 
 	*Write a README.md file when iegitaddmd finds an empty folder
-	cap program drop writeDefaultPlaceholder
-	program define   writeDefaultPlaceholder
+cap program drop writeDefaultPlaceholder
+program define   writeDefaultPlaceholder
 
-		args newplaceholderfile
+qui {
 
-		*Create file
-		tempname 	newHandle
-		cap file close 	`newHandle'
-		file open  	`newHandle' using "`newplaceholderfile'", text write replace
+	syntax , newfileinclone(string) [customfile(string) manual]
 
-		*Add some text to the file
-		file write  `newHandle' ///
-			"# Placeholder file" _n _n ///
-			"This file has been created automatically by the command **iegitaddmd** from the Stata package [**ietoolkit**](https://worldbank.github.io/ietoolkit) to make GitHub sync this folder. GitHub does not sync empty folders or folders that only contain ignored files, but in research projects it is often important to share the full standardized folder structure along with the actual files. This command is intended to be used with **iefolder**, but it can be used in any folder structure intended to be shared on GitHub." _n _n ///
-			"In recently started projects, it is typical to create data folders, script folders (do-files, r-files) and output folders, among others. The output folders are initially empty, but the script files might include a file path to them for later use. If an output folder is empty and another collaborator clones the repository, then the output folder expected by the scripts will not be included by GitHub in the cloned repository, and the script will not run properly." _n _n ///
-			"## You should replace the content of this placeholder file" _n _n ///
-			"The text in this file should be replaced with text that describes the intended use of this folder. This file is written in markdown (.md) format, which is suitable for GitHub syncing (unlike .doc/.docx). If the file is named *README.md*, GitHub automatically displays its contents when someone opens the containing folder on GitHub.com using a web browser." _n _n ///
-			"If you are new to markup languages (markdown, html etc.) then this [Markdown Tutorial](https://www.markdowntutorial.com/) is a great place to start. If you have some experience with markup languages, then this [Markdown Cheat Sheet](https://guides.github.com/pdfs/markdown-cheatsheet-online.pdf) is a great place to start." _n _n ///
-			"## Add similar files in other folders" _n _n ///
-			"The Stata command **iegitaddmd** does not add anything to folders that already have content unless this is explicitly requested using the option `all`. It is best practice to create a *README.md* file in any folders that have content, for example, in folders whose purpose might not obvious to someone using the repository for the first time. Again, if the file is named *README.md*, then the content of the file will be shown in the browser when someone explores the repository on GitHub.com." _n _n ///
-			"Another great use of a *README.md* file is to use it as a documentation on how the folder it sits in and its subfolders are organized,  where its content can be found, and where new content is meant to be saved. For example, if you have a folder called `/Baseline/`, then you can give a short description of the activities conducted during the baseline and where data, scripts and outputs related to it can be found." _n _n ///
-			"## Removing this file" _n _n ///
-			"Removing this file is not recommended, as GitHub may stop syncing the parent folder unless the folder now has other content. However, even when content is added and the file can be removed without breaking the GitHub functionality, our recommendation is to replace the content with more relevant content rather than deleting it." _n _n
+	*Get the current folder name from newfileinclone
+	local lastSlash = strpos(strreverse(`"`newfileinclone'"'),"/")
+	local folder = substr(`"`newfileinclone'"',1,strlen("`newfileinclone'")-`lastSlash')
+	local fileName = substr(`"`newfileinclone'"', (-1 * `lastSlash')+1 ,.)
 
-		*Closing the file
-		file close 		`newHandle'
+	*If manual was used, get manual confirmation for each file
+	if !missing("`manual'") {
+		noi di ""
+		global confirmation "" //Reset global
+
+		*Keep aslking for input until the input is either Y, y, N, n or BREAK
+		while (upper("${confirmation}") != "Y" & upper("${confirmation}") != "N" & "${confirmation}" != "BREAK") {
+		  noi di as txt "{pstd}You are about to create a file [`fileName'] in the folder [`folder']. Do you want to do that? To confirm type {bf:Y} and hit enter, to abort type {bf:N} and hit enter. Type {bf:BREAK} and hit enter to stop the code.{p_end}", _request(confirmation)
+		}
+		*Copy user input to local
+		local createfile = upper("${confirmation}")
+		* If user wrote "BREAK" then exit the code
+		if ("`createfile'" == "BREAK") error 1
+	}
+
+	*If "manual" were used and input was Y or if manual was not used, create the file
+	if ("`createfile'" == "Y") | (missing("`manual'")) {
+
+		*Copy custom file if custom file is used
+		if !missing(`"`customfile'"') copy "`customfile'" `"`newfileinclone'"', replace
+		*Custom file is not used, so cretae defeault file
+		else {
+			*Create file
+			tempname 	newHandle
+			cap file close 	`newHandle'
+			file open  	`newHandle' using "`newfileinclone'", text write replace
+			*Write the content to the file
+			file write  `newHandle' ///
+				"# Placeholder file" _n _n ///
+				"This file has been created automatically by the command **iegitaddmd** from the Stata package [**ietoolkit**](https://worldbank.github.io/ietoolkit) to make GitHub sync this folder. GitHub does not sync empty folders or folders that only contain ignored files, but in research projects it is often important to share the full standardized folder structure along with the actual files. This command is intended to be used with **iefolder**, but it can be used in any folder structure intended to be shared on GitHub." _n _n ///
+				"In recently started projects, it is typical to create data folders, script folders (do-files, r-files) and output folders, among others. The output folders are initially empty, but the script files might include a file path to them for later use. If an output folder is empty and another collaborator clones the repository, then the output folder expected by the scripts will not be included by GitHub in the cloned repository, and the script will not run properly." _n _n ///
+				"## You should replace the content of this placeholder file" _n _n ///
+				"The text in this file should be replaced with text that describes the intended use of this folder. This file is written in markdown (.md) format, which is suitable for GitHub syncing (unlike .doc/.docx). If the file is named *README.md*, GitHub automatically displays its contents when someone opens the containing folder on GitHub.com using a web browser." _n _n ///
+				"If you are new to markup languages (markdown, html etc.) then this [Markdown Tutorial](https://www.markdowntutorial.com/) is a great place to start. If you have some experience with markup languages, then this [Markdown Cheat Sheet](https://guides.github.com/pdfs/markdown-cheatsheet-online.pdf) is a great place to start." _n _n ///
+				"## Add similar files in other folders" _n _n ///
+				"The Stata command **iegitaddmd** does not add anything to folders that already have content unless this is explicitly requested using the option `all`. It is best practice to create a *README.md* file in any folders that have content, for example, in folders whose purpose might not obvious to someone using the repository for the first time. Again, if the file is named *README.md*, then the content of the file will be shown in the browser when someone explores the repository on GitHub.com." _n _n ///
+				"Another great use of a *README.md* file is to use it as a documentation on how the folder it sits in and its subfolders are organized,  where its content can be found, and where new content is meant to be saved. For example, if you have a folder called `/Baseline/`, then you can give a short description of the activities conducted during the baseline and where data, scripts and outputs related to it can be found." _n _n ///
+				"## Removing this file" _n _n ///
+				"Removing this file is not recommended, as GitHub may stop syncing the parent folder unless the folder now has other content. However, even when content is added and the file can be removed without breaking the GitHub functionality, our recommendation is to replace the content with more relevant content rather than deleting it." _n _n
+
+			*Closing the file
+			file close 		`newHandle'
+
+		}
+		*Uoutput that the file was created
+		noi di as result "{pstd}File [`newfileinclone'] created.{p_end}"
+	}
+	*Manual was used and input was N, no file were creaetd
+	else noi di as result "{pstd}No file created.{p_end}"
+}
 end
