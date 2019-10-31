@@ -24,6 +24,7 @@ command please see the {browse "https://dimewiki.worldbank.org/wiki/Iegitaddmd":
 {synopt :{cmd:all}}Creates the placeholder file in every subfolder of {opt folder()}, whether empty or not{p_end}
 {synopt :{opt skip}}If option {opt all} is used and a folder has a file with same name as placeholder file, then nothing is done{p_end}
 {synopt :{opt replace}}If option {opt all} is used and a folder has a file with same name as placeholder file, then the file is overwritten{p_end}
+{synopt :{opt manual}}If option {opt manual} is used then the user is prompted before each placeholder file is created.{p_end}
 {synoptline}
 
 {marker desc}
@@ -73,6 +74,9 @@ command please see the {browse "https://dimewiki.worldbank.org/wiki/Iegitaddmd":
 	folder where the file with the same name exists and the command proceeds to the next folder.
 	If {opt replace} is used then the file with the same name is overwritten with the new placeholder
 	file before the command proceeds to the next folder.
+
+{phang}{opt manual} can be used to exactly control in which folders a placeholder file will be created. This
+allows that this command is run on a the top folder of the repository, but then only selected folders get a placeholder.
 
 {title:Example}
 
