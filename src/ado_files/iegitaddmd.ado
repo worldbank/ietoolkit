@@ -104,6 +104,7 @@ qui {
 		*If the folder is not empty, test if option all were used.
 		else if ("`all'" == "all") {
 
+				*Test if a file with exactly that name is already used
 				cap confirm file `"`newPlaceholderFile'"'
 
 				* No file with this name exists in this folder, create file without further ado
@@ -128,13 +129,13 @@ qui {
 					noi di as error `"{phang}Coding error in if-chain in "All" block.Please report this error to dimeanalytics@worldbank.org or here: https://github.com/worldbank/ietoolkit/issues/new{p_end}"'
 					error 602
 				}
-
+		}
+		else {
+			* Folder is not empty and option all is not used, so do nothing in this folder
 		}
 }
 
 end
-
-
 
 	*Write a README.md file when iegitaddmd finds an empty folder
 cap program drop writeDefaultPlaceholder
@@ -144,15 +145,15 @@ qui {
 
 	syntax , newfileinclone(string) [customfile(string) manual]
 
-	*Get the current folder name from newfileinclone
-	local lastSlash = strpos(strreverse(`"`newfileinclone'"'),"/")
-	local folder = substr(`"`newfileinclone'"',1,strlen("`newfileinclone'")-`lastSlash')
-	local fileName = substr(`"`newfileinclone'"', (-1 * `lastSlash')+1 ,.)
-
 	*If manual was used, get manual confirmation for each file
 	if !missing("`manual'") {
 		noi di ""
 		global confirmation "" //Reset global
+
+		*Get the current folder name from newfileinclone
+		local lastSlash = strpos(strreverse(`"`newfileinclone'"'),"/")
+		local folder = substr(`"`newfileinclone'"',1,strlen("`newfileinclone'")-`lastSlash')
+		local fileName = substr(`"`newfileinclone'"', (-1 * `lastSlash')+1 ,.)
 
 		*Keep aslking for input until the input is either Y, y, N, n or BREAK
 		while (upper("${confirmation}") != "Y" & upper("${confirmation}") != "N" & "${confirmation}" != "BREAK") {
