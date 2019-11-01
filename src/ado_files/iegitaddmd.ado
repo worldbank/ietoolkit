@@ -97,30 +97,30 @@ qui {
 		******************************
 		*	Evaluate if file will be crated in this folder
 
-		*Test if all of those lists are empty, meaning there are
-		* no folders or files in this folder
-		if `"`flist'`dlist'`olist'"' == "" noi writeDefaultPlaceholder, newfileinclone(`"`newPlaceholderFile'"') customfile(`"`customFileStd'"') `manual'
+			*Test if all of those lists are empty, meaning there are
+			* no folders or files in this folder
+			if `"`flist'`dlist'`olist'"' == "" noi writePlaceholder, newfileinclone(`"`newPlaceholderFile'"') customfile(`"`customFileStd'"') `manual'
 
-		*If the folder is not empty, test if option all were used.
-		else if ("`all'" == "all") {
+			*If the folder is not empty, test if option all were used.
+			else if ("`all'" == "all") {
 
 				*Test if a file with exactly that name is already used
-				cap confirm file `"`newPlaceholderFile'"'
+					cap confirm file `"`newPlaceholderFile'"'
 
-				* No file with this name exists in this folder, create file without further ado
-				if _rc != 0 noi writeDefaultPlaceholder, newfileinclone(`"`newPlaceholderFile'"') customfile(`"`customFileStd'"') `manual'
+					* No file with this name exists in this folder, create file without further ado
+					if _rc != 0 noi writePlaceholder, newfileinclone(`"`newPlaceholderFile'"') customfile(`"`customFileStd'"') `manual'
 
-				* File exist, but no sintructions on how to deal with this has been given, throw error
-				else if missing("`skip'") & missing("`replace'")  {
+					* File exist, but no sintructions on how to deal with this has been given, throw error
+					else if missing("`skip'") & missing("`replace'")  {
 					noi di as error `"{phang}The file  `newPlaceholderFile' already exists. Either remove option {it:all} or use either option {it:skip} or {it:replace}. See help file before using either of these options unless you are already familiar with them.{p_end}"'
 					error 602
-				}
+					}
 
-				* File exist, and instruction is to replace, create files and overwrite as needed
-				else if !missing("`replace'") noi writeDefaultPlaceholder, newfileinclone(`"`newPlaceholderFile'"') customfile(`"`customFileStd'"') `manual'
+					* File exist, and instruction is to replace, create files and overwrite as needed
+					else if !missing("`replace'") noi writePlaceholder, newfileinclone(`"`newPlaceholderFile'"') customfile(`"`customFileStd'"') `manual'
 
-				* File exist, and instruction is to skip, do nothing
-				else if !missing("`skip'") {
+					* File exist, and instruction is to skip, do nothing
+					else if !missing("`skip'") {
 						*Nothing is done, this if-block is only included for readability and completion
 				}
 
@@ -138,8 +138,8 @@ qui {
 end
 
 	*Write a README.md file when iegitaddmd finds an empty folder
-cap program drop writeDefaultPlaceholder
-program define   writeDefaultPlaceholder
+cap program drop writePlaceholder
+program define   writePlaceholder
 
 qui {
 
