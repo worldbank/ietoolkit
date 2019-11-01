@@ -5,7 +5,7 @@ cap program drop   iegitaddmd
 
 qui {
 
-		syntax , folder(string) [customfile(string) all skip replace manual]
+		syntax , folder(string) [comparefolder(string) customfile(string) all skip replace manual]
 
 		/******************************
 		*******************************
@@ -27,7 +27,8 @@ qui {
 		}
 
 		* File paths can have both forward and/or back slash. We'll standardize them so they're easier to handle
-		local folderStd	= subinstr("`folder'","\","/",.)
+		local folderStd			= subinstr(`"`folder'"',"\","/",.)
+		local comparefolderStd	= subinstr(`"`comparefolder'"',"\","/",.)
 
 		******************************
 		*	Test input: customfile
@@ -54,11 +55,11 @@ qui {
 			local customFileRecurse `"customfile(`customFileStd')"'
 
 			*Path and name of thile regardless if customfile were used
-			local newPlaceholderFile `"`folderStd'`customFileName'"'
+			local newPlaceholderFile `"`customFileName'"'
 		}
 		else {
 			*Path and name of thile regardless if customfile were not used
-			local newPlaceholderFile `"`folderStd'/README.md"'
+			local newPlaceholderFile "README.md"
 		}
 
 		******************************
@@ -73,7 +74,7 @@ qui {
 
 		/******************************
 		*******************************
-			Execute command
+			List Files and folders
 		*******************************
 		******************************/
 
@@ -85,79 +86,120 @@ qui {
 		local dlist : dir `"`folderStd'"' dirs  "*" , respectcase
 		local olist : dir `"`folderStd'"' other "*"	, respectcase
 
-		******************************
-		*	Call command recursively on all sub-folders
+		/******************************
+		*******************************
+			Exectute command without compare option
+		*******************************
+		******************************/
 
-		*Use the command on each subfolder to this folder (if any)
-		foreach dir of local dlist {
-			*Recursive call on each subfolder
-			noi iegitaddmd , folder(`"`folderStd'/`dir'"') `all' `customFileRecurse' `skip' `replace' `manual'
-		}
+		if missing("`comparefolder'") {
 
-		******************************
-		*	Evaluate if file will be crated in this folder
+			******************************
+			*	Call command recursively on all sub-folders
+
+			*Use the command on each subfolder to this folder (if any)
+			foreach dir of local dlist {
+				*Recursive call on each subfolder
+				noi iegitaddmd , folder(`"`folderStd'/`dir'"') `all' `customFileRecurse' `skip' `replace' `manual'
+			}
+
+			******************************
+			*	Evaluate if file will be crated in this folder
 
 			*Test if all of those lists are empty, meaning there are
 			* no folders or files in this folder
-			if `"`flist'`dlist'`olist'"' == "" noi writePlaceholder, newfileinclone(`"`newPlaceholderFile'"') customfile(`"`customFileStd'"') `manual'
+			if `"`flist'`dlist'`olist'"' == "" noi writePlaceholder, folder(`"`folderStd'"') newfilename("`newPlaceholderFile'") customfiletocopy(`"`customFileStd'"') `manual'
 
 			*If the folder is not empty, test if option all were used.
 			else if ("`all'" == "all") {
 
-				*Test if a file with exactly that name is already used
-					cap confirm file `"`newPlaceholderFile'"'
+					*Test if a file with exactly that name is already used
+					cap confirm file `"`folderStd'/`newPlaceholderFile'"'
 
 					* No file with this name exists in this folder, create file without further ado
-					if _rc != 0 noi writePlaceholder, newfileinclone(`"`newPlaceholderFile'"') customfile(`"`customFileStd'"') `manual'
+					if _rc != 0 noi writePlaceholder, folder(`"`folderStd'"') newfilename("`newPlaceholderFile'") customfiletocopy(`"`customFileStd'"') `manual'
 
 					* File exist, but no sintructions on how to deal with this has been given, throw error
 					else if missing("`skip'") & missing("`replace'")  {
-					noi di as error `"{phang}The file  `newPlaceholderFile' already exists. Either remove option {it:all} or use either option {it:skip} or {it:replace}. See help file before using either of these options unless you are already familiar with them.{p_end}"'
-					error 602
+						noi di as error `"{phang}The file  `newPlaceholderFile' already exists. Either remove option {it:all} or use either option {it:skip} or {it:replace}. See help file before using either of these options unless you are already familiar with them.{p_end}"'
+						error 602
 					}
 
 					* File exist, and instruction is to replace, create files and overwrite as needed
-					else if !missing("`replace'") noi writePlaceholder, newfileinclone(`"`newPlaceholderFile'"') customfile(`"`customFileStd'"') `manual'
+					else if !missing("`replace'") noi writePlaceholder,  folder(`"`folderStd'"') newfilename("`newPlaceholderFile'") customfiletocopy(`"`customFileStd'"') `manual'
 
 					* File exist, and instruction is to skip, do nothing
 					else if !missing("`skip'") {
-						*Nothing is done, this if-block is only included for readability and completion
-				}
+							*Nothing is done, this if-block is only included for readability and completion
+					}
 
-				* The code should nevere get to this point
-				else  {
-					noi di as error `"{phang}Coding error in if-chain in "All" block.Please report this error to dimeanalytics@worldbank.org or here: https://github.com/worldbank/ietoolkit/issues/new{p_end}"'
-					error 602
-				}
+					* The code should nevere get to this point
+					else  {
+						noi di as error `"{phang}Coding error in if-chain in "All" block.Please report this error to dimeanalytics@worldbank.org or here: https://github.com/worldbank/ietoolkit/issues/new{p_end}"'
+						error 602
+					}
+			}
+			else {
+				* Folder is not empty and option all is not used, so do nothing in this folder
+			}
 		}
-		else {
-			* Folder is not empty and option all is not used, so do nothing in this folder
+		/******************************
+		*******************************
+			Exectute command with compare option
+		*******************************
+		******************************/
+
+		else if !missing("`comparefolder'") {
+
+			*List folders that are in comparefolder() but not in in folder()
+			local comp_dlist : dir `"`comparefolderStd'"' dirs  "*" , respectcase
+			local only_in_cdlist : list comp_dlist - dlist
+
+			*Loop over all folders only in comparefolder()
+			foreach dir of local only_in_cdlist {
+				*Find all leaf folders. A leaf folder is a folder with no
+				*sub-folder. Think of the folder structure as a tree, and
+				*each folder with no sub-folders is an end of a branch where
+				*you find leaves.
+				noi findLeafFolders, folder(`"`comparefolderStd'/`dir'"')
+
+				*Loop over all leaves and create accordingly
+				foreach leaf in `r(leaves)' {
+					*Leaf exist in compare folder, create the path to the leaf
+					* to be created in the corresponding folder
+					local folderleaf = subinstr(`"`leaf'"',`"`comparefolderStd'"', `"`folder'"', 1)
+
+					*Create placeholder file in this new leaf
+					noi writePlaceholder, folder(`"`folderleaf'"') newfilename("`newPlaceholderFile'") customfiletocopy(`"`customFileStd'"') `manual'
+				}
+			}
+
+			*Recursivley do the same call on all sub-folders
+			foreach dir of local dlist {
+				*Recursive call on each subfolder
+				noi iegitaddmd , folder(`"`folderStd'/`dir'"') comparefolder(`"`comparefolder'/`dir'"') `customFileRecurse' `manual'
+			}
 		}
 }
 
 end
 
-	*Write a README.md file when iegitaddmd finds an empty folder
+*Write a README.md file when iegitaddmd finds an empty folder
 cap program drop writePlaceholder
 program define   writePlaceholder
 
 qui {
 
-	syntax , newfileinclone(string) [customfile(string) manual]
+	syntax , folder(string) newfilename(string) [customfiletocopy(string) manual]
 
 	*If manual was used, get manual confirmation for each file
 	if !missing("`manual'") {
 		noi di ""
 		global confirmation "" //Reset global
 
-		*Get the current folder name from newfileinclone
-		local lastSlash = strpos(strreverse(`"`newfileinclone'"'),"/")
-		local folder = substr(`"`newfileinclone'"',1,strlen("`newfileinclone'")-`lastSlash')
-		local fileName = substr(`"`newfileinclone'"', (-1 * `lastSlash')+1 ,.)
-
 		*Keep aslking for input until the input is either Y, y, N, n or BREAK
 		while (upper("${confirmation}") != "Y" & upper("${confirmation}") != "N" & "${confirmation}" != "BREAK") {
-		  noi di as txt "{pstd}You are about to create a file [`fileName'] in the folder [`folder']. Do you want to do that? To confirm type {bf:Y} and hit enter, to abort type {bf:N} and hit enter. Type {bf:BREAK} and hit enter to stop the code.{p_end}", _request(confirmation)
+		  noi di as txt "{pstd}You are about to create a file [`newfilename'] in the folder [`folder']. If the folder does not exist it will be created. Do you want to do that? To confirm type {bf:Y} and hit enter, to abort type {bf:N} and hit enter. Type {bf:BREAK} and hit enter to stop the code.{p_end}", _request(confirmation)
 		}
 		*Copy user input to local
 		local createfile = upper("${confirmation}")
@@ -168,14 +210,17 @@ qui {
 	*If "manual" were used and input was Y or if manual was not used, create the file
 	if ("`createfile'" == "Y") | (missing("`manual'")) {
 
+		*Recursively create folder if needed
+		noi rmkdir, folder(`"`folder'"')
+
 		*Copy custom file if custom file is used
-		if !missing(`"`customfile'"') copy "`customfile'" `"`newfileinclone'"', replace
+		if !missing(`"`customfile'"') copy "`customfile'" `"`folder'/`newfilename'"', replace
 		*Custom file is not used, so cretae defeault file
 		else {
 			*Create file
 			tempname 	newHandle
 			cap file close 	`newHandle'
-			file open  	`newHandle' using "`newfileinclone'", text write replace
+			file open  	`newHandle' using "`folder'/`newfilename'", text write replace
 			*Write the content to the file
 			file write  `newHandle' ///
 				"# Placeholder file" _n _n ///
@@ -195,9 +240,70 @@ qui {
 
 		}
 		*Uoutput that the file was created
-		noi di as result "{pstd}File [`newfileinclone'] created.{p_end}"
+		noi di as result "{pstd}File [`folder'/`newfilename'] created.{p_end}"
 	}
 	*Manual was used and input was N, no file were creaetd
-	else noi di as result "{pstd}No file created.{p_end}"
+	else noi di as result "{pstd}No file or folder created.{p_end}"
+}
+end
+
+*Write a README.md file when iegitaddmd finds an empty folder
+cap program drop findLeafFolders
+program define   findLeafFolders, rclass
+
+qui {
+
+	syntax, folder(string)
+
+	local dlist : dir `"`folder'"' dirs  "*" , respectcase
+
+	if missing(`"`dlist'"') {
+		*This is a leaf, pass it back
+		return local leaves `""`folder'""'
+	}
+	else {
+		local return_leaves
+		foreach dir of local dlist {
+			*Recursive call on each subfolder
+			findLeafFolders, folder(`"`folder'/`dir'"')
+			local return_leaves `"`return_leaves' `r(leaves)'"'
+		}
+		return local leaves `"`return_leaves'"'
+	}
+}
+end
+
+*Recursively call parent folders in folderpath needed to be created until
+* folder found that already exist, then creaet all subfolders.
+cap program drop rmkdir
+program define   rmkdir, rclass
+
+qui {
+
+	syntax, folder(string) [folderstocreate(string)]
+
+	*Test if this folder exists
+	mata : st_numscalar("r(dirExist)", direxists(`"`folder'"'))
+
+	*Folder does not exist, find parent folder and make recursive call
+	if (`r(dirExist)' == 0) {
+
+		*Get the parent folder of folder
+		local lastSlash = strpos(strreverse(`"`folder'"'),"/")
+		local parentFolder = substr(`"`folder'"',1,strlen("`folder'")-`lastSlash')
+		local thisFolder = substr(`"`folder'"', (-1 * `lastSlash')+1 ,.)
+
+		*Make the coll recursivly on the parent folder and add this folder to folderstocreate()
+		noi rmkdir , folder(`"`parentFolder'"') folderstocreate(`""`thisFolder'" `folderstocreate'"')
+
+	}
+	*Folder exist, create sub-folders to create if any
+	else {
+		*Create the folders needed
+		foreach dir of local folderstocreate {
+			mkdir "`folder'/`dir'"
+			local folder "`folder'/`dir'"
+		}
+	}
 }
 end
