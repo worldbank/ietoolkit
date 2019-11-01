@@ -28,7 +28,42 @@ qui {
 
 		* File paths can have both forward and/or back slash. We'll standardize them so they're easier to handle
 		local folderStd			= subinstr(`"`folder'"',"\","/",.)
-		local comparefolderStd	= subinstr(`"`comparefolder'"',"\","/",.)
+
+
+		******************************
+		*	Test input: comparefolder
+
+		if !missing("`comparefolder'") {
+			mata : st_numscalar("r(dirExist)", direxists("`comparefolder'"))
+
+			if (`r(dirExist)' == 0) | (length("`comparefolder'")<=10) {
+
+				noi di as error `"{phang}The folder used in [comaparefolder(`comparefolder')] does not exist or you have not entered the full path. For example, full paths on most Windows computers it starts with {it:C:/} and on most Mac computers with {it:/user/}. Important: Specify the whole file path to the repository folder, not just {it:C:/} or {it:/user/} as that would create the placeholder file in every empty folder on your computer!{p_end}"'
+				error 693
+				exit
+			}
+
+			* File paths can have both forward and/or back slash. We'll standardize them so they're easier to handle
+			local comparefolderStd	= subinstr(`"`comparefolder'"',"\","/",.)
+
+			*Get the name of the last folder in both folder() and comparefolder()
+			local thisLastSlash = strpos(strreverse(`"`folder'"'),"/")
+			local thisFolder 	= substr(`"`folder'"', (-1 * `thisLastSlash')+1 ,.)
+			local compLastSlash = strpos(strreverse(`"`comparefolder'"'),"/")
+			local compFolder 	= substr(`"`comparefolder'"', (-1 * `compLastSlash')+1 ,.)
+
+			*The last folder name should always be the same for folder() and
+			* comparefolder() otherwise there it is likely that the to paths
+			* point to differnet starting points in the two fodler trees that
+			* are to be compared.
+			if ("`compFolder'" != "`thisFolder'") {
+				noi di as error `"{phang}The last folder [`thisFolder'] in [folder(`folder')] is not identical to the last folder [`compFolder'] in [comparefolder(`comparefolder')]. This is an indication that the the two fodler trees to be compared are not two versions of the same folder tree.{p_end}"'
+				error 693
+				exit
+			}
+		}
+
+
 
 		******************************
 		*	Test input: customfile
@@ -68,6 +103,12 @@ qui {
 		*Options skip and replace cannot be used together
 		if !missing("`skip'") & !missing("`replace'") {
 			noi di as error `"{phang}The options skip and replace may not be used together.{p_end}"'
+			error 198
+			exit
+		}
+
+		if !missing("`comparefolder'") & (!missing("`all'") | !missing("`skip'") | !missing("`replace'")) {
+			noi di as error `"{phang}The options all, skip and replace may not be used when option comparefolder() is used.{p_end}"'
 			error 198
 			exit
 		}
