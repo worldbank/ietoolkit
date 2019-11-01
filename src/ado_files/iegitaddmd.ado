@@ -85,7 +85,7 @@ qui {
 			*Find the last slash in the file name
 			local lastSlash = strpos(strreverse(`"`customFileStd'"'),"/")
 			*Use that position to get the file name. Multiply with minus one as we count from the back
-			local customFileName = substr(`"`customFileStd'"', (-1 * `lastSlash') ,.)
+			local customFileName = substr(`"`customFileStd'"', (-1 * `lastSlash')+1 ,.)
 			*Used for the recursive call of the command when there is a subfolder
 			local customFileRecurse `"customfile(`customFileStd')"'
 
