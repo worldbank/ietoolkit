@@ -21,7 +21,7 @@ qui {
 
 		if (`r(dirExist)' == 0) | (length("`folder'")<=10) {
 
-			noi di as error `"{phang}The "`folder'" folder does not exist or you have not entered the full path. For example, full paths on most Windows computers it starts with {it:C:/} and on most Mac computers with {it:/user/}. Important: Specify the whole file path to the repository folder, not just {it:C:/} or {it:/user/} as that would create the placeholder file in every empty folder on your computer!{p_end}"'
+			noi di as error `"{phang}The folder used in [folder(`folder')] does not exist or you have not entered the full path. For example, full paths on most Windows computers it starts with {it:C:/} and on most Mac computers with {it:/user/}. Important: Specify the whole file path to the repository folder, not just {it:C:/} or {it:/user/} as that would create the placeholder file in every empty folder on your computer!{p_end}"'
 			error 693
 			exit
 		}
@@ -66,7 +66,7 @@ qui {
 		*	Test input: skip & replace
 
 		*Options skip and replace cannot be used together
-		if "`skip'" != "" & "`replace'" != "" {
+		if !missing("`skip'") & !missing("`replace'") {
 			noi di as error `"{phang}The options skip and replace may not be used together.{p_end}"'
 			error 198
 			exit
