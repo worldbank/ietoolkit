@@ -4,7 +4,7 @@ cap program drop   iegitaddmd
 	program define iegitaddmd
 
 qui {
-	syntax , folder(string) [comparefolder(string) customfile(string) all skip replace manual]
+	syntax , folder(string) [comparefolder(string) customfile(string) all skip replace AUTOmatic DRYrun]
 
 	/******************************
 	*******************************
@@ -138,7 +138,7 @@ qui {
 		*Use the command on each subfolder to this folder (if any)
 		foreach dir of local dlist {
 			*Recursive call on each subfolder
-			noi iegitaddmd , folder(`"`folderStd'/`dir'"') `all' `customFileRecurse' `skip' `replace' `manual'
+			noi iegitaddmd , folder(`"`folderStd'/`dir'"') `all' `customFileRecurse' `skip' `replace' `automatic' `dryrun'
 		}
 
 		******************************
@@ -146,7 +146,7 @@ qui {
 
 		*Test if all of those lists are empty, meaning there are
 		* no folders or files in this folder
-		if `"`flist'`dlist'`olist'"' == "" noi writePlaceholder, folder(`"`folderStd'"') newfilename("`newPlaceholderFile'") customfiletocopy(`"`customFileStd'"') `manual'
+		if `"`flist'`dlist'`olist'"' == "" noi writePlaceholder, folder(`"`folderStd'"') newfilename("`newPlaceholderFile'") customfiletocopy(`"`customFileStd'"') `automatic' `dryrun'
 
 		*If the folder is not empty, test if option all were used.
 		else if ("`all'" == "all") {
@@ -155,7 +155,7 @@ qui {
 			cap confirm file `"`folderStd'/`newPlaceholderFile'"'
 
 			* No file with this name exists in this folder, create file without further ado
-			if _rc != 0 noi writePlaceholder, folder(`"`folderStd'"') newfilename("`newPlaceholderFile'") customfiletocopy(`"`customFileStd'"') `manual'
+			if _rc != 0 noi writePlaceholder, folder(`"`folderStd'"') newfilename("`newPlaceholderFile'") customfiletocopy(`"`customFileStd'"') `automatic' `dryrun'
 
 			* File exist, but no sintructions on how to deal with this has been given, throw error
 			else if missing("`skip'") & missing("`replace'")  {
@@ -164,7 +164,7 @@ qui {
 			}
 
 			* File exist, and instruction is to replace, create files and overwrite as needed
-			else if !missing("`replace'") noi writePlaceholder,  folder(`"`folderStd'"') newfilename("`newPlaceholderFile'") customfiletocopy(`"`customFileStd'"') `manual'
+			else if !missing("`replace'") noi writePlaceholder,  folder(`"`folderStd'"') newfilename("`newPlaceholderFile'") customfiletocopy(`"`customFileStd'"') `automatic' `dryrun'
 
 			* File exist, and instruction is to skip, do nothing
 			else if !missing("`skip'") {
@@ -208,14 +208,14 @@ qui {
 				local folderleaf = subinstr(`"`leaf'"',`"`comparefolderStd'"', `"`folder'"', 1)
 
 				*Create placeholder file in this new leaf
-				noi writePlaceholder, folder(`"`folderleaf'"') newfilename("`newPlaceholderFile'") customfiletocopy(`"`customFileStd'"') `manual'
+				noi writePlaceholder, folder(`"`folderleaf'"') newfilename("`newPlaceholderFile'") customfiletocopy(`"`customFileStd'"') `automatic' `dryrun'
 			}
 		}
 
 		*Recursivley do the same call on all sub-folders
 		foreach dir of local dlist {
 			*Recursive call on each subfolder
-			noi iegitaddmd , folder(`"`folderStd'/`dir'"') comparefolder(`"`comparefolder'/`dir'"') `customFileRecurse' `manual'
+			noi iegitaddmd , folder(`"`folderStd'/`dir'"') comparefolder(`"`comparefolder'/`dir'"') `customFileRecurse' `automatic' `dryrun'
 		}
 	}
 }
@@ -227,25 +227,40 @@ cap program drop writePlaceholder
 program define   writePlaceholder
 
 qui {
-	syntax , folder(string) newfilename(string) [customfiletocopy(string) manual]
+	syntax , folder(string) newfilename(string) [customfiletocopy(string) automatic dryrun]
+
+	*Reset locals to be used in this command
+	local dryrun_prompt ""
+	local createfile ""
+
+	*Create message to show in dryrun mode
+	if !missing("`dryrun'") local dryrun_prompt " NO FILE WILL BE CREAETED AS OPTION {bf:dryrun} IS USED!"
 
 	*If manual was used, get manual confirmation for each file
-	if !missing("`manual'") {
+	if missing("`automatic'") {
 		noi di ""
 		global confirmation "" //Reset global
 
 		*Keep aslking for input until the input is either Y, y, N, n or BREAK
 		while (upper("${confirmation}") != "Y" & upper("${confirmation}") != "N" & "${confirmation}" != "BREAK") {
-		  noi di as txt "{pstd}You are about to create a file [`newfilename'] in the folder [`folder']. If the folder does not exist it will be created. Do you want to do that? To confirm type {bf:Y} and hit enter, to abort type {bf:N} and hit enter. Type {bf:BREAK} and hit enter to stop the code.{p_end}", _request(confirmation)
+		  noi di as txt "{pstd}You are about to create a file [`newfilename'] in the folder [`folder']. If the folder does not exist it will be created. Do you want to do that? To confirm type {bf:Y} and hit enter, to abort type {bf:N} and hit enter. Type {bf:BREAK} and hit enter to stop the code. See option {help iegitaddmd:automatic} to not be prompted before creating files.`dryrun_prompt'{p_end}", _request(confirmation)
 		}
 		*Copy user input to local
 		local createfile = upper("${confirmation}")
 		* If user wrote "BREAK" then exit the code
 		if ("`createfile'" == "BREAK") error 1
 	}
+	*Automtic is used, always create the file
+	else local createfile "Y"
+
+	*Manual was used and input was N, no file were creaetd
+	if 	("`createfile'" == "N") noi di as result "{pstd}No file or folder created.{p_end}"
+
+	*Dryrun, list where file would have been created
+	else if !missing("`dryrun'") noi di as result "{pstd}DRY RUN! Without option {bf:dryrun} file [`folder'/`newfilename'] would have been created.{p_end}"
 
 	*If "manual" were used and input was Y or if manual was not used, create the file
-	if ("`createfile'" == "Y") | (missing("`manual'")) {
+	else if ("`createfile'" == "Y") {
 
 		*Recursively create folder if needed
 		noi rmkdir, folder(`"`folder'"')
@@ -278,8 +293,6 @@ qui {
 		*Output that the file was created
 		noi di as result "{pstd}File [`folder'/`newfilename'] created.{p_end}"
 	}
-	*Manual was used and input was N, no file were creaetd
-	else noi di as result "{pstd}No file or folder created.{p_end}"
 }
 end
 
