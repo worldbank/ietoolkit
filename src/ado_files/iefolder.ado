@@ -64,6 +64,13 @@ qui {
 		error 198
 	}
 
+	*Test that no name is specified with sub command project. There is nothing to be named
+	else if ("`itemType'" == "project" & "`itemName'" != "" ) {
+
+		noi di as error `"{phang}You may not specify a name [`itemName'] of when creating a new projet. See the {help iefolder:help file} for details.{p_end}"'
+		error 198
+	}
+
 	*Test that item name is used when item type is anything but project
 	else if ("`itemType'" != "project" & "`itemName'" == "" ) {
 
