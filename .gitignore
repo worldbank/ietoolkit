@@ -17,10 +17,13 @@
 # These files include GitHub settings
 !.gitignore
 !.gitattributes
+#.io page
+_config.yml
 
 # Keep markdown files used for documentation on GitHub
 !README.md
 !CONTRIBUTING.md
+!LICENSE
 
 #######################
 # For performance reasons, if a folder is already ignored, then
@@ -39,6 +42,7 @@
 # Stata
 !/**/*.do
 !/**/*.ado
+!/**/*.sthlp
 
 # R
 !/**/*.R
