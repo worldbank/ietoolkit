@@ -1,51 +1,63 @@
-#ietoolkit specific files
+########################################################################
+#
+# This .gitignore file is based on DIME's template
+# https://github.com/worldbank/DIMEwiki/tree/master/Topics/GitHub
+#
+########################################################################
+
+#######################
+# Start by ignoring everything, and below we are explicitly saying
+# what to not ignore
+*
+
+#######################
+# List of files with GitHub functionality anywhere in the repo
+# that we do not want to ignore
+
+# These files include GitHub settings
+!.gitignore
+!.gitattributes
+#.io page
+_config.yml
+
+# Keep markdown files used for documentation on GitHub
+!README.md
+!CONTRIBUTING.md
+!LICENSE
+
+#######################
+# For performance reasons, if a folder is already ignored, then
+# GitHub does not check the content for that folder for matches
+# with additional rules. The line below includes folder in the
+# top folder (but not their content), so that anything matching
+# the rules below will still not be ignored.
+!*/
+
+#######################
+# The following file types are code that should always be
+# included no matter where in the DataWork folder they are
+# located unless that folder is explicitly ignored. See example
+# with EncryptedData folder below.
+
+# Stata
+!/**/*.do
+!/**/*.ado
+!/**/*.sthlp
+
+# R
+!/**/*.R
+
+# LaTeX
+!/**/*.tex
+
+# Python
+!/**/*.py
+
+# Matlab
+!/**/*.m
+
+# Markdown
+!/**/*.md
+
+#the folder test/ is used for peoples individual testing, this is different from test_scripts/
 test/
-
-# Windows image file caches
-Thumbs.db
-ehthumbs.db
-
-# Folder config file
-Desktop.ini
-
-# Recycle Bin used on file shares
-$RECYCLE.BIN/
-
-# Windows Installer files
-*.cab
-*.msi
-*.msm
-*.msp
-
-# Windows shortcuts
-*.lnk
-
-# =========================
-# Operating System Files
-# =========================
-
-# OSX
-# =========================
-
-.DS_Store
-.AppleDouble
-.LSOverride
-
-# Thumbnails
-._*
-
-# Files that might appear in the root of a volume
-.DocumentRevisions-V100
-.fseventsd
-.Spotlight-V100
-.TemporaryItems
-.Trashes
-.VolumeIcon.icns
-
-# Directories potentially created on remote AFP share
-.AppleDB
-.AppleDesktop
-Network Trash Folder
-Temporary Items
-.apdisk
-

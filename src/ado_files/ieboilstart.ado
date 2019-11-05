@@ -256,10 +256,10 @@
 		*Set default settings
 		set more 		off `permanently'
 		pause 			on
-		set varabbrev 	off `permanently'
-		local setDispLocal "`setDispLocal'{break}{col 5}set more {col 22}off`permanently_col'"
+		set varabbrev 	off
+		local setDispLocal "`setDispLocal'{break}{col 5}set more {col 22}off {col 28}, perm"
 		local setDispLocal "`setDispLocal'{break}{col 5}pause {col 22}on"
-		local setDispLocal "`setDispLocal'{break}{col 5}set varabbrev {col 22}off`permanently_col'"
+		local setDispLocal "`setDispLocal'{break}{col 5}set varabbrev {col 22}off"
 
 		/*********************************
 
@@ -309,7 +309,7 @@
 		if  "`veryquietly'" == "" {
 
 			noi di ""
-			noi di "{phang}{err:IMPORTANT:} The most important setting of this command - the version - cannot be set inside the command due to technical reasons. The setting has been prepared by this command, and you only need to write \`r(version)' after this command (include the apostrophes).{p_end}"
+			noi di "{phang}{err:IMPORTANT:} The most important setting of this command – the version – cannot be set inside the command due to technical reasons. The setting has been prepared by this command, and you only need to write \`r(version)' after this command (include the apostrophes).{p_end}"
 
 		}
 
