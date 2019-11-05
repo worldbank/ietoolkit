@@ -27,7 +27,7 @@ help for {hi:iekdensity}
 			{it:{help twoway_options}}
 		]
 
-	{pmore}Where {it:yvar} is a numeric continuous outcome variables, whose distribution is to be plotted by treatment assignment.{p_end}
+	{pmore}Where {it:yvar} is a numeric continuous outcome variable, whose distribution is to be plotted by treatment assignment.{p_end}
 
 
 {marker opts}{...}
@@ -52,7 +52,7 @@ help for {hi:iekdensity}
 			
 {pstd}{it:Graphic options:}{p_end}
 	{synopt :{opt color(string)}}Specify colors for each group.{p_end}
-	{synopt :{help twoway_options}Specify graph options.{p_end}
+	{synopt :{help twoway_options}}Specify graph options.{p_end}
 
 {synoptline}
 
@@ -66,16 +66,16 @@ help for {hi:iekdensity}
 {title:Options}
 
 	{pstd}{it:{ul:{hi:Required options:}}}{p_end}
-		{phang}{opt by(varname)} indicates which variable should be used to idenfity the treatment assignment. This can be a dummy variable (0/1) or a factor variable, when there are multiple treatments.{p_end}
+		{phang}{opt by(treatmentvar)} indicates which variable should be used to idenfity the treatment assignment. This can be a dummy variable (0/1) or a factor variable, when there are multiple treatments.{p_end}
 
 	{pstd}{it:{ul:{hi:Content options:}}}{p_end}
 		{phang}{opt stat(string)} specifies a descriptive statitistic to be plotted over the kernel density graph. In particular, vertical lines for each treatment group are added. Accepted statistics are: {it:mean}, {it:p1}, {it:p5}, {it:p10}, {it:p25}, {it:p50}, {it:p75}, {it:p90}, {it:p95}, {it:p99}, {it:min} and {it:max}.{p_end}
 
-		{phang}{opt statstyle(string)} specifies the graphic style to be used for the statistic lines. Namely, you will be able to use {opt lpattern()} and {opt lwidth()} options. Colors are instead controlled by option {opt color(string)}.{p_end}
+		{phang}{opt statstyle(string)} specifies the graphic style to be used for the statistic lines. Namely, you will be able to use {cmdab:lpattern(}{help linepatternstyle}{cmdab:)} and {cmdab:lwidth(}{help linewidthstyle}{cmdab:)} options. Colors are instead controlled by option {opt color(string)}.{p_end}
 
-		{phang}{opt effect} Add note with treatment effect, containing point estimate, standard error, and p-value.{p_end}
+		{phang}{opt effect} adds a note with treatment effect, containing point estimate, standard error, and p-value, to the graph.{p_end}
 
-		{phang}{cmdab:control(}{it:{help numlist:numlist}}{cmd:)} indicates which value the variable {opt by(varname)} takes for the control group. This is usually equal to 0 when the treatment is binary, but may vary when dealing with multiple treatment arms.{p_end}
+		{phang}{cmdab:control(}{it:{help numlist:numlist}}{cmd:)} indicates which value the variable {opt by(treatmentvar)} takes for the control group. This is usually equal to 0 when the treatment is binary, but may vary when dealing with multiple treatment arms.{p_end}
 
 		{phang}{cmdab:effectformat(}{it:{help format:%fmt}}{cmd:)} specify the format in which treatment effect point estimate and standard error should be displayed in the graph note.{p_end}
 
@@ -85,13 +85,13 @@ help for {hi:iekdensity}
 
 		{phang}{opt reg:ressionoptions(string)} indicates other options to be employed for the treatment effect estimations, for example suppress constant term ({opt nocons:tant}) or clustered standard errors ({opt cl:uster(varname)}). All options accepted by {help regress} (or {help areg} when option {opt absorb()} is specified) are accepted.{p_end}
 
-		{phang}{opt kdensity:options(string)} specifies kernel estimation options, such as kernel function and half-width of kernel. The default kernel function is {opt kernel(epanechnikov)}. All options accepted by {help kdensity} are accepted.{p_end}
+		{phang}{opt kdensity:options(string)} specifies kernel estimation options, such as kernel function and half-width of kernel. The default kernel function is {opt kernel(epanechnikov)}. Many options accepted by {help kdensity} are allowed (namely, {cmdab:kernel(}{help kdensity##kernel:kernel}{cmdab:)}, {opt bwidth(#)}, {opt n(#)}, and all the {help cline_options} for univariate kernel density estimation.{p_end}
 		
 	{pstd}{it:{ul:{hi:Graphic options:}}}{p_end}
 		
-		{phang}{opt color(string)} indicates the colors to be used for each treatment arm. The colors should come in the order of the values in {opt by(varname)}. For instance, if the treatment is binary, you can set the line colors by typing {opt color(color1 color2)}. See {help colorstyle}. {p_end}
+		{phang}{opt color(string)} indicates the colors to be used for each treatment arm. The colors should come in the order of the values in {opt by(treatmentvar)}. For instance, if the treatment is binary, you can set the line colors by typing {opt color(color1 color2)}. See {help colorstyle}. {p_end}
 
-		{phang}{it:{help twoway_options}} indicates other options to be applied to the graph, such as additional text and lines, changes axes, titles, and legend, etc. See {help twoway_options:twoway_options} for the full set of available options.{p_end}
+		{phang}{it:{help twoway_options}} indicates other options to be applied to the graph, such as additional text and lines, changes axes, titles, and legend, etc.{p_end}
 
 {marker optslong}
 {title:Examples}
@@ -157,7 +157,7 @@ help for {hi:iekdensity}
 		
 	{pstd} {hi:Example 4.2}
 		
-	{pstd} {inp:iekdensity} {it:auto} , {inp:by(}{it:treatment}{inp:)} {inp:effect} {inp:absorb(}{it:foreign}{inp:)} {inp:regressionoptions(}{cluster(foreign)}{inp:)}
+	{pstd} {inp:iekdensity} {it:auto} , {inp:by(}{it:treatment}{inp:)} {inp:effect} {inp:absorb(}{it:foreign}{inp:)} {inp:regressionoptions(}{it:cluster(foreign)}{inp:)}
 	
 	{pstd} The treatment effect is now derived from a regression controlling for the variable {it:foreign} fixed effects and clustering standard errors at {it:foreign} level.
 	
