@@ -54,6 +54,28 @@
 						
 			// Counting how many levels there are in treatvar()
 			local 	   treatvar_num_groups  : word  count `treatvar_levels'
+			
+/*------------------------------------------------------------------------------
+	Check that the treatment variable is a valid categorical variable
+------------------------------------------------------------------------------*/
+
+			cap confirm numeric variable `treatvar'
+			if _rc != 0 {
+				noi display as error "{phang}The variable listed in treatvar(`treatvar') is not a numeric variable. See {help encode} for options on how to make a categorical string variable into a categorical numeric variable{p_end}"
+				error 108
+			}
+			else {
+				** Testing that treatvar is a categorical variable. Int() rounds to
+				* integer, and if any values are non-integers then (int(`treatvar') == `treatvar') is
+				* not true
+				cap assert ( int(`treatvar') == `treatvar' )
+				if _rc == 9 {
+					noi display as error  "{phang}The variable in treatvar(`treatvar') is not a categorical variable. The variable may only include integers where each integer indicates which group each observation belongs to. See tabulation of `treatvar' below:{p_end}"
+					noi tab `treatvar', nol
+					error 109
+				}
+			}
+
 						
 /*******************************************************************************
 	Prepare optional options

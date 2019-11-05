@@ -103,6 +103,9 @@
 	Yes error
 *******************************************************************************/
 	
+	* Group variable is not a factor variable
+	iekdensity price, treatvar(headroom)
+	
 	* Change only one color
 	iekdensity price, treatvar(treatment_binary)  color(eltblue)
 	
