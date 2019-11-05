@@ -1,4 +1,4 @@
-*! version DEVELOP 16OCT2019 Matteo Ruzzante mruzzante@worldbank.org
+*! version DEVELOP 5NOV2019 Matteo Ruzzante mruzzante@worldbank.org
 	
 	cap prog drop    iekdensity
 		prog define  iekdensity
@@ -19,8 +19,8 @@
 		    ABSorb(varname numeric)								/// Strata variable
 		    REGressionoptions(string)							/// Allows any normal options for linear regressions
 																///
-		    KDENSITYoptions(string)	*							/// Allows kernel options (namely [kernel], [bwidth], [n], and all the [cline_options]) for univariate kernel density estimation
-																/// * Allows any normal options for twoway graphs
+		    KDENSITYoptions(string)								/// Allows kernel options (namely [kernel], [bwidth], [n], and all the [cline_options]) for univariate kernel density estimation
+			*													/// * Allows any normal options for twoway graphs
 		   ]
 		   
 /*******************************************************************************
@@ -47,7 +47,7 @@
 			drop if    missing(`by')
 
 			// Create a local of all codes in treatvar()
-			levelsof  `by'			, local(treatvar_levels)
+			levelsof  		   `by'			, local(treatvar_levels)
 
 			// Saving the name of the value label of the treatvar()
 			local 	   treatvar_value_label : value label `by'
@@ -58,24 +58,28 @@
 /*------------------------------------------------------------------------------
 	Check that the treatment variable is a valid categorical variable
 ------------------------------------------------------------------------------*/
-
+{
 			cap confirm numeric variable `by'
+			
 			if _rc != 0 {
-				noi display as error "{phang}The variable listed in by(`by') is not a numeric variable. See {help encode} for options on how to make a categorical string variable into a categorical numeric variable{p_end}"
-				error 108
+			
+				noi di as error "{phang}The variable listed in by(`by') is not a numeric variable. See {help encode} for options on how to make a categorical string variable into a categorical numeric variable{p_end}"
+						  error 108
 			}
+			
 			else {
+			
 				** Testing that by is a categorical variable. Int() rounds to
 				* integer, and if any values are non-integers then (int(`by') == `by') is
 				* not true
 				cap assert ( int(`by') == `by' )
 				if _rc == 9 {
-					noi display as error  "{phang}The variable in by(`by') is not a categorical variable. The variable may only include integers where each integer indicates which group each observation belongs to. See tabulation of `by' below:{p_end}"
-					noi tab `by', nol
-					error 109
+					noi di as error  "{phang}The variable in by(`by') is not a categorical variable. The variable may only include integers where each integer indicates which group each observation belongs to. See tabulation of `by' below:{p_end}"
+					noi 	  tab  `by', nol
+							  error 109
 				}
 			}
-
+}
 						
 /*******************************************************************************
 	Prepare optional options
@@ -143,106 +147,6 @@
 				}
 			}
 }
-/*------------------------------------------------------------------------------
-	Stat options
-------------------------------------------------------------------------------*/	
-{				
-			*******************************************
-			* Test that option was correctly specified
-			*******************************************
-			
-			// If no [stat] is specified, option [statstyle] also shouldn't be
-			if missing("`stat'") & !missing("`statstyle'") {
-				
-				noi di as error "{phang}{bf:statstyle()} requires the option {bf:stat()} to be specified..{p_end}"
-				noi di as error "{phang}If you want to use {bf:statstyle()}, you need to include the option {bf:stat()} too.{p_end}"
-				noi di 		    ""
-						  error 198
-				
-			}
-			// If no [stat] is specified, do not attach any vertical line in the plot
-			else if  missing("`stat'") {
-				
-				local STATxline ""
-				
-			}
-			// If [stat] option is specified, add option to graph vertical lines
-			else if !missing("`stat'") {
-				
-				local statIfList 	 ""
-				local statBoldString ""
-				local statsList		 mean min max p1 p5 p10 p25 p50 p75 p90 p95 p99
-				
-				foreach possibleStat of local statsList 	{
-					
-					local statIfList	 `" `statIfList' "`stat'" != "`possibleStat'" & "'
-					local statBoldString `"`statBoldString' {bf:`possibleStat'},"'
-					
-				}
-				
-				// Remove final comma
-				local statBoldString = substr("`statBoldString'", 1, length("`statBoldString'") - 1) 
-				
-				di `"`statIfList'"'
-				
-				// Check that the stat is among possible statistics
-				if `statIfList' "ok" == "ok" {
-					
-					noi di as error "{phang}The {bf:stat()} you selected cannot be shown in the graph.{p_end}"
-					noi di as error "{phang}The available statistics are:`statBoldString'.{p_end}"
-					noi di 		    ""
-							  error 198	
-				}
-								
-				else {
-					
-					// Summarize variable and store locals with defined value
-					foreach    varNum of local treatvar_levels {
-					
-						sum   `varlist' if `by' == `varNum' , d
-						local `varlist'_`varNum' = `r(`stat')'
-					}
-				}
-				
-				if missing("`statstyle'") {
-				
-					// In the absence of [statstyle], we only use the 'dash' patttern
-					local 	  STATxline ""
-						
-					foreach   varNum of local treatvar_levels {
-					
-						local STATxline `" `STATxline' xline( ``varlist'_`varNum'' , lcolor(`color_`varNum''%80) lpattern(dash) ) "'
-					}					
-				}		
-								
-				else if !missing("`statstyle'") {
-				
-					// Check that [statstyle] is correctly specified 
-					set graphics off //we set graphics off as the option [nograph] is conflicting with [xline]
-					cap kdensity `varlist' , xline( ``varlist'_0' , `statstyle' )
-					
-					if _rc != 0 {
-						
-						set graphics on
-						
-						// If it's not, replot the kernel density, which will automaticallty show the underlying error
-						kdensity `varlist' , xline( ``varlist'_0' , `statstyle' )
-					}
-					else {
-						
-						// Store local with [xline] option to be graphed
-						local 	  STATxline ""
-						
-						foreach   varNum of local treatvar_levels {
-						
-							local STATxline `" `STATxline' xline( ``varlist'_`varNum'' , lcolor(`color_`varNum''%80) `statstyle' ) "'
-						}
-					}
-					
-					set graphics on
-				}
-			}
-}	
 /*------------------------------------------------------------------------------
 	Control options
 ------------------------------------------------------------------------------*/
@@ -400,49 +304,50 @@
 					}
 					
 					// If the values are not 0/1 and no [control] is specified, signal this to the user
-					else if "`treatvar_levels'" != "0 1" {
-					
-						if missing("`control'") {
-							
+					else if "`treatvar_levels'" != "0 1" & missing("`control'") {	
+						
 							noi di as error "{phang}The treatment variable in {bf:by()} is not a 0/1 dummy variable. See tabulation of {it:`by'} below.{p_end}""
 							noi di as error "{phang}If you want to compute the treatment effect, you need to indicate which value is referred to the control group using the option {bf:control()}.{p_end}"
 							noi tab  `by', nolab
 							noi di 		    ""
 									  error 198
+					}
+						
+					else if !missing("`control'") {
+						
+						// When the binary variable is not 0/1, recode variable to be 0/1, depending on the control specified
+						tempvar  treatmentAux
+						gen	    `treatmentAux' = 0 if `by' == `control' & !mi(`by')
+						replace `treatmentAux' = 1 if `by' != `control' & !mi(`by')
+						
+						// New levels of new treatment variable
+						levelsof `treatmentAux' , local(treatvarAux_levels)
+						
+						if "`absorb'" == "" {
+							
+							reg  `varlist' `treatmentAux' [`weight'`exp'] , `regressionoptions'
 						}
 						
-						else if !missing("`control") {
-							
-							// When the binary variable is not 0/1, recode variable to be 0/1, depending on the control specified
-							tempvar  treatmentAux
-							gen	    `treatmentAux' = 0 if `by' == `control' & !mi(`by')
-							replace `treatmentAux' = 1 if `by' != `control' & !mi(`by')
-							
-							if "`absorb'" == "" {
-								reg  `varlist' `treatmentAux' [`weight'`exp'] , `regressionoptions'
-							}
-							
-							if "`absorb'" != "" {
-							
-								areg `varlist' `treatmentAux' [`weight'`exp'] , `regressionoptions' abs(`absorb') 
-							}
-
-							mat   results = r(table)
-							local beta	  = string( _b[`treatmentAux'] , "`TEformat'")
-							local se	  = string(_se[`treatmentAux'] , "`TEformat'")
-							local pvalue  = results[4, 1]
-							
-							local obs	  = e(N)
-							
-							local stars     ""
-							
-							foreach signLevel in 0.1 0.05 0.01 {
-
-								if `pvalue' < `signLevel' local stars "`stars'*"
-							}
-							
-							local EFFECTnote " note(Treatment effect = `beta' (`se')`stars'. N = `obs'.) "
+						if "`absorb'" != "" {
+						
+							areg `varlist' `treatmentAux' [`weight'`exp'] , `regressionoptions' abs(`absorb') 
 						}
+
+						mat   results = r(table)
+						local beta	  = string( _b[`treatmentAux'] , "`TEformat'")
+						local se	  = string(_se[`treatmentAux'] , "`TEformat'")
+						local pvalue  = results[4, 1]
+						
+						local obs	  = e(N)
+						
+						local stars     ""
+						
+						foreach signLevel in 0.1 0.05 0.01 {
+
+							if `pvalue' < `signLevel' local stars "`stars'*"
+						}
+						
+						local EFFECTnote " note(Treatment effect = `beta' (`se')`stars'. N = `obs'.) "
 					}
 				}
 				
@@ -544,7 +449,119 @@
 					}
 				}
 			}				
-}			
+}
+/*------------------------------------------------------------------------------
+	Stat options
+------------------------------------------------------------------------------*/	
+{				
+			*******************************************
+			* Test that option was correctly specified
+			*******************************************
+			
+			// If no [stat] is specified, option [statstyle] also shouldn't be
+			if missing("`stat'") & !missing("`statstyle'") {
+				
+				noi di as error "{phang}{bf:statstyle()} requires the option {bf:stat()} to be specified.{p_end}"
+				noi di as error "{phang}If you want to use {bf:statstyle()}, you need to include the option {bf:stat()} too.{p_end}"
+				noi di 		    ""
+						  error 198
+				
+			}
+			// If no [stat] is specified, do not attach any vertical line in the plot
+			else if  missing("`stat'") {
+				
+				local STATxline ""
+				
+			}
+			// If [stat] option is specified, add option to graph vertical lines
+			else if !missing("`stat'") {
+				
+				local statIfList 	 ""
+				local statBoldString ""
+				local statsList		 mean min max p1 p5 p10 p25 p50 p75 p90 p95 p99
+				
+				foreach possibleStat of local statsList 	{
+					
+					local statIfList	 `" `statIfList' "`stat'" != "`possibleStat'" & "'
+					local statBoldString `"`statBoldString' {bf:`possibleStat'},"'
+					
+				}
+				
+				// Remove final comma
+				local statBoldString = substr("`statBoldString'", 1, length("`statBoldString'") - 1) 
+								
+				// Check that the stat is among possible statistics
+				if `statIfList' "ok" == "ok" {
+					
+					noi di as error "{phang}The {bf:stat()} you selected cannot be shown in the graph.{p_end}"
+					noi di as error "{phang}The available statistics are:`statBoldString'.{p_end}"
+					noi di 		    ""
+							  error 198	
+				}
+								
+				else {
+					
+					// Summarize variable and store locals with defined value
+					// Distinguish normal case from case using controls which switched the order of the treatment groups
+					if (`treatvar_num_groups' == 2 & !missing("`control'")) | (`treatvar_num_groups' > 2 & "`effect'" != "") {
+						
+						foreach    varNum of local treatvarAux_levels {
+						
+							sum   `varlist' if `treatmentAux' == `varNum' , d
+							local `varlist'_`varNum' = `r(`stat')'
+						}
+					}
+					
+					else {
+						
+						foreach    varNum of local treatvar_levels {
+						
+							sum   `varlist' if `by' == `varNum' , d
+							local `varlist'_`varNum' = `r(`stat')'
+						}
+					}
+				}
+				
+				if missing("`statstyle'") {
+				
+					// In the absence of [statstyle], we only use the 'dash' patttern
+					local 	  STATxline ""
+						
+					foreach   varNum of local treatvar_levels {
+					
+						local STATxline `" `STATxline' xline( ``varlist'_`varNum'' , lcolor(`color_`varNum''%80) lpattern(dash) ) "'
+					}					
+				}		
+								
+				else if !missing("`statstyle'") {
+				
+					// Check that [statstyle] is correctly specified 
+					set graphics off //we set graphics off as the option [nograph] is conflicting with [xline]
+					cap kdensity `varlist' , xline( ``varlist'_0' , `statstyle' )
+					
+					if _rc != 0 {
+						
+						set graphics on
+						
+						// If it's not, replot the kernel density, which will automaticallty show the underlying error
+						kdensity `varlist' , xline( ``varlist'_0' , `statstyle' )
+					}
+					else {
+						
+						// Store local with [xline] option to be graphed
+						local 	  STATxline ""
+						
+						foreach   varNum of local treatvar_levels {
+						
+							local STATxline `" `STATxline' xline( ``varlist'_`varNum'' , lcolor(`color_`varNum''%80) `statstyle' ) "'
+						}
+					}
+					
+					set graphics on
+				}
+			}
+}				
+
 /*******************************************************************************
 	Prepare figure inputs
 *******************************************************************************/
@@ -595,7 +612,7 @@
 			local kdensityString  "tw"
 			local 	legendString `"legend(order(0 "Treatment assignment:" "'
 			 
-			if `treatvar_num_groups' > 2 & "`effect'" != "" {
+			if (`treatvar_num_groups' == 2 & !missing("`control'")) | (`treatvar_num_groups' > 2 & "`effect'" != "") {
 				
 				local   treatCount = 0 
 				foreach treatvarNum of local treatvarAux_levels {
@@ -628,8 +645,8 @@
 			
 			// Record outcome variable label to be shown as x-axis title
 			local varLab 				: var label `varlist'
-		}
 }
+	}
 
 /*******************************************************************************
 	Plot the figure!

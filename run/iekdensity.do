@@ -35,8 +35,8 @@
 	iekdensity price, by(treatment_binary ) color(eltblue edkblue)
 	
 	* Add label to treatment
-	lab def 		  		 					  treatLab 0 "Control" 1 "Treatment"
-	lab val 				   treatment_binary   treatLab
+	lab def 		  		 			    treatLab 0 "Control" 1 "Treatment"
+	lab val 		     treatment_binary   treatLab
 	
 	iekdensity price, by(treatment_binary ) color(eltblue edkblue) 
 	
@@ -50,8 +50,8 @@
 	iekdensity price, by(treatment_binary ) stat(p50) color(eltblue edkblue) effect
 	
 	* Specify control value
-	iekdensity price, by(treatment_binary) stat(p50) color(eltblue edkblue) effect control(0)
-	iekdensity price, by(treatment_binary) stat(p50) color(eltblue edkblue) effect control(1)
+	iekdensity price, by(treatment_binary ) stat(p50) color(eltblue edkblue) effect control(0)
+	iekdensity price, by(treatment_binary ) stat(p50) color(eltblue edkblue) effect control(1)
 	
 	* Add effect note with specified format
 	iekdensity price, by(treatment_binary ) stat(p50) color(eltblue edkblue) effect effectformat(%9.0fc)
@@ -74,9 +74,9 @@
 					  kdensity(epan2 bwidth(5))			  
 	
 	** Graphic options
-	iekdensity price, by(treatment_binary ) stat(p50) color(eltblue edkblue) 	///
-					  effect effectformat(%9.0fc) 									///
-					  graphregion(color(white)) ylab(, nogrid)						///
+	iekdensity price, by(treatment_binary ) stat(p50) color(eltblue edkblue) ///
+					  effect effectformat(%9.0fc) 							 ///
+					  graphregion(color(white)) ylab(, nogrid)				 ///
 					  legend(cols(1))
 	
 	
