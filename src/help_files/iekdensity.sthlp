@@ -12,8 +12,8 @@ help for {hi:iekdensity}
 
 {title:Syntax}
 
-	{phang2} {cmd:iekdensity} {opt:varname} [{help if}] [{help in}] [{help weight}],
-		{opt treat:var(varname)}
+	{phang2} {cmd:iekdensity} {it:yvar} [{help if}] [{help in}] [{help weight}],
+		{opt treat:var(treatmentvar)}
 			{break}[
 			{opt stat(string)}
 			{opt statstyle(string)}
@@ -27,7 +27,7 @@ help for {hi:iekdensity}
 			{opt gr:aphoptions(string)}
 		]
 
-	{pmore}Where {it:varname} is a numeric continuous outcome variables, whose distribution is to be plotted by treatment assignment.{p_end}
+	{pmore}Where {it:yvar} is a numeric continuous outcome variables, whose distribution is to be plotted by treatment assignment.{p_end}
 
 
 {marker opts}{...}
@@ -69,9 +69,9 @@ help for {hi:iekdensity}
 		{phang}{opt treat:var(varname)} indicates which variable should be used to idenfity the treatment assignment. This can be a dummy variable (0/1) or a factor variable, when there are multiple treatments.{p_end}
 
 	{pstd}{it:{ul:{hi:Content options:}}}{p_end}
-		{phang}{opt stat(string)} specifies a descriptive statitistcs to be plotted over the kernel density graph. In particular, vertical lines for each treatment group are added. Statistics available are sample mean, median, minimum and maximum.{p_end}
+		{phang}{opt stat(string)} specifies a descriptive statitistic to be plotted over the kernel density graph. In particular, vertical lines for each treatment group are added. Accepted statistics are: {it:mean}, {it:p1}, {it:p5}, {it:p10}, {it:p25}, {it:p50}, {it:p75}, {it:p90}, {it:p95}, {it:p99}, {it:min} and {it:max}.{p_end}
 
-		{phang}{opt statstyle(string)}} specifies the graphic style to be used for the statistic lines. Namely, you will be able to use {opt lpattern()} and {opt lwidth()} options. Colors are instead controlled by option {opt color(string)}}.{p_end}
+		{phang}{opt statstyle(string)} specifies the graphic style to be used for the statistic lines. Namely, you will be able to use {opt lpattern()} and {opt lwidth()} options. Colors are instead controlled by option {opt color(string)}.{p_end}
 
 		{phang}{opt effect} Add note with treatment effect, containing point estimate, standard error, and p-value.{p_end}
 
@@ -83,13 +83,13 @@ help for {hi:iekdensity}
 	
 		{phang}{opt abs:orb(varname)} indicates the fixed effects variable (for example, the experimental strata when the treatment was stratified) to be included in the estimation. This variable must be numerical.{p_end}
 
-		{phang}{opt reg:ressionoptions(string)} indicates other options to be employed for the treatment effect estimations, for example suppress constant term ({opt nocons:tant} or clustered standard errors ({opt cl:uster(varname)}).{p_end}
+		{phang}{opt reg:ressionoptions(string)} indicates other options to be employed for the treatment effect estimations, for example suppress constant term ({opt nocons:tant}) or clustered standard errors ({opt cl:uster(varname)}). All options accepted by {help regress} (or {help areg} when option {opt absorb()} is specified) are accepted.{p_end}
 
-		{phang}{opt kdensity:options(string)} specifies kernel estimation options, such as kernel function and half-width of kernel. The default kernel function is {opt:kernel(epanechnikov)}.{p_end}
+		{phang}{opt kdensity:options(string)} specifies kernel estimation options, such as kernel function and half-width of kernel. The default kernel function is {opt kernel(epanechnikov)}. All options accepted by {help kdensity} are accepted.{p_end}
 		
 	{pstd}{it:{ul:{hi:Graphic options:}}}{p_end}
 		
-		{phang}{opt color(string)} indicates the colors to be used for each treatment arm. The colors should come in the order of the values in {opt treat:var(varname)}. For instance, if the treatment is binary, you can set the line colors by typing {opt color(color1 color2)}. See {help colorstyle:colorstyle}. {p_end}
+		{phang}{opt color(string)} indicates the colors to be used for each treatment arm. The colors should come in the order of the values in {opt treat:var(varname)}. For instance, if the treatment is binary, you can set the line colors by typing {opt color(color1 color2)}. See {help colorstyle}. {p_end}
 
 		{phang}{opt gr:aphoptions(string)} indicates other options to be applied to the graph, such as additional text and lines, changes axes, titles, and legeng, etc.. See {help twoway_options:twoway_options} for the full set of available options.{p_end}
 
