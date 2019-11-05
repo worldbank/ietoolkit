@@ -24,7 +24,7 @@ help for {hi:iekdensity}
 			{opt reg:ressionoptions(string)}
 			{opt kdensity:options(string)}
 			{opt color(string)}
-			{opt gr:aphoptions(string)}
+			{it:{help twoway_options}}
 		]
 
 	{pmore}Where {it:yvar} is a numeric continuous outcome variables, whose distribution is to be plotted by treatment assignment.{p_end}
@@ -52,7 +52,7 @@ help for {hi:iekdensity}
 			
 {pstd}{it:Graphic options:}{p_end}
 	{synopt :{opt color(string)}}Specify colors for each group.{p_end}
-	{synopt :{opt gr:aphoptions(string)}}Specify graph options.{p_end}
+	{synopt :{help twoway_options}Specify graph options.{p_end}
 
 {synoptline}
 
@@ -91,7 +91,7 @@ help for {hi:iekdensity}
 		
 		{phang}{opt color(string)} indicates the colors to be used for each treatment arm. The colors should come in the order of the values in {opt treat:var(varname)}. For instance, if the treatment is binary, you can set the line colors by typing {opt color(color1 color2)}. See {help colorstyle}. {p_end}
 
-		{phang}{opt gr:aphoptions(string)} indicates other options to be applied to the graph, such as additional text and lines, changes axes, titles, and legeng, etc.. See {help twoway_options:twoway_options} for the full set of available options.{p_end}
+		{phang}{it:{help twoway_options}} indicates other options to be applied to the graph, such as additional text and lines, changes axes, titles, and legend, etc. See {help twoway_options:twoway_options} for the full set of available options.{p_end}
 
 {marker optslong}
 {title:Examples}
@@ -134,7 +134,7 @@ help for {hi:iekdensity}
 		
 		{pstd} This changes some of the graphical options.
 		
-		{pstd} {inp:iekdensity} {it:auto} , {inp:treatvar(}{it:treatment}{inp:)} {inp:stat(}{it:p50}{inp:)} {inp:statstyle(}lpattern(dash) lwithd(2){inp:)} {inp:graphoptions(}title(auto distribution) subtitle(By Treatment Assignment) ylab(, angle(horizontal)) graphregion(color(white)) plotregion(color(white)){inp:)}
+		{pstd} {inp:iekdensity} {it:auto} , {inp:treatvar(}{it:treatment}{inp:)} {inp:stat(}{it:p50}{inp:)} {inp:statstyle(}lpattern(dash) lwithd(2){inp:)} {inp:title(}auto distribution{inp:)} {inp:subtitle(}By Treatment Assignment{inp:)} {inp:ylab(}, angle(horizontal){inp:)} {inp:graphregion(}color(white){inp:)} {inp:plotregion(}color(white){inp:)}
 		
 	{pstd} {hi:Example 3.}
 

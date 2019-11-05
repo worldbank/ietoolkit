@@ -19,8 +19,8 @@
 		    ABSorb(varname numeric)								/// Strata variable
 		    REGressionoptions(string)							/// Allows any normal options for linear regressions
 																///
-		    KDENSITYoptions(string)								/// Allows kernel options (namely [kernel], [bwidth], [n], and all the [cline_options]) for univariate kernel density estimation
-		    GRaphoptions(string)								/// Allows any normal options for twoway graphs
+		    KDENSITYoptions(string)	*							/// Allows kernel options (namely [kernel], [bwidth], [n], and all the [cline_options]) for univariate kernel density estimation
+																/// * Allows any normal options for twoway graphs
 		   ]
 		   
 /*******************************************************************************
@@ -252,7 +252,7 @@
 			
 			if   `control_correct' == 0 {
 			
-				  noi di as error "{phang}The code listed in {bf:control(`control')} is not used in {bf:tretavar(`treatvar')}. See tabulation of {it:`treatvar'} below:{p_end}"
+				  noi di as error "{phang}The code listed in {bf:control(`control')} is not used in {bf:treatvar(`treatvar')}. See tabulation of {it:`treatvar'} below:{p_end}"
 				  noi tab  `treatvar', nol
 				  noi di 		  ""		    
 							error 197
@@ -642,7 +642,7 @@
 		`legendString'			///
 		 ytitle(Density) 		///
 		 xtitle(`varLab')		/// 
-		`graphoptions'
+		`options'
 				
 		// Restore original dataset
 		restore
