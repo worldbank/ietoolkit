@@ -5,7 +5,7 @@
 		
 		syntax 		 varname(numeric) [if] [in] [aw fw iw] , 	/// Specify outcome variable (only fweights, aweights, and iweights are allowed in original [kdensity] command)
 																///
-			TREATvar(varname numeric)							/// Specify treatment variable
+			by(varname numeric)									/// Specify treatment variable
 																///
 		   [													///
 		    color(string)										/// Specify string of colors
@@ -19,8 +19,8 @@
 		    ABSorb(varname numeric)								/// Strata variable
 		    REGressionoptions(string)							/// Allows any normal options for linear regressions
 																///
-		    KDENSITYoptions(string)								/// Allows kernel options (namely [kernel], [bwidth], [n], and all the [cline_options]) for univariate kernel density estimation
-		    GRaphoptions(string)								/// Allows any normal options for twoway graphs
+		    KDENSITYoptions(string)	*							/// Allows kernel options (namely [kernel], [bwidth], [n], and all the [cline_options]) for univariate kernel density estimation
+																/// * Allows any normal options for twoway graphs
 		   ]
 		   
 /*******************************************************************************
@@ -44,34 +44,34 @@
 			**************************************************
 			
 			// Remove observations with a missing value in treatvar()
-			drop if    missing(`treatvar')
+			drop if    missing(`by')
 
 			// Create a local of all codes in treatvar()
-			levelsof  `treatvar'			, local(treatvar_levels)
+			levelsof  `by'			, local(treatvar_levels)
 
 			// Saving the name of the value label of the treatvar()
-			local 	   treatvar_value_label : value label `treatvar'
+			local 	   treatvar_value_label : value label `by'
 						
-			// Counting how many levels there are in treatvar()
+			// Counting how many levels there are in by()
 			local 	   treatvar_num_groups  : word  count `treatvar_levels'
 			
 /*------------------------------------------------------------------------------
 	Check that the treatment variable is a valid categorical variable
 ------------------------------------------------------------------------------*/
 
-			cap confirm numeric variable `treatvar'
+			cap confirm numeric variable `by'
 			if _rc != 0 {
-				noi display as error "{phang}The variable listed in treatvar(`treatvar') is not a numeric variable. See {help encode} for options on how to make a categorical string variable into a categorical numeric variable{p_end}"
+				noi display as error "{phang}The variable listed in by(`by') is not a numeric variable. See {help encode} for options on how to make a categorical string variable into a categorical numeric variable{p_end}"
 				error 108
 			}
 			else {
-				** Testing that treatvar is a categorical variable. Int() rounds to
-				* integer, and if any values are non-integers then (int(`treatvar') == `treatvar') is
+				** Testing that by is a categorical variable. Int() rounds to
+				* integer, and if any values are non-integers then (int(`by') == `by') is
 				* not true
-				cap assert ( int(`treatvar') == `treatvar' )
+				cap assert ( int(`by') == `by' )
 				if _rc == 9 {
-					noi display as error  "{phang}The variable in treatvar(`treatvar') is not a categorical variable. The variable may only include integers where each integer indicates which group each observation belongs to. See tabulation of `treatvar' below:{p_end}"
-					noi tab `treatvar', nol
+					noi display as error  "{phang}The variable in by(`by') is not a categorical variable. The variable may only include integers where each integer indicates which group each observation belongs to. See tabulation of `by' below:{p_end}"
+					noi tab `by', nol
 					error 109
 				}
 			}
@@ -113,7 +113,7 @@
 				// If it is smaller or larger, we throw an error
 				if   `color_num_groups' > `treatvar_num_groups' {
 					  
-					  noi di as error "{phang}The number of colors you specified in {bf:color()} is higher than the number of categories in the treatment variable {bf:treatvar()}.{p_end}"
+					  noi di as error "{phang}The number of colors you specified in {bf:color()} is higher than the number of categories in the treatment variable {bf:by()}.{p_end}"
 					  noi di as error "{phang}Please define one color for each category.{p_end}"
 					  noi di 		  ""
 								error 198
@@ -121,7 +121,7 @@
 				
 				if   `color_num_groups' < `treatvar_num_groups' {
 					
-					  noi di as error "{phang}The number of colors you specified in {bf:color()}  is smaller than the number of categories in the treatment variable {bf:treatvar()}.{p_end}"
+					  noi di as error "{phang}The number of colors you specified in {bf:color()}  is smaller than the number of categories in the treatment variable {bf:by()}.{p_end}"
 					  noi di as error "{phang}Please define one color for each category.{p_end}"
 					  noi di 		  ""
 							    error 198
@@ -199,7 +199,7 @@
 					// Summarize variable and store locals with defined value
 					foreach    varNum of local treatvar_levels {
 					
-						sum   `varlist' if `treatvar' == `varNum' , d
+						sum   `varlist' if `by' == `varNum' , d
 						local `varlist'_`varNum' = `r(`stat')'
 					}
 				}
@@ -247,13 +247,13 @@
 	Control options
 ------------------------------------------------------------------------------*/
 {
-			// If control() is used, test that the value specified exists in the [treatvar]
+			// If control() is used, test that the value specified exists in the [by]
 			local control_correct : list control in treatvar_levels
 			
 			if   `control_correct' == 0 {
 			
-				  noi di as error "{phang}The code listed in {bf:control(`control')} is not used in {bf:tretavar(`treatvar')}. See tabulation of {it:`treatvar'} below:{p_end}"
-				  noi tab  `treatvar', nol
+				  noi di as error "{phang}The code listed in {bf:control(`control')} is not used in {bf:by(`by')}. See tabulation of {it:`by'} below:{p_end}"
+				  noi tab  `by', nol
 				  noi di 		  ""		    
 							error 197
 			}
@@ -371,19 +371,19 @@
 				
 						// Estimate treatment effect
 						if "`absorb'" == "" {
-							reg  `varlist' `treatvar' [`weight'`exp'] , `regressionoptions'
+							reg  `varlist' `by' [`weight'`exp'] , `regressionoptions'
 						}
 						
 						// If there are strata, estimate treatment effect controlling for strata
 						if "`absorb'" != "" {
 						
-							areg `varlist' `treatvar' [`weight'`exp'] , `regressionoptions' abs(`absorb') 
+							areg `varlist' `by' [`weight'`exp'] , `regressionoptions' abs(`absorb') 
 						}
 						
 						// Store estimated coefficient, standard error, p-value, and number of observations
 						mat   results = r(table)
-						local beta	  = string( _b[`treatvar'] , "`TEformat'")
-						local se	  = string(_se[`treatvar'] , "`TEformat'")
+						local beta	  = string( _b[`by'] , "`TEformat'")
+						local se	  = string(_se[`by'] , "`TEformat'")
 						local pvalue  = results[4, 1]
 						
 						local obs	  = e(N)
@@ -404,9 +404,9 @@
 					
 						if missing("`control'") {
 							
-							noi di as error "{phang}The treatment variable in {bf:treatvar()} is not a 0/1 dummy variable. See tabulation of {it:`treatvar'} below.{p_end}""
+							noi di as error "{phang}The treatment variable in {bf:by()} is not a 0/1 dummy variable. See tabulation of {it:`by'} below.{p_end}""
 							noi di as error "{phang}If you want to compute the treatment effect, you need to indicate which value is referred to the control group using the option {bf:control()}.{p_end}"
-							noi tab  `treatvar', nolab
+							noi tab  `by', nolab
 							noi di 		    ""
 									  error 198
 						}
@@ -415,8 +415,8 @@
 							
 							// When the binary variable is not 0/1, recode variable to be 0/1, depending on the control specified
 							tempvar  treatmentAux
-							gen	    `treatmentAux' = 0 if `treatvar' == `control' & !mi(`treatvar')
-							replace `treatmentAux' = 1 if `treatvar' != `control' & !mi(`treatvar')
+							gen	    `treatmentAux' = 0 if `by' == `control' & !mi(`by')
+							replace `treatmentAux' = 1 if `by' != `control' & !mi(`by')
 							
 							if "`absorb'" == "" {
 								reg  `varlist' `treatmentAux' [`weight'`exp'] , `regressionoptions'
@@ -453,9 +453,9 @@
 					// In this case, the control value must be specified
 					if  missing("`control'") {
 							
-						noi di as error "{phang}The treatment variable in {bf:treatvar()} is a factor variable. See tabulation of {it:`treatvar'} below.{p_end}"
+						noi di as error "{phang}The treatment variable in {bf:treatvar()} is a factor variable. See tabulation of {it:`by'} below.{p_end}"
 						noi di as error "{phang}If you want to compute the treatment effect, you need to indicate which value is referred to the control group using the option {bf:control()}.{p_end}"
-						noi tab  `treatvar', nolab
+						noi tab  `by', nolab
 						noi di 		    ""
 								  error 198
 					}
@@ -463,23 +463,23 @@
 					if !missing("`control'") {
 					
 						// Local with values of [control] and other than [control]
-						levelsof `treatvar' if `treatvar' == `control', local(treatvar_control)
-						levelsof `treatvar' if `treatvar' != `control', local(treatvar_comparison)
+						levelsof `by' if `by' == `control', local(treatvar_control)
+						levelsof `by' if `by' != `control', local(treatvar_comparison)
 						
 						// Generate new treatment factor variable
 						tempvar  treatmentAux
-						gen 	`treatmentAux' = 0 if `treatvar' == `control'	// equal to 0 for the control group
+						gen 	`treatmentAux' = 0 if `by' == `control'	// equal to 0 for the control group
 						
 						local    treatvarCount = 0
 						foreach  treatvarNum of local treatvar_comparison {
 							
 							local    treatvarCount = `treatvarCount' + 1		// and going from 1 to the total number of treatment arms for the rest
-							replace `treatmentAux' = `treatvarCount' if `treatvar' == `treatvarNum'
+							replace `treatmentAux' = `treatvarCount' if `by' == `treatvarNum'
 						}
 						
 						// Transfer labels from original variable
 						local    treatvarCount = 0
-						local 	 treatvarLab_`treatvarCount' : label (`treatvar') `treatvar_control'
+						local 	 treatvarLab_`treatvarCount' : label (`by') `treatvar_control'
 						di	   "`treatvarLab_`treatvarCount''"
 						lab def  treatvarLab `treatvarCount' "`treatvarLab_`treatvarCount''", replace
 						
@@ -487,7 +487,7 @@
 							
 							local treatvarCount = `treatvarCount' + 1
 							
-							local treatvarLab_`treatvarCount' : label (`treatvar') `treatvarNum'
+							local treatvarLab_`treatvarCount' : label (`by') `treatvarNum'
 							
 							lab   def treatvarLab `treatvarCount' "`treatvarLab_`treatvarCount''", add
 						}
@@ -533,10 +533,10 @@
 						forv  estimateNum = 1/`treatvarCount' {
 						
 							if	`estimateNum' == 1 {
-								local EFFECTnote 				   "  [`treatvar' == `estimateNum'] `beta`estimateNum'' (`se`estimateNum'')`stars`estimateNum'';"
+								local EFFECTnote 				   "  [`by' == `estimateNum'] `beta`estimateNum'' (`se`estimateNum'')`stars`estimateNum'';"
 							}
 							else {
-								local EFFECTnote `" "`EFFECTnote'" "  [`treatvar' == `estimateNum'] `beta`estimateNum'' (`se`estimateNum'')`stars`estimateNum'';" "'
+								local EFFECTnote `" "`EFFECTnote'" "  [`by' == `estimateNum'] `beta`estimateNum'' (`se`estimateNum'')`stars`estimateNum'';" "'
 							}
 						}
 												
@@ -586,7 +586,7 @@
 					
 					foreach treatvarNum of local treatvar_levels {
 					
-						local label_`treatvarNum' : label (`treatvar')     `treatvarNum'
+						local label_`treatvarNum' : label (`by')     `treatvarNum'
 					}
 				}
 			}
@@ -615,7 +615,7 @@
 					
 					local treatCount	  = `treatCount' + 1
 					
-					local kdensityString `" `kdensityString' (kdensity `varlist' if `treatvar' == `treatvarNum' [`weight'`exp'] , `kdensityoptions' color(`color_`treatvarNum'') ) "'
+					local kdensityString `" `kdensityString' (kdensity `varlist' if `by' == `treatvarNum' [`weight'`exp'] , `kdensityoptions' color(`color_`treatvarNum'') ) "'
 					
 					local   legendString `"   `legendString' `treatCount' "`label_`treatvarNum''" "'
 				}
@@ -642,7 +642,7 @@
 		`legendString'			///
 		 ytitle(Density) 		///
 		 xtitle(`varLab')		/// 
-		`graphoptions'
+		`options'
 				
 		// Restore original dataset
 		restore

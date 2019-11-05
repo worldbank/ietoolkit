@@ -29,74 +29,75 @@
 
 	* Binary treatment
 	* ----------------
-	iekdensity price, treatvar(treatment_binary ) 
+	iekdensity price, by(treatment_binary ) 
 	
 	** Color options
-	iekdensity price, treatvar(treatment_binary ) color(eltblue edkblue)
+	iekdensity price, by(treatment_binary ) color(eltblue edkblue)
 	
 	* Add label to treatment
 	lab def 		  		 					  treatLab 0 "Control" 1 "Treatment"
 	lab val 				   treatment_binary   treatLab
 	
-	iekdensity price, treatvar(treatment_binary ) color(eltblue edkblue) 
+	iekdensity price, by(treatment_binary ) color(eltblue edkblue) 
 	
 	** Statistic options
-	iekdensity price, treatvar(treatment_binary ) stat(p50)
+	iekdensity price, by(treatment_binary ) stat(p50)
 	
 	* Add statistic with detailed style
-	iekdensity price, treatvar(treatment_binary ) stat(mean) statstyle(lpattern(dash) lwidth(2))
+	iekdensity price, by(treatment_binary ) stat(mean) statstyle(lpattern(dash) lwidth(2))
 	
 	** Effect options
-	iekdensity price, treatvar(treatment_binary ) stat(p50) color(eltblue edkblue) effect
+	iekdensity price, by(treatment_binary ) stat(p50) color(eltblue edkblue) effect
 	
 	* Specify control value
-	iekdensity price, treatvar(treatment_binary) stat(p50) color(eltblue edkblue) effect control(0)
-	iekdensity price, treatvar(treatment_binary) stat(p50) color(eltblue edkblue) effect control(1)
+	iekdensity price, by(treatment_binary) stat(p50) color(eltblue edkblue) effect control(0)
+	iekdensity price, by(treatment_binary) stat(p50) color(eltblue edkblue) effect control(1)
 	
 	* Add effect note with specified format
-	iekdensity price, treatvar(treatment_binary ) stat(p50) color(eltblue edkblue) effect effectformat(%9.0fc)
+	iekdensity price, by(treatment_binary ) stat(p50) color(eltblue edkblue) effect effectformat(%9.0fc)
 		
 	** Regression options
 	
 	* Fixed effects
-	iekdensity price, treatvar(treatment_binary ) stat(p50) color(eltblue edkblue) ///
+	iekdensity price, by(treatment_binary ) stat(p50) color(eltblue edkblue) ///
 					  effect abs(foreign)
 	
 	* Clustered standard errors
-	iekdensity price, treatvar(treatment_binary ) stat(p50) color(eltblue edkblue) ///
+	iekdensity price, by(treatment_binary ) stat(p50) color(eltblue edkblue) ///
 					  effect reg(cl(foreign))
 	
 	** Kernel options
-	iekdensity price, treatvar(treatment_binary ) stat(p50) color(eltblue edkblue) ///
+	iekdensity price, by(treatment_binary ) stat(p50) color(eltblue edkblue) ///
 					  kdensity(biweight)
 
-	iekdensity price, treatvar(treatment_binary ) stat(p50) color(eltblue edkblue) ///
+	iekdensity price, by(treatment_binary ) stat(p50) color(eltblue edkblue) ///
 					  kdensity(epan2 bwidth(5))			  
 	
 	** Graphic options
-	iekdensity price, treatvar(treatment_binary ) stat(p50) color(eltblue edkblue) 	///
+	iekdensity price, by(treatment_binary ) stat(p50) color(eltblue edkblue) 	///
 					  effect effectformat(%9.0fc) 									///
-					  gr(graphregion(color(white)) ylab(, nogrid))
+					  graphregion(color(white)) ylab(, nogrid)						///
+					  legend(cols(1))
 	
 	
 	* Categorical treatment
 	* ---------------------
-	iekdensity price, treatvar(treatment_factor3)
-	iekdensity price, treatvar(treatment_factor4) 
-	iekdensity price, treatvar(treatment_factor5)
-	iekdensity price, treatvar(treatment_factor6)
+	iekdensity price, by(treatment_factor3)
+	iekdensity price, by(treatment_factor4) 
+	iekdensity price, by(treatment_factor5)
+	iekdensity price, by(treatment_factor6)
 	
 	lab def 				  treatment_factor3Lab 1 "Treatment 1" 2 "Treatment 2" 3 "Treatment 3", replace
 	lab val treatment_factor3 treatment_factor3Lab
 	
-	iekdensity price, treatvar(treatment_factor3)
+	iekdensity price, by(treatment_factor3)
 	
-	iekdensity price, treatvar(treatment_factor3) color(eltblue midblue edkblue)
+	iekdensity price, by(treatment_factor3) color(eltblue midblue edkblue)
 	
-	iekdensity price, treatvar(treatment_factor3) color(eltblue midblue edkblue) stat(mean)
+	iekdensity price, by(treatment_factor3) color(eltblue midblue edkblue) stat(mean)
 	
-	iekdensity price, treatvar(treatment_factor3) color(eltblue midblue edkblue) effect control(1)
-	iekdensity price, treatvar(treatment_factor3) color(eltblue midblue edkblue) effect control(2)
+	iekdensity price, by(treatment_factor3) color(eltblue midblue edkblue) effect control(1)
+	iekdensity price, by(treatment_factor3) color(eltblue midblue edkblue) effect control(2)
 	
 	
 /*******************************************************************************
@@ -104,22 +105,22 @@
 *******************************************************************************/
 	
 	* Group variable is not a factor variable
-	iekdensity price, treatvar(headroom)
+	iekdensity price, by(headroom)
 	
 	* Change only one color
-	iekdensity price, treatvar(treatment_binary)  color(eltblue)
+	iekdensity price, by(treatment_binary)  color(eltblue)
 	
 	* Non-existing code as control
-	iekdensity price, treatvar(treatment_binary)  control(3)
+	iekdensity price, by(treatment_binary)  control(3)
 	
 	* Too many colors
-	iekdensity price, treatvar(treatment_binary)  color(eltblue midblue edkblue)
+	iekdensity price, by(treatment_binary)  color(eltblue midblue edkblue)
 	
 	* Not enough colors
-	iekdensity price, treatvar(treatment_factor3) color(eltblue midblue) stat(mean)
+	iekdensity price, by(treatment_factor3) color(eltblue midblue) stat(mean)
 	
 	* Multiple treatment arms but control group not specified
-	iekdensity price, treatvar(treatment_factor3) color(eltblue midblue edkblue) effect
+	iekdensity price, by(treatment_factor3) color(eltblue midblue edkblue) effect
 	
 	
 ***************************** End of do-file ***********************************
