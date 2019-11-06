@@ -2790,8 +2790,8 @@ program define iecontrolheader, rclass
 									local titlerow1 `"`titlerow1' _tab "t-test""'
 				if `PTTEST_USED' 	local titlerow2 `"`titlerow2' _tab "p-value""'
 				else 				local titlerow2 `"`titlerow2' _tab "Difference""'
-									if !`TREATMINUSCONTROL_USED' local titlerow3 `"`titlerow2' _tab "(`ctrlGrpPos') - (`second_ttest_group')""'
-									if  `TREATMINUSCONTROL_USED' local titlerow3 `"`titlerow2' _tab "(`second_ttest_group') - (`ctrlGrpPos')""'
+									if !`TREATMINUSCONTROL_USED' local titlerow3 `"`titlerow3' _tab "(`ctrlGrpPos') - (`second_ttest_group')""'
+									if  `TREATMINUSCONTROL_USED' local titlerow3 `"`titlerow3' _tab "(`second_ttest_group') - (`ctrlGrpPos')""'
 
 									if !`TREATMINUSCONTROL_USED' local texrow3  `" `texrow3'  & (`ctrlGrpPos')-(`second_ttest_group') "'
 									if  `TREATMINUSCONTROL_USED' local texrow3  `" `texrow3'  & (`second_ttest_group')-(`ctrlGrpPos') "'
@@ -2861,8 +2861,8 @@ program define ienocontrolheader, rclass
 									local titlerow1 `"`titlerow1' _tab "t-test""'
 				if `PTTEST_USED' 	local titlerow2 `"`titlerow2' _tab "p-value""'
 				else 				local titlerow2 `"`titlerow2' _tab "Difference""'
-									if !`TREATMINUSCONTROL_USED' local titlerow3 `"`titlerow2' _tab "(`ctrlGrpPos') - (`second_ttest_group')""'
-									if  `TREATMINUSCONTROL_USED' local titlerow3 `"`titlerow2' _tab "(`second_ttest_group') - (`ctrlGrpPos')""'
+									if !`TREATMINUSCONTROL_USED' local titlerow3 `"`titlerow3' _tab "(`ctrlGrpPos') - (`second_ttest_group')""'
+									if  `TREATMINUSCONTROL_USED' local titlerow3 `"`titlerow3' _tab "(`second_ttest_group') - (`ctrlGrpPos')""'
 
 									if !`TREATMINUSCONTROL_USED' local texrow3  `" `texrow3' & (`first_ttest_group')-(`second_ttest_group') "'
 									if  `TREATMINUSCONTROL_USED' local texrow3  `" `texrow3' & (`second_ttest_group')-(`first_ttest_group') "'
@@ -2883,8 +2883,8 @@ program define ienocontrolheader, rclass
 
 				local titlerow1 `"`titlerow1' _tab "Normalized""'
 				local titlerow2 `"`titlerow2' _tab "difference""'
-				if !`TREATMINUSCONTROL_USED' local titlerow3 `"`titlerow2' _tab "(`ctrlGrpPos') - (`second_ttest_group')""'
-				if  `TREATMINUSCONTROL_USED' local titlerow3 `"`titlerow2' _tab "(`second_ttest_group') - (`ctrlGrpPos')""'
+				if !`TREATMINUSCONTROL_USED' local titlerow3 `"`titlerow3' _tab "(`ctrlGrpPos') - (`second_ttest_group')""'
+				if  `TREATMINUSCONTROL_USED' local titlerow3 `"`titlerow3' _tab "(`second_ttest_group') - (`ctrlGrpPos')""'
 
 				if !`TREATMINUSCONTROL_USED' local texrow3  `" `texrow3' & (`first_ttest_group')-(`second_ttest_group') "'
 				if  `TREATMINUSCONTROL_USED' local texrow3  `" `texrow3' & (`second_ttest_group')-(`first_ttest_group') "'
