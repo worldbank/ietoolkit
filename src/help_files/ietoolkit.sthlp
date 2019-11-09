@@ -1,5 +1,6 @@
 {smcl}
 {* 5 Nov 2019}{...}
+
 {hline}
 help for {hi:ietoolkit}
 {hline}
@@ -21,7 +22,7 @@ command please see the {browse "https://dimewiki.worldbank.org/wiki/Stata_Coding
 {marker desc}
 {title:Description}
 
-{pstd}{cmdab:iegraph} This command returns the version of ietoolkit installed. It
+{pstd}{cmdab:ietoolkit} This command returns the version of ietoolkit installed. It
 	can be used in the beginning of a Master Do-file that is intended to be used
 	by multiple users to programmatically test if ietoolkit is not installed for
 	the user and therefore need to be installed, or if the version the user has
@@ -36,8 +37,8 @@ command please see the {browse "https://dimewiki.worldbank.org/wiki/Stata_Coding
 {title:Examples}
 
 {pstd}The code below is an example code that can be added to the top of any do-file.
-	the example code first test if the command is installed, and install it if not. If it is
-	installed, it test if the version is less than version 5.0. If it is, it
+	The example code first tests if the command is installed, and install it if not. If it is
+	installed, it tests if the version is less than version 5.0. If it is, it
 	replaces the ietoolkit file with the latest version. In your code you can skip
 	the second part if you are not sure which version is required. But you should
 	always have the first part testing that {inp:r(version)} has a value before using
@@ -49,7 +50,7 @@ command please see the {browse "https://dimewiki.worldbank.org/wiki/Stata_Coding
 {inp}      ssc install ietoolkit
 {inp}    }
 {inp}    else if `r(version)' < 5.0 {
-{inp}      ietoolkit version too old, install the latest version
+{inp}      *ietoolkit version too old, install the latest version
 {inp}      ssc install ietoolkit , replace
 {inp}    }{text}
 
