@@ -1,4 +1,4 @@
-*! version 6.2 31JAN2019 DIME Analytics dimeanalytics@worldbank.org
+*! version 6.3 5NOV2019 DIME Analytics dimeanalytics@worldbank.org
 
 cap program drop 	iefolder
 	program define	iefolder
@@ -61,6 +61,13 @@ qui {
 	if `:list itemType in itemTypes' == 0 {
 
 		noi di as error `"{phang}You have not used a valid item type. You entered "`itemType'". See the {help iefolder:help file} for details.{p_end}"'
+		error 198
+	}
+
+	*Test that no name is specified with sub command project. There is nothing to be named
+	else if ("`itemType'" == "project" & "`itemName'" != "" ) {
+
+		noi di as error `"{phang}You may not specify a name [`itemName'] of when creating a new projet. See the {help iefolder:help file} for details.{p_end}"'
 		error 198
 	}
 

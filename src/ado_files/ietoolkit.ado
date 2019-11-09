@@ -1,11 +1,11 @@
-*! version 6.2 31JAN2019 DIME Analytics dimeanalytics@worldbank.org
+*! version 6.3 5NOV2019 DIME Analytics dimeanalytics@worldbank.org
 
 capture program drop ietoolkit
 program ietoolkit, rclass
 
 	* UPDATE THESE LOCALS FOR EACH NEW VERSION PUBLISHED
-	local version "6.2"
-	local versionDate "31JAN2019"
+	local version "6.3"
+	local versionDate "5NOV2019"
 
 
 	syntax [anything]
