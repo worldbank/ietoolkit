@@ -1,5 +1,5 @@
 {smcl}
-{* DEVELOP}{...}
+{* 5 Nov 2019}{...}
 {hline}
 help for {hi:iekdensity}
 {hline}
@@ -49,7 +49,7 @@ help for {hi:iekdensity}
 	{synopt :{opt abs:orb(varname)}}Specify fixed effects variable, if any.{p_end}
 	{synopt :{opt reg:ressionoptions(string)}}Specify regression options.{p_end}
 	{synopt :{opt kdensity:options(string)}}Specify kernel estimation options.{p_end}
-			
+
 {pstd}{it:Graphic options:}{p_end}
 	{synopt :{opt color(string)}}Specify colors for each group.{p_end}
 	{synopt :{help twoway_options}}Specify graph options.{p_end}
@@ -80,15 +80,15 @@ help for {hi:iekdensity}
 		{phang}{cmdab:effectformat(}{it:{help format:%fmt}}{cmd:)} specify the format in which treatment effect point estimate and standard error should be displayed in the graph note.{p_end}
 
 	{pstd}{it:{ul:{hi:Estimation options:}}}{p_end}
-	
+
 		{phang}{opt abs:orb(varname)} indicates the fixed effects variable (for example, the experimental strata when the treatment was stratified) to be included in the estimation. This variable must be numerical.{p_end}
 
 		{phang}{opt reg:ressionoptions(string)} indicates other options to be employed for the treatment effect estimations, for example suppress constant term ({opt nocons:tant}) or clustered standard errors ({opt cl:uster(varname)}). All options accepted by {help regress} (or {help areg} when option {opt absorb()} is specified) are accepted.{p_end}
 
 		{phang}{opt kdensity:options(string)} specifies kernel estimation options, such as kernel function and half-width of kernel. The default kernel function is {opt kernel(epanechnikov)}. Many options accepted by {help kdensity} are allowed (namely, {cmdab:kernel(}{help kdensity##kernel:kernel}{cmdab:)}, {opt bwidth(#)}, {opt n(#)}, and all the {help cline_options} for univariate kernel density estimation.{p_end}
-		
+
 	{pstd}{it:{ul:{hi:Graphic options:}}}{p_end}
-		
+
 		{phang}{opt color(string)} indicates the colors to be used for each treatment arm. The colors should come in the order of the values in {opt by(treatmentvar)}. For instance, if the treatment is binary, you can set the line colors by typing {opt color(color1 color2)}. See {help colorstyle}. {p_end}
 
 		{phang}{it:{help twoway_options}} indicates other options to be applied to the graph, such as additional text and lines, changes axes, titles, and legend, etc.{p_end}
@@ -113,62 +113,62 @@ help for {hi:iekdensity}
 	{pstd} {hi:Example 2.}
 
 	{pstd} {inp:iekdensity} {it:auto} , {inp:by((}{it:treatment}{inp:)} {inp:stat(}{it:p50}{inp:)}
-	
+
 	{pstd} This is an easy way to add descriptive information to the graph. This will output the same graph as above with the addition of two vertical lines for the medians of the control and treatment groups.
 
 		{pstd} {hi:Example 2.1}
 
 		{pstd} {inp:iekdensity} {it:auto} , {inp:by(}{it:treatment}{inp:)} {inp:stat(}{it:p50}{inp:)} {inp:statstyle(}lpattern(dash) lwithd(2){inp:)}
-	
+
 		{pstd} This changes the style of the median vertical lines.
-		
+
 		{pstd} {inp:iekdensity} {it:auto} , {inp:by(}{it:treatment}{inp:)} {inp:stat(}{it:p50}{inp:)} {inp:statstyle(}lpattern(dash) lwithd(2){inp:)}
-		
+
 		{pstd} {hi:Example 2.2}
-		
+
 		{pstd} This sets the colors of the control and treatment lines to different shades of blue.
-		
+
 		{pstd} {inp:iekdensity} {it:auto} , {inp:by(}{it:treatment}{inp:)} {inp:stat(}{it:p50}{inp:)} {inp:statstyle(}lpattern(dash) lwithd(2){inp:)} {inp:color(}eltblue edkblue{inp:)}
-		
+
 		{pstd} {hi:Example 2.3}
-		
+
 		{pstd} This changes some of the graphical options.
-		
+
 		{pstd} {inp:iekdensity} {it:auto} , {inp:by(}{it:treatment}{inp:)} {inp:stat(}{it:p50}{inp:)} {inp:statstyle(}lpattern(dash) lwithd(2){inp:)} {inp:title(}auto distribution{inp:)} {inp:subtitle(}By Treatment Assignment{inp:)} {inp:ylab(}, angle(horizontal){inp:)} {inp:graphregion(}color(white){inp:)} {inp:plotregion(}color(white){inp:)}
-		
+
 	{pstd} {hi:Example 3.}
 
 	{pstd} {inp:iekdensity} {it:auto} , {inp:by(}{it:treatment}{inp:)} {inp:stat(}{it:p50}{inp:)} {inp:effect}
-	
+
 	{pstd} This adds a note to the graph, displaying the treatment effect in terms of point estimate, standard error and statistical significance.
-	
+
 		{pstd} {hi:Example 3.1}
 
 		{pstd} {inp:iekdensity} {it:auto} , {inp:by(}{it:treatment}{inp:)} {inp:stat(}{it:p50}{inp:)} {inp:effect} {inp:effectformat(}%9.0fc{inp:)}
-		
+
 		{pstd} This changes the format of the treatment effect in the note. The point estimate and the standard error now do not include any decimal points.
 
-		
+
 	{pstd} {hi:Example 4.1}
-		
+
 	{pstd} {inp:iekdensity} {it:auto} , {inp:by(}{it:treatment}{inp:)} {inp:effect} {inp:absorb(}{it:foreign}{inp:)}
-	
+
 	{pstd} The treatment effect is now derived from a regression controlling for the variable {it:foreign} fixed effects.
-		
+
 	{pstd} {hi:Example 4.2}
-		
+
 	{pstd} {inp:iekdensity} {it:auto} , {inp:by(}{it:treatment}{inp:)} {inp:effect} {inp:absorb(}{it:foreign}{inp:)} {inp:regressionoptions(}{it:cluster(foreign)}{inp:)}
-	
+
 	{pstd} The treatment effect is now derived from a regression controlling for the variable {it:foreign} fixed effects and clustering standard errors at {it:foreign} level.
-	
+
 	{pstd} {hi:Example 5}
-	
-	{pstd} {inp:iekdensity} {it:auto} , {inp:by(}{it:treatment}{inp:)} {inp:kdensityoptions(}epan2 bwidth(5){inp:)} 
-	
+
+	{pstd} {inp:iekdensity} {it:auto} , {inp:by(}{it:treatment}{inp:)} {inp:kdensityoptions(}epan2 bwidth(5){inp:)}
+
 	{pstd} The kernel density is estimated through the alternative Epanechnikov kernel function and half-width of the kernel is specified to be equal to 5.
-		
+
 {title:Acknowledgements}
-	
+
 	{phang}We would like to acknowledge the help in testing and proofreading we received in relation to this command and help file from (in alphabetic order):{p_end}
 	{pmore}Luiza Andrade{break}
 
