@@ -212,8 +212,11 @@ qui {
 			}
 		}
 
-		*Recursivley do the same call on all sub-folders
-		foreach dir of local dlist {
+		*When using the comparfolder() option, only recurse over files that exist in
+		*both folder() and comparefolder(). Folders only in folder() are not relevant
+		*when comapring. And folders only in comaprefolder() have already been addressed.
+		local in_both_dlists : list comp_dlist & dlist
+		foreach dir of local in_both_dlists {
 			*Recursive call on each subfolder
 			noi iegitaddmd , folder(`"`folderStd'/`dir'"') comparefolder(`"`comparefolder'/`dir'"') `customFileRecurse' `automatic' `dryrun'
 		}
