@@ -45,10 +45,10 @@ qui {
 		local comparefolderStd	= subinstr(`"`comparefolder'"',"\","/",.)
 
 		*Get the name of the last folder in both folder() and comparefolder()
-		local thisLastSlash = strpos(strreverse(`"`folder'"'),"/")
-		local thisFolder 	= substr(`"`folder'"', (-1 * `thisLastSlash')+1 ,.)
-		local compLastSlash = strpos(strreverse(`"`comparefolder'"'),"/")
-		local compFolder 	= substr(`"`comparefolder'"', (-1 * `compLastSlash')+1 ,.)
+		local thisLastSlash = strpos(strreverse(`"`folderStd'"'),"/")
+		local thisFolder 	= substr(`"`folderStd'"', (-1 * `thisLastSlash')+1 ,.)
+		local compLastSlash = strpos(strreverse(`"`comparefolderStd'"'),"/")
+		local compFolder 	= substr(`"`comparefolderStd'"', (-1 * `compLastSlash')+1 ,.)
 
 		*The last folder name should always be the same for folder() and
 		* comparefolder() otherwise there it is likely that the to paths
