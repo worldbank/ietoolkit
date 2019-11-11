@@ -32,8 +32,8 @@
 	iegitaddmd , folder("${test_folder}/clone/DataWork") auto 
 	
 	*Use case 2 - see helpfile for description of use cases
-	iegitaddmd , folder("${test_folder}/clone/DataWork") comparefolder("${test_folder}/dropbox/DataWork") auto dryrun
-	iegitaddmd , folder("${test_folder}/clone/DataWork") comparefolder("${test_folder}/dropbox/DataWork") auto
+	iegitaddmd , folder("${test_folder}/clone\DataWork") comparefolder("${test_folder}/dropbox\DataWork") auto dryrun
+	iegitaddmd , folder("${test_folder}/clone\DataWork") comparefolder("${test_folder}/dropbox\DataWork") auto
 	
 	*Test prompt
 	mkdir "${test_folder}/clone/DataWork/Baseline/DataSets/Final/Publishable"
