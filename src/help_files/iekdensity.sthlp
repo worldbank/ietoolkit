@@ -106,64 +106,64 @@ help for {hi:iekdensity}
 
 	{pstd} {hi:Example 1.}
 
-	{pstd} {inp:iekdensity} {it:auto} , {inp:by(}{it:treatment}{inp:)}
+	{pstd} {inp:iekdensity} {it:price} , {inp:by(}{it:treatment}{inp:)}
 
 	{pstd} This is the most basic way to run this command. This will output a graph with the distributions of of the variable of interests ({it:price} in this case) by treatment assignment.
 
 	{pstd} {hi:Example 2.}
 
-	{pstd} {inp:iekdensity} {it:auto} , {inp:by((}{it:treatment}{inp:)} {inp:stat(}{it:p50}{inp:)}
+	{pstd} {inp:iekdensity} {it:price} , {inp:by((}{it:treatment}{inp:)} {inp:stat(}{it:p50}{inp:)}
 
 	{pstd} This is an easy way to add descriptive information to the graph. This will output the same graph as above with the addition of two vertical lines for the medians of the control and treatment groups.
 
 		{pstd} {hi:Example 2.1}
 
-		{pstd} {inp:iekdensity} {it:auto} , {inp:by(}{it:treatment}{inp:)} {inp:stat(}{it:p50}{inp:)} {inp:statstyle(}lpattern(dash) lwithd(2){inp:)}
+		{pstd} {inp:iekdensity} {it:price} , {inp:by(}{it:treatment}{inp:)} {inp:stat(}{it:p50}{inp:)} {inp:statstyle(}lpattern(dash) lwithd(2){inp:)}
 
 		{pstd} This changes the style of the median vertical lines.
 
-		{pstd} {inp:iekdensity} {it:auto} , {inp:by(}{it:treatment}{inp:)} {inp:stat(}{it:p50}{inp:)} {inp:statstyle(}lpattern(dash) lwithd(2){inp:)}
+		{pstd} {inp:iekdensity} {it:price} , {inp:by(}{it:treatment}{inp:)} {inp:stat(}{it:p50}{inp:)} {inp:statstyle(}lpattern(dash) lwithd(2){inp:)}
 
 		{pstd} {hi:Example 2.2}
 
 		{pstd} This sets the colors of the control and treatment lines to different shades of blue.
 
-		{pstd} {inp:iekdensity} {it:auto} , {inp:by(}{it:treatment}{inp:)} {inp:stat(}{it:p50}{inp:)} {inp:statstyle(}lpattern(dash) lwithd(2){inp:)} {inp:color(}eltblue edkblue{inp:)}
+		{pstd} {inp:iekdensity} {it:price} , {inp:by(}{it:treatment}{inp:)} {inp:stat(}{it:p50}{inp:)} {inp:statstyle(}lpattern(dash) lwithd(2){inp:)} {inp:color(}eltblue edkblue{inp:)}
 
 		{pstd} {hi:Example 2.3}
 
 		{pstd} This changes some of the graphical options.
 
-		{pstd} {inp:iekdensity} {it:auto} , {inp:by(}{it:treatment}{inp:)} {inp:stat(}{it:p50}{inp:)} {inp:statstyle(}lpattern(dash) lwithd(2){inp:)} {inp:title(}auto distribution{inp:)} {inp:subtitle(}By Treatment Assignment{inp:)} {inp:ylab(}, angle(horizontal){inp:)} {inp:graphregion(}color(white){inp:)} {inp:plotregion(}color(white){inp:)}
+		{pstd} {inp:iekdensity} {it:price} , {inp:by(}{it:treatment}{inp:)} {inp:stat(}{it:p50}{inp:)} {inp:statstyle(}lpattern(dash) lwithd(2){inp:)} {inp:title(}auto distribution{inp:)} {inp:subtitle(}By Treatment Assignment{inp:)} {inp:ylab(}, angle(horizontal){inp:)} {inp:graphregion(}color(white){inp:)} {inp:plotregion(}color(white){inp:)}
 
 	{pstd} {hi:Example 3.}
 
-	{pstd} {inp:iekdensity} {it:auto} , {inp:by(}{it:treatment}{inp:)} {inp:stat(}{it:p50}{inp:)} {inp:effect}
+	{pstd} {inp:iekdensity} {it:price} , {inp:by(}{it:treatment}{inp:)} {inp:stat(}{it:p50}{inp:)} {inp:effect}
 
 	{pstd} This adds a note to the graph, displaying the treatment effect in terms of point estimate, standard error and statistical significance.
 
 		{pstd} {hi:Example 3.1}
 
-		{pstd} {inp:iekdensity} {it:auto} , {inp:by(}{it:treatment}{inp:)} {inp:stat(}{it:p50}{inp:)} {inp:effect} {inp:effectformat(}%9.0fc{inp:)}
+		{pstd} {inp:iekdensity} {it:price} , {inp:by(}{it:treatment}{inp:)} {inp:stat(}{it:p50}{inp:)} {inp:effect} {inp:effectformat(}%9.0fc{inp:)}
 
 		{pstd} This changes the format of the treatment effect in the note. The point estimate and the standard error now do not include any decimal points.
 
 
 	{pstd} {hi:Example 4.1}
 
-	{pstd} {inp:iekdensity} {it:auto} , {inp:by(}{it:treatment}{inp:)} {inp:effect} {inp:absorb(}{it:foreign}{inp:)}
+	{pstd} {inp:iekdensity} {it:price} , {inp:by(}{it:treatment}{inp:)} {inp:effect} {inp:absorb(}{it:foreign}{inp:)}
 
 	{pstd} The treatment effect is now derived from a regression controlling for the variable {it:foreign} fixed effects.
 
 	{pstd} {hi:Example 4.2}
 
-	{pstd} {inp:iekdensity} {it:auto} , {inp:by(}{it:treatment}{inp:)} {inp:effect} {inp:absorb(}{it:foreign}{inp:)} {inp:regressionoptions(}{it:cluster(foreign)}{inp:)}
+	{pstd} {inp:iekdensity} {it:price} , {inp:by(}{it:treatment}{inp:)} {inp:effect} {inp:absorb(}{it:foreign}{inp:)} {inp:regressionoptions(}{it:cluster(foreign)}{inp:)}
 
 	{pstd} The treatment effect is now derived from a regression controlling for the variable {it:foreign} fixed effects and clustering standard errors at {it:foreign} level.
 
 	{pstd} {hi:Example 5}
 
-	{pstd} {inp:iekdensity} {it:auto} , {inp:by(}{it:treatment}{inp:)} {inp:kdensityoptions(}epan2 bwidth(5){inp:)}
+	{pstd} {inp:iekdensity} {it:price} , {inp:by(}{it:treatment}{inp:)} {inp:kdensityoptions(}epan2 bwidth(5){inp:)}
 
 	{pstd} The kernel density is estimated through the alternative Epanechnikov kernel function and half-width of the kernel is specified to be equal to 5.
 
