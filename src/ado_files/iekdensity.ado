@@ -529,7 +529,7 @@
 
 					foreach   varNum of local treatvar_levels {
 
-						local STATxline `" `STATxline' xline( ``varlist'_`varNum'' , lcolor(`color_`varNum''%80) lpattern(dash) ) "'
+						local STATxline `" `STATxline' xline( ``varlist'_`varNum'' , lcolor(`color_`varNum''*.8) lpattern(dash) ) "'
 					}
 				}
 
@@ -553,7 +553,7 @@
 
 						foreach   varNum of local treatvar_levels {
 
-							local STATxline `" `STATxline' xline( ``varlist'_`varNum'' , lcolor(`color_`varNum''%80) `statstyle' ) "'
+							local STATxline `" `STATxline' xline( ``varlist'_`varNum'' , lcolor(`color_`varNum''*.8) `statstyle' ) "'
 						}
 					}
 
