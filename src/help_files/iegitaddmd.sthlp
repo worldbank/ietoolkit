@@ -13,18 +13,19 @@ command please see the {browse "https://dimewiki.worldbank.org/wiki/Iegitaddmd":
 
 {title:Syntax}
 
-{phang} {cmdab:iegitaddmd} , {opt folder(file_path)} [{opt comparefolder(file_path)} {cmd:customfile(}{it:{help filename}}{cmd:)} {opt all} {opt skip} {opt replace} {opt auto:matic} {opt dry:run}]
+{phang} {cmdab:iegitaddmd} , {opt folder(full_file_path)} [{opt comparefolder(full_file_path)} {cmd:customfile(}{it:{help filename}}{cmd:)} {opt all} {opt skip} {opt replace} {opt skipfolders(folder_name)}  {opt auto:matic} {opt dry:run}]
 
 {marker opts}{...}
-{synoptset 23}{...}
+{synoptset 28}{...}
 {synopthdr:options}
 {synoptline}
-{synopt :{opt folder(file_path)}}Specifies the folder path to the project folder clone where placeholder files will be created{p_end}
-{synopt :{opt comparefolder(file_path)}}Specifies the top folder of a folder tree to be compared with {opt folder()}{p_end}
+{synopt :{opt folder(full_file_path)}}Specifies the folder path to the project folder clone where placeholder files will be created{p_end}
+{synopt :{opt comparefolder(full_file_path)}}Specifies the top folder of a folder tree to be compared with {opt folder()}{p_end}
 {synopt :{cmd:customfile(}{it:{help filename}}{cmd:)}}Specifies a file saved on disk that is used instead of the default file as placeholder{p_end}
 {synopt :{cmd:all}}Creates the placeholder file in every subfolder of {opt folder()}, whether empty or not{p_end}
 {synopt :{opt skip}}If option {opt all} is used and a folder has a file with same name as placeholder file, then nothing is done{p_end}
 {synopt :{opt replace}}If option {opt all} is used and a folder has a file with same name as placeholder file, then the file is overwritten{p_end}
+{synopt :{opt skipfolders(folder_name)}}List of folders to be skipped. The folder {it:.git} is always added to this list, even when option is not used{p_end}
 {synopt :{opt auto:matic}}Makes the command create placeholder files without prompting the user for each file{p_end}
 {synopt :{opt dry:run}}Makes the command list all the files that would have been created without this option.{p_end}
 {synoptline}
@@ -74,9 +75,25 @@ command please see the {browse "https://dimewiki.worldbank.org/wiki/Iegitaddmd":
 	If {opt replace} is used then the file with the same name is overwritten with the new placeholder
 	file before the command proceeds to the next folder.{p_end}
 
-{phang}{opt auto:matic} can be used to speed up the creation of placeholders by telling the command to not prompt the users for confirmation for each file before it is created. The default is that the command is asking the user before creating each place holder file. This option should only be used when you are confident you have specified the correct folder paths. We recommend that you use the {opt dryrun} with this option to make sure that the folder paths are correct.{p_end}
+{phang}{opt skipfolders(folder_name)} can be used to tell {cmd:iegitaddmd} which folders
+in which a placeholder file should never be created. The best example of this is the {it:.git}
+folder in which placeholders never should be created. That name is always skipped regardless if
+this option is used or not. In this option additional folders to be skipped can be listed. You
+should not list the full folder path in this option, just the folder name. All folders with
+that name will be skipped regardless of location in the project folder.
 
-{phang}{opt dry:run} can be used to safely test that the folder paths are specified correctly before any placeholder files are created. When this option it used the command simply lists the file that would have been created if this option were not used. Once you are confident that list is correct, you can remove this option and re-run the command and the files will be created.{p_end}
+{phang}{opt auto:matic} can be used to speed up the creation of placeholders by telling the
+command to not prompt the users for confirmation for each file before it is created. The
+default is that the command is asking the user before creating each place holder file.
+This option should only be used when you are confident you have specified the correct folder
+paths. We recommend that you use the {opt dryrun} with this option to make sure that the
+folder paths are correct.{p_end}
+
+{phang}{opt dry:run} can be used to safely test that the folder paths are specified correctly
+before any placeholder files are created. When this option it used the command simply lists
+the file that would have been created if this option were not used. Once you are confident
+that list is correct, you can remove this option and re-run the command and the files will
+be created.{p_end}
 
 {title:Example}
 
