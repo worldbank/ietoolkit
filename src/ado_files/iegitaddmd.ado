@@ -4,7 +4,7 @@ cap program drop   iegitaddmd
 	program define iegitaddmd
 
 qui {
-	syntax , folder(string) [comparefolder(string) customfile(string) all skip replace AUTOmatic DRYrun]
+	syntax , folder(string) [comparefolder(string) customfile(string) all skip replace AUTOmatic DRYrun skipfolders(string)]
 
 	/******************************
 	*******************************
@@ -110,6 +110,9 @@ qui {
 		exit
 	}
 
+	*Add .git folder to folders to be skipped
+	local skipfolders `skipfolders' ".git"
+
 	/******************************
 	*******************************
 		List Files and folders
@@ -137,8 +140,14 @@ qui {
 
 		*Use the command on each subfolder to this folder (if any)
 		foreach dir of local dlist {
-			*Recursive call on each subfolder
-			noi iegitaddmd , folder(`"`folderStd'/`dir'"') `all' `customFileRecurse' `skip' `replace' `automatic' `dryrun'
+			*Test if directory is in
+			if `:list dir in skipfolders' {
+				noi di as result "{pstd}SKIPPED: Folder [`folder'/`dir'] is skipped. See option skipvars() in {help iegitaddmd}.{p_end}"
+			}
+			else {
+				*Recursive call on each subfolder
+				noi iegitaddmd , folder(`"`folderStd'/`dir'"') `all' `customFileRecurse' `skip' `replace' `automatic' `dryrun'
+			}
 		}
 
 		******************************
