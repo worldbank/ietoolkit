@@ -119,14 +119,15 @@ will test for differences across the categories in grpvar({it:varname}). See not
 	the user specify any of the options that tells the command how to interpret missing values.
 
 {pstd}The balance variables must all be continuous or binary variables.
-Categorical variables (for example 1=single, 2=married, 3=divorced) should not be used as a balance variables.
+Categorical variables (for example 1=single, 2=married, 3=divorced) should not be used as a balance variables,
+since t-testing would inappropriately compare the mean of the underlying codes, which are not intended as numerical values.
 Categorical variables must first be made into multiple binary dummy variables,
 where each dummy represents one category in the categorical variable,
 and the dummy is 1 if that category was used for that observation.
 t-tests will be used to test differences in balance variables
 regardless if the balance variable is continuous or binary,
 even though that is not the most efficient test for binary variables.
-See the command {stata ssc describe table1:table1} for a command that handles categorical files
+See the command {stata ssc describe table1:table1} for a command that handles categorical variables
  and allows you to test differences using other tests than t-tests.
 
 {pstd}The command also attaches notes to the bottom of the table with information on, for example,
