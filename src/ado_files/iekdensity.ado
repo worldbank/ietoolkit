@@ -385,7 +385,6 @@
 						// Transfer labels from original variable
 						local    treatvarCount = 0
 						local 	 treatvarLab_`treatvarCount' : label (`by') `treatvar_control'
-						di	   "`treatvarLab_`treatvarCount''"
 						lab def  treatvarLab `treatvarCount' "`treatvarLab_`treatvarCount''", replace
 
 						foreach  treatvarNum of local treatvar_comparison {
@@ -438,14 +437,16 @@
 						forv  estimateNum = 1/`treatvarCount' {
 
 							if	`estimateNum' == 1 {
-								local EFFECTnote 				   "  [`by' == `estimateNum'] `beta`estimateNum'' (`se`estimateNum'')`stars`estimateNum'';"
+								local EFFECTnote 				   "  {&Delta}[`treatvarLab_`estimateNum'' - `treatvarLab_0'] = `beta`estimateNum'' (`se`estimateNum'')`stars`estimateNum'';"
 							}
 							else {
-								local EFFECTnote `" "`EFFECTnote'" "  [`by' == `estimateNum'] `beta`estimateNum'' (`se`estimateNum'')`stars`estimateNum'';" "'
+								local EFFECTnote `" "`EFFECTnote'" "  {&Delta}[`treatvarLab_`estimateNum'' - `treatvarLab_0'] = `beta`estimateNum'' (`se`estimateNum'')`stars`estimateNum'';" "'
 							}
 						}
-
-						local EFFECTnote `" note("{bf:Treatment effects} =" `EFFECTnote' "  N = `obs'.") "'
+						
+						// Fix note when label values are not specified by the user
+						
+						local EFFECTnote `" note("{bf:Treatment effects:}" `EFFECTnote' "  N = `obs'.") "'
 					}
 				}
 			}
