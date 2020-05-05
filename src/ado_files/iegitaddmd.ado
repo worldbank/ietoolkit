@@ -246,7 +246,7 @@ qui {
 	local createfile ""
 
 	*Create message to show in dryrun mode
-	if !missing("`dryrun'") local dryrun_prompt " NO FILE WILL BE CREAETED AS OPTION {bf:dryrun} IS USED!"
+	if !missing("`dryrun'") local dryrun_prompt " NO FILE WILL BE CREATED AS OPTION {bf:dryrun} IS USED!"
 
 	*If manual was used, get manual confirmation for each file
 	if missing("`automatic'") {
