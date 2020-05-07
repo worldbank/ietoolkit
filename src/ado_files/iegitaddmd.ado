@@ -146,7 +146,7 @@ qui {
 			}
 			else {
 				*Recursive call on each subfolder
-				noi iegitaddmd , folder(`"`folderStd'/`dir'"') `all' `customFileRecurse' `skip' `replace' `automatic' `dryrun'
+				noi iegitaddmd , folder(`"`folderStd'/`dir'"') `all' `customFileRecurse' `skip' `replace' `automatic' `dryrun' skipfolders(`skipfolders')
 			}
 		}
 
@@ -227,7 +227,7 @@ qui {
 		local in_both_dlists : list comp_dlist & dlist
 		foreach dir of local in_both_dlists {
 			*Recursive call on each subfolder
-			noi iegitaddmd , folder(`"`folderStd'/`dir'"') comparefolder(`"`comparefolder'/`dir'"') `customFileRecurse' `automatic' `dryrun'
+			noi iegitaddmd , folder(`"`folderStd'/`dir'"') comparefolder(`"`comparefolder'/`dir'"') `customFileRecurse' `automatic' `dryrun' skipfolders(`skipfolders')
 		}
 	}
 }
