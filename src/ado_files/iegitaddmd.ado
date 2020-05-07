@@ -110,6 +110,14 @@ qui {
 		exit
 	}
 
+	* Test that paths are not used in skip folder. I.e. no slashes are used
+	local anyslash = strpos("`skipfolders'","/") + strpos("`skipfolders'","\")
+	if `anyslash' {
+		noi di as error `"{phang}The options [skipfolders(`skipfolders')] may not include forward or backward slashes, i.e. may not include paths. Only folder names.{p_end}"'
+		error 198
+		exit
+	}
+
 	*Add .git folder to folders to be skipped
 	local skipfolders `skipfolders' ".git"
 
