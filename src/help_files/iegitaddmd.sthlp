@@ -108,7 +108,7 @@ be created.{p_end}
 	collaborators' cloned local copies of the repository, the folders need to contain at least
 	one file, which is being created by the command.{p_end}
 
-{pstd}{inp:global github_folder "C:\Users\JohnSmith\Documents\GitHub\ProjectB"}{break}{inp:iegitaddmd , folder({it:"$github_folder"}) skipfolders("foo" "bar")}{p_end}
+{pstd}{inp:global github_folder "C:/Users/JohnSmith/Documents/GitHub/ProjectB"}{break}{inp:iegitaddmd , folder({it:"$github_folder"}) skipfolders("foo" "bar")}{p_end}
 
 {pstd}In the example above, there is a GitHub repository in the folder ProjectB. This
 is a project similar to ProjectA above but it has to folder, called {inp:foo} and {inp:bar}
