@@ -118,6 +118,14 @@ qui {
 		exit
 	}
 
+	* Test that paths are not used in skip folder. I.e. no slashes are used
+	local anywildcard = strpos("`skipfolders'","*") + strpos("`skipfolders'","?")
+	if `anywildcard' {
+		noi di as error `"{phang}Wild cards like * and ? are not supported in the [skipfolders(`skipfolders')] option. While they are valid characters in folder names in Linux and Mac systems, they are not allowed in Windows system and are therefore not accepted in foldernames in this command.may not include forward or backward slashes, i.e. may not include paths. Only folder names.{p_end}"'
+		error 198
+		exit
+	}
+
 	*Add .git folder to folders to be skipped
 	local skipfolders `skipfolders' ".git"
 
