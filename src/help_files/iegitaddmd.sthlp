@@ -77,8 +77,8 @@ command please see the {browse "https://dimewiki.worldbank.org/wiki/Iegitaddmd":
 
 {phang}{opt skipfolders(folder_name)} can be used to tell {cmd:iegitaddmd} which folders
 in which a placeholder file should never be created. The best example of this is the {it:.git}
-folder in which placeholders never should be created. That name is always skipped regardless if
-this option is used or not. In this option additional folders to be skipped can be listed. You
+folder in which placeholders never should be created. That name is always skipped regardless of
+this option being used or not. Use this option to list additional folders to be skipped. You
 should not list the full folder path in this option, just the folder name. All folders with
 that name will be skipped regardless of location in the project folder. The folder names may
 be listed with or without quotation marks as long as there are no spaces in the names. If any of
