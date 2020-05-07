@@ -116,7 +116,7 @@ be created.{p_end}
 
 {phang}All commands in ietoolkit is developed by DIME Analytics at DECIE, The World Bank's unit for Development Impact Evaluations.
 
-{phang}Main author: Kristoffer Bjarkefur, DIME Analytics, The World Bank Group
+{phang}Author: DIME Analytics, The World Bank Group
 
 {phang}Please send bug-reports, suggestions and requests for clarifications
 		 writing "ietoolkit iegitaddmd" in the subject line to:{break}
