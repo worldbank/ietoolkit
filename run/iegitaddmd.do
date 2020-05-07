@@ -5,6 +5,8 @@
 	
 	qui do "${ietoolkit_clone}/run/ie_recurse_rmdir.do" 
 	
+	* Make sure this folder is created
+	cap mkdir "${ietoolkit_clone}\run\output\iegitaddmd"
 	
 	
 	* Create a folder clone and a folder dropbox (see use case 2 in help file for why both these folders are needed)
@@ -41,6 +43,10 @@
 		mkdir "${test_folder}/`gitfolder'/sub"
 		mkdir "${test_folder}/`gitfolder'/sub/.git"
 		mkdir "${test_folder}/`gitfolder'/sub/includealsome"
+		
+		mkdir "${test_folder}/`gitfolder'/ado"
+		mkdir "${test_folder}/`gitfolder'/asdfasd"
+		mkdir "${test_folder}/`gitfolder'/asdfasd/ado"
 	}
 	
 	
@@ -63,5 +69,10 @@
 	iegitaddmd , folder("${test_folder}/gitfilter1") auto 
 	
 	*Test skip custom
-	iegitaddmd , folder("${test_folder}/gitfilter2") auto skipfolders("skipmein2" "skipalsomein2" "folderthatnotexist")
+	iegitaddmd , folder("${test_folder}/gitfilter2") auto dry skipfolders(skipmein2 skipalsomein2 folderthatnotexist ado)
+	iegitaddmd , folder("${test_folder}/gitfilter2") auto skipfolders(skipmein2 skipalsomein2 folderthatnotexist ado)
+	
+	* Test that folders are not used
+	cap iegitaddmd , folder("${test_folder}/gitfilter2") auto skipfolders(skipmein2 skipalsomein2 folderthatnotexist asdfasd/ado)
+	assert _rc == 198
 	
