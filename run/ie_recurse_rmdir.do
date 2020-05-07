@@ -60,7 +60,7 @@ qui {
 		* Remove this folder as it is now empty
 		if missing("`dryrun'") {
 			rmdir `"`folderStd'"'
-			noi di as result "{pstd}Fodler [`folderStd'] and all its content was deleted.{p_end}"
+			noi di as result "{pstd}Folder [`folderStd'] and all its content were deleted.{p_end}"
 		}
 	}
 }
