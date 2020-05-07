@@ -107,10 +107,13 @@ be created.{p_end}
 	collaborators' cloned local copies of the repository, the folders need to contain at least
 	one file, which is being created by the command.{p_end}
 
-{title:Acknowledgements}
+{pstd}{inp:global github_folder "C:\Users\JohnSmith\Documents\GitHub\ProjectB"}{break}{inp:iegitaddmd , folder({it:"$github_folder"}) skipfolders("foo" "bar")}{p_end}
 
-{pstd}I would like to acknowledge the help in testing and proofreading I received in relation to this command and help file from (in alphabetic order):{p_end}
-{pmore}Guadalupe Bedoya{break}Luiza Cardoso de Andrade{break}Mrijan Rimal{break}Benjamin Daniels{break}
+{pstd}In the example above, there is a GitHub repository in the folder ProjectB. This
+is a project similar to ProjectA above but it has to folder, called {inp:foo} and {inp:bar}
+in which no placeholder files should ever be created in. Any subfolders in {inp:foo}
+or {inp:bar} will be skipped as well. The folder {inp:.git} is a system folder in git
+repositories and will always be skipped.{p_end}
 
 {title:Author}
 
