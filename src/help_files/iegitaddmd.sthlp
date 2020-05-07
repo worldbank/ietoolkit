@@ -100,7 +100,7 @@ be created.{p_end}
 
 {title:Example}
 
-{pstd}{inp:global github_folder "C:\Users\JohnSmith\Documents\GitHub\ProjectA"}{break}{inp:iegitaddmd , folder({it:"$github_folder"})}{p_end}
+{pstd}{inp:global github_folder "C:/Users/JohnSmith/Documents/GitHub/ProjectA"}{break}{inp:iegitaddmd , folder({it:"$github_folder"})}{p_end}
 
 {pstd}In the example above, there is a GitHub repository in the folder ProjectA. This
 	repository has a folder structure where some folders are still empty but will later
