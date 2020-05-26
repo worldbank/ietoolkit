@@ -316,54 +316,6 @@ qui {
 	*************************************************
 	************************************************/
 
-		cap confirm numeric variable `grpvar'
-
-		if _rc != 0 {
-
-			*Test for commands not allowed if grpvar is a string variable
-
-			if `CONTROL_USED' == 1 {
-				di as error "{pstd}The option control() can only be used if variable {it:`grpvar'} is a numeric variable. Use {help encode} to generate a numeric version of variable {it:`grpvar'}. It is best practice to store all categorical variables as labeled numeric variables.{p_end}"
-				error 198
-			}
-			if `ORDER_USED' == 1 {
-				di as error "{pstd}The option order() can only be used if variable {it:`grpvar'} is a numeric variable. Use {help encode} to generate a numeric version of variable {it:`grpvar'}. It is best practice to store all categorical variables as labeled numeric variables.{p_end}"
-				error 198
-			}
-			if `NOGRPLABEL_USED' == 1 {
-				di as error "{pstd}The option grpcodes can only be used if variable {it:`grpvar'} is a numeric variable. Use {help encode} to generate a numeric version of variable {it:`grpvar'}. It is best practice to store all categorical variables as labeled numeric variables.{p_end}"
-				error 198
-			}
-			if `GRPLABEL_USED' == 1 {
-				di as error "{pstd}The option grplabels() can only be used if variable {it:`grpvar'} is a numeric variable. Use {help encode} to generate a numeric version of variable {it:`grpvar'}. It is best practice to store all categorical variables as labeled numeric variables.{p_end}"
-				error 198
-			}
-
-			*Generate a encoded tempvar version of grpvar
-			tempvar grpvar_code
-			encode `grpvar' , gen(`grpvar_code')
-
-			*replace the grpvar local so that it uses the tempvar instead
-			local grpvar `grpvar_code'
-
-		}
-
-
-		*Remove observations with a missing value in grpvar()
-		drop if `grpvar' >= .
-
-		*Create a local of all codes in group variable
-		levelsof `grpvar', local(GRP_CODE_LEVELS)
-
-		*Saving the name of the value label of the grpvar()
-		local GRPVAR_VALUE_LABEL 	: value label `grpvar'
-
-		*Counting how many levels there are in groupvar
-		local GRPVAR_NUM_GROUPS : word count `GRP_CODE_LEVELS'
-
-		*Static dummy for grpvar() has no label
-		if "`GRPVAR_VALUE_LABEL'" == "" local GRPVAR_HAS_VALUE_LABEL = 0
-		if "`GRPVAR_VALUE_LABEL'" != "" local GRPVAR_HAS_VALUE_LABEL = 1
 
 		*Number of columns for Latex
 		local NUM_COL_GRP_TOT = `GRPVAR_NUM_GROUPS' + `TOTAL_USED'
@@ -517,51 +469,6 @@ qui {
 			*Error for totallabel() incorrectly applied
 			noi display as error "{phang}Option totallabel() may only be used together with the option total"
 			error 197
-		}
-
-
-	** Stats Options
-		local SHOW_NCLUSTER 0
-
-		if `VCE_USED' == 1 {
-
-			local vce_nocomma = subinstr("`vce'", "," , " ", 1)
-
-			tokenize "`vce_nocomma'"
-			local vce_type `1'
-
-			if "`vce_type'" == "robust" {
-
-				*Robust is allowed and not other tests needed
-			}
-			else if "`vce_type'" == "cluster" {
-
-				*Create a local for displaying number of clusters
-				local SHOW_NCLUSTER 1
-
-				local cluster_var `2'
-
-				cap confirm variable `cluster_var'
-
-				if _rc {
-
-					*Error for vce(cluster) incorrectly applied
-					noi display as error "{phang}The cluster variable in vce(`vce') does not exist or is invalid for any other reason. See {help vce_option :help vce_option} for more information. "
-					error _rc
-
-				}
-			}
-			else if  "`vce_type'" == "bootstrap" {
-
-				*bootstrap is allowed and not other tests needed. Error checking is more comlex, add tests here in the future.
-			}
-			else {
-
-				*Error for vce() incorrectly applied
-				noi display as error "{phang}The vce type `vce_type' in vce(`vce') is not allowed. Only robust, cluster and bootstrap are allowed. See {help vce_option :help vce_option} for more information."
-				error 198
-
-			}
 		}
 
 		if `STARSNOADD_USED' == 0 {

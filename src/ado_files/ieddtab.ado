@@ -111,7 +111,7 @@ cap program drop 	ieddtab
 		}
 		else if  "`vce_type'" == "bootstrap" {
 
-			*bootstrap is allowed and not other tests needed. Error checking is more comlex, add tests here in the future.
+			*bootstrap is allowed and not other tests needed. Error checking is more complex, add tests here in the future.
 		}
 		else {
 
