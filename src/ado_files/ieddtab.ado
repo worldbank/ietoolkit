@@ -676,7 +676,7 @@ cap program drop 	templateResultMatrix
 	local basicMean_C1_cols		C1_mean C1_err C1_N C1_clus
 	local basicMean_T1_cols		T1_mean T1_err T1_N T1_clus
 
-	local colnames `2ndDiff_cols' `1stDiff_C_cols' `1stDiff_T_cols' `basicMean_C0_cols' `basicMean_T0_cols' `basicMean_C1_cols' `basicMean_T0_cols'
+	local colnames `2ndDiff_cols' `1stDiff_C_cols' `1stDiff_T_cols' `basicMean_C0_cols' `basicMean_T0_cols' `basicMean_C1_cols' `basicMean_T1_cols'
 
 	*Define default row here. The results for each var will be one row that starts with all missing vlaues
 	mat startRow = (.,.,.,.,.,.,.,.,.,.,.,.,.,.,.,.,.,.,.,.,.,.,.,.,.,.,.,.,.,.,.)
