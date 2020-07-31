@@ -22,6 +22,16 @@ capture program drop iebaltab
 		local grpvar 			r(grpvar)
 		local grpvar_levels		r(grpvar_levels)
 		local balancevars		r(balancevars)
+		
+	// 2 Run regressions ------------------------------------------------------
+	
+	// 2.1 For unconditional means in each treatment group
+		grpmeans `balancevars', grpvar(`grpvar') levels(`grpvar_levels') `debug'
+		
+		* Get outputs
+		matrix meansMat = r(meansMat)
+		
+		
 	restore	
 /*******************************************************************************
 								SUBPROGRAMS
@@ -71,4 +81,78 @@ capture program drop dataprep
 		
 	if !missing("`debug'") di "Data prep subprogram sucessful" // Developer option 
 	
+end
+
+// Calculate the means for each treatment group ********************************
+
+capture program drop grpmeans
+		program 	 grpmeans, rclass
+		
+	syntax 	varlist(numeric), grpvar(varname) levels(string) [debug]
+
+	* Create blank matrices to add the results	
+	cap mat drop meansMat
+		mat 	 meansMat = J(1,1,.)
+	
+	
+	// Loop level 1: variables -------------------------------------------------
+	foreach var of varlist `varlist' {
+		
+		* Create blank matrices to add the results	
+		cap mat drop varMat
+			mat 	 varMat = J(1,1,.)
+		
+		
+	// Loop level 2: Treatment groups ------------------------------------------
+		foreach level in `levels' {
+						
+			// Run the regression
+			reg `var' if `grpvar' == `level' //`weight_option', `error_estm'	<---------------------------- Regression for group means -------------------------------------------
+			
+			// Save results in a matrix
+			
+			* Basic matrix
+			cap mat drop levelMat
+				mat 	 levelMat = [_b[_cons], _se[_cons], _se[_cons] * sqrt(e(N)), e(N)]
+							 
+			 * Add number of clusters and column names if clusters were used
+			if !missing("`error_estm'") {				
+				mat 		 levelMat[1, 5] = e(N_clust)					
+				mat colnames levelMat = beta`level' se`level' sd`level' n`level' nclust`level'
+			}
+			* Only four column names if clusters were not used
+			else {
+				mat colnames levelMat = beta`level' se`level' sd`level' n`level'
+			}
+			
+				mat rownames levelMat = `var'
+			
+			if !missing("`debug'") mat list levelMat // Developer option
+			
+			// Append to results matrix				
+			if varMat[1,1] == . {
+				mat varMat = levelMat
+			}
+			else {
+				mat varMat = [varMat, levelMat]
+			}
+			
+			if !missing("`debug'") mat list varMat // Developer option
+		}
+
+	// Create final matrix -----------------------------------------------------
+		if meansMat[1,1] == . {
+			mat meansMat = varMat
+		}
+		else {
+			mat meansMat = [meansMat \ varMat]
+		}
+		
+		if !missing("`debug'")  mat list meansMat
+			
+	}
+	
+	// Outputs -----------------------------------------------------------------
+	return matrix meansMat meansMat
+		
 end
