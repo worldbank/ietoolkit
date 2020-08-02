@@ -9,6 +9,7 @@ capture program drop iebaltab
 			/*Columns and order of columns*/			///
 			ORder(numlist int min=1) 					///
 			COntrol(numlist int max=1) 					///
+			TOTal										///
 			]
 	
 	preserve
@@ -48,7 +49,7 @@ capture program drop iebaltab
 	// 2 Run regressions ------------------------------------------------------
 	
 	// 2.1 For unconditional means in each treatment group
-		grpmeans `balancevars', grpvar(`grpvar') pairs(`grpvar_pairs') `debug'
+		grpmeans `balancevars', grpvar(`grpvar') pairs(`grpvar_pairs') `debug' `total'
 		
 		* Get outputs
 		matrix meansMat = r(meansMat)
@@ -125,8 +126,10 @@ end
 capture program drop grpmeans
 		program 	 grpmeans, rclass
 		
-	syntax 	varlist(numeric), grpvar(varname) levels(string) [debug]
+	syntax 	varlist(numeric), grpvar(varname) levels(string) [debug total]
 
+	if !missing("`debug'") di "Group means subprogram started"
+	
 	* Create blank matrices to add the results	
 	cap mat drop meansMat
 		mat 	 meansMat = J(1,1,.)
@@ -155,18 +158,17 @@ capture program drop grpmeans
 									 _se[_cons] * sqrt(e(N)), ///
 									 e(N)					  ///
 									]
-							 
+							
+			local colnames `"beta`level' se`level' sd`level' n`level'"'
+			
 			 * Add number of clusters and column names if clusters were used
 			if "`vce_type'" == "cluster"  {				
-				mat 		 levelMat[1, 5] = e(N_clust)					
-				mat colnames levelMat = beta`level' se`level' sd`level' n`level' nclust`level'
-			}
-			* Only four column names if clusters were not used
-			else {
-				mat colnames levelMat = beta`level' se`level' sd`level' n`level'
+				mat levelMat[1, 5] = e(N_clust)					
+				local colnames `"`colnames' nclust`level'"'
 			}
 			
-				mat rownames levelMat = `var'
+			mat colnames levelMat = `colnames'
+			mat rownames levelMat = `var'
 			
 			if !missing("`debug'") mat list levelMat // Developer option
 			
@@ -177,10 +179,40 @@ capture program drop grpmeans
 			else {
 				mat varMat = [varMat, levelMat]
 			}
-			
-			if !missing("`debug'") mat list varMat // Developer option
 		}
+		
+	// Calculate overall mean if total was seleted -----------------------------
 
+		if !missing("`total'") {
+		
+			reg 	`balancevar'  // `weight_option', `error_estm'
+			
+			* Basic matrix
+			cap mat drop totalMat
+				mat 	 totalMat = [_b[_cons]				, ///
+									 _se[_cons]				, ///
+									 _se[_cons] * sqrt(e(N)), ///
+									 e(N)					  ///
+									]
+							
+			local colnames `"betatot setot sdtot' ntot"'
+			
+			 * Add number of clusters and column names if clusters were used
+			if "`vce_type'" == "cluster"  {				
+				mat totalMat[1, 5] = e(N_clust)					
+				local colnames `"`colnames' nclusttot"'
+			}
+			
+			mat colnames totalMat = `colnames'
+			mat rownames totalMat = `var'
+			
+			if !missing("`debug'") mat list totalMat // Developer option
+			
+			mat varMat = [varMat, totalMat]
+		}
+		
+	if !missing("`debug'") mat list varMat // Developer option
+	
 	// Create final matrix -----------------------------------------------------
 		if meansMat[1,1] == . {
 			mat meansMat = varMat
@@ -195,6 +227,8 @@ capture program drop grpmeans
 	
 	// Outputs -----------------------------------------------------------------
 	return matrix meansMat meansMat
+	
+	if !missing("`debug'") di "Group means subprogram successful"
 		
 end
 
