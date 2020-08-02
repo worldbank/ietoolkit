@@ -32,23 +32,38 @@ capture program drop iebaltab
 		local balancevars		r(balancevars)
 		
 	// 1.2 Calculate inputs based on options
+	
+		* Prepare inputs
 		if !missing("`control'") 	local control control(`control')
 		if !missing("`order'")		local order	  order(`order')
 	
+		* Prepare options
 		grpsprep , levels(`grpvar_levels') `order' `control' `debug'
 		
-									local grp_order 	r(grp_order)
-		if !missing("`control'")	local grps_tmt		r(grps_tmt)
-									local grp_pairs		r(grp_pairs)
+		* Get outputs
+									local grpvar_order 	=	r(grpvar_order)
+		if !missing("`control'")	local grps_tmt		=	r(grps_tmt)
+									local grp_pairs		=	r(grp_pairs)
 		
 	// 2 Run regressions ------------------------------------------------------
 	
 	// 2.1 For unconditional means in each treatment group
-		grpmeans `balancevars', grpvar(`grpvar') levels(`grpvar_levels') `debug'
+		grpmeans `balancevars', grpvar(`grpvar') pairs(`grpvar_pairs') `debug'
 		
 		* Get outputs
 		matrix meansMat = r(meansMat)
+	
+	// 2.2 For group differences
+		grpdiff  `balancevars', grpvar(`grpvar') pairs(`grpvar_pairs') `debug'
 		
+		
+	// 3 Deal with results -----------------------------------------------------
+	
+	// 3.1 Save
+	
+	// 3.2 Print
+	
+	// 3.3 Browse
 		
 	restore	
 		
@@ -58,7 +73,7 @@ end
 								SUBPROGRAMS
 *******************************************************************************/	
 	
-// Prepare the dataset for the command *****************************************
+******************** Prepare the dataset for the command ***********************
 
 capture program drop dataprep
 		program 	 dataprep, rclass
@@ -104,7 +119,8 @@ capture program drop dataprep
 	
 end
 
-// Calculate the means for each treatment group ********************************
+
+***************** Calculate the means for each treatment group *****************
 
 capture program drop grpmeans
 		program 	 grpmeans, rclass
@@ -134,10 +150,14 @@ capture program drop grpmeans
 			
 			* Basic matrix
 			cap mat drop levelMat
-				mat 	 levelMat = [_b[_cons], _se[_cons], _se[_cons] * sqrt(e(N)), e(N)]
+				mat 	 levelMat = [_b[_cons]				, ///
+									 _se[_cons]				, ///
+									 _se[_cons] * sqrt(e(N)), ///
+									 e(N)					  ///
+									]
 							 
 			 * Add number of clusters and column names if clusters were used
-			if !missing("`error_estm'") {				
+			if "`vce_type'" == "cluster"  {				
 				mat 		 levelMat[1, 5] = e(N_clust)					
 				mat colnames levelMat = beta`level' se`level' sd`level' n`level' nclust`level'
 			}
@@ -177,7 +197,113 @@ capture program drop grpmeans
 	return matrix meansMat meansMat
 		
 end
-// Calculate pairs for differences tests ***************************************
+
+************************ Calculate group differences ***************************
+
+capture program drop grpdiff
+		program 	 grpdiff, rclass
+		
+	syntax 	varlist(numeric), grpvar(varname) pairs(string) [debug]
+	
+	if !missing("`debug'") di "Subprogram grpdiff started"
+	
+	* Create blank matrix to add results	
+	cap mat drop diffMat
+		mat 	 diffMat = J(1,1,.)
+			
+	foreach var in `varlist' {
+		
+		* Create blank matrix to add results	
+		cap mat drop varMat
+			mat 	 varMat = J(1,1,.)
+		
+	// Test each pair ---------------------------------------------------------
+		foreach pair in `pairs' {
+		
+			// Prepare pair dummy to add to the regression
+			
+			* Create a local for each group in the test pair
+			local undscrPos   = strpos("`pair'","_")
+			local firstGroup  = substr("`pair'",1,`undscrPos'-1)
+			local secondGroup = substr("`pair'",  `undscrPos'+1,.)
+		
+			* Create a temporary variable used as the dummy to indicate which 
+			* observations are in each of the two groups being tested.
+			* It will be missing for all observations that are not in any of the two groups,
+			* meaning they will not be considered in the regression
+			tempvar  grp_dummy
+			gen 	`grp_dummy' = .	//default is missing, and obs not in this pair will remain missing
+			replace `grp_dummy' = 0 if `grpvar' == `firstGroup'		// if control if used, control will be 0
+			replace `grp_dummy' = 1 if `grpvar' == `secondGroup'	// and each treatment group will be 1
+
+			// Run regression and store results for this pair
+			reg `var' `grp_dummy'											//	<-------------------------------------- Difference regression ----------------------------------------------
+			
+		// Save result to a matrix ---------------------------------------------
+	
+			* Create matrix with regression output
+			cap mat drop resultMat
+				mat		 resultMat = r(table)
+			
+			* Select results we will use in the command and save to a new matrix 
+			cap mat drop pairMat
+				mat		 pairMat = [resultMat["b", "`grp_dummy'"]  		, ///
+									resultMat["se", "`grp_dummy'"] 		, ///
+									resultMat["t", "`grp_dummy'"]  		, ///
+									resultMat["pvalue", "`grp_dummy'"]	, ///
+									resultMat["ul", "`grp_dummy'"]		, ///
+									resultMat["ll", "`grp_dummy'"]		, ///
+									e(N)								  ///
+								   ]
+
+			// Identify columns and rows in results matrix so we can call them later
+			local colnames `"beta`pair' se`pair' t`pair' pval`pair' ul`pair' ll`pair' n`pair'"'
+								   
+			* There's an extra column if clusters were used					   
+			if "`vce_type'" == "cluster" {
+				mat		 	 pairMat[1, 8] = e(N_clust)	
+				
+				local colnames `"`colnames' nclust`pair'"'
+			}
+			
+			mat colnames pairMat = `colnames'
+			mat rownames pairMat = `var'
+			
+			* normalized difference
+			* f-test
+			
+			// Append to other results from the same variable
+			if varMat[1,1] == . {
+				mat varMat = pairMat
+			}
+			else {
+				mat varMat = [varMat, pairMat]
+			}
+			
+			if !missing("`debug'") mat list varMat // Developer option
+
+		}
+				
+		// Create final matrix -----------------------------------------------------
+		if diffMat[1,1] == . {
+			mat diffMat = varMat
+		}
+		else {
+			mat diffMat = [diffMat \ varMat]
+		}
+		
+		if !missing("`debug'")  mat list diffMat
+			
+	}
+	
+	// Outputs -----------------------------------------------------------------
+	return matrix diffMat diffMat
+	
+	if !missing("`debug'") di "Subprogram grpdiff completed"
+	
+end
+
+********************* Calculate pairs for differences tests ********************
 
 capture program drop grpsprep
 		program 	 grpsprep, rclass
@@ -198,16 +324,16 @@ capture program drop grpsprep
 	
 	* Compile final order. If neither order() or control() were used, the
 	* order will be the same as order_code_rest
-	local grp_order `order' `order_code_rest'
+	local grpvar_order `order' `order_code_rest'
 		
 	// Pairs for differences ---------------------------------------------------
 	
 	// If control was used (test only control again all other groups)
 	if !missing("`control'") {
-		local grps_tmt: list grp_order - control
+		local grps_tmt: list grpvar_order - control
 		
 		foreach group of local grps_tmt {
-			local grp_pairs "`grp_pairs' `control'_`group'"
+			local grpvar_pairs "`grpvar_pairs' `control'_`group'"
 		}
 	}
 	
@@ -228,16 +354,16 @@ capture program drop grpsprep
 				local code_firstGroup  : word `firstGroup' of `grp_order'
 				local code_secondGroup : word `secondGroup' of `grp_order'
 				
-				local grp_pairs "`grp_pairs' `code_firstGroup'_`code_secondGroup'"
+				local grpvar_pairs "`grpvar_pairs' `code_firstGroup'_`code_secondGroup'"
 			}
 		}
 	}
 		
 	// Outputs -----------------------------------------------------------------
 	
-								return local grp_order 	`grp_order'
-	if !missing("`control'")	return local grps_tmt	`grps_tmt'
-								return local grp_pairs	`grp_pairs'
+								return local grpvar_order 	`grpvar_order'
+	if !missing("`control'")	return local grps_tmt		`grps_tmt'
+								return local grpvar_pairs	`grpvar_pairs'
 									
 	if !missing("`debug'")		di "local grp_pairs: `grp_pairs'"
 	
