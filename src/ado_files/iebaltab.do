@@ -10,7 +10,11 @@ capture program drop iebaltab
 			ORder(numlist int min=1) 					///
 			COntrol(numlist int max=1) 					///
 			TOTal										///
+														///
+			/*Statistics and data manipulation*/						///
+			FIXedeffect(varname)										///
 			]
+
 	
 	preserve
 			
@@ -23,15 +27,24 @@ capture program drop iebaltab
 		local debug debug
 		
 	// 1 Prepare dataset and options ------------------------------------------
+	
+	// 1.0 Test options
+		foreach option in fixedeffect {
+			test`option' ``option'' `debug'
+			local 		 `option' `r(`option')'
+			
+			if !missing("`debug'") di "Option `option' tested successfully. Output: ``option''"
+		}
 		
 	// 1.1 Data set preparation
-		dataprep `varlist' `if' `in', grpvar(`grpvar') `debug'
+		dataprep `varlist' `if' `in', grpvar(`grpvar') `debug' `fixedeffect'
 		
 		* Get outputs
-		local grpvar 			r(grpvar)
-		local grpvar_levels		r(grpvar_levels)
-		local balancevars		r(balancevars)
-		
+		foreach argument in grpvar grpvar_levels balancevars fixedeffect {
+			local `argument' `r(`argument')'
+			if !missing("`debug'") di "Argument `argument': ``argument''."
+		}		
+
 	// 1.2 Calculate inputs based on options
 	
 		* Prepare inputs
@@ -40,23 +53,26 @@ capture program drop iebaltab
 	
 		* Prepare options
 		grpsprep , levels(`grpvar_levels') `order' `control' `debug'
-		
+	
 		* Get outputs
-									local grpvar_order 	=	r(grpvar_order)
-		if !missing("`control'")	local grps_tmt		=	r(grps_tmt)
-									local grp_pairs		=	r(grp_pairs)
+									local grp_order 		`r(grp_order)'
+		if !missing("`control'")	local grps_tmt			`r(grps_tmt)'
+									local grp_pairs			`r(grp_pairs)'
 		
 	// 2 Run regressions ------------------------------------------------------
 	
 	// 2.1 For unconditional means in each treatment group
-		grpmeans `balancevars', grpvar(`grpvar') pairs(`grpvar_pairs') `debug' `total'
+		grpmeans `balancevars', grpvar(`grpvar') levels(`grpvar_levels') `debug' `total'
 		
 		* Get outputs
 		matrix meansMat = r(meansMat)
 	
 	// 2.2 For group differences
-		grpdiff  `balancevars', grpvar(`grpvar') pairs(`grpvar_pairs') `debug'
+		grpdiff  `balancevars', grpvar(`grpvar') pairs(`grp_pairs') `debug' `fixedeffect'
 		
+		* Get outputs
+		matrix diffMat = r(diffMat)
+
 		
 	// 3 Deal with results -----------------------------------------------------
 	
@@ -79,8 +95,10 @@ end
 capture program drop dataprep
 		program 	 dataprep, rclass
 	
-	syntax 	varlist(numeric) [if] [in] [aw fw pw iw], grpvar(varname) [debug]
+	syntax 	varlist(numeric) [if] [in] [aw fw pw iw], grpvar(varname) [debug fixedeffect(varname)]
 					
+	if !missing("`debug'") di "Data prep subprogram started" // Developer option 
+
 	// Treatment variable -----------------------------------------------------
 		cap confirm numeric variable `grpvar'
 
@@ -111,10 +129,21 @@ capture program drop dataprep
 		marksample touse,  novarlist
 		keep if `touse'
 			
+	// Fixed effects -----------------------------------------------------------
+
+		* If fixed effects are not used, create a constant fe variable, so we
+		* can still use areg, but won't change the result
+		if missing("`fixedeffect'") {
+			local  	 fixedeffect	__0fe
+			gen 	`fixedeffect' = 1
+			if !missing("`debug'") di "Fixed effect variable created: `fixedeffect'" 
+		}
+			
 	// Outputs -----------------------------------------------------------------
-		return local grpvar 		`grpvar'
-		return local grpvar_levels	`grpvar_levels'
-		return local balancevars	`balancevars'
+							return local grpvar 		`grpvar'
+							return local grpvar_levels	`grpvar_levels'
+							return local balancevars	`balancevars'
+							return local fixedeffect	fixedeffect(`fixedeffect')
 		
 	if !missing("`debug'") di "Data prep subprogram sucessful" // Developer option 
 	
@@ -128,7 +157,7 @@ capture program drop grpmeans
 		
 	syntax 	varlist(numeric), grpvar(varname) levels(string) [debug total]
 
-	if !missing("`debug'") di "Group means subprogram started"
+	if !missing("`debug'") 	di "Group means subprogram started"
 	
 	* Create blank matrices to add the results	
 	cap mat drop meansMat
@@ -169,9 +198,7 @@ capture program drop grpmeans
 			
 			mat colnames levelMat = `colnames'
 			mat rownames levelMat = `var'
-			
-			if !missing("`debug'") mat list levelMat // Developer option
-			
+						
 			// Append to results matrix				
 			if varMat[1,1] == . {
 				mat varMat = levelMat
@@ -205,13 +232,10 @@ capture program drop grpmeans
 			
 			mat colnames totalMat = `colnames'
 			mat rownames totalMat = `var'
-			
-			if !missing("`debug'") mat list totalMat // Developer option
-			
+						
 			mat varMat = [varMat, totalMat]
 		}
 		
-	if !missing("`debug'") mat list varMat // Developer option
 	
 	// Create final matrix -----------------------------------------------------
 		if meansMat[1,1] == . {
@@ -219,11 +243,10 @@ capture program drop grpmeans
 		}
 		else {
 			mat meansMat = [meansMat \ varMat]
-		}
-		
-		if !missing("`debug'")  mat list meansMat
-			
+		}		
 	}
+	
+	if !missing("`debug'")  mat list meansMat
 	
 	// Outputs -----------------------------------------------------------------
 	return matrix meansMat meansMat
@@ -237,9 +260,9 @@ end
 capture program drop grpdiff
 		program 	 grpdiff, rclass
 		
-	syntax 	varlist(numeric), grpvar(varname) pairs(string) [debug]
+	syntax 	varlist(numeric), grpvar(varname) pairs(string) fixedeffect(varname) [debug]
 	
-	if !missing("`debug'") di "Subprogram grpdiff started"
+	if !missing("`debug'") di "Group differences subprogram started"
 	
 	* Create blank matrix to add results	
 	cap mat drop diffMat
@@ -266,12 +289,18 @@ capture program drop grpdiff
 			* It will be missing for all observations that are not in any of the two groups,
 			* meaning they will not be considered in the regression
 			tempvar  grp_dummy
-			gen 	`grp_dummy' = .	//default is missing, and obs not in this pair will remain missing
-			replace `grp_dummy' = 0 if `grpvar' == `firstGroup'		// if control if used, control will be 0
-			replace `grp_dummy' = 1 if `grpvar' == `secondGroup'	// and each treatment group will be 1
+			
+			//default is missing, and obs not in this pair will remain missing
+			gen 	`grp_dummy' = .	
+			
+			// if control if used, control will be 0
+			replace `grp_dummy' = 0 if `grpvar' == `firstGroup'	
+			
+			// and each treatment group will be 1
+			replace `grp_dummy' = 1 if `grpvar' == `secondGroup'
 
 			// Run regression and store results for this pair
-			reg `var' `grp_dummy'											//	<-------------------------------------- Difference regression ----------------------------------------------
+			qui areg `var' `grp_dummy', absorb(`fixedeffect')					//	<-------------------------------------- Difference regression ----------------------------------------------
 			
 		// Save result to a matrix ---------------------------------------------
 	
@@ -313,8 +342,6 @@ capture program drop grpdiff
 			else {
 				mat varMat = [varMat, pairMat]
 			}
-			
-			if !missing("`debug'") mat list varMat // Developer option
 
 		}
 				
@@ -324,16 +351,15 @@ capture program drop grpdiff
 		}
 		else {
 			mat diffMat = [diffMat \ varMat]
-		}
-		
-		if !missing("`debug'")  mat list diffMat
-			
+		}	
 	}
 	
+	if !missing("`debug'")  mat list diffMat
+		
 	// Outputs -----------------------------------------------------------------
 	return matrix diffMat diffMat
 	
-	if !missing("`debug'") di "Subprogram grpdiff completed"
+	if !missing("`debug'") di "Subprogram grpdiff successful"
 	
 end
 
@@ -344,6 +370,7 @@ capture program drop grpsprep
 		
 	syntax , levels(string) [order(numlist int min=1) control(numlist int max=1) debug]
 
+	if !missing("`debug'") di "Groups prep subprogram started" // Developer option 
 	
 	// Order of groups ---------------------------------------------------------
 	
@@ -358,16 +385,16 @@ capture program drop grpsprep
 	
 	* Compile final order. If neither order() or control() were used, the
 	* order will be the same as order_code_rest
-	local grpvar_order `order' `order_code_rest'
+	local grp_order `order' `order_code_rest'
 		
 	// Pairs for differences ---------------------------------------------------
 	
 	// If control was used (test only control again all other groups)
 	if !missing("`control'") {
-		local grps_tmt: list grpvar_order - control
+		local grps_tmt: list grp_order - control
 		
 		foreach group of local grps_tmt {
-			local grpvar_pairs "`grpvar_pairs' `control'_`group'"
+			local grp_pairs "`grp_pairs' `control'_`group'"
 		}
 	}
 	
@@ -388,17 +415,55 @@ capture program drop grpsprep
 				local code_firstGroup  : word `firstGroup' of `grp_order'
 				local code_secondGroup : word `secondGroup' of `grp_order'
 				
-				local grpvar_pairs "`grpvar_pairs' `code_firstGroup'_`code_secondGroup'"
+				local grp_pairs "`grp_pairs' `code_firstGroup'_`code_secondGroup'"
 			}
 		}
 	}
 		
 	// Outputs -----------------------------------------------------------------
 	
-								return local grpvar_order 	`grpvar_order'
-	if !missing("`control'")	return local grps_tmt		`grps_tmt'
-								return local grpvar_pairs	`grpvar_pairs'
+								return local grp_order 	`grp_order'
+	if !missing("`control'")	return local grps_tmt	`grps_tmt'
+								return local grp_pairs	`grp_pairs'
 									
-	if !missing("`debug'")		di "local grp_pairs: `grp_pairs'"
+	if !missing("`debug'")	{
+		di "local grp_pairs: `grp_pairs'"
+		di "Groups prep subprogram successful" // Developer option 
+	}	
 	
 end
+	
+end
+
+capture program drop testfixedeffect
+		program 	 testfixedeffect, rclass
+		
+	syntax [anything]
+	
+	local debug = regex("`anything'", "debug")
+	local anything = strtrim(subinstr("`anything'", "debug", "", . ))
+
+	if !missing("`anything'") {
+		cap assert !missing(`anything')
+		if _rc == 9 {
+
+			noi display as error  "{phang}The variable in fixedeffect(`anything') is missing for some observations. This would cause observations to be dropped in the estimation regressions. See tabulation of `anything' below:{p_end}"
+			noi tab `anything', m
+			error 109
+		}
+		
+		local fe	fixedeffect(`anything')
+		
+		if `debug' di "Fixed effects used. Option fixedeffect prepared: `fe'."
+
+	}
+	else {
+		local fe	""
+		if `debug' di "Fixed effects not used. Option fixedeffect prepared: `fe'."
+	}
+	
+	return local fixedeffect `fe'
+
+end
+
+  

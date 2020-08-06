@@ -78,7 +78,7 @@
 			}
 			*/
 
-			* Generate a encoded tempvar version of grpvar
+			* Generate an encoded tempvar version of grpvar
 			tempvar grpvar_code
 			encode `grpvar', gen(`grpvar_code')
 
@@ -89,6 +89,10 @@
 		
 		* Drop observations without treatment assignment
 		drop if missing(`grpvar')
+		
+		if r(N_drop) {															// <--------------------------------------------- print a warning message saying that X observations were dropped
+			local grpvar_warning	"`r(N_drop) observations are not included in the balance table due to missing treatment group.'"
+		}
 		
 		* Create a local of all codes in group variable. We will use it to ...	// <---------------------------------------------------------------------
 		levelsof `grpvar', local(grpvar_levels)
@@ -103,7 +107,8 @@
 		return local grpvar_levels 	`grpvar_levels'
 		return local grpvar_grplab 	`grpvar_grplab'
 		return local grpvar_ngroups `grpvar_ngroups'
-		return local outputs		grpvar grpvar_levels grpvar_grplab grpvar_ngroups
+		return local grpvar_warning `grpvar_warning'
+		return local outputs		grpvar grpvar_levels grpvar_grplab grpvar_ngroups grpvar_warning
 		
 	end program
 	

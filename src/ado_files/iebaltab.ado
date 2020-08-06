@@ -1666,19 +1666,6 @@ qui {
 					local first_group  = substr("`ttest_pair'",1,`undscr_pos'-1)
 					local second_group = substr("`ttest_pair'",  `undscr_pos'+1,.)
 
-					*Create the local with the difference to be displayed in the table
-					local diff_`ttest_pair' =  `mean_`first_group'' - `mean_`second_group'' //means from section above
-
-					*Create a temporary varaible used as the dummy to indicate
-					*which observation is in the first and in the second group
-					*in the test pair. Since all other observations are mission,
-					*this variable also exculde all observations in neither of
-					*the groups from the test regression
-					tempvar tempvar_thisGroupInPair
-					gen 	`tempvar_thisGroupInPair' = .	//default is missing, and obs not in this pair will remain missing
-					replace `tempvar_thisGroupInPair' = 0 if `groupOrder' == `first_group'
-					replace `tempvar_thisGroupInPair' = 1 if `groupOrder' == `second_group'
-
 					*The command mean is used to test that there is variation
 					*in the balance var across these two groups. The regression
 					*that includes fixed effects and covariaties might run without
@@ -1692,7 +1679,19 @@ qui {
 
 					*This is the regression where we test differences.
 					reg `balancevar' `tempvar_thisGroupInPair' `covariates' i.`fixedeffect' `weight_option', `error_estm'
+pause
+					*Create the local with the difference to be displayed in the table
+					local diff_`ttest_pair' =  `mean_`first_group'' - `mean_`second_group'' //means from section above
 
+					*Create a temporary varaible used as the dummy to indicate
+					*which observation is in the first and in the second group
+					*in the test pair. Since all other observations are mission,
+					*this variable also exculde all observations in neither of
+					*the groups from the test regression
+					tempvar tempvar_thisGroupInPair
+					gen 	`tempvar_thisGroupInPair' = .	//default is missing, and obs not in this pair will remain missing
+					replace `tempvar_thisGroupInPair' = 0 if `groupOrder' == `first_group'
+					replace `tempvar_thisGroupInPair' = 1 if `groupOrder' == `second_group'				
 
 					*Testing result and if valid, write to file with or without stars
 					if `varloc' == 0 {
