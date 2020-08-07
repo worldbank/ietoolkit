@@ -13,6 +13,7 @@ capture program drop iebaltab
 														///
 			/*Statistics and data manipulation*/						///
 			FIXedeffect(varname)										///
+			COVariates(varlist ts fv)									///
 			vce(string)													///
 			WEIGHTold(string)											/// For backward compatibility
 			]
@@ -43,10 +44,9 @@ capture program drop iebaltab
 			local exp 	 "`3'"
 		}
 
-		foreach option in fixedeffect vce weight {
-			noi di "test`option' ``option''"
+		foreach option in fixedeffect vce weight covariates {
 			test`option' ``option''
-			local 		 `option' `r(`option')'
+			local 		  `option' `r(`option')'
 			
 			if !missing("`debug'") di "Option `option' tested successfully. Output: ``option''."
 		}
@@ -77,13 +77,17 @@ capture program drop iebaltab
 	// 2 Run regressions ------------------------------------------------------
 	
 	// 2.1 For unconditional means in each treatment group
-		grpmeans `balancevars' `weight', grpvar(`grpvar') levels(`grpvar_levels') `debug' `total' `vce'
+		grpmeans 	`balancevars' `weight', ///
+					grpvar(`grpvar') levels(`grpvar_levels') ///
+					`debug' `total' `vce'
 		
 		* Get outputs
 		matrix meansMat = r(meansMat)
 	
 	// 2.2 For group differences
-		grpdiff  `balancevars' `weight', grpvar(`grpvar') pairs(`grp_pairs') `debug' `fixedeffect' `vce'
+		grpdiff  	`balancevars' `weight', ///
+					grpvar(`grpvar') pairs(`grp_pairs') ///
+					`debug' `fixedeffect' `vce' `covariates'
 		
 		* Get outputs
 		matrix diffMat = r(diffMat)
@@ -288,7 +292,9 @@ end
 capture program drop grpdiff
 		program 	 grpdiff, rclass
 		
-	syntax 	varlist(numeric) [aw fw pw iw], grpvar(varname) pairs(string) fixedeffect(varname) [debug vce(string)]
+	syntax 	varlist(numeric) [aw fw pw iw], ///
+			grpvar(varname) pairs(string) fixedeffect(varname) ///
+			[debug vce(string) covariates(varlist ts fv)]
 	
 	// Prepare options ---------------------------------------------------------
 	if !missing("`debug'") di "Group differences subprogram started"
@@ -338,7 +344,8 @@ capture program drop grpdiff
 			replace `grp_dummy' = 1 if `grpvar' == `secondGroup'
 
 			// Run regression and store results for this pair
-			qui areg `var' `grp_dummy' `weight', absorb(`fixedeffect') `vce'				//	<-------------------------------------- Difference regression ----------------------------------------------
+			qui areg 	`var' `grp_dummy' `covariates' `weight', ///
+						absorb(`fixedeffect') `vce'								//	<-------------------------------------- Difference regression ---------------------------------------------
 			
 		// Save result to a matrix ---------------------------------------------
 	
@@ -562,9 +569,13 @@ capture program drop testweight
 end
 
 capture program drop testcovariates
-		program 	 testcovariates
+		program 	 testcovariates, rclass
 		
 	syntax [anything]
+	
+	if !missing("`anything'") {
+		return local covariates covariates(`anything')
+	}
 	
 end
 
