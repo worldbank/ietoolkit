@@ -14,6 +14,7 @@ capture program drop iebaltab
 			/*Statistics and data manipulation*/						///
 			FIXedeffect(varname)										///
 			vce(string)													///
+			WEIGHTold(string)											/// For backward compatibility
 			]
 
 	
@@ -30,8 +31,21 @@ capture program drop iebaltab
 	// 1 Prepare dataset and options ------------------------------------------
 	
 	// 1.0 Test options
-		foreach option in fixedeffect vce {
-			test`option' ``option'' `debug'
+	
+		* Backwards compatibility for weight option
+		if !missing("`exp'") {
+			local exp 	 = subinstr("`exp'", "=", "", .)
+			local weight `weight' `exp'
+		}
+		else if "`weightold'" != "" & "`exp'" == "" {
+			tokenize `weightold', parse(=)
+			local weight "`1'"
+			local exp 	 "`3'"
+		}
+
+		foreach option in fixedeffect vce weight {
+			noi di "test`option' ``option''"
+			test`option' ``option''
 			local 		 `option' `r(`option')'
 			
 			if !missing("`debug'") di "Option `option' tested successfully. Output: ``option''."
@@ -63,13 +77,13 @@ capture program drop iebaltab
 	// 2 Run regressions ------------------------------------------------------
 	
 	// 2.1 For unconditional means in each treatment group
-		grpmeans `balancevars', grpvar(`grpvar') levels(`grpvar_levels') `debug' `total' `vce'
+		grpmeans `balancevars' `weight', grpvar(`grpvar') levels(`grpvar_levels') `debug' `total' `vce'
 		
 		* Get outputs
 		matrix meansMat = r(meansMat)
 	
 	// 2.2 For group differences
-		grpdiff  `balancevars', grpvar(`grpvar') pairs(`grp_pairs') `debug' `fixedeffect' `vce'
+		grpdiff  `balancevars' `weight', grpvar(`grpvar') pairs(`grp_pairs') `debug' `fixedeffect' `vce'
 		
 		* Get outputs
 		matrix diffMat = r(diffMat)
@@ -156,7 +170,7 @@ end
 capture program drop grpmeans
 		program 	 grpmeans, rclass
 		
-	syntax 	varlist(numeric), grpvar(varname) levels(string) [debug total vce(string)]
+	syntax 	varlist(numeric) [aw fw pw iw], grpvar(varname) levels(string) [debug total vce(string)]
 
 	// Prepare inputs ----------------------------------------------------------
 	
@@ -167,6 +181,8 @@ capture program drop grpmeans
 	tokenize "`vce_type'"
 	local 	   vce_type `1'
 
+	* Prepare weight option
+	if !missing("`weight'")	local weight [`weight' `exp']
 	
 	* Prepare vce option: when used, need to add a comma for the regression command
 	if !missing("`vce'") 	local vce	, vce(`vce')
@@ -188,7 +204,7 @@ capture program drop grpmeans
 		foreach level in `levels' {
 
 			// Run the regression
-			qui reg `var' if `grpvar' == `level' `vce' 							//	<---------------------------- Regression for group means -------------------------------------------
+			qui reg `var' `weight' if `grpvar' == `level' `vce' 				//	<---------------------------- Regression for group means -------------------------------------------
 			
 			// Save results in a matrix
 			
@@ -224,7 +240,7 @@ capture program drop grpmeans
 
 		if !missing("`total'") {
 		
-			qui reg 	`balancevar' `vce'
+			qui reg `balancevar' `weight' `vce'
 			
 			* Basic matrix
 			cap mat drop totalMat
@@ -272,7 +288,7 @@ end
 capture program drop grpdiff
 		program 	 grpdiff, rclass
 		
-	syntax 	varlist(numeric), grpvar(varname) pairs(string) fixedeffect(varname) [debug vce(string)]
+	syntax 	varlist(numeric) [aw fw pw iw], grpvar(varname) pairs(string) fixedeffect(varname) [debug vce(string)]
 	
 	// Prepare options ---------------------------------------------------------
 	if !missing("`debug'") di "Group differences subprogram started"
@@ -282,6 +298,9 @@ capture program drop grpdiff
 	local 	   vce_type = subinstr("`vce'", "vce(", "", . )
 	tokenize "`vce_type'"
 	local 	   vce_type `1'
+	
+	* Prepare weight option
+	if !missing("`weight'")	local weight [`weight' `exp']
 	
 	* Create blank matrix to add results	
 	cap mat drop diffMat
@@ -319,7 +338,7 @@ capture program drop grpdiff
 			replace `grp_dummy' = 1 if `grpvar' == `secondGroup'
 
 			// Run regression and store results for this pair
-			qui areg `var' `grp_dummy', absorb(`fixedeffect') `vce'				//	<-------------------------------------- Difference regression ----------------------------------------------
+			qui areg `var' `grp_dummy' `weight', absorb(`fixedeffect') `vce'				//	<-------------------------------------- Difference regression ----------------------------------------------
 			
 		// Save result to a matrix ---------------------------------------------
 	
@@ -462,10 +481,6 @@ capture program drop testvce
 		
 	syntax [anything]
 		
-	// Process inputs ----------------------------------------------------------
-	local debug 	= regex("`anything'", "debug")
-	local anything 	= subinstr("`anything'", "debug", "", . )
-	
 	if !missing("`anything'") {
 		local vce 		= subinstr("`anything'", ",", " ", . )
 		
@@ -506,6 +521,46 @@ capture program drop testvce
 	
 end
 
+capture program drop testweight
+		program 	 testweight, rclass
+
+	syntax [anything]
+	
+	if !missing("`anything'") {
+	
+	// Prepare weight option ---------------------------------------------------
+		tokenize `anything'
+		local weight `1'
+		local exp	 `2'
+	
+	// Test if weight type specified is valid ----------------------------------
+		local weight_options "fweights pweights aweights iweights fweight pweight aweight iweight fw freq weight pw aw iw"
+
+		if `:list weight in weight_options' == 0 {
+			noi display as error  "{phang} The option `weight' specified in weight() is not a valid weight option. Weight options are: fweights, fw, freq, weight, pweights, pw, aweights, aw, iweights, and iw. {p_end}"
+			error 198
+		}
+
+	// Test if weight variable specified if valid ------------------------------
+		capture confirm variable `exp'
+		if _rc {
+			noi display as error  "{phang} The weight variable `exp' was not found. {p_end}"
+			error 198
+		}
+		else {
+			capture confirm numeric variable `exp'
+			if _rc	{
+				noi display as error  "{phang} Variable `exp' is not a numeric variable and therefore cannot be used for weighting. {p_end}"
+				error 109
+			}
+		}
+		
+	// Return output -----------------------------------------------------------
+		return local weight	[`weight' = `exp']
+	}
+	
+end
+
 capture program drop testcovariates
 		program 	 testcovariates
 		
@@ -518,9 +573,6 @@ capture program drop testfixedeffect
 		
 	syntax [anything]
 	
-	local debug = regex("`anything'", "debug")
-	local anything = strtrim(subinstr("`anything'", "debug", "", . ))
-
 	if !missing("`anything'") {
 		cap assert !missing(`anything')
 		if _rc == 9 {
@@ -530,14 +582,7 @@ capture program drop testfixedeffect
 			error 109
 		}
 		
-		local fe	fixedeffect(`anything')
-		
-		if `debug' di "Fixed effects used. Option fixedeffect prepared: `fe'."
-
-	}
-	else {
-		local fe	""
-		if `debug' di "Fixed effects not used. Option fixedeffect prepared: `fe'."
+		local fe	fixedeffect(`anything')	
 	}
 	
 	return local fixedeffect `fe'
