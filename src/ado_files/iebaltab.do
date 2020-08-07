@@ -13,6 +13,7 @@ capture program drop iebaltab
 														///
 			/*Statistics and data manipulation*/						///
 			FIXedeffect(varname)										///
+			vce(string)													///
 			]
 
 	
@@ -29,11 +30,11 @@ capture program drop iebaltab
 	// 1 Prepare dataset and options ------------------------------------------
 	
 	// 1.0 Test options
-		foreach option in fixedeffect {
+		foreach option in fixedeffect vce {
 			test`option' ``option'' `debug'
 			local 		 `option' `r(`option')'
 			
-			if !missing("`debug'") di "Option `option' tested successfully. Output: ``option''"
+			if !missing("`debug'") di "Option `option' tested successfully. Output: ``option''."
 		}
 		
 	// 1.1 Data set preparation
@@ -62,13 +63,13 @@ capture program drop iebaltab
 	// 2 Run regressions ------------------------------------------------------
 	
 	// 2.1 For unconditional means in each treatment group
-		grpmeans `balancevars', grpvar(`grpvar') levels(`grpvar_levels') `debug' `total'
+		grpmeans `balancevars', grpvar(`grpvar') levels(`grpvar_levels') `debug' `total' `vce'
 		
 		* Get outputs
 		matrix meansMat = r(meansMat)
 	
 	// 2.2 For group differences
-		grpdiff  `balancevars', grpvar(`grpvar') pairs(`grp_pairs') `debug' `fixedeffect'
+		grpdiff  `balancevars', grpvar(`grpvar') pairs(`grp_pairs') `debug' `fixedeffect' `vce'
 		
 		* Get outputs
 		matrix diffMat = r(diffMat)
@@ -155,9 +156,20 @@ end
 capture program drop grpmeans
 		program 	 grpmeans, rclass
 		
-	syntax 	varlist(numeric), grpvar(varname) levels(string) [debug total]
+	syntax 	varlist(numeric), grpvar(varname) levels(string) [debug total vce(string)]
 
+	// Prepare inputs ----------------------------------------------------------
+	
 	if !missing("`debug'") 	di "Group means subprogram started"
+
+	* Check if ses are clustered
+	local 	   vce_type = subinstr("`vce'", "vce(", "", . )
+	tokenize "`vce_type'"
+	local 	   vce_type `1'
+
+	
+	* Prepare vce option: when used, need to add a comma for the regression command
+	if !missing("`vce'") 	local vce	, vce(`vce')
 	
 	* Create blank matrices to add the results	
 	cap mat drop meansMat
@@ -174,9 +186,9 @@ capture program drop grpmeans
 		
 	// Loop level 2: Treatment groups ------------------------------------------
 		foreach level in `levels' {
-						
+
 			// Run the regression
-			reg `var' if `grpvar' == `level' //`weight_option', `error_estm'	<---------------------------- Regression for group means -------------------------------------------
+			qui reg `var' if `grpvar' == `level' `vce' 							//	<---------------------------- Regression for group means -------------------------------------------
 			
 			// Save results in a matrix
 			
@@ -192,7 +204,7 @@ capture program drop grpmeans
 			
 			 * Add number of clusters and column names if clusters were used
 			if "`vce_type'" == "cluster"  {				
-				mat levelMat[1, 5] = e(N_clust)					
+				mat levelMat = [levelMat, e(N_clust)]
 				local colnames `"`colnames' nclust`level'"'
 			}
 			
@@ -212,7 +224,7 @@ capture program drop grpmeans
 
 		if !missing("`total'") {
 		
-			reg 	`balancevar'  // `weight_option', `error_estm'
+			qui reg 	`balancevar' `vce'
 			
 			* Basic matrix
 			cap mat drop totalMat
@@ -226,7 +238,7 @@ capture program drop grpmeans
 			
 			 * Add number of clusters and column names if clusters were used
 			if "`vce_type'" == "cluster"  {				
-				mat totalMat[1, 5] = e(N_clust)					
+				mat totalMat = [totalMat, e(N_clust)]
 				local colnames `"`colnames' nclusttot"'
 			}
 			
@@ -260,9 +272,16 @@ end
 capture program drop grpdiff
 		program 	 grpdiff, rclass
 		
-	syntax 	varlist(numeric), grpvar(varname) pairs(string) fixedeffect(varname) [debug]
+	syntax 	varlist(numeric), grpvar(varname) pairs(string) fixedeffect(varname) [debug vce(string)]
 	
+	// Prepare options ---------------------------------------------------------
 	if !missing("`debug'") di "Group differences subprogram started"
+	
+	* Prepare error type
+	local 	   vce		vce(`vce')
+	local 	   vce_type = subinstr("`vce'", "vce(", "", . )
+	tokenize "`vce_type'"
+	local 	   vce_type `1'
 	
 	* Create blank matrix to add results	
 	cap mat drop diffMat
@@ -300,7 +319,7 @@ capture program drop grpdiff
 			replace `grp_dummy' = 1 if `grpvar' == `secondGroup'
 
 			// Run regression and store results for this pair
-			qui areg `var' `grp_dummy', absorb(`fixedeffect')					//	<-------------------------------------- Difference regression ----------------------------------------------
+			qui areg `var' `grp_dummy', absorb(`fixedeffect') `vce'				//	<-------------------------------------- Difference regression ----------------------------------------------
 			
 		// Save result to a matrix ---------------------------------------------
 	
@@ -324,7 +343,7 @@ capture program drop grpdiff
 								   
 			* There's an extra column if clusters were used					   
 			if "`vce_type'" == "cluster" {
-				mat		 	 pairMat[1, 8] = e(N_clust)	
+				mat	pairMat = [pairMat, e(N_clust)]
 				
 				local colnames `"`colnames' nclust`pair'"'
 			}
@@ -432,6 +451,65 @@ capture program drop grpsprep
 	}	
 	
 end
+
+
+/*******************************************************************************
+								TEST INPUTS
+*******************************************************************************/
+
+capture program drop testvce
+		program 	 testvce, rclass
+		
+	syntax [anything]
+		
+	// Process inputs ----------------------------------------------------------
+	local debug 	= regex("`anything'", "debug")
+	local anything 	= subinstr("`anything'", "debug", "", . )
+	
+	if !missing("`anything'") {
+		local vce 		= subinstr("`anything'", ",", " ", . )
+		
+		tokenize "`vce'"
+		local vce_type `1'
+
+		// Check that inputs are correct -------------------------------------------
+		
+		// Robust and bootstrap are allowed and no tests are needed
+		if inlist("`vce_type'", "robust", "bootstrap") {
+			local vce vce(`vce_type')
+		}
+		// If clustering ses, check that cluster variable is defined	
+		else if "`vce_type'" == "cluster" {
+
+						   local	 cluster_var `2'
+			cap confirm variable  	`cluster_var'
+
+			* Return error if the variable doesn't exit
+			if _rc {
+				noi display as error "{phang}The cluster variable in vce(`vce') does not exist or is invalid for any other reason. See {help vce_option :help vce_option} for more information. "
+				error _rc
+			}
+			else {
+				local vce	vce(cluster `cluster_var')
+			}
+		}
+		// These are all the options allowed
+		else {
+			noi display as error "{phang}The vce type `vce_type' in vce(`vce') is not allowed. Only robust, cluster and bootstrap are allowed. See {help vce_option :help vce_option} for more information."
+			error 198
+		}
+	}
+	
+	// Calculate outputs -------------------------------------------------------
+	
+	return local vce "`vce'"
+	
+end
+
+capture program drop testcovariates
+		program 	 testcovariates
+		
+	syntax [anything]
 	
 end
 
