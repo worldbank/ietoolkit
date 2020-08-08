@@ -31,10 +31,9 @@
 	label var price "Price, dollars"
 
 	qui do "${GitHub}/src/ado_files/iemetasave.ado"
-	qui do "${GitHub}/src/ado_files/iemetasave2.ado"
 
 	local linesize `c(linesize)'
 
-	iemetasave2 using "${GitHub}/run/output/iemetasave/auto2.csv", replace short
+	iemetasave using "${GitHub}/run/output/iemetasave/auto2.csv", replace short
 
 	
