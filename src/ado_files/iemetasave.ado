@@ -15,7 +15,7 @@
 		capture file close `texname'
 
 		file open  		`logname' using "`logfile'", text write replace
-		file write  	`logname' "Name, Var label, Type, Val label, Num missing, Mean, Std dev" _n
+		file write  	`logname' "Name, Var label, Type, Val label, # unique non-miss values, # missing, Mean, Std dev" _n
 		file close 		`logname'
 
 
@@ -38,6 +38,10 @@
 			*Value label
 			local vallabel:  value label `var'
 			local varrow `"`varrow',"`vallabel'""'
+
+			*Count number of unique values
+			noi tab `var'
+			local varrow `"`varrow',"`r(r)'""'
 
 			*Count missing
 			count if missing(`var')
