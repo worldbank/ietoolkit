@@ -24,7 +24,7 @@ capture program drop iebaltab
 
 	
 	preserve
-			
+	
 	// Settings ---------------------------------------------------------------
 		
 		// Minimum version for this command
@@ -89,9 +89,9 @@ capture program drop iebaltab
 		matrix meansMat = r(meansMat)
 	
 	// 2.2 For group differences
-		grpdiff  	`balancevars' `weight', ///
-					grpvar(`grpvar') pairs(`grp_pairs') ///
-					`debug' `fixedeffect' `vce' `covariates' ///
+		grpdiff  	`balancevars' `weight', 					///
+					grpvar(`grpvar') pairs(`grp_pairs') 		///
+					`debug' `fixedeffect' `vce' `covariates' 	///
 					`normdiff' `feqtest'
 		
 		* Get outputs
@@ -101,6 +101,7 @@ capture program drop iebaltab
 	// 3 Deal with results -----------------------------------------------------
 	
 	// 3.1 Save
+	if !missing("`savetex'") writetex using "`savetex'", `texdocument'
 	
 	// 3.2 Print
 	
@@ -307,11 +308,11 @@ capture program drop grpdiff
 		
 	syntax 	varlist(numeric) [aw fw pw iw], ///
 			grpvar(varname) pairs(string) fixedeffect(varname) ///
-			[debug vce(string) covariates(varlist ts fv)	   ///
-			 normdiff feqtest]
+			[vce(string) covariates(varlist ts fv)	   ///
+			 debug NORMDIFF feqtest]
 	
 	// Prepare options ---------------------------------------------------------
-	if !missing("`debug'") di "Group differences subprogram started"
+	if !missing("`debug'") 	  di "Group differences subprogram started"
 	
 	* Prepare error type
 	local 	   vce		vce(`vce')
@@ -339,8 +340,8 @@ capture program drop grpdiff
 			
 			* Create a local for each group in the test pair
 			local undscrPos   = strpos("`pair'","_")
-			local firstGroup  = substr("`pair'",1,`undscrPos'-1)
-			local secondGroup = substr("`pair'",  `undscrPos'+1,.)
+			local firstGroup  = substr("`pair'", 1, `undscrPos' - 1)
+			local secondGroup = substr("`pair'",    `undscrPos' + 1,.)
 		
 			* Create a temporary variable used as the dummy to indicate which 
 			* observations are in each of the two groups being tested.
@@ -349,13 +350,13 @@ capture program drop grpdiff
 			tempvar  grp_dummy
 			
 			//default is missing, and obs not in this pair will remain missing
-			gen 	`grp_dummy' = .	
+			qui gen 	`grp_dummy' = .	
 			
 			// if control if used, control will be 0
-			replace `grp_dummy' = 0 if `grpvar' == `firstGroup'	
+			qui replace `grp_dummy' = 0 if `grpvar' == `firstGroup'	
 			
 			// and each treatment group will be 1
-			replace `grp_dummy' = 1 if `grpvar' == `secondGroup'
+			qui replace `grp_dummy' = 1 if `grpvar' == `secondGroup'
 
 			// Run regression and store results for this pair
 			qui areg 	`var' `grp_dummy' `covariates' `weight', ///
@@ -393,16 +394,18 @@ capture program drop grpdiff
 			//  Normalized difference
 			if !missing("`normdiff'") {
 			
+				if !missing("`debug'") di "Adding normalized differeces"
+				
 				// if control if used, control will be 0
-				sum `var' if `grpvar' == `firstGroup'
+				qui sum `var' if `grpvar' == `firstGroup'
 				local meanFirstGroup = r(mean)
 				
 				// and each treatment group will be 1
-				sum `var' if `grpvar' == `secondGroup'
+				qui sum `var' if `grpvar' == `secondGroup'
 				local meanSecondGroup = r(mean)
 				
 				*Calculate standard deviation for sample of interest
-				sum `var' if inlist(`grpvar',`firstGroup',`secondGroup')
+				qui sum `var' if inlist(`grpvar',`firstGroup',`secondGroup')
 
 				*Testing result and if valid, write to file with or without stars
 				if r(sd) == 0 {
@@ -410,7 +413,7 @@ capture program drop grpdiff
 				}
 				else {
 					*Create the local with the normalized difference
-					local normDiff = (`meanFirstGroup' - `meanSecondGroup')/r(sd)
+					local normDiff = (`meanSecondGroup' - `meanFirstGroup')/r(sd)
 					
 					mat		pairMat = [pairMat, `normDiff']
 					local 	colnames `"`colnames' normdiff`pair'"'
@@ -424,50 +427,50 @@ capture program drop grpdiff
 			}
 			else {
 				mat varMat = [varMat, pairMat]
-			}
-			
-			// Test all groups if F test was selected 
-			if !missing("`feqtest'") {
-
-				// Run regression
-				* Regression includes all treatment arms
-				qui areg 	`var' i.`grpvar' `covariates' `weight', ///
-							absorb(`fixedeffect') `vce'				
-
-				// Prepare input for F-test
-				* i. in the regression will drop the lowest value of the group
-				* variable, so we need to test only the remaining groups
-				levelsof `grpvar', local(groups)
-				local lower_grp  `: word 1 of `groups''
-				local groups = "`groups'" - "`lower_grp'"
-				local groups : list groups - lower_grp
-				
-				* Loop through levels to create input
-				local ftest_input ""
-				
-				foreach grp of local groups {
-					local ftest_input = " `ftest_input' `grp'.`grpvar' = "
-				}
-
-				// This is the actual test
-				test `ftest_input' 0
-
-				// Print output
-				* Check if the test is valid. If not, print N/A and error message.
-				if "`ffeqtest'" == "." {
-					local warn_ftest_num = `warn_ftest_num' + 1
-					local warn_ftest_bvar`warn_ftest_num'	"`balancevar'"
-				}
-				* If yes, add result to the matrix
-				else {
-					mat 		 ftestMat 	= [r(p) , r(F)]
-					mat colnames ftestMat	= "pfeqtest" "feqtest"
-					mat 		 varMat 	= [varMat , ftestMat]
-				}
-			}		
+			}	
 		}
+			
 				
-		// Create final matrix -----------------------------------------------------
+	// Test all groups if F test was selected ----------------------------------
+		if !missing("`feqtest'") {
+
+			// Run regression
+			* Regression includes all treatment arms
+			qui areg 	`var' i.`grpvar' `covariates' `weight', ///
+						absorb(`fixedeffect') `vce'				
+
+			// Prepare input for F-test
+			* i. in the regression will drop the lowest value of the group
+			* variable, so we need to test only the remaining groups
+			qui levelsof `grpvar', local(groups)
+			local lower_grp  `: word 1 of `groups''
+			local groups : list groups - lower_grp
+			
+			* Loop through levels to create input
+			local ftest_input ""
+			
+			foreach grp of local groups {
+				local ftest_input = " `ftest_input' `grp'.`grpvar' = "
+			}
+
+			// This is the actual test
+			qui test `ftest_input' 0
+
+			// Print output
+			* Check if the test is valid. If not, print N/A and error message.
+			if "`ffeqtest'" == "." {
+				local warn_ftest_num = `warn_ftest_num' + 1
+				local warn_ftest_bvar`warn_ftest_num'	"`balancevar'"
+			}
+			* If yes, add result to the matrix
+			else {
+				mat 		 ftestMat 	= [r(p) , r(F)]
+				mat colnames ftestMat	= "pfeqtest" "feqtest"
+				mat 		 varMat 	= [varMat , ftestMat]
+			}
+		}	
+			
+	// Create final matrix -----------------------------------------------------
 		if diffMat[1,1] == . {
 			mat diffMat = varMat
 		}
@@ -678,3 +681,68 @@ capture program drop testfixedeffect
 end
 
   
+/*******************************************************************************
+							 EXPORT OUTPUTS
+*******************************************************************************/
+
+***************************** Export to TeX ************************************
+
+capture program drop texwrite
+		program		 texwrite
+		
+	syntax using, colstring(string) [texdocument texcaption(string) texlabel(string)]
+	
+	// Prepare inputs ----------------------------------------------------------
+	tempname 	texname
+	tempfile	texfile
+	
+	foreach option in caption string {
+		if !missing("`tex`option''") local tex`option' tex`option'(`tex`option'')
+	}
+	
+	// Write header ------------------------------------------------------------
+	if !missing("`texdocument'") {
+		texpreamble, texname(`texname') texfile(`texfile') `texlabel' `texcaption'
+	}
+	
+	file open  `texname' using "`texfile'", text write append
+	file write `texname' ///
+			"\begin{tabular}{@{\extracolsep{5pt}}`colstring'}" _n ///
+			"\\[-1.8ex]\hline \hline \\[-1.8ex]" _n
+	file close `texname'
+		
+	// Write content -----------------------------------------------------------
+	
+	// Write footer ------------------------------------------------------------
+		
+end
+
+capture program drop texpreamble
+		program		 texpreamble
+	
+	syntax , texname(string) texfile(string) [texcaption(string) texlabel(string)]
+	
+	file open  `texname' using "`texfile'", text write replace
+	file write `texname' ///
+		"%%% Table created in Stata by iebaltab (https://github.com/worldbank/ietoolkit)" _n ///
+		"" _n ///
+		"\documentclass{article}" _n ///
+		"" _n ///
+		"% ----- Preamble " _n ///
+		"\usepackage[utf8]{inputenc}" _n ///
+		"\usepackage{adjustbox}" _n
+		
+	if !missing("`texcaption'") file write `texname' `"\caption{`texcaption'}"' _n
+	if !missing("`texlabel'")	file write `texname' `"\label{`texlabel'}"' _n
+
+	file write `texname' ///
+		"% ----- End of preamble " _n ///
+		"" _n ///
+		" \begin{document}" _n ///
+		"" _n ///
+		"\begin{table}[!htbp]" _n ///
+		"\centering" _n
+		
+	file write `texname'	"\begin{adjustbox}{max width=\textwidth}" _n
+	file close `texname'
+end
