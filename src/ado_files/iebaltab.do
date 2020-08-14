@@ -18,6 +18,7 @@ capture program drop iebaltab
 			WEIGHTold(string)							/// For backward compatibility
 														///
 			* Output display 							///
+			NORMDiff									///
 			FEQTest										///			
 			]
 
@@ -91,7 +92,7 @@ capture program drop iebaltab
 		grpdiff  	`balancevars' `weight', ///
 					grpvar(`grpvar') pairs(`grp_pairs') ///
 					`debug' `fixedeffect' `vce' `covariates' ///
-					`feqtest'
+					`normdiff' `feqtest'
 		
 		* Get outputs
 		matrix diffMat = r(diffMat)
@@ -307,7 +308,7 @@ capture program drop grpdiff
 	syntax 	varlist(numeric) [aw fw pw iw], ///
 			grpvar(varname) pairs(string) fixedeffect(varname) ///
 			[debug vce(string) covariates(varlist ts fv)	   ///
-			 feqtest]
+			 normdiff feqtest]
 	
 	// Prepare options ---------------------------------------------------------
 	if !missing("`debug'") di "Group differences subprogram started"
@@ -389,7 +390,33 @@ capture program drop grpdiff
 			mat colnames pairMat = `colnames'
 			mat rownames pairMat = `var'
 			
-			* normalized difference
+			//  Normalized difference
+			if !missing("`normdiff'") {
+			
+				// if control if used, control will be 0
+				sum `var' if `grpvar' == `firstGroup'
+				local meanFirstGroup = r(mean)
+				
+				// and each treatment group will be 1
+				sum `var' if `grpvar' == `secondGroup'
+				local meanSecondGroup = r(mean)
+				
+				*Calculate standard deviation for sample of interest
+				sum `var' if inlist(`grpvar',`firstGroup',`secondGroup')
+
+				*Testing result and if valid, write to file with or without stars
+				if r(sd) == 0 {
+					local warn_means_num  	= `warn_means_num' + 1
+				}
+				else {
+					*Create the local with the normalized difference
+					local normDiff = (`meanFirstGroup' - `meanSecondGroup')/r(sd)
+					
+					mat		pairMat = [pairMat, `normDiff']
+					local 	colnames `"`colnames' normdiff`pair'"'
+				}				
+				mat colnames pairMat = `colnames'
+			}
 			
 			// Append to other results from the same variable
 			if varMat[1,1] == . {
