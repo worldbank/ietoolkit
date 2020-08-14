@@ -6,16 +6,19 @@ capture program drop iebaltab
 			GRPVar(varname) 							///
 														///
 			[											///
-			/*Columns and order of columns*/			///
+			* Columns and order of columns				///
 			ORder(numlist int min=1) 					///
 			COntrol(numlist int max=1) 					///
 			TOTal										///
 														///
-			/*Statistics and data manipulation*/						///
-			FIXedeffect(varname)										///
-			COVariates(varlist ts fv)									///
-			vce(string)													///
-			WEIGHTold(string)											/// For backward compatibility
+			* Statistics and data manipulation			///
+			FIXedeffect(varname)						///
+			COVariates(varlist ts fv)					///
+			vce(string)									///
+			WEIGHTold(string)							/// For backward compatibility
+														///
+			* Output display 							///
+			FEQTest										///			
 			]
 
 	
@@ -87,7 +90,8 @@ capture program drop iebaltab
 	// 2.2 For group differences
 		grpdiff  	`balancevars' `weight', ///
 					grpvar(`grpvar') pairs(`grp_pairs') ///
-					`debug' `fixedeffect' `vce' `covariates'
+					`debug' `fixedeffect' `vce' `covariates' ///
+					`feqtest'
 		
 		* Get outputs
 		matrix diffMat = r(diffMat)
@@ -106,8 +110,16 @@ capture program drop iebaltab
 end
 	
 /*******************************************************************************
+********************************************************************************
+								
 								SUBPROGRAMS
+								
+********************************************************************************
 *******************************************************************************/	
+	
+/*******************************************************************************
+								MAIN FEATURES
+*******************************************************************************/
 	
 ******************** Prepare the dataset for the command ***********************
 
@@ -294,7 +306,8 @@ capture program drop grpdiff
 		
 	syntax 	varlist(numeric) [aw fw pw iw], ///
 			grpvar(varname) pairs(string) fixedeffect(varname) ///
-			[debug vce(string) covariates(varlist ts fv)]
+			[debug vce(string) covariates(varlist ts fv)	   ///
+			 feqtest]
 	
 	// Prepare options ---------------------------------------------------------
 	if !missing("`debug'") di "Group differences subprogram started"
@@ -369,16 +382,14 @@ capture program drop grpdiff
 								   
 			* There's an extra column if clusters were used					   
 			if "`vce_type'" == "cluster" {
-				mat	pairMat = [pairMat, e(N_clust)]
-				
-				local colnames `"`colnames' nclust`pair'"'
+				mat		pairMat = [pairMat, e(N_clust)]
+				local 	colnames `"`colnames' nclust`pair'"'
 			}
 			
 			mat colnames pairMat = `colnames'
 			mat rownames pairMat = `var'
 			
 			* normalized difference
-			* f-test
 			
 			// Append to other results from the same variable
 			if varMat[1,1] == . {
@@ -387,7 +398,46 @@ capture program drop grpdiff
 			else {
 				mat varMat = [varMat, pairMat]
 			}
+			
+			// Test all groups if F test was selected 
+			if !missing("`feqtest'") {
 
+				// Run regression
+				* Regression includes all treatment arms
+				qui areg 	`var' i.`grpvar' `covariates' `weight', ///
+							absorb(`fixedeffect') `vce'				
+
+				// Prepare input for F-test
+				* i. in the regression will drop the lowest value of the group
+				* variable, so we need to test only the remaining groups
+				levelsof `grpvar', local(groups)
+				local lower_grp  `: word 1 of `groups''
+				local groups = "`groups'" - "`lower_grp'"
+				local groups : list groups - lower_grp
+				
+				* Loop through levels to create input
+				local ftest_input ""
+				
+				foreach grp of local groups {
+					local ftest_input = " `ftest_input' `grp'.`grpvar' = "
+				}
+
+				// This is the actual test
+				test `ftest_input' 0
+
+				// Print output
+				* Check if the test is valid. If not, print N/A and error message.
+				if "`ffeqtest'" == "." {
+					local warn_ftest_num = `warn_ftest_num' + 1
+					local warn_ftest_bvar`warn_ftest_num'	"`balancevar'"
+				}
+				* If yes, add result to the matrix
+				else {
+					mat 		 ftestMat 	= [r(p) , r(F)]
+					mat colnames ftestMat	= "pfeqtest" "feqtest"
+					mat 		 varMat 	= [varMat , ftestMat]
+				}
+			}		
 		}
 				
 		// Create final matrix -----------------------------------------------------
@@ -396,7 +446,7 @@ capture program drop grpdiff
 		}
 		else {
 			mat diffMat = [diffMat \ varMat]
-		}	
+		}
 	}
 	
 	if !missing("`debug'")  mat list diffMat
