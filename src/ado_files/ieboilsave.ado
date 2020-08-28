@@ -7,8 +7,9 @@
 
 		qui {
 
-
-			local origversion "`c(version)'"
+			*Save the three possible user settings before setting
+			* is standardized for this command
+			local version_char "c(stata_version):`c(stata_version)' c(version):`c(version)' c(userversion):`c(userversion)'"
 
 			version 11.0
 
@@ -105,12 +106,26 @@ VNOSTANDMissing
 
 			Output success messages
 
+		/*********************************
+			Prepare output
 		*********************************/
 
-		// ID
+		*Save username to char is nameuser was used
+		if "`userinfo'" == "" {
+			local user "Username withheld, see option userinfo in command ieboildsave"
+			local computer "Computer ID withheld, see option userinfo in command ieboildsave"
+		}
+		else {
+			local user "`c(username)'"
+			local computer "`c(hostname)'"
+		}
 
-		//Store the name of idvar in data set char and in notes
+		*Save time and date
+		local timesave "`c(current_time)' `c(current_date)'"
 
+		*Create data signature
+		datasignature
+		local datasig `r(datasignature)'
 
 		local idOut "The uniquely and fully identifying ID variable is `idvarname'. "
 
