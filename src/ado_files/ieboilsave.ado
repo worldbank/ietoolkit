@@ -3,7 +3,7 @@
 	capture program drop ieboilsave
 	program ieboilsave , rclass
 
-		syntax ,  IDVARname(varlist) [DIOUTput missingok tagnoname tagnohost]
+		syntax ,  IDvars(varlist) [DIOUTput VNOMISSing LISTUser]
 
 		qui {
 
@@ -13,15 +13,6 @@
 
 			version 11.0
 
-			//Checking that only one id variable is listed
-			if `:list sizeof idvarname' > 1 {
-
-				noi di as error "{phang}Multiple ID variables in idvarname(`idvarname') are not allowed. While it is not always incorrect, it is bad practice, see {help ieboilsave##IDnotes:Notes on ID variables} for more details.{p_end}"
-				noi di ""
-				error 103
-				exit
-			}
-
 
 		/*********************************
 
@@ -29,40 +20,38 @@
 
 		*********************************/
 
-			capture isid `idvarname'
+		*Test that the ID var(s) is uniquely and fully identifying
+    capture isid `idvars'
+    if _rc {
 
-			if _rc {
+        *Test if there is missing values in the idvars
+        capture assert !missing(`idvars')
+        if _rc {
+            count if missing(`idvars')
+            noi di as error "{phang}The ID variable(s) `idvars' have missing values in `r(N)' observation(s). The ID variable(s) need to be fully identifying, meaning that missing values (., .a, .b ... .z) or the empty string are not allowed.{p_end}"
+            noi di ""
+        }
 
-
-				//Test missing
-				capture assert !missing(`idvarname')
-				if _rc {
-
-					count if missing(`idvarname')
-
-					noi di as error "{phang}The ID variable `idvarname' is missing in `r(N)' observation(s). The ID variable needs to be fully identifying, meaning that no values can be a missing values (., .a, .b ... .z) or the empty string{p_end}"
-					noi di ""
-				}
-
-				//Test duplicates
+				*Test if there are duplciates in the idvars
 				tempvar iedup
-
-				duplicates tag `idvarname', gen(`iedup')
-
+				duplicates tag `idvars', gen(`iedup')
 				count if `iedup' != 0
 
+				*Test if any duplicates were found
 				if r(N) > 0 {
 
-					sort `idvarname'
-
-					noi di as error "{phang}To be uniquely identifying the ID variable should not have any duplicates. The ID variable `idvarname' has duplicate observations in the following values:{p_end}"
-					noi list `idvarname' if `iedup' != 0
+				    sort `idvars'
+						noi di as error "{phang}To be uniquely identifying, the ID variable(s) should not have any duplicates. The ID variable(s) `idvars' has duplicate observations in the following values:{p_end}"
+						noi list `idvars' if `iedup' != 0
 				}
+
 				noi di ""
 				error 148
 				exit
-			}
+		}
 
+		*Store the ID vars in char
+		char  _dta[ie_idvar] "`idvars'"
 
 
 		/*********************************
@@ -109,7 +98,7 @@
 		// ID
 
 		//Store the name of idvar in data set char and in notes
-		char  _dta[ie_idvar] "`idvarname'"
+
 
 		local idOut "The uniquely and fully identifying ID variable is `idvarname'. "
 
