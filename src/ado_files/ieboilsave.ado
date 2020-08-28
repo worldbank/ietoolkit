@@ -140,56 +140,55 @@ VNOSTANDMissing
 		char _dta[iesave_datasignature] "`datasig'"
 		char _dta[iesave_success]      "iesave (wikilink) ran successfully"
 
-		// Version
-		char  _dta[ie_version] "`origversion'"
+		/*********************************
+			Display in table
+		*********************************/
+		noi di ""
 
-		local versOut "This data set was created in Stata version `origversion'"
+		* List the locals with values in the table
+		local output_locals "idvars user computer timesave version_char datasig"
 
-		// Date
-		char  _dta[ie_date] "`c(current_date)'"
-
-		local dateOut " on `c(current_date)'."
-
-		// Name
-
-		local nameOut ""
-		local hostOut ""
-
-		if "`tagnoname'" == "" {
-
-			char  _dta[ie_name] "`c(username)'"
-
-			if "`tagnohost'" == "" {
-
-				char  _dta[ie_host] "`c(hostname)'"
-				local hostOut ", by user `c(username)' using computer `c(hostname)',"
-			}
-			else {
-
-				local nameOut ", by user `c(username)',"
-
-			}
-		}
-	// Missing vars
-
-		if "`missingok'" == "" {
-
-			local missOut "There are no regular missing values in this data set"
-		}
-		else {
-
-			local missOut "This data set was not tested for missing values"
+		*Find the length of longest value
+		local maxlen 0
+		foreach output_local of local output_locals {
+			local maxlen = max(`maxlen',strlen("``output_local''"))
 		}
 
-		char _dta[ie_boilsave] "ieboilsave ran successfully. `idOut'`versOut'`nameOut'`hostOut'`dateOut' `missOut'"
+		*Lenght of horizontal lines in header, footer and dividers
+		local name_line 18
+		local output_line = `maxlen' + 2
 
-		if "`dioutput'" != "" {
+		*Column position of first and last cell wall
+		local first_col 4
+		local last_col = `first_col' + `maxlen' + 22
 
-			local  outputSum :  char _dta[ie_boilsave]
-			noi di ""
-			noi di  "{phang}`outputSum'{p_end}"
+		*Shorthand for most row beginnings and row ends
+		local rowbeg "{col `first_col'}{c |}"
+		local rowend "{col `last_col'}{c |}"
 
-		}
+		*Shorthand for divider
+		local divider "{col `first_col'}{c LT}{hline `name_line'}{c +}{hline `output_line'}{col `last_col'}{c RT}"
+
+		*Display header
+		noi di as text "{col `first_col'}{c TLC}{hline `name_line'}{c TT}{hline `output_line'}{c TRC}"
+		noi di as text "`rowbeg' {bf:Name}             {c |} {bf:Value} `rowend'"
+		noi di as text "`divider'"
+
+		*Display all table rows
+		noi di as text "`rowbeg' ID Var(s)        {c |} `idvars' `rowend'"
+		noi di as text "`divider'"
+		noi di as text "`rowbeg' Username         {c |} `user' `rowend'"
+		noi di as text "`divider'"
+		noi di as text "`rowbeg' Computer ID      {c |} `computer' `rowend'"
+		noi di as text "`divider'"
+		noi di as text "`rowbeg' Time and Date    {c |} `timesave' `rowend'"
+		noi di as text "`divider'"
+		noi di as text "`rowbeg' Version Settings {c |} `version_char' `rowend'"
+		noi di as text "`divider'"
+		noi di as text "`rowbeg' Data Signature   {c |} `datasig' `rowend'"
+
+		*Display footer
+		noi di as text "{col `first_col'}{c BLC}{hline `name_line'}{c BT}{hline `output_line'}{c BRC}"
 
 	}
 	end
