@@ -269,6 +269,24 @@
 			char _dta[iesave_datasignature] "`datasig'"
 			char _dta[iesave_success]       "iesave (https://dimewiki.worldbank.org/iesave) ran successfully"
 
+
+/*********************************
+	returned values
+*********************************/
+
+		*Return the putputs to retirn locals
+		return local idvars     "`idvars'"
+		return local username   "`user'"
+		return local computerid "`computer'"
+		return local versions   "`version_char'"
+		return local datasig    "`datasig'"
+		return local N          "`N'"
+		return local numvars    "`numVars'"
+
+}
+end
+
+
 		capture program drop write_var_report
 		program write_var_report
 
