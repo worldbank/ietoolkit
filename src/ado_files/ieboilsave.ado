@@ -1,17 +1,70 @@
 *! version 6.3 5NOV2019 DIME Analytics dimeanalytics@worldbank.org
 
 	capture program drop ieboilsave
-	program ieboilsave , rclass
-
-		syntax ,  IDvars(varlist) [DIOUTput VNOMissing(varlist) VNOSTANDMissing(varlist numeric) LISTUser]
+				program      ieboilsave , rclass
 
 		qui {
+
+		syntax ,  IDvars(varlist) dtaversion(string) [varreport(string) reportreplace replace VNOMissing(varlist) VNOSTANDMissing(varlist numeric) userinfo]
 
 			*Save the three possible user settings before setting
 			* is standardized for this command
 			local version_char "c(stata_version):`c(stata_version)' c(version):`c(version)' c(userversion):`c(userversion)'"
 
 			version 11.0
+
+/*********************************
+	Test input
+*********************************/
+
+			***************
+			* Dta version test
+
+			local valid_dta_versions "11 12 13 14 15 16"
+			if `:list dtaversion in valid_dta_versions' == 0 {
+				di ""
+				di as error "{phang}In option {input:dtaversion(`dtaversion')} only the following values are allowed [`valid_dta_versions'].{p_end}"
+				error 198
+			}
+
+			***************
+			* var report tests
+
+			if ("`reportreplace'" != "") & ("`varreport'" == "") {
+				di as error "{phang}Option {input:reportreplace} may only be used in combination with {input:varreport()}.{p_end}"
+				error 198
+			}
+
+			*Test varrepport input if it is used
+			if ("`varreport'" != "") {
+
+				*standardize file path to only use forward slash
+				local varreport_std = subinstr(`"`varreport'"',"\","/",.)
+
+				* Get file extension and folder from file path
+				local varreport_fileext = substr(`"`varreport_std'"',strlen(`"`varreport_std'"')-strpos(strreverse(`"`varreport_std'"'),".")+1,.)
+				local varreport_folder  = substr(`"`varreport_std'"',1,strlen(`"`varreport_std'"')-strpos(strreverse(`"`varreport_std'"'),"/"))
+
+				*Test that the file extension is csv
+				if !(`"`varreport_fileext'"' == ".csv") {
+					noi di as error `"{phang}The report file [`varreport'] must include the file extension .csv.{p_end}"'
+					error 601
+				}
+
+				*Test that the folder exist
+				mata : st_numscalar("r(dirExist)", direxists("`varreport_folder'"))
+				if (`r(dirExist)' == 0)  {
+					noi di as error `"{phang}The folder in [`varreport'] does not exist.{p_end}"'
+					error 601
+				}
+
+				*Test if reportreplace is used if the file already exist
+				cap confirm file "`varreport'"
+				if (_rc == 0 & "`reportreplace'" == "") {
+					noi di as error `"{phang}The report file [`varreport'] already exist, use the option {input:reportreplace} if you want to overwrite the file.{p_end}"'
+					error 601
+				}
+			}
 
 		/*********************************
 			ID variables
@@ -115,17 +168,17 @@
 		local datasig `r(datasignature)'
 
 		/*********************************
-			Save to char
+	Write variable report
 		*********************************/
 
-		*Store the ID vars in char
-		char _dta[iesave_idvar]         "`idvars'"
-		char _dta[iesave_username] 	    "`user'"
-		char _dta[iesave_computerid]    "`computer'"
-		char _dta[iesave_timesave]      "`timesave'"
-		char _dta[iesave_version]       "`version_char'"
-		char _dta[iesave_datasignature] "`datasig'"
-		char _dta[iesave_success]      "iesave (wikilink) ran successfully"
+			*Write csv with variable report that can be version controlled
+			* in git to track when variables change
+			if ("`varreport'" != "") write_var_report , ///
+					file(`varreport') ///
+					datasig(`datasig') ///
+					idvars(`idvars') 	///
+					n(`N') 				    ///
+					`reportreplace' `keepvarorder'
 
 		/*********************************
 			Display in table
@@ -177,5 +230,100 @@
 		*Display footer
 		noi di as text "{col `first_col'}{c BLC}{hline `name_line'}{c BT}{hline `output_line'}{c BRC}"
 
-	}
-	end
+/*********************************
+	Save to char
+*********************************/
+
+			*Store the ID vars in char
+			char _dta[iesave_idvar]         "`idvars'"
+			char _dta[iesave_N]             "`N'"
+			char _dta[iesave_numVars]       "`numVars'"
+			char _dta[iesave_username] 	    "`user_char'"
+			char _dta[iesave_computerid]    "`computer_char'"
+			char _dta[iesave_timesave]      "`timesave'"
+			char _dta[iesave_version]       "`version_char'"
+			char _dta[iesave_datasignature] "`datasig'"
+			char _dta[iesave_success]       "iesave (https://dimewiki.worldbank.org/iesave) ran successfully"
+
+		capture program drop write_var_report
+		program write_var_report
+
+			syntax , file(string) datasig(string) idvars(string) n(string) [reportreplace keepvarorder]
+
+		qui {
+
+			*Convert reportreplace to replace in this context
+			if ("`reportreplace'" == "") local replace ""
+			else local replace "replace"
+
+			*Set up tempfile locals
+			tempname 	logname
+			tempfile	logfile
+			capture file close `texname'
+
+			*get order or vars for report.
+			*alpha is default as it keeps the order more stable
+			if ("`keepvarorder'" == "") ds, alpha
+			else ds
+			local all_vars `r(varlist)'
+
+			*Open the file and write headear
+			file open  		`logname' using "`logfile'", text write replace
+			file write  	`logname' "Name, Var label, Type, Val label, # unique non-miss values, # missing, Mean, Std dev" _n
+			file close 		`logname'
+
+			*Loop over all variables and write one row per variable
+			foreach var of local all_vars {
+
+				* Variable name
+				local varrow `""`var'""'
+
+				*Variable label
+				local varlabel:  variable label  `var'
+				local varrow `"`varrow',"`varlabel'""'
+
+				*Variable type
+				local vartype: type `var'
+				local varrow `"`varrow',"`vartype'""'
+
+				*Value label
+				local vallabel:  value label `var'
+				local varrow `"`varrow',"`vallabel'""'
+
+				*Count number of unique values
+				noi tab `var'
+				local varrow `"`varrow',"`r(r)'""'
+
+				*Count missing
+				count if missing(`var')
+				local varrow `"`varrow',"`r(N)'""'
+
+				* Basic sum stats
+				sum `var'
+				local varrow `"`varrow',"`r(mean)'","`r(sd)'""'
+
+				*Temp test output
+				noi di `"{pstd}`varrow'{p_end}"'
+
+				*Write variable row to file
+				file open  `logname' using "`logfile'", text write append
+				file write `logname' `"`varrow'"' _n
+				file close `logname'
+			}
+
+
+			*Write the end of the report
+			file open  `logname' using "`logfile'", text write append
+			file write `logname' _n ///
+					"***, ***, ***, ***, ***, ***, ***" _n ///
+					"Number of observations:, `n'" _n ///
+					"ID variable(s):, `idvars'" _n ///
+					"Data signature:, `datasig'"
+			file close `logname'
+
+			*Copy temp file to file location
+			copy "`logfile'"  "`file'", `replace'
+
+		}
+
+end
