@@ -150,26 +150,46 @@
 			Prepare output
 		*********************************/
 
-		*Save username to char is nameuser was used
-		if "`userinfo'" == "" {
-			local user "Username withheld, see option userinfo in command ieboildsave"
-			local computer "Computer ID withheld, see option userinfo in command ieboildsave"
-		}
-		else {
-			local user "`c(username)'"
-			local computer "`c(hostname)'"
-		}
+			*Save username to char is nameuser was used
+			if "`userinfo'" == "" {
+				local user "Username withheld"
+				local computer "Computer ID withheld"
 
-		*Save time and date
+				*In table use only option name
+				local user_table "`user', see option {input:userinfo}"
+				local computer_table "`computer', see option {input:userinfo}"
+
+				*In char also list command name as info will
+				*be read outside the context of this command.
+				local user_char "`user', see option userinfo in command iesave"
+				local computer_char "`computer', see option userinfo in command iesave"
+			}
+			else {
+
+				*If user info is uncluded then no exlination is needed and all are the same
+				local user "`c(username)'"
+				local computer "`c(hostname)'"
+				local user_table "`user'"
+				local computer_table "`computer'"
+				local user_char "`user'"
+				local computer_char "`computer'"
+			}
+
+			*Save time and date
 		local timesave "`c(current_time)' `c(current_date)'"
 
 		*Create data signature
-		datasignature
-		local datasig `r(datasignature)'
+			datasignature
+			local datasig `r(datasignature)'
 
-		/*********************************
+			*Get total number of obs and vars
+			describe
+			local N `r(N)'
+			local numVars `r(k)'
+
+/*********************************
 	Write variable report
-		*********************************/
+*********************************/
 
 			*Write csv with variable report that can be version controlled
 			* in git to track when variables change
@@ -183,13 +203,13 @@
 		/*********************************
 			Display in table
 		*********************************/
-		noi di ""
+			noi di ""
 
-		* List the locals with values in the table
-		local output_locals "idvars user computer timesave version_char datasig"
+			* List the locals with values in the table
+			local output_locals "idvars user_table computer_table timesave version_char datasig"
 
-		*Find the length of longest value
-		local maxlen 0
+			*Find the length of longest value
+			local maxlen 0
 		foreach output_local of local output_locals {
 			local maxlen = max(`maxlen',strlen("``output_local''"))
 		}
@@ -214,16 +234,20 @@
 		noi di as text "`rowbeg' {bf:Name}             {c |} {bf:Value} `rowend'"
 		noi di as text "`divider'"
 
-		*Display all table rows
-		noi di as text "`rowbeg' ID Var(s)        {c |} `idvars' `rowend'"
-		noi di as text "`divider'"
-		noi di as text "`rowbeg' Username         {c |} `user' `rowend'"
-		noi di as text "`divider'"
-		noi di as text "`rowbeg' Computer ID      {c |} `computer' `rowend'"
-		noi di as text "`divider'"
-		noi di as text "`rowbeg' Time and Date    {c |} `timesave' `rowend'"
-		noi di as text "`divider'"
-		noi di as text "`rowbeg' Version Settings {c |} `version_char' `rowend'"
+			*Display all table rows
+			noi di as text "`rowbeg' ID Var(s)        {c |} `idvars' `rowend'"
+			noi di as text "`divider'"
+			noi di as text "`rowbeg' Number of obs    {c |} `N' `rowend'"
+			noi di as text "`divider'"
+			noi di as text "`rowbeg' Number of vars   {c |} `numVars' `rowend'"
+			noi di as text "`divider'"
+			noi di as text "`rowbeg' Username         {c |} `user_table' `rowend'"
+			noi di as text "`divider'"
+			noi di as text "`rowbeg' Computer ID      {c |} `computer_table' `rowend'"
+			noi di as text "`divider'"
+			noi di as text "`rowbeg' Time and Date    {c |} `timesave' `rowend'"
+			noi di as text "`divider'"
+			noi di as text "`rowbeg' Version Settings {c |} `version_char' `rowend'"
 		noi di as text "`divider'"
 		noi di as text "`rowbeg' Data Signature   {c |} `datasig' `rowend'"
 
