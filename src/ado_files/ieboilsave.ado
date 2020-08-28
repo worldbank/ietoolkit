@@ -113,12 +113,12 @@
 			if _rc local missVarError `missVarError' `noMissVar'
 		}
 
-		*If any variable incorrectly includes missing vars, display error
-		if ("`missVarError'" != "") {
-			noi di as error "{phang}One or more variables listed in option vnomissing() has missing values whixh is not allowed. Those variable(s) are [`missVarError']{p_end}"
-			error 416
-			exit
-		}
+			*If any variable incorrectly includes missing vars, display error
+			if ("`missVarError'" != "") {
+				noi di as error "{phang}One or more variables listed in option vnomissing() has missing values which is not allowed. Those variable(s) are [`missVarError']{p_end}"
+				error 416
+				exit
+			}
 
 		/*********************************
 			Missing standard missing
@@ -139,15 +139,17 @@
 			noi di as error "{phang}One or more variables listed in option vnostandmissing() has standard missing values which is not allowed. Those variable(s) are [`missVarError']{p_end}"
 			error 416
 			exit
-		}
+			}
 
-		/*********************************
-			Write variable report
-		*********************************/
+/*********************************
+	Optimize storage on disk
+*********************************/
 
+			*Optimize storage on disk
+			compress
 
-		/*********************************
-			Prepare output
+/*********************************
+	Prepare output
 		*********************************/
 
 			*Save username to char is nameuser was used
