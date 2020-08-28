@@ -27,6 +27,21 @@
 				error 198
 			}
 
+			*Test that you can save in the data format you used.
+			*Stata 12 format can be saved in Stata 11/12/13/14/15/16
+			*Stata 13 format can be saved in Stata 13/14/15/16
+			*Stata 14+ format can be saved in Stata 14/15/16 (16 allows for more variables but file formats are the same)
+			if (`dtaversion' == 13 & `c(stata_version)' < 13) {
+				di as error "{phang}You may not use Stata 13 .dta-format in {input:dtaversion(`dtaversion')} if you have a Stata version older than Stata 13. Your version of Stata is Stata `c(stata_version)'.{p_end}"
+				error 198
+			}
+			*Test that the data version is not newer than the version installed
+			else if ((`dtaversion' == 14 | `dtaversion' == 15 | `dtaversion' == 16) & `c(stata_version)' < 14) {
+				di as error "{phang}You may not use Stata 14/15/16 .dta-format in {input:dtaversion(`dtaversion')} if you have a Stata version older than Stata 14. Your version of Stata is Stata `c(stata_version)'.{p_end}"
+				error 198
+			}
+
+
 			***************
 			* var report tests
 
