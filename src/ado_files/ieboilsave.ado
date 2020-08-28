@@ -127,8 +127,18 @@ VNOSTANDMissing
 		datasignature
 		local datasig `r(datasignature)'
 
-		local idOut "The uniquely and fully identifying ID variable is `idvarname'. "
+		/*********************************
+			Save to char
+		*********************************/
 
+		*Store the ID vars in char
+		char _dta[iesave_idvar]         "`idvars'"
+		char _dta[iesave_username] 	    "`user'"
+		char _dta[iesave_computerid]    "`computer'"
+		char _dta[iesave_timesave]      "`timesave'"
+		char _dta[iesave_version]       "`version_char'"
+		char _dta[iesave_datasignature] "`datasig'"
+		char _dta[iesave_success]      "iesave (wikilink) ran successfully"
 
 		// Version
 		char  _dta[ie_version] "`origversion'"
