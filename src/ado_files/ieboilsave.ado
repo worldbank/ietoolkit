@@ -13,11 +13,8 @@
 
 			version 11.0
 
-
 		/*********************************
-
 			ID variables
-
 		*********************************/
 
 		*Test that the ID var(s) is uniquely and fully identifying
@@ -45,19 +42,13 @@
 						noi list `idvars' if `iedup' != 0
 				}
 
+				*Add one space and run idvars to give built in error message
 				noi di ""
-				error 148
-				exit
+				isid `idvars'
 		}
 
-		*Store the ID vars in char
-		char  _dta[ie_idvar] "`idvars'"
-
-
 		/*********************************
-
 			Missing values of any type
-
 		*********************************/
 
 		local missVarError ""
@@ -70,19 +61,15 @@
 		}
 
 		*If any variable incorrectly includes missing vars, display error
-		if ("`missVarError'" != "")
+		if ("`missVarError'" != "") {
 			noi di as error "{phang}One or more variables listed in option vnomissing() has missing values whixh is not allowed. Those variable(s) are [`missVarError']{p_end}"
 			error 416
 			exit
 		}
 
-VNOSTANDMissing
-
 		/*********************************
-
 			Missing standard missing
 			.a,.b is allowed but not .
-
 		*********************************/
 
 		local missVarError ""
@@ -95,16 +82,16 @@ VNOSTANDMissing
 		}
 
 		*If any variable incorrectly includes missing vars, display error
-		if ("`missVarError'" != "")
-			noi di as error "{phang}One or more variables listed in option vnostandmissing() has standard missing values whixh is not allowed. Those variable(s) are [`missVarError']{p_end}"
+		if ("`missVarError'" != "") {
+			noi di as error "{phang}One or more variables listed in option vnostandmissing() has standard missing values which is not allowed. Those variable(s) are [`missVarError']{p_end}"
 			error 416
 			exit
 		}
 
-
 		/*********************************
+			Write variable report
+		*********************************/
 
-			Output success messages
 
 		/*********************************
 			Prepare output
