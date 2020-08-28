@@ -3,11 +3,10 @@
 	capture program drop ieboilsave
 	program ieboilsave , rclass
 
-		syntax ,  IDvars(varlist) [DIOUTput VNOMISSing LISTUser]
+		syntax ,  IDvars(varlist) [DIOUTput VNOMissing(varlist) VNOSTANDMissing(varlist numeric) LISTUser]
 
 		qui {
 
-		preserve
 
 			local origversion "`c(version)'"
 
@@ -56,38 +55,51 @@
 
 		/*********************************
 
-			Missing values
+			Missing values of any type
 
 		*********************************/
 
-			if "`missingok'" == "" {
+		local missVarError ""
 
-				local varsStandMiss
+		*Loop over all vars that may not have missing values
+		* and list them in local if they do
+		foreach noMissVar of local vnomissing {
+			cap assert !missing(`noMissVar')
+			if _rc local missVarError `missVarError' `noMissVar'
+		}
 
-				ds, has(type numeric)
+		*If any variable incorrectly includes missing vars, display error
+		if ("`missVarError'" != "")
+			noi di as error "{phang}One or more variables listed in option vnomissing() has missing values whixh is not allowed. Those variable(s) are [`missVarError']{p_end}"
+			error 416
+			exit
+		}
 
-				foreach variable in `r(varlist)' {
+VNOSTANDMissing
 
-					cap assert `variable' != .
+		/*********************************
 
-					if _rc {
+			Missing standard missing
+			.a,.b is allowed but not .
 
-						local varsStandMiss `varsStandMiss' `variable'
-					}
-				}
+		*********************************/
 
-				if `:list sizeof varsStandMiss' > 0 {
+		local missVarError ""
 
-					noi di as error "{phang}There are `:list sizeof varsStandMiss' numeric variable(s) that contains the standard missing value (.) which is bad practice. A list of the variable(s) are stored in the local {cmd:r(standmissvars)}. Extended missing variables should be used. See {help ieboilsave} for more details.{p_end}"
+		*Loop over all vars that may not have missing values
+		* and list them in local if they do
+		foreach noMissVar of local vnostandmissing {
+			cap assert `noMissVar' != .
+			if _rc local missVarError `missVarError' `noMissVar'
+		}
 
-					return local standmissvars 	"`varsStandMiss'"
+		*If any variable incorrectly includes missing vars, display error
+		if ("`missVarError'" != "")
+			noi di as error "{phang}One or more variables listed in option vnostandmissing() has standard missing values whixh is not allowed. Those variable(s) are [`missVarError']{p_end}"
+			error 416
+			exit
+		}
 
-					error 416
-					exit
-				}
-			}
-
-		restore
 
 		/*********************************
 
