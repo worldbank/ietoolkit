@@ -3,7 +3,7 @@
 
 ### **Install and Update**
 
-#### Installing published versions of `ietoollkit`
+#### Installing published versions of `ietoolkit`
 To install **ietoolkit**, type **`ssc install ietoolkit`** in Stata. This will install the latest published version of **ietoolkit**. The main version of the code in the repo (the `master` branch) is what is published on SSC as well.
 
  If you think something is different in version in this repo, and the version installed on your computer, make sure that you both look at the `master` branch in this repo, and that you have the most recent version of **ietoolkit** installed. To update all files associated with **ietoolkit** type **`adoupdate ietoolkit, update`** in Stata. (It is wise to be in the habit of regularly checking if any of your .ado files installed in Stata need updates by typing **`adoupdate`**.)
@@ -57,11 +57,6 @@ All Stata commands we are working on that we have yet to release a first version
 
 If you wish to make a contribution by making *forks and pull requests* but are not exactly sure how to do so, feel free to send an email to [dimeanalytics@worldbank.org](mailto:dimeanalytics@worldbank.org).
 
-### Other DIME Anlytics Repositories
-* [Stata adofiles repository](https://github.com/worldbank/stata)
-* [Stata Visual Library](https://worldbank.github.io/Stata-IE-Visual-Library/)
-* [DIME LaTeX templates and training](https://github.com/worldbank/DIME-LaTeX-Templates)
-
 ### **License**
 **ietoolkit** is developed under MIT license. See http://adampritchard.mit-license.org/ or see [the `LICENSE` file](https://github.com/worldbank/ietoolkit/blob/master/LICENSE) for details.
 
@@ -70,3 +65,14 @@ Luiza Cardoso de Andrade ([dimeanalytics@worldbank.org](mailto:dimeanalytics@wor
 
 ### **Authors**
 Kristoffer Bjärkefur, Luiza Cardoso de Andrade, Benjamin Daniels, Mrijan Rimal
+
+### **About us**
+[DIME](https://www.worldbank.org/en/research/dime) is the World Bank's impact evaluation department. Part of DIME’s mission is to intensify the production of and access to public goods that improve the quantity and quality of global development research, while lowering the costs of doing IE for the entire research community. This Library is developed and maintained by [DIME Analytics](https://www.worldbank.org/en/research/dime/data-and-analytics). DIME Analytics supports quality research processes across the DIME portfolio, offers public trainings, and develops tools for the global community of development researchers.
+
+Other DIME Analytics public goods are:
+- [Development Research in Practice:](https://worldbank.github.io/dime-data-handbook/) the DIME Analytics Data Handbook
+- [DIME Wiki:](https://dimewiki.worldbank.org/wiki/Main_Page) a one-stop-shop for impact evaluation resources
+- [iefieldkit:](https://github.com/worldbank/iefieldkit) Stata package for primary data collection
+- [Stata Visual Library](https://github.com/worldbank/stata-visual-library)
+- [R Econ Visual Library](https://github.com/worldbank/r-econ-visual-library)
+- [DIME Research Standards:](https://github.com/worldbank/dime-standards/blob/master/dime-research-standards/) DIME's commitments to best practices
