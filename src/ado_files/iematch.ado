@@ -37,6 +37,7 @@
 		**Generate a variable that is used
 		* to restore original sort.
 		gen `originalSort' = _n
+		label variable `originalSort' "originalSort"
 
 		preserve
 
@@ -377,6 +378,13 @@
 		*Gen a variable that indicates for target vars if the max match is reached
 		gen `matchcount' 	= .
 
+		*Label tempvars - only needed for troubleshooting
+		label variable `prefDiff' "prefDiff"
+		label variable `matched' "matched"
+		label variable `prefID' "prefID"
+		label variable `maxmatchprefid' "maxmatchprefid"
+		label variable `matchcount' "matchcount"
+
 
 		** Generate the inverse of the matchvar to sort descending (gsort is too slow),
 		*  a random var to seperate two values with the same match var, and the inverse
@@ -389,6 +397,11 @@
 		gen    `rand' = uniform()
 		gen `invrand' = -1 * `rand'
 
+		*Label tempvars - only needed for troubleshooting
+		label variable `rand' "rand"
+		label variable `invsort' "invsort"
+		label variable `invrand' "invrand"
+
 		***********
 		*Tempvars for matching
 
@@ -400,6 +413,14 @@
 
 			gen `tempVar' = .
 		}
+
+		*Label tempvars - only needed for troubleshooting
+		label variable `diffup' "diffup"
+		label variable `diffdo' "diffdo"
+		label variable `valUp_0' "valUp_0"
+		label variable `valDo_0' "valDo_0"
+		label variable `valUp_1' "valUp_1"
+		label variable `valDo_1' "valDo_1"
 
 		*ID vars, allowed to be both numeric and string
 		tempvar					  	IDup   IDdo   IDup_0   IDdo_0   IDup_1   IDdo_1
@@ -415,6 +436,15 @@
 				gen  `tempVar' = ""
 			}
 		}
+
+		*Label tempvars - only needed for troubleshooting
+		label variable `IDup' "IDup"
+		label variable `IDdo' "IDdo"
+		label variable `IDup_0' "IDup_0"
+		label variable `IDdo_0' "IDdo_0"
+		label variable `IDup_1' "IDup_1"
+		label variable `IDdo_1' "IDdo_1"
+
 
 		***************************
 		*
