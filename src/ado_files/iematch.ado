@@ -181,8 +181,13 @@
 			label value 	`matchResultName' matchLabel
 
 			* MATCH ID VAR
-			if `IDtypeNumeric' == 1 gen `:type `idvar'' `matchIDname' = .	 //Main ID var is numeric - type is important for long strings
-			if `IDtypeNumeric' == 0 gen 								`matchIDname' = "" //Main ID var is string
+			if `IDtypeNumeric' == 1 {
+				gen `:type `idvar'' `matchIDname' = .	 //Main ID var is numeric - type is important for long IDs
+				format `matchIDname' `:format `idvar'' //Make sure that long IDs are not converted to scientific format
+			}
+			else {
+				gen `matchIDname' = "" //Main ID var is string
+			}
 
 			if "`m1'" != "" label variable	`matchIDname' "The ID of the target var in each matched group"	//If many to one
 			if "`m1'" == "" label variable	`matchIDname' "The ID of the target var in each matched pair"	//If one to one
