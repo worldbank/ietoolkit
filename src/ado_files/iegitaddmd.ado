@@ -350,7 +350,7 @@ qui {
 end
 
 *Recursively call parent folders in folderpath needed to be created until
-* folder found that already exist, then creaet all subfolders.
+* folder found that already exist, then create all subfolders.
 cap program drop rmkdir
 program define   rmkdir, rclass
 
