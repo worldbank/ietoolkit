@@ -94,6 +94,7 @@
         if _rc {
             count if missing(`idvars')
             noi di as error "{phang}The ID variable(s) `idvars' have missing values in `r(N)' observation(s). The ID variable(s) need to be fully identifying, meaning that missing values (., .a, .b ... .z) or the empty string are not allowed.{p_end}"
+						noi list `idvars' if missing(`idvars')
             noi di ""
         }
 
