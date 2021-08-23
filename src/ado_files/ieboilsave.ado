@@ -5,7 +5,7 @@
 
 		qui {
 
-		syntax ,  IDvars(varlist) dtaversion(string) [varreport(string) reportreplace replace VNOMissing(varlist) VNOSTANDMissing(varlist numeric) userinfo]
+		syntax using/,  IDvars(varlist) dtaversion(string) [varreport(string) reportreplace replace VNOMissing(varlist) VNOSTANDMissing(varlist numeric) userinfo]
 
 			*Save the three possible user settings before setting
 			* is standardized for this command
@@ -79,6 +79,38 @@
 					noi di as error `"{phang}The report file [`varreport'] already exist, use the option {input:reportreplace} if you want to overwrite the file.{p_end}"'
 					error 601
 				}
+			}
+			
+
+			***************
+			* save file path options
+			
+			* Standardize save file path
+			local using = subinstr(`"`using'"',"\","/",.)	
+		
+			*Get the save file extension 			
+			local fileext = substr(`"`using'"',strlen(`"`using'"')-strpos(strreverse(`"`using'"'),".")+1,.)
+
+			* If no save file extension was used, then add .dta to "`using'"
+			if "`fileext'" == "" {
+				local using  "`using'.dta"
+			}
+			* Check if the save file extension is the correct  
+			else if "`fileext'" != ".dta" {
+				noi di as error `"{phang}The data file must include the extension [.dta]. The format [`fileext'] is not allowed.{p_end}"'
+				error 198
+			}	
+					
+			*Confirm the file path is correct
+			cap confirm new file `using'
+			if (_rc == 603) {
+				noi di as error `"{phang} The data file path used [`using'] does not exist.{p_end}"'
+			  error 601	
+			}
+			*Test if replace is used if the file already exist
+			else if (_rc == 602) & missing("`replace'") {
+				noi di as error `"{phang}The data [`using'] already exist. Use the option [replace] if you want to overwrite the data.{p_end}"'
+				error 602		
 			}
 
 		/*********************************
@@ -287,7 +319,14 @@
 			char _dta[iesave_datasignature] "`datasig'"
 			char _dta[iesave_success]       "iesave (https://dimewiki.worldbank.org/iesave) ran successfully"
 
-
+/*********************************
+	Save data
+*********************************/
+		
+		* Save data
+		save "`using'", `replace'
+		noi di `" Data saved at {browse `"`using'"':`using'}"'		
+			
 /*********************************
 	returned values
 *********************************/
