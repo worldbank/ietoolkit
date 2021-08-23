@@ -132,14 +132,14 @@
 
 				*Test if there are duplciates in the idvars
 				tempvar iedup
-				duplicates tag `idvars', gen(`iedup')
-				count if `iedup' != 0
+		  duplicates tag `idvars', gen(`iedup')
+		  count if `iedup' != 0
 
-				*Test if any duplicates were found
-				if r(N) > 0 {
+		  *Test if any duplicates were found in the idvars
+		  if `r(N)' > 0 {
 
-				    sort `idvars'
-						noi di as error "{phang}To be uniquely identifying, the ID variable(s) should not have any duplicates. The ID variable(s) `idvars' has duplicate observations in the following values:{p_end}"
+		  	sort `idvars'
+		  	noi di as error "{phang}To be uniquely identifying, the ID variable(s) should not have any duplicates. The ID variable(s) `idvars' has duplicate observations in the following values:{p_end}"
 						noi list `idvars' if `iedup' != 0
 				}
 
