@@ -80,6 +80,38 @@
 					error 601
 				}
 			}
+			
+
+			***************
+			* save file path options
+			
+			* Standardize save file path
+			local using = subinstr(`"`using'"',"\","/",.)	
+		
+			*Get the save file extension 			
+			local fileext = substr(`"`using'"',strlen(`"`using'"')-strpos(strreverse(`"`using'"'),".")+1,.)
+
+			* If no save file extension was used, then add .dta to "`using'"
+			if "`fileext'" == "" {
+				local using  "`using'.dta"
+			}
+			* Check if the save file extension is the correct  
+			else if "`fileext'" != ".dta" {
+				noi di as error `"{phang}The data file must include the extension [.dta]. The format [`fileext'] is not allowed.{p_end}"'
+				error 198
+			}	
+					
+			*Confirm the file path is correct
+			cap confirm new file `using'
+			if (_rc == 603) {
+				noi di as error `"{phang} The data file path used [`using'] does not exist.{p_end}"'
+			  error 601	
+			}
+			*Test if replace is used if the file already exist
+			else if (_rc == 602) & missing("`replace'") {
+				noi di as error `"{phang}The data [`using'] already exist. Use the option [replace] if you want to overwrite the data.{p_end}"'
+				error 602		
+			}
 
 		/*********************************
 			ID variables
@@ -290,37 +322,6 @@
 /*********************************
 	Save data
 *********************************/
-		
-		* Standardize file path
-		local using = subinstr(`"`using'"',"\","/",.)	
-	
-		*Get the file extension 			
-		local fileext = substr(`"`using'"',strlen(`"`using'"')-strpos(strreverse(`"`using'"'),".")+1,.)
-
-		* If no file extension was used, then add .dta to "`using'"
-		if "`fileext'" == "" {
-	    
-			local using  "`using'.dta"
-		}
-
-		* Check if the file extension is the correct  
-		else if "`fileext'" != ".dta" {
-			noi di as error `"{phang}The data file must include the extension [.dta]. The format [`fileext'] is not allowed.{p_end}"'
-			error 198
-		}	
-				
-		*Confirm the file path is correct
-		cap confirm new file `using'
-		if (_rc == 603) {
-			noi di as error `"{phang} The data file path used [`using'] does not exist.{p_end}"'
-		  error 601	
-		}
-		
-		*Test if replace is used if the file already exist
-		else if (_rc == 602) & missing("`replace'") {
-			noi di as error `"{phang}The data [`using'] already exist. Use the option [replace] if you want to overwrite the data.{p_end}"'
-			error 602		
-		}
 		
 		* Save data
 		save "`using'", `replace'
