@@ -309,10 +309,10 @@
 	*********************************/
 
 	  *Store the ID vars in char
-	  char _dta[iesave_idvar]         "`idvars'"
+	  char _dta[iesave_idvars]        "`idvars'"
 	  char _dta[iesave_N]             "`N'"
-	  char _dta[iesave_numVars]       "`numVars'"
-	  char _dta[iesave_username] 	    "`user_char'"
+	  char _dta[iesave_numvars]       "`numVars'"
+	  char _dta[iesave_username]      "`user_char'"
 	  char _dta[iesave_computerid]    "`computer_char'"
 	  char _dta[iesave_timesave]      "`timesave'"
 	  char _dta[iesave_version]       "`version_char'"
