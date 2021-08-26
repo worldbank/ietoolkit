@@ -3,9 +3,10 @@
 	Set up
 *******************************************************************************/
 
-	* Add the path to your local clone of the [ietoolkit] repo
-	global 	ietoolkit "C:/Users/ruzza/OneDrive/Documenti/GitHub/ietoolkit"  
-	qui		do 		  "${ietoolkit}/src/ado_files/iekdensity.ado"
+	* Load the version in this clone into memory. If you need to use the version
+	* currently installed in you instance of Stata, then simply re-start Stata.
+	* Set up the ietoolkit_clone global root path in ietoolkit\run\run_master.do
+	qui	do "${ietoolkit_clone}/src/ado_files/iekdensity.ado"
 
 	* Load data
 	sysuse	auto, clear
@@ -105,22 +106,27 @@
 *******************************************************************************/
 	
 	* Group variable is not a factor variable
-	iekdensity price, by(headroom)
-	
+	cap iekdensity price, by(headroom)
+	assert _rc == 109
+
 	* Change only one color
-	iekdensity price, by(treatment_binary)  color(eltblue)
-	
+	cap iekdensity price, by(treatment_binary)  color(eltblue)
+	assert _rc == 198
+
 	* Non-existing code as control
-	iekdensity price, by(treatment_binary)  control(3)
-	
+	cap iekdensity price, by(treatment_binary)  control(3)
+	assert _rc == 197
+
 	* Too many colors
-	iekdensity price, by(treatment_binary)  color(eltblue midblue edkblue)
-	
+	cap iekdensity price, by(treatment_binary)  color(eltblue midblue edkblue)
+	assert _rc == 198
+
 	* Not enough colors
-	iekdensity price, by(treatment_factor3) color(eltblue midblue) stat(mean)
-	
+	cap iekdensity price, by(treatment_factor3) color(eltblue midblue) stat(mean)
+	assert _rc == 198
+
 	* Multiple treatment arms but control group not specified
-	iekdensity price, by(treatment_factor3) color(eltblue midblue edkblue) effect
-	
-	
+	cap iekdensity price, by(treatment_factor3) color(eltblue midblue edkblue) effect
+	assert _rc == 198
+
 ***************************** End of do-file ***********************************
