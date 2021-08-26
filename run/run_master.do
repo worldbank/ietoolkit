@@ -24,7 +24,8 @@
 /*******************************************************************************
     PART 3: iegitaddmd
 *******************************************************************************/
-
+	
+	*This run file depends on iefolder, make sure that command is tested before this run file
     if `iegitaddmd' == 1 {
         do "${runfiles}/iegitaddmd.do"
     }
@@ -41,6 +42,7 @@
     PART 5: iesave
 *******************************************************************************/
 
+	* This run file depends on ieboilstart, make sure that command is tested before this run file
     if `iesave' == 1 {
         do "${runfiles}/iesave.do"
     } 
