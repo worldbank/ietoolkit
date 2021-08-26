@@ -344,7 +344,7 @@
 			saveold "`using'" , `replace' v(`saveversion')
 		}
 
-		noi di `"Data saved in dta version `saveversion' at {browse `"`using'"':`using'}"'
+		noi di `"{phang}Data saved in dta version `saveversion' at {browse `"`using'"':`using'}{p_end}"'
 
 	/*********************************
 		returned values

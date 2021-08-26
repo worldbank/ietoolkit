@@ -262,6 +262,17 @@
 	assert "`char_computerid'"		== "`: char _dta[iesave_computerid]'"
 	assert "`char_datasignature'"	!= "`: char _dta[iesave_datasignature]'"
 
+	/**************************************************************
+	Test save in other versions
+	***************************************************************/
+
+	* test all allowed version values
+	foreach version in 12 13 14 {
+		sysuse auto, clear
+		iesave using "`test_folder'/save_`version'.dta", 	///
+			idvars(make) saveversion(`version') replace
+	}
+	local expected_files `"`expected_files' "save_12.dta" "save_13.dta" "save_14.dta""'
 
 	/**************************************************************
 	Test that only the exact data sets expected are created
