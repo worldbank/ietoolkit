@@ -5,7 +5,7 @@
 
 	qui {
 
-	  syntax using/,  IDvars(varlist) dtaversion(string) [varreport(string) reportreplace replace VNOMissing(varlist) VNOSTANDMissing(varlist numeric) userinfo]
+	  syntax using/,  IDvars(varlist) SAVEVersion(string) [varreport(string) reportreplace replace VNOMissing(varlist) VNOSTANDMissing(varlist numeric) userinfo]
 
 	  *Save the three possible user settings before setting
 	  * is standardized for this command
@@ -20,27 +20,28 @@
 	  ***************
 	  * Dta version test
 
-	  local valid_dta_versions "11 12 13 14 15 16"
-	  if `:list dtaversion in valid_dta_versions' == 0 {
+		*There are only three versions relevant here. Stata 11 can read Stata 12 format,
+		*and Stata 15 and 16 saves in Stata 14 format anyways.
+	  local valid_dta_versions "12 13 14"
+	  if `:list saveversion in valid_dta_versions' == 0 {
 	    di ""
-	    di as error "{phang}In option {input:dtaversion(`dtaversion')} only the following values are allowed [`valid_dta_versions'].{p_end}"
+	    di as error "{phang}In option {input:saveversion(`saveversion')} only the following values are allowed [`valid_dta_versions']. Stata 15 and 16 use the same dta format as Stata 14. If you have Stata 14 or higher you can read more at {help saveold :help saveold}).{p_end}"
 	    error 198
 	  }
 
 	  *Test that you can save in the data format you used.
-	  *Stata 12 format can be saved in Stata 11/12/13/14/15/16
-	  *Stata 13 format can be saved in Stata 13/14/15/16
-	  *Stata 14+ format can be saved in Stata 14/15/16 (16 allows for more variables but file formats are the same)
-	  if (`dtaversion' == 13 & `c(stata_version)' < 13) {
-	  	di as error "{phang}You may not use Stata 13 .dta-format in {input:dtaversion(`dtaversion')} if you have a Stata version older than Stata 13. Your version of Stata is Stata `c(stata_version)'.{p_end}"
+		*Stata 12 can only save in Stata 12. Stata 13 can save in Stata 13 and 12
+	  *Stata 14, 15 and 15 can save in Stata 14, 13 and 12. There is no new format
+		*for Stata 15 and 16 (Stata 14 has a limit on number of variables that can
+		*be held in memory, but that has nothing to do with the format used.)
+		if (`c(stata_version)' < 13 & `saveversion' > 12) { // "<13" to include versions like 12.1 etc.
+	  	di as error "{phang}You are using Stata version `c(stata_version)' and you therefore may only save in Stata 12 .dta-format. The version you indicated in {input:saveversion(`saveversion')}  is too recent for your version of Stata.{p_end}"
 	  	error 198
 	  }
-	  *Test that the data version is not newer than the version installed
-	  else if ((`dtaversion' == 14 | `dtaversion' == 15 | `dtaversion' == 16) & `c(stata_version)' < 14) {
-	  	di as error "{phang}You may not use Stata 14/15/16 .dta-format in {input:dtaversion(`dtaversion')} if you have a Stata version older than Stata 14. Your version of Stata is Stata `c(stata_version)'.{p_end}"
-	  	error 198
-	  }
-
+		else if (`c(stata_version)' < 14 & `saveversion' > 13) {
+			di as error "{phang}You are using Stata version `c(stata_version)' and you therefore may only save in Stata 12 and 13 .dta-format. The version you indicated in {input:saveversion(`saveversion')} is too recent for your version of Stata.{p_end}"
+			error 198
+		}
 
 	  ***************
 	  * var report tests
@@ -323,9 +324,27 @@
 		Save data
 	*********************************/
 
-		* Save data
-		save "`using'", `replace'
-		noi di `" Data saved at {browse `"`using'"':`using'}"'
+		*Stata 12.X just save as normal
+		if `c(stata_version)' < 13 { // "< 13" to cover both 12.0 and 12.1
+			save "`using'" , `replace'
+		}
+		*Stata 13, 12.1 just save as normal
+		else if `c(stata_version)' < 14 { // "< 14" to cover both 13.0 and 13.1
+			*if saveversion() is 12 then use save old otherwise use regular old
+			if `saveversion' == 12 {
+				saveold "`using'" , `replace'
+			}
+			else {
+				save "`using'" , `replace'
+			}
+		}
+		*For all Stata newver than 13.X use saveold for all versions as it
+		*handles the cases when saving in the same version makes saveold redundant
+		else {
+			saveold "`using'" , `replace' v(`saveversion')
+		}
+
+		noi di `"Data saved in dta version `saveversion' at {browse `"`using'"':`using'}"'
 
 	/*********************************
 		returned values

@@ -20,7 +20,7 @@
 	* Create the output folder
 	mkdir "`test_folder'"
 
-	global stata_ver =  "16"     // Stata version
+	local stata_ver =  14     // Stata version
 
 	*Lsit of all files this run file is expected to create
 	local expected_files ""
@@ -37,7 +37,7 @@
 	sysuse auto, clear
 	iesave using "`test_folder'/id_1.dta", 	///
 		idvars(make) 													///
-		dtaversion(${stata_ver}) 							///
+		saveversion(`stata_ver') 							///
 		replace
 
 	*Add this file to list of expected files
@@ -48,7 +48,7 @@
   gen id = make
 	iesave using "`test_folder'/id_2.dta", 	///
 		idvars(make id) 											///
-		dtaversion(${stata_ver}) 							///
+		saveversion(`stata_ver') 							///
 		replace
 
 	*Add this file to list of expected files
@@ -60,7 +60,7 @@
 
 	cap iesave using "`test_folder'/err_id_1.dta", 	///
 		idvars(id) replace 														///
-		dtaversion(${stata_ver})
+		saveversion(`stata_ver')
 
 	assert _rc == 459
 
@@ -73,7 +73,7 @@
 
 	cap iesave using "`test_folder'/err_id_2.dta", 	///
 		idvars(id) replace												///
-		dtaversion(${stata_ver})
+		saveversion(`stata_ver')
 
 	assert _rc == 459
 
@@ -84,7 +84,7 @@
 	sysuse auto, clear
 	iesave using "`test_folder'/rep_1.dta",	///
 		idvars(make) replace 									///
-		dtaversion(${stata_ver}) 							///
+		saveversion(`stata_ver') 							///
 		varreport("`test_folder'/rep_1.csv") 	///
 		reportreplace
 
@@ -97,7 +97,7 @@
 	sysuse auto, clear
 
 	cap iesave using "`test_folder'/err_nomiss_1.dta",	///
-		idvars(make) dtaversion(${stata_ver})			///
+		idvars(make) saveversion(`stata_ver')			///
 		varreport("`test_folder'/rep_1.csv")			///
 		replace
 	assert _rc == 601
@@ -109,7 +109,7 @@
 	sysuse auto, clear
 	cap iesave using "`test_folder'/err_nomiss_2.dta",	///
 		idvars(make) 																	///
-		dtaversion(${stata_ver}) 											///
+		saveversion(`stata_ver') 											///
 		vnomissing(headroom trunk rep78)
 	assert _rc == 416
 
@@ -124,7 +124,7 @@
 	replace trunk = . in 11
 
 	cap iesave using "`test_folder'/err_nomiss_3.dta",	///
-		idvars(make) dtaversion(${stata_ver}) 				///
+		idvars(make) saveversion(`stata_ver') 				///
 		vnostandmissing(headroom trunk rep78)
 	assert _rc == 416
 
@@ -136,7 +136,7 @@
 	sysuse auto, clear
 	iesave using "`test_folder'/user_1.dta",	///
 		idvars(make) replace										///
-		dtaversion(${stata_ver}) 								///
+		saveversion(`stata_ver') 								///
 		userinfo
 
 	*Add these files to list of expected files
@@ -153,13 +153,13 @@
 	assert _rc == 100
 
 	*****************
-	* idvars and dtaversion required options
+	* idvars and saveversion required options
 	sysuse auto, clear
 	cap iesave using "`test_folder'/err_syntax_1.dta"
 	assert _rc == 198
 
 	sysuse auto, clear
-	cap iesave using "`test_folder'/err_syntax_2.dta", dtaversion(${stata_ver})
+	cap iesave using "`test_folder'/err_syntax_2.dta", saveversion(`stata_ver')
 	assert _rc == 198
 
 	sysuse auto, clear
@@ -169,26 +169,26 @@
 
   *****************
 	* incorrect .dta version value
-	cap iesave using "`test_folder'/err_syntax_4.dta", idvars(make) dtaversion(18)
+	cap iesave using "`test_folder'/err_syntax_4.dta", idvars(make) saveversion(18)
 	assert _rc == 198
 
 	*****************
 	* reportreplace may only be used with varreport
 	cap iesave using "`test_folder'/err_syntax_5.dta", ///
-		idvars(make) dtaversion(${stata_ver}) 		///
+		idvars(make) saveversion(`stata_ver') 		///
 		reportreplace
 	assert _rc == 198
 
 	*****************
 	* missing report file extension AND bad path
 	cap iesave using "`test_folder'/err_syntax_6.dta",	///
-		idvars(make) dtaversion(${stata_ver}) 		///
+		idvars(make) saveversion(`stata_ver') 		///
 		varreport("`test_folder'/report1")
 	assert _rc == 601
 
 	* folder don´t exist
 	cap iesave using "`test_folder'/err_syntax_7.dta",	///
-	 	idvars(make) dtaversion(${stata_ver}) 			///
+	 	idvars(make) saveversion(`stata_ver') 			///
 		varreport("FOLDER-THAT-DSOES-NOT-EXIST/report1.csv")
 	assert _rc == 601
 
@@ -205,7 +205,7 @@
 
 	*1. Run iesave
 	iesave using "`test_folder'/char_1.dta", ///
-		idvars(make) dtaversion(${stata_ver}) replace userinfo
+		idvars(make) saveversion(`stata_ver') replace userinfo
 
 	*Add these files to list of expected files
 	local expected_files `"`expected_files' "char_1.dta""'
@@ -247,7 +247,7 @@
 	drop if trunk > 22
 	drop displacement
 	iesave using "`test_folder'/char_2.dta", ///
-		idvars(make) dtaversion(${stata_ver}) replace userinfo
+		idvars(make) saveversion(`stata_ver') replace userinfo
 
 	*Add these files to list of expected files
 	local expected_files `"`expected_files' "char_2.dta""'
