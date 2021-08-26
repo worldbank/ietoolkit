@@ -34,7 +34,7 @@ cap program drop 	ieddtab
 		]
 
 		*Set minimum version for this command
-		version 11
+		version 12
 
 	/*************
 

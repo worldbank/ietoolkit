@@ -30,7 +30,7 @@
 		qui {
 
 			// Set minimum version for this command
-			version 11
+			version 12
 
 			// Preserve current dataset
 			preserve

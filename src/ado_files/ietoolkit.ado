@@ -10,6 +10,8 @@ program ietoolkit, rclass
 
 	syntax [anything]
 
+	version 12
+
 	/**********************
 		Error messages
 	**********************/

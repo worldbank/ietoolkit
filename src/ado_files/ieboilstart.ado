@@ -7,7 +7,7 @@
 
 		syntax ,  Versionnumber(string) [noclear maxvar(numlist) matsize(numlist) Quietly veryquietly Custom(string) setmem(string) nopermanently ]
 
-		version 11.0
+		version 12
 
 		/*********************************
 
@@ -16,7 +16,7 @@
 
 		*********************************/
 
-		local stata_versions "11 11.0 11.1 11.2 12 12.0 12.1 13 13.0 13.1 14 14.0 14.1 14.2 15 15.0 15.1 16.0"
+		local stata_versions "12 12.0 12.1 13 13.0 13.1 14 14.0 14.1 14.2 15 15.0 15.1 16.0"
 
 		if `:list versionnumber in stata_versions' == 0 {
 

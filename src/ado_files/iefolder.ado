@@ -7,7 +7,7 @@ qui {
 
 	syntax anything, PROJectfolder(string) [ABBreviation(string) SUBfolder(string)]
 
-	version 11
+	version 12
 
 	***Todo
 	*give error message if divisor is changed

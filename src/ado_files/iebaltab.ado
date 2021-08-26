@@ -80,7 +80,7 @@
 qui {
 
 	*Set minimum version for this command
-	version 11
+	version 12
 
 	* Backwards compatibility for weight option
 		if "`weightold'" != "" & "`exp'" == "" {

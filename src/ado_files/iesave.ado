@@ -11,7 +11,7 @@
 	  * is standardized for this command
 	  local version_char "c(stata_version):`c(stata_version)' c(version):`c(version)' c(userversion):`c(userversion)'"
 
-	  version 11.0
+	  version 12
 
 	/*********************************
 		Test input
