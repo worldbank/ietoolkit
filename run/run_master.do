@@ -17,30 +17,30 @@
     PART 2: Switches
 *******************************************************************************/
 
-    local iegitaddmd = 0
-	local iekdensity = 0
+    local iegitaddmd = 1
+	local iekdensity = 1
 	local iesave     = 1
 
 /*******************************************************************************
     PART 3: iegitaddmd
 *******************************************************************************/
 
-		if `iegitaddmd' == 1 {
-			do "${runfiles}/iegitaddmd.do"
-		}
+    if `iegitaddmd' == 1 {
+        do "${runfiles}/iegitaddmd.do"
+    }
 
 /*******************************************************************************
-    PART 3: iekdensity
+    PART 4: iekdensity
 *******************************************************************************/
 
-		if `iekdensity' == 1 {
-			do "${runfiles}/iekdensity.do"
-		} 
+    if `iekdensity' == 1 {
+        do "${runfiles}/iekdensity.do"
+    } 
 
 /*******************************************************************************
-    PART 3: iesave
+    PART 5: iesave
 *******************************************************************************/
 
-		if `iesave' == 1 {
-			do "${runfiles}/iesave.do"
-		} 
+    if `iesave' == 1 {
+        do "${runfiles}/iesave.do"
+    } 
