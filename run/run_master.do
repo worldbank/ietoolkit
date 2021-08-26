@@ -17,8 +17,8 @@
     PART 2: Switches
 *******************************************************************************/
 
-    local iegitaddmd = 1
-	local iekdensity = 1
+    local iegitaddmd = 0
+	local iekdensity = 0
 	local iesave     = 1
 
 /*******************************************************************************
