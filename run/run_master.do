@@ -12,7 +12,12 @@
     global  runfiles  "${ietoolkit_clone}/run"
     global  runoutput "${runfiles}/output"
 	
-
+	*ietoolkit require Stata version 12 or more recent
+	if `c(stata_version)' < 12 {
+		di as error 
+	}
+	
+	
 /*******************************************************************************
     PART 2: Switches
 *******************************************************************************/

@@ -14,8 +14,15 @@
 	*Path to test output folder
 	local test_folder "${runoutput}/iesave"
 
+	/*******************************************************************************
+		Run this run file once for each save file version
+	*******************************************************************************/
+  * Only include the version your Stata version can run
+	if 			`c(stata_version)' < 13 local stata_versions 12
+	else if `c(stata_version)' < 14 local stata_versions 12 13
+	else                            local stata_versions 12 13 14
 
-	foreach stata_ver in 12 13 14 {
+	foreach stata_ver of local stata_versions {
 
 		*Delete any content from previous round
 		ie_recurse_rmdir, folder("`test_folder'") okifnotexist
@@ -213,13 +220,13 @@
 
 		*2. Store char values in locals
 		foreach value in idvars N username computerid datasignature timesave {
-			display 	 "`value' : " r(`value')
+			//display 	 "`value' : " r(`value')
 			local	 char_`value' : char _dta[iesave_`value']
 		}
 
 		*3. Open the dataset just saved
 		use "`test_folder'/char_1.dta", clear
-		datasignature
+		qui datasignature
 		local datasig `r(datasignature)'
 
 		*4. Validate if char values are non-missing and as expected
