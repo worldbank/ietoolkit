@@ -7,6 +7,10 @@
     if "`c(username)'" == "WB462869" {
         global ietoolkit_clone   "C:\Users\wb462869\GitHub\ietoolkit"
     }
+    
+    if "`c(username)'" == "bbdaniels" {
+        global ietoolkit_clone   "/Users/bbdaniels/GitHub/ietoolkit"
+    }
 
 	* Creaet paths to the subfolders in the repo
     global  runfiles  "${ietoolkit_clone}/run"
