@@ -30,7 +30,7 @@
 		*Delete any content from previous round
 		ie_recurse_rmdir, folder("`test_folder'") okifnotexist
 
-		* Create the output folder
+		* Create the output folder (and all its parents is needed)
 		ie_recurse_mkdir, folder("`test_folder'")
 
 		*Lsit of all files this run file is expected to create

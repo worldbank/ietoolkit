@@ -13,9 +13,7 @@
 
 	* Make sure the test folder is created
 	local test_folder "${runoutput}/iegitaddmd"
-	cap mkdir "`test_folder'"
-
-
+	ie_recurse_mkdir, folder("`test_folder'")
 
 	* Create a folder clone and a folder dropbox (see use case 2 in help file for why both these folders are needed)
 	local highlevel_folders clone dropbox gitfilter1 gitfilter2
