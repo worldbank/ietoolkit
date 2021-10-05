@@ -11,6 +11,9 @@
 	*Load utility function that helps clean up folders inbetween test runs
 	qui do "${ietoolkit_clone}/run/ie_recurse_rmdir.do"
 
+	*Load utility function that helps create folders inbetween test runs
+	qui do "${ietoolkit_clone}/run/ie_recurse_mkdir.do"
+
 	*Path to test output folder
 	local test_folder "${runoutput}/iesave"
 
@@ -28,7 +31,7 @@
 		ie_recurse_rmdir, folder("`test_folder'") okifnotexist
 
 		* Create the output folder
-		mkdir "`test_folder'"
+		ie_recurse_mkdir, folder("`test_folder'")
 
 		*Lsit of all files this run file is expected to create
 		local expected_files ""
