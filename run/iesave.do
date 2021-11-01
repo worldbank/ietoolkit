@@ -114,17 +114,21 @@
 		assert _rc == 601
 
 		/*********************
-		   userinfo
+		   absence of userinfo
 		*********************/
 
 		sysuse auto, clear
 		iesave using "`test_folder'/user_1.dta",	///
 			idvars(make) replace										///
-			saveversion(`stata_ver') 								///
-			userinfo
+			saveversion(`stata_ver')
 
 		*Add these files to list of expected files
 		local expected_files `"`expected_files' "user_1.dta""'
+
+		*open the file again and test that placeholder text were used
+		use "`test_folder'/user_1.dta", clear
+		assert "Username withheld, see option userinfo in command iesave" == "`: char _dta[iesave_username]'"
+		assert "Computer ID withheld, see option userinfo in command iesave" == "`: char _dta[iesave_computerid]'"
 
 	/*******************************************************************************
 	    * Invalid syntaxes
