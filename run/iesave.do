@@ -113,33 +113,6 @@
 			replace
 		assert _rc == 601
 
-
-		/*********************
-		      VNOMissing
-		*********************/
-		sysuse auto, clear
-		cap iesave using "`test_folder'/err_nomiss_2.dta",	///
-			idvars(make) 																	///
-			saveversion(`stata_ver') 											///
-			vnomissing(headroom trunk rep78)
-		assert _rc == 416
-
-
-		/*********************
-		   VNOSTANDMissing
-		*********************/
-		sysuse auto, clear
-		replace trunk = .d in 12
-		replace trunk = .n in 13
-		replace trunk = .a in 14
-		replace trunk = . in 11
-
-		cap iesave using "`test_folder'/err_nomiss_3.dta",	///
-			idvars(make) saveversion(`stata_ver') 				///
-			vnostandmissing(headroom trunk rep78)
-		assert _rc == 416
-
-
 		/*********************
 		   userinfo
 		*********************/
