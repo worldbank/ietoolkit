@@ -25,7 +25,7 @@
 	  local valid_dta_versions "12 13 14"
 	  if `:list saveversion in valid_dta_versions' == 0 {
 	    di ""
-	    di as error "{phang}In option {input:saveversion(`saveversion')} only the following values are allowed [`valid_dta_versions']. Stata 15 and 16 use the same dta format as Stata 14. If you have Stata 14 or higher you can read more at {help saveold :help saveold}).{p_end}"
+	    di as error "{phang}In option {input:saveversion(`saveversion')} only the following values are allowed [`valid_dta_versions']. Stata 15 and 16 use the same .dta format as Stata 14. If you have Stata 14 or higher you can read more at {help saveold :help saveold}).{p_end}"
 	    error 198
 	  }
 
@@ -35,11 +35,11 @@
 		*for Stata 15 and 16 (Stata 14 has a limit on number of variables that can
 		*be held in memory, but that has nothing to do with the format used.)
 		if (`c(stata_version)' < 13 & `saveversion' > 12) { // "<13" to include versions like 12.1 etc.
-	  	di as error "{phang}You are using Stata version `c(stata_version)' and you therefore may only save in Stata 12 .dta-format. The version you indicated in {input:saveversion(`saveversion')}  is too recent for your version of Stata.{p_end}"
+	  	di as error "{phang}You are using Stata version `c(stata_version)' and you are therefore only able to save in the Stata 12 .dta-format. The version you indicated in {input:saveversion(`saveversion')}  is too recent for your version of Stata.{p_end}"
 	  	error 198
 	  }
 		else if (`c(stata_version)' < 14 & `saveversion' > 13) {
-			di as error "{phang}You are using Stata version `c(stata_version)' and you therefore may only save in Stata 12 and 13 .dta-format. The version you indicated in {input:saveversion(`saveversion')} is too recent for your version of Stata.{p_end}"
+			di as error "{phang}You are using Stata version `c(stata_version)' and you are therefore only able to save in the Stata 12 and 13 .dta-format. The version you indicated in {input:saveversion(`saveversion')} is too recent for your version of Stata.{p_end}"
 			error 198
 		}
 
@@ -77,7 +77,7 @@
 	  	*Test if reportreplace is used if the file already exist
 	  	cap confirm file "`varreport'"
 	  	if (_rc == 0 & "`reportreplace'" == "") {
-	  		noi di as error `"{phang}The report file [`varreport'] already exist, use the option {input:reportreplace} if you want to overwrite the file.{p_end}"'
+	  		noi di as error `"{phang}The report file [`varreport'] already exists, use the option {input:reportreplace} if you want to overwrite this file.{p_end}"'
 	  		error 601
 	  	}
 	  }
@@ -105,12 +105,12 @@
 	  *Confirm the file path is correct
 	  cap confirm new file `using'
 	  if (_rc == 603) {
-	  	noi di as error `"{phang} The data file path used [`using'] does not exist.{p_end}"'
+	  	noi di as error `"{phang}The data file path used in [`using'] does not exist.{p_end}"'
 	    error 601
 	  }
 	  *Test if replace is used if the file already exist
 	  else if (_rc == 602) & missing("`replace'") {
-	  	noi di as error `"{phang}The data [`using'] already exist. Use the option [replace] if you want to overwrite the data.{p_end}"'
+	  	noi di as error `"{phang}The data file [`using'] already exists. Use the option [replace] if you want to overwrite the data.{p_end}"'
 	  	error 602
 	  }
 
