@@ -5,7 +5,7 @@
 
 	qui {
 
-	  syntax using/,  IDvars(varlist) SAVEVersion(string) [varreport(string) reportreplace replace VNOMissing(varlist) VNOSTANDMissing(varlist numeric) userinfo]
+	  syntax using/,  IDvars(varlist) SAVEVersion(string) [varreport(string) reportreplace replace userinfo]
 
 	  *Save the three possible user settings before setting
 	  * is standardized for this command
@@ -147,47 +147,6 @@
 		  *Add one space and run idvars to give built in error message
 		  noi di ""
 		  isid `idvars'
-		}
-
-	/*********************************
-	  Missing values of any type
-	*********************************/
-
-		local missVarError ""
-
-		*Loop over all vars that may not have missing values
-		* and list them in local if they do
-		foreach noMissVar of local vnomissing {
-			cap assert !missing(`noMissVar')
-			if _rc local missVarError `missVarError' `noMissVar'
-		}
-
-	  *If any variable incorrectly includes missing vars, display error
-	  if ("`missVarError'" != "") {
-	  	noi di as error "{phang}One or more variables listed in option vnomissing() has missing values which is not allowed. Those variable(s) are [`missVarError']{p_end}"
-	  	error 416
-	  	exit
-	  }
-
-	/*********************************
-	  Missing standard missing
-	  .a,.b is allowed but not .
-	*********************************/
-
-		local missVarError ""
-
-		*Loop over all vars that may not have missing values
-		* and list them in local if they do
-		foreach noMissVar of local vnostandmissing {
-		  cap assert `noMissVar' != .
-		  if _rc local missVarError `missVarError' `noMissVar'
-		}
-
-		*If any variable incorrectly includes missing vars, display error
-		if ("`missVarError'" != "") {
-		  noi di as error "{phang}One or more variables listed in option vnostandmissing() has standard missing values which is not allowed. Those variable(s) are [`missVarError']{p_end}"
-		  error 416
-		  exit
 		}
 
 	/*********************************
