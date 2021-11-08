@@ -89,31 +89,6 @@
 		assert _rc == 459
 
 		/*********************
-		      varreport
-		*********************/
-
-		sysuse auto, clear
-		iesave using "`test_folder'/rep_1.dta",	///
-			idvars(make) replace 									///
-			saveversion(`stata_ver') 							///
-			varreport("`test_folder'/rep_1.csv") 	///
-			reportreplace
-
-		*Add these files to list of expected files
-		local expected_files `"`expected_files' "rep_1.dta" "rep_1.csv""'
-
-		/*********************
-		      missing reportreplace
-		*********************/
-		sysuse auto, clear
-
-		cap iesave using "`test_folder'/err_nomiss_1.dta",	///
-			idvars(make) saveversion(`stata_ver')			///
-			varreport("`test_folder'/rep_1.csv")			///
-			replace
-		assert _rc == 601
-
-		/*********************
 		   absence of userinfo
 		*********************/
 
@@ -166,20 +141,6 @@
 			idvars(make) saveversion(`stata_ver') 		///
 			reportreplace
 		assert _rc == 198
-
-		*****************
-		* missing report file extension AND bad path
-		cap iesave using "`test_folder'/err_syntax_6.dta",	///
-			idvars(make) saveversion(`stata_ver') 		///
-			varreport("`test_folder'/report1")
-		assert _rc == 601
-
-		* folder don´t exist
-		cap iesave using "`test_folder'/err_syntax_7.dta",	///
-		 	idvars(make) saveversion(`stata_ver') 			///
-			varreport("FOLDER-THAT-DSOES-NOT-EXIST/report1.csv")
-		assert _rc == 601
-
 
 	********************************************************************************
 		* Testing char values *

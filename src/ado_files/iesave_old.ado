@@ -1,4 +1,6 @@
 
+syntax using/,  IDvars(varlist) SAVEVersion(string) [varreport(string) reportreplace replace userinfo]
+
 
 	/*********************************
 		Write variable report

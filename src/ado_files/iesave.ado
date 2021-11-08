@@ -5,7 +5,7 @@
 
 	qui {
 
-	  syntax using/,  IDvars(varlist) SAVEVersion(string) [varreport(string) reportreplace replace userinfo]
+	  syntax using/,  IDvars(varlist) SAVEVersion(string) [replace userinfo]
 
 	  *Save the three possible user settings before setting
 	  * is standardized for this command
