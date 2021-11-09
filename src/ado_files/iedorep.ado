@@ -25,13 +25,15 @@ while r(eof)==0 {
   file write edited `"`macval(line)'"' _n
   file write checkr `"`macval(line)'"' _n
   
+  local linenum_real = `linenum_real' + 1
+  
     // Add checkers if line end
     if !strpos(`"`macval(line)'"',"///") {
       local linenum = `linenum' + 1
       
       file write edited `"global allRNGS = "\${allRNGS} \`c(rngstate)'" // `linenum'"' _n
       
-      file write checkr `"if "\`c(rngstate)'" == "\`: word `linenum' of \${allRNGS}'" di as err "OK"  "' _n
+      file write checkr `"if (`linenum' != 1) & ("\`c(rngstate)'" != "\`: word `=`linenum'-1' of \${allRNGS}'") di as err "RNG Changed: `linenum_real'"  "' _n
     }
     
     // Error if delimiter
@@ -46,6 +48,8 @@ while r(eof)==0 {
   file close _all
 
   do "/users/bbdaniels/desktop/newfile.do"
+  
+  qui set rngstate `: word 1 of ${allRNGS}'
   qui do "/users/bbdaniels/desktop/checker.do"
   
   
