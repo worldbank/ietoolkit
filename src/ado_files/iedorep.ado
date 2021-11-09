@@ -33,7 +33,7 @@ while r(eof)==0 {
       
       file write edited `"global allRNGS = "\${allRNGS} \`c(rngstate)'" // `linenum'"' _n
       
-      file write checkr `"if (`linenum' != 1) & ("\`c(rngstate)'" != "\`: word `=`linenum'-1' of \${allRNGS}'") di as err "RNG Changed: `linenum_real'"  "' _n
+      file write edited `"if ("\`c(rngstate)'" != "\`: word `=max(1,`=`linenum'-1')' of \${allRNGS}'") di as err "RNG Changed: `linenum_real'"  "' _n
     }
     
     // Error if delimiter
@@ -47,8 +47,8 @@ while r(eof)==0 {
 
   file close _all
 
-  do "/users/bbdaniels/desktop/newfile.do"
-  
+  qui do "/users/bbdaniels/desktop/newfile.do"
+  -
   qui set rngstate `: word 1 of ${allRNGS}'
   qui do "/users/bbdaniels/desktop/checker.do"
   
