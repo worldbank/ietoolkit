@@ -7,16 +7,18 @@ cap  program drop  iedorep
   
 // Prep
   file close _all
-  tempname newfile
+  tempfile newfile1
+  tempfile newfile2
   global allRNGS = ""
+  global allDATA = ""
   
 // Open the file to be checked
   file open original using `"`anything'"' , read
   file read original line
   
 // Open the files to be written
-  file open edited using "/users/bbdaniels/desktop/newfile.do" , write replace // replace when done
-  file open checkr using "/users/bbdaniels/desktop/checker.do" , write replace // replace when done
+  qui file open edited using `newfile1' , write replace 
+  qui file open checkr using `newfile2' , write replace 
 
 // Big loop
 while r(eof)==0 {
@@ -32,8 +34,13 @@ while r(eof)==0 {
       local linenum = `linenum' + 1
       
       file write edited `"global allRNGS = "\${allRNGS} \`c(rngstate)'" // `linenum'"' _n
-      
       file write edited `"if ("\`c(rngstate)'" != "\`: word `=max(1,`=`linenum'-1')' of \${allRNGS}'") di as err "RNG Changed: `linenum_real'"  "' _n
+    
+      file write edited "datasignature" _n
+      file write edited `"global allDATA = "\${allDATA} \`r(datasignature)'" // `linenum'"' _n
+      file write checkr "datasignature" _n
+      file write checkr `"if ("\`r(datasignature)'" != "\`: word `linenum' of \${allDATA}'") di as err "Data Changed: `linenum_real'"  "' _n
+
     }
     
     // Error if delimiter
@@ -46,11 +53,11 @@ while r(eof)==0 {
 }
 
   file close _all
-
-  qui do "/users/bbdaniels/desktop/newfile.do"
-  -
-  qui set rngstate `: word 1 of ${allRNGS}'
-  qui do "/users/bbdaniels/desktop/checker.do"
+  
+  clear
+  qui do `newfile1'
+  clear
+  qui do `newfile2'
   
   
 end
