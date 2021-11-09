@@ -11,24 +11,34 @@ cap  program drop  iedorep
   tempfile newfile2
   global allRNGS = ""
   global allDATA = ""
+  local comment = 0
   
 // Open the file to be checked
   file open original using `"`anything'"' , read
-  file read original line
+  file read original line // Need initial read
   
 // Open the files to be written
   qui file open edited using `newfile1' , write replace 
   qui file open checkr using `newfile2' , write replace 
 
+// Catch comments
+  
+
 // Big loop
 while r(eof)==0 {
   
-  
-  file write edited `"`macval(line)'"' _n
-  file write checkr `"`macval(line)'"' _n
-  
+  // Increment line
   local linenum_real = `linenum_real' + 1
   
+  // Reproduce file contents
+  file write edited `"`macval(line)'"' _n
+  file write checkr `"`macval(line)'"' _n  
+  
+  // Catch comments
+  if strpos(`"`macval(line)'"',"/*") local comment = 1
+  if strpos(`"`macval(line)'"',"*/") local comment = 0
+
+  if `comment' == 0 {
     // Add checkers if line end
     if !strpos(`"`macval(line)'"',"///") {
       local linenum = `linenum' + 1
@@ -47,7 +57,10 @@ while r(eof)==0 {
     if strpos(`"`macval(line)'"',"#delimit") {
       di as err "Delimiter changed!"
     }
+    
+  } // Comments
   
+  // Advance through file
   file read original line
 
 }
