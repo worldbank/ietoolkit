@@ -38,8 +38,8 @@ while r(eof)==0 {
   if strpos(`"`macval(line)'"',"*/") local comment = 0
   
   // Catch loops
-  if strpos(`"`macval(line)'"',"{") local loop = 1
-  if strpos(`"`macval(line)'"',"}") local loop = 0
+  if strpos(`"`macval(line)'"',"{") local loop = `loop' + 1
+  if strpos(`"`macval(line)'"',"}") local loop = `loop' - 1
 
   if (`comment' == 0) & (`loop' == 0) {
     // Add checkers if line end
