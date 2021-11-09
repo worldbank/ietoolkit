@@ -12,6 +12,8 @@ cap  program drop  iedorep
   global allRNGS = ""
   global allDATA = ""
   local comment = 0
+  local loop = 0
+  local linenum = 1
   
 // Open the file to be checked
   file open original using `"`anything'"' , read
@@ -21,14 +23,11 @@ cap  program drop  iedorep
   qui file open edited using `newfile1' , write replace 
   qui file open checkr using `newfile2' , write replace 
 
-// Catch comments
-  
-
-// Big loop
+// Big loop through file
 while r(eof)==0 {
   
   // Increment line
-  local linenum_real = `linenum_real' + 1
+  local linenum = `linenum' + 1
   
   // Reproduce file contents
   file write edited `"`macval(line)'"' _n
@@ -37,20 +36,25 @@ while r(eof)==0 {
   // Catch comments
   if strpos(`"`macval(line)'"',"/*") local comment = 1
   if strpos(`"`macval(line)'"',"*/") local comment = 0
+  
+  // Catch loops
+  if strpos(`"`macval(line)'"',"{") local loop = 1
+  if strpos(`"`macval(line)'"',"}") local loop = 0
 
-  if `comment' == 0 {
+  if (`comment' == 0) & (`loop' == 0) {
     // Add checkers if line end
     if !strpos(`"`macval(line)'"',"///") {
-      local linenum = `linenum' + 1
+      local checknum = `checknum' + 1
       
-      file write edited `"global allRNGS = "\${allRNGS} \`c(rngstate)'" // `linenum'"' _n
-      file write edited `"if ("\`c(rngstate)'" != "\`: word `=max(1,`=`linenum'-1')' of \${allRNGS}'") di as err "RNG Changed: `linenum_real'"  "' _n
+      file write edited `"global allRNGS = "\${allRNGS} \`c(rngstate)'" "' _n
+      file write edited `"if ("\`c(rngstate)'" != "\`: word `=max(1,`=`checknum'-1')' of \${allRNGS}'") di as err "RNG Changed: `linenum_real'"  "' _n
     
       file write edited "datasignature" _n
-      file write edited `"global allDATA = "\${allDATA} \`r(datasignature)'" // `linenum'"' _n
+      file write edited `"global allDATA = "\${allDATA} \`r(datasignature)'" "' _n
       file write checkr "datasignature" _n
-      file write checkr `"if ("\`r(datasignature)'" != "\`: word `linenum' of \${allDATA}'") di as err "Data Changed: `linenum_real'"  "' _n
+      file write checkr `"if ("\`r(datasignature)'" != "\`: word `checknum' of \${allDATA}'") di as err "Data Changed: `linenum_real'"  "' _n
 
+      local linenum_real = `linenum'
     }
     
     // Error if delimiter
@@ -71,6 +75,5 @@ while r(eof)==0 {
   qui do `newfile1'
   clear
   qui do `newfile2'
-  
   
 end
