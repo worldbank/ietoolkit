@@ -61,6 +61,3 @@ while r(eof)==0 {
   
   
 end
-
-// DEMO
-iedorep /Users/bbdaniels/Downloads/TanzaniaIE_Reproducibility/Code/Revenue.do
