@@ -11,8 +11,12 @@
     if "`c(username)'" == "bbdaniels" {
         global ietoolkit_clone   "/Users/bbdaniels/GitHub/ietoolkit"
     }
+    
+      if "`c(username)'" == "avnis" {
+        global ietoolkit_clone   "C:/Users/avnis/Documents/GitHub/ietoolkit"
+    }
 
-	* Creaet paths to the subfolders in the repo
+	* Create paths to the subfolders in the repo
     global  runfiles  "${ietoolkit_clone}/run"
     global  runoutput "${runfiles}/output"
 	
