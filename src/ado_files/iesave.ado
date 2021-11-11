@@ -155,7 +155,44 @@
 
 	  *Optimize storage on disk
 	  compress
-
+	
+	/*********************************
+	Creating lists for data types
+	*********************************/
+	
+	  *Define list of locals with vars by category
+	  
+	  *String
+	  
+	  ds , has(type string)
+    	  return list
+          local iesave_str `r(varlist)'
+	  
+	  *Date
+	  
+	  ds , has(format %t* %-t*)
+   	  return list
+          local iesave_date `r(varlist)'
+	  
+	  *Categorical
+	  
+	  ds , has(type numeric)
+	  return list 
+          local iesave_num `r(varlist)'
+	
+       	  ds, not(vallabel)
+	  return list 
+	  local iesave_novallab `r(varlist)'
+	
+	  local iesave_cat : list iesave_num - iesave_novallab
+	  local iesave_cat : list iesave_cat - iesave_date
+	  
+	  *Continuous 
+	  
+	  local iesave_num_oth : list iesave_date & iesave_cat
+          local iesave_cont : list iesave_num - iesave_num_oth
+	  
+	
 	/*********************************
 		Prepare output
 	*********************************/
@@ -242,14 +279,18 @@
 		returned values
 	*********************************/
 
-		*Return the putputs to retirn locals
-		return local idvars     "`idvars'"
-		return local username   "`user'"
-		return local computerid "`computer'"
-		return local versions   "`version_char'"
-		return local datasig    "`datasig'"
-		return local N          "`N'"
-		return local numvars    "`numVars'"
+		*Return the outputs to return locals
+		return local idvars       "`idvars'"
+		return local username     "`user'"
+		return local computerid   "`computer'"
+		return local versions     "`version_char'"
+		return local datasig      "`datasig'"
+		return local N            "`N'"
+		return local numvars      "`numVars'"
+		return local iesave_str	  "`iesave_str'"
+		return local iesave_date  "`iesave_date'"
+		return local iesave_cat   "`iesave_cat'"
+		return local iesave_cont  "`iesave_cont'"
 
 }
 end
