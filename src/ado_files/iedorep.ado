@@ -11,6 +11,7 @@ cap  program drop  iedorep
   tempfile newfile2
   global allRNGS = ""
   global allDATA = ""
+  global allSORT = ""
   local comment = 0
   local loop = 0
   local linenum = 1
