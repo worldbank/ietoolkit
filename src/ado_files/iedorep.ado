@@ -47,12 +47,20 @@ while r(eof)==0 {
       local checknum = `checknum' + 1
       
       file write edited `"global allRNGS = "\${allRNGS} \`c(rngstate)'" "' _n
-      file write edited `"if ("\`c(rngstate)'" != "\`: word `=max(1,`=`checknum'-1')' of \${allRNGS}'") di as err "RNG Changed: `linenum_real'"  "' _n
+      file write edited ///
+        `"if ("\`c(rngstate)'" != "\`: word `=max(1,`=`checknum'-1')' of \${allRNGS}'")"' 
+        file write edited `" di as err "RNG Changed: `linenum_real'"  "' _n
+          
+      file write edited `"global allSORT = "\${allSORT} \`c(sortrngstate)'" "' _n
+      file write edited ///
+        `"if ("\`c(sortrngstate)'" != "\`: word `=max(1,`=`checknum'-1')' of \${allSORT}'")"'
+        file write edited `" di as err "Data Sorted: `linenum_real'"  "' _n
     
       file write edited "datasignature" _n
       file write edited `"global allDATA = "\${allDATA} \`r(datasignature)'" "' _n
       file write checkr "datasignature" _n
-      file write checkr `"if ("\`r(datasignature)'" != "\`: word `checknum' of \${allDATA}'") di as err "Data Changed: `linenum_real'"  "' _n
+      file write checkr `"if ("\`r(datasignature)'" != "\`: word `checknum' of \${allDATA}'")"'
+        file write checkr `" di as err "Data Changed: `linenum_real'"  "' _n
 
       local linenum_real = `linenum'
     }
