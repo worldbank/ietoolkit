@@ -74,7 +74,7 @@ while r(eof)==0 {
       di as err "Delimiter changed!"
     }
     
-  } // Comments
+  } // Comments and loops logic
   
   // Advance through file
   file read original line
