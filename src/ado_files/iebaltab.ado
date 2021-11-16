@@ -80,7 +80,7 @@
 qui {
 
 	*Set minimum version for this command
-	version 11
+	version 12
 
 	* Backwards compatibility for weight option
 		if "`weightold'" != "" & "`exp'" == "" {
@@ -148,8 +148,6 @@ qui {
 		if "`onenrow'" 			!= "" local onerow = "onerow" //Old name still supported for backward compatibility
 		if "`onerow'" 			== "" local ONEROW_USED = 0
 		if "`onerow'" 			!= "" local ONEROW_USED = 1
-
-
 
 
 	** Stats Options
@@ -348,18 +346,19 @@ qui {
 
 		}
 
+		** TODO allow string var
 
 		*Remove observations with a missing value in grpvar()
-		drop if `grpvar' >= .
+		drop if missing(`grpvar')
 
 		*Create a local of all codes in group variable
-		levelsof `grpvar', local(GRP_CODE_LEVELS)
+		levelsof `grpvar', local(GRP_CODES)
 
 		*Saving the name of the value label of the grpvar()
 		local GRPVAR_VALUE_LABEL 	: value label `grpvar'
 
 		*Counting how many levels there are in groupvar
-		local GRPVAR_NUM_GROUPS : word count `GRP_CODE_LEVELS'
+		local GRPVAR_NUM_GROUPS : word count `GRP_CODES'
 
 		*Static dummy for grpvar() has no label
 		if "`GRPVAR_VALUE_LABEL'" == "" local GRPVAR_HAS_VALUE_LABEL = 0
@@ -369,13 +368,14 @@ qui {
 		local NUM_COL_GRP_TOT = `GRPVAR_NUM_GROUPS' + `TOTAL_USED'
 
 
-	/***********************************************
-	************************************************/
+/*******************************************************************************
+*******************************************************************************/
 
-		*Testing that options to iebaltab is correctly specified and make initial operations based on these commands
+		*Testing all options and generate locals from the input to be used
+		*across the command
 
-	/*************************************************
-	************************************************/
+/*******************************************************************************
+*******************************************************************************/
 
 	** Group Options
 
@@ -402,14 +402,14 @@ qui {
 		** If control() or order() is used, then the levels specified in those
 		*  options need to exist in the groupvar
 
-		local control_correct : list control in GRP_CODE_LEVELS
+		local control_correct : list control in GRP_CODES
 		if `control_correct' == 0 {
 			noi display as error "{phang}The code listed in control(`control') is not used in grpvar(`grpvar'). See tabulation of `grpvar' below:"
 			noi tab `grpvar', nol
 			error 197
 		}
 
-		local order_correct : list order in GRP_CODE_LEVELS
+		local order_correct : list order in GRP_CODES
 		if `order_correct' == 0 {
 			noi display as error  "{phang}One or more codes listed in order(`order') are not used in grpvar(`grpvar'). See tabulation of `grpvar' below:"
 			noi tab `grpvar', nol
@@ -432,7 +432,7 @@ qui {
 				*** Codes
 
 				*Checking that code exist in grpvar and store it
-				local code_correct : list code in GRP_CODE_LEVELS
+				local code_correct : list code in GRP_CODES
 				if `code_correct' == 0 {
 					noi display as error  "{phang}Code [`code'] listed in grplabels(`grplabels') is not used in grpvar(`grpvar'). See tabulation of `grpvar' below:"
 					noi tab `grpvar', nol
@@ -521,7 +521,7 @@ qui {
 
 
 	** Stats Options
-		local SHOW_NCLUSTER 0
+		local CLUSTER_USED 0
 
 		if `VCE_USED' == 1 {
 
@@ -537,7 +537,7 @@ qui {
 			else if "`vce_type'" == "cluster" {
 
 				*Create a local for displaying number of clusters
-				local SHOW_NCLUSTER 1
+				local CLUSTER_USED 1
 
 				local cluster_var `2'
 
@@ -642,11 +642,7 @@ qui {
 
 		}
 
-		*Testing input in these for options. See function at the end of this command
-		if `BALMISS_USED' == 1 		iereplacestringtest "balmiss" 		"`balmiss'"
-		if `BALMISSREG_USED' == 1 	iereplacestringtest "balmissreg" 	"`balmissreg'"
-		if `COVMISS_USED' == 1 		iereplacestringtest "covmiss" 		"`covmiss'"
-		if `COVMISSREG_USED' == 1 	iereplacestringtest "covmissreg" 	"`covmissreg'"
+
 
 
 		if `FIX_EFFECT_USED' == 1 {
@@ -674,8 +670,8 @@ qui {
 				if `COVMISSREG_USED' 				local replaceoptions `" `replaceoptions' replacetype("`covmissreg'") regonly "'
 
 				*Add group variable if the replace type is group mean
-				if "`covmiss'" 		== "groupmean" 	local replaceoptions `" `replaceoptions' groupvar(`grpvar') groupcodes("`GRP_CODE_LEVELS'") "'
-				if "`covmissreg'" 	== "groupmean" 	local replaceoptions `" `replaceoptions' groupvar(`grpvar') groupcodes("`GRP_CODE_LEVELS'") "'
+				if "`covmiss'" 		== "groupmean" 	local replaceoptions `" `replaceoptions' groupvar(`grpvar') groupcodes("`GRP_CODES'") "'
+				if "`covmissreg'" 	== "groupmean" 	local replaceoptions `" `replaceoptions' groupvar(`grpvar') groupcodes("`GRP_CODES'") "'
 
 				*Set the minimum number of observations to allow means to be set from
 				if `MISSMINMEAN_USED' == 1			local replaceoptions `" `replaceoptions' minobsmean(`missminmean') "'
@@ -990,503 +986,218 @@ qui {
 			noi display as error "{phang}Either option save() or option savetex() or option browse must be used. Note that option browse drops all data in memory and it is not possible to restore it afterwards. Use preserve/restore, tempfiles or save data to disk before using the otion browse."
 			error
 		}
-	/***********************************************
-	************************************************/
 
+/*******************************************************************************
+*******************************************************************************/
 
-		*Manage order in levels of grpvar()
+		* Set up the result matrix that will store all the results
 
-	/*************************************************
-	************************************************/
+/*******************************************************************************
+*******************************************************************************/
 
+	************************************************
+	*Group order
 
-		*Changed to value used in control() if control() is
-		*specified but order() is not,
+		* If option order is always used to set the orders of the group columns. If
+		* option control is used when order is not used, then the code for the
+		* control group will be used in order.
 		if !`ORDER_USED' & `CONTROL_USED' local order `control'
 
-		*Unless changed above, either as specified in order().
-		*if order() is not specified then the all levels in
-		*numeric order is stored in order_code_rest to be.
-		local order_code_rest : list GRP_CODE_LEVELS - order
+		* Put all group codes not in local order in local order_code_rest. If
+		* neither option order or control were used, then local order_code_rest is
+		* identical to local GRP_CODES
+		local order_code_rest : list GRP_CODES - order
+
+		* The final order is compiled by combining local order with local
+		* order_code_rest. If neither option order or control were used, then local
+		* ORDER_OF_GROUP_CODES is identical to local order_code_rest and GRP_CODES
+		local ORDER_OF_GROUP_CODES `order' `order_code_rest'
+
+		* Loop from the second element in the list of group codes to the last and
+		* create a list on the format 2.tmt=3.tmt=0 where tmt is the grpvar and the
+		* first value is dropped as the regression that test for joint orthogonality
+		* for across all groups for each balance var will drop the lowest value in grpvar.
+		local FEQTEST_INPUT ""
+		forvalues grp_code_count = 2/`: word count `GRP_CODES'' {
+			local this_code : word `grp_code_count' of `GRP_CODES'
+			local FEQTEST_INPUT "`FEQTEST_INPUT'`this_code'.`grp_var'="
+		}
+		local FEQTEST_INPUT "`FEQTEST_INPUT'0"
+
+		************************************************
+		*Generate list of test pairs
+
+		local TEST_PAIR_CODES = ""
+
+		if `CONTROL_USED' {
+			*Loop over all non-control codes and create pairs with them and the control code
+			local non_control_codes : list ORDER_OF_GROUP_CODES - control
+			foreach code_2 of local non_control_codes {
+				local TEST_PAIR_CODES = "`TEST_PAIR_CODES' `control'_`code_2'"
+			}
+		}
+		else {
+			* Nested loop where values used in the outer loop is removed from the
+			* inner loop to not make any duplicated pais such as 1_2 and 2_1.
+			local ORDER_OF_GROUP_CODES_2 = "`ORDER_OF_GROUP_CODES'"
+			foreach code_1 of local ORDER_OF_GROUP_CODES {
+				local ORDER_OF_GROUP_CODES_2 : list ORDER_OF_GROUP_CODES_2 - code_1
+				foreach code_2 of local ORDER_OF_GROUP_CODES_2 {
+					local TEST_PAIR_CODES = "`TEST_PAIR_CODES' `code_1'_`code_2'"
+				}
+			}
+		}
+
+		*Number of test pairs
+		local COUNT_TEST_PAIRS : list sizeof TEST_PAIR_CODES
+
+		* Set up the matrix for all stats and estimates
+		setUpResultMatric `ORDER_OF_GROUP_CODES' `TOTAL_USED' `TEST_PAIR_CODES'
+		mat emptyRowMat  = r(emptyRowMat)
+		mat resultMat    = r(emptyRowMat)
+		local matColnames  r(colnames)
+
+/*******************************************************************************
+*******************************************************************************/
+
+		* Set up locals with all column and row labels
+
+/*******************************************************************************
+*******************************************************************************/
 
 
-		*The final order is compiled. order_code_rest
-		*is ordered numerically. If order has no yet
-		*been defined (if niether order() or control()
-		* was used) then order will be exactly like
-		* order_code_rest
-		local ORDER_OF_GROUPS `order' `order_code_rest'
+	************************************************
+	* Prepare column lables for groups
 
-
-	/***********************************************
-	************************************************/
-
-		*Manage lables to be used for the groups in groupvar
-
-	/*************************************************
-	************************************************/
 
 		*Local that will store the final labels. These labels will be stored in the in final order of groups in groupvar
-		local grpLabels_final ""
+		local COLUMN_LABELS ""
 
 		*Loop over all groups in the final order
-		foreach groupCode of local ORDER_OF_GROUPS {
+		foreach groupCode of local ORDER_OF_GROUP_CODES {
 
-			*Test if this code has a manually defined group label
+			************
+			* Manually defined column label
+
+			*Test if this code was listed in option GRPLabels()
 			local grpLabelPos : list posof "`groupCode'" in grpLabelCodes
 
 			*If index is not zero then manual label is defined, use it
 			if `grpLabelPos' != 0 {
-
-				*Getting the manually defined label corresponding to this code
+				*Getting the manually defined label and add it to local GROUP_LABELS
 				local 	group_label : word `grpLabelPos' of `grpLabelLables'
-
-				*Storing the label to be used for this group code.
-				local	grpLabels_final `" `grpLabels_final' "`group_label'" "'
+				local	COLUMN_LABELS `" `COLUMN_LABELS' "`group_label'" "'
 			}
 
-			** No manually defined label, test if group var has value labels or if user
-			* has specified that value labels should not be used
+			************
+			* Use code as column label
+
+			* If option grpcodes was used or grpvar has no value label, then the codes
+			* must be used as column labels
 			else if `NOGRPLABEL_USED' | !`GRPVAR_HAS_VALUE_LABEL' {
-
 				*Not using value labels, simply using the group code as the label in the final table
-				local	grpLabels_final `" `grpLabels_final' "`groupCode'" "'
-
+				local	COLUMN_LABELS `" `COLUMN_LABELS' "`groupCode'" "'
 			}
 
-			*No defined group label but value labels exist and may be used
+			************
+			* Use value label in grpvar as column label
+
+			* Grpvar has value labels and grpcodes was not used, then use value labels
+			* as code labels
 			else {
-
-				*Get the value label corresponding to this code
+				*Get the value label corresponding to this code and use as label
 				local gprVar_valueLabel : label `GRPVAR_VALUE_LABEL' `groupCode'
-
-				*Storing the value label used for grpvar corresponding to the group code.
-				local grpLabels_final `" `grpLabels_final' "`gprVar_valueLabel'" "'
-
+				local COLUMN_LABELS `" `COLUMN_LABELS' "`gprVar_valueLabel'" "'
 			}
 		}
 
+		************************************************
+		* Prepare row lables for each balance var
 
-
-
-	/***********************************************
-	************************************************/
-
-		*Manage labels to be used as rowtitles
-
-	/*************************************************
-	************************************************/
-
-		local rowLabelsFinal ""
+		local ROW_LABELS ""
 
 		foreach balancevar of local balancevars {
 
-			** Test if this variable has a manually defined rowlable. If
-			*  rowlabels() was not specified, then this local will be empty
-			*  and generate index 0 for all variables
+			************
+			* Manually defined row label
+
+			** Test if this variable has a manually defined rowlabel in rowlabels()
 			local rowLabPos : list posof "`balancevar'" in rowLabelNames
-
+			*If index is not zero then manual label is defined, use it
 			if `rowLabPos' != 0 {
-
-				*Getting the manually defined label corresponding to this code
+				*Get the manually defined label for this balance variable
 				local 	row_label : word `rowLabPos' of `rowLabelLabels'
-
-				*Store the label in local to be used later
-				local rowLabels_final `" `rowLabels_final' "`row_label'" "'
-
+				local ROW_LABELS `" `rowLabels_final' "`row_label'" "'
 			}
+
+			************
+			* Use var label in balance var as row label
+
 			*Use variable label if option is specified
 			else if `ROWVARLABEL_USED' {
-
-				*Get the variable label used for this variable
+				*Get the variable label used for this variable and trim it
 				local var_label : variable label `balancevar'
-
-				*Remove leading or trailing spaces
 				local var_label = trim("`var_label'")
-
-				*Make sure varlabel is not empty
-				if "`var_label'" != "" {
-
-					*Store the label in local to be used later
-					local rowLabels_final `" `rowLabels_final' "`var_label'" "'
-				}
-				*If var lable empty, use var name instead
-				else {
-
-					*Store the label in local to be used later
-					local rowLabels_final `" `rowLabels_final' "`balancevar'" "'
-				}
+				* If varaible label exists, use it, oterwise use the variable name
+				if "`var_label'" != "" local ROW_LABELS `" `ROW_LABELS' "`var_label'" "'
+				else local ROW_LABELS `" `ROW_LABELS' "`balancevar'" "'
 			}
-			*Otherwise use the variable name
-			else {
 
-				*Store the label in local to be used later
-				local rowLabels_final `" `rowLabels_final' "`balancevar'" "'
+			************
+			* Use variable name as row label
+
+			* If no manually row labels are defined, and option rowvarlabels is
+			* not used, then use balance var name
+			else local ROW_LABELS `" `ROW_LABELS' "`balancevar'" "'
 			}
 		}
 
 }
-	/***********************************************
-	************************************************/
 
-		*Creating title rows
+/*******************************************************************************
+*******************************************************************************/
 
-	/*************************************************
-	************************************************/
+		* Handle missing values
 
+/*******************************************************************************
+*******************************************************************************/
 
+	* Apply how missingvalues will be handled
+	iereplacemiss `balancevar', `replaceoptions'
 
-		** The titles consist of three rows across all
-		*  columns of the table. Each row is one local
-		local titlerow1 ""
-		local titlerow2 ""
-		local titlerow3 `""Variable""'
+/*******************************************************************************
+*******************************************************************************/
 
+		* Generate all stats and estimates
 
-		** The titles consist of three rows across all
-		*  columns of the table. Each row is one local
-		local texrow1 ""
-		local texrow2 ""
-		local texrow3 `"Variable"'
+/*******************************************************************************
+*******************************************************************************/
 
-		** Set titlw SE if standard errors are used (default)
-		*  or SD if standard deviation is used
-								local variance_type "SE"
-		if `STDEV_USED' == 1 	local variance_type "SD"
-
-		*Prepare title for column showing onle N or N and cluster
-		if "`vce_type'" != "cluster" {
-			local N_title "N"
-		}
-		else {
-			local N_title "N/[Clusters]"
-		}
-
-	*********************************************
-	*Generating titles for each value of groupvar
-
-		** Tempvar corresponding that will store the final
-		*  order for the group the observation belongs to
-		tempvar  groupOrder
-		gen 	`groupOrder' = .
-
-		*Loop over the number of groups
-		forvalues groupOrderNum = 1/`GRPVAR_NUM_GROUPS' {
-
-			*Get the code and label corresponding to the group
-			local groupLabel : word `groupOrderNum' of `grpLabels_final'
-			local groupCode  : word `groupOrderNum' of `ORDER_OF_GROUPS'
-
-			* Make sure special characters are displayed correctly
-			local texGroupLabel : subinstr local groupLabel    "%"  "\%" , all
-			local texGroupLabel : subinstr local texGroupLabel "_"  "\_" , all
-			local texGroupLabel : subinstr local texGroupLabel "&"  "\&" , all
-			local texGroupLabel : subinstr local texGroupLabel "\$"  "\\\\\\\$" , all
-
-			*Prepare a row to store onerow values for each group
-			if `ONEROW_USED' == 1 local onerow_`groupOrderNum' ""
-
-			*Assign the group order to observations that belong to this group
-			replace `groupOrder' = `groupOrderNum' if `grpvar' == `groupCode'
-
-			*Create one more column for N if N is displayesd in column instead of row
-			if `ONEROW_USED' == 0 {
-
-				local titlerow1 `"`titlerow1' _tab "" 	_tab " (`groupOrderNum') " "'
-				local titlerow2 `"`titlerow2' _tab ""  _tab "`groupLabel'"   	   "'
-				local titlerow3 `"`titlerow3' _tab "`N_title'" _tab "Mean/`variance_type'" "'
-
-
-				local texrow1 	`"`texrow1' & \multicolumn{2}{c}{(`groupOrderNum')} "'
-				local texrow2 	`"`texrow2' & \multicolumn{2}{c}{`texGroupLabel'} "'
-				local texrow3 	`"`texrow3' & `N_title' & Mean/`variance_type' "'
-
-			}
-			else {
-
-				local titlerow1 `"`titlerow1' _tab " (`groupOrderNum') " "'
-				local titlerow2 `"`titlerow2' _tab "`groupLabel'" "'
-				local titlerow3 `"`titlerow3' _tab "Mean/`variance_type'" "'
-
-				local texrow1 	`"`texrow1' & (`groupOrderNum') "'
-				local texrow2 	`"`texrow2' & `texGroupLabel' "'
-				local texrow3 	`"`texrow3' & Mean/`variance_type' 	"'
-
-			}
-
-		}
-
-	***********************************************************
-	*Generating titles for sample total if total() is specified
-
-		if `TOTAL_USED' {
-
-			*Add one more column group
-			local totalColNumber = `GRPVAR_NUM_GROUPS' + 1
-
-			*If onerow used, then add a local to store the total num obs
-			if `ONEROW_USED' == 1 local onerow_tot ""
-
-			local tot_label Total
-			if `TOTALLABEL_USED' local tot_label `totallabel'
-
-			* Make sure special characters are displayed correctly
-			local tex_tot_label : subinstr local tot_label     "%"  "\%" , all
-			local tex_tot_label : subinstr local tex_tot_label "_"  "\_" , all
-			local tex_tot_label : subinstr local tex_tot_label "&"  "\&" , all
-			local tex_tot_label : subinstr local tex_tot_label "\$"  "\\\\\$" , all
-
-			*Create one more column for N if N is displayesd in column instead of row
-			if `ONEROW_USED' == 0 {
-
-				local titlerow1 `"`titlerow1' _tab ""	_tab " (`totalColNumber') "	"'
-				local titlerow2 `"`titlerow2' _tab "" 	_tab "`tot_label'" 			"'
-				local titlerow3 `"`titlerow3' _tab "`N_title'"	_tab "Mean/`variance_type'" "'
-
-				local texrow1  	`"`texrow1' & \multicolumn{2}{c}{(`totalColNumber')}"'
-				local texrow2  	`"`texrow2' & \multicolumn{2}{c}{`tex_tot_label'} "'
-				local texrow3  	`"`texrow3' & `N_title' & Mean/`variance_type' "'
-			}
-			else {
-
-				local titlerow1 `"`titlerow1' _tab " (`totalColNumber') " "'
-				local titlerow2 `"`titlerow2' _tab "`tot_label'" 		  "'
-				local titlerow3 `"`titlerow3' _tab "Mean/`variance_type'" "'
-
-				local texrow1  	`"`texrow1' & (`totalColNumber') "'
-				local texrow2  	`"`texrow2' & `tex_tot_label' "'
-				local texrow3  	`"`texrow3' & Mean/`variance_type' "'
-
-			}
-		}
-
-	************************************************
-	*Generating titles for each test of diff in mean
-
-		if `TTEST_USED' | `NORMDIFF_USED' {
-
-			if `CONTROL_USED' {
-
-				iecontrolheader 	"`control'" "`ORDER_OF_GROUPS'" "`GRPVAR_NUM_GROUPS'" ///
-									`TTEST_USED' `PTTEST_USED' `NORMDIFF_USED' ///
-									`" `titlerow1' "' `" `titlerow2' "' `" `titlerow3' "' `" `texrow3' "'
-			}
-			else {
-
-				ienocontrolheader	 "`GRPVAR_NUM_GROUPS'" ///
-									`TTEST_USED' `PTTEST_USED' `NORMDIFF_USED' ///
-									`" `titlerow1' "' `" `titlerow2' "' `" `titlerow3' "' `" `texrow3' "'
-
-			}
-
-			local titlerow1		`"`r(titlerow1)'"'
-			local titlerow2		`"`r(titlerow2)'"'
-			local titlerow3		`"`r(titlerow3)'"'
-			local texrow3		`"`r(texrow3)'"'
-			local ttest_pairs	`"`r(ttest_pairs)'"'
-
-
-			local testPairCount : list sizeof ttest_pairs
-
-			if `testPairCount' > 0 {
-
-				if `TTEST_USED' {
-					local texrow1 	`" `texrow1' & \multicolumn{`testPairCount'}{c}{T-test} "'
-
-					if `PTTEST_USED' == 1 {
-						local texrow2 `"`texrow2' & \multicolumn{`testPairCount'}{c}{P-value} "'
-					}
-					else {
-						local texrow2 `"`texrow2' & \multicolumn{`testPairCount'}{c}{Difference} "'
-					}
-				}
-
-				if `NORMDIFF_USED' {
-					local texrow1 	`"`texrow1' & \multicolumn{`testPairCount'}{c}{Normalized} "'
-					local texrow2 	`"`texrow2' & \multicolumn{`testPairCount'}{c}{difference} "'
-				}
-			}
-			*texrow3 created in loop above
-		}
-
-	************************************************
-	*Add column for F-test of joint equality
-
-		if `FEQTEST_USED' {
-
-			local titlerow1 `"`titlerow1' _tab "F-test""'
-			local titlerow2 `"`titlerow2' _tab "for joint""'
-			local titlerow3 `"`titlerow3' _tab "orthogonality""'
-
-			local texrow1 	`" `texrow1' & \multicolumn{1}{c}{F-test} "'
-			local texrow2 	`" `texrow2' & \multicolumn{1}{c}{for joint}"'
-			local texrow3 	`" `texrow3' & \multicolumn{1}{c}{orthogonality}"'
-		}
-
-
-	****************************
-	*Writing titles to textfile
-
-		*Create a temporary textfile
-		tempname 	textname
-		tempfile	textfile
-
-		*Write the title rows defined above
-		cap file close 	`textname'
-		file open  		`textname' using "`textfile'", text write replace
-		file write  	`textname' ///
-							`titlerow1' _n ///
-							`titlerow2' _n ///
-							`titlerow3' _n
-		file close 		`textname'
-
-	********************
-	*texfile
-
-		*Count number of columns in table
-		if `TEXCOLWIDTH_USED' == 0	local 		colstring	l
-		else						local 		colstring	p{`texcolwidth'}
-
-		forvalues repeat = 1/`NUM_COL_GRP_TOT' {
-
-			*Add at least one column per group and for total if used
-			local	colstring	"`colstring'c"
-			*Add another column if N is displyaed in column and not row
-			if !`ONEROW_USED'{
-				local	colstring	"`colstring'c"
-			}
-		}
-
-		*Add one column per test pair
-		if `TTEST_USED' {
-			forvalues repeat = 1/`testPairCount' {
-				local	colstring	"`colstring'c"
-			}
-		}
-
-		*Add another column if F-test for equality of means is included
-		if `FEQTEST_USED'{
-			local	colstring	"`colstring'c"
-		}
-
-		*Add another column if normalized difference is included
-		if `NORMDIFF_USED'{
-			forvalues repeat = 1/`testPairCount' {
-				local	colstring	"`colstring'c"
-			}
-		}
-
-		*Create a temporary texfile
-		tempname 	texname
-		tempfile	texfile
-
-		****Write texheader if full document option was selected
-		*Everyhting here is the tex headers
-		capture file close `texname'
-
-		if `TEXDOC_USED' {
-
-			file open  `texname' using "`texfile'", text write replace
-			file write `texname' ///
-				"%%% Table created in Stata by iebaltab (https://github.com/worldbank/ietoolkit)" _n ///
-				"" _n ///
-				"\documentclass{article}" _n ///
-				"" _n ///
-				"% ----- Preamble " _n ///
-				"\usepackage[utf8]{inputenc}" _n ///
-				"\usepackage{adjustbox}" _n
-
-			file write `texname' ///
-				"% ----- End of preamble " _n ///
-				"" _n ///
-				" \begin{document}" _n ///
-				"" _n ///
-				"\begin{table}[!htbp]" _n ///
-				"\centering" _n
-
-			* Write tex caption if specified
-			if `CAPTION_USED' {
-
-				file write `texname' `"\caption{`texcaption'}"' _n
-
-			}
-
-			* Write tex label if specified
-			if `LABEL_USED' {
-
-				file write `texname' `"\label{`texlabel'}"' _n
-
-			}
-
-			file write `texname'	"\begin{adjustbox}{max width=\textwidth}" _n
-			file close `texname'
-
-		}
-
-		file open  `texname' using "`texfile'", text write append
-		file write `texname' ///
-			"\begin{tabular}{@{\extracolsep{5pt}}`colstring'}" _n ///
-			"\\[-1.8ex]\hline \hline \\[-1.8ex]" _n
-		file close `texname'
-
-		*Write the title rows defined above
-		capture file close `texname'
-		file open  `texname' using "`texfile'", text write append
-
-		file write `texname' ///
-						"`texrow1' \\" _n ///
-						"`texrow2' \\" _n ///
-						"`texrow3' \\ \hline \\[-1.8ex] " _n
-		file close `texname'
-
-
-	/***********************************************
-	***********************************************/
-
-		*Running the regression for the t-test
-		*for each variable in varlist
-
-	/************************************************
-	************************************************/
-
+	*****************************************************************************
 	*** Setting default values or specified values for fixed effects and clusters
 
-	**********************************
-	*Preparing fixed effect option
-
+		**********************************
+		*Preparing fixed effect option
 		if !`FIX_EFFECT_USED' {
-
-			** If a fixed effect var is not specified,
-			*  then a constant fixed effect is here generated.
-			*  A constent fixed effect leaves the areg
-			*  unaffected
+			* If a fixed effect var is not specified, so that areg may be uses. A
+			* fixed effect with no variation does not have any effect on the estimates
 			tempvar  fixedeffect
 			gen 	`fixedeffect' = 1
 		}
 
-	**********************************
-	*Preparing cluster option
+		**********************************
+		*Preparing cluster option
 
-		if `VCE_USED' {
+		* The varname for cluster is prepared to be put in the areg options. If
+		* option vce() was not used then this local will be left empty
+		if `VCE_USED' local error_estm vce(`vce')
 
-			** The varname for cluster is
-			*  prepared to be put in the areg
-			*  options
-			local error_estm vce(`vce')
+		**********************************
+		*Preparing weight option
 
-		}
-
-	**********************************
-	*Preparing weight option
-
-		local weight_option ""
-
-		if `WEIGHT_USED' {
-
-			** The varname for weight is  prepared to be put in the reg  options
-			local weight_option "[`weight_type' = `weight_var']"
-
-		}
+		* The varname for weight is prepared to be put in the reg options. If no
+		* weight was used then this option will be left empty
+		if `WEIGHT_USED' local weight_option "[`weight_type' = `weight_var']"
 
 
 	** Create locals that control the warning table
@@ -1501,527 +1212,198 @@ qui {
 			local warn_joint_robus_num	0
 
 
-	*** Create columns with means and sd for this row
-
-		local tex_line_space	0pt
+	*****************************************************************************
+	*** Loop over each balance var and create the stats
 
 		foreach balancevar in `balancevars' {
 
-			*Get the rowlabels prepared above one at the time
-			gettoken row_label rowLabels_final : rowLabels_final
+			mat rowMat = emptyRowMat
+			mat rownames rowMat = `balancevar'
+			mat colnames rowMat = `matColnames'
 
-			*Start the tableRow string with the label defined
-			local tableRowUp `""`row_label'""'
-			local tableRowDo `" "'
+			*Local that keeps track of which column to fill
+			local colindex 0
 
-			*Make sure special characters in variable labels are displayed correctly
-			local texrow_label : subinstr local row_label 	 "%"  "\%" , all
-			local texrow_label : subinstr local texrow_label "_"  "\_" , all
-			local texrow_label : subinstr local texrow_label "["  "{[}" , all
-			local texrow_label : subinstr local texrow_label "&"  "\&" , all
-			local texrow_label : subinstr local texrow_label "\$"  "\\\\\\\$" , all
+			******************************************************
+			*** Get descriptive stats for each group
 
-			local texRow	`""`texrow_label'""'
+			foreach group_code of local ORDER_OF_GROUP_CODES {
 
-			*** Replacing missing value
-
-			** This option can be used to get a uniform N across all
-			*  variables even if the variable is missing for some
-			*  observations. When specifying this option, a dummy is
-			*  created indicating all HHs that have a missing value
-			*  for this variable. Missing values for the varaible is
-			*  then set to zero, and in the areg used for testing the
-			*  differences in means, the dummy is included as a control.
-			*  Note that this will slightly distort the mean as well.
-
-			*Create option string
-			local replaceoptions
-
-			*Sopecify differently based on all missing or only regualr missing
-			if `BALMISS_USED' 					local replaceoptions `" `replaceoptions' replacetype("`balmiss'") "'
-			if `BALMISSREG_USED' 				local replaceoptions `" `replaceoptions' replacetype("`balmissreg'") regonly "'
-
-			*Add group variable if the replace type is group mean
-			if "`balmiss'" 		== "groupmean" 	local replaceoptions `" `replaceoptions' groupvar(`grpvar') groupcodes("`GRP_CODE_LEVELS'") "'
-			if "`balmissreg'" 	== "groupmean" 	local replaceoptions `" `replaceoptions' groupvar(`grpvar') groupcodes("`GRP_CODE_LEVELS'") "'
-
-			*Set the minimum number of observations to allow means to be set from
-			if `MISSMINMEAN_USED' == 1			local replaceoptions `" `replaceoptions' minobsmean(`missminmean') "'
-			if `MISSMINMEAN_USED' == 0			local replaceoptions `" `replaceoptions' minobsmean(10) "'
-
-			*Excute the command. Code is found at the bottom of this ado file
-			if (`BALMISS_USED' | `BALMISSREG_USED')  iereplacemiss `balancevar', `replaceoptions'
-
-
-			*** Run the regressions
-
-			forvalues groupNumber = 1/`GRPVAR_NUM_GROUPS' {
-
-				reg 	`balancevar' if `groupOrder' == `groupNumber' `weight_option', `error_estm'
+				reg 	`balancevar' if `grpvar' == `group_code' `weight_option', `error_estm'
 
 				*Number of observation for this balancevar for this group
-				local 	N_`groupNumber' 	= e(N)
-				local 	N_`groupNumber'  	: display %9.0f `N_`groupNumber''
+				local ++colindex
+				mat rowMat[1,`colindex'] = e(N)
 
 				*If clusters used, number of clusters in this balance var for this group
-				if "`vce_type'" == "cluster" {
+				local ++colindex
+				if "`vce_type'" == "cluster" mat rowMat[1,`colindex'] = e(N_clust)
+				*Otherwise leave assign missing value .c in that column
+				else mat rowMat[1,`colindex'] = .c
 
-					local 	N_clust_`groupNumber' 	= e(N_clust)
-					local 	N_clust_`groupNumber'  	: display %9.0f `N_clust_`groupNumber''
-					local 	N_clust_`groupNumber' 	= trim("`N_clust_`groupNumber''")
-					local 	N_clustex_`groupNumber' = "{[}`N_clust_`groupNumber'']"
-					local 	N_clust_`groupNumber' 	= "[`N_clust_`groupNumber'']"
-				}
+				*Mean of balance var for this group
+				local ++colindex
+				mat rowMat[1,`colindex'] = _b[_cons]
 
-				*Load values from matrices into scalars
-				local 	mean_`groupNumber' 	= _b[_cons]
-				local	se_`groupNumber'   	= _se[_cons]
+				*Standard error of balance var for this group
+				local ++colindex
+				mat rowMat[1,`colindex'] = _se[_cons]
 
-				local	di_mean_`groupNumber' 	: display `diformat' `mean_`groupNumber''
-
-				*Display variation in Standard errors (default) or in Standard Deviations
-				if `STDEV_USED' == 0 {
-					*Format Standard Errors
-					local 	di_var_`groupNumber' 	: display `diformat' `se_`groupNumber''
-				}
-				else {
-					*Calculate Standard Deviation
-					local 	sd_`groupNumber'		= `se_`groupNumber'' * sqrt(`N_`groupNumber'')
-					*Format Standard Deviation
-					local 	di_var_`groupNumber' 	: display `diformat' `sd_`groupNumber''
-				}
-
-				*Remove leading zeros from excessive fomrat
-				local 	N_`groupNumber' 		=trim("`N_`groupNumber''")
-				local 	di_mean_`groupNumber' 	=trim("`di_mean_`groupNumber''")
-				local 	di_var_`groupNumber' 	=trim("`di_var_`groupNumber''")
-
-				*Test that N is the same for each group across all vars
-				if `ONEROW_USED' == 0 {
-
-					local 	tableRowUp  `"`tableRowUp' _tab "`N_`groupNumber''" 		_tab "`di_mean_`groupNumber''"  "'
-					local 	tableRowDo  `"`tableRowDo' _tab "`N_clust_`groupNumber''" 	_tab "[`di_var_`groupNumber'']"  "'
-
-					if `SHOW_NCLUSTER' == 0	{
-						local texRow 	`"`texRow' " & `N_`groupNumber'' & \begin{tabular}[t]{@{}c@{}} `di_mean_`groupNumber'' \\ (`di_var_`groupNumber'') \end{tabular}"  "'
-					}
-					if `SHOW_NCLUSTER' == 1	{
-						local texRow 	`"`texRow' " & \begin{tabular}[t]{@{}c@{}} `N_`groupNumber'' \\ `N_clustex_`groupNumber'' \end{tabular} & \begin{tabular}[t]{@{}c@{}} `di_mean_`groupNumber'' \\ (`di_var_`groupNumber'') \end{tabular}"  "'
-					}
-				}
-				else {
-
-					*Test if the number of observations is the same in each group accross all balance vars
-					if "`onerow_`groupNumber''" == "" {
-						*Store the obs num
-						local onerow_`groupNumber' = `N_`groupNumber''
-					}
-					*If not, then check that the obs num is the same as before
-					else if !(`onerow_`groupNumber'' == `N_`groupNumber'') {
-
-						*option onerow not allowed if N is different
-						noi display as error  "{phang}The number of observations for `balancevar' is different compared to other balance variables within the same group. You can therefore not use the option onerow. Run the command without the option onerow to see which group does not have the same number of observations with non-missing values across all balance variables.{p_end}"
-						error 198
-					}
-
-
-					*If cluster is usedTest if the number of clusters is the same in each group accross all balance vars
-					if "`vce_type'" == "cluster" {
-
-						if "`oneclstrow_`groupNumber''" == "" {
-							*Store the obs num
-							local oneclstrow_`groupNumber' = `N_clust_`groupNumber''
-						}
-						*If not, then check that the obs num is the same as before
-						else if !(`oneclstrow_`groupNumber'' == `N_clust_`groupNumber'') {
-
-							*option onerow not allowed if N is different
-							noi display as error  "{phang}The number of clusters for `balancevar' is differenet compared to other balance variables within the same group. You can therefore not use the option onerow. Run the command without the option onerow to see which group does not have the same number of clusters with non-missing values across all balance variables.{p_end}"
-							error 198
-						}
-					}
-
-					*Either this is the first balance var or num obs are identical, so write columns
-					local 	tableRowUp  	`"`tableRowUp' _tab "`di_mean_`groupNumber''"  "'
-					local 	tableRowDo  	`"`tableRowDo' _tab "[`di_var_`groupNumber'']"  "'
-
-					local 	texRow 		`"`texRow' " &  \begin{tabular}[t]{@{}c@{}} `di_mean_`groupNumber'' \\ (`di_var_`groupNumber'') \end{tabular}"  "'
-				}
-
+				*Standard deviation of balance var for this group
+				local ++colindex
+				local sd = _se[_cons] * sqrt(e(N))
+				mat rowMat[1,`colindex'] = `sd'
 			}
 
-			if `TOTAL_USED' {
 
-				reg 	`balancevar'  `weight_option', `error_estm'
+			******************************************************
+			*** Get descriptive stats for total
 
-				local 	N_tot	= e(N)
-				local 	N_tot 	: display %9.0f `N_tot'
+			reg 	`balancevar'  `weight_option', `error_estm'
 
-				*If clusters used, number of clusters in this balance var for this group
-				if "`vce_type'" == "cluster" {
+			*Number of observation for this balancevar for this group
+			local ++colindex
+			mat rowMat[1,`colindex'] = e(N)
 
-					local 	N_clust_tot 	= e(N_clust)
-					local 	N_clust_tot  	: display %9.0f `N_clust_tot'
-					local 	N_clust_tot  	= trim("`N_clust_tot'")
-					local 	N_clustex_tot	= "{[}`N_clust_tot']"
-					local 	N_clust_tot  	= "[`N_clust_tot']"
+			*If clusters used, number of clusters in this balance var for this group
+			local ++colindex
+			if "`vce_type'" == "cluster" mat rowMat[1,`colindex'] = e(N_clust)
+			*Otherwise leave assign missing value .c in that column
+			else mat rowMat[1,`colindex'] = .c
+
+			*Mean of balance var for this group
+			local ++colindex
+			mat rowMat[1,`colindex'] = _b[_cons]
+
+			*Standard error of balance var for this group
+			local ++colindex
+			mat rowMat[1,`colindex'] = _se[_cons]
+
+			*Standard deviation of balance var for this group
+			local ++colindex
+			local sd = _se[_cons] * sqrt(e(N))
+			mat rowMat[1,`colindex'] = `sd'
+
+			******************************************************
+			*** Get test estimates for each test pair
+
+			foreach ttest_pair of local TEST_PAIR_CODES {
+
+				* Create a local for each group in the test pair from the test_pair
+				* local created above
+				local undscr_pos   = strpos("`ttest_pair'","_")
+				local first_code  = substr("`ttest_pair'",1,`undscr_pos'-1)
+				local second_code = substr("`ttest_pair'",  `undscr_pos'+1,.)
+
+				*Add simple difference between the groups to matrix
+				local ++colindex
+				mat rowMat[1,`colindex'] =                            ///
+					  el(rowMat,1,colnumb(rowMat,"mean_`first_code'"))  ///
+					- el(rowMat,1,colnumb(rowMat,"mean_`second_code'"))
+
+				* Create a temporary varaible used as the dummy to indicate which
+				* observation is in the first and in the second group in the test pair.
+				* Since all other observations are missing, this variable also exculde
+				* all observations in neither of the groups from the test regression
+				tempvar  tempvar_thisGroupInPair
+				gen     `tempvar_thisGroupInPair' = .	//default is missing, and obs not in this pair will remain missing
+				replace `tempvar_thisGroupInPair' = 0 if `groupOrder' == `first_group'
+				replace `tempvar_thisGroupInPair' = 1 if `groupOrder' == `second_group'
+
+				* The command mean is used to test that there is variation in the
+				* balance var across these two groups. The regression that includes
+				* fixed effects and covariaties might run without error even if there is
+				* no variance across the two groups. The local varloc will determine if
+				* an error or a warning will be thrown or if the test results will be
+				* replaced with an "N/A".
+				if "`error_estm'" != "vce(robust)" 	local mean_error_estm `error_estm' //Robust not allowed in mean, but the mean here
+				mean `balancevar', over(`tempvar_thisGroupInPair') 	 `mean_error_estm'
+				mat var = e(V)
+				local varloc = max(var[1,1],var[2,2])
+
+				*Calculate standard deviation for sample of interest
+				sum `balancevar' if !missing(`tempvar_thisGroupInPair')
+				tempname scal_sd
+				scalar `scal_sd' = r(sd)
+
+
+				*Testing result and if valid, write to file with or without stars
+				if `varloc' == 0 {
+
+					local warn_means_num  	= `warn_means_num' + 1
+
+					local warn_means_name`warn_means_num'	"t-test"
+					local warn_means_group`warn_means_num' 	"(`first_group')-(`second_group')"
+					local warn_means_bvar`warn_means_num'	"`balancevar'"
+
+					* Adding missing value for each stat that is missing due to not running regression
+					foreach stat in p beta {
+						local ++colindex
+						mat rowMat[1,`colindex'] = .v
+					}
 				}
 
-
-				*Load values from matrices into scalars
-				local 	mean_tot 	= _b[_cons]
-				local	se_tot   	= _se[_cons]
-
-				local mean_tot 	: display `diformat' `mean_tot'
-
-				*Display variation in Standard errors (default) or in Standard Deviations
-				if `STDEV_USED' == 0 {
-					*Format Standard Errors
-					local 	var_tot 	: display `diformat' `se_tot'
-				}
 				else {
-					*Calculate Standard Deviation
-					local 	sd_tot		= `se_tot' * sqrt(`N_tot')
-					*Format Standard Deviation
-					local 	var_tot 	: display `diformat' `sd_tot'
 
-				}
-
-				*Remove leading zeros from excessive fomrat
-				local 	N_tot 		=trim("`N_tot'")
-				local 	mean_tot 	=trim("`mean_tot'")
-				local 	var_tot 	=trim("`var_tot'")
-
-
-
-				*Test that N is the same for each group across all vars
-				if `ONEROW_USED' == 0 {
-
-					local 	tableRowUp  `"`tableRowUp' _tab "`N_tot'" 			_tab "`mean_tot'"  "'
-					local 	tableRowDo  `"`tableRowDo' _tab "`N_clust_tot'"  	_tab "[`var_tot']"  "'
-
-					if `SHOW_NCLUSTER' == 0	{
-						local texRow 	`"`texRow' " & `N_tot' & \begin{tabular}[t]{@{}c@{}} `mean_tot' \\ (`var_tot') \end{tabular}"  "'
-					}
-					if `SHOW_NCLUSTER' == 1	{
-						local texRow 	`"`texRow' " & \begin{tabular}[t]{@{}c@{}}	`N_tot' \\ `N_clustex_tot' \end{tabular} & \begin{tabular}[t]{@{}c@{}} `mean_tot' \\ (`var_tot') \end{tabular}"  "'
-					}
-				}
-				else {
-
-					*Test if the first balance var
-					if "`onerow_tot'" == "" {
-						*Store the obs num
-						local onerow_tot = `N_tot'
-					}
-					*If not, then check that the obs num is the same as before
-					else if !(`onerow_tot' == `N_tot') {
-
-						*option onerow not allowed if N is different
-						noi display as error  "{phang}The number of observations for all groups are not the same for `balancevar' compare to at least one other balance variables. Run the command without the option onerow to see which group does not have the same number of observations with non-missing values across all balance variables. This happened in the total column which can be an indication of a serious bug. Please email this erro message to kbjarkefur@worldbank.org{p_end}"
-						error 198
-					}
-
-					*If cluster is usedTest if the number of clusters is the same in each group accross all balance vars
-					if "`vce_type'" == "cluster" {
-
-						if "`oneclstrow_tot'" == "" {
-							*Store the obs num
-							local oneclstrow_tot = `N_clust_tot'
-						}
-						*If not, then check that the obs num is the same as before
-						else if !(`oneclstrow_tot' == `N_clust_tot') {
-
-							*option onerow not allowed if N is different
-							noi display as error  "{phang}The number of clusters fora ll groups for `balancevar' is differenet compared to other balance variables. You can therefore not use the option onerow. Run the command without the option onerow to see which balance variable does not have the same number of clusters with non-missing values as the other balance variables.{p_end}"
-							error 198
-						}
-					}
-
-
-					*Either this is the first balance var or num obs are identical, so write columns
-					local 	tableRowUp  `"`tableRowUp' _tab "`mean_tot'"  "'
-					local 	tableRowDo  `"`tableRowDo' _tab "[`var_tot']"  "'
-
-					local 	texRow	 	`"`texRow' " & \begin{tabular}[t]{@{}c@{}}	`mean_tot' \\ (`var_tot') \end{tabular}"  "'
-				}
-			}
-
-	*** Create the columns with t-tests for this row
-
-			if `TTEST_USED' {
-
-				foreach ttest_pair of local ttest_pairs {
-
-					*Create a local for each group in the test
-					*pair from the test_pair local created above
-					local undscr_pos   = strpos("`ttest_pair'","_")
-					local first_group  = substr("`ttest_pair'",1,`undscr_pos'-1)
-					local second_group = substr("`ttest_pair'",  `undscr_pos'+1,.)
-
-					*Create the local with the difference to be displayed in the table
-					local diff_`ttest_pair' =  `mean_`first_group'' - `mean_`second_group'' //means from section above
-
-					*Create a temporary varaible used as the dummy to indicate
-					*which observation is in the first and in the second group
-					*in the test pair. Since all other observations are mission,
-					*this variable also exculde all observations in neither of
-					*the groups from the test regression
-					tempvar tempvar_thisGroupInPair
-					gen 	`tempvar_thisGroupInPair' = .	//default is missing, and obs not in this pair will remain missing
-					replace `tempvar_thisGroupInPair' = 0 if `groupOrder' == `first_group'
-					replace `tempvar_thisGroupInPair' = 1 if `groupOrder' == `second_group'
-
-					*The command mean is used to test that there is variation
-					*in the balance var across these two groups. The regression
-					*that includes fixed effects and covariaties might run without
-					*error even if there is no variance across the two groups. The
-					*local varloc will determine if an error or a warning will be
-					*thrown or if the test results will be replaced with an "N/A".
-					if "`error_estm'" != "vce(robust)" 				local mean_error_estm `error_estm' //Robust not allowed in mean, but mean here is used to test something else
-					mean `balancevar', over(`tempvar_thisGroupInPair') 	 `mean_error_estm'
-					mat var = e(V)
-					local varloc = max(var[1,1],var[2,2])
-
-					*This is the regression where we test differences.
+					* Perform the balance test for this test pair for this balance var
 					reg `balancevar' `tempvar_thisGroupInPair' `covariates' i.`fixedeffect' `weight_option', `error_estm'
 
-
-					*Testing result and if valid, write to file with or without stars
-					if `varloc' == 0 {
-
-						local warn_means_num  	= `warn_means_num' + 1
-
-						local warn_means_name`warn_means_num'	"t-test"
-						local warn_means_group`warn_means_num' 	"(`first_group')-(`second_group')"
-						local warn_means_bvar`warn_means_num'	"`balancevar'"
-
-						local tableRowUp	`" `tableRowUp' _tab "N/A" "'
-						local tableRowDo	`" `tableRowDo' _tab " " "'
-
-						local texRow		`" `texRow' " & N/A" "'
-
-					}
-
-					else {
-
-						*Perform the t-test and store p-value in pttest
-						test `tempvar_thisGroupInPair'
-						local pttest = r(p)
-
-
-						*If p-test option is used
-						if `PTTEST_USED' == 1 {
-
-							local ttest_output = `pttest'
-						}
-						*Otherwise display differences
-						else {
-
-							local ttest_output = `diff_`ttest_pair''
-						}
-
-						*Format the output
-						local ttest_output : display `diformat' `ttest_output'
-
-						*Add stars
-						foreach ttest_p_level in `p1star' `p2star' `p3star' {
-
-								if `pttest' < `ttest_p_level' local ttest_output "`ttest_output'*"
-						}
-
-						*Print row
-						local tableRowUp 	`" `tableRowUp' _tab "`ttest_output'" "'
-						local tableRowDo 	`" `tableRowDo' _tab " " "'
-
-						local texRow	`" `texRow' " & `ttest_output'" "'
-					}
-				}
-			}
-
-		*** Create the columns with normalized difference for this row
-
-			if `NORMDIFF_USED' {
-
-				foreach normdiff_pair of local ttest_pairs {
-
-					*Create a local for each group in the test
-					*pair from the test_pair local created above
-					local undscr_pos   = strpos("`normdiff_pair'","_")
-					local first_group  = substr("`normdiff_pair'",1,`undscr_pos'-1)
-					local second_group = substr("`normdiff_pair'",  `undscr_pos'+1,.)
-
-					*Create the local with the difference to be displayed in the table
-					local diff_`normdiff_pair' =  `mean_`first_group'' - `mean_`second_group'' //means from section above
-
-					*Calculate standard deviation for sample of interest
-					sum `balancevar' if inlist(`groupOrder',`first_group',`second_group')
-
-					*Testing result and if valid, write to file with or without stars
-					if r(sd) == 0 {
-
-						local warn_means_num  	= `warn_means_num' + 1
-
-						local warn_means_name`warn_means_num'	"Norm diff"
-						local warn_means_group`warn_means_num' 	"(`first_group')-(`second_group')"
-						local warn_means_bvar`warn_means_num'	"`balancevar'"
-
-						local tableRowUp	`" `tableRowUp' _tab "N/A" "'
-						local tableRowDo	`" `tableRowDo' _tab " " "'
-
-						local texRow		`" `texRow' " & N/A" "'
-
-					}
-
-					else {
-						*Create the local with the normalized difference
-						local normdiff_`normdiff_pair' = `diff_`normdiff_pair''/r(sd)
-
-						*Format the output
-						local normdiff_output : display `diformat' `normdiff_`normdiff_pair''
-
-						*Print row
-						local tableRowUp 	`" `tableRowUp' _tab "`normdiff_output'" "'
-						local tableRowDo 	`" `tableRowDo' _tab " " "'
-
-						local texRow	`" `texRow' " & `normdiff_output'" "'
-					}
-				}
-			}
-
-		*** Create the columns with F-tests for this row
-
-			if `FEQTEST_USED' {
-
-				* Run regression
-				reg `balancevar' i.`grpvar' `covariates' i.`fixedeffect' `weight_option', `error_estm'
-
-				* Calculate input for F-test: i. will drop the lowest value of
-				* grpvar, so we'll do the same
-				local 1st_level = strpos("`GRP_CODE_LEVELS'"," ") + 1
-				local FEQTEST_CODE_LEVELS = substr("`GRP_CODE_LEVELS'",`1st_level',.)
-
-				* Calculate input for F-test: loop through levels to create input
-				local ftest_input ""
-				foreach grpCode of local FEQTEST_CODE_LEVELS {
-					local ftest_input = " `ftest_input' `grpCode'.`grpvar'="
+					*Perform the t-test and store p-value in pttest
+					test `tempvar_thisGroupInPair'
+					local ++colindex
+					mat rowMat[1,`colindex'] = r(p)
 				}
 
-				test `ftest_input' 0
-				local pfeqtest 	= r(p)
-				local ffeqtest 	= r(F)
+				*Testing result and if valid, write to file with or without stars
+				if `scal_sd' == 0 {
 
-				*Check if the test is valid. If not, print N/A and error message.
-				*Is yes, print test
-				if "`ffeqtest'" == "." {
+					local warn_means_num  	= `warn_means_num' + 1
 
-					local warn_ftest_num  	= `warn_ftest_num' + 1
+					local warn_means_name`warn_means_num'	"Norm diff"
+					local warn_means_group`warn_means_num' 	"(`first_group')-(`second_group')"
+					local warn_means_bvar`warn_means_num'	"`balancevar'"
 
-					local warn_ftest_bvar`warn_ftest_num'		"`balancevar'"
+					* Adding missing value for no normdiff due to no standdev in balancevar for this pair
+					local ++colindex
+					mat rowMat[1,`colindex'] = .n
 
-					local tableRowUp	`" `tableRowUp' _tab "N/A" "'
-					local tableRowDo	`" `tableRowDo' _tab " " "'
-
-					local texRow		`" `texRow' " & N/A" "'
 				}
-
 				else {
-
-					*Create the F-test output
-
-					*If p-test option is used, display p-value
-					if `PFTEST_USED' {
-
-						local feqtest_output = `pfeqtest'
-					}
-					*Otherwise display differences
-					else {
-
-						local feqtest_output = `ffeqtest'
-					}
-
-
-					*Store f-value
-					local feqtest_output 	: display `diformat' `feqtest_output'
-
-					*Adding stars
-					foreach feqtest_p_level in `p1star' `p2star' `p3star' {
-
-							if `pfeqtest' < `feqtest_p_level' local feqtest_output `feqtest_output'*
-					}
-
-					*Print row
-					local tableRowUp 	`" `tableRowUp' _tab "`feqtest_output'" "'
-					local tableRowDo 	`" `tableRowDo' _tab " " "'
-
-					local texRow		`" `texRow' " & `feqtest_output'" "'
+					*Calculate and store the normalized difference
+					mat rowMat[1,`colindex'] = el(rowMat,1,colnumb(rowMat,"diff_`test_pair'")) / `stdev'
 				}
 			}
 
 
-			*Write the row for this balance var to file.
-			file open  `textname' using "`textfile'", text write append
-			file write `textname' 	///
-				`tableRowUp' _n		///
-				`tableRowDo' _n
-			file close `textname'
+		*** Test for joint orthogonality across all groups for this balance var
+			* Run regression
+			reg `balancevar' i.`grpvar' `covariates' i.`fixedeffect' `weight_option', `error_estm'
 
-			file open  `texname' using "`texfile'", text write append
-			file write `texname' 	///
-				`texRow' " \rule{0pt}{`tex_line_space'}\\" _n
-			file close `texname'
+			test `FEQTEST_INPUT'
+			local pfeqtest 	= r(p)
+			local ffeqtest 	= r(F)
 
-			* We'll now add more space between the lines
-			if `TEXVSPACE_USED' == 0 	local tex_line_space	3ex
-			else						local tex_line_space	`texvspace'
+			*Check if the test is valid. If not, print N/A and error message.
+			*Is yes, print test
+			if "`ffeqtest'" == "." {
+
+				local warn_ftest_num  	= `warn_ftest_num' + 1
+				local warn_ftest_bvar`warn_ftest_num'		"`balancevar'"
+
+				* Adding missing values for invalid feq test
+				local ++colindex
+				mat rowMat[1,`colindex'] = .f
+				local ++colindex
+				mat rowMat[1,`colindex'] = .f
+			}
+			else {
+				* Adding p value and F value to matrix
+				local ++colindex
+				mat rowMat[1,`colindex'] = `pfeqtest'
+				local ++colindex
+				mat rowMat[1,`colindex'] = `ffeqtest'
+			}
 		}
-
-
-
-	***Write N row if onerow used
-
-	if `ONEROW_USED' == 1 {
-
-		*Variable column i.e. row title
-		local tableRowN `""N""'
-		local texRowN 	`"N"'
-
-		local tableRowClstr `""Clusters""'
-		local texRowClstr 	`"Clusters"'
-
-		*Loop over all groups
-		forvalues groupOrderNum = 1/`GRPVAR_NUM_GROUPS' {
-
-			*Prepare the row based on the numbers from above
-			local tableRowN `" `tableRowN' _tab "`onerow_`groupOrderNum''" "'
-			local texRowN 	`" `texRowN' & `onerow_`groupOrderNum'' "'
-
-			local tableRowClstr `" `tableRowClstr' _tab "`oneclstrow_`groupOrderNum''" "'
-			local texRowClstr 	`" `texRowClstr' & `oneclstrow_`groupOrderNum'' "'
-
-		}
-
-		if `TOTAL_USED' {
-
-			*Prepare the row based on the numbers from above
-			local tableRowN `" `tableRowN' _tab "`onerow_tot'" "'
-			local texRowN 	`" `texRowN'  & `onerow_tot' "'
-
-			local tableRowClstr `" `tableRowClstr' _tab "`oneclstrow_tot'" "'
-			local texRowClstr 	`" `texRowClstr' & `oneclstrow_tot' "'
-		}
-
-		*Write the N prepared above
-		file open  `textname' using "`textfile'", text write append
-		file write `textname' `tableRowN' _n
-		if "`vce_type'" == "cluster" file write `textname' `tableRowClstr' _n
-		file close `textname'
-
-		file open  `texname' using "`texfile'", text write append
-		file write `texname' " `texRowN' \rule{0pt}{`tex_line_space'} \\" _n
-		if "`vce_type'" == "cluster" file write `texname' " `texRowClstr' \\" _n
-		file close `texname'
-	}
 
 	/***********************************************
 	***********************************************/
@@ -2031,242 +1413,91 @@ qui {
 	/************************************************
 	************************************************/
 
-	if `FTEST_USED' {
+	*Local used to count number of f-test that trigered warnings
+	local warn_joint_novar_num	0
+	local warn_joint_lovar_num	0
+	local warn_joint_robus_num	0
+	local fmiss_error 			0
 
-		if `ONEROW_USED' == 0 {
-			local ftestMulticol = 1 + (2*`NUM_COL_GRP_TOT')
+	*Run the F-test on each pair
+	foreach ttest_pair of local ttest_pairs {
+
+		*Create a local for each group in the test
+		*pair from the test_pair local created above
+		local undscr_pos   = strpos("`ttest_pair'","_")
+		local first_group  = substr("`ttest_pair'",1,`undscr_pos'-1)
+		local second_group = substr("`ttest_pair'",  `undscr_pos'+1,.)
+
+		*Create the local with the difference to be displayed in the table
+		tempvar tempvar_thisGroupInPair miss
+		gen 	`tempvar_thisGroupInPair' = .
+		replace `tempvar_thisGroupInPair' = 0 if `groupOrder' == `first_group'
+		replace `tempvar_thisGroupInPair' = 1 if `groupOrder' == `second_group'
+
+		**********
+		* Run the regression for f-test
+		reg `tempvar_thisGroupInPair' `balancevars' `covariates' i.`fixedeffect' `weight_option',  `error_estm'
+		scalar reg_f = e(F)
+
+		* Adding F score and number of observations to the matrix
+		local ++colindex
+		mat rowMat[1,`colindex'] = e(N)
+
+		*Test all balance variables for joint significance
+		cap testparm `balancevars'
+		scalar test_F = e(F)
+		scalar test_p = e(p)
+
+		**********
+		* Write to table
+
+		* No variance in either groups mean in any of the balance vars. F-test not possible to calculate
+		if _rc == 111 {
+			local warn_joint_novar_num	= `warn_joint_novar_num' + 1
+			local warn_joint_novar`warn_joint_novar_num' "(`first_group')-(`second_group')"
 		}
+
+		* Collinearity between one balance variable and the dependent treatment dummy
+		else if "`test_F'" == "." {
+			local warn_joint_lovar_num	= `warn_joint_lovar_num' + 1
+			local warn_joint_lovar`warn_joint_lovar_num' "(`first_group')-(`second_group')"
+		}
+
+		* F-test is incorreclty specified, error in this code
+		else if _rc != 0 {
+			noi di as error "F-test not valid. Please report this error to dimeanalytics@worldbank.org"
+			error _rc
+		}
+
+		* F-tests possible to calculate
 		else {
-			local ftestMulticol = 1 + `NUM_COL_GRP_TOT'
+
+			* Robust singularity, see help file. Similar to overfitted model. Result possible but probably not reliable
+			if "`reg_F'" == "." {
+				local warn_joint_robus_num	= `warn_joint_robus_num' + 1
+				local warn_joint_robus`warn_joint_robus_num' "(`first_group')-(`second_group')"
+			}
+
+			local ++colindex
+			mat rowMat[1,`colindex'] = test_F
+			local ++colindex
+			mat rowMat[1,`colindex'] = test_p
 		}
-
-
-		if `PFTEST_USED' {
-			local Fstat_row 	`" "F-test of joint significance (p-value)"  "'
-			local Fstat_texrow 	`" "\multicolumn{`ftestMulticol'}{@{} l}{F-test of joint significance (p-value)}"  "'
-		}
-		else {
-			local Fstat_row 	`" "F-test of joint significance (F-stat)"  "'
-			local Fstat_texrow 	`" "\multicolumn{`ftestMulticol'}{@{} l}{F-test of joint significance (F-stat)}"  "'
-		}
-
-		local Fobs_row  		`" "F-test, number of observations"  "'
-		local Fobs_texrow 		`" "\multicolumn{`ftestMulticol'}{@{} l}{F-test, number of observations}"  "'
-
-		*Create empty cells for all the group columns
-		forvalues groupIteration = 1/`GRPVAR_NUM_GROUPS' {
-
-			local Fstat_row   	`" `Fstat_row' _tab "" "'
-			local Fobs_row    	`" `Fobs_row'  _tab "" "'
-
-			*Add one more column if onerow is not used
-			if `ONEROW_USED' == 0 {
-				local Fstat_row   	`" `Fstat_row' _tab "" "'
-				local Fobs_row    	`" `Fobs_row'  _tab "" "'
-
-			}
-		}
-
-		*Create empty cells for total columns if total is used
-		if `TOTAL_USED' {
-			local Fstat_row   	`" `Fstat_row' _tab "" "'
-			local Fobs_row   	`" `Fobs_row'  _tab "" "'
-
-
-			*Add one more column if onerow is not used
-			if `ONEROW_USED' == 0 {
-				local Fstat_row   	`" `Fstat_row' _tab "" "'
-				local Fobs_row    	`" `Fobs_row'  _tab "" "'
-
-			}
-		}
-
-		*Local used to count number of f-test that trigered warnings
-		local warn_joint_novar_num	0
-		local warn_joint_lovar_num	0
-		local warn_joint_robus_num	0
-		local fmiss_error 			0
-
-		*Run the F-test on each pair
-		foreach ttest_pair of local ttest_pairs {
-
-			*Create a local for each group in the test
-			*pair from the test_pair local created above
-			local undscr_pos   = strpos("`ttest_pair'","_")
-			local first_group  = substr("`ttest_pair'",1,`undscr_pos'-1)
-			local second_group = substr("`ttest_pair'",  `undscr_pos'+1,.)
-
-			*Create the local with the difference to be displayed in the table
-			tempvar tempvar_thisGroupInPair miss
-			gen 	`tempvar_thisGroupInPair' = .
-			replace `tempvar_thisGroupInPair' = 0 if `groupOrder' == `first_group'
-			replace `tempvar_thisGroupInPair' = 1 if `groupOrder' == `second_group'
-
-			***** Testing if any obs have missing values in any og the varaibles used in the f_test
-
-			*Loop over all balvars and seperate them with a comma
-			local balvars_comma_seperated
-			foreach balancevar of local balancevars {
-				local balvars_comma_seperated `balvars_comma_seperated' , `balancevar'
-			}
-			*Remove the first comman before the first variable
-			local balvars_comma_seperated = subinstr("`balvars_comma_seperated'" ,",","",1)
-			*Generate a variable equal to 1 if any balance var is missing
-			gen `miss' = missing(`balvars_comma_seperated') if !missing(`tempvar_thisGroupInPair')
-
-			*Count number obs in this test pair with non-missing values for all balance variables.
-			count if `miss' == 0
-
-			if `r(N)' == 0 {
-				noi di as error "{phang}F-test not possible. All observations are dropped from the f-test regression as no observation in the f-test between (`first_group')-(`second_group') has non-missing values in all balance variables. Disable the f-test option."
-				error 2000
-			}
-			else if `r(N)' == 1 {
-				noi di as error "{phang}F-test not possible. All but one observation are dropped from the f-test regression as only that one observation in the f-test between (`first_group')-(`second_group') has non-missing values in all balance variables. Disable the f-test option."
-				error 2001
-			}
-
-			*Count number obs in this test pair with missing value in at least one balance variable.
-			count if `miss' == 1
-
-
-			if `r(N)' != 0 & `F_MISS_OK' == 0 {
-				local fmiss_error 		1	//Used to throw error below
-				local fmiss_error_list 	`fmiss_error_list', (`first_group')-(`second_group')
-			}
-
-			**********
-			* Run the regression for f-test
-			reg `tempvar_thisGroupInPair' `balancevars' `covariates' i.`fixedeffect' `weight_option',  `error_estm'
-
-			*This F is calculated using fixed effects as well
-			local reg_F 	"`e(F)'"
-			local reg_F_N 	"`e(N)'"
-
-			*Test all balance variables for joint significance
-			cap testparm `balancevars'
-			local test_F 	"`r(F)'"
-			local test_F_p 	"`r(p)'"
-
-			**********
-			* Write to table
-
-			* No variance in either groups mean in any of the balance vars. F-test not possible to calculate
-			if _rc == 111 {
-
-				local warn_joint_novar_num	= `warn_joint_novar_num' + 1
-				local warn_joint_novar`warn_joint_novar_num' "(`first_group')-(`second_group')"
-
-				local Fstat_row   	`" `Fstat_row' _tab "N/A"  "'
-				local Fobs_row   	`" `Fobs_row'  _tab "N/A"  "'
-
-				local Fstat_texrow  `" `Fstat_texrow' " & N/A" "'
-				local Fobs_texrow   `" `Fobs_texrow'  " & N/A" "'
-			}
-
-			* Collinearity between one balance variable and the dependent treatment dummy
-			else if "`test_F'" == "." {
-
-				local warn_joint_lovar_num	= `warn_joint_lovar_num' + 1
-				local warn_joint_lovar`warn_joint_lovar_num' "(`first_group')-(`second_group')"
-
-				local Fstat_row   	`" `Fstat_row' _tab "N/A"  "'
-				local Fobs_row    	`" `Fobs_row'  _tab "N/A"  "'
-
-				local Fstat_texrow  `" `Fstat_texrow' " & N/A" "'
-				local Fobs_texrow   `" `Fobs_texrow'  " & N/A" "'
-			}
-
-			* F-test is incorreclty specified, error in this code
-			else if _rc != 0 {
-				noi di as error "F-test not valid. Please report this error to kbjarkefur@worldbank.org"
-				error _rc
-			}
-
-			* F-tests possible to calculate
-			else {
-
-				* Robust singularity, see help file. Similar to overfitted model. Result possible but probably not reliable
-				if "`reg_F'" == "." {
-
-					local warn_joint_robus_num	= `warn_joint_robus_num' + 1
-					local warn_joint_robus`warn_joint_robus_num' "(`first_group')-(`second_group')"
-				}
-
-				*If p-test option is used
-				if `PFTEST_USED' {
-
-					local ftest_output = `test_F_p'
-				}
-				*Otherwise display differences
-				else {
-
-					local ftest_output = `test_F'
-				}
-
-
-				*Store f-value
-				local ftest_output 	: display `diformat' `ftest_output'
-				local reg_F_N 		: display  %9.0f  	 `reg_F_N'
-
-				*Adding stars
-				foreach ftest_p_level in `p1star' `p2star' `p3star' {
-
-						if `test_F_p' < `ftest_p_level' local ftest_output `ftest_output'*
-				}
-
-				*Store the f-stat value with stars to the f-stat row
-				local Fstat_row   	`" `Fstat_row' _tab "`ftest_output'" "'
-				local Fobs_row    	`" `Fobs_row'  _tab "`reg_F_N'"  	 "'
-
-				local Fstat_texrow  `" `Fstat_texrow' " & `ftest_output'" "'
-				local Fobs_texrow   `" `Fobs_texrow'  " & `reg_F_N'"  	  "'
-			}
-		}
-
-		*******
-		* Throw missing values in f-test warning
-		if `fmiss_error' == 1 {
-
-			*Remove the first comman before the first variable
-			local fmiss_error_list = subinstr("`fmiss_error_list'" ,",","",1)
-
-			noi di as error "{phang}F-test is possible but perhaps not advisable. Some observations have missing values in some of the balance variables and therfore dropped from the f-stat regression. This happened in the f-tests for the following group(s): [`fmiss_error_list']. Solve this by manually restricting the balance table using if or in, or disable the f-test, or by using option {help iebaltab:balmiss()}. Suppress this error message by using option {help iebaltab:fmissok}"
-			error 416
-		}
-
-
-
-		*******
-		* Write the f-test row to file
-
-		file open  `textname' using "`textfile'", text write append
-								file write `textname' `Fstat_row' _n
-			if !`F_NO_OBS' 		file write `textname' `Fobs_row'  _n
-		file close `textname'
-
-
-		file open  `texname' using "`texfile'", text write append
-								file write `texname' "\hline" _n
-								file write `texname' `Fstat_texrow' " \\" _n
-			if !`F_NO_OBS' 		file write `texname' `Fobs_texrow'  " \\" _n
-		file close `texname'
 	}
 
+	/*******************************************************************************
+	*******************************************************************************/
 
-	/***********************************************
-	************************************************/
+			*Compile and display warnings from regressions and tests
 
-		*Compile and display warnings (as opposed to errors in relation to t and f tests.)
+	/*******************************************************************************
+	*******************************************************************************/
 
-	/*************************************************
-	************************************************/
-
+	* Count if there were any warsnings generated above
 	local anywarning	= max(`warn_means_num',`warn_ftest_num',`warn_joint_novar_num', `warn_joint_lovar_num' ,`warn_joint_robus_num')
 	local anywarning_F	= max(`warn_joint_novar_num', `warn_joint_lovar_num' ,`warn_joint_robus_num')
 
-
-
+	* Display warnings related to the pairwise test regressions
 	if `anywarning' > 0 {
 
 		noi di as text ""
@@ -2306,6 +1537,7 @@ qui {
 			noi di as text ""
 		}
 
+		* Display warnings related to the F test regression
 		if `anywarning_F' > 0 {
 			noi di as text "{pmore}{bf:Joint Significance Tests:} F-tests are not possible to perform or unreliable. See below for details:{p_end}"
 			noi di as text ""
@@ -2363,13 +1595,13 @@ qui {
 
 	}
 
-	/***********************************************
-	************************************************/
+	/*******************************************************************************
+	*******************************************************************************/
 
-		*Add notes to the bottom of the table
+			*Prepare note string
 
-	/*************************************************
-	************************************************/
+	/*******************************************************************************
+	*******************************************************************************/
 
 	* Prepare the covariate note.
 	if `COVARIATES_USED' == 1 {
@@ -2467,424 +1699,30 @@ qui {
 		local COVMISS_USED = 1
 	}
 
-
-	*** Write notes to file according to specificiation
-
-	if `NOTECOMBINE_USED' == 1 {
-
-		*Combine all notes used to one line
-
-		*Delete the locals corresponding to options not used
-		if `FTEST_USED'			== 0	local ftest_note		""
-		if `VCE_USED'			== 0	local error_est_note	""
-		if `WEIGHT_USED'		== 0	local weight_note		""
-		if `FIX_EFFECT_USED'	== 0	local fixed_note		""
-		if `COVARIATES_USED'	== 0	local covar_note		""
-		if `BALMISS_USED'		== 0	local balmiss_note 		""
-		if `COVMISS_USED'		== 0	local covmiss_note 		""
-		if `STARSNOADD_USED'	== 1	local stars_note		""
-
-
-			*Write to file
-			file open  `textname' using "`textfile'", text write append
-
-				file write `textname' "`tblnote' `ttest_note'`ftest_note'`error_est_note'`fixed_note'`covar_note'`weight_note'`balmiss_note'`covmiss_note'`stars_note'" _n
-
-			file close `textname'
-
-
-	}
-	else if `NONOTE_USED' == 1 {
-
-		*Nonote used. Only add manually entered note
-
-		file open  `textname' using "`textfile'", text write append
-
-			if `NOTE_USED' 			file write `textname' "`tblnote'" _n
-
-		file close `textname'
-
-	}
-	else {
-
-		file open  `textname' using "`textfile'", text write append
-
-			if  `NOTE_USED' 		file write `textname' "`tblnote'" 			_n
-									file write `textname' "`ttest_note'" 		_n
-			if 	`FTEST_USED'		file write `textname' "`ftest_note'" 		_n
-			if  `VCE_USED'			file write `textname' "`error_est_note'" 	_n
-			if  `FIX_EFFECT_USED' 	file write `textname' "`fixed_note'" 		_n
-			if  `COVARIATES_USED' 	file write `textname' "`covar_note'" 		_n
-			if  `BALMISS_USED'		file write `textname' "`balmiss_note'"		_n
-			if  `COVMISS_USED'		file write `textname' "`covmiss_note'"		_n
-			if !`STARSNOADD_USED'	file write `textname' "`stars_note'" 		_n
-		file close `textname'
-
-	}
-
-	*** Write tex footer
-
-	*Latex is always combnote, so prep for that
-	*Delete the locals corresponding to options not used
-	if `FTEST_USED'			== 0	local ftest_note		""
-	if `VCE_USED'			== 0	local error_est_note	""
-	if `WEIGHT_USED'		== 0	local weight_note		""
-	if `FIX_EFFECT_USED'	== 0	local fixed_note		""
-	if `COVARIATES_USED'	== 0	local covar_note		""
-	if `BALMISS_USED'		== 0	local balmiss_note 		""
-	if `COVMISS_USED'		== 0	local covmiss_note 		""
-	if `STARSNOADD_USED'	== 1	local stars_note		""
-
-	* Make sure variables with underscore in name are displayed correctly in the note
-	local notes_list "tblnote error_est_note weight_note fixed_note covar_note"
-
-	foreach note of local notes_list {
-
-		local `note' : subinstr local `note' "_"  "\_" , all
-		local `note' : subinstr local `note' "%"  "\%" , all
-		local `note' : subinstr local `note' "&"  "\&" , all
-		local `note' : subinstr local `note' "\$"  "\\\$" , all
-
-	}
-
-	*Calculate total number of columns
-	if `TEXCOLWIDTH_USED' == 0 	local totalColNo = strlen("`colstring'")
-	else {
-		local colstrBracePos = strpos("`colstring'","}")
-		local nonLabelCols = substr("`colstring'",`colstrBracePos'+1,.)
-		local totalColNo = strlen("`nonLabelCols'") +1
-	}
-
-	*Set default tex note width (note width is a multiple of text width.
-	*if none is manually specified, default is text width)
-	if `NOTEWIDTH_USED' == 0 	local texnotewidth = 1
-
-	file open  `texname' using "`texfile'", text write append
-
-		file write `texname' ///
-			"\hline \hline \\[-1.8ex]" _n
-
-		** Write notes to file according to specificiation
-		*If no automatic notes are used, write only manual notes
-		if `NONOTE_USED' & `NOTE_USED' {
-			file write `texname' ///
-				"%%% This is the note. If it does not have the correct margins, use texnotewidth() option or change the number before '\textwidth' in line below to fit it to table size." _n ///
-				"\multicolumn{`totalColNo'}{@{} p{`texnotewidth'\textwidth}}" _n ///
-				`"{\textit{Notes}: `tblnote'}"' _n
-		}
-
-		else if ! `NONOTE_USED' {
-
-			*Write to file
-			file write `texname' ///
-				"%%% This is the note. If it does not have the correct margins, edit text below to fit to table size." _n ///
-				"\multicolumn{`totalColNo'}{@{}p{`texnotewidth'\textwidth}}" _n ///
-				`"{\textit{Notes}: `tblnote' `ttest_note'`ftest_note'`error_est_note'`fixed_note'`covar_note'`weight_note'`balmiss_note'`covmiss_note'`stars_note'}"' _n
-		}
-
-		file write `texname' ///
-				"\end{tabular}" _n
-		file close `texname'
-
-
-		if `TEXDOC_USED' {
-
-			file open  `texname' using "`texfile'", text write append
-			file write `texname' ///
-				"\end{adjustbox}" _n ///
-				"\end{table}" _n ///
-				"\end{document}" _n
-
-			file close `texname'
-		}
-
+	*Restore from orginial preserve at top of command
+	restore
 
 	/***********************************************
 	************************************************/
 
-		*Export and restore data unless other specified
+		*Export tables from the matrix
 
 	/*************************************************
 	************************************************/
-
-	*Restore from orginial preserve at top of command
-	restore
-
-
-
-
-	if !( `BROWSE_USED' | `SAVE_BROWSE_USED' ) preserve
-
-
-		******************************************
-		*Load the text file with the data prepared
-
-		*Insheet was replaced by import delimited by Stata 13
-		if c(version) < 13 {
-
-			*For Stata 11 and 12
-			insheet using "`textfile'", tab clear
-		}
-		else {
-
-			*For Stata 13 and more recent
-			import delimited using "`textfile'", clear delimiters("\t")
-		}
 
 		******************************************
 		*Export the data according to user specification
 
 		*Export to excel format
-		if `SAVE_USED' {
-
-			export excel using `"`save'"', `replace'
-
-			noi di as result `"{phang}Balance table saved to: {browse "`save'":`save'} "'
+		if `SAVE_XLS_USED' {
+			// Run subommand that exports table to Excel
 		}
 
 		*Export to tex format
 		if `SAVE_TEX_USED' {
-
-			copy "`texfile'" `"`savetex'"', `replace'
-
-			noi di as result `"{phang}Balance table saved to: {browse "`savetex'":`savetex'} "'
+			// Run subommand that exports table to tex
 		}
-
-
-	if !( `BROWSE_USED' | `SAVE_BROWSE_USED' ) restore
-
 
 }
-
-end
-
-*This function is used to test the input in the options
-*that replace missing values. Only three strings are allowed
-*as arguemnts
-cap program drop iereplacestringtest
-program define iereplacestringtest
-
-	args optionname replacetypestring
-
-	if !("`replacetypestring'" == "zero" | "`replacetypestring'" == "mean" |  "`replacetypestring'" == "groupmean") {
-
-		noi display as error  "{phang}The string entered in option `optionname'(`replacetypestring') is not a valid replace type string. Only zero, mean and groupmean is allowed. See {help iebaltab:help iebaltab} for more details.{p_end}"
-		error 198
-	}
-
-end
-
-*This function replaces zeros in balance variables
-*or covariates according to the users specifications.
-cap program drop iereplacemiss
-program define iereplacemiss
-
-	syntax varname, replacetype(string) [minobsmean(numlist) regonly groupvar(varname) groupcodes(string)]
-
-		*Which missing values to change. Standard or extended.
-		if "`regonly'" == "" {
-			local misstype "`varlist' >= ."
-		}
-		else {
-			local misstype "`varlist' == ."
-		}
-
-
-		*Set the minimum number of observations
-		*a mean is allowed to be based on.
-		if "`minobsmean'" == "" {
-			local minobs 10 	//10 is the default
-		}
-		else {
-			*setting it to a user defiend value
-			local minobs `minobsmean'
-		}
-
-
-		*Change the missing values accord
-		*to the users specifications
-		if "`replacetype'" == "zero" {
-
-			*Missing is set to zero
-			replace `varlist' = 0 if `misstype'
-
-		}
-		else if "`replacetype'" == "mean" {
-
-			*Generate the mean for all observations in the table
-			sum		`varlist'
-
-			*Test that there are enough observations to base the mean on
-			if `r(N)' < `minobs' {
-				noi display as error  "{phang}Not enough observations. There are less than `minobs' observations with a nonmissing value in `varlist'. Missing values can therefore not be set to the mean. Click {stata tab `varlist', missing} for detailed information.{p_end}"
-				error 2001
-			}
-
-			*Missing values are set to the mean
-			replace `varlist' = `r(mean)' if `misstype'
-
-		}
-		else if  "`replacetype'" == "groupmean" {
-
-			*Loop over each group code
-			foreach code of local groupcodes {
-
-				*Generate the mean for all observations in the group
-				sum		`varlist' if `groupvar' == `code'
-
-				*Test that there are enough observations to base the mean on
-				if `r(N)' == 0 {
-
-					noi display as error  "{phang}No observations. All values are missing in variable `varlist' for group `code' in variable `groupvar' and missing values can therefore not be set to the group mean. Click {stata tab `varlist' if `groupvar' == `code', missing} for detailed information.{p_end}"
-					error 2000
-				}
-				if `r(N)' < `minobs' {
-
-					noi display as error  "{phang}Not enough observations. There are less than `minobs' observations in group `code' in variable `groupvar' with a non missing value in `varlist'. Missing values can therefore not be set to the group mean. Click {stata tab `varlist' if `groupvar' == `code', missing} for detailed information.{p_end}"
-					error 2001
-
-				}
-
-				*Missing values are set to the mean of the group
-				replace `varlist' = `r(mean)' if `misstype' & `groupvar' == `code'
-			}
-
-		}
-
-end
-
-
-cap program drop iecontrolheader
-program define iecontrolheader, rclass
-
-	args control ORDER_OF_GROUPS GRPVAR_NUM_GROUPS TTEST_USED PTTEST_USED NORMDIFF_USED titlerow1 titlerow2 titlerow3 texrow3
-
-	local ttest_pairs ""
-
-	*The t-tests will only be between control and each of the other groups
-	*Get the order of the control group
-	local ctrlGrpPos : list posof "`control'" in ORDER_OF_GROUPS
-
-	*Storing a local of all the test pairs
-	forvalues second_ttest_group = 1/`GRPVAR_NUM_GROUPS' {
-		if `second_ttest_group' != `ctrlGrpPos' {
-			local ttest_pairs "`ttest_pairs' `ctrlGrpPos'_`second_ttest_group'"
-		}
-	}
-
-	if `TTEST_USED' {
-
-		forvalues second_ttest_group = 1/`GRPVAR_NUM_GROUPS' {
-
-			*Include all groups apart from the control group itself
-			if `second_ttest_group' != `ctrlGrpPos' {
-
-				*Adding title rows for the t-test.
-									local titlerow1 `"`titlerow1' _tab "t-test""'
-				if `PTTEST_USED' 	local titlerow2 `"`titlerow2' _tab "p-value""'
-				else 				local titlerow2 `"`titlerow2' _tab "Difference""'
-									local titlerow3 `"`titlerow3' _tab "(`ctrlGrpPos')-(`second_ttest_group')""'
-
-									local texrow3  `" `texrow3'  & (`ctrlGrpPos')-(`second_ttest_group') "'
-
-			}
-		}
-	}
-
-	if `NORMDIFF_USED' {
-
-		forvalues second_ttest_group = 1/`GRPVAR_NUM_GROUPS' {
-
-			*Include all groups apart from the control group itself
-			if `second_ttest_group' != `ctrlGrpPos' {
-
-				local titlerow1 `"`titlerow1' _tab "Normalized""'
-				local titlerow2 `"`titlerow2' _tab "difference""'
-				local titlerow3 `"`titlerow3' _tab "(`ctrlGrpPos')-(`second_ttest_group')""'
-
-				local texrow3  `" `texrow3'  & (`ctrlGrpPos')-(`second_ttest_group') "'
-			}
-		}
-	}
-
-	return local titlerow1 		`"`titlerow1'"'
-	return local titlerow2 		`"`titlerow2'"'
-	return local titlerow3 		`"`titlerow3'"'
-
-	return local texrow3		`"`texrow3'"'
-
-	return local ttest_pairs	`"`ttest_pairs'"'
-
-end
-
-cap program drop ienocontrolheader
-program define ienocontrolheader, rclass
-
-	args GRPVAR_NUM_GROUPS TTEST_USED PTTEST_USED NORMDIFF_USED titlerow1 titlerow2 titlerow3 texrow3
-
-	local ttest_pairs ""
-
-	*The t-tests will be all cominations of groups
-	forvalues first_ttest_group = 1/`GRPVAR_NUM_GROUPS' {
-
-		** To guarantee that all combination of groups are included
-		*  but no duplicates are possible, start next loop one integer
-		*  higher than the first group
-		local nextPossGroup = `first_ttest_group' + 1
-
-		*Storing a local of all the test pairs
-		forvalues second_ttest_group = `nextPossGroup'/`GRPVAR_NUM_GROUPS' {
-			local ttest_pairs "`ttest_pairs' `first_ttest_group'_`second_ttest_group'"
-		}
-	}
-
-	*Adding title rows for the t-test.
-	if `TTEST_USED' {
-		forvalues first_ttest_group = 1/`GRPVAR_NUM_GROUPS' {
-
-			** To guarantee that all combination of groups are included
-			*  but no duplicates are possible, start next loop one integer
-			*  higher than the first group
-			local nextPossGroup = `first_ttest_group' + 1
-
-			forvalues second_ttest_group = `nextPossGroup'/`GRPVAR_NUM_GROUPS' {
-
-									local titlerow1 `"`titlerow1' _tab "t-test""'
-				if `PTTEST_USED' 	local titlerow2 `"`titlerow2' _tab "p-value""'
-				else 				local titlerow2 `"`titlerow2' _tab "Difference""'
-									local titlerow3  `"`titlerow3' _tab "(`first_ttest_group')-(`second_ttest_group')""'
-
-									local texrow3  `" `texrow3' & (`first_ttest_group')-(`second_ttest_group') "'
-			}
-		}
-	}
-
-	*Adding title rows for the normalized differences.
-	if `NORMDIFF_USED' {
-		forvalues first_ttest_group = 1/`GRPVAR_NUM_GROUPS' {
-
-			** To guarantee that all combination of groups are included
-			*  but no duplicates are possible, start next loop one integer
-			*  higher than the first group
-			local nextPossGroup = `first_ttest_group' + 1
-
-			forvalues second_ttest_group = `nextPossGroup'/`GRPVAR_NUM_GROUPS' {
-
-				local titlerow1 `"`titlerow1' _tab "Normalized""'
-				local titlerow2 `"`titlerow2' _tab "difference""'
-				local titlerow3 `"`titlerow3' _tab "(`first_ttest_group')-(`second_ttest_group')""'
-
-				local texrow3  `" `texrow3'  & (`first_ttest_group')-(`second_ttest_group') "'
-			}
-		}
-	}
-
-	return local titlerow1 		`"`titlerow1'"'
-	return local titlerow2 		`"`titlerow2'"'
-	return local titlerow3 		`"`titlerow3'"'
-
-	return local texrow3		`"`texrow3'"'
-
-	return local ttest_pairs	`"`ttest_pairs'"'
 
 end
