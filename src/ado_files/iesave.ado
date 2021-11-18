@@ -162,33 +162,29 @@
 	
 	  *Define list of locals with vars by category
 	  
-	  *String
-	  
-	  ds , has(type string)
-    	  return list
+	  ** String
+	  *  Definition : any var with type string
+	
           local iesave_str `r(varlist)'
 	  
-	  *Date
-	  
+	  ** Date
+	  *  Definition : anything with date display format
 	  ds , has(format %t* %-t*)
-   	  return list
           local iesave_date `r(varlist)'
 	  
-	  *Categorical
-	  
-	  ds , has(type numeric)
-	  return list 
+	  **Categorical
+	  * Defintion : all numeric variables with labels that are not defined as dates
+	  ds , has(type numeric)              //All numerice
           local iesave_num `r(varlist)'
-	
-       	  ds, not(vallabel)
-	  return list 
+       	  ds, not(vallabel)                   //All without value labels
 	  local iesave_novallab `r(varlist)'
 	
+	  * Use set operators to get a list of categorical variables
 	  local iesave_cat : list iesave_num - iesave_novallab
 	  local iesave_cat : list iesave_cat - iesave_date
 	  
-	  *Continuous 
-	  
+	  ** Continuous 
+	  *  Defintion : all numeric variables that are not date or categorical
 	  local iesave_num_oth : list iesave_date & iesave_cat
           local iesave_cont : list iesave_num - iesave_num_oth
 	  
