@@ -185,7 +185,7 @@
 	  
 	  ** Continuous 
 	  *  Defintion : all numeric variables that are not date or categorical
-	  local iesave_num_oth : list iesave_date & iesave_cat
+	  local iesave_num_oth : list iesave_date | iesave_cat
           local iesave_cont : list iesave_num - iesave_num_oth
 	  
 	
