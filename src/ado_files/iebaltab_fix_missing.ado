@@ -1,4 +1,16 @@
 
+/*******************************************************************************
+*******************************************************************************/
+
+		* Handle missing values
+
+/*******************************************************************************
+*******************************************************************************/
+
+	* Apply how missingvalues will be handled
+	iereplacemiss `balancevar', `replaceoptions'
+
+
 			* This option can be used to get a uniform N across all variables even if
 			* the variable is missing for some observations. When specifying this
 			* option, a dummy is created indicating all HHs that have a missing value
