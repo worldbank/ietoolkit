@@ -1196,27 +1196,19 @@ qui {
 				reg 	`balancevar' if `grpvar' == `group_code' `weight_option', `error_estm'
 
 				*Number of observation for this balancevar for this group
-				local ++colindex
-				mat row[1,`colindex'] = e(N)
-
-				*If clusters used, number of clusters in this balance var for this group
+				mat row[1,`++colindex'] = e(N)
+				*If clusters used, number of clusters in this balance var for this group, otherwise .c
 				local ++colindex
 				if "`vce_type'" == "cluster" mat row[1,`colindex'] = e(N_clust)
-				*Otherwise leave assign missing value .c in that column
 				else mat row[1,`colindex'] = .c
-
 				*Mean of balance var for this group
-				local ++colindex
-				mat row[1,`colindex'] = _b[_cons]
-
+				mat row[1,`++colindex'] = _b[_cons]
 				*Standard error of balance var for this group
-				local ++colindex
-				mat row[1,`colindex'] = _se[_cons]
-
+				mat row[1,`++colindex'] = _se[_cons]
 				*Standard deviation of balance var for this group
-				local ++colindex
 				local sd = _se[_cons] * sqrt(e(N))
-				mat row[1,`colindex'] = `sd'
+				mat row[1,`++colindex'] = `sd'
+
 			}
 
 
@@ -1227,27 +1219,18 @@ qui {
 			reg 	`balancevar'  `weight_option', `error_estm'
 
 			*Number of observation for this balancevar for this group
-			local ++colindex
-			mat row[1,`colindex'] = e(N)
-
-			*If clusters used, number of clusters in this balance var for this group
+			mat row[1,`++colindex'] = e(N)
+			*If clusters used, number of clusters in this balance var for this group, otherwise .c
 			local ++colindex
 			if "`vce_type'" == "cluster" mat row[1,`colindex'] = e(N_clust)
-			*Otherwise leave assign missing value .c in that column
 			else mat row[1,`colindex'] = .c
-
 			*Mean of balance var for this group
-			local ++colindex
-			mat row[1,`colindex'] = _b[_cons]
-
+			mat row[1,`++colindex'] = _b[_cons]
 			*Standard error of balance var for this group
-			local ++colindex
-			mat row[1,`colindex'] = _se[_cons]
-
+			mat row[1,`++colindex'] = _se[_cons]
 			*Standard deviation of balance var for this group
-			local ++colindex
 			local sd = _se[_cons] * sqrt(e(N))
-			mat row[1,`colindex'] = `sd'
+			mat row[1,`++colindex'] = `sd'
 
 			******************************************************
 			*** Get test estimates for each test pair
@@ -1260,14 +1243,9 @@ qui {
 				local first_code  = substr("`ttest_pair'",1,`undscr_pos'-1)
 				local second_code = substr("`ttest_pair'",  `undscr_pos'+1,.)
 
-				*Add simple difference between the groups to matrix
-				noi matlist row
-
 				local colnum_mean_code1 = colnumb(row,"mean_`first_code'")
 				local colnum_mean_code2 = colnumb(row,"mean_`second_code'")
-
-				local ++colindex
-				mat row[1,`colindex'] = el(row,1,`colnum_mean_code1') - el(row,1,`colnum_mean_code2')
+				mat row[1,`++colindex'] = el(row,1,`colnum_mean_code1') - el(row,1,`colnum_mean_code2')
 
 				* Create a temporary varaible used as the dummy to indicate which
 				* observation is in the first and in the second group in the test pair.
@@ -1307,8 +1285,7 @@ qui {
 
 					* Adding missing value for each stat that is missing due to not running regression
 					foreach stat in baln balcl beta t p {
-						local ++colindex
-						mat row[1,`colindex'] = .v
+						mat row[1,`++colindex'] = .v
 					}
 				}
 
@@ -1319,23 +1296,17 @@ qui {
 					reg `balancevar' `dummy_pair_`ttest_pair'' `covariates' i.`fixedeffect' `weight_option', `error_estm'
 
 					*Number of observation for in these two groups
-					local ++colindex
-					mat row[1,`colindex'] = e(N)
-
-					*If clusters used, number of clusters in this these two groups
+					mat row[1,`++colindex'] = e(N)
+					*If clusters used, number of clusters in this these two groups, otehrwise .c
 					local ++colindex
 					if "`vce_type'" == "cluster" mat row[1,`colindex'] = e(N_clust)
-					*Otherwise leave assign missing value .c in that column
 					else mat row[1,`colindex'] = .c
-
 				  *The diff between the groups after controling for fixed effects and covariates
-					local ++colindex
-					mat row[1,`colindex'] = e(b)[1,1]
+					mat row[1,`++colindex'] = e(b)[1,1]
 
 					*Perform the t-test and store p-value in pttest
 					test `dummy_pair_`ttest_pair''
-					local ++colindex
-					mat row[1,`colindex'] = r(p)
+					mat row[1,`++colindex'] = r(p)
 				}
 
 				*Testing result and if valid, write to file with or without stars
@@ -1348,15 +1319,15 @@ qui {
 					local warn_means_bvar`warn_means_num'	"`balancevar'"
 
 					* Adding missing value for no normdiff due to no standdev in balancevar for this pair
-					local ++colindex
-					mat row[1,`colindex'] = .n
+					mat row[1,`++colindex'] = .n
 
 				}
 				else {
 					*Calculate and store the normalized difference
-					local ++colindex
-					mat row[1,`colindex'] = el(row,1,colnumb(row,"diff_`ttest_pair'")) / `scal_sd'
+					mat row[1,`++colindex'] = el(row,1,colnumb(row,"diff_`ttest_pair'")) / `scal_sd'
 				}
+
+				mat list row
 			}
 
 
@@ -1377,21 +1348,16 @@ qui {
 				local warn_ftest_bvar`warn_ftest_num'		"`balancevar'"
 
 				* Adding missing values for invalid feq test
-				local ++colindex
-				mat row[1,`colindex'] = .f
-				local ++colindex
-				mat row[1,`colindex'] = .f
+				mat row[1,`++colindex'] = .f
+				mat row[1,`++colindex'] = .f
 			}
 			else {
 				* Adding p value and F value to matrix
-				local ++colindex
-				mat row[1,`colindex'] = `pfeqtest'
-				local ++colindex
-				mat row[1,`colindex'] = `ffeqtest'
+				mat row[1,`++colindex'] = `pfeqtest'
+				mat row[1,`++colindex'] = `ffeqtest'
 			}
 
-			*Appending row to result mata
-
+			*Appending row for this balance var to result matrix
 			mat resultMat = [resultMat\row]
 		}
 
@@ -1421,8 +1387,7 @@ qui {
 		scalar reg_f = e(F)
 
 		* Adding F score and number of observations to the matrix
-		local ++Fcolindex
-		mat FtestMat[1,`Fcolindex'] = e(N)
+		mat FtestMat[1,`++Fcolindex'] = e(N)
 
 		*Test all balance variables for joint significance
 		cap testparm `balancevars'
@@ -1462,11 +1427,8 @@ qui {
 				local warn_joint_robus_num	= `warn_joint_robus_num' + 1
 				local warn_joint_robus`warn_joint_robus_num' "(`first_group')-(`second_group')"
 			}
-
-			local ++Fcolindex
-			mat FtestMat[1,`Fcolindex'] = test_F
-			local ++Fcolindex
-			mat FtestMat[1,`Fcolindex'] = test_p
+			mat FtestMat[1,`++Fcolindex'] = test_F
+			mat FtestMat[1,`++Fcolindex'] = test_p
 		}
 	}
 
