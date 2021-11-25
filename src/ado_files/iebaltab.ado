@@ -1,77 +1,45 @@
 *! version 6.3 5NOV2019 DIME Analytics dimeanalytics@worldbank.org
 
-	capture program drop iebaltab
-	program iebaltab
+	capture program drop iebaltab,
+	program define iebaltab, rclass
 
-		syntax varlist(numeric) [if] [in] [aw fw pw iw], 					///
-																			///
-				/*Group variable*/											///
-				GRPVar(varname) 											///
-																			///
-				[															///
-				/*Columns and order of columns*/							///
-				ORder(numlist int min=1) 									///
-				COntrol(numlist int max=1) 									///
-				TOTal 														///
-																			///
-				/*Column and row labels*/									///
-				GRPCodes													///
-				GRPLabels(string)											///
-				TOTALLabel(string)											///
-				ROWVarlabels												///
-				ROWLabels(string)											///
-				onerow														///
-				onenrow														///
-																			///
-				/*Statistics and data manipulation*/						///
-				FIXedeffect(varname)										///
-				COVariates(varlist ts fv)									///
-				COVARMISSOK													///
-				vce(string) 												///
-				BALMISS(string) 											///
-				BALMISSReg(string)											///
-				COVMISS(string) 											///
-				COVMISSReg(string)											///
-				MISSMINmean(numlist min=1 max=1 >0)							///
-				WEIGHTold(string)											///
-																			///
-				/*F-test*/													///
-				FTest 														///
-				FMissok														///
-				FNOOBS														///
-																			///
-				/*Output display*/											///
-				NOTtest														///
-				NORMDiff													///
-				PTtest														///
-				PFtest														///
-				FEQTest														///
-				PBoth														///
-				STDev														///
-				STARlevels(numlist descending min=3 max=3 >0 <1)			///
-				STARSNOadd													///
-				FORMat(string) 												///
-				TBLNote(string)												///
-				NOTECombine													///
-				TBLNONote													///
-																			///
-				/*Export and restore*/										///
-				SAVE(string)  												///
-				SAVETex(string)												///
-				TEXNotewidth(numlist min=1 max=1)							///
-				TEXCaption(string)											///
-				TEXLabel(string)											///
-				TEXDOCument													///
-				texvspace(string)											///
-				texcolwidth(string)											///
-				BROWSE														///
-				SAVEBRowse													///
-				REPLACE														///
+		syntax varlist(numeric) [if] [in] [aw fw pw iw],                    ///
+                                                                        ///
+				/*Group variable*/                                              ///
+				GRPVar(varname)                                                 ///
+				[                                                               ///
+				/*Columns and order of columns*/                                ///
+				ORder(numlist int min=1) COntrol(numlist int max=1) TOTal       ///
+                                                                        ///
+				/*Column and row labels*/                                       ///
+				GRPCodes GRPLabels(string) TOTALLabel(string) ROWVarlabels      ///
+				ROWLabels(string) onerow                                        ///
+				                                                                ///
+				/*Statistics and data manipulation*/                            ///
+				FIXedeffect(varname) COVariates(varlist ts fv) COVARMISSOK      ///
+				vce(string)   MISSMINmean(numlist min=1 max=1 >0)               ///
+				WEIGHTold(string)                                               ///
+				                                                                ///
+				/*F-test*/                                                      ///
+				FTest FMissok	FNOOBS                                            ///
+				                                                                ///
+				/*Output display*/                                              ///
+				NOTtest NORMDiff PTtest PFtest FEQTest PBoth STDev              ///
+				STARlevels(numlist descending min=3 max=3 >0 <1)			          ///
+				STARSNOadd FORMat(string) TBLNote(string)	NOTECombine	TBLNONote	///
+				                                                                ///
+				/*Export and restore*/                                          ///
+				SAVE(string) SAVETex(string) TEXNotewidth(numlist min=1 max=1)  ///
+				TEXCaption(string) TEXLabel(string) TEXDOCument	texvspace(string) ///
+				texcolwidth(string) REPLACE                                     ///
+				                                                                ///
+				/*Deprecated options
+				  - still included to throw helpful error if ever used */       ///
+				BROWSE SAVEBRowse BALMISS(string) BALMISSReg(string)            ///
+				COVMISS(string) COVMISSReg(string)                              ///
 				]
 
 
-		********POTENTIAL UPDATES*********
-		*1. Implement option for bootstrap
 
 		********HELPFILE TODO*********
 		*1. Explain difference in se between group by itself and the standard errors used in the t-test
@@ -92,8 +60,6 @@ qui {
 		*Remove observations excluded by if and in
 		marksample touse,  novarlist
 		keep if `touse'
-
-	if 1 {
 
 	/***********************************************
 	************************************************
