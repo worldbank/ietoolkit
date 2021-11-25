@@ -1028,6 +1028,11 @@ qui {
 		mat resultMat = r(emptyRow)
 		mat FtestMat  = r(emptyFRow)
 
+		local desc_stats   `r(desc_stats)'
+	  local pair_stats   `r(pair_stats)'
+		local allgrp_stats `r(allgrp_stats)'
+		local ftest_stats  `r(ftest_stats)'
+
 		noi mat list emptyRow
 		noi mat list FtestMat
 
@@ -1180,7 +1185,7 @@ qui {
 
 		foreach balancevar in `balancevars' {
 
-			* Make a
+			* Make a copy of the empty row template to populate this row with
 			mat row = emptyRow
 			mat rownames row = `balancevar'
 
@@ -1216,21 +1221,31 @@ qui {
 			*** Get descriptive stats for total
 
 			noi di "Desc stats. Var [`balancevar'], total"
-			reg 	`balancevar'  `weight_option', `error_estm'
+			if !missing("`total'") {
+				* Estimate descriptive stats for total
+				reg 	`balancevar'  `weight_option', `error_estm'
+				*Number of observation for this balancevar for this group
+				mat row[1,`++colindex'] = e(N)
+				*If clusters used, number of clusters in this balance var for this group, otherwise .c
+				local ++colindex
+				if "`vce_type'" == "cluster" mat row[1,`colindex'] = e(N_clust)
+				else mat row[1,`colindex'] = .c
+				*Mean of balance var for this group
+				mat row[1,`++colindex'] = _b[_cons]
+				*Standard error of balance var for this group
+				mat row[1,`++colindex'] = _se[_cons]
+				*Standard deviation of balance var for this group
+				local sd = _se[_cons] * sqrt(e(N))
+				mat row[1,`++colindex'] = `sd'
+			}
+			else {
+				*If total not specified, then put .m in all total columns
+				foreach tot_stat of local desc_stats {
+					mat row[1,`++colindex'] = .m
+				}
+			}
 
-			*Number of observation for this balancevar for this group
-			mat row[1,`++colindex'] = e(N)
-			*If clusters used, number of clusters in this balance var for this group, otherwise .c
-			local ++colindex
-			if "`vce_type'" == "cluster" mat row[1,`colindex'] = e(N_clust)
-			else mat row[1,`colindex'] = .c
-			*Mean of balance var for this group
-			mat row[1,`++colindex'] = _b[_cons]
-			*Standard error of balance var for this group
-			mat row[1,`++colindex'] = _se[_cons]
-			*Standard deviation of balance var for this group
-			local sd = _se[_cons] * sqrt(e(N))
-			mat row[1,`++colindex'] = `sd'
+
 
 			******************************************************
 			*** Get test estimates for each test pair
@@ -1272,7 +1287,6 @@ qui {
 				sum `balancevar' if !missing(`dummy_pair_`ttest_pair'')
 				tempname scal_sd
 				scalar `scal_sd' = r(sd)
-
 
 				*Testing result and if valid, write to file with or without stars
 				if `varloc' == 0 {
@@ -1326,8 +1340,6 @@ qui {
 					*Calculate and store the normalized difference
 					mat row[1,`++colindex'] = el(row,1,colnumb(row,"diff_`ttest_pair'")) / `scal_sd'
 				}
-
-				mat list row
 			}
 
 
