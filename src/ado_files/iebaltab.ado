@@ -986,7 +986,7 @@ qui {
 		local FEQTEST_INPUT ""
 		forvalues grp_code_count = 2/`: word count `GRP_CODES'' {
 			local this_code : word `grp_code_count' of `GRP_CODES'
-			local FEQTEST_INPUT "`FEQTEST_INPUT'`this_code'.`grp_var'="
+			local FEQTEST_INPUT "`FEQTEST_INPUT'`this_code'.`grpvar'="
 		}
 		local FEQTEST_INPUT "`FEQTEST_INPUT'0"
 
@@ -1017,11 +1017,18 @@ qui {
 		*Number of test pairs
 		local COUNT_TEST_PAIRS : list sizeof TEST_PAIR_CODES
 
+		noi di "`ORDER_OF_GROUP_CODES'"
+
+		do "C:\Users\wb462869\GitHub\ietoolkit\src\ado_files\iebaltab_setupmatrix.ado"
+
 		* Set up the matrix for all stats and estimates
-		setUpResultMatric `ORDER_OF_GROUP_CODES' `TOTAL_USED' `TEST_PAIR_CODES'
-		mat emptyRowMat  = r(emptyRowMat)
-		mat resultMat    = r(emptyRowMat)
-		local matColnames  r(colnames)
+		noi setUpResultMatrix, order_of_group_codes(`ORDER_OF_GROUP_CODES') test_pair_codes(`TEST_PAIR_CODES')
+		mat emptyRow  = r(emptyRow)
+		mat resultMat = r(emptyRow)
+		mat FtestMat  = r(emptyFRow)
+
+		noi mat list emptyRow
+		noi mat list FtestMat
 
 /*******************************************************************************
 *******************************************************************************/
@@ -1183,9 +1190,9 @@ qui {
 
 		foreach balancevar in `balancevars' {
 
-			mat rowMat = emptyRowMat
-			mat rownames rowMat = `balancevar'
-			mat colnames rowMat = `matColnames'
+			* Make a
+			mat row = emptyRow
+			mat rownames row = `balancevar'
 
 			*Local that keeps track of which column to fill
 			local colindex 0
@@ -1195,60 +1202,62 @@ qui {
 
 			foreach group_code of local ORDER_OF_GROUP_CODES {
 
+				noi di "Desc stats. Var [`balancevar'], group code [`group_code']"
 				reg 	`balancevar' if `grpvar' == `group_code' `weight_option', `error_estm'
 
 				*Number of observation for this balancevar for this group
 				local ++colindex
-				mat rowMat[1,`colindex'] = e(N)
+				mat row[1,`colindex'] = e(N)
 
 				*If clusters used, number of clusters in this balance var for this group
 				local ++colindex
-				if "`vce_type'" == "cluster" mat rowMat[1,`colindex'] = e(N_clust)
+				if "`vce_type'" == "cluster" mat row[1,`colindex'] = e(N_clust)
 				*Otherwise leave assign missing value .c in that column
-				else mat rowMat[1,`colindex'] = .c
+				else mat row[1,`colindex'] = .c
 
 				*Mean of balance var for this group
 				local ++colindex
-				mat rowMat[1,`colindex'] = _b[_cons]
+				mat row[1,`colindex'] = _b[_cons]
 
 				*Standard error of balance var for this group
 				local ++colindex
-				mat rowMat[1,`colindex'] = _se[_cons]
+				mat row[1,`colindex'] = _se[_cons]
 
 				*Standard deviation of balance var for this group
 				local ++colindex
 				local sd = _se[_cons] * sqrt(e(N))
-				mat rowMat[1,`colindex'] = `sd'
+				mat row[1,`colindex'] = `sd'
 			}
 
 
 			******************************************************
 			*** Get descriptive stats for total
 
+			noi di "Desc stats. Var [`balancevar'], total"
 			reg 	`balancevar'  `weight_option', `error_estm'
 
 			*Number of observation for this balancevar for this group
 			local ++colindex
-			mat rowMat[1,`colindex'] = e(N)
+			mat row[1,`colindex'] = e(N)
 
 			*If clusters used, number of clusters in this balance var for this group
 			local ++colindex
-			if "`vce_type'" == "cluster" mat rowMat[1,`colindex'] = e(N_clust)
+			if "`vce_type'" == "cluster" mat row[1,`colindex'] = e(N_clust)
 			*Otherwise leave assign missing value .c in that column
-			else mat rowMat[1,`colindex'] = .c
+			else mat row[1,`colindex'] = .c
 
 			*Mean of balance var for this group
 			local ++colindex
-			mat rowMat[1,`colindex'] = _b[_cons]
+			mat row[1,`colindex'] = _b[_cons]
 
 			*Standard error of balance var for this group
 			local ++colindex
-			mat rowMat[1,`colindex'] = _se[_cons]
+			mat row[1,`colindex'] = _se[_cons]
 
 			*Standard deviation of balance var for this group
 			local ++colindex
 			local sd = _se[_cons] * sqrt(e(N))
-			mat rowMat[1,`colindex'] = `sd'
+			mat row[1,`colindex'] = `sd'
 
 			******************************************************
 			*** Get test estimates for each test pair
@@ -1262,19 +1271,22 @@ qui {
 				local second_code = substr("`ttest_pair'",  `undscr_pos'+1,.)
 
 				*Add simple difference between the groups to matrix
+				noi matlist row
+
+				local colnum_mean_code1 = colnumb(row,"mean_`first_code'")
+				local colnum_mean_code2 = colnumb(row,"mean_`second_code'")
+
 				local ++colindex
-				mat rowMat[1,`colindex'] =                            ///
-					  el(rowMat,1,colnumb(rowMat,"mean_`first_code'"))  ///
-					- el(rowMat,1,colnumb(rowMat,"mean_`second_code'"))
+				mat row[1,`colindex'] = el(row,1,`colnum_mean_code1') - el(row,1,`colnum_mean_code2')
 
 				* Create a temporary varaible used as the dummy to indicate which
 				* observation is in the first and in the second group in the test pair.
 				* Since all other observations are missing, this variable also exculde
 				* all observations in neither of the groups from the test regression
-				tempvar  tempvar_thisGroupInPair
-				gen     `tempvar_thisGroupInPair' = .	//default is missing, and obs not in this pair will remain missing
-				replace `tempvar_thisGroupInPair' = 0 if `groupOrder' == `first_group'
-				replace `tempvar_thisGroupInPair' = 1 if `groupOrder' == `second_group'
+				tempvar  dummy_pair_`ttest_pair'
+				gen     `dummy_pair_`ttest_pair'' = .	//default is missing, and obs not in this pair will remain missing
+				replace `dummy_pair_`ttest_pair'' = 0 if `grpvar' == `first_code'
+				replace `dummy_pair_`ttest_pair'' = 1 if `grpvar' == `second_code'
 
 				* The command mean is used to test that there is variation in the
 				* balance var across these two groups. The regression that includes
@@ -1283,12 +1295,13 @@ qui {
 				* an error or a warning will be thrown or if the test results will be
 				* replaced with an "N/A".
 				if "`error_estm'" != "vce(robust)" 	local mean_error_estm `error_estm' //Robust not allowed in mean, but the mean here
-				mean `balancevar', over(`tempvar_thisGroupInPair') 	 `mean_error_estm'
+				noi di "Test var. Var [`balancevar'], test pair [`ttest_pair']"
+				mean `balancevar', over(`dummy_pair_`ttest_pair'') 	 `mean_error_estm'
 				mat var = e(V)
 				local varloc = max(var[1,1],var[2,2])
 
 				*Calculate standard deviation for sample of interest
-				sum `balancevar' if !missing(`tempvar_thisGroupInPair')
+				sum `balancevar' if !missing(`dummy_pair_`ttest_pair'')
 				tempname scal_sd
 				scalar `scal_sd' = r(sd)
 
@@ -1303,21 +1316,36 @@ qui {
 					local warn_means_bvar`warn_means_num'	"`balancevar'"
 
 					* Adding missing value for each stat that is missing due to not running regression
-					foreach stat in p beta {
+					foreach stat in baln balcl beta t p {
 						local ++colindex
-						mat rowMat[1,`colindex'] = .v
+						mat row[1,`colindex'] = .v
 					}
 				}
 
 				else {
 
 					* Perform the balance test for this test pair for this balance var
-					reg `balancevar' `tempvar_thisGroupInPair' `covariates' i.`fixedeffect' `weight_option', `error_estm'
+					noi di "Balance regression. Var [`balancevar'], test pair [`ttest_pair']"
+					reg `balancevar' `dummy_pair_`ttest_pair'' `covariates' i.`fixedeffect' `weight_option', `error_estm'
+
+					*Number of observation for in these two groups
+					local ++colindex
+					mat row[1,`colindex'] = e(N)
+
+					*If clusters used, number of clusters in this these two groups
+					local ++colindex
+					if "`vce_type'" == "cluster" mat row[1,`colindex'] = e(N_clust)
+					*Otherwise leave assign missing value .c in that column
+					else mat row[1,`colindex'] = .c
+
+				  *The diff between the groups after controling for fixed effects and covariates
+					local ++colindex
+					mat row[1,`colindex'] = e(b)[1,1]
 
 					*Perform the t-test and store p-value in pttest
-					test `tempvar_thisGroupInPair'
+					test `dummy_pair_`ttest_pair''
 					local ++colindex
-					mat rowMat[1,`colindex'] = r(p)
+					mat row[1,`colindex'] = r(p)
 				}
 
 				*Testing result and if valid, write to file with or without stars
@@ -1331,18 +1359,20 @@ qui {
 
 					* Adding missing value for no normdiff due to no standdev in balancevar for this pair
 					local ++colindex
-					mat rowMat[1,`colindex'] = .n
+					mat row[1,`colindex'] = .n
 
 				}
 				else {
 					*Calculate and store the normalized difference
-					mat rowMat[1,`colindex'] = el(rowMat,1,colnumb(rowMat,"diff_`test_pair'")) / `stdev'
+					local ++colindex
+					mat row[1,`colindex'] = el(row,1,colnumb(row,"diff_`ttest_pair'")) / `scal_sd'
 				}
 			}
 
 
 		*** Test for joint orthogonality across all groups for this balance var
 			* Run regression
+			noi di "FEQ regression. Var [`balancevar']"
 			reg `balancevar' i.`grpvar' `covariates' i.`fixedeffect' `weight_option', `error_estm'
 
 			test `FEQTEST_INPUT'
@@ -1358,17 +1388,21 @@ qui {
 
 				* Adding missing values for invalid feq test
 				local ++colindex
-				mat rowMat[1,`colindex'] = .f
+				mat row[1,`colindex'] = .f
 				local ++colindex
-				mat rowMat[1,`colindex'] = .f
+				mat row[1,`colindex'] = .f
 			}
 			else {
 				* Adding p value and F value to matrix
 				local ++colindex
-				mat rowMat[1,`colindex'] = `pfeqtest'
+				mat row[1,`colindex'] = `pfeqtest'
 				local ++colindex
-				mat rowMat[1,`colindex'] = `ffeqtest'
+				mat row[1,`colindex'] = `ffeqtest'
 			}
+
+			*Appending row to result mata
+
+			mat resultMat = [resultMat\row]
 		}
 
 	/***********************************************
@@ -1383,54 +1417,48 @@ qui {
 	local warn_joint_novar_num	0
 	local warn_joint_lovar_num	0
 	local warn_joint_robus_num	0
-	local fmiss_error 			0
+	local fmiss_error           0
+
+	local Fcolindex             0
 
 	*Run the F-test on each pair
-	foreach ttest_pair of local ttest_pairs {
-
-		*Create a local for each group in the test
-		*pair from the test_pair local created above
-		local undscr_pos   = strpos("`ttest_pair'","_")
-		local first_group  = substr("`ttest_pair'",1,`undscr_pos'-1)
-		local second_group = substr("`ttest_pair'",  `undscr_pos'+1,.)
-
-		*Create the local with the difference to be displayed in the table
-		tempvar tempvar_thisGroupInPair miss
-		gen 	`tempvar_thisGroupInPair' = .
-		replace `tempvar_thisGroupInPair' = 0 if `groupOrder' == `first_group'
-		replace `tempvar_thisGroupInPair' = 1 if `groupOrder' == `second_group'
+	foreach ttest_pair of local TEST_PAIR_CODES {
 
 		**********
 		* Run the regression for f-test
-		reg `tempvar_thisGroupInPair' `balancevars' `covariates' i.`fixedeffect' `weight_option',  `error_estm'
+		noi di "F regression. Var [`balancevars'], test pair [`ttest_pair']"
+		reg `dummy_pair_`ttest_pair'' `balancevars' `covariates' i.`fixedeffect' `weight_option',  `error_estm'
 		scalar reg_f = e(F)
 
 		* Adding F score and number of observations to the matrix
-		local ++colindex
-		mat rowMat[1,`colindex'] = e(N)
+		local ++Fcolindex
+		mat FtestMat[1,`Fcolindex'] = e(N)
 
 		*Test all balance variables for joint significance
 		cap testparm `balancevars'
-		scalar test_F = e(F)
-		scalar test_p = e(p)
+		scalar test_F = r(F)
+		scalar test_p = r(p)
 
 		**********
 		* Write to table
 
 		* No variance in either groups mean in any of the balance vars. F-test not possible to calculate
 		if _rc == 111 {
+
 			local warn_joint_novar_num	= `warn_joint_novar_num' + 1
 			local warn_joint_novar`warn_joint_novar_num' "(`first_group')-(`second_group')"
 		}
 
 		* Collinearity between one balance variable and the dependent treatment dummy
 		else if "`test_F'" == "." {
+
 			local warn_joint_lovar_num	= `warn_joint_lovar_num' + 1
 			local warn_joint_lovar`warn_joint_lovar_num' "(`first_group')-(`second_group')"
 		}
 
 		* F-test is incorreclty specified, error in this code
 		else if _rc != 0 {
+
 			noi di as error "F-test not valid. Please report this error to dimeanalytics@worldbank.org"
 			error _rc
 		}
@@ -1440,14 +1468,15 @@ qui {
 
 			* Robust singularity, see help file. Similar to overfitted model. Result possible but probably not reliable
 			if "`reg_F'" == "." {
+
 				local warn_joint_robus_num	= `warn_joint_robus_num' + 1
 				local warn_joint_robus`warn_joint_robus_num' "(`first_group')-(`second_group')"
 			}
 
-			local ++colindex
-			mat rowMat[1,`colindex'] = test_F
-			local ++colindex
-			mat rowMat[1,`colindex'] = test_p
+			local ++Fcolindex
+			mat FtestMat[1,`Fcolindex'] = test_F
+			local ++Fcolindex
+			mat FtestMat[1,`Fcolindex'] = test_p
 		}
 	}
 
@@ -1667,6 +1696,12 @@ qui {
 
 	*Restore from orginial preserve at top of command
 	restore
+
+	mat resultMat = resultMat[2...,1...]
+	return matrix resultMat resultMat
+	return matrix FtestMat  FtestMat
+
+
 
 	/***********************************************
 	************************************************/
