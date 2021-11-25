@@ -47,6 +47,14 @@
 	preserve
 qui {
 
+	/***********************************************
+	************************************************
+
+		Version, weight and if/in sample
+
+	*************************************************
+	************************************************/
+
 	*Set minimum version for this command
 	version 12
 
@@ -945,13 +953,6 @@ qui {
 
 		}
 
-		*At least one of save and browse may be used
-		if (`SAVE_USED' + `BROWSE_USED' + `SAVE_TEX_USED' < 1) {
-
-			*Error for incorrectly using both save() and browse
-			noi display as error "{phang}Either option save() or option savetex() or option browse must be used. Note that option browse drops all data in memory and it is not possible to restore it afterwards. Use preserve/restore, tempfiles or save data to disk before using the otion browse."
-			error
-		}
 
 /*******************************************************************************
 *******************************************************************************/
@@ -1703,16 +1704,14 @@ qui {
 		******************************************
 		*Export the data according to user specification
 
-		*Export to excel format
-		if `SAVE_XLS_USED' {
-			// Run subommand that exports table to Excel
-		}
-
-		*Export to tex format
-		if `SAVE_TEX_USED' {
-			// Run subommand that exports table to tex
-		}
-
-}
+		// *Export to excel format
+		// if `SAVE_XLS_USED' {
+		// 	// Run subommand that exports table to Excel
+		// }
+		//
+		// *Export to tex format
+		// if `SAVE_TEX_USED' {
+		// 	// Run subommand that exports table to tex
+		// }
 
 end
