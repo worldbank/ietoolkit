@@ -1020,6 +1020,24 @@ qui {
 
 		noi di "`ORDER_OF_GROUP_CODES'"
 
+		************************************************
+		* Setup tempvar dummies for each test pair that is
+		* 0 for first code and 1 for second code and
+		* missing for all other observations.
+		foreach ttest_pair of local TEST_PAIR_CODES {
+
+			*Get each code from a testpair
+			getCodesFromPair `ttest_pair'
+			local code1 `r(code1)'
+			local code2 `r(code2)'
+
+			*Tempvar dummy for the codes in the test pair and missing for other obs
+			tempvar  dummy_pair_`ttest_pair'
+			gen     `dummy_pair_`ttest_pair'' = .
+			replace `dummy_pair_`ttest_pair'' = 0 if `grpvar' == `code1'
+			replace `dummy_pair_`ttest_pair'' = 1 if `grpvar' == `code2'
+		}
+
 		do "C:\Users\wb462869\GitHub\ietoolkit\src\ado_files\iebaltab_setupmatrix.ado"
 
 		* Set up the matrix for all stats and estimates
@@ -1035,6 +1053,9 @@ qui {
 
 		noi mat list emptyRow
 		noi mat list FtestMat
+
+
+
 
 /*******************************************************************************
 *******************************************************************************/
@@ -1252,24 +1273,14 @@ qui {
 
 			foreach ttest_pair of local TEST_PAIR_CODES {
 
-				* Create a local for each group in the test pair from the test_pair
-				* local created above
-				local undscr_pos   = strpos("`ttest_pair'","_")
-				local first_code  = substr("`ttest_pair'",1,`undscr_pos'-1)
-				local second_code = substr("`ttest_pair'",  `undscr_pos'+1,.)
+				*Get each code from a testpair
+        getCodesFromPair `ttest_pair'
+				local code1 `r(code1)'
+				local code2 `r(code2)'
 
-				local colnum_mean_code1 = colnumb(row,"mean_`first_code'")
-				local colnum_mean_code2 = colnumb(row,"mean_`second_code'")
+				local colnum_mean_code1 = colnumb(row,"mean_`code1'")
+				local colnum_mean_code2 = colnumb(row,"mean_`code2'")
 				mat row[1,`++colindex'] = el(row,1,`colnum_mean_code1') - el(row,1,`colnum_mean_code2')
-
-				* Create a temporary varaible used as the dummy to indicate which
-				* observation is in the first and in the second group in the test pair.
-				* Since all other observations are missing, this variable also exculde
-				* all observations in neither of the groups from the test regression
-				tempvar  dummy_pair_`ttest_pair'
-				gen     `dummy_pair_`ttest_pair'' = .	//default is missing, and obs not in this pair will remain missing
-				replace `dummy_pair_`ttest_pair'' = 0 if `grpvar' == `first_code'
-				replace `dummy_pair_`ttest_pair'' = 1 if `grpvar' == `second_code'
 
 				* The command mean is used to test that there is variation in the
 				* balance var across these two groups. The regression that includes
@@ -1294,7 +1305,7 @@ qui {
 					local warn_means_num  	= `warn_means_num' + 1
 
 					local warn_means_name`warn_means_num'	"t-test"
-					local warn_means_group`warn_means_num' 	"(`first_group')-(`second_group')"
+					local warn_means_group`warn_means_num' 	"(`code1')-(`code2')"
 					local warn_means_bvar`warn_means_num'	"`balancevar'"
 
 					* Adding missing value for each stat that is missing due to not running regression
@@ -1687,5 +1698,40 @@ qui {
 		// if `SAVE_TEX_USED' {
 		// 	// Run subommand that exports table to tex
 		// }
+
+end
+
+
+/*******************************************************************************
+
+  Function to get and test the two codes in a test pair
+	pair 4_12 -> code1 4, code2 12
+
+*******************************************************************************/
+cap program drop 	getCodesFromPair
+	program define	getCodesFromPair, rclass
+
+	args pair
+
+	* Parse the two codes from the test pair
+	local undscr_pos  = strpos("`pair'","_")
+	local code1 = substr("`pair'",1,`undscr_pos'-1)
+	local code2 = substr("`pair'",  `undscr_pos'+1,.)
+
+	*Test that the codes are just numbers and that they are not identical
+	cap confirm number `code1'`code2'
+	if _rc {
+		noi display as error "{phang}Both codes [`code1'] & [`code2'] in pair [`pair'] must be numbers.{p_end}"
+		error 7
+	}
+	if `code1' == `code2' {
+		noi display as error "{phang}The codes in [`pair'] may not be identical.{p_end}"
+		error 7
+	}
+
+    * Return second first so they are listed in correct order
+	* when using return list
+	return local code2 `code2'
+	return local code1 `code1'
 
 end
