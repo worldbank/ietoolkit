@@ -5,8 +5,6 @@ cap program drop 	setUpResultMatrix
 qui {
   syntax , order_of_group_codes(string) test_pair_codes(string)
 
-	noi di "`order_of_group_codes'"
-
 	*Locals for balance var row
   local emptyRow = ""
   local colnames = ""
@@ -15,13 +13,13 @@ qui {
 	local emptyFRow = ""
 	local Fcolnames = ""
 
-  *Stats
+  *Locals with stats names for each category
   local desc_stats   = "n cl mean se sd"
   local pair_stats   = "diff bn bcl beta p nrmd"
-	local allbal_stats = "feqp feqf"
+	local allgrp_stats = "feqp feqf"
 	local ftest_stats  = "fn ff fp"
 
-  *Create columns for group statisitics
+  *Create columns for group desc statisitics
   foreach group_code of local order_of_group_codes {
     foreach stat of local desc_stats {
       local colnames = "`colnames' `stat'_`group_code'"
@@ -29,14 +27,14 @@ qui {
     }
   }
 
-  *total_desc
+  *Create columns for total obs desc statisitics
   foreach stat of local desc_stats {
     local colnames = "`colnames' `stat'_t"
     local emptyRow = "`emptyRow',."
   }
 
 
-  *balance test pairs
+  *balance var pair stats
   foreach test_pair of local test_pair_codes {
     foreach stat of local pair_stats {
       local colnames = "`colnames' `stat'_`test_pair'"
@@ -44,14 +42,13 @@ qui {
     }
   }
 
-	*all balance var test
-  foreach stat of local allbal_stats {
+	*all balance var stats
+  foreach stat of local allgrp_stats {
     local colnames = "`colnames' `stat'"
     local emptyRow = "`emptyRow',."
   }
 
-
-	*ftest pairs
+	*ftest pairs stats
   foreach test_pair of local test_pair_codes {
     foreach stat of local ftest_stats {
       local Fcolnames = "`Fcolnames' `stat'_`test_pair'"
@@ -72,6 +69,13 @@ qui {
 	mat emptyFRow = (`emptyFRow')
 	mat colnames emptyFRow = `Fcolnames'
 	return matrix emptyFRow emptyFRow
+
+	*Return all stats locals to be used in the command
+  return local desc_stats   `desc_stats'
+  return local pair_stats   `pair_stats'
+	return local allgrp_stats `allgrp_stats'
+	return local ftest_stats  `ftest_stats'
+
 
 }
 end
