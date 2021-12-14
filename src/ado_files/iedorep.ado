@@ -1,4 +1,4 @@
-*! version 0.1 9NOV2021 DIME Analytics dimeanalytics@worldbank.org
+*! version 0.2 14DEC2021 DIME Analytics dimeanalytics@worldbank.org
 
 cap  program drop  iedorep
   program define   iedorep, rclass
@@ -6,6 +6,7 @@ cap  program drop  iedorep
   syntax anything , [debug]
   
 // Prep
+preserve
   file close _all
   tempfile newfile1
   tempfile newfile2
@@ -24,6 +25,7 @@ cap  program drop  iedorep
   
 // Initialize locals in new file
   file write edited "tempname theSORT theRNG allRNGS whichRNG allDATA theDATA" _n
+  file write edited "tempfile posty" _n "postfile posty Line str15(Data Seed Flag_1 Flag_2 Flag_3) using \`posty' , replace" _n
   file write edited `"local \`theRNG' = "\`c(rngstate)'" "' _n
   file write edited `"local \`theSORT' = "\`c(sortrngstate)'" "' _n
   file write checkr `"local \`theRNG' = "\`c(rngstate)'" "' _n
@@ -61,7 +63,7 @@ while r(eof)==0 {
       // Flag changes to RNG state
       file write edited ///
       `"if ("\`c(rngstate)'" != "\`\`theRNG''") {"' _n ///
-        `"di as err "RNG Used: `linenum_real'"  "' _n ///
+        `"post posty (`linenum_real') ("") ("") ("Seed Used") ("") ("")   "' _n ///
         `"local \`theRNG' = "\`c(rngstate)'" "' _n ///
         `"local \`allRNGS' = "\`\`allRNGS'' \`c(rngstate)'" "' _n ///
       `"}"'_n
@@ -72,14 +74,14 @@ while r(eof)==0 {
         `"local \`whichRNG' = \`\`whichRNG'' + 1"' _n ///
         `"local \`theRNG' = "\`c(rngstate)'" "' _n ///
         `"if ("\`c(rngstate)'" != "\`: word \`\`whichRNG'' of \`\`allRNGS'''") {"' _n ///
-          `"di as err "RNG ERROR: `linenum_real'"  "' _n ///
+          `"post posty (`linenum_real') ("") ("ERROR") ("") ("") ("")  "' _n ///
         `"}"'_n ///
       `"}"'_n
       
       // Flag changes to Sort RNG state
       file write edited ///
       `"if ("\`c(sortrngstate)'" != "\`\`theSORT''") {"' _n ///
-        `"di as err "Sort RNG Used: `linenum_real'"  "' _n ///
+        `"post posty (`linenum_real') ("") ("") ("") ("") ("Sortseed Used") "' _n ///
         `"local \`theSORT' = "\`c(sortrngstate)'" "' _n ///
       `"}"'_n      
     
@@ -88,7 +90,7 @@ while r(eof)==0 {
       file write edited ///
       "datasignature" _n ///
       `"if ("\`r(datasignature)'" != "\`\`theDATA''") {"' _n ///
-        `"di as err "Data Changed: `linenum_real'"  "' _n ///
+        `"post posty (`linenum_real') ("") ("") ("") ("Data Changed") ("") "' _n ///
         `"local \`theDATA' = "\`r(datasignature)'" "' _n ///
         `"tempfile `linenum_real'"' _n ///
         `"save \``linenum_real''"' _n ///
@@ -101,7 +103,7 @@ while r(eof)==0 {
         `"local \`theDATA' = "\`r(datasignature)'" "' _n ///
         `"cap cf _all using \``linenum_real''"' _n ///
         `"if _rc != 0 {"'_n ///
-            `"di as err "Data ERROR: `linenum_real'"  "' _n ///
+            `"post posty (`linenum_real') ("ERROR") ("") ("") ("") ("")  "' _n ///
         `"}"'_n ///
       `"}"'_n
 
@@ -132,6 +134,9 @@ file open checkr using `"`newfile2'"' , read
     file write edited `"`macval(line)'"' _n
     file read checkr line
   }
+  file write edited `"postclose posty"' _n
+  file write edited `"use \`posty' , clear"' _n
+  file write edited `"collapse (firstnm) D* S* F* , by(Line)"' _n
   
 // Clean up and run
 
@@ -139,6 +144,7 @@ file open checkr using `"`newfile2'"' , read
   
   clear
   qui do `newfile1'
+  li
   
   if "`debug'" != "" /// COPY FILE FOR DEBUGGING
     copy `newfile1' "${ietoolkit}/run/iedorep/TEMP.do" , replace 
