@@ -3,7 +3,7 @@
 cap  program drop  iedorep
   program define   iedorep, rclass
   
-  syntax anything
+  syntax anything , [debug]
   
 // Prep
   file close _all
@@ -101,6 +101,8 @@ file open checkr using `"`newfile2'"' , read
   
   clear
   qui do `newfile1'
-  copy `newfile1' "${ietoolkit}/run/iedorep/TEMP.do" , replace // FOR DEBUGGING
+  
+  if "`debug'" != "" /// COPY FILE FOR DEBUGGING
+    copy `newfile1' "${ietoolkit}/run/iedorep/TEMP.do" , replace 
   
 end
