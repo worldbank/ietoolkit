@@ -23,8 +23,9 @@ cap  program drop  iedorep
   qui file open checkr using `newfile2' , write replace 
   
 // Initialize locals in new file
-  file write edited "tempname allSORT theRNG allRNGS whichRNG allDATA" _n
+  file write edited "tempname theSORT theRNG allRNGS whichRNG allDATA" _n
   file write edited `"local \`theRNG' = "\`c(rngstate)'" "' _n
+  file write edited `"local \`theSORT' = "\`c(sortrngstate)'" "' _n
   file write checkr `"local \`theRNG' = "\`c(rngstate)'" "' _n
 
 // Big loop through file
@@ -74,10 +75,11 @@ while r(eof)==0 {
       `"}"'_n
       
       // Flag changes to Sort RNG state
-      file write edited `"local \`allSORT' = "\`\`allSORT'' \`c(sortrngstate)'" "' _n
       file write edited ///
-        `"if ("\`c(sortrngstate)'" != "\`: word `=max(1,`=`checknum'-1')' of \`\`allSORT'''")"'
-        file write edited `" di as err "Data Sorted: `linenum_real'"  "' _n
+      `"if ("\`c(sortrngstate)'" != "\`\`theSORT''") {"' _n ///
+        `"di as err "Sort RNG Used: `linenum_real'"  "' _n ///
+        `"local \`theSORT' = "\`c(sortrngstate)'" "' _n ///
+      `"}"'_n      
     
       // Flag changes to data
       file write edited "datasignature" _n
