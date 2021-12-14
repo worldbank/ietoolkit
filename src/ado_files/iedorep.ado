@@ -27,10 +27,13 @@ preserve
   file write edited "tempname theSORT theRNG allRNGS whichRNG allDATA theDATA" _n
   file write edited "tempfile posty" _n "postfile posty Line " ///
     "str15(Data Err_1 Seed Err_2 Sort Err_3) using \`posty' , replace" _n
+    
   file write edited `"local \`theRNG' = "\`c(rngstate)'" "' _n
+  file write checkr `"local \`theRNG' = "\`c(rngstate)'" "' _n
+  
   file write edited `"local \`theSORT' = "\`c(sortrngstate)'" "' _n
   file write checkr `"local \`theSORT' = "\`c(sortrngstate)'" "' _n
-  file write checkr `"local \`theRNG' = "\`c(rngstate)'" "' _n
+  
   file write edited "datasignature" _n `"local \`theDATA' = "\`r(datasignature)'" "' _n
   file write checkr "datasignature" _n `"local \`theDATA' = "\`r(datasignature)'" "' _n
   
@@ -143,7 +146,7 @@ while r(eof)==0 {
 }
 
 // Append the checking dofile to the edited dofile
-
+// Betwen dofiles, use [di] to advance seed and use [clear] for data
 file close checkr
 file open checkr using `"`newfile2'"' , read
   file read checkr line // Need initial read
