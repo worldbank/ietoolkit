@@ -61,7 +61,7 @@ while r(eof)==0 {
         `"di as err "RNG Used: `linenum_real'"  "' _n ///
         `"local \`theRNG' = "\`c(rngstate)'" "' _n ///
         `"local \`allRNGS' = "\`\`allRNGS'' \`c(rngstate)'" "' _n ///
-        `"}"'_n
+      `"}"'_n
       
       // Error changes to RNG state
       file write checkr ///
@@ -70,8 +70,8 @@ while r(eof)==0 {
         `"local \`theRNG' = "\`c(rngstate)'" "' _n ///
         `"if ("\`c(rngstate)'" != "\`: word \`\`whichRNG'' of \`\`allRNGS'''") {"' _n ///
           `"di as err "RNG ERROR: `linenum_real'"  "' _n ///
-          `"}"'_n ///
-        `"}"'_n
+        `"}"'_n ///
+      `"}"'_n
       
       // Flag changes to Sort RNG state
       file write edited `"local \`allSORT' = "\`\`allSORT'' \`c(sortrngstate)'" "' _n
