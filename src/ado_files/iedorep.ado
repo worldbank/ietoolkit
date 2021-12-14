@@ -79,7 +79,7 @@ while r(eof)==0 {
         `"local \`whichRNG' = \`\`whichRNG'' + 1"' _n ///
         `"local \`theRNG' = "\`c(rngstate)'" "' _n ///
         `"if ("\`c(rngstate)'" != "\`: word \`\`whichRNG'' of \`\`allRNGS'''") {"' _n ///
-          `"post posty (`linenum_real') ("") ("") ("") ("... ERROR") ("") ("")  "' _n ///
+          `"post posty (`linenum_real') ("") ("") ("") ("ERROR! ") ("") ("")  "' _n ///
         `"}"'_n ///
       `"}"'_n
       
@@ -103,7 +103,7 @@ while r(eof)==0 {
         `"xpose, clear"' _n ///
         `"cap cf _all using \``linenum_real'_x'"' _n ///
         `"if _rc != 0 {"'_n ///
-            `"post posty (`linenum_real') ("") ("") ("") ("") ("") ("... ERROR") "' _n ///
+            `"post posty (`linenum_real') ("") ("") ("") ("") ("") ("ERROR! ") "' _n ///
         `"}"'_n ///
         `"restore"' _n ///
       `"}"'_n  
@@ -125,7 +125,7 @@ while r(eof)==0 {
         `"local \`theDATA' = "\`r(datasignature)'" "' _n ///
         `"cap cf _all using \``linenum_real''"' _n ///
         `"if _rc != 0 {"'_n ///
-            `"post posty (`linenum_real') ("") ("... ERROR") ("") ("") ("") ("")  "' _n ///
+            `"post posty (`linenum_real') ("") ("ERROR! ") ("") ("") ("") ("")  "' _n ///
         `"}"'_n ///
       `"}"'_n
 
@@ -167,7 +167,10 @@ file open checkr using `"`newfile2'"' , read
   
   clear
   qui do `newfile1'
-  li
+  qui replace Data = Err_1 + Data 
+  qui replace Seed = Err_2 + Seed 
+  qui replace Sort = Err_3 + Sort 
+  li Line Data Seed Sort , noobs divider 
   
   if "`debug'" != "" /// COPY FILE FOR DEBUGGING
     copy `newfile1' "${ietoolkit}/run/iedorep/TEMP.do" , replace 

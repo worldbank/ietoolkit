@@ -493,8 +493,8 @@ save `22' , emptyok
 di -.3842286719069723
 clear // SECOND RUN STARTS HERE ------------------------------------------------
 
-local `theSORT' = "`c(sortrngstate)'" 
 local `theRNG' = "`c(rngstate)'" 
+local `theSORT' = "`c(sortrngstate)'" 
 datasignature
 local `theDATA' = "`r(datasignature)'" 
 //
@@ -502,7 +502,7 @@ if ("`c(rngstate)'" != "``theRNG''") {
 local `whichRNG' = ``whichRNG'' + 1
 local `theRNG' = "`c(rngstate)'" 
 if ("`c(rngstate)'" != "`: word ``whichRNG'' of ``allRNGS'''") {
-post posty (1) ("") ("") ("") ("... ERROR") ("") ("")  
+post posty (1) ("") ("") ("") ("ERROR! ") ("") ("")  
 }
 }
 if ("`c(sortrngstate)'" != "``theSORT''") {
@@ -511,7 +511,7 @@ preserve
 xpose, clear
 cap cf _all using `1_x'
 if _rc != 0 {
-post posty (1) ("") ("") ("") ("") ("") ("... ERROR") 
+post posty (1) ("") ("") ("") ("") ("") ("ERROR! ") 
 }
 restore
 }
@@ -520,7 +520,7 @@ if ("`r(datasignature)'" != "``theDATA''") {
 local `theDATA' = "`r(datasignature)'" 
 cap cf _all using `1'
 if _rc != 0 {
-post posty (1) ("") ("... ERROR") ("") ("") ("") ("")  
+post posty (1) ("") ("ERROR! ") ("") ("") ("") ("")  
 }
 }
 
@@ -528,7 +528,7 @@ if ("`c(rngstate)'" != "``theRNG''") {
 local `whichRNG' = ``whichRNG'' + 1
 local `theRNG' = "`c(rngstate)'" 
 if ("`c(rngstate)'" != "`: word ``whichRNG'' of ``allRNGS'''") {
-post posty (2) ("") ("") ("") ("... ERROR") ("") ("")  
+post posty (2) ("") ("") ("") ("ERROR! ") ("") ("")  
 }
 }
 if ("`c(sortrngstate)'" != "``theSORT''") {
@@ -537,7 +537,7 @@ preserve
 xpose, clear
 cap cf _all using `2_x'
 if _rc != 0 {
-post posty (2) ("") ("") ("") ("") ("") ("... ERROR") 
+post posty (2) ("") ("") ("") ("") ("") ("ERROR! ") 
 }
 restore
 }
@@ -546,7 +546,7 @@ if ("`r(datasignature)'" != "``theDATA''") {
 local `theDATA' = "`r(datasignature)'" 
 cap cf _all using `2'
 if _rc != 0 {
-post posty (2) ("") ("... ERROR") ("") ("") ("") ("")  
+post posty (2) ("") ("ERROR! ") ("") ("") ("") ("")  
 }
 }
 clear
@@ -554,7 +554,7 @@ if ("`c(rngstate)'" != "``theRNG''") {
 local `whichRNG' = ``whichRNG'' + 1
 local `theRNG' = "`c(rngstate)'" 
 if ("`c(rngstate)'" != "`: word ``whichRNG'' of ``allRNGS'''") {
-post posty (3) ("") ("") ("") ("... ERROR") ("") ("")  
+post posty (3) ("") ("") ("") ("ERROR! ") ("") ("")  
 }
 }
 if ("`c(sortrngstate)'" != "``theSORT''") {
@@ -563,7 +563,7 @@ preserve
 xpose, clear
 cap cf _all using `3_x'
 if _rc != 0 {
-post posty (3) ("") ("") ("") ("") ("") ("... ERROR") 
+post posty (3) ("") ("") ("") ("") ("") ("ERROR! ") 
 }
 restore
 }
@@ -572,7 +572,7 @@ if ("`r(datasignature)'" != "``theDATA''") {
 local `theDATA' = "`r(datasignature)'" 
 cap cf _all using `3'
 if _rc != 0 {
-post posty (3) ("") ("... ERROR") ("") ("") ("") ("")  
+post posty (3) ("") ("ERROR! ") ("") ("") ("") ("")  
 }
 }
 
@@ -580,7 +580,7 @@ if ("`c(rngstate)'" != "``theRNG''") {
 local `whichRNG' = ``whichRNG'' + 1
 local `theRNG' = "`c(rngstate)'" 
 if ("`c(rngstate)'" != "`: word ``whichRNG'' of ``allRNGS'''") {
-post posty (4) ("") ("") ("") ("... ERROR") ("") ("")  
+post posty (4) ("") ("") ("") ("ERROR! ") ("") ("")  
 }
 }
 if ("`c(sortrngstate)'" != "``theSORT''") {
@@ -589,7 +589,7 @@ preserve
 xpose, clear
 cap cf _all using `4_x'
 if _rc != 0 {
-post posty (4) ("") ("") ("") ("") ("") ("... ERROR") 
+post posty (4) ("") ("") ("") ("") ("") ("ERROR! ") 
 }
 restore
 }
@@ -598,7 +598,7 @@ if ("`r(datasignature)'" != "``theDATA''") {
 local `theDATA' = "`r(datasignature)'" 
 cap cf _all using `4'
 if _rc != 0 {
-post posty (4) ("") ("... ERROR") ("") ("") ("") ("")  
+post posty (4) ("") ("ERROR! ") ("") ("") ("") ("")  
 }
 }
 sysuse auto.dta
@@ -606,7 +606,7 @@ if ("`c(rngstate)'" != "``theRNG''") {
 local `whichRNG' = ``whichRNG'' + 1
 local `theRNG' = "`c(rngstate)'" 
 if ("`c(rngstate)'" != "`: word ``whichRNG'' of ``allRNGS'''") {
-post posty (5) ("") ("") ("") ("... ERROR") ("") ("")  
+post posty (5) ("") ("") ("") ("ERROR! ") ("") ("")  
 }
 }
 if ("`c(sortrngstate)'" != "``theSORT''") {
@@ -615,7 +615,7 @@ preserve
 xpose, clear
 cap cf _all using `5_x'
 if _rc != 0 {
-post posty (5) ("") ("") ("") ("") ("") ("... ERROR") 
+post posty (5) ("") ("") ("") ("") ("") ("ERROR! ") 
 }
 restore
 }
@@ -624,7 +624,7 @@ if ("`r(datasignature)'" != "``theDATA''") {
 local `theDATA' = "`r(datasignature)'" 
 cap cf _all using `5'
 if _rc != 0 {
-post posty (5) ("") ("... ERROR") ("") ("") ("") ("")  
+post posty (5) ("") ("ERROR! ") ("") ("") ("") ("")  
 }
 }
 
@@ -632,7 +632,7 @@ if ("`c(rngstate)'" != "``theRNG''") {
 local `whichRNG' = ``whichRNG'' + 1
 local `theRNG' = "`c(rngstate)'" 
 if ("`c(rngstate)'" != "`: word ``whichRNG'' of ``allRNGS'''") {
-post posty (6) ("") ("") ("") ("... ERROR") ("") ("")  
+post posty (6) ("") ("") ("") ("ERROR! ") ("") ("")  
 }
 }
 if ("`c(sortrngstate)'" != "``theSORT''") {
@@ -641,7 +641,7 @@ preserve
 xpose, clear
 cap cf _all using `6_x'
 if _rc != 0 {
-post posty (6) ("") ("") ("") ("") ("") ("... ERROR") 
+post posty (6) ("") ("") ("") ("") ("") ("ERROR! ") 
 }
 restore
 }
@@ -650,7 +650,7 @@ if ("`r(datasignature)'" != "``theDATA''") {
 local `theDATA' = "`r(datasignature)'" 
 cap cf _all using `6'
 if _rc != 0 {
-post posty (6) ("") ("... ERROR") ("") ("") ("") ("")  
+post posty (6) ("") ("ERROR! ") ("") ("") ("") ("")  
 }
 }
 #d cr
@@ -658,7 +658,7 @@ if ("`c(rngstate)'" != "``theRNG''") {
 local `whichRNG' = ``whichRNG'' + 1
 local `theRNG' = "`c(rngstate)'" 
 if ("`c(rngstate)'" != "`: word ``whichRNG'' of ``allRNGS'''") {
-post posty (7) ("") ("") ("") ("... ERROR") ("") ("")  
+post posty (7) ("") ("") ("") ("ERROR! ") ("") ("")  
 }
 }
 if ("`c(sortrngstate)'" != "``theSORT''") {
@@ -667,7 +667,7 @@ preserve
 xpose, clear
 cap cf _all using `7_x'
 if _rc != 0 {
-post posty (7) ("") ("") ("") ("") ("") ("... ERROR") 
+post posty (7) ("") ("") ("") ("") ("") ("ERROR! ") 
 }
 restore
 }
@@ -676,7 +676,7 @@ if ("`r(datasignature)'" != "``theDATA''") {
 local `theDATA' = "`r(datasignature)'" 
 cap cf _all using `7'
 if _rc != 0 {
-post posty (7) ("") ("... ERROR") ("") ("") ("") ("")  
+post posty (7) ("") ("ERROR! ") ("") ("") ("") ("")  
 }
 }
 
@@ -684,7 +684,7 @@ if ("`c(rngstate)'" != "``theRNG''") {
 local `whichRNG' = ``whichRNG'' + 1
 local `theRNG' = "`c(rngstate)'" 
 if ("`c(rngstate)'" != "`: word ``whichRNG'' of ``allRNGS'''") {
-post posty (8) ("") ("") ("") ("... ERROR") ("") ("")  
+post posty (8) ("") ("") ("") ("ERROR! ") ("") ("")  
 }
 }
 if ("`c(sortrngstate)'" != "``theSORT''") {
@@ -693,7 +693,7 @@ preserve
 xpose, clear
 cap cf _all using `8_x'
 if _rc != 0 {
-post posty (8) ("") ("") ("") ("") ("") ("... ERROR") 
+post posty (8) ("") ("") ("") ("") ("") ("ERROR! ") 
 }
 restore
 }
@@ -702,7 +702,7 @@ if ("`r(datasignature)'" != "``theDATA''") {
 local `theDATA' = "`r(datasignature)'" 
 cap cf _all using `8'
 if _rc != 0 {
-post posty (8) ("") ("... ERROR") ("") ("") ("") ("")  
+post posty (8) ("") ("ERROR! ") ("") ("") ("") ("")  
 }
 }
 expand 2 , gen(check)
@@ -710,7 +710,7 @@ if ("`c(rngstate)'" != "``theRNG''") {
 local `whichRNG' = ``whichRNG'' + 1
 local `theRNG' = "`c(rngstate)'" 
 if ("`c(rngstate)'" != "`: word ``whichRNG'' of ``allRNGS'''") {
-post posty (9) ("") ("") ("") ("... ERROR") ("") ("")  
+post posty (9) ("") ("") ("") ("ERROR! ") ("") ("")  
 }
 }
 if ("`c(sortrngstate)'" != "``theSORT''") {
@@ -719,7 +719,7 @@ preserve
 xpose, clear
 cap cf _all using `9_x'
 if _rc != 0 {
-post posty (9) ("") ("") ("") ("") ("") ("... ERROR") 
+post posty (9) ("") ("") ("") ("") ("") ("ERROR! ") 
 }
 restore
 }
@@ -728,7 +728,7 @@ if ("`r(datasignature)'" != "``theDATA''") {
 local `theDATA' = "`r(datasignature)'" 
 cap cf _all using `9'
 if _rc != 0 {
-post posty (9) ("") ("... ERROR") ("") ("") ("") ("")  
+post posty (9) ("") ("ERROR! ") ("") ("") ("") ("")  
 }
 }
 
@@ -736,7 +736,7 @@ if ("`c(rngstate)'" != "``theRNG''") {
 local `whichRNG' = ``whichRNG'' + 1
 local `theRNG' = "`c(rngstate)'" 
 if ("`c(rngstate)'" != "`: word ``whichRNG'' of ``allRNGS'''") {
-post posty (10) ("") ("") ("") ("... ERROR") ("") ("")  
+post posty (10) ("") ("") ("") ("ERROR! ") ("") ("")  
 }
 }
 if ("`c(sortrngstate)'" != "``theSORT''") {
@@ -745,7 +745,7 @@ preserve
 xpose, clear
 cap cf _all using `10_x'
 if _rc != 0 {
-post posty (10) ("") ("") ("") ("") ("") ("... ERROR") 
+post posty (10) ("") ("") ("") ("") ("") ("ERROR! ") 
 }
 restore
 }
@@ -754,7 +754,7 @@ if ("`r(datasignature)'" != "``theDATA''") {
 local `theDATA' = "`r(datasignature)'" 
 cap cf _all using `10'
 if _rc != 0 {
-post posty (10) ("") ("... ERROR") ("") ("") ("") ("")  
+post posty (10) ("") ("ERROR! ") ("") ("") ("") ("")  
 }
 }
 isid make check, sort
@@ -762,7 +762,7 @@ if ("`c(rngstate)'" != "``theRNG''") {
 local `whichRNG' = ``whichRNG'' + 1
 local `theRNG' = "`c(rngstate)'" 
 if ("`c(rngstate)'" != "`: word ``whichRNG'' of ``allRNGS'''") {
-post posty (11) ("") ("") ("") ("... ERROR") ("") ("")  
+post posty (11) ("") ("") ("") ("ERROR! ") ("") ("")  
 }
 }
 if ("`c(sortrngstate)'" != "``theSORT''") {
@@ -771,7 +771,7 @@ preserve
 xpose, clear
 cap cf _all using `11_x'
 if _rc != 0 {
-post posty (11) ("") ("") ("") ("") ("") ("... ERROR") 
+post posty (11) ("") ("") ("") ("") ("") ("ERROR! ") 
 }
 restore
 }
@@ -780,7 +780,7 @@ if ("`r(datasignature)'" != "``theDATA''") {
 local `theDATA' = "`r(datasignature)'" 
 cap cf _all using `11'
 if _rc != 0 {
-post posty (11) ("") ("... ERROR") ("") ("") ("") ("")  
+post posty (11) ("") ("ERROR! ") ("") ("") ("") ("")  
 }
 }
 
@@ -788,7 +788,7 @@ if ("`c(rngstate)'" != "``theRNG''") {
 local `whichRNG' = ``whichRNG'' + 1
 local `theRNG' = "`c(rngstate)'" 
 if ("`c(rngstate)'" != "`: word ``whichRNG'' of ``allRNGS'''") {
-post posty (12) ("") ("") ("") ("... ERROR") ("") ("")  
+post posty (12) ("") ("") ("") ("ERROR! ") ("") ("")  
 }
 }
 if ("`c(sortrngstate)'" != "``theSORT''") {
@@ -797,7 +797,7 @@ preserve
 xpose, clear
 cap cf _all using `12_x'
 if _rc != 0 {
-post posty (12) ("") ("") ("") ("") ("") ("... ERROR") 
+post posty (12) ("") ("") ("") ("") ("") ("ERROR! ") 
 }
 restore
 }
@@ -806,7 +806,7 @@ if ("`r(datasignature)'" != "``theDATA''") {
 local `theDATA' = "`r(datasignature)'" 
 cap cf _all using `12'
 if _rc != 0 {
-post posty (12) ("") ("... ERROR") ("") ("") ("") ("")  
+post posty (12) ("") ("ERROR! ") ("") ("") ("") ("")  
 }
 }
 sort foreign
@@ -814,7 +814,7 @@ if ("`c(rngstate)'" != "``theRNG''") {
 local `whichRNG' = ``whichRNG'' + 1
 local `theRNG' = "`c(rngstate)'" 
 if ("`c(rngstate)'" != "`: word ``whichRNG'' of ``allRNGS'''") {
-post posty (13) ("") ("") ("") ("... ERROR") ("") ("")  
+post posty (13) ("") ("") ("") ("ERROR! ") ("") ("")  
 }
 }
 if ("`c(sortrngstate)'" != "``theSORT''") {
@@ -823,7 +823,7 @@ preserve
 xpose, clear
 cap cf _all using `13_x'
 if _rc != 0 {
-post posty (13) ("") ("") ("") ("") ("") ("... ERROR") 
+post posty (13) ("") ("") ("") ("") ("") ("ERROR! ") 
 }
 restore
 }
@@ -832,7 +832,7 @@ if ("`r(datasignature)'" != "``theDATA''") {
 local `theDATA' = "`r(datasignature)'" 
 cap cf _all using `13'
 if _rc != 0 {
-post posty (13) ("") ("... ERROR") ("") ("") ("") ("")  
+post posty (13) ("") ("ERROR! ") ("") ("") ("") ("")  
 }
 }
 
@@ -840,7 +840,7 @@ if ("`c(rngstate)'" != "``theRNG''") {
 local `whichRNG' = ``whichRNG'' + 1
 local `theRNG' = "`c(rngstate)'" 
 if ("`c(rngstate)'" != "`: word ``whichRNG'' of ``allRNGS'''") {
-post posty (14) ("") ("") ("") ("... ERROR") ("") ("")  
+post posty (14) ("") ("") ("") ("ERROR! ") ("") ("")  
 }
 }
 if ("`c(sortrngstate)'" != "``theSORT''") {
@@ -849,7 +849,7 @@ preserve
 xpose, clear
 cap cf _all using `14_x'
 if _rc != 0 {
-post posty (14) ("") ("") ("") ("") ("") ("... ERROR") 
+post posty (14) ("") ("") ("") ("") ("") ("ERROR! ") 
 }
 restore
 }
@@ -858,7 +858,7 @@ if ("`r(datasignature)'" != "``theDATA''") {
 local `theDATA' = "`r(datasignature)'" 
 cap cf _all using `14'
 if _rc != 0 {
-post posty (14) ("") ("... ERROR") ("") ("") ("") ("")  
+post posty (14) ("") ("ERROR! ") ("") ("") ("") ("")  
 }
 }
 gen x = _n
@@ -866,7 +866,7 @@ if ("`c(rngstate)'" != "``theRNG''") {
 local `whichRNG' = ``whichRNG'' + 1
 local `theRNG' = "`c(rngstate)'" 
 if ("`c(rngstate)'" != "`: word ``whichRNG'' of ``allRNGS'''") {
-post posty (15) ("") ("") ("") ("... ERROR") ("") ("")  
+post posty (15) ("") ("") ("") ("ERROR! ") ("") ("")  
 }
 }
 if ("`c(sortrngstate)'" != "``theSORT''") {
@@ -875,7 +875,7 @@ preserve
 xpose, clear
 cap cf _all using `15_x'
 if _rc != 0 {
-post posty (15) ("") ("") ("") ("") ("") ("... ERROR") 
+post posty (15) ("") ("") ("") ("") ("") ("ERROR! ") 
 }
 restore
 }
@@ -884,7 +884,7 @@ if ("`r(datasignature)'" != "``theDATA''") {
 local `theDATA' = "`r(datasignature)'" 
 cap cf _all using `15'
 if _rc != 0 {
-post posty (15) ("") ("... ERROR") ("") ("") ("") ("")  
+post posty (15) ("") ("ERROR! ") ("") ("") ("") ("")  
 }
 }
 gen y = rnormal()
@@ -892,7 +892,7 @@ if ("`c(rngstate)'" != "``theRNG''") {
 local `whichRNG' = ``whichRNG'' + 1
 local `theRNG' = "`c(rngstate)'" 
 if ("`c(rngstate)'" != "`: word ``whichRNG'' of ``allRNGS'''") {
-post posty (16) ("") ("") ("") ("... ERROR") ("") ("")  
+post posty (16) ("") ("") ("") ("ERROR! ") ("") ("")  
 }
 }
 if ("`c(sortrngstate)'" != "``theSORT''") {
@@ -901,7 +901,7 @@ preserve
 xpose, clear
 cap cf _all using `16_x'
 if _rc != 0 {
-post posty (16) ("") ("") ("") ("") ("") ("... ERROR") 
+post posty (16) ("") ("") ("") ("") ("") ("ERROR! ") 
 }
 restore
 }
@@ -910,7 +910,7 @@ if ("`r(datasignature)'" != "``theDATA''") {
 local `theDATA' = "`r(datasignature)'" 
 cap cf _all using `16'
 if _rc != 0 {
-post posty (16) ("") ("... ERROR") ("") ("") ("") ("")  
+post posty (16) ("") ("ERROR! ") ("") ("") ("") ("")  
 }
 }
 
@@ -918,7 +918,7 @@ if ("`c(rngstate)'" != "``theRNG''") {
 local `whichRNG' = ``whichRNG'' + 1
 local `theRNG' = "`c(rngstate)'" 
 if ("`c(rngstate)'" != "`: word ``whichRNG'' of ``allRNGS'''") {
-post posty (17) ("") ("") ("") ("... ERROR") ("") ("")  
+post posty (17) ("") ("") ("") ("ERROR! ") ("") ("")  
 }
 }
 if ("`c(sortrngstate)'" != "``theSORT''") {
@@ -927,7 +927,7 @@ preserve
 xpose, clear
 cap cf _all using `17_x'
 if _rc != 0 {
-post posty (17) ("") ("") ("") ("") ("") ("... ERROR") 
+post posty (17) ("") ("") ("") ("") ("") ("ERROR! ") 
 }
 restore
 }
@@ -936,7 +936,7 @@ if ("`r(datasignature)'" != "``theDATA''") {
 local `theDATA' = "`r(datasignature)'" 
 cap cf _all using `17'
 if _rc != 0 {
-post posty (17) ("") ("... ERROR") ("") ("") ("") ("")  
+post posty (17) ("") ("ERROR! ") ("") ("") ("") ("")  
 }
 }
 set seed 123455
@@ -944,7 +944,7 @@ if ("`c(rngstate)'" != "``theRNG''") {
 local `whichRNG' = ``whichRNG'' + 1
 local `theRNG' = "`c(rngstate)'" 
 if ("`c(rngstate)'" != "`: word ``whichRNG'' of ``allRNGS'''") {
-post posty (18) ("") ("") ("") ("... ERROR") ("") ("")  
+post posty (18) ("") ("") ("") ("ERROR! ") ("") ("")  
 }
 }
 if ("`c(sortrngstate)'" != "``theSORT''") {
@@ -953,7 +953,7 @@ preserve
 xpose, clear
 cap cf _all using `18_x'
 if _rc != 0 {
-post posty (18) ("") ("") ("") ("") ("") ("... ERROR") 
+post posty (18) ("") ("") ("") ("") ("") ("ERROR! ") 
 }
 restore
 }
@@ -962,7 +962,7 @@ if ("`r(datasignature)'" != "``theDATA''") {
 local `theDATA' = "`r(datasignature)'" 
 cap cf _all using `18'
 if _rc != 0 {
-post posty (18) ("") ("... ERROR") ("") ("") ("") ("")  
+post posty (18) ("") ("ERROR! ") ("") ("") ("") ("")  
 }
 }
 
@@ -970,7 +970,7 @@ if ("`c(rngstate)'" != "``theRNG''") {
 local `whichRNG' = ``whichRNG'' + 1
 local `theRNG' = "`c(rngstate)'" 
 if ("`c(rngstate)'" != "`: word ``whichRNG'' of ``allRNGS'''") {
-post posty (19) ("") ("") ("") ("... ERROR") ("") ("")  
+post posty (19) ("") ("") ("") ("ERROR! ") ("") ("")  
 }
 }
 if ("`c(sortrngstate)'" != "``theSORT''") {
@@ -979,7 +979,7 @@ preserve
 xpose, clear
 cap cf _all using `19_x'
 if _rc != 0 {
-post posty (19) ("") ("") ("") ("") ("") ("... ERROR") 
+post posty (19) ("") ("") ("") ("") ("") ("ERROR! ") 
 }
 restore
 }
@@ -988,7 +988,7 @@ if ("`r(datasignature)'" != "``theDATA''") {
 local `theDATA' = "`r(datasignature)'" 
 cap cf _all using `19'
 if _rc != 0 {
-post posty (19) ("") ("... ERROR") ("") ("") ("") ("")  
+post posty (19) ("") ("ERROR! ") ("") ("") ("") ("")  
 }
 }
 duplicates drop make , force
@@ -996,7 +996,7 @@ if ("`c(rngstate)'" != "``theRNG''") {
 local `whichRNG' = ``whichRNG'' + 1
 local `theRNG' = "`c(rngstate)'" 
 if ("`c(rngstate)'" != "`: word ``whichRNG'' of ``allRNGS'''") {
-post posty (20) ("") ("") ("") ("... ERROR") ("") ("")  
+post posty (20) ("") ("") ("") ("ERROR! ") ("") ("")  
 }
 }
 if ("`c(sortrngstate)'" != "``theSORT''") {
@@ -1005,7 +1005,7 @@ preserve
 xpose, clear
 cap cf _all using `20_x'
 if _rc != 0 {
-post posty (20) ("") ("") ("") ("") ("") ("... ERROR") 
+post posty (20) ("") ("") ("") ("") ("") ("ERROR! ") 
 }
 restore
 }
@@ -1014,7 +1014,7 @@ if ("`r(datasignature)'" != "``theDATA''") {
 local `theDATA' = "`r(datasignature)'" 
 cap cf _all using `20'
 if _rc != 0 {
-post posty (20) ("") ("... ERROR") ("") ("") ("") ("")  
+post posty (20) ("") ("ERROR! ") ("") ("") ("") ("")  
 }
 }
 
@@ -1022,7 +1022,7 @@ if ("`c(rngstate)'" != "``theRNG''") {
 local `whichRNG' = ``whichRNG'' + 1
 local `theRNG' = "`c(rngstate)'" 
 if ("`c(rngstate)'" != "`: word ``whichRNG'' of ``allRNGS'''") {
-post posty (21) ("") ("") ("") ("... ERROR") ("") ("")  
+post posty (21) ("") ("") ("") ("ERROR! ") ("") ("")  
 }
 }
 if ("`c(sortrngstate)'" != "``theSORT''") {
@@ -1031,7 +1031,7 @@ preserve
 xpose, clear
 cap cf _all using `21_x'
 if _rc != 0 {
-post posty (21) ("") ("") ("") ("") ("") ("... ERROR") 
+post posty (21) ("") ("") ("") ("") ("") ("ERROR! ") 
 }
 restore
 }
@@ -1040,7 +1040,7 @@ if ("`r(datasignature)'" != "``theDATA''") {
 local `theDATA' = "`r(datasignature)'" 
 cap cf _all using `21'
 if _rc != 0 {
-post posty (21) ("") ("... ERROR") ("") ("") ("") ("")  
+post posty (21) ("") ("ERROR! ") ("") ("") ("") ("")  
 }
 }
 //
@@ -1048,7 +1048,7 @@ if ("`c(rngstate)'" != "``theRNG''") {
 local `whichRNG' = ``whichRNG'' + 1
 local `theRNG' = "`c(rngstate)'" 
 if ("`c(rngstate)'" != "`: word ``whichRNG'' of ``allRNGS'''") {
-post posty (22) ("") ("") ("") ("... ERROR") ("") ("")  
+post posty (22) ("") ("") ("") ("ERROR! ") ("") ("")  
 }
 }
 if ("`c(sortrngstate)'" != "``theSORT''") {
@@ -1057,7 +1057,7 @@ preserve
 xpose, clear
 cap cf _all using `22_x'
 if _rc != 0 {
-post posty (22) ("") ("") ("") ("") ("") ("... ERROR") 
+post posty (22) ("") ("") ("") ("") ("") ("ERROR! ") 
 }
 restore
 }
@@ -1066,7 +1066,7 @@ if ("`r(datasignature)'" != "``theDATA''") {
 local `theDATA' = "`r(datasignature)'" 
 cap cf _all using `22'
 if _rc != 0 {
-post posty (22) ("") ("... ERROR") ("") ("") ("") ("")  
+post posty (22) ("") ("ERROR! ") ("") ("") ("") ("")  
 }
 }
 postclose posty
