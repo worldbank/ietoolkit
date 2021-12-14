@@ -147,7 +147,7 @@ while r(eof)==0 {
 file close checkr
 file open checkr using `"`newfile2'"' , read
   file read checkr line // Need initial read
-  file write edited _n _n `"clear // SECOND RUN STARTS HERE "' ///
+  file write edited _n "di `=rnormal()'" _n `"clear // SECOND RUN STARTS HERE "' ///
     "------------------------------------------------" _n _n
   while r(eof)==0 {
     file write edited `"`macval(line)'"' _n

@@ -2,8 +2,6 @@
 
 clear
 
-/// set seed 12345
-
 sysuse auto.dta
 
 #d cr
@@ -17,6 +15,8 @@ sort foreign
 gen x = _n
 gen y = rnormal()
 
-// duplicates drop make , force
+set seed 123455
+
+duplicates drop make , force
 
 //

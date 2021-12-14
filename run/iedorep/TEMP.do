@@ -93,8 +93,7 @@ local `theDATA' = "`r(datasignature)'"
 tempfile 4
 save `4' , emptyok
 }
-/// set seed 12345
-
+sysuse auto.dta
 if ("`c(rngstate)'" != "``theRNG''") {
 post posty (5) ("") ("") ("Used") ("") ("") ("")   
 local `theRNG' = "`c(rngstate)'" 
@@ -116,7 +115,29 @@ local `theDATA' = "`r(datasignature)'"
 tempfile 5
 save `5' , emptyok
 }
-sysuse auto.dta
+
+if ("`c(rngstate)'" != "``theRNG''") {
+post posty (6) ("") ("") ("Used") ("") ("") ("")   
+local `theRNG' = "`c(rngstate)'" 
+local `allRNGS' = "``allRNGS'' `c(rngstate)'" 
+}
+if ("`c(sortrngstate)'" != "``theSORT''") {
+post posty (6) ("") ("") ("") ("") ("Sorted") ("") 
+local `theSORT' = "`c(sortrngstate)'" 
+preserve
+xpose, clear
+tempfile 6_x
+save `6_x' , emptyok
+restore
+}
+datasignature
+if ("`r(datasignature)'" != "``theDATA''") {
+post posty (6) ("Changed") ("") ("") ("") ("") ("") 
+local `theDATA' = "`r(datasignature)'" 
+tempfile 6
+save `6' , emptyok
+}
+#d cr
 if ("`c(rngstate)'" != "``theRNG''") {
 post posty (7) ("") ("") ("Used") ("") ("") ("")   
 local `theRNG' = "`c(rngstate)'" 
@@ -160,7 +181,7 @@ local `theDATA' = "`r(datasignature)'"
 tempfile 8
 save `8' , emptyok
 }
-#d cr
+expand 2 , gen(check)
 if ("`c(rngstate)'" != "``theRNG''") {
 post posty (9) ("") ("") ("Used") ("") ("") ("")   
 local `theRNG' = "`c(rngstate)'" 
@@ -204,7 +225,7 @@ local `theDATA' = "`r(datasignature)'"
 tempfile 10
 save `10' , emptyok
 }
-expand 2 , gen(check)
+isid make check, sort
 if ("`c(rngstate)'" != "``theRNG''") {
 post posty (11) ("") ("") ("Used") ("") ("") ("")   
 local `theRNG' = "`c(rngstate)'" 
@@ -248,7 +269,7 @@ local `theDATA' = "`r(datasignature)'"
 tempfile 12
 save `12' , emptyok
 }
-isid make check, sort
+sort foreign
 if ("`c(rngstate)'" != "``theRNG''") {
 post posty (13) ("") ("") ("Used") ("") ("") ("")   
 local `theRNG' = "`c(rngstate)'" 
@@ -292,7 +313,7 @@ local `theDATA' = "`r(datasignature)'"
 tempfile 14
 save `14' , emptyok
 }
-sort foreign
+gen x = _n
 if ("`c(rngstate)'" != "``theRNG''") {
 post posty (15) ("") ("") ("Used") ("") ("") ("")   
 local `theRNG' = "`c(rngstate)'" 
@@ -314,7 +335,7 @@ local `theDATA' = "`r(datasignature)'"
 tempfile 15
 save `15' , emptyok
 }
-
+gen y = rnormal()
 if ("`c(rngstate)'" != "``theRNG''") {
 post posty (16) ("") ("") ("Used") ("") ("") ("")   
 local `theRNG' = "`c(rngstate)'" 
@@ -336,7 +357,7 @@ local `theDATA' = "`r(datasignature)'"
 tempfile 16
 save `16' , emptyok
 }
-gen x = _n
+
 if ("`c(rngstate)'" != "``theRNG''") {
 post posty (17) ("") ("") ("Used") ("") ("") ("")   
 local `theRNG' = "`c(rngstate)'" 
@@ -358,7 +379,7 @@ local `theDATA' = "`r(datasignature)'"
 tempfile 17
 save `17' , emptyok
 }
-gen y = rnormal()
+set seed 123455
 if ("`c(rngstate)'" != "``theRNG''") {
 post posty (18) ("") ("") ("Used") ("") ("") ("")   
 local `theRNG' = "`c(rngstate)'" 
@@ -402,7 +423,7 @@ local `theDATA' = "`r(datasignature)'"
 tempfile 19
 save `19' , emptyok
 }
-// duplicates drop make , force
+duplicates drop make , force
 if ("`c(rngstate)'" != "``theRNG''") {
 post posty (20) ("") ("") ("Used") ("") ("") ("")   
 local `theRNG' = "`c(rngstate)'" 
@@ -469,7 +490,7 @@ tempfile 22
 save `22' , emptyok
 }
 
-
+di -.3842286719069723
 clear // SECOND RUN STARTS HERE ------------------------------------------------
 
 local `theSORT' = "`c(sortrngstate)'" 
@@ -580,8 +601,7 @@ if _rc != 0 {
 post posty (4) ("") ("... ERROR") ("") ("") ("") ("")  
 }
 }
-/// set seed 12345
-
+sysuse auto.dta
 if ("`c(rngstate)'" != "``theRNG''") {
 local `whichRNG' = ``whichRNG'' + 1
 local `theRNG' = "`c(rngstate)'" 
@@ -607,7 +627,33 @@ if _rc != 0 {
 post posty (5) ("") ("... ERROR") ("") ("") ("") ("")  
 }
 }
-sysuse auto.dta
+
+if ("`c(rngstate)'" != "``theRNG''") {
+local `whichRNG' = ``whichRNG'' + 1
+local `theRNG' = "`c(rngstate)'" 
+if ("`c(rngstate)'" != "`: word ``whichRNG'' of ``allRNGS'''") {
+post posty (6) ("") ("") ("") ("... ERROR") ("") ("")  
+}
+}
+if ("`c(sortrngstate)'" != "``theSORT''") {
+local `theSORT' = "`c(sortrngstate)'" 
+preserve
+xpose, clear
+cap cf _all using `6_x'
+if _rc != 0 {
+post posty (6) ("") ("") ("") ("") ("") ("... ERROR") 
+}
+restore
+}
+datasignature
+if ("`r(datasignature)'" != "``theDATA''") {
+local `theDATA' = "`r(datasignature)'" 
+cap cf _all using `6'
+if _rc != 0 {
+post posty (6) ("") ("... ERROR") ("") ("") ("") ("")  
+}
+}
+#d cr
 if ("`c(rngstate)'" != "``theRNG''") {
 local `whichRNG' = ``whichRNG'' + 1
 local `theRNG' = "`c(rngstate)'" 
@@ -659,7 +705,7 @@ if _rc != 0 {
 post posty (8) ("") ("... ERROR") ("") ("") ("") ("")  
 }
 }
-#d cr
+expand 2 , gen(check)
 if ("`c(rngstate)'" != "``theRNG''") {
 local `whichRNG' = ``whichRNG'' + 1
 local `theRNG' = "`c(rngstate)'" 
@@ -711,7 +757,7 @@ if _rc != 0 {
 post posty (10) ("") ("... ERROR") ("") ("") ("") ("")  
 }
 }
-expand 2 , gen(check)
+isid make check, sort
 if ("`c(rngstate)'" != "``theRNG''") {
 local `whichRNG' = ``whichRNG'' + 1
 local `theRNG' = "`c(rngstate)'" 
@@ -763,7 +809,7 @@ if _rc != 0 {
 post posty (12) ("") ("... ERROR") ("") ("") ("") ("")  
 }
 }
-isid make check, sort
+sort foreign
 if ("`c(rngstate)'" != "``theRNG''") {
 local `whichRNG' = ``whichRNG'' + 1
 local `theRNG' = "`c(rngstate)'" 
@@ -815,7 +861,7 @@ if _rc != 0 {
 post posty (14) ("") ("... ERROR") ("") ("") ("") ("")  
 }
 }
-sort foreign
+gen x = _n
 if ("`c(rngstate)'" != "``theRNG''") {
 local `whichRNG' = ``whichRNG'' + 1
 local `theRNG' = "`c(rngstate)'" 
@@ -841,7 +887,7 @@ if _rc != 0 {
 post posty (15) ("") ("... ERROR") ("") ("") ("") ("")  
 }
 }
-
+gen y = rnormal()
 if ("`c(rngstate)'" != "``theRNG''") {
 local `whichRNG' = ``whichRNG'' + 1
 local `theRNG' = "`c(rngstate)'" 
@@ -867,7 +913,7 @@ if _rc != 0 {
 post posty (16) ("") ("... ERROR") ("") ("") ("") ("")  
 }
 }
-gen x = _n
+
 if ("`c(rngstate)'" != "``theRNG''") {
 local `whichRNG' = ``whichRNG'' + 1
 local `theRNG' = "`c(rngstate)'" 
@@ -893,7 +939,7 @@ if _rc != 0 {
 post posty (17) ("") ("... ERROR") ("") ("") ("") ("")  
 }
 }
-gen y = rnormal()
+set seed 123455
 if ("`c(rngstate)'" != "``theRNG''") {
 local `whichRNG' = ``whichRNG'' + 1
 local `theRNG' = "`c(rngstate)'" 
@@ -945,7 +991,7 @@ if _rc != 0 {
 post posty (19) ("") ("... ERROR") ("") ("") ("") ("")  
 }
 }
-// duplicates drop make , force
+duplicates drop make , force
 if ("`c(rngstate)'" != "``theRNG''") {
 local `whichRNG' = ``whichRNG'' + 1
 local `theRNG' = "`c(rngstate)'" 
