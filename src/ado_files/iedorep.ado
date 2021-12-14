@@ -23,7 +23,9 @@ cap  program drop  iedorep
   qui file open checkr using `newfile2' , write replace 
   
 // Initialize locals in new file
-  file write edited "tempname allSORT allRNGS allDATA" _n
+  file write edited "tempname allSORT theRNG allRNGS whichRNG allDATA" _n
+  file write edited `"local \`theRNG' = "\`c(rngstate)'" "' _n
+  file write checkr `"local \`theRNG' = "\`c(rngstate)'" "' _n
 
 // Big loop through file
 while r(eof)==0 {
@@ -54,10 +56,22 @@ while r(eof)==0 {
       local checknum = `checknum' + 1
       
       // Flag changes to RNG state
-      file write edited `"local \`allRNGS' = "\`\`allRNGS'' \`c(rngstate)'" "' _n
       file write edited ///
-        `"if ("\`c(rngstate)'" != "\`: word `=max(1,`=`checknum'-1')' of \`\`allRNGS'''")"' 
-        file write edited `" di as err "RNG Changed: `linenum_real'"  "' _n
+      `"if ("\`c(rngstate)'" != "\`\`theRNG''") {"' _n ///
+        `"di as err "RNG Used: `linenum_real'"  "' _n ///
+        `"local \`theRNG' = "\`c(rngstate)'" "' _n ///
+        `"local \`allRNGS' = "\`\`allRNGS'' \`c(rngstate)'" "' _n ///
+        `"}"'_n
+      
+      // Error changes to RNG state
+      file write checkr ///
+      `"if ("\`c(rngstate)'" != "\`\`theRNG''") {"' _n ///
+        `"local \`whichRNG' = \`\`whichRNG'' + 1"' _n ///
+        `"local \`theRNG' = "\`c(rngstate)'" "' _n ///
+        `"if ("\`c(rngstate)'" != "\`: word \`\`whichRNG'' of \`\`allRNGS'''") {"' _n ///
+          `"di as err "RNG ERROR: `linenum_real'"  "' _n ///
+          `"}"'_n ///
+        `"}"'_n
       
       // Flag changes to Sort RNG state
       file write edited `"local \`allSORT' = "\`\`allSORT'' \`c(sortrngstate)'" "' _n
@@ -93,7 +107,7 @@ while r(eof)==0 {
 file close checkr
 file open checkr using `"`newfile2'"' , read
   file read checkr line // Need initial read
-  file write edited _n "macro dir" _n `"clear // SECOND RUN STARTS HERE "' ///
+  file write edited _n _n `"clear // SECOND RUN STARTS HERE "' ///
     "------------------------------------------------" _n _n
   while r(eof)==0 {
     file write edited `"`macval(line)'"' _n
@@ -105,7 +119,7 @@ file open checkr using `"`newfile2'"' , read
   file close _all
   
   clear
-  do `newfile1'
+  qui do `newfile1'
   
   if "`debug'" != "" /// COPY FILE FOR DEBUGGING
     copy `newfile1' "${ietoolkit}/run/iedorep/TEMP.do" , replace 
