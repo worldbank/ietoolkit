@@ -23,11 +23,13 @@ cap  program drop  iedorep
   qui file open checkr using `newfile2' , write replace 
   
 // Initialize locals in new file
-  file write edited "tempname theSORT theRNG allRNGS whichRNG allDATA" _n
+  file write edited "tempname theSORT theRNG allRNGS whichRNG allDATA theDATA" _n
   file write edited `"local \`theRNG' = "\`c(rngstate)'" "' _n
   file write edited `"local \`theSORT' = "\`c(sortrngstate)'" "' _n
   file write checkr `"local \`theRNG' = "\`c(rngstate)'" "' _n
-
+  file write edited "datasignature" _n `"local \`theDATA' = "\`r(datasignature)'" "' _n
+  file write checkr "datasignature" _n `"local \`theDATA' = "\`r(datasignature)'" "' _n
+  
 // Big loop through file
 while r(eof)==0 {
   
@@ -81,19 +83,34 @@ while r(eof)==0 {
         `"local \`theSORT' = "\`c(sortrngstate)'" "' _n ///
       `"}"'_n      
     
-      // Flag changes to data
-      file write edited "datasignature" _n
-      file write edited `"local \`allDATA' = "\`\`allDATA'' \`r(datasignature)'" "' _n
-      file write checkr "datasignature" _n
-      file write checkr `"if ("\`r(datasignature)'" != "\`: word `checknum' of \`\`allDATA'''")"'
-        file write checkr `" di as err "Data Changed: `linenum_real'"  "' _n
+      
+      // Flag changes to DATA state
+      file write edited ///
+      "datasignature" _n ///
+      `"if ("\`r(datasignature)'" != "\`\`theDATA''") {"' _n ///
+        `"di as err "Data Changed: `linenum_real'"  "' _n ///
+        `"local \`theDATA' = "\`r(datasignature)'" "' _n ///
+        `"tempfile `linenum_real'"' _n ///
+        `"save \``linenum_real''"' _n ///
+      `"}"'_n
+      
+      // Error changes to DATA state
+      file write checkr ///
+      "datasignature" _n ///
+      `"if ("\`r(datasignature)'" != "\`\`theDATA''") {"' _n ///
+        `"local \`theDATA' = "\`r(datasignature)'" "' _n ///
+        `"cap cf _all using \``linenum_real''"' _n ///
+        `"if _rc != 0 {"'_n ///
+            `"di as err "Data ERROR: `linenum_real'"  "' _n ///
+        `"}"'_n ///
+      `"}"'_n
 
       // Advance line number
       local linenum_real = `linenum'
     }
     
     // Error if delimiter
-    if strpos(`"`macval(line)'"',"#delimit") {
+    if strpos(`"`macval(line)'"',"#d") {
       di as err "Delimiter changed!"
     }
     

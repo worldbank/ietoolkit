@@ -2,17 +2,17 @@
 
 clear
 
-// set seed 12345
+/// set seed 12345
 
 sysuse auto.dta
 
 expand 2 , gen(check)
 
-sort foreign
+/// sort foreign
 
 gen x = _n
 gen y = rnormal()
 
-duplicates drop make , force
+// duplicates drop make , force
 
 //
