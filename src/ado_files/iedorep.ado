@@ -19,6 +19,7 @@ cap  program drop  iedorep
 // Open the file to be checked
   file open original using `"`anything'"' , read
   file read original line // Need initial read
+    local linenum_real = 1
   
 // Open the files to be written
   qui file open edited using `newfile1' , write replace 
@@ -82,11 +83,24 @@ while r(eof)==0 {
 
 }
 
+// Append the checking dofile to the edited dofile
+
+file close checkr
+file open checkr using `"`newfile2'"' , read
+  file read checkr line // Need initial read
+  file write edited _n _n `"clear // SECOND RUN STARTS HERE "' ///
+    "------------------------------------------------" _n _n
+  while r(eof)==0 {
+    file write edited `"`macval(line)'"' _n
+    file read checkr line
+  }
+  
+// Clean up and run
+
   file close _all
   
   clear
   qui do `newfile1'
-  clear
-  qui do `newfile2'
+  copy `newfile1' "${ietoolkit}/run/iedorep/TEMP.do" , replace // FOR DEBUGGING
   
 end
