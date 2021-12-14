@@ -6,6 +6,8 @@ clear
 
 sysuse auto.dta
 
+#d cr
+
 expand 2 , gen(check)
 
 sort foreign

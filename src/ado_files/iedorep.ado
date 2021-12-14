@@ -25,9 +25,11 @@ preserve
   
 // Initialize locals in new file
   file write edited "tempname theSORT theRNG allRNGS whichRNG allDATA theDATA" _n
-  file write edited "tempfile posty" _n "postfile posty Line str15(Data Seed Flag_1 Flag_2 Flag_3) using \`posty' , replace" _n
+  file write edited "tempfile posty" _n "postfile posty Line " ///
+    "str15(Data Err_1 Seed Err_2 Sort Err_3) using \`posty' , replace" _n
   file write edited `"local \`theRNG' = "\`c(rngstate)'" "' _n
   file write edited `"local \`theSORT' = "\`c(sortrngstate)'" "' _n
+  file write checkr `"local \`theSORT' = "\`c(sortrngstate)'" "' _n
   file write checkr `"local \`theRNG' = "\`c(rngstate)'" "' _n
   file write edited "datasignature" _n `"local \`theDATA' = "\`r(datasignature)'" "' _n
   file write checkr "datasignature" _n `"local \`theDATA' = "\`r(datasignature)'" "' _n
@@ -63,7 +65,7 @@ while r(eof)==0 {
       // Flag changes to RNG state
       file write edited ///
       `"if ("\`c(rngstate)'" != "\`\`theRNG''") {"' _n ///
-        `"post posty (`linenum_real') ("") ("") ("Seed Used") ("") ("")   "' _n ///
+        `"post posty (`linenum_real') ("") ("") ("Used") ("") ("") ("")   "' _n ///
         `"local \`theRNG' = "\`c(rngstate)'" "' _n ///
         `"local \`allRNGS' = "\`\`allRNGS'' \`c(rngstate)'" "' _n ///
       `"}"'_n
@@ -74,23 +76,37 @@ while r(eof)==0 {
         `"local \`whichRNG' = \`\`whichRNG'' + 1"' _n ///
         `"local \`theRNG' = "\`c(rngstate)'" "' _n ///
         `"if ("\`c(rngstate)'" != "\`: word \`\`whichRNG'' of \`\`allRNGS'''") {"' _n ///
-          `"post posty (`linenum_real') ("") ("ERROR") ("") ("") ("")  "' _n ///
+          `"post posty (`linenum_real') ("") ("") ("") ("... ERROR") ("") ("")  "' _n ///
         `"}"'_n ///
       `"}"'_n
       
       // Flag changes to Sort RNG state
+      file write checkr ///
+      `"if ("\`c(sortrngstate)'" != "\`\`theSORT''") {"' _n ///
+        `"post posty (`linenum_real') ("") ("") ("") ("") ("Sorted") ("") "' _n ///
+        `"local \`theSORT' = "\`c(sortrngstate)'" "' _n ///
+        `"preserve"' _n ///
+        `"xpose, clear"' _n ///
+        `"tempfile `linenum_real'_x"' _n ///
+        `"save \``linenum_real'_x'"' _n ///
+        `"restore"' _n ///
+      `"}"'_n      
+      
+      // Flag Errors to Sort RNG state
       file write edited ///
       `"if ("\`c(sortrngstate)'" != "\`\`theSORT''") {"' _n ///
-        `"post posty (`linenum_real') ("") ("") ("") ("") ("Sortseed Used") "' _n ///
         `"local \`theSORT' = "\`c(sortrngstate)'" "' _n ///
-      `"}"'_n      
-    
+        `"cap cf _all using \``linenum_real'_x'"' _n ///
+        `"if _rc != 0 {"'_n ///
+            `"post posty (`linenum_real') ("") ("") ("") ("") ("") ("... ERROR") "' _n ///
+        `"}"'_n ///
+      `"}"'_n  
       
       // Flag changes to DATA state
       file write edited ///
       "datasignature" _n ///
       `"if ("\`r(datasignature)'" != "\`\`theDATA''") {"' _n ///
-        `"post posty (`linenum_real') ("") ("") ("") ("Data Changed") ("") "' _n ///
+        `"post posty (`linenum_real') ("Changed") ("") ("") ("") ("") ("") "' _n ///
         `"local \`theDATA' = "\`r(datasignature)'" "' _n ///
         `"tempfile `linenum_real'"' _n ///
         `"save \``linenum_real''"' _n ///
@@ -103,7 +119,7 @@ while r(eof)==0 {
         `"local \`theDATA' = "\`r(datasignature)'" "' _n ///
         `"cap cf _all using \``linenum_real''"' _n ///
         `"if _rc != 0 {"'_n ///
-            `"post posty (`linenum_real') ("ERROR") ("") ("") ("") ("")  "' _n ///
+            `"post posty (`linenum_real') ("") ("... ERROR") ("") ("") ("") ("")  "' _n ///
         `"}"'_n ///
       `"}"'_n
 
@@ -136,7 +152,8 @@ file open checkr using `"`newfile2'"' , read
   }
   file write edited `"postclose posty"' _n
   file write edited `"use \`posty' , clear"' _n
-  file write edited `"collapse (firstnm) D* S* F* , by(Line)"' _n
+  file write edited `"collapse (firstnm) Data Err_1 Seed Err_2 Sort Err_3 , by(Line)"' _n
+  file write edited `"compress"' _n
   
 // Clean up and run
 
