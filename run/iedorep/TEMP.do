@@ -119,7 +119,7 @@ if ("`c(sortrngstate)'" != "`: word 16 of ``allSORT'''") di as err "Data Sorted:
 datasignature
 local `allDATA' = "``allDATA'' `r(datasignature)'" 
 
-
+macro dir
 clear // SECOND RUN STARTS HERE ------------------------------------------------
 
 //

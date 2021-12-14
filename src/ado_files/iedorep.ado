@@ -93,7 +93,7 @@ while r(eof)==0 {
 file close checkr
 file open checkr using `"`newfile2'"' , read
   file read checkr line // Need initial read
-  file write edited _n _n `"clear // SECOND RUN STARTS HERE "' ///
+  file write edited _n "macro dir" _n `"clear // SECOND RUN STARTS HERE "' ///
     "------------------------------------------------" _n _n
   while r(eof)==0 {
     file write edited `"`macval(line)'"' _n
@@ -105,7 +105,7 @@ file open checkr using `"`newfile2'"' , read
   file close _all
   
   clear
-  qui do `newfile1'
+  do `newfile1'
   
   if "`debug'" != "" /// COPY FILE FOR DEBUGGING
     copy `newfile1' "${ietoolkit}/run/iedorep/TEMP.do" , replace 
