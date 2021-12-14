@@ -81,25 +81,28 @@ while r(eof)==0 {
       `"}"'_n
       
       // Flag changes to Sort RNG state
-      file write checkr ///
+      file write edited ///
       `"if ("\`c(sortrngstate)'" != "\`\`theSORT''") {"' _n ///
         `"post posty (`linenum_real') ("") ("") ("") ("") ("Sorted") ("") "' _n ///
         `"local \`theSORT' = "\`c(sortrngstate)'" "' _n ///
         `"preserve"' _n ///
         `"xpose, clear"' _n ///
         `"tempfile `linenum_real'_x"' _n ///
-        `"save \``linenum_real'_x'"' _n ///
+        `"save \``linenum_real'_x' , emptyok"' _n ///
         `"restore"' _n ///
       `"}"'_n      
       
       // Flag Errors to Sort RNG state
-      file write edited ///
+      file write checkr ///
       `"if ("\`c(sortrngstate)'" != "\`\`theSORT''") {"' _n ///
         `"local \`theSORT' = "\`c(sortrngstate)'" "' _n ///
+        `"preserve"' _n ///
+        `"xpose, clear"' _n ///
         `"cap cf _all using \``linenum_real'_x'"' _n ///
         `"if _rc != 0 {"'_n ///
             `"post posty (`linenum_real') ("") ("") ("") ("") ("") ("... ERROR") "' _n ///
         `"}"'_n ///
+        `"restore"' _n ///
       `"}"'_n  
       
       // Flag changes to DATA state
@@ -109,7 +112,7 @@ while r(eof)==0 {
         `"post posty (`linenum_real') ("Changed") ("") ("") ("") ("") ("") "' _n ///
         `"local \`theDATA' = "\`r(datasignature)'" "' _n ///
         `"tempfile `linenum_real'"' _n ///
-        `"save \``linenum_real''"' _n ///
+        `"save \``linenum_real'' , emptyok"' _n ///
       `"}"'_n
       
       // Error changes to DATA state

@@ -10,6 +10,8 @@ sysuse auto.dta
 
 expand 2 , gen(check)
 
+isid make check, sort
+
 sort foreign
 
 gen x = _n
