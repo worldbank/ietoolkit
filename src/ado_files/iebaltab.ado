@@ -1704,15 +1704,14 @@ qui {
 
 		** SE if standard errors are used (default)
 		*  or SD if standard deviation is used
-		if `STDEV_USED' == 1 	local vtype "SD"
-		else local vtype "SE"
+		if `STDEV_USED' == 1 	local vtype "sd"
+		else local vtype "se"
 
 		*N title
 		if "`vce_type'" == "cluster" local ntitle "N/[Clusters]"
 		else local ntitle "N"
 
 		***** Before using one_row - test the matrix that it is possible
-
 
 		*Export to excel format
 		if `SAVE_CSV_USED' | `SAVE_XSLX_USED' | `BROWSE_USED' {
@@ -1721,14 +1720,19 @@ qui {
 				// Run subommand that exports table to csv
 				noi di "run export_tab"
 				noi export_tab using `"`savecsv'"', ///
-					rmat(`rmat') fmat(`fmat') ntitle("`ntitle'") vtype("`vtype'") note("my note") ///
+					rmat(`rmat') fmat(`fmat') ntitle("`ntitle'") vtype("`vtype'") ///
+					note("The value displayed for t-tests are the differences in the means across the groups.") ///
 					col_lbls(`COLUMN_LABELS') order_grp_codes(`ORDER_OF_GROUP_CODES') ///
-					pairs(`TEST_PAIR_CODES') testtype_lbl("test-test") testvalue_lbl("test-value")
+					pairs(`TEST_PAIR_CODES') testtype_lbl("test-test") testvalue_lbl("test-value") ///
+					row_lbls(`"`ROW_LABELS'"') `total' `onerow' tot_lbl("`tot_lbl'")
 
-
+					tempfile tab_file
+					save `tab_file'
 
 			restore
 		}
+
+		use `tab_file', clear
 
 		// *Export to tex format
 		// if `SAVE_TEX_USED' {
@@ -1785,12 +1789,16 @@ cap program drop 	export_tab
 	ntitle(string) vtype(string) note(string)		///
 	col_lbls(string) order_grp_codes(numlist) ///
 	pairs(string) testtype_lbl(string) testvalue_lbl(string) ///
+	row_lbls(string) tot_lbl(string) ///
 	[onerow total]
+
+	//noi di "insdie export_tab"
 
 	noi mat list `rmat'
 	noi mat list `fmat'
 
-	noi di "COOOL_LAAABS: `col_lbls'"
+	local grp_count : list sizeof order_grp_codes
+	local row_count : list sizeof row_lbls
 
 	*Create a temporary textfile
 	tempname 	tab_name
@@ -1808,15 +1816,11 @@ cap program drop 	export_tab
 
 	********* Descriptive group stats titles *************************************
 	*Loop over each group to be used in descriptive stats section
-	local grp_count : list sizeof order_grp_codes
+
 	forvalues grp_colnum = 1/`grp_count' {
-
-
 
 		*Get the code and label corresponding to the group
 		local grp_lbl : word `grp_colnum' of `col_lbls'
-
-		noi di "GRP_LBL: `grp_colnum'  : `grp_lbl'"
 
 		*Titles for each group depending on the option one row used or not
 		if !missing("`onerow'") {
@@ -1833,10 +1837,6 @@ cap program drop 	export_tab
 
 	********* Descriptive full sample stats title ********************************
 	if !missing("`total'") {
-
-		* Use custom total label or default : "Total"
-		if `TOTALLABEL_USED' local tot_lbl `totallabel'
-		else local tot_lbl Total
 
 		* Calcualte total column number
 		local tot_colnum = `grp_count' + 1
@@ -1869,24 +1869,94 @@ cap program drop 	export_tab
 		local titlerow3 `"`titlerow3' _tab "(`code1')-(`code2')""'
 	}
 
-	********* Write the title lines **************************************************
+	********* Write the title lines **********************************************
 
 	*Write the title rows defined above
 	cap file close 	`tab_name'
 	file open  		`tab_name' using "`tab_file'", text write replace
-	file write  	`tab_name' ///
-						`titlerow1' _n ///
-						`titlerow2' _n ///
-						`titlerow3' _n
+	file write  	`tab_name' `titlerow1' _n `titlerow2' _n `titlerow3' _n
 	file close 		`tab_name'
 
 	******************************************************************************
 	* Write data rows
 	******************************************************************************
 
+	forvalues row_num = 1/`row_count' {
+
+		*Get the code and label corresponding to the group
+		local row_lbl : word `row_num' of `row_lbls'
+
+		********* Initiate row locals and write row label **************************
+
+		*locals for each row
+		local row_up   `""`row_lbl'""'
+		local row_down `""' // Not used in onerow
+
+		********* Write group descriptive stats ************************************
+
+		foreach grp_code of local order_grp_codes {
+
+			* Add column with N for this group unless option onerow is used
+			if !missing(`onerow') {
+				local n_value = el(`rmat',`row_num',colnumb(`rmat',"n_`grp_code'"))
+				local row_up   `"`row_up'   _tab "`n_value'" "'
+				local row_down `"`row_down' _tab "" "'
+			}
+
+			* Mean and variance for this group
+			local mean_value = el(`rmat',`row_num',colnumb(`rmat',"mean_`grp_code'"))
+			local var_value = el(`rmat',`row_num',colnumb(`rmat',"`vtype'_`grp_code'"))
+			local row_up   `"`row_up'   _tab "`mean_value'" "'
+			local row_down `"`row_down' _tab "`var_value'" "'
+		}
+
+		********* Write total smaple stats *****************************************
+
+		if !missing("`total'") {
+
+			* Add column with N for this group unless option onerow is used
+			if !missing(`onerow') {
+				local n_value = el(`rmat',`row_num',colnumb(`rmat',"n_t"))
+				local row_up   `"`row_up'   _tab "`n_value'" "'
+				local row_down `"`row_down' _tab "" "'
+			}
+
+			* Mean and variance for this group
+			local mean_value = el(`rmat',`row_num',colnumb(`rmat',"mean_t"))
+			local var_value = el(`rmat',`row_num',colnumb(`rmat',"`vtype'_t"))
+			local row_up   `"`row_up'   _tab "`mean_value'" "'
+			local row_down `"`row_down' _tab "`var_value'" "'
+		}
+
+		********* Write pair test stats ********************************************
+
+
+
+		foreach pair of local pairs {
+			local test_value = el(`rmat',`row_num',colnumb(`rmat',"diff_`pair'"))
+			local row_up   `"`row_up'   _tab "`test_value'" "'
+			local row_down `"`row_down' _tab "" "'
+		}
+
+		********* Write row locals *************************************************
+
+		*Write the title rows defined above
+		cap file close 	`tab_name'
+		file open  		`tab_name' using "`tab_file'", text write append
+		file write  	`tab_name' `row_up' _n `row_down' _n
+		file close 		`tab_name'
+
+	}
+
 	******************************************************************************
 	* Write footer
 	******************************************************************************
+
+	*Write the title rows defined above
+	cap file close 	`tab_name'
+	file open  		`tab_name' using "`tab_file'", text write append
+	file write  	`tab_name' "`note'" _n
+	file close 		`tab_name'
 
 	******************************************************************************
 	* Import tabfile to memory
@@ -1895,9 +1965,6 @@ cap program drop 	export_tab
 	* Import tab file to memory to be exported as csv, xlsx or be browsed.
 	* Tabs are used as they are never used in labels, making manual writing easier
 	insheet using "`tab_file'", tab clear
-
-	// pause on
-	// pause
 
 end
 
