@@ -1857,35 +1857,35 @@ cap program drop 	export_tab
 		local grp_lbl : word `grp_colnum' of `col_lbls'
 
 		*Titles for each group depending on the option one row used or not
-		if !missing("`onerow'") {
-			local titlerow1 `"`titlerow1' _tab " (`grp_colnum') " "'
-			local titlerow2 `"`titlerow2' _tab "`grp_lbl'"        "'
-			local titlerow3 `"`titlerow3' _tab "Mean/`vtype'"     "'
+		if missing("`onerow'") {
+			local titlerow1 `"`titlerow1' _tab "" "'
+			local titlerow2 `"`titlerow2' _tab "" "'
+			local titlerow3 `"`titlerow3' _tab "`ntitle'" "'
 		}
-		else {
-			local titlerow1 `"`titlerow1' _tab            _tab " (`grp_colnum') " "'
-			local titlerow2 `"`titlerow2' _tab            _tab "`grp_lbl'"        "'
-			local titlerow3 `"`titlerow3' _tab "`ntitle'" _tab "Mean/`vtype'"     "'
-		}
+
+		*Add titles for summary row stats
+		local titlerow1 `"`titlerow1' _tab " (`grp_colnum') " "'
+		local titlerow2 `"`titlerow2' _tab "`grp_lbl'"        "'
+		local titlerow3 `"`titlerow3' _tab "Mean/`vtype'"     "'
 	}
 
 	********* Descriptive full sample stats title ********************************
-	if !missing("`total'") {
 
+	if !missing("`total'") {
 		* Calcualte total column number
 		local tot_colnum = `grp_count' + 1
 
-		*Create one more column for N if N is displayesd in column instead of row
-		if !missing("`onerow'") {
-			local titlerow1 `"`titlerow1' _tab " (`tot_colnum') " "'
-			local titlerow2 `"`titlerow2' _tab "`tot_lbl'"        "'
-			local titlerow3 `"`titlerow3' _tab "Mean/`vtype'"     "'
+		*Create one more column for N if N is displayed in column instead of row
+		if missing("`onerow'") {
+			local titlerow1 `"`titlerow1' _tab "" "'
+			local titlerow2 `"`titlerow2' _tab "" "'
+			local titlerow3 `"`titlerow3' _tab "`ntitle'" "'
 		}
-		else {
-			local titlerow1 `"`titlerow1' _tab            _tab " (`tot_colnum') " "'
-			local titlerow2 `"`titlerow2' _tab            _tab "`tot_lbl'"        "'
-			local titlerow3 `"`titlerow3' _tab "`ntitle'" _tab "Mean/`vtype'"     "'
-		}
+
+		*Add titles for summary row stats
+		local titlerow1 `"`titlerow1' _tab " (`tot_colnum') " "'
+		local titlerow2 `"`titlerow2' _tab "`tot_lbl'"        "'
+		local titlerow3 `"`titlerow3' _tab "Mean/`vtype'"     "'
 	}
 
 	********* Test pairs titles **************************************************
@@ -1931,7 +1931,7 @@ cap program drop 	export_tab
 		foreach grp_code of local order_grp_codes {
 
 			* Add column with N for this group unless option onerow is used
-			if !missing(`onerow') {
+			if missing("`onerow'") {
 				local n_value = el(`rmat',`row_num',colnumb(`rmat',"n_`grp_code'"))
 				local row_up   `"`row_up'   _tab "`n_value'" "'
 				local row_down `"`row_down' _tab "" "'
@@ -1949,7 +1949,7 @@ cap program drop 	export_tab
 		if !missing("`total'") {
 
 			* Add column with N for this group unless option onerow is used
-			if !missing(`onerow') {
+			if missing("`onerow'") {
 				local n_value = el(`rmat',`row_num',colnumb(`rmat',"n_t"))
 				local row_up   `"`row_up'   _tab "`n_value'" "'
 				local row_down `"`row_down' _tab "" "'
@@ -1964,8 +1964,6 @@ cap program drop 	export_tab
 
 		********* Write pair test stats ********************************************
 
-
-
 		foreach pair of local pairs {
 			local test_value = el(`rmat',`row_num',colnumb(`rmat',"`pout_val'_`pair'"))
 			local row_up   `"`row_up'   _tab "`test_value'" "'
@@ -1979,7 +1977,41 @@ cap program drop 	export_tab
 		file open  		`tab_name' using "`tab_file'", text write append
 		file write  	`tab_name' `row_up' _n `row_down' _n
 		file close 		`tab_name'
+	}
 
+	******************************************************************************
+	* Write onerow N (if applicable)
+	******************************************************************************
+
+	if !missing("`onerow'") {
+
+		*Initiate the row local for the N row if onerow is not missing
+		local n_row `""Number of observations""'
+
+		*Get the N for each group
+		foreach grp_code of local order_grp_codes {
+			* Get the N from the first row (they must be the same for onerow to work)
+			local n_value = el(`rmat',1,colnumb(`rmat',"n_`grp_code'"))
+			local n_row   `"`n_row' _tab "`n_value'" "'
+		}
+
+		*If total was used, add the N from the first row
+		if !missing("`total'") {
+			local n_value = el(`rmat',1,colnumb(`rmat',"n_t"))
+			local n_row   `"`n_row' _tab "`n_value'" "'
+		}
+
+		*Get the N from each pair
+		foreach pair of local pairs {
+			local n_value = el(`rmat',1,colnumb(`rmat',"bn_`pair'"))
+			local n_row   `"`n_row' _tab "`n_value'" "'
+		}
+
+		*Write the N row to file
+		cap file close 	`tab_name'
+		file open  		`tab_name' using "`tab_file'", text write append
+		file write  	`tab_name' `n_row' _n
+		file close 		`tab_name'
 	}
 
 	******************************************************************************
