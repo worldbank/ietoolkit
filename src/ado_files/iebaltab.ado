@@ -1693,23 +1693,50 @@ qui {
 		******************************************
 		*Export the data according to user specification
 
-		// *Export to excel format
-		// if `SAVE_XLS_USED' {
-		// 	// Run subommand that exports table to Excel
-		// }
-		//
+		noi di "export"
+
+		*Set export locals
+
+		** SE if standard errors are used (default)
+		*  or SD if standard deviation is used
+		if `STDEV_USED' == 1 	local vtype "SD"
+		else local vtype "SE"
+
+		*N title
+		if "`vce_type'" == "cluster" local ntitle "N/[Clusters]"
+		else local ntitle "N"
+
+		***** Before using one_row - test the matrix that it is possible
+
+
+		*Export to excel format
+		if `SAVE_CSV_USED' | `SAVE_XSLX_USED' | `BROWSE_USED' {
+
+			preserve
+				// Run subommand that exports table to csv
+				noi di "run export_tab"
+				noi export_tab using `"`savecsv'"', ///
+					rmat(`rmat') fmat(`fmat') ntitle("`ntitle'") vtype("`vtype'") note("my note") ///
+					col_lbls(`COLUMN_LABELS') order_grp_codes(`ORDER_OF_GROUP_CODES') ///
+					pairs(`TEST_PAIR_CODES') testtype_lbl("test-test") testvalue_lbl("test-value")
+
+
+
+			restore
+		}
+
 		// *Export to tex format
 		// if `SAVE_TEX_USED' {
 		// 	// Run subommand that exports table to tex
 		// }
-
+}
 end
 
 
 /*******************************************************************************
 
   Function to get and test the two codes in a test pair
-	pair 4_12 -> code1 4, code2 12
+	pair 4_12 returns rlocal code1 = 4, and rlocal code2 = 12
 
 *******************************************************************************/
 cap program drop 	getCodesFromPair
@@ -1737,5 +1764,151 @@ cap program drop 	getCodesFromPair
 	* when using return list
 	return local code2 `code2'
 	return local code1 `code1'
+
+end
+
+/*******************************************************************************
+
+  Function that oupputs the result matrix to csv file
+
+*******************************************************************************/
+
+cap program drop 	export_tab
+	program define	export_tab, rclass
+
+	syntax using , rmat(name) fmat(name) 					///
+	ntitle(string) vtype(string) note(string)		///
+	col_lbls(string) order_grp_codes(numlist) ///
+	pairs(string) testtype_lbl(string) testvalue_lbl(string) ///
+	[onerow total]
+
+	noi mat list `rmat'
+	noi mat list `fmat'
+
+	noi di "COOOL_LAAABS: `col_lbls'"
+
+	*Create a temporary textfile
+	tempname 	tab_name
+	tempfile	tab_file
+
+	******************************************************************************
+	* Generate title rows
+	******************************************************************************
+
+	** The titles consist of three rows across all
+	*  columns of the table. Each row is one local
+	local titlerow1 ""
+	local titlerow2 ""
+	local titlerow3 `""Variable""'
+
+	********* Descriptive group stats titles *************************************
+	*Loop over each group to be used in descriptive stats section
+	local grp_count : list sizeof order_grp_codes
+	forvalues grp_colnum = 1/`grp_count' {
+
+
+
+		*Get the code and label corresponding to the group
+		local grp_lbl : word `grp_colnum' of `col_lbls'
+
+		noi di "GRP_LBL: `grp_colnum'  : `grp_lbl'"
+
+		*Titles for each group depending on the option one row used or not
+		if !missing("`onerow'") {
+			local titlerow1 `"`titlerow1' _tab " (`grp_colnum') " "'
+			local titlerow2 `"`titlerow2' _tab "`grp_lbl'"        "'
+			local titlerow3 `"`titlerow3' _tab "Mean/`vtype'"     "'
+		}
+		else {
+			local titlerow1 `"`titlerow1' _tab            _tab " (`grp_colnum') " "'
+			local titlerow2 `"`titlerow2' _tab            _tab "`grp_lbl'"        "'
+			local titlerow3 `"`titlerow3' _tab "`ntitle'" _tab "Mean/`vtype'"     "'
+		}
+	}
+
+	********* Descriptive full sample stats title ********************************
+	if !missing("`total'") {
+
+		* Use custom total label or default : "Total"
+		if `TOTALLABEL_USED' local tot_lbl `totallabel'
+		else local tot_lbl Total
+
+		* Calcualte total column number
+		local tot_colnum = `grp_count' + 1
+
+		*Create one more column for N if N is displayesd in column instead of row
+		if !missing("`onerow'") {
+			local titlerow1 `"`titlerow1' _tab " (`tot_colnum') " "'
+			local titlerow2 `"`titlerow2' _tab "`tot_lbl'"        "'
+			local titlerow3 `"`titlerow3' _tab "Mean/`vtype'"     "'
+		}
+		else {
+			local titlerow1 `"`titlerow1' _tab            _tab " (`tot_colnum') " "'
+			local titlerow2 `"`titlerow2' _tab            _tab "`tot_lbl'"        "'
+			local titlerow3 `"`titlerow3' _tab "`ntitle'" _tab "Mean/`vtype'"     "'
+		}
+	}
+
+	********* Test pairs titles **************************************************
+
+	foreach pair of local pairs {
+
+		*Get each code from a testpair
+		getCodesFromPair `pair'
+		local code1 `r(code1)'
+		local code2 `r(code2)'
+
+		*Write test pair titles
+		local titlerow1 `"`titlerow1' _tab "`testtype_lbl'""'
+		local titlerow2 `"`titlerow2' _tab "`testvalue_lbl'""'
+		local titlerow3 `"`titlerow3' _tab "(`code1')-(`code2')""'
+	}
+
+	********* Write the title lines **************************************************
+
+	*Write the title rows defined above
+	cap file close 	`tab_name'
+	file open  		`tab_name' using "`tab_file'", text write replace
+	file write  	`tab_name' ///
+						`titlerow1' _n ///
+						`titlerow2' _n ///
+						`titlerow3' _n
+	file close 		`tab_name'
+
+	******************************************************************************
+	* Write data rows
+	******************************************************************************
+
+	******************************************************************************
+	* Write footer
+	******************************************************************************
+
+	******************************************************************************
+	* Import tabfile to memory
+	******************************************************************************
+
+	* Import tab file to memory to be exported as csv, xlsx or be browsed.
+	* Tabs are used as they are never used in labels, making manual writing easier
+	insheet using "`tab_file'", tab clear
+
+	// pause on
+	// pause
+
+end
+
+
+/*******************************************************************************
+
+  Function that oupputs the result matrix to tex file
+
+*******************************************************************************/
+
+cap program drop 	export_tex
+	program define	export_tex
+
+	syntax using , rmat(name) fmat(name) [note(string)]
+
+	noi mat list `rmat'
+	noi mat list `fmat'
 
 end
