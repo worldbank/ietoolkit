@@ -80,6 +80,8 @@ qui {
 		*Create local for balance vars with more descriptive name
 		local balancevars `varlist'
 
+		tempname rmat fmat
+
 
 	** Column Options
 
@@ -1049,8 +1051,8 @@ qui {
 		* Set up the matrix for all stats and estimates
 		noi setUpResultMatrix, order_of_group_codes(`ORDER_OF_GROUP_CODES') test_pair_codes(`TEST_PAIR_CODES')
 		mat emptyRow  = r(emptyRow)
-		mat resultMat = r(emptyRow)
-		mat FtestMat  = r(emptyFRow)
+		mat `rmat' = r(emptyRow)
+		mat `fmat'  = r(emptyFRow)
 
 		local desc_stats   `r(desc_stats)'
 	  local pair_stats   `r(pair_stats)'
@@ -1058,10 +1060,7 @@ qui {
 		local ftest_stats  `r(ftest_stats)'
 
 		noi mat list emptyRow
-		noi mat list FtestMat
-
-
-
+		noi mat list `fmat'
 
 /*******************************************************************************
 *******************************************************************************/
@@ -1070,7 +1069,6 @@ qui {
 
 /*******************************************************************************
 *******************************************************************************/
-
 
 	************************************************
 	* Prepare column lables for groups
@@ -1155,7 +1153,6 @@ qui {
 			* If no manually row labels are defined, and option rowvarlabels is
 			* not used, then use balance var name
 			else local ROW_LABELS `" `ROW_LABELS' "`balancevar'" "'
-			}
 		}
 
 
@@ -1243,7 +1240,6 @@ qui {
 
 			}
 
-
 			******************************************************
 			*** Get descriptive stats for total
 
@@ -1271,8 +1267,6 @@ qui {
 					mat row[1,`++colindex'] = .m
 				}
 			}
-
-
 
 			******************************************************
 			*** Get test estimates for each test pair
@@ -1387,7 +1381,7 @@ qui {
 			}
 
 			*Appending row for this balance var to result matrix
-			mat resultMat = [resultMat\row]
+			mat `rmat' = [`rmat'\row]
 		}
 
 	/***********************************************
@@ -1416,7 +1410,7 @@ qui {
 		scalar reg_f = e(F)
 
 		* Adding F score and number of observations to the matrix
-		mat FtestMat[1,`++Fcolindex'] = e(N)
+		mat `fmat'[1,`++Fcolindex'] = e(N)
 
 		*Test all balance variables for joint significance
 		cap testparm `balancevars'
@@ -1456,8 +1450,8 @@ qui {
 				local warn_joint_robus_num	= `warn_joint_robus_num' + 1
 				local warn_joint_robus`warn_joint_robus_num' "(`first_group')-(`second_group')"
 			}
-			mat FtestMat[1,`++Fcolindex'] = test_F
-			mat FtestMat[1,`++Fcolindex'] = test_p
+			mat `fmat'[1,`++Fcolindex'] = test_F
+			mat `fmat'[1,`++Fcolindex'] = test_p
 		}
 	}
 
@@ -1678,9 +1672,13 @@ qui {
 	*Restore from orginial preserve at top of command
 	restore
 
-	mat resultMat = resultMat[2...,1...]
-	return matrix resultMat resultMat
-	return matrix FtestMat  FtestMat
+	matrix `rmat' = `rmat'[2...,1...]
+
+	mat returnRMat = `rmat'
+	mat returnFMat = `fmat'
+
+	return matrix iebaltabrmat returnRMat
+	return matrix iebaltabfmat returnFMat
 
 
 
