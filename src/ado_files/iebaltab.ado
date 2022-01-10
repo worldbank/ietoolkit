@@ -1155,7 +1155,12 @@ qui {
 			else local ROW_LABELS `" `ROW_LABELS' "`balancevar'" "'
 		}
 
+		************************************************
+		* Prepare column label for total column
 
+		* Use custom total label or default : "Total"
+		if `TOTALLABEL_USED' local tot_lbl `totallabel'
+		else local tot_lbl "Total"
 
 /*******************************************************************************
 *******************************************************************************/
