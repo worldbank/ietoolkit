@@ -29,14 +29,14 @@
 				STARSNOadd FORMat(string) TBLNote(string)	NOTECombine	TBLNONote	///
 				                                                                ///
 				/*Export and restore*/                                          ///
-				SAVE(string) SAVETex(string) TEXNotewidth(numlist min=1 max=1)  ///
+				SAVEXlsx(string) SAVECsv(string) SAVETex(string) TEXNotewidth(numlist min=1 max=1)  ///
 				TEXCaption(string) TEXLabel(string) TEXDOCument	texvspace(string) ///
 				texcolwidth(string) REPLACE                                     ///
 				                                                                ///
 				/*Deprecated options
 				  - still included to throw helpful error if ever used */       ///
 				BROWSE SAVEBRowse BALMISS(string) BALMISSReg(string)            ///
-				COVMISS(string) COVMISSReg(string)                              ///
+				COVMISS(string) COVMISSReg(string) SAVE(string)                 ///
 				]
 
 
@@ -223,13 +223,19 @@ qui {
 		if "`format'" 			== "" local FORMAT_USED = 0
 		if "`format'" 			!= "" local FORMAT_USED = 1
 
-		*Is option save() used:
-		if "`save'" 			== "" local SAVE_USED = 0
-		if "`save'" 			!= "" local SAVE_USED = 1
+		*Is option savexlsx() used:
+		if "`savexlsx'" 		== "" local SAVE_XSLX_USED = 0
+		if "`savexlsx'" 		!= "" local SAVE_XSLX_USED = 1
+
+		*Is option savecsv() used:
+		if "`savecsv'" 			== "" local SAVE_CSV_USED = 0
+		if "`savecsv'" 			!= "" local SAVE_CSV_USED = 1
 
 		*Is option savetex() used:
 		if "`savetex'" 			== "" local SAVE_TEX_USED = 0
 		if "`savetex'" 			!= "" local SAVE_TEX_USED = 1
+
+		local SAVE_USED = max(`SAVE_CSV_USED',`SAVE_TEX_USED')
 
 		*Is option texnotewidth() used:
 		if "`texnotewidth'"		== "" local NOTEWIDTH_USED = 0
@@ -777,8 +783,8 @@ qui {
 			error 197
 		}
 
-		if `SAVE_USED' | `SAVE_TEX_USED' {
-			if `SAVE_USED' {
+		if `SAVE_USED' {
+			if `SAVE_CSV_USED' {
 
 				**Find the last . in the file path and assume that
 				* the file extension is what follows. If a file path has a . then
