@@ -20,22 +20,23 @@
 				vce(string)   MISSMINmean(numlist min=1 max=1 >0)               ///
 				WEIGHTold(string)                                               ///
 				                                                                ///
-				/*F-test*/                                                      ///
-				FTest FMissok	FNOOBS                                            ///
+				/*F-test and  FEQTest*/                                   ///
+				FTest FMissok FEQTest	                                     ///
 				                                                                ///
 				/*Output display*/                                              ///
-				NOTtest NORMDiff PTtest PFtest FEQTest PBoth STDev              ///
+				pairoutput(string) foutput(string)  ///
+				 STDev              ///
 				STARlevels(numlist descending min=3 max=3 >0 <1)			          ///
 				STARSNOadd FORMat(string) TBLNote(string)	NOTECombine	TBLNONote	///
 				                                                                ///
 				/*Export and restore*/                                          ///
 				SAVEXlsx(string) SAVECsv(string) SAVETex(string) TEXNotewidth(numlist min=1 max=1)  ///
 				TEXCaption(string) TEXLabel(string) TEXDOCument	texvspace(string) ///
-				texcolwidth(string) REPLACE                                     ///
+				texcolwidth(string) REPLACE BROWSE                         ///
 				                                                                ///
 				/*Deprecated options
 				  - still included to throw helpful error if ever used */       ///
-				BROWSE SAVEBRowse BALMISS(string) BALMISSReg(string)            ///
+				 SAVEBRowse BALMISS(string) BALMISSReg(string)            ///
 				COVMISS(string) COVMISSReg(string) SAVE(string)                 ///
 				]
 
@@ -1711,6 +1712,23 @@ qui {
 		if "`vce_type'" == "cluster" local ntitle "N/[Clusters]"
 		else local ntitle "N"
 
+		*********************
+		* Pair test outputs
+
+		* Use default value if none is specified by user
+		if missing("`pairoutput'") local pout_val "diff"
+		else local pout_val "`pairoutput'"
+
+		* Prepare the pair test labels
+		if "`pout_val'" == "diff" local pout_lbl "Mean difference"
+		if "`pout_val'" == "beta" local pout_lbl "Beta coefficient"
+		if "`pout_val'" == "nrmd" local pout_lbl "Normalized difference"
+		if "`pout_val'" == "t" local pout_lbl "T-statistics" //todo: include in matrix
+		if "`pout_val'" == "p" local pout_lbl "P-value"
+		if "`pout_val'" == "none" local pout_lbl "none"
+
+		* ttest notest NORMDiff PTtest   '"
+
 		***** Before using one_row - test the matrix that it is possible
 
 		*Export to excel format
@@ -1723,16 +1741,31 @@ qui {
 					rmat(`rmat') fmat(`fmat') ntitle("`ntitle'") vtype("`vtype'") ///
 					note("The value displayed for t-tests are the differences in the means across the groups.") ///
 					col_lbls(`COLUMN_LABELS') order_grp_codes(`ORDER_OF_GROUP_CODES') ///
-					pairs(`TEST_PAIR_CODES') testtype_lbl("test-test") testvalue_lbl("test-value") ///
-					row_lbls(`"`ROW_LABELS'"') `total' `onerow' tot_lbl("`tot_lbl'")
+					pairs(`TEST_PAIR_CODES')  ///
+					row_lbls(`"`ROW_LABELS'"') `total' `onerow' tot_lbl("`tot_lbl'") ///
+					pout_lbl(`pout_lbl') pout_val(`pout_val')
 
 					tempfile tab_file
 					save `tab_file'
 
+					* Export the file in csv format
+					if `SAVE_CSV_USED' {
+						export delimited using "`savecsv'", novarnames quote `replace'
+					}
+
+					* Export the file in xlsx format
+					if `SAVE_XSLX_USED' {
+						export excel using "`savexlsx'", `replace'
+					}
+
 			restore
 		}
 
-		use `tab_file', clear
+		* Browse the results in the output window. This overwrites data in memory
+		if `BROWSE_USED' {
+			use `tab_file', clear
+		}
+
 
 		// *Export to tex format
 		// if `SAVE_TEX_USED' {
@@ -1788,8 +1821,9 @@ cap program drop 	export_tab
 	syntax using , rmat(name) fmat(name) 					///
 	ntitle(string) vtype(string) note(string)		///
 	col_lbls(string) order_grp_codes(numlist) ///
-	pairs(string) testtype_lbl(string) testvalue_lbl(string) ///
+	pairs(string) ///
 	row_lbls(string) tot_lbl(string) ///
+	pout_lbl(string) pout_val(string) ///
 	[onerow total]
 
 	//noi di "insdie export_tab"
@@ -1864,8 +1898,8 @@ cap program drop 	export_tab
 		local code2 `r(code2)'
 
 		*Write test pair titles
-		local titlerow1 `"`titlerow1' _tab "`testtype_lbl'""'
-		local titlerow2 `"`titlerow2' _tab "`testvalue_lbl'""'
+		local titlerow1 `"`titlerow1' _tab "Pairwise t-test""'
+		local titlerow2 `"`titlerow2' _tab "`pout_lbl'""'
 		local titlerow3 `"`titlerow3' _tab "(`code1')-(`code2')""'
 	}
 
@@ -1933,7 +1967,7 @@ cap program drop 	export_tab
 
 
 		foreach pair of local pairs {
-			local test_value = el(`rmat',`row_num',colnumb(`rmat',"diff_`pair'"))
+			local test_value = el(`rmat',`row_num',colnumb(`rmat',"`pout_val'_`pair'"))
 			local row_up   `"`row_up'   _tab "`test_value'" "'
 			local row_down `"`row_down' _tab "" "'
 		}
