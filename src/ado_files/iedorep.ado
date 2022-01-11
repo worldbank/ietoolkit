@@ -7,7 +7,9 @@ cap  program drop  iedorep
   ///
   [debug(string asis)] // Programming option to view exact temp do-file
   
-// Prep
+/*****************************************************************************
+One-time prep
+*****************************************************************************/
 preserve
   file close _all
   tempfile newfile1
@@ -40,9 +42,15 @@ preserve
   
   file write edited "datasignature" _n `"local \`theDATA' = "\`r(datasignature)'" "' _n
   file write checkr "datasignature" _n `"local \`theDATA' = "\`r(datasignature)'" "' _n
-  
-// Big loop through file
+
+/*****************************************************************************
+Big loop through target do-file contents
+*****************************************************************************/
 while r(eof)==0 {
+  
+  /*****************************************************************************
+  Setup and state checks
+  *****************************************************************************/
   
   // Increment line
   local linenum = `linenum' + 1
@@ -77,7 +85,10 @@ while r(eof)==0 {
     // Track state whenever logic or loop exited
     if strpos(`"`macval(line)'"',"}") ///
       local loopstate = substr("`loopstate'",5,.)
-  
+      
+  /*****************************************************************************
+  Implement logic checks in file copy
+  *****************************************************************************/  
   if (`comment' == 0) & !strpos("`loopstate'","loop") {
     // Add checkers if line end
     if !strpos(`"`macval(line)'"',"///") {
@@ -163,8 +174,10 @@ while r(eof)==0 {
 
 }
 
-// Append the checking dofile to the edited dofile
-// Betwen dofiles, use [di] to advance seed and use [clear] for data
+/*****************************************************************************
+Append the checking dofile to the edited dofile
+Betwen dofiles, use [di] to advance seed and use [clear] for data
+*****************************************************************************/
 file close checkr
 file open checkr using `"`newfile2'"' , read
   file read checkr line // Need initial read
@@ -178,17 +191,28 @@ file open checkr using `"`newfile2'"' , read
   file write edited `"use \`posty' , clear"' _n
   file write edited `"collapse (firstnm) Data Err_1 Seed Err_2 Sort Err_3 , by(Line)"' _n
   file write edited `"compress"' _n
-  
-// Clean up and run
+
+/*****************************************************************************
+Cleanup and then run the combined temp dofile
+*****************************************************************************/  
 
   file close _all
   
   clear
   qui do `newfile1'
+  
+/*****************************************************************************
+Output flags and errors
+*****************************************************************************/
+
   qui replace Data = Err_1 + Data 
   qui replace Seed = Err_2 + Seed 
   qui replace Sort = Err_3 + Sort 
   li Line Data Seed Sort , noobs divider 
+  
+/*****************************************************************************
+Debug and pseudo-recursion
+*****************************************************************************/
   
   if `"`debug'"' != "" /// COPY FILE FOR DEBUGGING
     copy `newfile1' `debug' , replace 
