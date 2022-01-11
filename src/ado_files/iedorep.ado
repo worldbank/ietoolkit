@@ -6,7 +6,7 @@ cap  program drop  iedorep
   syntax anything , ///
   [recursive] ///
   [alldata] [allsort] [allseed] /// Verbose reporting of non-errors
-  [debug(string asis)] [qui] // Programming option to view exact temp do-file
+  [debug] [qui] // Programming option to view exact temp do-file
   
 /*****************************************************************************
 Options
@@ -270,7 +270,8 @@ Cleanup and then run the combined temp dofile
   
   clear
   if `"`debug'"' != "" {
-    copy `newfile1' `debug' , replace 
+    local debugpath = subinstr(`"`anything'"',".do","_temp.do",.)
+    copy `newfile1' `debugpath' , replace 
     `qui' do `newfile1'
   }
   else qui do `newfile1'
@@ -304,7 +305,7 @@ Pseudo-recursion
       sort Line
       forvalues i = 1/`c(N)' {
         local file = Path[`i']
-        iedorep `file' , `recursive' `alldata' `allsort' `allseed'
+        iedorep `file' , `debug' `qui' `recursive' `alldata' `allsort' `allseed'
       }
     }
   }
