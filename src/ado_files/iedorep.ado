@@ -4,6 +4,7 @@ cap  program drop  iedorep
   program define   iedorep, rclass
   
   syntax anything , ///
+  [recursive] ///
   [alldata] [allsort] [allseed] /// Verbose reporting of non-errors
   [debug(string asis)] [qui] // Programming option to view exact temp do-file
   
@@ -22,7 +23,7 @@ Options
   }
   
   // Optionally request all sorts to be flagged
-  if "`alldata'" != "" {
+  if "`allsort'" != "" {
     local allsort1 = `" ("") ("") ("") ("") ("Sorted") ("") "'
     local allsort2 = `" ("") ("") ("") ("") ("") ("ERROR! ") "'
   }
@@ -32,7 +33,7 @@ Options
   }
   
   // Optionally request all seeds to be flagged
-  if "`alldata'" != "" {
+  if "`allseed'" != "" {
     local allseed1 = `" ("") ("") ("Used") ("") ("") ("") "'
     local allseed2 = `" ("") ("") ("") ("ERROR! ") ("") ("") "'
   }
@@ -264,13 +265,18 @@ Output flags and errors
   qui replace Data = Err_1 + Data 
   qui replace Seed = Err_2 + Seed 
   qui replace Sort = Err_3 + Sort 
-  drop if Data == "" & Seed == "" & Sort == ""
-  li Line Data Seed Sort , noobs divider 
+
+  li Line Data Seed Sort ///
+    if !(Data == "" & Seed == "" & Sort == "") ///
+    , noobs divider 
   
 /*****************************************************************************
 Pseudo-recursion
 *****************************************************************************/
 
+  if "`recursive'" != "" {
+    
+  }
   
 /*****************************************************************************
 END

@@ -8,7 +8,7 @@ datasignature
 local `theDATA' = "`r(datasignature)'" 
 //
 if ("`c(rngstate)'" != "``theRNG''") {
-post posty (1) ("") ("") ("Used") ("") ("") ("")   
+post posty (1)  ("") ("") ("") ("") ("") ("")    
 local `theRNG' = "`c(rngstate)'" 
 local `allRNGS' = "``allRNGS'' `c(rngstate)'" 
 }
@@ -32,7 +32,7 @@ save `1' , emptyok
 }
 
 if ("`c(rngstate)'" != "``theRNG''") {
-post posty (2) ("") ("") ("Used") ("") ("") ("")   
+post posty (2)  ("") ("") ("") ("") ("") ("")    
 local `theRNG' = "`c(rngstate)'" 
 local `allRNGS' = "``allRNGS'' `c(rngstate)'" 
 }
@@ -56,7 +56,7 @@ save `2' , emptyok
 }
 clear
 if ("`c(rngstate)'" != "``theRNG''") {
-post posty (3) ("") ("") ("Used") ("") ("") ("")   
+post posty (3)  ("") ("") ("") ("") ("") ("")    
 local `theRNG' = "`c(rngstate)'" 
 local `allRNGS' = "``allRNGS'' `c(rngstate)'" 
 }
@@ -80,7 +80,7 @@ save `3' , emptyok
 }
 
 if ("`c(rngstate)'" != "``theRNG''") {
-post posty (4) ("") ("") ("Used") ("") ("") ("")   
+post posty (4)  ("") ("") ("") ("") ("") ("")    
 local `theRNG' = "`c(rngstate)'" 
 local `allRNGS' = "``allRNGS'' `c(rngstate)'" 
 }
@@ -104,7 +104,7 @@ save `4' , emptyok
 }
 sysuse auto.dta
 if ("`c(rngstate)'" != "``theRNG''") {
-post posty (5) ("") ("") ("Used") ("") ("") ("")   
+post posty (5)  ("") ("") ("") ("") ("") ("")    
 local `theRNG' = "`c(rngstate)'" 
 local `allRNGS' = "``allRNGS'' `c(rngstate)'" 
 }
@@ -128,7 +128,7 @@ save `5' , emptyok
 }
 
 if ("`c(rngstate)'" != "``theRNG''") {
-post posty (6) ("") ("") ("Used") ("") ("") ("")   
+post posty (6)  ("") ("") ("") ("") ("") ("")    
 local `theRNG' = "`c(rngstate)'" 
 local `allRNGS' = "``allRNGS'' `c(rngstate)'" 
 }
@@ -152,7 +152,7 @@ save `6' , emptyok
 }
 local MYFAKELOCAL = `MYFAKELOCAL' + 1
 if ("`c(rngstate)'" != "``theRNG''") {
-post posty (7) ("") ("") ("Used") ("") ("") ("")   
+post posty (7)  ("") ("") ("") ("") ("") ("")    
 local `theRNG' = "`c(rngstate)'" 
 local `allRNGS' = "``allRNGS'' `c(rngstate)'" 
 }
@@ -176,7 +176,7 @@ save `7' , emptyok
 }
 
 if ("`c(rngstate)'" != "``theRNG''") {
-post posty (8) ("") ("") ("Used") ("") ("") ("")   
+post posty (8)  ("") ("") ("") ("") ("") ("")    
 local `theRNG' = "`c(rngstate)'" 
 local `allRNGS' = "``allRNGS'' `c(rngstate)'" 
 }
@@ -200,7 +200,7 @@ save `8' , emptyok
 }
 #d cr
 if ("`c(rngstate)'" != "``theRNG''") {
-post posty (9) ("") ("") ("Used") ("") ("") ("")   
+post posty (9)  ("") ("") ("") ("") ("") ("")    
 local `theRNG' = "`c(rngstate)'" 
 local `allRNGS' = "``allRNGS'' `c(rngstate)'" 
 }
@@ -224,7 +224,7 @@ save `9' , emptyok
 }
 
 if ("`c(rngstate)'" != "``theRNG''") {
-post posty (10) ("") ("") ("Used") ("") ("") ("")   
+post posty (10)  ("") ("") ("") ("") ("") ("")    
 local `theRNG' = "`c(rngstate)'" 
 local `allRNGS' = "``allRNGS'' `c(rngstate)'" 
 }
@@ -248,7 +248,7 @@ save `10' , emptyok
 }
 expand 2 , gen(check)
 if ("`c(rngstate)'" != "``theRNG''") {
-post posty (11) ("") ("") ("Used") ("") ("") ("")   
+post posty (11)  ("") ("") ("") ("") ("") ("")    
 local `theRNG' = "`c(rngstate)'" 
 local `allRNGS' = "``allRNGS'' `c(rngstate)'" 
 }
@@ -272,7 +272,7 @@ save `11' , emptyok
 }
 
 if ("`c(rngstate)'" != "``theRNG''") {
-post posty (12) ("") ("") ("Used") ("") ("") ("")   
+post posty (12)  ("") ("") ("") ("") ("") ("")    
 local `theRNG' = "`c(rngstate)'" 
 local `allRNGS' = "``allRNGS'' `c(rngstate)'" 
 }
@@ -296,7 +296,7 @@ save `12' , emptyok
 }
 isid make check, sort
 if ("`c(rngstate)'" != "``theRNG''") {
-post posty (13) ("") ("") ("Used") ("") ("") ("")   
+post posty (13)  ("") ("") ("") ("") ("") ("")    
 local `theRNG' = "`c(rngstate)'" 
 local `allRNGS' = "``allRNGS'' `c(rngstate)'" 
 }
@@ -320,7 +320,7 @@ save `13' , emptyok
 }
 
 if ("`c(rngstate)'" != "``theRNG''") {
-post posty (14) ("") ("") ("Used") ("") ("") ("")   
+post posty (14)  ("") ("") ("") ("") ("") ("")    
 local `theRNG' = "`c(rngstate)'" 
 local `allRNGS' = "``allRNGS'' `c(rngstate)'" 
 }
@@ -344,7 +344,7 @@ save `14' , emptyok
 }
 sort foreign
 if ("`c(rngstate)'" != "``theRNG''") {
-post posty (15) ("") ("") ("Used") ("") ("") ("")   
+post posty (15)  ("") ("") ("") ("") ("") ("")    
 local `theRNG' = "`c(rngstate)'" 
 local `allRNGS' = "``allRNGS'' `c(rngstate)'" 
 }
@@ -368,7 +368,7 @@ save `15' , emptyok
 }
 
 if ("`c(rngstate)'" != "``theRNG''") {
-post posty (16) ("") ("") ("Used") ("") ("") ("")   
+post posty (16)  ("") ("") ("") ("") ("") ("")    
 local `theRNG' = "`c(rngstate)'" 
 local `allRNGS' = "``allRNGS'' `c(rngstate)'" 
 }
@@ -392,7 +392,7 @@ save `16' , emptyok
 }
 di as err "`MYFAKELOCAL'"
 if ("`c(rngstate)'" != "``theRNG''") {
-post posty (17) ("") ("") ("Used") ("") ("") ("")   
+post posty (17)  ("") ("") ("") ("") ("") ("")    
 local `theRNG' = "`c(rngstate)'" 
 local `allRNGS' = "``allRNGS'' `c(rngstate)'" 
 }
@@ -416,7 +416,7 @@ save `17' , emptyok
 }
 
 if ("`c(rngstate)'" != "``theRNG''") {
-post posty (18) ("") ("") ("Used") ("") ("") ("")   
+post posty (18)  ("") ("") ("") ("") ("") ("")    
 local `theRNG' = "`c(rngstate)'" 
 local `allRNGS' = "``allRNGS'' `c(rngstate)'" 
 }
@@ -440,7 +440,7 @@ save `18' , emptyok
 }
 gen x = _n
 if ("`c(rngstate)'" != "``theRNG''") {
-post posty (19) ("") ("") ("Used") ("") ("") ("")   
+post posty (19)  ("") ("") ("") ("") ("") ("")    
 local `theRNG' = "`c(rngstate)'" 
 local `allRNGS' = "``allRNGS'' `c(rngstate)'" 
 }
@@ -464,7 +464,7 @@ save `19' , emptyok
 }
 gen y = rnormal()
 if ("`c(rngstate)'" != "``theRNG''") {
-post posty (20) ("") ("") ("Used") ("") ("") ("")   
+post posty (20)  ("") ("") ("") ("") ("") ("")    
 local `theRNG' = "`c(rngstate)'" 
 local `allRNGS' = "``allRNGS'' `c(rngstate)'" 
 }
@@ -488,7 +488,7 @@ save `20' , emptyok
 }
 
 if ("`c(rngstate)'" != "``theRNG''") {
-post posty (21) ("") ("") ("Used") ("") ("") ("")   
+post posty (21)  ("") ("") ("") ("") ("") ("")    
 local `theRNG' = "`c(rngstate)'" 
 local `allRNGS' = "``allRNGS'' `c(rngstate)'" 
 }
@@ -512,7 +512,7 @@ save `21' , emptyok
 }
 set seed 123455
 if ("`c(rngstate)'" != "``theRNG''") {
-post posty (22) ("") ("") ("Used") ("") ("") ("")   
+post posty (22)  ("") ("") ("") ("") ("") ("")    
 local `theRNG' = "`c(rngstate)'" 
 local `allRNGS' = "``allRNGS'' `c(rngstate)'" 
 }
@@ -536,7 +536,7 @@ save `22' , emptyok
 }
 
 if ("`c(rngstate)'" != "``theRNG''") {
-post posty (23) ("") ("") ("Used") ("") ("") ("")   
+post posty (23)  ("") ("") ("") ("") ("") ("")    
 local `theRNG' = "`c(rngstate)'" 
 local `allRNGS' = "``allRNGS'' `c(rngstate)'" 
 }
@@ -560,7 +560,7 @@ save `23' , emptyok
 }
 duplicates drop make , force
 if ("`c(rngstate)'" != "``theRNG''") {
-post posty (24) ("") ("") ("Used") ("") ("") ("")   
+post posty (24)  ("") ("") ("") ("") ("") ("")    
 local `theRNG' = "`c(rngstate)'" 
 local `allRNGS' = "``allRNGS'' `c(rngstate)'" 
 }
@@ -584,7 +584,7 @@ save `24' , emptyok
 }
 
 if ("`c(rngstate)'" != "``theRNG''") {
-post posty (25) ("") ("") ("Used") ("") ("") ("")   
+post posty (25)  ("") ("") ("") ("") ("") ("")    
 local `theRNG' = "`c(rngstate)'" 
 local `allRNGS' = "``allRNGS'' `c(rngstate)'" 
 }
@@ -608,7 +608,7 @@ save `25' , emptyok
 }
 //
 if ("`c(rngstate)'" != "``theRNG''") {
-post posty (26) ("") ("") ("Used") ("") ("") ("")   
+post posty (26)  ("") ("") ("") ("") ("") ("")    
 local `theRNG' = "`c(rngstate)'" 
 local `allRNGS' = "``allRNGS'' `c(rngstate)'" 
 }
@@ -652,7 +652,7 @@ if ("`c(rngstate)'" != "``theRNG''") {
 local `whichRNG' = ``whichRNG'' + 1
 local `theRNG' = "`c(rngstate)'" 
 if ("`c(rngstate)'" != "`: word ``whichRNG'' of ``allRNGS'''") {
-post posty (1) ("") ("") ("") ("ERROR! ") ("") ("")  
+post posty (1)  ("") ("") ("Used") ("ERROR! ") ("") ("")   
 }
 }
 if ("`c(sortrngstate)'" != "``theSORT''") {
@@ -678,7 +678,7 @@ if ("`c(rngstate)'" != "``theRNG''") {
 local `whichRNG' = ``whichRNG'' + 1
 local `theRNG' = "`c(rngstate)'" 
 if ("`c(rngstate)'" != "`: word ``whichRNG'' of ``allRNGS'''") {
-post posty (2) ("") ("") ("") ("ERROR! ") ("") ("")  
+post posty (2)  ("") ("") ("Used") ("ERROR! ") ("") ("")   
 }
 }
 if ("`c(sortrngstate)'" != "``theSORT''") {
@@ -704,7 +704,7 @@ if ("`c(rngstate)'" != "``theRNG''") {
 local `whichRNG' = ``whichRNG'' + 1
 local `theRNG' = "`c(rngstate)'" 
 if ("`c(rngstate)'" != "`: word ``whichRNG'' of ``allRNGS'''") {
-post posty (3) ("") ("") ("") ("ERROR! ") ("") ("")  
+post posty (3)  ("") ("") ("Used") ("ERROR! ") ("") ("")   
 }
 }
 if ("`c(sortrngstate)'" != "``theSORT''") {
@@ -730,7 +730,7 @@ if ("`c(rngstate)'" != "``theRNG''") {
 local `whichRNG' = ``whichRNG'' + 1
 local `theRNG' = "`c(rngstate)'" 
 if ("`c(rngstate)'" != "`: word ``whichRNG'' of ``allRNGS'''") {
-post posty (4) ("") ("") ("") ("ERROR! ") ("") ("")  
+post posty (4)  ("") ("") ("Used") ("ERROR! ") ("") ("")   
 }
 }
 if ("`c(sortrngstate)'" != "``theSORT''") {
@@ -756,7 +756,7 @@ if ("`c(rngstate)'" != "``theRNG''") {
 local `whichRNG' = ``whichRNG'' + 1
 local `theRNG' = "`c(rngstate)'" 
 if ("`c(rngstate)'" != "`: word ``whichRNG'' of ``allRNGS'''") {
-post posty (5) ("") ("") ("") ("ERROR! ") ("") ("")  
+post posty (5)  ("") ("") ("Used") ("ERROR! ") ("") ("")   
 }
 }
 if ("`c(sortrngstate)'" != "``theSORT''") {
@@ -782,7 +782,7 @@ if ("`c(rngstate)'" != "``theRNG''") {
 local `whichRNG' = ``whichRNG'' + 1
 local `theRNG' = "`c(rngstate)'" 
 if ("`c(rngstate)'" != "`: word ``whichRNG'' of ``allRNGS'''") {
-post posty (6) ("") ("") ("") ("ERROR! ") ("") ("")  
+post posty (6)  ("") ("") ("Used") ("ERROR! ") ("") ("")   
 }
 }
 if ("`c(sortrngstate)'" != "``theSORT''") {
@@ -808,7 +808,7 @@ if ("`c(rngstate)'" != "``theRNG''") {
 local `whichRNG' = ``whichRNG'' + 1
 local `theRNG' = "`c(rngstate)'" 
 if ("`c(rngstate)'" != "`: word ``whichRNG'' of ``allRNGS'''") {
-post posty (7) ("") ("") ("") ("ERROR! ") ("") ("")  
+post posty (7)  ("") ("") ("Used") ("ERROR! ") ("") ("")   
 }
 }
 if ("`c(sortrngstate)'" != "``theSORT''") {
@@ -834,7 +834,7 @@ if ("`c(rngstate)'" != "``theRNG''") {
 local `whichRNG' = ``whichRNG'' + 1
 local `theRNG' = "`c(rngstate)'" 
 if ("`c(rngstate)'" != "`: word ``whichRNG'' of ``allRNGS'''") {
-post posty (8) ("") ("") ("") ("ERROR! ") ("") ("")  
+post posty (8)  ("") ("") ("Used") ("ERROR! ") ("") ("")   
 }
 }
 if ("`c(sortrngstate)'" != "``theSORT''") {
@@ -860,7 +860,7 @@ if ("`c(rngstate)'" != "``theRNG''") {
 local `whichRNG' = ``whichRNG'' + 1
 local `theRNG' = "`c(rngstate)'" 
 if ("`c(rngstate)'" != "`: word ``whichRNG'' of ``allRNGS'''") {
-post posty (9) ("") ("") ("") ("ERROR! ") ("") ("")  
+post posty (9)  ("") ("") ("Used") ("ERROR! ") ("") ("")   
 }
 }
 if ("`c(sortrngstate)'" != "``theSORT''") {
@@ -886,7 +886,7 @@ if ("`c(rngstate)'" != "``theRNG''") {
 local `whichRNG' = ``whichRNG'' + 1
 local `theRNG' = "`c(rngstate)'" 
 if ("`c(rngstate)'" != "`: word ``whichRNG'' of ``allRNGS'''") {
-post posty (10) ("") ("") ("") ("ERROR! ") ("") ("")  
+post posty (10)  ("") ("") ("Used") ("ERROR! ") ("") ("")   
 }
 }
 if ("`c(sortrngstate)'" != "``theSORT''") {
@@ -912,7 +912,7 @@ if ("`c(rngstate)'" != "``theRNG''") {
 local `whichRNG' = ``whichRNG'' + 1
 local `theRNG' = "`c(rngstate)'" 
 if ("`c(rngstate)'" != "`: word ``whichRNG'' of ``allRNGS'''") {
-post posty (11) ("") ("") ("") ("ERROR! ") ("") ("")  
+post posty (11)  ("") ("") ("Used") ("ERROR! ") ("") ("")   
 }
 }
 if ("`c(sortrngstate)'" != "``theSORT''") {
@@ -938,7 +938,7 @@ if ("`c(rngstate)'" != "``theRNG''") {
 local `whichRNG' = ``whichRNG'' + 1
 local `theRNG' = "`c(rngstate)'" 
 if ("`c(rngstate)'" != "`: word ``whichRNG'' of ``allRNGS'''") {
-post posty (12) ("") ("") ("") ("ERROR! ") ("") ("")  
+post posty (12)  ("") ("") ("Used") ("ERROR! ") ("") ("")   
 }
 }
 if ("`c(sortrngstate)'" != "``theSORT''") {
@@ -964,7 +964,7 @@ if ("`c(rngstate)'" != "``theRNG''") {
 local `whichRNG' = ``whichRNG'' + 1
 local `theRNG' = "`c(rngstate)'" 
 if ("`c(rngstate)'" != "`: word ``whichRNG'' of ``allRNGS'''") {
-post posty (13) ("") ("") ("") ("ERROR! ") ("") ("")  
+post posty (13)  ("") ("") ("Used") ("ERROR! ") ("") ("")   
 }
 }
 if ("`c(sortrngstate)'" != "``theSORT''") {
@@ -990,7 +990,7 @@ if ("`c(rngstate)'" != "``theRNG''") {
 local `whichRNG' = ``whichRNG'' + 1
 local `theRNG' = "`c(rngstate)'" 
 if ("`c(rngstate)'" != "`: word ``whichRNG'' of ``allRNGS'''") {
-post posty (14) ("") ("") ("") ("ERROR! ") ("") ("")  
+post posty (14)  ("") ("") ("Used") ("ERROR! ") ("") ("")   
 }
 }
 if ("`c(sortrngstate)'" != "``theSORT''") {
@@ -1016,7 +1016,7 @@ if ("`c(rngstate)'" != "``theRNG''") {
 local `whichRNG' = ``whichRNG'' + 1
 local `theRNG' = "`c(rngstate)'" 
 if ("`c(rngstate)'" != "`: word ``whichRNG'' of ``allRNGS'''") {
-post posty (15) ("") ("") ("") ("ERROR! ") ("") ("")  
+post posty (15)  ("") ("") ("Used") ("ERROR! ") ("") ("")   
 }
 }
 if ("`c(sortrngstate)'" != "``theSORT''") {
@@ -1042,7 +1042,7 @@ if ("`c(rngstate)'" != "``theRNG''") {
 local `whichRNG' = ``whichRNG'' + 1
 local `theRNG' = "`c(rngstate)'" 
 if ("`c(rngstate)'" != "`: word ``whichRNG'' of ``allRNGS'''") {
-post posty (16) ("") ("") ("") ("ERROR! ") ("") ("")  
+post posty (16)  ("") ("") ("Used") ("ERROR! ") ("") ("")   
 }
 }
 if ("`c(sortrngstate)'" != "``theSORT''") {
@@ -1068,7 +1068,7 @@ if ("`c(rngstate)'" != "``theRNG''") {
 local `whichRNG' = ``whichRNG'' + 1
 local `theRNG' = "`c(rngstate)'" 
 if ("`c(rngstate)'" != "`: word ``whichRNG'' of ``allRNGS'''") {
-post posty (17) ("") ("") ("") ("ERROR! ") ("") ("")  
+post posty (17)  ("") ("") ("Used") ("ERROR! ") ("") ("")   
 }
 }
 if ("`c(sortrngstate)'" != "``theSORT''") {
@@ -1094,7 +1094,7 @@ if ("`c(rngstate)'" != "``theRNG''") {
 local `whichRNG' = ``whichRNG'' + 1
 local `theRNG' = "`c(rngstate)'" 
 if ("`c(rngstate)'" != "`: word ``whichRNG'' of ``allRNGS'''") {
-post posty (18) ("") ("") ("") ("ERROR! ") ("") ("")  
+post posty (18)  ("") ("") ("Used") ("ERROR! ") ("") ("")   
 }
 }
 if ("`c(sortrngstate)'" != "``theSORT''") {
@@ -1120,7 +1120,7 @@ if ("`c(rngstate)'" != "``theRNG''") {
 local `whichRNG' = ``whichRNG'' + 1
 local `theRNG' = "`c(rngstate)'" 
 if ("`c(rngstate)'" != "`: word ``whichRNG'' of ``allRNGS'''") {
-post posty (19) ("") ("") ("") ("ERROR! ") ("") ("")  
+post posty (19)  ("") ("") ("Used") ("ERROR! ") ("") ("")   
 }
 }
 if ("`c(sortrngstate)'" != "``theSORT''") {
@@ -1146,7 +1146,7 @@ if ("`c(rngstate)'" != "``theRNG''") {
 local `whichRNG' = ``whichRNG'' + 1
 local `theRNG' = "`c(rngstate)'" 
 if ("`c(rngstate)'" != "`: word ``whichRNG'' of ``allRNGS'''") {
-post posty (20) ("") ("") ("") ("ERROR! ") ("") ("")  
+post posty (20)  ("") ("") ("Used") ("ERROR! ") ("") ("")   
 }
 }
 if ("`c(sortrngstate)'" != "``theSORT''") {
@@ -1172,7 +1172,7 @@ if ("`c(rngstate)'" != "``theRNG''") {
 local `whichRNG' = ``whichRNG'' + 1
 local `theRNG' = "`c(rngstate)'" 
 if ("`c(rngstate)'" != "`: word ``whichRNG'' of ``allRNGS'''") {
-post posty (21) ("") ("") ("") ("ERROR! ") ("") ("")  
+post posty (21)  ("") ("") ("Used") ("ERROR! ") ("") ("")   
 }
 }
 if ("`c(sortrngstate)'" != "``theSORT''") {
@@ -1198,7 +1198,7 @@ if ("`c(rngstate)'" != "``theRNG''") {
 local `whichRNG' = ``whichRNG'' + 1
 local `theRNG' = "`c(rngstate)'" 
 if ("`c(rngstate)'" != "`: word ``whichRNG'' of ``allRNGS'''") {
-post posty (22) ("") ("") ("") ("ERROR! ") ("") ("")  
+post posty (22)  ("") ("") ("Used") ("ERROR! ") ("") ("")   
 }
 }
 if ("`c(sortrngstate)'" != "``theSORT''") {
@@ -1224,7 +1224,7 @@ if ("`c(rngstate)'" != "``theRNG''") {
 local `whichRNG' = ``whichRNG'' + 1
 local `theRNG' = "`c(rngstate)'" 
 if ("`c(rngstate)'" != "`: word ``whichRNG'' of ``allRNGS'''") {
-post posty (23) ("") ("") ("") ("ERROR! ") ("") ("")  
+post posty (23)  ("") ("") ("Used") ("ERROR! ") ("") ("")   
 }
 }
 if ("`c(sortrngstate)'" != "``theSORT''") {
@@ -1250,7 +1250,7 @@ if ("`c(rngstate)'" != "``theRNG''") {
 local `whichRNG' = ``whichRNG'' + 1
 local `theRNG' = "`c(rngstate)'" 
 if ("`c(rngstate)'" != "`: word ``whichRNG'' of ``allRNGS'''") {
-post posty (24) ("") ("") ("") ("ERROR! ") ("") ("")  
+post posty (24)  ("") ("") ("Used") ("ERROR! ") ("") ("")   
 }
 }
 if ("`c(sortrngstate)'" != "``theSORT''") {
@@ -1276,7 +1276,7 @@ if ("`c(rngstate)'" != "``theRNG''") {
 local `whichRNG' = ``whichRNG'' + 1
 local `theRNG' = "`c(rngstate)'" 
 if ("`c(rngstate)'" != "`: word ``whichRNG'' of ``allRNGS'''") {
-post posty (25) ("") ("") ("") ("ERROR! ") ("") ("")  
+post posty (25)  ("") ("") ("Used") ("ERROR! ") ("") ("")   
 }
 }
 if ("`c(sortrngstate)'" != "``theSORT''") {
@@ -1302,7 +1302,7 @@ if ("`c(rngstate)'" != "``theRNG''") {
 local `whichRNG' = ``whichRNG'' + 1
 local `theRNG' = "`c(rngstate)'" 
 if ("`c(rngstate)'" != "`: word ``whichRNG'' of ``allRNGS'''") {
-post posty (26) ("") ("") ("") ("ERROR! ") ("") ("")  
+post posty (26)  ("") ("") ("Used") ("ERROR! ") ("") ("")   
 }
 }
 if ("`c(sortrngstate)'" != "``theSORT''") {
