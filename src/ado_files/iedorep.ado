@@ -5,6 +5,7 @@ cap  program drop  iedorep
   
   syntax anything , ///
   [alldata] ///
+  [allsort] ///
   [debug(string asis)] [qui] // Programming option to view exact temp do-file
   
 /*****************************************************************************
@@ -19,6 +20,16 @@ Options
   else {
     local alldata1 = `" ("") ("") ("") ("") ("") ("") "'
     local alldata2 = `" ("Changed") ("ERROR! ") ("") ("") ("") ("") "'
+  }
+  
+  // Optionally request all sorts to be flagged
+  if "`alldata'" != "" {
+    local allsort1 = `" ("") ("") ("") ("") ("Sorted") ("") "'
+    local allsort2 = `" ("") ("") ("") ("") ("") ("ERROR! ") "'
+  }
+  else {
+    local allsort1 = `" ("") ("") ("") ("") ("") ("") "'
+    local allsort2 = `" ("") ("") ("") ("") ("Sorted") ("ERROR! ") "'
   }
   
 /*****************************************************************************
@@ -132,7 +143,7 @@ while r(eof)==0 {
       // Flag changes to Sort RNG state
       file write edited ///
       `"if ("\`c(sortrngstate)'" != "\`\`theSORT''") {"' _n ///
-        `"post posty (`linenum_real') ("") ("") ("") ("") ("Sorted") ("") "' _n ///
+        `"post posty (`linenum_real') `allsort1' "' _n ///
         `"local \`theSORT' = "\`c(sortrngstate)'" "' _n ///
         `"preserve"' _n ///
         `"xpose, clear"' _n ///
@@ -150,7 +161,7 @@ while r(eof)==0 {
         `"xpose, clear"' _n ///
         `"cap cf _all using \``linenum_real'_x'"' _n ///
         `"if _rc != 0 {"'_n ///
-            `"post posty (`linenum_real') ("") ("") ("") ("") ("") ("ERROR! ") "' _n ///
+            `"post posty (`linenum_real') `allsort2' "' _n ///
         `"}"'_n ///
         `"restore"' _n ///
       `"}"'_n  

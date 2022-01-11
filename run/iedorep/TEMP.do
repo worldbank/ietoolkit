@@ -13,7 +13,7 @@ local `theRNG' = "`c(rngstate)'"
 local `allRNGS' = "``allRNGS'' `c(rngstate)'" 
 }
 if ("`c(sortrngstate)'" != "``theSORT''") {
-post posty (1) ("") ("") ("") ("") ("Sorted") ("") 
+post posty (1)  ("") ("") ("") ("") ("") ("")  
 local `theSORT' = "`c(sortrngstate)'" 
 preserve
 xpose, clear
@@ -37,7 +37,7 @@ local `theRNG' = "`c(rngstate)'"
 local `allRNGS' = "``allRNGS'' `c(rngstate)'" 
 }
 if ("`c(sortrngstate)'" != "``theSORT''") {
-post posty (2) ("") ("") ("") ("") ("Sorted") ("") 
+post posty (2)  ("") ("") ("") ("") ("") ("")  
 local `theSORT' = "`c(sortrngstate)'" 
 preserve
 xpose, clear
@@ -61,7 +61,7 @@ local `theRNG' = "`c(rngstate)'"
 local `allRNGS' = "``allRNGS'' `c(rngstate)'" 
 }
 if ("`c(sortrngstate)'" != "``theSORT''") {
-post posty (3) ("") ("") ("") ("") ("Sorted") ("") 
+post posty (3)  ("") ("") ("") ("") ("") ("")  
 local `theSORT' = "`c(sortrngstate)'" 
 preserve
 xpose, clear
@@ -85,7 +85,7 @@ local `theRNG' = "`c(rngstate)'"
 local `allRNGS' = "``allRNGS'' `c(rngstate)'" 
 }
 if ("`c(sortrngstate)'" != "``theSORT''") {
-post posty (4) ("") ("") ("") ("") ("Sorted") ("") 
+post posty (4)  ("") ("") ("") ("") ("") ("")  
 local `theSORT' = "`c(sortrngstate)'" 
 preserve
 xpose, clear
@@ -109,7 +109,7 @@ local `theRNG' = "`c(rngstate)'"
 local `allRNGS' = "``allRNGS'' `c(rngstate)'" 
 }
 if ("`c(sortrngstate)'" != "``theSORT''") {
-post posty (5) ("") ("") ("") ("") ("Sorted") ("") 
+post posty (5)  ("") ("") ("") ("") ("") ("")  
 local `theSORT' = "`c(sortrngstate)'" 
 preserve
 xpose, clear
@@ -133,7 +133,7 @@ local `theRNG' = "`c(rngstate)'"
 local `allRNGS' = "``allRNGS'' `c(rngstate)'" 
 }
 if ("`c(sortrngstate)'" != "``theSORT''") {
-post posty (6) ("") ("") ("") ("") ("Sorted") ("") 
+post posty (6)  ("") ("") ("") ("") ("") ("")  
 local `theSORT' = "`c(sortrngstate)'" 
 preserve
 xpose, clear
@@ -157,7 +157,7 @@ local `theRNG' = "`c(rngstate)'"
 local `allRNGS' = "``allRNGS'' `c(rngstate)'" 
 }
 if ("`c(sortrngstate)'" != "``theSORT''") {
-post posty (7) ("") ("") ("") ("") ("Sorted") ("") 
+post posty (7)  ("") ("") ("") ("") ("") ("")  
 local `theSORT' = "`c(sortrngstate)'" 
 preserve
 xpose, clear
@@ -181,7 +181,7 @@ local `theRNG' = "`c(rngstate)'"
 local `allRNGS' = "``allRNGS'' `c(rngstate)'" 
 }
 if ("`c(sortrngstate)'" != "``theSORT''") {
-post posty (8) ("") ("") ("") ("") ("Sorted") ("") 
+post posty (8)  ("") ("") ("") ("") ("") ("")  
 local `theSORT' = "`c(sortrngstate)'" 
 preserve
 xpose, clear
@@ -205,7 +205,7 @@ local `theRNG' = "`c(rngstate)'"
 local `allRNGS' = "``allRNGS'' `c(rngstate)'" 
 }
 if ("`c(sortrngstate)'" != "``theSORT''") {
-post posty (9) ("") ("") ("") ("") ("Sorted") ("") 
+post posty (9)  ("") ("") ("") ("") ("") ("")  
 local `theSORT' = "`c(sortrngstate)'" 
 preserve
 xpose, clear
@@ -229,7 +229,7 @@ local `theRNG' = "`c(rngstate)'"
 local `allRNGS' = "``allRNGS'' `c(rngstate)'" 
 }
 if ("`c(sortrngstate)'" != "``theSORT''") {
-post posty (10) ("") ("") ("") ("") ("Sorted") ("") 
+post posty (10)  ("") ("") ("") ("") ("") ("")  
 local `theSORT' = "`c(sortrngstate)'" 
 preserve
 xpose, clear
@@ -253,7 +253,7 @@ local `theRNG' = "`c(rngstate)'"
 local `allRNGS' = "``allRNGS'' `c(rngstate)'" 
 }
 if ("`c(sortrngstate)'" != "``theSORT''") {
-post posty (11) ("") ("") ("") ("") ("Sorted") ("") 
+post posty (11)  ("") ("") ("") ("") ("") ("")  
 local `theSORT' = "`c(sortrngstate)'" 
 preserve
 xpose, clear
@@ -277,7 +277,7 @@ local `theRNG' = "`c(rngstate)'"
 local `allRNGS' = "``allRNGS'' `c(rngstate)'" 
 }
 if ("`c(sortrngstate)'" != "``theSORT''") {
-post posty (12) ("") ("") ("") ("") ("Sorted") ("") 
+post posty (12)  ("") ("") ("") ("") ("") ("")  
 local `theSORT' = "`c(sortrngstate)'" 
 preserve
 xpose, clear
@@ -301,7 +301,7 @@ local `theRNG' = "`c(rngstate)'"
 local `allRNGS' = "``allRNGS'' `c(rngstate)'" 
 }
 if ("`c(sortrngstate)'" != "``theSORT''") {
-post posty (13) ("") ("") ("") ("") ("Sorted") ("") 
+post posty (13)  ("") ("") ("") ("") ("") ("")  
 local `theSORT' = "`c(sortrngstate)'" 
 preserve
 xpose, clear
@@ -325,7 +325,7 @@ local `theRNG' = "`c(rngstate)'"
 local `allRNGS' = "``allRNGS'' `c(rngstate)'" 
 }
 if ("`c(sortrngstate)'" != "``theSORT''") {
-post posty (14) ("") ("") ("") ("") ("Sorted") ("") 
+post posty (14)  ("") ("") ("") ("") ("") ("")  
 local `theSORT' = "`c(sortrngstate)'" 
 preserve
 xpose, clear
@@ -349,7 +349,7 @@ local `theRNG' = "`c(rngstate)'"
 local `allRNGS' = "``allRNGS'' `c(rngstate)'" 
 }
 if ("`c(sortrngstate)'" != "``theSORT''") {
-post posty (15) ("") ("") ("") ("") ("Sorted") ("") 
+post posty (15)  ("") ("") ("") ("") ("") ("")  
 local `theSORT' = "`c(sortrngstate)'" 
 preserve
 xpose, clear
@@ -373,7 +373,7 @@ local `theRNG' = "`c(rngstate)'"
 local `allRNGS' = "``allRNGS'' `c(rngstate)'" 
 }
 if ("`c(sortrngstate)'" != "``theSORT''") {
-post posty (16) ("") ("") ("") ("") ("Sorted") ("") 
+post posty (16)  ("") ("") ("") ("") ("") ("")  
 local `theSORT' = "`c(sortrngstate)'" 
 preserve
 xpose, clear
@@ -397,7 +397,7 @@ local `theRNG' = "`c(rngstate)'"
 local `allRNGS' = "``allRNGS'' `c(rngstate)'" 
 }
 if ("`c(sortrngstate)'" != "``theSORT''") {
-post posty (17) ("") ("") ("") ("") ("Sorted") ("") 
+post posty (17)  ("") ("") ("") ("") ("") ("")  
 local `theSORT' = "`c(sortrngstate)'" 
 preserve
 xpose, clear
@@ -421,7 +421,7 @@ local `theRNG' = "`c(rngstate)'"
 local `allRNGS' = "``allRNGS'' `c(rngstate)'" 
 }
 if ("`c(sortrngstate)'" != "``theSORT''") {
-post posty (18) ("") ("") ("") ("") ("Sorted") ("") 
+post posty (18)  ("") ("") ("") ("") ("") ("")  
 local `theSORT' = "`c(sortrngstate)'" 
 preserve
 xpose, clear
@@ -445,7 +445,7 @@ local `theRNG' = "`c(rngstate)'"
 local `allRNGS' = "``allRNGS'' `c(rngstate)'" 
 }
 if ("`c(sortrngstate)'" != "``theSORT''") {
-post posty (19) ("") ("") ("") ("") ("Sorted") ("") 
+post posty (19)  ("") ("") ("") ("") ("") ("")  
 local `theSORT' = "`c(sortrngstate)'" 
 preserve
 xpose, clear
@@ -469,7 +469,7 @@ local `theRNG' = "`c(rngstate)'"
 local `allRNGS' = "``allRNGS'' `c(rngstate)'" 
 }
 if ("`c(sortrngstate)'" != "``theSORT''") {
-post posty (20) ("") ("") ("") ("") ("Sorted") ("") 
+post posty (20)  ("") ("") ("") ("") ("") ("")  
 local `theSORT' = "`c(sortrngstate)'" 
 preserve
 xpose, clear
@@ -493,7 +493,7 @@ local `theRNG' = "`c(rngstate)'"
 local `allRNGS' = "``allRNGS'' `c(rngstate)'" 
 }
 if ("`c(sortrngstate)'" != "``theSORT''") {
-post posty (21) ("") ("") ("") ("") ("Sorted") ("") 
+post posty (21)  ("") ("") ("") ("") ("") ("")  
 local `theSORT' = "`c(sortrngstate)'" 
 preserve
 xpose, clear
@@ -517,7 +517,7 @@ local `theRNG' = "`c(rngstate)'"
 local `allRNGS' = "``allRNGS'' `c(rngstate)'" 
 }
 if ("`c(sortrngstate)'" != "``theSORT''") {
-post posty (22) ("") ("") ("") ("") ("Sorted") ("") 
+post posty (22)  ("") ("") ("") ("") ("") ("")  
 local `theSORT' = "`c(sortrngstate)'" 
 preserve
 xpose, clear
@@ -541,7 +541,7 @@ local `theRNG' = "`c(rngstate)'"
 local `allRNGS' = "``allRNGS'' `c(rngstate)'" 
 }
 if ("`c(sortrngstate)'" != "``theSORT''") {
-post posty (23) ("") ("") ("") ("") ("Sorted") ("") 
+post posty (23)  ("") ("") ("") ("") ("") ("")  
 local `theSORT' = "`c(sortrngstate)'" 
 preserve
 xpose, clear
@@ -565,7 +565,7 @@ local `theRNG' = "`c(rngstate)'"
 local `allRNGS' = "``allRNGS'' `c(rngstate)'" 
 }
 if ("`c(sortrngstate)'" != "``theSORT''") {
-post posty (24) ("") ("") ("") ("") ("Sorted") ("") 
+post posty (24)  ("") ("") ("") ("") ("") ("")  
 local `theSORT' = "`c(sortrngstate)'" 
 preserve
 xpose, clear
@@ -589,7 +589,7 @@ local `theRNG' = "`c(rngstate)'"
 local `allRNGS' = "``allRNGS'' `c(rngstate)'" 
 }
 if ("`c(sortrngstate)'" != "``theSORT''") {
-post posty (25) ("") ("") ("") ("") ("Sorted") ("") 
+post posty (25)  ("") ("") ("") ("") ("") ("")  
 local `theSORT' = "`c(sortrngstate)'" 
 preserve
 xpose, clear
@@ -613,7 +613,7 @@ local `theRNG' = "`c(rngstate)'"
 local `allRNGS' = "``allRNGS'' `c(rngstate)'" 
 }
 if ("`c(sortrngstate)'" != "``theSORT''") {
-post posty (26) ("") ("") ("") ("") ("Sorted") ("") 
+post posty (26)  ("") ("") ("") ("") ("") ("")  
 local `theSORT' = "`c(sortrngstate)'" 
 preserve
 xpose, clear
@@ -661,7 +661,7 @@ preserve
 xpose, clear
 cap cf _all using `1_x'
 if _rc != 0 {
-post posty (1) ("") ("") ("") ("") ("") ("ERROR! ") 
+post posty (1)  ("") ("") ("") ("") ("Sorted") ("ERROR! ")  
 }
 restore
 }
@@ -687,7 +687,7 @@ preserve
 xpose, clear
 cap cf _all using `2_x'
 if _rc != 0 {
-post posty (2) ("") ("") ("") ("") ("") ("ERROR! ") 
+post posty (2)  ("") ("") ("") ("") ("Sorted") ("ERROR! ")  
 }
 restore
 }
@@ -713,7 +713,7 @@ preserve
 xpose, clear
 cap cf _all using `3_x'
 if _rc != 0 {
-post posty (3) ("") ("") ("") ("") ("") ("ERROR! ") 
+post posty (3)  ("") ("") ("") ("") ("Sorted") ("ERROR! ")  
 }
 restore
 }
@@ -739,7 +739,7 @@ preserve
 xpose, clear
 cap cf _all using `4_x'
 if _rc != 0 {
-post posty (4) ("") ("") ("") ("") ("") ("ERROR! ") 
+post posty (4)  ("") ("") ("") ("") ("Sorted") ("ERROR! ")  
 }
 restore
 }
@@ -765,7 +765,7 @@ preserve
 xpose, clear
 cap cf _all using `5_x'
 if _rc != 0 {
-post posty (5) ("") ("") ("") ("") ("") ("ERROR! ") 
+post posty (5)  ("") ("") ("") ("") ("Sorted") ("ERROR! ")  
 }
 restore
 }
@@ -791,7 +791,7 @@ preserve
 xpose, clear
 cap cf _all using `6_x'
 if _rc != 0 {
-post posty (6) ("") ("") ("") ("") ("") ("ERROR! ") 
+post posty (6)  ("") ("") ("") ("") ("Sorted") ("ERROR! ")  
 }
 restore
 }
@@ -817,7 +817,7 @@ preserve
 xpose, clear
 cap cf _all using `7_x'
 if _rc != 0 {
-post posty (7) ("") ("") ("") ("") ("") ("ERROR! ") 
+post posty (7)  ("") ("") ("") ("") ("Sorted") ("ERROR! ")  
 }
 restore
 }
@@ -843,7 +843,7 @@ preserve
 xpose, clear
 cap cf _all using `8_x'
 if _rc != 0 {
-post posty (8) ("") ("") ("") ("") ("") ("ERROR! ") 
+post posty (8)  ("") ("") ("") ("") ("Sorted") ("ERROR! ")  
 }
 restore
 }
@@ -869,7 +869,7 @@ preserve
 xpose, clear
 cap cf _all using `9_x'
 if _rc != 0 {
-post posty (9) ("") ("") ("") ("") ("") ("ERROR! ") 
+post posty (9)  ("") ("") ("") ("") ("Sorted") ("ERROR! ")  
 }
 restore
 }
@@ -895,7 +895,7 @@ preserve
 xpose, clear
 cap cf _all using `10_x'
 if _rc != 0 {
-post posty (10) ("") ("") ("") ("") ("") ("ERROR! ") 
+post posty (10)  ("") ("") ("") ("") ("Sorted") ("ERROR! ")  
 }
 restore
 }
@@ -921,7 +921,7 @@ preserve
 xpose, clear
 cap cf _all using `11_x'
 if _rc != 0 {
-post posty (11) ("") ("") ("") ("") ("") ("ERROR! ") 
+post posty (11)  ("") ("") ("") ("") ("Sorted") ("ERROR! ")  
 }
 restore
 }
@@ -947,7 +947,7 @@ preserve
 xpose, clear
 cap cf _all using `12_x'
 if _rc != 0 {
-post posty (12) ("") ("") ("") ("") ("") ("ERROR! ") 
+post posty (12)  ("") ("") ("") ("") ("Sorted") ("ERROR! ")  
 }
 restore
 }
@@ -973,7 +973,7 @@ preserve
 xpose, clear
 cap cf _all using `13_x'
 if _rc != 0 {
-post posty (13) ("") ("") ("") ("") ("") ("ERROR! ") 
+post posty (13)  ("") ("") ("") ("") ("Sorted") ("ERROR! ")  
 }
 restore
 }
@@ -999,7 +999,7 @@ preserve
 xpose, clear
 cap cf _all using `14_x'
 if _rc != 0 {
-post posty (14) ("") ("") ("") ("") ("") ("ERROR! ") 
+post posty (14)  ("") ("") ("") ("") ("Sorted") ("ERROR! ")  
 }
 restore
 }
@@ -1025,7 +1025,7 @@ preserve
 xpose, clear
 cap cf _all using `15_x'
 if _rc != 0 {
-post posty (15) ("") ("") ("") ("") ("") ("ERROR! ") 
+post posty (15)  ("") ("") ("") ("") ("Sorted") ("ERROR! ")  
 }
 restore
 }
@@ -1051,7 +1051,7 @@ preserve
 xpose, clear
 cap cf _all using `16_x'
 if _rc != 0 {
-post posty (16) ("") ("") ("") ("") ("") ("ERROR! ") 
+post posty (16)  ("") ("") ("") ("") ("Sorted") ("ERROR! ")  
 }
 restore
 }
@@ -1077,7 +1077,7 @@ preserve
 xpose, clear
 cap cf _all using `17_x'
 if _rc != 0 {
-post posty (17) ("") ("") ("") ("") ("") ("ERROR! ") 
+post posty (17)  ("") ("") ("") ("") ("Sorted") ("ERROR! ")  
 }
 restore
 }
@@ -1103,7 +1103,7 @@ preserve
 xpose, clear
 cap cf _all using `18_x'
 if _rc != 0 {
-post posty (18) ("") ("") ("") ("") ("") ("ERROR! ") 
+post posty (18)  ("") ("") ("") ("") ("Sorted") ("ERROR! ")  
 }
 restore
 }
@@ -1129,7 +1129,7 @@ preserve
 xpose, clear
 cap cf _all using `19_x'
 if _rc != 0 {
-post posty (19) ("") ("") ("") ("") ("") ("ERROR! ") 
+post posty (19)  ("") ("") ("") ("") ("Sorted") ("ERROR! ")  
 }
 restore
 }
@@ -1155,7 +1155,7 @@ preserve
 xpose, clear
 cap cf _all using `20_x'
 if _rc != 0 {
-post posty (20) ("") ("") ("") ("") ("") ("ERROR! ") 
+post posty (20)  ("") ("") ("") ("") ("Sorted") ("ERROR! ")  
 }
 restore
 }
@@ -1181,7 +1181,7 @@ preserve
 xpose, clear
 cap cf _all using `21_x'
 if _rc != 0 {
-post posty (21) ("") ("") ("") ("") ("") ("ERROR! ") 
+post posty (21)  ("") ("") ("") ("") ("Sorted") ("ERROR! ")  
 }
 restore
 }
@@ -1207,7 +1207,7 @@ preserve
 xpose, clear
 cap cf _all using `22_x'
 if _rc != 0 {
-post posty (22) ("") ("") ("") ("") ("") ("ERROR! ") 
+post posty (22)  ("") ("") ("") ("") ("Sorted") ("ERROR! ")  
 }
 restore
 }
@@ -1233,7 +1233,7 @@ preserve
 xpose, clear
 cap cf _all using `23_x'
 if _rc != 0 {
-post posty (23) ("") ("") ("") ("") ("") ("ERROR! ") 
+post posty (23)  ("") ("") ("") ("") ("Sorted") ("ERROR! ")  
 }
 restore
 }
@@ -1259,7 +1259,7 @@ preserve
 xpose, clear
 cap cf _all using `24_x'
 if _rc != 0 {
-post posty (24) ("") ("") ("") ("") ("") ("ERROR! ") 
+post posty (24)  ("") ("") ("") ("") ("Sorted") ("ERROR! ")  
 }
 restore
 }
@@ -1285,7 +1285,7 @@ preserve
 xpose, clear
 cap cf _all using `25_x'
 if _rc != 0 {
-post posty (25) ("") ("") ("") ("") ("") ("ERROR! ") 
+post posty (25)  ("") ("") ("") ("") ("Sorted") ("ERROR! ")  
 }
 restore
 }
@@ -1311,7 +1311,7 @@ preserve
 xpose, clear
 cap cf _all using `26_x'
 if _rc != 0 {
-post posty (26) ("") ("") ("") ("") ("") ("ERROR! ") 
+post posty (26)  ("") ("") ("") ("") ("Sorted") ("ERROR! ")  
 }
 restore
 }
