@@ -5,13 +5,14 @@ cap  program drop  iedorep
   
   syntax anything , ///
   ///
-  [debug(string asis)] // Programming option to view exact temp do-file
+  [debug(string asis)] [qui] // Programming option to view exact temp do-file
   
 /*****************************************************************************
 One-time prep
 *****************************************************************************/
 preserve
   file close _all
+  postutil clear
   tempfile newfile1
   tempfile newfile2
   local comment = 0
@@ -30,6 +31,7 @@ preserve
   qui file open checkr using `newfile2' , write replace 
   
 // Initialize locals in new file
+  file write edited "local theLOCALS posty theSORT theRNG allRNGS whichRNG allDATA theDATA theLOCALS" _n
   file write edited "tempname theSORT theRNG allRNGS whichRNG allDATA theDATA" _n
   file write edited "tempfile posty" _n "postfile posty Line " ///
     "str15(Data Err_1 Seed Err_2 Sort Err_3) using \`posty' , replace" _n
@@ -122,6 +124,7 @@ while r(eof)==0 {
         `"xpose, clear"' _n ///
         `"tempfile `linenum_real'_x"' _n ///
         `"save \``linenum_real'_x' , emptyok"' _n ///
+        `"local theLOCALS "\`theLOCALS' `linenum_real'_x" "' _n ///
         `"restore"' _n ///
       `"}"'_n      
       
@@ -145,6 +148,7 @@ while r(eof)==0 {
         `"post posty (`linenum_real') ("Changed") ("") ("") ("") ("") ("") "' _n ///
         `"local \`theDATA' = "\`r(datasignature)'" "' _n ///
         `"tempfile `linenum_real'"' _n ///
+        `"local theLOCALS "\`theLOCALS' `linenum_real'" "' _n ///
         `"save \``linenum_real'' , emptyok"' _n ///
       `"}"'_n
       
@@ -182,8 +186,20 @@ Betwen dofiles, use [di] to advance seed and use [clear] for data
 file close checkr
 file open checkr using `"`newfile2'"' , read
   file read checkr line // Need initial read
-  file write edited _n "di `=rnormal()'" _n `"clear // SECOND RUN STARTS HERE "' ///
-    "------------------------------------------------" _n _n
+  file write edited _n ///
+  "// CLEANUP LOCALS BETWEEN FILES -------------------------------------------" _n ///
+    `"mata : st_local("all_locals", invtokens(st_dir("local", "macro", "*")'))"' _n ///
+    "local toDROP : list all_locals - theLOCALS" _n ///
+    "macro drop \`toDROP' " _n  ///
+    "foreach macro in \`toDROP' {" _n ///
+    `"  mata : st_local("\`macro'","") "' _n ///
+     "}" _n ///
+  "// ADVANCE RNG AND CLEAR DATA -------------------------------------------" _n ///
+    "tempvar rng_user" _n ///
+    "gen rng_user = rnormal()" _n ///
+    "clear" _n /// 
+  "// SECOND RUN STARTS HERE ------------------------------------------------" _n _n
+    
   while r(eof)==0 {
     file write edited `"`macval(line)'"' _n
     file read checkr line
@@ -200,7 +216,11 @@ Cleanup and then run the combined temp dofile
   file close _all
   
   clear
-  qui do `newfile1'
+  if `"`debug'"' != "" {
+    copy `newfile1' `debug' , replace 
+    `qui' do `newfile1'
+  }
+  else qui do `newfile1'
   
 /*****************************************************************************
 Output flags and errors
@@ -212,11 +232,9 @@ Output flags and errors
   li Line Data Seed Sort , noobs divider 
   
 /*****************************************************************************
-Debug and pseudo-recursion
+Pseudo-recursion
 *****************************************************************************/
-  
-  if `"`debug'"' != "" /// COPY FILE FOR DEBUGGING
-    copy `newfile1' `debug' , replace 
+
   
 /*****************************************************************************
 END
