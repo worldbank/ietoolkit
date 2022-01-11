@@ -92,7 +92,6 @@ while r(eof)==0 {
   if (`comment' == 0) & !strpos("`loopstate'","loop") {
     // Add checkers if line end
     if !strpos(`"`macval(line)'"',"///") {
-      local checknum = `checknum' + 1
       local logic = 0 // If we are here with logic flagged, it was a subset
       
       // Flag changes to RNG state
