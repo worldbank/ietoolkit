@@ -13,7 +13,9 @@ preserve
   tempfile newfile1
   tempfile newfile2
   local comment = 0
+  local loopstate = ""
   local loop = 0
+  local logic = 0
   local linenum = 1
   
 // Open the file to be checked
@@ -54,15 +56,29 @@ while r(eof)==0 {
   if strpos(`"`macval(line)'"',"*/") local comment = 0
   
   // Catch loops (but not globals)
-    if    strpos(`"`macval(line)'"',"{") ///
-       & !strpos(`"`macval(line)'"',"}") ///
-          local loop = `loop' + 1
+    // Set flag whenever looping word or logic word
+    if strpos(`"`macval(line)'"',"if ")     local logic = 1
+    if strpos(`"`macval(line)'"',"forv")    local  loop = 1
+    if strpos(`"`macval(line)'"',"foreach") local  loop = 1
+    if strpos(`"`macval(line)'"',"while")   local  loop = 1
+    
+    // Track state when logic entered (unless ALSO loop)
+    if `logic' == 1 & loop == 0 & strpos(`"`macval(line)'"',"{") ///
+      local loopstate "logi `loopstate'"
+    if `logic' == 1 & strpos(`"`macval(line)'"',"{") ///  
+      local logic = 0
+      
+    // Track state when loop entered
+    if `loop' == 1 & strpos(`"`macval(line)'"',"{") {
+      local loopstate "loop `loopstate'"
+      local loop = 0
+    }
+    
+    // Track state whenever logic or loop exited
+    if strpos(`"`macval(line)'"',"}") ///
+      local loopstate = substr("`loopstate'",5,.)
   
-    if    strpos(`"`macval(line)'"',"}") ///
-       & !strpos(`"`macval(line)'"',"{") ///
-          local loop = `loop' - 1
-
-  if (`comment' == 0) & (`loop' == 0) {
+  if (`comment' == 0) & !strpos("`loopstate'","loop") {
     // Add checkers if line end
     if !strpos(`"`macval(line)'"',"///") {
       local checknum = `checknum' + 1
