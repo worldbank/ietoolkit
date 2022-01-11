@@ -71,7 +71,7 @@ while r(eof)==0 {
     if strpos(`"`macval(line)'"',"while")   local  loop = 1
     
     // Track state when logic entered (unless ALSO loop)
-    if `logic' == 1 & loop == 0 & strpos(`"`macval(line)'"',"{") ///
+    if `logic' == 1 & `loop' == 0 & strpos(`"`macval(line)'"',"{") ///
       local loopstate "logi `loopstate'"
     if `logic' == 1 & strpos(`"`macval(line)'"',"{") ///  
       local logic = 0
