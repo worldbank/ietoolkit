@@ -123,7 +123,7 @@ while r(eof)==0 {
     
     // Track state whenever logic or loop exited
     if strpos(`"`macval(line)'"',"}") ///
-      local loopstate = substr("`loopstate'",5,.)
+      local loopstate = substr("`loopstate'",6,.)
       
   /*****************************************************************************
   Implement logic checks in file copy
