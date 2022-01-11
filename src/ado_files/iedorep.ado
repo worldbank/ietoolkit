@@ -93,6 +93,7 @@ while r(eof)==0 {
     // Add checkers if line end
     if !strpos(`"`macval(line)'"',"///") {
       local checknum = `checknum' + 1
+      local logic = 0 // If we are here with logic flagged, it was a subset
       
       // Flag changes to RNG state
       file write edited ///
