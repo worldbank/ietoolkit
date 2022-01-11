@@ -169,7 +169,8 @@ while r(eof)==0 {
     
     // Error if delimiter
     if strpos(`"`macval(line)'"',"#d") {
-      di as err "Delimiter changed!"
+      di as err "Note: The delimiter may have been changed in this file (#d)."
+      di as err " "
     }
     
   } // Comments and loops logic
