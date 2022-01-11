@@ -6,6 +6,7 @@ f /ado_files/ieboilsave.ado
 f /ado_files/ieboilstart.ado
 f /ado_files/ieddtab.ado
 f /ado_files/iedropone.ado
+f /ado_files/iedorep.ado
 f /ado_files/iefolder.ado
 f /ado_files/iegitaddmd.ado
 f /ado_files/iegraph.ado
@@ -16,6 +17,7 @@ f /help_files/ieboilsave.sthlp
 f /help_files/ieboilstart.sthlp
 f /help_files/ieddtab.sthlp
 f /help_files/iedropone.sthlp
+f /help_files/iedorep.sthlp
 f /help_files/iefolder.sthlp
 f /help_files/iegitaddmd.sthlp
 f /help_files/iegraph.sthlp
