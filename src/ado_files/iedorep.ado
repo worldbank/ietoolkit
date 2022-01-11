@@ -196,8 +196,7 @@ file open checkr using `"`newfile2'"' , read
     `"  mata : st_local("\`macro'","") "' _n ///
      "}" _n ///
   "// ADVANCE RNG AND CLEAR DATA -------------------------------------------" _n ///
-    "tempvar rng_user" _n ///
-    "gen rng_user = rnormal()" _n ///
+    "qui di \`=rnormal()'" _n ///
     "clear" _n /// 
   "// SECOND RUN STARTS HERE ------------------------------------------------" _n _n
     

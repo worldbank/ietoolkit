@@ -640,7 +640,7 @@ foreach macro in `toDROP' {
 }
 // ADVANCE RNG AND CLEAR DATA -------------------------------------------
 tempvar rng_user
-gen rng_user = rnormal()
+qui di `=rnormal()'
 clear
 // SECOND RUN STARTS HERE ------------------------------------------------
 
