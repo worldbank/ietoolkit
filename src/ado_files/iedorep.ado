@@ -4,8 +4,22 @@ cap  program drop  iedorep
   program define   iedorep, rclass
   
   syntax anything , ///
-  ///
+  [alldata] ///
   [debug(string asis)] [qui] // Programming option to view exact temp do-file
+  
+/*****************************************************************************
+Options
+*****************************************************************************/
+
+  // Optionally request all data changes to be flagged
+  if "`alldata'" != "" {
+    local alldata1 = `" ("Changed") ("") ("") ("") ("") ("") "'
+    local alldata2 = `" ("") ("ERROR! ") ("") ("") ("") ("") "'
+  }
+  else {
+    local alldata1 = `" ("") ("") ("") ("") ("") ("") "'
+    local alldata2 = `" ("Changed") ("ERROR! ") ("") ("") ("") ("") "'
+  }
   
 /*****************************************************************************
 One-time prep
@@ -145,7 +159,7 @@ while r(eof)==0 {
       file write edited ///
       "datasignature" _n ///
       `"if ("\`r(datasignature)'" != "\`\`theDATA''") {"' _n ///
-        `"post posty (`linenum_real') ("Changed") ("") ("") ("") ("") ("") "' _n ///
+        `"post posty (`linenum_real') `alldata1' "' _n ///
         `"local \`theDATA' = "\`r(datasignature)'" "' _n ///
         `"tempfile `linenum_real'"' _n ///
         `"local theLOCALS "\`theLOCALS' `linenum_real'" "' _n ///
@@ -159,7 +173,7 @@ while r(eof)==0 {
         `"local \`theDATA' = "\`r(datasignature)'" "' _n ///
         `"cap cf _all using \``linenum_real''"' _n ///
         `"if _rc != 0 {"'_n ///
-            `"post posty (`linenum_real') ("") ("ERROR! ") ("") ("") ("") ("")  "' _n ///
+            `"post posty (`linenum_real') `alldata2' "' _n ///
         `"}"'_n ///
       `"}"'_n
 
@@ -230,6 +244,7 @@ Output flags and errors
   qui replace Data = Err_1 + Data 
   qui replace Seed = Err_2 + Seed 
   qui replace Sort = Err_3 + Sort 
+  drop if Data == "" & Seed == "" & Sort == ""
   li Line Data Seed Sort , noobs divider 
   
 /*****************************************************************************
