@@ -4,8 +4,7 @@ cap  program drop  iedorep
   program define   iedorep, rclass
   
   syntax anything , ///
-  [alldata] ///
-  [allsort] ///
+  [alldata] [allsort] [allseed] /// Verbose reporting of non-errors
   [debug(string asis)] [qui] // Programming option to view exact temp do-file
   
 /*****************************************************************************
@@ -30,6 +29,16 @@ Options
   else {
     local allsort1 = `" ("") ("") ("") ("") ("") ("") "'
     local allsort2 = `" ("") ("") ("") ("") ("Sorted") ("ERROR! ") "'
+  }
+  
+  // Optionally request all seeds to be flagged
+  if "`alldata'" != "" {
+    local allseed1 = `" ("") ("") ("Used") ("") ("") ("") "'
+    local allseed2 = `" ("") ("") ("") ("ERROR! ") ("") ("") "'
+  }
+  else {
+    local allseed1 = `" ("") ("") ("") ("") ("") ("") "'
+    local allseed2 = `" ("") ("") ("Used") ("ERROR! ") ("") ("") "'
   }
   
 /*****************************************************************************
@@ -125,7 +134,7 @@ while r(eof)==0 {
       // Flag changes to RNG state
       file write edited ///
       `"if ("\`c(rngstate)'" != "\`\`theRNG''") {"' _n ///
-        `"post posty (`linenum_real') ("") ("") ("Used") ("") ("") ("")   "' _n ///
+        `"post posty (`linenum_real') `allseed1'   "' _n ///
         `"local \`theRNG' = "\`c(rngstate)'" "' _n ///
         `"local \`allRNGS' = "\`\`allRNGS'' \`c(rngstate)'" "' _n ///
       `"}"'_n
@@ -136,7 +145,7 @@ while r(eof)==0 {
         `"local \`whichRNG' = \`\`whichRNG'' + 1"' _n ///
         `"local \`theRNG' = "\`c(rngstate)'" "' _n ///
         `"if ("\`c(rngstate)'" != "\`: word \`\`whichRNG'' of \`\`allRNGS'''") {"' _n ///
-          `"post posty (`linenum_real') ("") ("") ("") ("ERROR! ") ("") ("")  "' _n ///
+          `"post posty (`linenum_real') `allseed2'  "' _n ///
         `"}"'_n ///
       `"}"'_n
       
