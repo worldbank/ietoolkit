@@ -1746,7 +1746,7 @@ qui {
 					col_lbls(`COLUMN_LABELS') order_grp_codes(`ORDER_OF_GROUP_CODES') ///
 					pairs(`TEST_PAIR_CODES')  ///
 					row_lbls(`"`ROW_LABELS'"') `total' `onerow' tot_lbl("`tot_lbl'") ///
-					pout_lbl(`pout_lbl') pout_val(`pout_val')
+					pout_lbl(`pout_lbl') pout_val(`pout_val') diformat("`diformat'")
 
 					tempfile tab_file
 					save `tab_file'
@@ -1824,7 +1824,7 @@ cap program drop 	export_tab
 	syntax using , rmat(name) fmat(name) 					///
 	ntitle(string) vtype(string) note(string)		///
 	col_lbls(string) order_grp_codes(numlist) ///
-	pairs(string) ///
+	pairs(string) diformat(string) ///
 	row_lbls(string) tot_lbl(string) ///
 	pout_lbl(string) pout_val(string) ///
 	[onerow total]
@@ -1940,9 +1940,11 @@ cap program drop 	export_tab
 				local row_down `"`row_down' _tab "" "'
 			}
 
-			* Mean and variance for this group
+			* Mean and variance for this group - get value from mat and apply format
 			local mean_value = el(`rmat',`row_num',colnumb(`rmat',"mean_`grp_code'"))
 			local var_value = el(`rmat',`row_num',colnumb(`rmat',"`vtype'_`grp_code'"))
+			local mean_value : display `diformat' `mean_value'
+			local var_value  : display `diformat' `var_value'
 			local row_up   `"`row_up'   _tab "`mean_value'" "'
 			local row_down `"`row_down' _tab "`var_value'" "'
 		}
@@ -1958,9 +1960,11 @@ cap program drop 	export_tab
 				local row_down `"`row_down' _tab "" "'
 			}
 
-			* Mean and variance for this group
+			* Mean and variance for this group - get value from mat and apply format
 			local mean_value = el(`rmat',`row_num',colnumb(`rmat',"mean_t"))
 			local var_value = el(`rmat',`row_num',colnumb(`rmat',"`vtype'_t"))
+			local mean_value : display `diformat' `mean_value'
+			local var_value  : display `diformat' `var_value'
 			local row_up   `"`row_up'   _tab "`mean_value'" "'
 			local row_down `"`row_down' _tab "`var_value'" "'
 		}
@@ -1968,7 +1972,9 @@ cap program drop 	export_tab
 		********* Write pair test stats ********************************************
 
 		foreach pair of local pairs {
+			* Pairwise test statistics for this pair - get value from mat and apply format
 			local test_value = el(`rmat',`row_num',colnumb(`rmat',"`pout_val'_`pair'"))
+			local test_value 	: display `diformat' `test_value'
 			local row_up   `"`row_up'   _tab "`test_value'" "'
 			local row_down `"`row_down' _tab "" "'
 		}
