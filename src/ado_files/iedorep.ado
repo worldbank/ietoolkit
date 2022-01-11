@@ -3,7 +3,9 @@
 cap  program drop  iedorep
   program define   iedorep, rclass
   
-  syntax anything , [debug]
+  syntax anything , ///
+  ///
+  [debug(string asis)] // Programming option to view exact temp do-file
   
 // Prep
 preserve
@@ -15,7 +17,7 @@ preserve
   local linenum = 1
   
 // Open the file to be checked
-  file open original using `"`anything'"' , read
+  file open original using `anything' , read
   file read original line // Need initial read
     local linenum_real = 1
   
@@ -172,7 +174,7 @@ file open checkr using `"`newfile2'"' , read
   qui replace Sort = Err_3 + Sort 
   li Line Data Seed Sort , noobs divider 
   
-  if "`debug'" != "" /// COPY FILE FOR DEBUGGING
-    copy `newfile1' "${ietoolkit}/run/iedorep/TEMP.do" , replace 
+  if `"`debug'"' != "" /// COPY FILE FOR DEBUGGING
+    copy `newfile1' `debug' , replace 
   
 end
