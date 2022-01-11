@@ -22,8 +22,8 @@ command please see the {browse "https://dimewiki.worldbank.org/wiki/Iebaltab":DI
 {it: {help iebaltab##displayoptioins:display_options} {help iebaltab##exportoptions:export_options}}
 ]
 
-{phang2}where {it:balancevarlist} is one or several variables (from here on called balance variables) for which the command
-will test for differences across the catagories in grpvar({it:varname}).
+{phang2}where {it:balancevarlist} is one or several continuous or binary variables (from here on called balance variables) for which the command
+will test for differences across the categories in grpvar({it:varname}). See note on non-binary categorical balance variables in the description section below.
 
 {marker opts}{...}
 {synoptset 23}{...}
@@ -105,10 +105,10 @@ will test for differences across the catagories in grpvar({it:varname}).
 {title:Description}
 
 {pstd}{cmdab:iebaltab} is a command that generates balance tables (difference-in-means tables).
-	The command tests for statistically significant difference between the categories defined in the
-	grpvar(varname). The command can either test one control group against all other groups or test
-	all groups against each other. The command also allows for fixed effects, covariates and different
-	types of variance estimators.
+	The command tests for statistically significant difference in the balance variables between
+	the categories defined in the grpvar(varname). The command can either test one control group
+	against all other groups or test all groups against each other. The command also allows for
+	fixed effects, covariates and different types of variance estimators.
 
 {pstd}A lot of attention has also been spent on providing helpful error messages when the command is
 	misspecified. The command will also issue errors or warnings when the command is specified
@@ -117,6 +117,18 @@ will test for differences across the catagories in grpvar({it:varname}).
 	used in an F-test for joint significance, then Stata cannot do anything but drop that observation.
 	This command will throw an error unless the user specify the option that suppresses that error or if
 	the user specify any of the options that tells the command how to interpret missing values.
+
+{pstd}The balance variables must all be continuous or binary variables.
+Categorical variables (for example 1=single, 2=married, 3=divorced) should not be used as a balance variables,
+since t-testing would inappropriately compare the mean of the underlying codes, which are not intended as numerical values.
+Categorical variables must first be made into multiple binary dummy variables,
+where each dummy represents one category in the categorical variable,
+and the dummy is 1 if that category was used for that observation.
+t-tests will be used to test differences in balance variables
+regardless if the balance variable is continuous or binary,
+even though that is not the most efficient test for binary variables.
+See the command {stata ssc describe table1:table1} for a command that handles categorical variables
+ and allows you to test differences using other tests than t-tests.
 
 {pstd}The command also attaches notes to the bottom of the table with information on, for example,
 	which significance levels are used for stars, which fixed effects or covariates that were included (if any) etc.

@@ -4,7 +4,7 @@ cap program drop   iegitaddmd
 	program define iegitaddmd
 
 qui {
-	syntax , folder(string) [comparefolder(string) customfile(string) all skip replace AUTOmatic DRYrun]
+	syntax , folder(string) [comparefolder(string) customfile(string) all skip replace AUTOmatic DRYrun skipfolders(string)]
 
 	/******************************
 	*******************************
@@ -45,10 +45,10 @@ qui {
 		local comparefolderStd	= subinstr(`"`comparefolder'"',"\","/",.)
 
 		*Get the name of the last folder in both folder() and comparefolder()
-		local thisLastSlash = strpos(strreverse(`"`folder'"'),"/")
-		local thisFolder 	= substr(`"`folder'"', (-1 * `thisLastSlash')+1 ,.)
-		local compLastSlash = strpos(strreverse(`"`comparefolder'"'),"/")
-		local compFolder 	= substr(`"`comparefolder'"', (-1 * `compLastSlash')+1 ,.)
+		local thisLastSlash = strpos(strreverse(`"`folderStd'"'),"/")
+		local thisFolder 	= substr(`"`folderStd'"', (-1 * `thisLastSlash')+1 ,.)
+		local compLastSlash = strpos(strreverse(`"`comparefolderStd'"'),"/")
+		local compFolder 	= substr(`"`comparefolderStd'"', (-1 * `compLastSlash')+1 ,.)
 
 		*The last folder name should always be the same for folder() and
 		* comparefolder() otherwise there it is likely that the to paths
@@ -110,6 +110,25 @@ qui {
 		exit
 	}
 
+	* Test that paths are not used in skip folder. I.e. no slashes are used
+	local anyslash = strpos("`skipfolders'","/") + strpos("`skipfolders'","\")
+	if `anyslash' {
+		noi di as error `"{phang}The options [skipfolders(`skipfolders')] may not include forward or backward slashes, i.e., it may not include paths. Only folder names are accepted.{p_end}"'
+		error 198
+		exit
+	}
+
+	* Test that paths are not used in skip folder. I.e. no slashes are used
+	local anywildcard = strpos("`skipfolders'","*") + strpos("`skipfolders'","?")
+	if `anywildcard' {
+		noi di as error `"{phang}Wild cards like * and ? are not supported in the [skipfolders(`skipfolders')] option. While they are valid characters in folder names in Linux and Mac systems, they are not allowed in Windows system and are therefore not accepted in foldernames in this command.may not include forward or backward slashes, i.e. may not include paths. Only folder names.{p_end}"'
+		error 198
+		exit
+	}
+
+	*Add .git folder to folders to be skipped
+	local skipfolders `skipfolders' ".git"
+
 	/******************************
 	*******************************
 		List Files and folders
@@ -137,8 +156,14 @@ qui {
 
 		*Use the command on each subfolder to this folder (if any)
 		foreach dir of local dlist {
-			*Recursive call on each subfolder
-			noi iegitaddmd , folder(`"`folderStd'/`dir'"') `all' `customFileRecurse' `skip' `replace' `automatic' `dryrun'
+			*Test if directory is in
+			if `:list dir in skipfolders' {
+				noi di as result "{pstd}SKIPPED: Folder [`folder'/`dir'] is skipped. See option skipvars() in {help iegitaddmd}.{p_end}"
+			}
+			else {
+				*Recursive call on each subfolder
+				noi iegitaddmd , folder(`"`folderStd'/`dir'"') `all' `customFileRecurse' `skip' `replace' `automatic' `dryrun' skipfolders(`skipfolders')
+			}
 		}
 
 		******************************
@@ -212,10 +237,13 @@ qui {
 			}
 		}
 
-		*Recursivley do the same call on all sub-folders
-		foreach dir of local dlist {
+		*When using the comparfolder() option, only recurse over files that exist in
+		*both folder() and comparefolder(). Folders only in folder() are not relevant
+		*when comapring. And folders only in comaprefolder() have already been addressed.
+		local in_both_dlists : list comp_dlist & dlist
+		foreach dir of local in_both_dlists {
 			*Recursive call on each subfolder
-			noi iegitaddmd , folder(`"`folderStd'/`dir'"') comparefolder(`"`comparefolder'/`dir'"') `customFileRecurse' `automatic' `dryrun'
+			noi iegitaddmd , folder(`"`folderStd'/`dir'"') comparefolder(`"`comparefolder'/`dir'"') `customFileRecurse' `automatic' `dryrun' skipfolders(`skipfolders')
 		}
 	}
 }
@@ -234,7 +262,7 @@ qui {
 	local createfile ""
 
 	*Create message to show in dryrun mode
-	if !missing("`dryrun'") local dryrun_prompt " NO FILE WILL BE CREAETED AS OPTION {bf:dryrun} IS USED!"
+	if !missing("`dryrun'") local dryrun_prompt " NO FILE WILL BE CREATED AS OPTION {bf:dryrun} IS USED!"
 
 	*If manual was used, get manual confirmation for each file
 	if missing("`automatic'") {
