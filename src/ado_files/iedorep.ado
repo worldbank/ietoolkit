@@ -63,7 +63,8 @@ while r(eof)==0 {
   if strpos(`"`macval(line)'"',"/*") local comment = 1
   if strpos(`"`macval(line)'"',"*/") local comment = 0
   
-  // Catch loops (but not globals)
+  // Monitor loop state and do not evaluate within loops
+  
     // Set flag whenever looping word or logic word
     if strpos(`"`macval(line)'"',"if ")     local logic = 1
     if strpos(`"`macval(line)'"',"forv")    local  loop = 1
