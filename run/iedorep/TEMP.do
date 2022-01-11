@@ -1,4 +1,3 @@
-local theLOCALS posty theSORT theRNG allRNGS whichRNG allDATA theDATA theLOCALS
 tempname theSORT theRNG allRNGS whichRNG allDATA theDATA
 tempfile posty
 postfile posty Line str15(Data Err_1 Seed Err_2 Sort Err_3) str2000(Path) using `posty' , replace
@@ -8,7 +7,7 @@ datasignature
 local `theDATA' = "`r(datasignature)'" 
 //
 if ("`c(rngstate)'" != "``theRNG''") {
-post posty (1)  ("") ("") ("") ("") ("") ("") ("")    
+post posty (1)  ("") ("") ("Used") ("") ("") ("") ("")    
 local `theRNG' = "`c(rngstate)'" 
 local `allRNGS' = "``allRNGS'' `c(rngstate)'" 
 }
@@ -24,7 +23,7 @@ restore
 }
 datasignature
 if ("`r(datasignature)'" != "``theDATA''") {
-post posty (1)  ("") ("") ("") ("") ("") ("") ("")  
+post posty (1)  ("Changed") ("") ("") ("") ("") ("") ("")  
 local `theDATA' = "`r(datasignature)'" 
 tempfile 1
 local theLOCALS "`theLOCALS' 1" 
@@ -32,7 +31,7 @@ save `1' , emptyok
 }
 
 if ("`c(rngstate)'" != "``theRNG''") {
-post posty (2)  ("") ("") ("") ("") ("") ("") ("")    
+post posty (2)  ("") ("") ("Used") ("") ("") ("") ("")    
 local `theRNG' = "`c(rngstate)'" 
 local `allRNGS' = "``allRNGS'' `c(rngstate)'" 
 }
@@ -48,7 +47,7 @@ restore
 }
 datasignature
 if ("`r(datasignature)'" != "``theDATA''") {
-post posty (2)  ("") ("") ("") ("") ("") ("") ("")  
+post posty (2)  ("Changed") ("") ("") ("") ("") ("") ("")  
 local `theDATA' = "`r(datasignature)'" 
 tempfile 2
 local theLOCALS "`theLOCALS' 2" 
@@ -56,7 +55,7 @@ save `2' , emptyok
 }
 clear
 if ("`c(rngstate)'" != "``theRNG''") {
-post posty (3)  ("") ("") ("") ("") ("") ("") ("")    
+post posty (3)  ("") ("") ("Used") ("") ("") ("") ("")    
 local `theRNG' = "`c(rngstate)'" 
 local `allRNGS' = "``allRNGS'' `c(rngstate)'" 
 }
@@ -72,7 +71,7 @@ restore
 }
 datasignature
 if ("`r(datasignature)'" != "``theDATA''") {
-post posty (3)  ("") ("") ("") ("") ("") ("") ("")  
+post posty (3)  ("Changed") ("") ("") ("") ("") ("") ("")  
 local `theDATA' = "`r(datasignature)'" 
 tempfile 3
 local theLOCALS "`theLOCALS' 3" 
@@ -80,7 +79,7 @@ save `3' , emptyok
 }
 
 if ("`c(rngstate)'" != "``theRNG''") {
-post posty (4)  ("") ("") ("") ("") ("") ("") ("")    
+post posty (4)  ("") ("") ("Used") ("") ("") ("") ("")    
 local `theRNG' = "`c(rngstate)'" 
 local `allRNGS' = "``allRNGS'' `c(rngstate)'" 
 }
@@ -96,7 +95,7 @@ restore
 }
 datasignature
 if ("`r(datasignature)'" != "``theDATA''") {
-post posty (4)  ("") ("") ("") ("") ("") ("") ("")  
+post posty (4)  ("Changed") ("") ("") ("") ("") ("") ("")  
 local `theDATA' = "`r(datasignature)'" 
 tempfile 4
 local theLOCALS "`theLOCALS' 4" 
@@ -104,7 +103,7 @@ save `4' , emptyok
 }
 sysuse auto.dta
 if ("`c(rngstate)'" != "``theRNG''") {
-post posty (5)  ("") ("") ("") ("") ("") ("") ("")    
+post posty (5)  ("") ("") ("Used") ("") ("") ("") ("")    
 local `theRNG' = "`c(rngstate)'" 
 local `allRNGS' = "``allRNGS'' `c(rngstate)'" 
 }
@@ -120,7 +119,7 @@ restore
 }
 datasignature
 if ("`r(datasignature)'" != "``theDATA''") {
-post posty (5)  ("") ("") ("") ("") ("") ("") ("")  
+post posty (5)  ("Changed") ("") ("") ("") ("") ("") ("")  
 local `theDATA' = "`r(datasignature)'" 
 tempfile 5
 local theLOCALS "`theLOCALS' 5" 
@@ -128,7 +127,7 @@ save `5' , emptyok
 }
 
 if ("`c(rngstate)'" != "``theRNG''") {
-post posty (6)  ("") ("") ("") ("") ("") ("") ("")    
+post posty (6)  ("") ("") ("Used") ("") ("") ("") ("")    
 local `theRNG' = "`c(rngstate)'" 
 local `allRNGS' = "``allRNGS'' `c(rngstate)'" 
 }
@@ -144,7 +143,7 @@ restore
 }
 datasignature
 if ("`r(datasignature)'" != "``theDATA''") {
-post posty (6)  ("") ("") ("") ("") ("") ("") ("")  
+post posty (6)  ("Changed") ("") ("") ("") ("") ("") ("")  
 local `theDATA' = "`r(datasignature)'" 
 tempfile 6
 local theLOCALS "`theLOCALS' 6" 
@@ -152,7 +151,7 @@ save `6' , emptyok
 }
 local MYFAKELOCAL = `MYFAKELOCAL' + 1
 if ("`c(rngstate)'" != "``theRNG''") {
-post posty (7)  ("") ("") ("") ("") ("") ("") ("")    
+post posty (7)  ("") ("") ("Used") ("") ("") ("") ("")    
 local `theRNG' = "`c(rngstate)'" 
 local `allRNGS' = "``allRNGS'' `c(rngstate)'" 
 }
@@ -168,7 +167,7 @@ restore
 }
 datasignature
 if ("`r(datasignature)'" != "``theDATA''") {
-post posty (7)  ("") ("") ("") ("") ("") ("") ("")  
+post posty (7)  ("Changed") ("") ("") ("") ("") ("") ("")  
 local `theDATA' = "`r(datasignature)'" 
 tempfile 7
 local theLOCALS "`theLOCALS' 7" 
@@ -176,7 +175,7 @@ save `7' , emptyok
 }
 
 if ("`c(rngstate)'" != "``theRNG''") {
-post posty (8)  ("") ("") ("") ("") ("") ("") ("")    
+post posty (8)  ("") ("") ("Used") ("") ("") ("") ("")    
 local `theRNG' = "`c(rngstate)'" 
 local `allRNGS' = "``allRNGS'' `c(rngstate)'" 
 }
@@ -192,7 +191,7 @@ restore
 }
 datasignature
 if ("`r(datasignature)'" != "``theDATA''") {
-post posty (8)  ("") ("") ("") ("") ("") ("") ("")  
+post posty (8)  ("Changed") ("") ("") ("") ("") ("") ("")  
 local `theDATA' = "`r(datasignature)'" 
 tempfile 8
 local theLOCALS "`theLOCALS' 8" 
@@ -200,7 +199,7 @@ save `8' , emptyok
 }
 #d cr
 if ("`c(rngstate)'" != "``theRNG''") {
-post posty (9)  ("") ("") ("") ("") ("") ("") ("")    
+post posty (9)  ("") ("") ("Used") ("") ("") ("") ("")    
 local `theRNG' = "`c(rngstate)'" 
 local `allRNGS' = "``allRNGS'' `c(rngstate)'" 
 }
@@ -216,7 +215,7 @@ restore
 }
 datasignature
 if ("`r(datasignature)'" != "``theDATA''") {
-post posty (9)  ("") ("") ("") ("") ("") ("") ("")  
+post posty (9)  ("Changed") ("") ("") ("") ("") ("") ("")  
 local `theDATA' = "`r(datasignature)'" 
 tempfile 9
 local theLOCALS "`theLOCALS' 9" 
@@ -224,7 +223,7 @@ save `9' , emptyok
 }
 
 if ("`c(rngstate)'" != "``theRNG''") {
-post posty (10)  ("") ("") ("") ("") ("") ("") ("")    
+post posty (10)  ("") ("") ("Used") ("") ("") ("") ("")    
 local `theRNG' = "`c(rngstate)'" 
 local `allRNGS' = "``allRNGS'' `c(rngstate)'" 
 }
@@ -240,7 +239,7 @@ restore
 }
 datasignature
 if ("`r(datasignature)'" != "``theDATA''") {
-post posty (10)  ("") ("") ("") ("") ("") ("") ("")  
+post posty (10)  ("Changed") ("") ("") ("") ("") ("") ("")  
 local `theDATA' = "`r(datasignature)'" 
 tempfile 10
 local theLOCALS "`theLOCALS' 10" 
@@ -248,7 +247,7 @@ save `10' , emptyok
 }
 expand 2 , gen(check)
 if ("`c(rngstate)'" != "``theRNG''") {
-post posty (11)  ("") ("") ("") ("") ("") ("") ("")    
+post posty (11)  ("") ("") ("Used") ("") ("") ("") ("")    
 local `theRNG' = "`c(rngstate)'" 
 local `allRNGS' = "``allRNGS'' `c(rngstate)'" 
 }
@@ -264,7 +263,7 @@ restore
 }
 datasignature
 if ("`r(datasignature)'" != "``theDATA''") {
-post posty (11)  ("") ("") ("") ("") ("") ("") ("")  
+post posty (11)  ("Changed") ("") ("") ("") ("") ("") ("")  
 local `theDATA' = "`r(datasignature)'" 
 tempfile 11
 local theLOCALS "`theLOCALS' 11" 
@@ -272,7 +271,7 @@ save `11' , emptyok
 }
 
 if ("`c(rngstate)'" != "``theRNG''") {
-post posty (12)  ("") ("") ("") ("") ("") ("") ("")    
+post posty (12)  ("") ("") ("Used") ("") ("") ("") ("")    
 local `theRNG' = "`c(rngstate)'" 
 local `allRNGS' = "``allRNGS'' `c(rngstate)'" 
 }
@@ -288,7 +287,7 @@ restore
 }
 datasignature
 if ("`r(datasignature)'" != "``theDATA''") {
-post posty (12)  ("") ("") ("") ("") ("") ("") ("")  
+post posty (12)  ("Changed") ("") ("") ("") ("") ("") ("")  
 local `theDATA' = "`r(datasignature)'" 
 tempfile 12
 local theLOCALS "`theLOCALS' 12" 
@@ -296,7 +295,7 @@ save `12' , emptyok
 }
 isid make check, sort
 if ("`c(rngstate)'" != "``theRNG''") {
-post posty (13)  ("") ("") ("") ("") ("") ("") ("")    
+post posty (13)  ("") ("") ("Used") ("") ("") ("") ("")    
 local `theRNG' = "`c(rngstate)'" 
 local `allRNGS' = "``allRNGS'' `c(rngstate)'" 
 }
@@ -312,7 +311,7 @@ restore
 }
 datasignature
 if ("`r(datasignature)'" != "``theDATA''") {
-post posty (13)  ("") ("") ("") ("") ("") ("") ("")  
+post posty (13)  ("Changed") ("") ("") ("") ("") ("") ("")  
 local `theDATA' = "`r(datasignature)'" 
 tempfile 13
 local theLOCALS "`theLOCALS' 13" 
@@ -320,7 +319,7 @@ save `13' , emptyok
 }
 
 if ("`c(rngstate)'" != "``theRNG''") {
-post posty (14)  ("") ("") ("") ("") ("") ("") ("")    
+post posty (14)  ("") ("") ("Used") ("") ("") ("") ("")    
 local `theRNG' = "`c(rngstate)'" 
 local `allRNGS' = "``allRNGS'' `c(rngstate)'" 
 }
@@ -336,7 +335,7 @@ restore
 }
 datasignature
 if ("`r(datasignature)'" != "``theDATA''") {
-post posty (14)  ("") ("") ("") ("") ("") ("") ("")  
+post posty (14)  ("Changed") ("") ("") ("") ("") ("") ("")  
 local `theDATA' = "`r(datasignature)'" 
 tempfile 14
 local theLOCALS "`theLOCALS' 14" 
@@ -344,7 +343,7 @@ save `14' , emptyok
 }
 sort foreign
 if ("`c(rngstate)'" != "``theRNG''") {
-post posty (15)  ("") ("") ("") ("") ("") ("") ("")    
+post posty (15)  ("") ("") ("Used") ("") ("") ("") ("")    
 local `theRNG' = "`c(rngstate)'" 
 local `allRNGS' = "``allRNGS'' `c(rngstate)'" 
 }
@@ -360,7 +359,7 @@ restore
 }
 datasignature
 if ("`r(datasignature)'" != "``theDATA''") {
-post posty (15)  ("") ("") ("") ("") ("") ("") ("")  
+post posty (15)  ("Changed") ("") ("") ("") ("") ("") ("")  
 local `theDATA' = "`r(datasignature)'" 
 tempfile 15
 local theLOCALS "`theLOCALS' 15" 
@@ -368,7 +367,7 @@ save `15' , emptyok
 }
 
 if ("`c(rngstate)'" != "``theRNG''") {
-post posty (16)  ("") ("") ("") ("") ("") ("") ("")    
+post posty (16)  ("") ("") ("Used") ("") ("") ("") ("")    
 local `theRNG' = "`c(rngstate)'" 
 local `allRNGS' = "``allRNGS'' `c(rngstate)'" 
 }
@@ -384,7 +383,7 @@ restore
 }
 datasignature
 if ("`r(datasignature)'" != "``theDATA''") {
-post posty (16)  ("") ("") ("") ("") ("") ("") ("")  
+post posty (16)  ("Changed") ("") ("") ("") ("") ("") ("")  
 local `theDATA' = "`r(datasignature)'" 
 tempfile 16
 local theLOCALS "`theLOCALS' 16" 
@@ -392,7 +391,7 @@ save `16' , emptyok
 }
 di as err "RUNFILE: THIS VALUE SHOULD ALWAYS BE THE NUMBER ONE: `MYFAKELOCAL'"
 if ("`c(rngstate)'" != "``theRNG''") {
-post posty (17)  ("") ("") ("") ("") ("") ("") ("")    
+post posty (17)  ("") ("") ("Used") ("") ("") ("") ("")    
 local `theRNG' = "`c(rngstate)'" 
 local `allRNGS' = "``allRNGS'' `c(rngstate)'" 
 }
@@ -408,7 +407,7 @@ restore
 }
 datasignature
 if ("`r(datasignature)'" != "``theDATA''") {
-post posty (17)  ("") ("") ("") ("") ("") ("") ("")  
+post posty (17)  ("Changed") ("") ("") ("") ("") ("") ("")  
 local `theDATA' = "`r(datasignature)'" 
 tempfile 17
 local theLOCALS "`theLOCALS' 17" 
@@ -416,7 +415,7 @@ save `17' , emptyok
 }
 
 if ("`c(rngstate)'" != "``theRNG''") {
-post posty (18)  ("") ("") ("") ("") ("") ("") ("")    
+post posty (18)  ("") ("") ("Used") ("") ("") ("") ("")    
 local `theRNG' = "`c(rngstate)'" 
 local `allRNGS' = "``allRNGS'' `c(rngstate)'" 
 }
@@ -432,7 +431,7 @@ restore
 }
 datasignature
 if ("`r(datasignature)'" != "``theDATA''") {
-post posty (18)  ("") ("") ("") ("") ("") ("") ("")  
+post posty (18)  ("Changed") ("") ("") ("") ("") ("") ("")  
 local `theDATA' = "`r(datasignature)'" 
 tempfile 18
 local theLOCALS "`theLOCALS' 18" 
@@ -440,7 +439,7 @@ save `18' , emptyok
 }
 gen x = _n
 if ("`c(rngstate)'" != "``theRNG''") {
-post posty (19)  ("") ("") ("") ("") ("") ("") ("")    
+post posty (19)  ("") ("") ("Used") ("") ("") ("") ("")    
 local `theRNG' = "`c(rngstate)'" 
 local `allRNGS' = "``allRNGS'' `c(rngstate)'" 
 }
@@ -456,7 +455,7 @@ restore
 }
 datasignature
 if ("`r(datasignature)'" != "``theDATA''") {
-post posty (19)  ("") ("") ("") ("") ("") ("") ("")  
+post posty (19)  ("Changed") ("") ("") ("") ("") ("") ("")  
 local `theDATA' = "`r(datasignature)'" 
 tempfile 19
 local theLOCALS "`theLOCALS' 19" 
@@ -464,7 +463,7 @@ save `19' , emptyok
 }
 gen y = rnormal()
 if ("`c(rngstate)'" != "``theRNG''") {
-post posty (20)  ("") ("") ("") ("") ("") ("") ("")    
+post posty (20)  ("") ("") ("Used") ("") ("") ("") ("")    
 local `theRNG' = "`c(rngstate)'" 
 local `allRNGS' = "``allRNGS'' `c(rngstate)'" 
 }
@@ -480,7 +479,7 @@ restore
 }
 datasignature
 if ("`r(datasignature)'" != "``theDATA''") {
-post posty (20)  ("") ("") ("") ("") ("") ("") ("")  
+post posty (20)  ("Changed") ("") ("") ("") ("") ("") ("")  
 local `theDATA' = "`r(datasignature)'" 
 tempfile 20
 local theLOCALS "`theLOCALS' 20" 
@@ -488,7 +487,7 @@ save `20' , emptyok
 }
 
 if ("`c(rngstate)'" != "``theRNG''") {
-post posty (21)  ("") ("") ("") ("") ("") ("") ("")    
+post posty (21)  ("") ("") ("Used") ("") ("") ("") ("")    
 local `theRNG' = "`c(rngstate)'" 
 local `allRNGS' = "``allRNGS'' `c(rngstate)'" 
 }
@@ -504,7 +503,7 @@ restore
 }
 datasignature
 if ("`r(datasignature)'" != "``theDATA''") {
-post posty (21)  ("") ("") ("") ("") ("") ("") ("")  
+post posty (21)  ("Changed") ("") ("") ("") ("") ("") ("")  
 local `theDATA' = "`r(datasignature)'" 
 tempfile 21
 local theLOCALS "`theLOCALS' 21" 
@@ -512,7 +511,7 @@ save `21' , emptyok
 }
 set seed 123455
 if ("`c(rngstate)'" != "``theRNG''") {
-post posty (22)  ("") ("") ("") ("") ("") ("") ("")    
+post posty (22)  ("") ("") ("Used") ("") ("") ("") ("")    
 local `theRNG' = "`c(rngstate)'" 
 local `allRNGS' = "``allRNGS'' `c(rngstate)'" 
 }
@@ -528,7 +527,7 @@ restore
 }
 datasignature
 if ("`r(datasignature)'" != "``theDATA''") {
-post posty (22)  ("") ("") ("") ("") ("") ("") ("")  
+post posty (22)  ("Changed") ("") ("") ("") ("") ("") ("")  
 local `theDATA' = "`r(datasignature)'" 
 tempfile 22
 local theLOCALS "`theLOCALS' 22" 
@@ -536,7 +535,7 @@ save `22' , emptyok
 }
 
 if ("`c(rngstate)'" != "``theRNG''") {
-post posty (23)  ("") ("") ("") ("") ("") ("") ("")    
+post posty (23)  ("") ("") ("Used") ("") ("") ("") ("")    
 local `theRNG' = "`c(rngstate)'" 
 local `allRNGS' = "``allRNGS'' `c(rngstate)'" 
 }
@@ -552,7 +551,7 @@ restore
 }
 datasignature
 if ("`r(datasignature)'" != "``theDATA''") {
-post posty (23)  ("") ("") ("") ("") ("") ("") ("")  
+post posty (23)  ("Changed") ("") ("") ("") ("") ("") ("")  
 local `theDATA' = "`r(datasignature)'" 
 tempfile 23
 local theLOCALS "`theLOCALS' 23" 
@@ -560,7 +559,7 @@ save `23' , emptyok
 }
 duplicates drop make , force
 if ("`c(rngstate)'" != "``theRNG''") {
-post posty (24)  ("") ("") ("") ("") ("") ("") ("")    
+post posty (24)  ("") ("") ("Used") ("") ("") ("") ("")    
 local `theRNG' = "`c(rngstate)'" 
 local `allRNGS' = "``allRNGS'' `c(rngstate)'" 
 }
@@ -576,7 +575,7 @@ restore
 }
 datasignature
 if ("`r(datasignature)'" != "``theDATA''") {
-post posty (24)  ("") ("") ("") ("") ("") ("") ("")  
+post posty (24)  ("Changed") ("") ("") ("") ("") ("") ("")  
 local `theDATA' = "`r(datasignature)'" 
 tempfile 24
 local theLOCALS "`theLOCALS' 24" 
@@ -584,7 +583,7 @@ save `24' , emptyok
 }
 
 if ("`c(rngstate)'" != "``theRNG''") {
-post posty (25)  ("") ("") ("") ("") ("") ("") ("")    
+post posty (25)  ("") ("") ("Used") ("") ("") ("") ("")    
 local `theRNG' = "`c(rngstate)'" 
 local `allRNGS' = "``allRNGS'' `c(rngstate)'" 
 }
@@ -600,16 +599,15 @@ restore
 }
 datasignature
 if ("`r(datasignature)'" != "``theDATA''") {
-post posty (25)  ("") ("") ("") ("") ("") ("") ("")  
+post posty (25)  ("Changed") ("") ("") ("") ("") ("") ("")  
 local `theDATA' = "`r(datasignature)'" 
 tempfile 25
 local theLOCALS "`theLOCALS' 25" 
 save `25' , emptyok
 }
-do "${ietoolkit}/run/iedorep/iedorep-target-2.do"
- post posty (26)  ("") ("") ("") ("") ("") ("") (`""/Users/bbdaniels/GitHub/ietoolkit/run/iedorep/iedorep-target-2.do""') 
+
 if ("`c(rngstate)'" != "``theRNG''") {
-post posty (26)  ("") ("") ("") ("") ("") ("") ("")    
+post posty (26)  ("") ("") ("Used") ("") ("") ("") ("")    
 local `theRNG' = "`c(rngstate)'" 
 local `allRNGS' = "``allRNGS'' `c(rngstate)'" 
 }
@@ -625,15 +623,16 @@ restore
 }
 datasignature
 if ("`r(datasignature)'" != "``theDATA''") {
-post posty (26)  ("") ("") ("") ("") ("") ("") ("")  
+post posty (26)  ("Changed") ("") ("") ("") ("") ("") ("")  
 local `theDATA' = "`r(datasignature)'" 
 tempfile 26
 local theLOCALS "`theLOCALS' 26" 
 save `26' , emptyok
 }
-
+do "${ietoolkit}/run/iedorep/iedorep-target-2.do"
+ post posty (27)  ("") ("") ("") ("") ("") ("") (`""/Users/bbdaniels/GitHub/ietoolkit/run/iedorep/iedorep-target-2.do""') 
 if ("`c(rngstate)'" != "``theRNG''") {
-post posty (27)  ("") ("") ("") ("") ("") ("") ("")    
+post posty (27)  ("") ("") ("Used") ("") ("") ("") ("")    
 local `theRNG' = "`c(rngstate)'" 
 local `allRNGS' = "``allRNGS'' `c(rngstate)'" 
 }
@@ -649,16 +648,15 @@ restore
 }
 datasignature
 if ("`r(datasignature)'" != "``theDATA''") {
-post posty (27)  ("") ("") ("") ("") ("") ("") ("")  
+post posty (27)  ("Changed") ("") ("") ("") ("") ("") ("")  
 local `theDATA' = "`r(datasignature)'" 
 tempfile 27
 local theLOCALS "`theLOCALS' 27" 
 save `27' , emptyok
 }
-do "${ietoolkit}/run/iedorep/iedorep-target-2.do"
- post posty (28)  ("") ("") ("") ("") ("") ("") (`""/Users/bbdaniels/GitHub/ietoolkit/run/iedorep/iedorep-target-2.do""') 
+
 if ("`c(rngstate)'" != "``theRNG''") {
-post posty (28)  ("") ("") ("") ("") ("") ("") ("")    
+post posty (28)  ("") ("") ("Used") ("") ("") ("") ("")    
 local `theRNG' = "`c(rngstate)'" 
 local `allRNGS' = "``allRNGS'' `c(rngstate)'" 
 }
@@ -674,7 +672,7 @@ restore
 }
 datasignature
 if ("`r(datasignature)'" != "``theDATA''") {
-post posty (28)  ("") ("") ("") ("") ("") ("") ("")  
+post posty (28)  ("Changed") ("") ("") ("") ("") ("") ("")  
 local `theDATA' = "`r(datasignature)'" 
 tempfile 28
 local theLOCALS "`theLOCALS' 28" 
@@ -682,7 +680,7 @@ save `28' , emptyok
 }
 
 if ("`c(rngstate)'" != "``theRNG''") {
-post posty (29)  ("") ("") ("") ("") ("") ("") ("")    
+post posty (29)  ("") ("") ("Used") ("") ("") ("") ("")    
 local `theRNG' = "`c(rngstate)'" 
 local `allRNGS' = "``allRNGS'' `c(rngstate)'" 
 }
@@ -698,15 +696,15 @@ restore
 }
 datasignature
 if ("`r(datasignature)'" != "``theDATA''") {
-post posty (29)  ("") ("") ("") ("") ("") ("") ("")  
+post posty (29)  ("Changed") ("") ("") ("") ("") ("") ("")  
 local `theDATA' = "`r(datasignature)'" 
 tempfile 29
 local theLOCALS "`theLOCALS' 29" 
 save `29' , emptyok
 }
-
+//
 if ("`c(rngstate)'" != "``theRNG''") {
-post posty (30)  ("") ("") ("") ("") ("") ("") ("")    
+post posty (30)  ("") ("") ("Used") ("") ("") ("") ("")    
 local `theRNG' = "`c(rngstate)'" 
 local `allRNGS' = "``allRNGS'' `c(rngstate)'" 
 }
@@ -722,38 +720,15 @@ restore
 }
 datasignature
 if ("`r(datasignature)'" != "``theDATA''") {
-post posty (30)  ("") ("") ("") ("") ("") ("") ("")  
+post posty (30)  ("Changed") ("") ("") ("") ("") ("") ("")  
 local `theDATA' = "`r(datasignature)'" 
 tempfile 30
 local theLOCALS "`theLOCALS' 30" 
 save `30' , emptyok
 }
-//
-if ("`c(rngstate)'" != "``theRNG''") {
-post posty (31)  ("") ("") ("") ("") ("") ("") ("")    
-local `theRNG' = "`c(rngstate)'" 
-local `allRNGS' = "``allRNGS'' `c(rngstate)'" 
-}
-if ("`c(sortrngstate)'" != "``theSORT''") {
-post posty (31)  ("") ("") ("") ("") ("Sorted") ("") ("")  
-local `theSORT' = "`c(sortrngstate)'" 
-preserve
-xpose, clear
-tempfile 31_x
-save `31_x' , emptyok
-local theLOCALS "`theLOCALS' 31_x" 
-restore
-}
-datasignature
-if ("`r(datasignature)'" != "``theDATA''") {
-post posty (31)  ("") ("") ("") ("") ("") ("") ("")  
-local `theDATA' = "`r(datasignature)'" 
-tempfile 31
-local theLOCALS "`theLOCALS' 31" 
-save `31' , emptyok
-}
 
 // CLEANUP LOCALS BETWEEN FILES -------------------------------------------
+local theLOCALS posty theSORT theRNG allRNGS whichRNG allDATA theDATA theLOCALS `posty' `theSORT' `theRNG' `allRNGS' `whichRNG' `allDATA' `theDATA' `theLOCALS'
 mata : st_local("all_locals", invtokens(st_dir("local", "macro", "*")'))
 local toDROP : list all_locals - theLOCALS
 macro drop `toDROP' 
@@ -774,7 +749,7 @@ if ("`c(rngstate)'" != "``theRNG''") {
 local `whichRNG' = ``whichRNG'' + 1
 local `theRNG' = "`c(rngstate)'" 
 if ("`c(rngstate)'" != "`: word ``whichRNG'' of ``allRNGS'''") {
-post posty (1)  ("") ("") ("Used") ("ERROR! ") ("") ("") ("")   
+post posty (1)  ("") ("") ("") ("ERROR! ") ("") ("") ("")   
 }
 }
 if ("`c(sortrngstate)'" != "``theSORT''") {
@@ -792,7 +767,7 @@ if ("`r(datasignature)'" != "``theDATA''") {
 local `theDATA' = "`r(datasignature)'" 
 cap cf _all using `1'
 if _rc != 0 {
-post posty (1)  ("Changed") ("ERROR! ") ("") ("") ("") ("") ("")  
+post posty (1)  ("") ("ERROR! ") ("") ("") ("") ("") ("")  
 }
 }
 
@@ -800,7 +775,7 @@ if ("`c(rngstate)'" != "``theRNG''") {
 local `whichRNG' = ``whichRNG'' + 1
 local `theRNG' = "`c(rngstate)'" 
 if ("`c(rngstate)'" != "`: word ``whichRNG'' of ``allRNGS'''") {
-post posty (2)  ("") ("") ("Used") ("ERROR! ") ("") ("") ("")   
+post posty (2)  ("") ("") ("") ("ERROR! ") ("") ("") ("")   
 }
 }
 if ("`c(sortrngstate)'" != "``theSORT''") {
@@ -818,7 +793,7 @@ if ("`r(datasignature)'" != "``theDATA''") {
 local `theDATA' = "`r(datasignature)'" 
 cap cf _all using `2'
 if _rc != 0 {
-post posty (2)  ("Changed") ("ERROR! ") ("") ("") ("") ("") ("")  
+post posty (2)  ("") ("ERROR! ") ("") ("") ("") ("") ("")  
 }
 }
 clear
@@ -826,7 +801,7 @@ if ("`c(rngstate)'" != "``theRNG''") {
 local `whichRNG' = ``whichRNG'' + 1
 local `theRNG' = "`c(rngstate)'" 
 if ("`c(rngstate)'" != "`: word ``whichRNG'' of ``allRNGS'''") {
-post posty (3)  ("") ("") ("Used") ("ERROR! ") ("") ("") ("")   
+post posty (3)  ("") ("") ("") ("ERROR! ") ("") ("") ("")   
 }
 }
 if ("`c(sortrngstate)'" != "``theSORT''") {
@@ -844,7 +819,7 @@ if ("`r(datasignature)'" != "``theDATA''") {
 local `theDATA' = "`r(datasignature)'" 
 cap cf _all using `3'
 if _rc != 0 {
-post posty (3)  ("Changed") ("ERROR! ") ("") ("") ("") ("") ("")  
+post posty (3)  ("") ("ERROR! ") ("") ("") ("") ("") ("")  
 }
 }
 
@@ -852,7 +827,7 @@ if ("`c(rngstate)'" != "``theRNG''") {
 local `whichRNG' = ``whichRNG'' + 1
 local `theRNG' = "`c(rngstate)'" 
 if ("`c(rngstate)'" != "`: word ``whichRNG'' of ``allRNGS'''") {
-post posty (4)  ("") ("") ("Used") ("ERROR! ") ("") ("") ("")   
+post posty (4)  ("") ("") ("") ("ERROR! ") ("") ("") ("")   
 }
 }
 if ("`c(sortrngstate)'" != "``theSORT''") {
@@ -870,7 +845,7 @@ if ("`r(datasignature)'" != "``theDATA''") {
 local `theDATA' = "`r(datasignature)'" 
 cap cf _all using `4'
 if _rc != 0 {
-post posty (4)  ("Changed") ("ERROR! ") ("") ("") ("") ("") ("")  
+post posty (4)  ("") ("ERROR! ") ("") ("") ("") ("") ("")  
 }
 }
 sysuse auto.dta
@@ -878,7 +853,7 @@ if ("`c(rngstate)'" != "``theRNG''") {
 local `whichRNG' = ``whichRNG'' + 1
 local `theRNG' = "`c(rngstate)'" 
 if ("`c(rngstate)'" != "`: word ``whichRNG'' of ``allRNGS'''") {
-post posty (5)  ("") ("") ("Used") ("ERROR! ") ("") ("") ("")   
+post posty (5)  ("") ("") ("") ("ERROR! ") ("") ("") ("")   
 }
 }
 if ("`c(sortrngstate)'" != "``theSORT''") {
@@ -896,7 +871,7 @@ if ("`r(datasignature)'" != "``theDATA''") {
 local `theDATA' = "`r(datasignature)'" 
 cap cf _all using `5'
 if _rc != 0 {
-post posty (5)  ("Changed") ("ERROR! ") ("") ("") ("") ("") ("")  
+post posty (5)  ("") ("ERROR! ") ("") ("") ("") ("") ("")  
 }
 }
 
@@ -904,7 +879,7 @@ if ("`c(rngstate)'" != "``theRNG''") {
 local `whichRNG' = ``whichRNG'' + 1
 local `theRNG' = "`c(rngstate)'" 
 if ("`c(rngstate)'" != "`: word ``whichRNG'' of ``allRNGS'''") {
-post posty (6)  ("") ("") ("Used") ("ERROR! ") ("") ("") ("")   
+post posty (6)  ("") ("") ("") ("ERROR! ") ("") ("") ("")   
 }
 }
 if ("`c(sortrngstate)'" != "``theSORT''") {
@@ -922,7 +897,7 @@ if ("`r(datasignature)'" != "``theDATA''") {
 local `theDATA' = "`r(datasignature)'" 
 cap cf _all using `6'
 if _rc != 0 {
-post posty (6)  ("Changed") ("ERROR! ") ("") ("") ("") ("") ("")  
+post posty (6)  ("") ("ERROR! ") ("") ("") ("") ("") ("")  
 }
 }
 local MYFAKELOCAL = `MYFAKELOCAL' + 1
@@ -930,7 +905,7 @@ if ("`c(rngstate)'" != "``theRNG''") {
 local `whichRNG' = ``whichRNG'' + 1
 local `theRNG' = "`c(rngstate)'" 
 if ("`c(rngstate)'" != "`: word ``whichRNG'' of ``allRNGS'''") {
-post posty (7)  ("") ("") ("Used") ("ERROR! ") ("") ("") ("")   
+post posty (7)  ("") ("") ("") ("ERROR! ") ("") ("") ("")   
 }
 }
 if ("`c(sortrngstate)'" != "``theSORT''") {
@@ -948,7 +923,7 @@ if ("`r(datasignature)'" != "``theDATA''") {
 local `theDATA' = "`r(datasignature)'" 
 cap cf _all using `7'
 if _rc != 0 {
-post posty (7)  ("Changed") ("ERROR! ") ("") ("") ("") ("") ("")  
+post posty (7)  ("") ("ERROR! ") ("") ("") ("") ("") ("")  
 }
 }
 
@@ -956,7 +931,7 @@ if ("`c(rngstate)'" != "``theRNG''") {
 local `whichRNG' = ``whichRNG'' + 1
 local `theRNG' = "`c(rngstate)'" 
 if ("`c(rngstate)'" != "`: word ``whichRNG'' of ``allRNGS'''") {
-post posty (8)  ("") ("") ("Used") ("ERROR! ") ("") ("") ("")   
+post posty (8)  ("") ("") ("") ("ERROR! ") ("") ("") ("")   
 }
 }
 if ("`c(sortrngstate)'" != "``theSORT''") {
@@ -974,7 +949,7 @@ if ("`r(datasignature)'" != "``theDATA''") {
 local `theDATA' = "`r(datasignature)'" 
 cap cf _all using `8'
 if _rc != 0 {
-post posty (8)  ("Changed") ("ERROR! ") ("") ("") ("") ("") ("")  
+post posty (8)  ("") ("ERROR! ") ("") ("") ("") ("") ("")  
 }
 }
 #d cr
@@ -982,7 +957,7 @@ if ("`c(rngstate)'" != "``theRNG''") {
 local `whichRNG' = ``whichRNG'' + 1
 local `theRNG' = "`c(rngstate)'" 
 if ("`c(rngstate)'" != "`: word ``whichRNG'' of ``allRNGS'''") {
-post posty (9)  ("") ("") ("Used") ("ERROR! ") ("") ("") ("")   
+post posty (9)  ("") ("") ("") ("ERROR! ") ("") ("") ("")   
 }
 }
 if ("`c(sortrngstate)'" != "``theSORT''") {
@@ -1000,7 +975,7 @@ if ("`r(datasignature)'" != "``theDATA''") {
 local `theDATA' = "`r(datasignature)'" 
 cap cf _all using `9'
 if _rc != 0 {
-post posty (9)  ("Changed") ("ERROR! ") ("") ("") ("") ("") ("")  
+post posty (9)  ("") ("ERROR! ") ("") ("") ("") ("") ("")  
 }
 }
 
@@ -1008,7 +983,7 @@ if ("`c(rngstate)'" != "``theRNG''") {
 local `whichRNG' = ``whichRNG'' + 1
 local `theRNG' = "`c(rngstate)'" 
 if ("`c(rngstate)'" != "`: word ``whichRNG'' of ``allRNGS'''") {
-post posty (10)  ("") ("") ("Used") ("ERROR! ") ("") ("") ("")   
+post posty (10)  ("") ("") ("") ("ERROR! ") ("") ("") ("")   
 }
 }
 if ("`c(sortrngstate)'" != "``theSORT''") {
@@ -1026,7 +1001,7 @@ if ("`r(datasignature)'" != "``theDATA''") {
 local `theDATA' = "`r(datasignature)'" 
 cap cf _all using `10'
 if _rc != 0 {
-post posty (10)  ("Changed") ("ERROR! ") ("") ("") ("") ("") ("")  
+post posty (10)  ("") ("ERROR! ") ("") ("") ("") ("") ("")  
 }
 }
 expand 2 , gen(check)
@@ -1034,7 +1009,7 @@ if ("`c(rngstate)'" != "``theRNG''") {
 local `whichRNG' = ``whichRNG'' + 1
 local `theRNG' = "`c(rngstate)'" 
 if ("`c(rngstate)'" != "`: word ``whichRNG'' of ``allRNGS'''") {
-post posty (11)  ("") ("") ("Used") ("ERROR! ") ("") ("") ("")   
+post posty (11)  ("") ("") ("") ("ERROR! ") ("") ("") ("")   
 }
 }
 if ("`c(sortrngstate)'" != "``theSORT''") {
@@ -1052,7 +1027,7 @@ if ("`r(datasignature)'" != "``theDATA''") {
 local `theDATA' = "`r(datasignature)'" 
 cap cf _all using `11'
 if _rc != 0 {
-post posty (11)  ("Changed") ("ERROR! ") ("") ("") ("") ("") ("")  
+post posty (11)  ("") ("ERROR! ") ("") ("") ("") ("") ("")  
 }
 }
 
@@ -1060,7 +1035,7 @@ if ("`c(rngstate)'" != "``theRNG''") {
 local `whichRNG' = ``whichRNG'' + 1
 local `theRNG' = "`c(rngstate)'" 
 if ("`c(rngstate)'" != "`: word ``whichRNG'' of ``allRNGS'''") {
-post posty (12)  ("") ("") ("Used") ("ERROR! ") ("") ("") ("")   
+post posty (12)  ("") ("") ("") ("ERROR! ") ("") ("") ("")   
 }
 }
 if ("`c(sortrngstate)'" != "``theSORT''") {
@@ -1078,7 +1053,7 @@ if ("`r(datasignature)'" != "``theDATA''") {
 local `theDATA' = "`r(datasignature)'" 
 cap cf _all using `12'
 if _rc != 0 {
-post posty (12)  ("Changed") ("ERROR! ") ("") ("") ("") ("") ("")  
+post posty (12)  ("") ("ERROR! ") ("") ("") ("") ("") ("")  
 }
 }
 isid make check, sort
@@ -1086,7 +1061,7 @@ if ("`c(rngstate)'" != "``theRNG''") {
 local `whichRNG' = ``whichRNG'' + 1
 local `theRNG' = "`c(rngstate)'" 
 if ("`c(rngstate)'" != "`: word ``whichRNG'' of ``allRNGS'''") {
-post posty (13)  ("") ("") ("Used") ("ERROR! ") ("") ("") ("")   
+post posty (13)  ("") ("") ("") ("ERROR! ") ("") ("") ("")   
 }
 }
 if ("`c(sortrngstate)'" != "``theSORT''") {
@@ -1104,7 +1079,7 @@ if ("`r(datasignature)'" != "``theDATA''") {
 local `theDATA' = "`r(datasignature)'" 
 cap cf _all using `13'
 if _rc != 0 {
-post posty (13)  ("Changed") ("ERROR! ") ("") ("") ("") ("") ("")  
+post posty (13)  ("") ("ERROR! ") ("") ("") ("") ("") ("")  
 }
 }
 
@@ -1112,7 +1087,7 @@ if ("`c(rngstate)'" != "``theRNG''") {
 local `whichRNG' = ``whichRNG'' + 1
 local `theRNG' = "`c(rngstate)'" 
 if ("`c(rngstate)'" != "`: word ``whichRNG'' of ``allRNGS'''") {
-post posty (14)  ("") ("") ("Used") ("ERROR! ") ("") ("") ("")   
+post posty (14)  ("") ("") ("") ("ERROR! ") ("") ("") ("")   
 }
 }
 if ("`c(sortrngstate)'" != "``theSORT''") {
@@ -1130,7 +1105,7 @@ if ("`r(datasignature)'" != "``theDATA''") {
 local `theDATA' = "`r(datasignature)'" 
 cap cf _all using `14'
 if _rc != 0 {
-post posty (14)  ("Changed") ("ERROR! ") ("") ("") ("") ("") ("")  
+post posty (14)  ("") ("ERROR! ") ("") ("") ("") ("") ("")  
 }
 }
 sort foreign
@@ -1138,7 +1113,7 @@ if ("`c(rngstate)'" != "``theRNG''") {
 local `whichRNG' = ``whichRNG'' + 1
 local `theRNG' = "`c(rngstate)'" 
 if ("`c(rngstate)'" != "`: word ``whichRNG'' of ``allRNGS'''") {
-post posty (15)  ("") ("") ("Used") ("ERROR! ") ("") ("") ("")   
+post posty (15)  ("") ("") ("") ("ERROR! ") ("") ("") ("")   
 }
 }
 if ("`c(sortrngstate)'" != "``theSORT''") {
@@ -1156,7 +1131,7 @@ if ("`r(datasignature)'" != "``theDATA''") {
 local `theDATA' = "`r(datasignature)'" 
 cap cf _all using `15'
 if _rc != 0 {
-post posty (15)  ("Changed") ("ERROR! ") ("") ("") ("") ("") ("")  
+post posty (15)  ("") ("ERROR! ") ("") ("") ("") ("") ("")  
 }
 }
 
@@ -1164,7 +1139,7 @@ if ("`c(rngstate)'" != "``theRNG''") {
 local `whichRNG' = ``whichRNG'' + 1
 local `theRNG' = "`c(rngstate)'" 
 if ("`c(rngstate)'" != "`: word ``whichRNG'' of ``allRNGS'''") {
-post posty (16)  ("") ("") ("Used") ("ERROR! ") ("") ("") ("")   
+post posty (16)  ("") ("") ("") ("ERROR! ") ("") ("") ("")   
 }
 }
 if ("`c(sortrngstate)'" != "``theSORT''") {
@@ -1182,7 +1157,7 @@ if ("`r(datasignature)'" != "``theDATA''") {
 local `theDATA' = "`r(datasignature)'" 
 cap cf _all using `16'
 if _rc != 0 {
-post posty (16)  ("Changed") ("ERROR! ") ("") ("") ("") ("") ("")  
+post posty (16)  ("") ("ERROR! ") ("") ("") ("") ("") ("")  
 }
 }
 di as err "RUNFILE: THIS VALUE SHOULD ALWAYS BE THE NUMBER ONE: `MYFAKELOCAL'"
@@ -1190,7 +1165,7 @@ if ("`c(rngstate)'" != "``theRNG''") {
 local `whichRNG' = ``whichRNG'' + 1
 local `theRNG' = "`c(rngstate)'" 
 if ("`c(rngstate)'" != "`: word ``whichRNG'' of ``allRNGS'''") {
-post posty (17)  ("") ("") ("Used") ("ERROR! ") ("") ("") ("")   
+post posty (17)  ("") ("") ("") ("ERROR! ") ("") ("") ("")   
 }
 }
 if ("`c(sortrngstate)'" != "``theSORT''") {
@@ -1208,7 +1183,7 @@ if ("`r(datasignature)'" != "``theDATA''") {
 local `theDATA' = "`r(datasignature)'" 
 cap cf _all using `17'
 if _rc != 0 {
-post posty (17)  ("Changed") ("ERROR! ") ("") ("") ("") ("") ("")  
+post posty (17)  ("") ("ERROR! ") ("") ("") ("") ("") ("")  
 }
 }
 
@@ -1216,7 +1191,7 @@ if ("`c(rngstate)'" != "``theRNG''") {
 local `whichRNG' = ``whichRNG'' + 1
 local `theRNG' = "`c(rngstate)'" 
 if ("`c(rngstate)'" != "`: word ``whichRNG'' of ``allRNGS'''") {
-post posty (18)  ("") ("") ("Used") ("ERROR! ") ("") ("") ("")   
+post posty (18)  ("") ("") ("") ("ERROR! ") ("") ("") ("")   
 }
 }
 if ("`c(sortrngstate)'" != "``theSORT''") {
@@ -1234,7 +1209,7 @@ if ("`r(datasignature)'" != "``theDATA''") {
 local `theDATA' = "`r(datasignature)'" 
 cap cf _all using `18'
 if _rc != 0 {
-post posty (18)  ("Changed") ("ERROR! ") ("") ("") ("") ("") ("")  
+post posty (18)  ("") ("ERROR! ") ("") ("") ("") ("") ("")  
 }
 }
 gen x = _n
@@ -1242,7 +1217,7 @@ if ("`c(rngstate)'" != "``theRNG''") {
 local `whichRNG' = ``whichRNG'' + 1
 local `theRNG' = "`c(rngstate)'" 
 if ("`c(rngstate)'" != "`: word ``whichRNG'' of ``allRNGS'''") {
-post posty (19)  ("") ("") ("Used") ("ERROR! ") ("") ("") ("")   
+post posty (19)  ("") ("") ("") ("ERROR! ") ("") ("") ("")   
 }
 }
 if ("`c(sortrngstate)'" != "``theSORT''") {
@@ -1260,7 +1235,7 @@ if ("`r(datasignature)'" != "``theDATA''") {
 local `theDATA' = "`r(datasignature)'" 
 cap cf _all using `19'
 if _rc != 0 {
-post posty (19)  ("Changed") ("ERROR! ") ("") ("") ("") ("") ("")  
+post posty (19)  ("") ("ERROR! ") ("") ("") ("") ("") ("")  
 }
 }
 gen y = rnormal()
@@ -1268,7 +1243,7 @@ if ("`c(rngstate)'" != "``theRNG''") {
 local `whichRNG' = ``whichRNG'' + 1
 local `theRNG' = "`c(rngstate)'" 
 if ("`c(rngstate)'" != "`: word ``whichRNG'' of ``allRNGS'''") {
-post posty (20)  ("") ("") ("Used") ("ERROR! ") ("") ("") ("")   
+post posty (20)  ("") ("") ("") ("ERROR! ") ("") ("") ("")   
 }
 }
 if ("`c(sortrngstate)'" != "``theSORT''") {
@@ -1286,7 +1261,7 @@ if ("`r(datasignature)'" != "``theDATA''") {
 local `theDATA' = "`r(datasignature)'" 
 cap cf _all using `20'
 if _rc != 0 {
-post posty (20)  ("Changed") ("ERROR! ") ("") ("") ("") ("") ("")  
+post posty (20)  ("") ("ERROR! ") ("") ("") ("") ("") ("")  
 }
 }
 
@@ -1294,7 +1269,7 @@ if ("`c(rngstate)'" != "``theRNG''") {
 local `whichRNG' = ``whichRNG'' + 1
 local `theRNG' = "`c(rngstate)'" 
 if ("`c(rngstate)'" != "`: word ``whichRNG'' of ``allRNGS'''") {
-post posty (21)  ("") ("") ("Used") ("ERROR! ") ("") ("") ("")   
+post posty (21)  ("") ("") ("") ("ERROR! ") ("") ("") ("")   
 }
 }
 if ("`c(sortrngstate)'" != "``theSORT''") {
@@ -1312,20 +1287,15 @@ if ("`r(datasignature)'" != "``theDATA''") {
 local `theDATA' = "`r(datasignature)'" 
 cap cf _all using `21'
 if _rc != 0 {
-post posty (21)  ("Changed") ("ERROR! ") ("") ("") ("") ("") ("")  
+post posty (21)  ("") ("ERROR! ") ("") ("") ("") ("") ("")  
 }
 }
 set seed 123455
 if ("`c(rngstate)'" != "``theRNG''") {
-di as err `" local `whichRNG' = ``whichRNG'' + 1 "'
-di as err `" ``whichRNG'' "'
--
-di as err `" ("`c(rngstate)'" != "`: word ``whichRNG'' of ``allRNGS'''") "'
-
--
+local `whichRNG' = ``whichRNG'' + 1
 local `theRNG' = "`c(rngstate)'" 
 if ("`c(rngstate)'" != "`: word ``whichRNG'' of ``allRNGS'''") {
-post posty (22)  ("") ("") ("Used") ("ERROR! ") ("") ("") ("")   
+post posty (22)  ("") ("") ("") ("ERROR! ") ("") ("") ("")   
 }
 }
 if ("`c(sortrngstate)'" != "``theSORT''") {
@@ -1343,7 +1313,7 @@ if ("`r(datasignature)'" != "``theDATA''") {
 local `theDATA' = "`r(datasignature)'" 
 cap cf _all using `22'
 if _rc != 0 {
-post posty (22)  ("Changed") ("ERROR! ") ("") ("") ("") ("") ("")  
+post posty (22)  ("") ("ERROR! ") ("") ("") ("") ("") ("")  
 }
 }
 
@@ -1351,7 +1321,7 @@ if ("`c(rngstate)'" != "``theRNG''") {
 local `whichRNG' = ``whichRNG'' + 1
 local `theRNG' = "`c(rngstate)'" 
 if ("`c(rngstate)'" != "`: word ``whichRNG'' of ``allRNGS'''") {
-post posty (23)  ("") ("") ("Used") ("ERROR! ") ("") ("") ("")   
+post posty (23)  ("") ("") ("") ("ERROR! ") ("") ("") ("")   
 }
 }
 if ("`c(sortrngstate)'" != "``theSORT''") {
@@ -1369,7 +1339,7 @@ if ("`r(datasignature)'" != "``theDATA''") {
 local `theDATA' = "`r(datasignature)'" 
 cap cf _all using `23'
 if _rc != 0 {
-post posty (23)  ("Changed") ("ERROR! ") ("") ("") ("") ("") ("")  
+post posty (23)  ("") ("ERROR! ") ("") ("") ("") ("") ("")  
 }
 }
 duplicates drop make , force
@@ -1377,7 +1347,7 @@ if ("`c(rngstate)'" != "``theRNG''") {
 local `whichRNG' = ``whichRNG'' + 1
 local `theRNG' = "`c(rngstate)'" 
 if ("`c(rngstate)'" != "`: word ``whichRNG'' of ``allRNGS'''") {
-post posty (24)  ("") ("") ("Used") ("ERROR! ") ("") ("") ("")   
+post posty (24)  ("") ("") ("") ("ERROR! ") ("") ("") ("")   
 }
 }
 if ("`c(sortrngstate)'" != "``theSORT''") {
@@ -1395,7 +1365,7 @@ if ("`r(datasignature)'" != "``theDATA''") {
 local `theDATA' = "`r(datasignature)'" 
 cap cf _all using `24'
 if _rc != 0 {
-post posty (24)  ("Changed") ("ERROR! ") ("") ("") ("") ("") ("")  
+post posty (24)  ("") ("ERROR! ") ("") ("") ("") ("") ("")  
 }
 }
 
@@ -1403,7 +1373,7 @@ if ("`c(rngstate)'" != "``theRNG''") {
 local `whichRNG' = ``whichRNG'' + 1
 local `theRNG' = "`c(rngstate)'" 
 if ("`c(rngstate)'" != "`: word ``whichRNG'' of ``allRNGS'''") {
-post posty (25)  ("") ("") ("Used") ("ERROR! ") ("") ("") ("")   
+post posty (25)  ("") ("") ("") ("ERROR! ") ("") ("") ("")   
 }
 }
 if ("`c(sortrngstate)'" != "``theSORT''") {
@@ -1421,15 +1391,15 @@ if ("`r(datasignature)'" != "``theDATA''") {
 local `theDATA' = "`r(datasignature)'" 
 cap cf _all using `25'
 if _rc != 0 {
-post posty (25)  ("Changed") ("ERROR! ") ("") ("") ("") ("") ("")  
+post posty (25)  ("") ("ERROR! ") ("") ("") ("") ("") ("")  
 }
 }
-do "${ietoolkit}/run/iedorep/iedorep-target-2.do"
+
 if ("`c(rngstate)'" != "``theRNG''") {
 local `whichRNG' = ``whichRNG'' + 1
 local `theRNG' = "`c(rngstate)'" 
 if ("`c(rngstate)'" != "`: word ``whichRNG'' of ``allRNGS'''") {
-post posty (26)  ("") ("") ("Used") ("ERROR! ") ("") ("") ("")   
+post posty (26)  ("") ("") ("") ("ERROR! ") ("") ("") ("")   
 }
 }
 if ("`c(sortrngstate)'" != "``theSORT''") {
@@ -1447,15 +1417,15 @@ if ("`r(datasignature)'" != "``theDATA''") {
 local `theDATA' = "`r(datasignature)'" 
 cap cf _all using `26'
 if _rc != 0 {
-post posty (26)  ("Changed") ("ERROR! ") ("") ("") ("") ("") ("")  
+post posty (26)  ("") ("ERROR! ") ("") ("") ("") ("") ("")  
 }
 }
-
+do "${ietoolkit}/run/iedorep/iedorep-target-2.do"
 if ("`c(rngstate)'" != "``theRNG''") {
 local `whichRNG' = ``whichRNG'' + 1
 local `theRNG' = "`c(rngstate)'" 
 if ("`c(rngstate)'" != "`: word ``whichRNG'' of ``allRNGS'''") {
-post posty (27)  ("") ("") ("Used") ("ERROR! ") ("") ("") ("")   
+post posty (27)  ("") ("") ("") ("ERROR! ") ("") ("") ("")   
 }
 }
 if ("`c(sortrngstate)'" != "``theSORT''") {
@@ -1473,15 +1443,15 @@ if ("`r(datasignature)'" != "``theDATA''") {
 local `theDATA' = "`r(datasignature)'" 
 cap cf _all using `27'
 if _rc != 0 {
-post posty (27)  ("Changed") ("ERROR! ") ("") ("") ("") ("") ("")  
+post posty (27)  ("") ("ERROR! ") ("") ("") ("") ("") ("")  
 }
 }
-do "${ietoolkit}/run/iedorep/iedorep-target-2.do"
+
 if ("`c(rngstate)'" != "``theRNG''") {
 local `whichRNG' = ``whichRNG'' + 1
 local `theRNG' = "`c(rngstate)'" 
 if ("`c(rngstate)'" != "`: word ``whichRNG'' of ``allRNGS'''") {
-post posty (28)  ("") ("") ("Used") ("ERROR! ") ("") ("") ("")   
+post posty (28)  ("") ("") ("") ("ERROR! ") ("") ("") ("")   
 }
 }
 if ("`c(sortrngstate)'" != "``theSORT''") {
@@ -1499,7 +1469,7 @@ if ("`r(datasignature)'" != "``theDATA''") {
 local `theDATA' = "`r(datasignature)'" 
 cap cf _all using `28'
 if _rc != 0 {
-post posty (28)  ("Changed") ("ERROR! ") ("") ("") ("") ("") ("")  
+post posty (28)  ("") ("ERROR! ") ("") ("") ("") ("") ("")  
 }
 }
 
@@ -1507,7 +1477,7 @@ if ("`c(rngstate)'" != "``theRNG''") {
 local `whichRNG' = ``whichRNG'' + 1
 local `theRNG' = "`c(rngstate)'" 
 if ("`c(rngstate)'" != "`: word ``whichRNG'' of ``allRNGS'''") {
-post posty (29)  ("") ("") ("Used") ("ERROR! ") ("") ("") ("")   
+post posty (29)  ("") ("") ("") ("ERROR! ") ("") ("") ("")   
 }
 }
 if ("`c(sortrngstate)'" != "``theSORT''") {
@@ -1525,15 +1495,15 @@ if ("`r(datasignature)'" != "``theDATA''") {
 local `theDATA' = "`r(datasignature)'" 
 cap cf _all using `29'
 if _rc != 0 {
-post posty (29)  ("Changed") ("ERROR! ") ("") ("") ("") ("") ("")  
+post posty (29)  ("") ("ERROR! ") ("") ("") ("") ("") ("")  
 }
 }
-
+//
 if ("`c(rngstate)'" != "``theRNG''") {
 local `whichRNG' = ``whichRNG'' + 1
 local `theRNG' = "`c(rngstate)'" 
 if ("`c(rngstate)'" != "`: word ``whichRNG'' of ``allRNGS'''") {
-post posty (30)  ("") ("") ("Used") ("ERROR! ") ("") ("") ("")   
+post posty (30)  ("") ("") ("") ("ERROR! ") ("") ("") ("")   
 }
 }
 if ("`c(sortrngstate)'" != "``theSORT''") {
@@ -1551,33 +1521,7 @@ if ("`r(datasignature)'" != "``theDATA''") {
 local `theDATA' = "`r(datasignature)'" 
 cap cf _all using `30'
 if _rc != 0 {
-post posty (30)  ("Changed") ("ERROR! ") ("") ("") ("") ("") ("")  
-}
-}
-//
-if ("`c(rngstate)'" != "``theRNG''") {
-local `whichRNG' = ``whichRNG'' + 1
-local `theRNG' = "`c(rngstate)'" 
-if ("`c(rngstate)'" != "`: word ``whichRNG'' of ``allRNGS'''") {
-post posty (31)  ("") ("") ("Used") ("ERROR! ") ("") ("") ("")   
-}
-}
-if ("`c(sortrngstate)'" != "``theSORT''") {
-local `theSORT' = "`c(sortrngstate)'" 
-preserve
-xpose, clear
-cap cf _all using `31_x'
-if _rc != 0 {
-post posty (31)  ("") ("") ("") ("") ("") ("ERROR! ") ("")  
-}
-restore
-}
-datasignature
-if ("`r(datasignature)'" != "``theDATA''") {
-local `theDATA' = "`r(datasignature)'" 
-cap cf _all using `31'
-if _rc != 0 {
-post posty (31)  ("Changed") ("ERROR! ") ("") ("") ("") ("") ("")  
+post posty (30)  ("") ("ERROR! ") ("") ("") ("") ("") ("")  
 }
 }
 postclose posty

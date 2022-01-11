@@ -68,7 +68,6 @@ preserve
   qui file open checkr using `newfile2' , write replace 
   
 // Initialize locals in new file
-  file write edited "local theLOCALS posty theSORT theRNG allRNGS whichRNG allDATA theDATA theLOCALS" _n
   file write edited "tempname theSORT theRNG allRNGS whichRNG allDATA theDATA" _n
   file write edited "tempfile posty" _n "postfile posty Line " ///
     "str15(Data Err_1 Seed Err_2 Sort Err_3) str2000(Path) using \`posty' , replace" _n
@@ -241,6 +240,8 @@ file open checkr using `"`newfile2'"' , read
   file read checkr line // Need initial read
   file write edited _n ///
   "// CLEANUP LOCALS BETWEEN FILES -------------------------------------------" _n ///
+    "local theLOCALS posty theSORT theRNG allRNGS whichRNG allDATA theDATA theLOCALS " ///
+      "\`posty' \`theSORT' \`theRNG' \`allRNGS' \`whichRNG' \`allDATA' \`theDATA' \`theLOCALS'" _n ///
     `"mata : st_local("all_locals", invtokens(st_dir("local", "macro", "*")'))"' _n ///
     "local toDROP : list all_locals - theLOCALS" _n ///
     "macro drop \`toDROP' " _n  ///

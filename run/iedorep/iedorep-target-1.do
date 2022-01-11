@@ -23,7 +23,6 @@ set seed 123455
 
 duplicates drop make , force
 
-do "${ietoolkit}/run/iedorep/iedorep-target-2.do"
 
 do "${ietoolkit}/run/iedorep/iedorep-target-2.do"
 
