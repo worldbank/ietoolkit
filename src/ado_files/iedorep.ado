@@ -182,6 +182,7 @@ while r(eof)==0 {
 /*****************************************************************************
 Append the checking dofile to the edited dofile
 Betwen dofiles, use [di] to advance seed and use [clear] for data
+Then remove all macros other than the ones we are using
 *****************************************************************************/
 file close checkr
 file open checkr using `"`newfile2'"' , read
