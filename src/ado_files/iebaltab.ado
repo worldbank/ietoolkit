@@ -1727,7 +1727,10 @@ qui {
 		if "`pout_val'" == "p" local pout_lbl "P-value"
 		if "`pout_val'" == "none" local pout_lbl "none"
 
-		* ttest notest NORMDiff PTtest   '"
+
+		*********************
+		* test that option onerow is ok to use if used
+		if (!missing("`onerow'")) isonerowok, mat(`rmat')
 
 		***** Before using one_row - test the matrix that it is possible
 
@@ -2003,7 +2006,7 @@ cap program drop 	export_tab
 
 		*Get the N from each pair
 		foreach pair of local pairs {
-			local n_value = el(`rmat',1,colnumb(`rmat',"bn_`pair'"))
+			local n_value = el(`rmat',1,colnumb(`rmat',"tn_`pair'"))
 			local n_row   `"`n_row' _tab "`n_value'" "'
 		}
 
@@ -2049,4 +2052,46 @@ cap program drop 	export_tex
 	noi mat list `rmat'
 	noi mat list `fmat'
 
+end
+
+********************************************************************************
+*  Function that tests if each n_ column in the matrix has the same value for
+*	 all rows so that the N can be displayed on one row at the botton of the table
+cap program drop 	isonerowok
+	program define	isonerowok
+
+	syntax , mat(name)
+
+	local not_ok_grps ""
+
+	* Get all column names that starts on n_, i.e. all cols with N
+	local all_cnames : colnames `mat'
+	local ncnames ""
+	foreach cname of local all_cnames {
+		if substr("`cname'",1,2) == "n_" local ncnames "`ncnames' `cname'"
+	}
+	//Remove total from test, as if all groups are the same, then total is the same
+	local ncnames = subinstr("`ncnames'","n_t","",1)
+
+	*Get number of rows
+	local matrows  : rowsof `mat'
+	*If matrix only has one row, then onerow is always ok
+	if `matrows' > 1 {
+		*Test if all values are the same in all n columns
+		foreach ncname of local ncnames {
+			local nval = el(`mat',1,colnumb(`mat',"`ncname'"))
+			forvalues row = 2/`matrows' {
+				if `nval' != el(`mat',`row',colnumb(`mat',"`ncname'")) {
+					local not_ok_grps : list not_ok_grps | ncname
+				}
+			}
+		}
+	}
+
+	if ("`not_ok_grps'" != "") {
+		local not_ok_grps = subinstr("`not_ok_grps'","n_","",.)
+		local not_ok_grps : list sort not_ok_grps
+		noi di as error "{pstd}Option {input:onerow} may only be used if the number of observations with non-missing values are the same in all groups across all balance variables. This is not true for group(s): [`not_ok_grps'].{p_end}"
+		error 499
+	}
 end
