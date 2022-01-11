@@ -2,7 +2,7 @@
 
 clear
 
-sysuse auto.dta
+sysuse auto.dta , clear
 
 local MYFAKELOCAL = `MYFAKELOCAL' + 1
 
@@ -14,7 +14,7 @@ isid make check, sort
 
 sort foreign
 
-di as err "RUNFILE: THIS VALUE SHOULD ALWAYS BE THE NUMBER ONE: `MYFAKELOCAL'"
+di as err "SAME FROM THE SUBROUTINE: `MYFAKELOCAL'"
 
 gen x = _n
 gen y = rnormal()
@@ -22,10 +22,5 @@ gen y = rnormal()
 set seed 123455
 
 duplicates drop make , force
-
-do "${ietoolkit}/run/iedorep/iedorep-target-2.do"
-
-do "${ietoolkit}/run/iedorep/iedorep-target-2.do"
-
 
 //

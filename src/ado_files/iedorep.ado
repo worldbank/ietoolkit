@@ -14,32 +14,32 @@ Options
 
   // Optionally request all data changes to be flagged
   if "`alldata'" != "" {
-    local alldata1 = `" ("Changed") ("") ("") ("") ("") ("") "'
-    local alldata2 = `" ("") ("ERROR! ") ("") ("") ("") ("") "'
+    local alldata1 = `" ("Changed") ("") ("") ("") ("") ("") ("") "'
+    local alldata2 = `" ("") ("ERROR! ") ("") ("") ("") ("") ("") "'
   }
   else {
-    local alldata1 = `" ("") ("") ("") ("") ("") ("") "'
-    local alldata2 = `" ("Changed") ("ERROR! ") ("") ("") ("") ("") "'
+    local alldata1 = `" ("") ("") ("") ("") ("") ("") ("") "'
+    local alldata2 = `" ("Changed") ("ERROR! ") ("") ("") ("") ("") ("") "'
   }
   
   // Optionally request all sorts to be flagged
   if "`allsort'" != "" {
-    local allsort1 = `" ("") ("") ("") ("") ("Sorted") ("") "'
-    local allsort2 = `" ("") ("") ("") ("") ("") ("ERROR! ") "'
+    local allsort1 = `" ("") ("") ("") ("") ("Sorted") ("") ("") "'
+    local allsort2 = `" ("") ("") ("") ("") ("") ("ERROR! ") ("") "'
   }
   else {
-    local allsort1 = `" ("") ("") ("") ("") ("") ("") "'
-    local allsort2 = `" ("") ("") ("") ("") ("Sorted") ("ERROR! ") "'
+    local allsort1 = `" ("") ("") ("") ("") ("") ("") ("") "'
+    local allsort2 = `" ("") ("") ("") ("") ("Sorted") ("ERROR! ") ("") "'
   }
   
   // Optionally request all seeds to be flagged
   if "`allseed'" != "" {
-    local allseed1 = `" ("") ("") ("Used") ("") ("") ("") "'
-    local allseed2 = `" ("") ("") ("") ("ERROR! ") ("") ("") "'
+    local allseed1 = `" ("") ("") ("Used") ("") ("") ("") ("") "'
+    local allseed2 = `" ("") ("") ("") ("ERROR! ") ("") ("") ("") "'
   }
   else {
-    local allseed1 = `" ("") ("") ("") ("") ("") ("") "'
-    local allseed2 = `" ("") ("") ("Used") ("ERROR! ") ("") ("") "'
+    local allseed1 = `" ("") ("") ("") ("") ("") ("") ("") "'
+    local allseed2 = `" ("") ("") ("Used") ("ERROR! ") ("") ("") ("") "'
   }
   
 /*****************************************************************************
@@ -57,6 +57,8 @@ preserve
   local linenum = 1
   
 // Open the file to be checked
+  di as err " "
+  di as err `"Processing: `anything'"'
   file open original using `anything' , read
   file read original line // Need initial read
     local linenum_real = 1
@@ -69,7 +71,7 @@ preserve
   file write edited "local theLOCALS posty theSORT theRNG allRNGS whichRNG allDATA theDATA theLOCALS" _n
   file write edited "tempname theSORT theRNG allRNGS whichRNG allDATA theDATA" _n
   file write edited "tempfile posty" _n "postfile posty Line " ///
-    "str15(Data Err_1 Seed Err_2 Sort Err_3) using \`posty' , replace" _n
+    "str15(Data Err_1 Seed Err_2 Sort Err_3) str2000(Path) using \`posty' , replace" _n
     
   file write edited `"local \`theRNG' = "\`c(rngstate)'" "' _n
   file write checkr `"local \`theRNG' = "\`c(rngstate)'" "' _n
@@ -131,6 +133,20 @@ while r(eof)==0 {
     // Add checkers if line end
     if !strpos(`"`macval(line)'"',"///") {
       local logic = 0 // If we are here with logic flagged, it was a subset
+      
+      // Catch any [do] or [run] commands
+      if  strpos(`"`macval(line)'"',"do ") { 
+        local theRECURSION = substr(`"`macval(line)'"',strpos(`"`macval(line)'"',"do ")+3,.)        
+        file write edited `" post posty (`linenum_real')  ("") ("") ("") ("") ("") ("") (`"`theRECURSION'"') "' _n
+      }
+      else if  strpos(`"`macval(line)'"',"ru ") { 
+        local theRECURSION = substr(`"`macval(line)'"',strpos(`"`macval(line)'"',"ru ")+3,.)        
+        file write edited `" post posty (`linenum_real')  ("") ("") ("") ("") ("") ("") (`"`theRECURSION'"') "' _n
+      }
+      if  strpos(`"`macval(line)'"',"run ") { 
+        local theRECURSION = substr(`"`macval(line)'"',strpos(`"`macval(line)'"',"run ")+4,.)        
+        file write edited `" post posty (`linenum_real')  ("") ("") ("") ("") ("") ("") (`"`theRECURSION'"') "' _n
+      }
       
       // Flag changes to RNG state
       file write edited ///
@@ -204,7 +220,7 @@ while r(eof)==0 {
     
     // Error if delimiter
     if strpos(`"`macval(line)'"',"#d") {
-      di as err "Note: The delimiter may have been changed in this file (#d)."
+      di as err "      Note: The delimiter may have been changed in this file (#d)."
       di as err " "
     }
     
@@ -242,7 +258,7 @@ file open checkr using `"`newfile2'"' , read
   }
   file write edited `"postclose posty"' _n
   file write edited `"use \`posty' , clear"' _n
-  file write edited `"collapse (firstnm) Data Err_1 Seed Err_2 Sort Err_3 , by(Line)"' _n
+  file write edited `"collapse (firstnm) Data Err_1 Seed Err_2 Sort Err_3 Path , by(Line)"' _n
   file write edited `"compress"' _n
 
 /*****************************************************************************
@@ -265,17 +281,31 @@ Output flags and errors
   qui replace Data = Err_1 + Data 
   qui replace Seed = Err_2 + Seed 
   qui replace Sort = Err_3 + Sort 
-
-  li Line Data Seed Sort ///
-    if !(Data == "" & Seed == "" & Sort == "") ///
-    , noobs divider 
+  qui gen Subfile = "Yes" if Path != ""
+  qui keep if !(Data == "" & Seed == "" & Sort == "")
+  li Line Data Seed Sort Subfile, noobs divider 
   
 /*****************************************************************************
 Pseudo-recursion
 *****************************************************************************/
 
   if "`recursive'" != "" {
-    
+    qui keep if !(Err_1 == "" & Err_2 == "" & Err_3 == "") & (Path != "")
+    if `c(N)' == 0 {
+      di as err " "
+      di as err "No errors detected in sub do-files; recursion halted."
+    }
+    else {
+      di as err " "
+      di as err "Errors detected in the following sub do-files; starting recursion."
+      li Line Path , noobs divider 
+      qui duplicates drop Path, force
+      sort Line
+      forvalues i = 1/`c(N)' {
+        local file = Path[`i']
+        iedorep `file' , `recursive' `alldata' `allsort' `allseed'
+      }
+    }
   }
   
 /*****************************************************************************
