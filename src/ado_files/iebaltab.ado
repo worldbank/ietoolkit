@@ -157,22 +157,6 @@ qui {
 		if "`vce'" 				== "" local VCE_USED = 0
 		if "`vce'" 				!= "" local VCE_USED = 1
 
-		*Is option balmiss() used:
-		if "`balmiss'" 			== "" local BALMISS_USED = 0
-		if "`balmiss'" 			!= "" local BALMISS_USED = 1
-
-		*Is option missreg() used:
-		if "`balmissreg'" 		== "" local BALMISSREG_USED = 0
-		if "`balmissreg'" 		!= "" local BALMISSREG_USED = 1
-
-		*Is option covmiss() used:
-		if "`covmiss'" 			== "" local COVMISS_USED = 0
-		if "`covmiss'" 			!= "" local COVMISS_USED = 1
-
-		*Is option covmissreg() used:
-		if "`covmissreg'" 		== "" local COVMISSREG_USED = 0
-		if "`covmissreg'" 		!= "" local COVMISSREG_USED = 1
-
 		*Is option missminmean() used:
 		if "`missminmean'" 		== "" local MISSMINMEAN_USED = 0
 		if "`missminmean'" 		!= "" local MISSMINMEAN_USED = 1
@@ -263,14 +247,6 @@ qui {
 		*Is option texcolwidth() used:
 		if "`texcolwidth'"		== "" local TEXCOLWIDTH_USED = 0
 		if "`texcolwidth'"		!= "" local TEXCOLWIDTH_USED = 1
-
-		*Is option browse() used:
-		if "`browse'" 			== "" local BROWSE_USED = 0
-		if "`browse'" 			!= "" local BROWSE_USED = 1
-
-		*Is option restore() used:
-		if "`savebrowse'" 		== "" local SAVE_BROWSE_USED = 0
-		if "`savebrowse'" 		!= "" local SAVE_BROWSE_USED = 1
 
 		*Is option restore() used:
 		if "`replace'" 			== "" local REPLACE_USED = 0
@@ -590,20 +566,6 @@ qui {
 		}
 
 
-
-		*Error for miss incorrectly used together with missreg
-		if `BALMISS_USED' & `BALMISSREG_USED' {
-			*Error for balmiss and balmissreg incorrectly used together
-			noi display as error "{phang}Option balmiss() may not be used in combination with option balmissreg()"
-			error 197
-		}
-
-		if `COVMISS_USED' & `COVMISSREG_USED' {
-			*Error for covmiss and covmissreg incorrectly used together
-			noi display as error "{phang}Option covmiss() may not be used in combination with option covmissreg()"
-			error 197
-		}
-
 		if !`TTEST_USED' {
 			if `PTTEST_USED' {
 				*Error for nottest and pttest incorrectly used together
@@ -638,41 +600,6 @@ qui {
 				error 109
 			}
 
-		}
-
-		* test covariate variables
-		if `COVARIATES_USED' == 1  {
-
-			foreach covar of local covariates {
-
-				*Create option string
-				local replaceoptions
-
-				*Sopecify differently based on all missing or only regualr missing
-				if `COVMISS_USED' 					local replaceoptions `" `replaceoptions' replacetype("`covmiss'") "'
-				if `COVMISSREG_USED' 				local replaceoptions `" `replaceoptions' replacetype("`covmissreg'") regonly "'
-
-				*Add group variable if the replace type is group mean
-				if "`covmiss'" 		== "groupmean" 	local replaceoptions `" `replaceoptions' groupvar(`grpvar') groupcodes("`GRP_CODES'") "'
-				if "`covmissreg'" 	== "groupmean" 	local replaceoptions `" `replaceoptions' groupvar(`grpvar') groupcodes("`GRP_CODES'") "'
-
-				*Set the minimum number of observations to allow means to be set from
-				if `MISSMINMEAN_USED' == 1			local replaceoptions `" `replaceoptions' minobsmean(`missminmean') "'
-				if `MISSMINMEAN_USED' == 0			local replaceoptions `" `replaceoptions' minobsmean(10) "'
-
-				*Excute the command. Code is found at the bottom of this ado file
-				if (`COVMISS_USED' | `COVMISSREG_USED')  iereplacemiss `covariates', `replaceoptions'
-
-				if `COVARMISSOK_USED' != 1 {
-
-					cap assert `covar' < .
-					if _rc == 9 {
-
-						noi display as error  "{phang}The variable `covar' specified in covariates() has missing values for one or more observations. This would cause observations to be dropped in the estimation regressions. To allow for observations to be dropped see option covarmissok and to make the command treat missing values as zero see option covmiss() and covmissreg(). Click {stata tab `covar' `if' `in', m} to see the missing values.{p_end}"
-						error 109
-					}
-				}
-			}
 		}
 
 		if `WEIGHT_USED' == 1 {
@@ -876,11 +803,7 @@ qui {
 			}
 
 		}
-		else if `SAVE_BROWSE_USED' {
 
-			noi display as error "{phang}Option savepreserve may only be used in combination with option save(){p_end}"
-			error 198
-		}
 
 		* Check tex options
 		if `SAVE_TEX_USED' {
@@ -1674,23 +1597,7 @@ qui {
 	}
 
 
-	if `BALMISS_USED' == 1 | `BALMISSREG_USED' == 1 {
 
-		if `BALMISS_USED' 		== 1 	local balmiss_note "All missing values in balance variables are treated as zero."
-		if `BALMISSREG_USED'  	== 1 	local balmiss_note "Regular missing values in balance variables are treated as zero,  {help missing:extended missing values} are still treated as missing."
-
-		local BALMISS_USED = 1
-	}
-
-
-
-	if `COVMISS_USED' == 1 | `COVMISSREG_USED' == 1 {
-
-		if `COVMISS_USED'		== 1	local covmiss_note "All missing values in covariate variables are treated as zero."
-		if `COVMISSREG_USED'  	== 1	local covmiss_note "Regular missing values in covariate variables are treated as zero, {help missing:extended missing values} are still treated as missing."
-
-		local COVMISS_USED = 1
-	}
 
 	*Restore from orginial preserve at top of command
 	restore
