@@ -1,4 +1,4 @@
-*! version 6.3 5NOV2019 DIME Analytics dimeanalytics@worldbank.org
+*! version 6.4 11JAN2022 DIME Analytics dimeanalytics@worldbank.org
 
 cap	program drop	iegraph
 	program define 	iegraph, rclass

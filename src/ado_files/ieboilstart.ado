@@ -1,4 +1,4 @@
-*! version 6.3 5NOV2019 DIME Analytics dimeanalytics@worldbank.org
+*! version 6.4 11JAN2022 DIME Analytics dimeanalytics@worldbank.org
 
 	capture program drop ieboilstart
 	program ieboilstart , rclass
@@ -16,7 +16,8 @@
 
 		*********************************/
 
-		local stata_versions "11 11.0 11.1 11.2 12 12.0 12.1 13 13.0 13.1 14 14.0 14.1 14.2 15 15.0 15.1"
+		* Based on versions listed here: https://www.stata.com/support/faqs/resources/history-of-stata/
+		local stata_versions "11 11.0 11.1 11.2 12 12.0 12.1 13 13.0 13.1 14 14.0 14.1 14.2 15 15.0 15.1 16.0 16.1 17.0"
 
 		if `:list versionnumber in stata_versions' == 0 {
 
