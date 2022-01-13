@@ -16,7 +16,7 @@ qui {
   *Locals with stats names for each category
   local desc_stats   = "n cl mean se sd"
   local pair_stats   = "diff tn tcl beta p nrmd"
-	local allgrp_stats = "feqp feqf"
+	local allgrp_stats = "feqn feqp feqf"
 	local ftest_stats  = "fn ff fp"
 
   *Create columns for group desc statisitics

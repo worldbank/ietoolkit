@@ -1359,32 +1359,49 @@ qui {
 				}
 			}
 
+			******************************************************
+			*** Test for joint orthogonality across all groups for this balance var
 
-		*** Test for joint orthogonality across all groups for this balance var
-			* Run regression
-			noi di "FEQ regression. Var [`balancevar']"
-			reg `balancevar' i.`grpvar' `covariates' i.`fixedeffect' `weight_option', `error_estm'
+			if !missing("`feqtest'") {
 
-			test `FEQTEST_INPUT'
-			local pfeqtest 	= r(p)
-			local ffeqtest 	= r(F)
+			    * Run regression
+					noi di "FEQ regression. Var [`balancevar']"
+					reg `balancevar' i.`grpvar' `covariates' i.`fixedeffect' `weight_option', `error_estm'
+					local nfeqtest 	= e(N)
 
-			*Check if the test is valid. If not, print N/A and error message.
-			*Is yes, print test
-			if "`ffeqtest'" == "." {
+					*Perfeorm the F test
+					test `FEQTEST_INPUT'
+					local pfeqtest 	= r(p)
+					local ffeqtest 	= r(F)
 
-				local warn_ftest_num  	= `warn_ftest_num' + 1
-				local warn_ftest_bvar`warn_ftest_num'		"`balancevar'"
+					*Check if the test is valid. If not, print N/A and error message.
+					*Is yes, print test
+					if "`ffeqtest'" == "." {
 
-				* Adding missing values for invalid feq test
-				mat row[1,`++colindex'] = .f
-				mat row[1,`++colindex'] = .f
-			}
-			else {
-				* Adding p value and F value to matrix
-				mat row[1,`++colindex'] = `pfeqtest'
-				mat row[1,`++colindex'] = `ffeqtest'
-			}
+						local warn_ftest_num  	= `warn_ftest_num' + 1
+						local warn_ftest_bvar`warn_ftest_num'		"`balancevar'"
+
+						* Adding missing values for invalid feq test
+						mat row[1,`++colindex'] = .f
+						mat row[1,`++colindex'] = .f
+						mat row[1,`++colindex'] = .f
+					}
+					else {
+						* Adding p value and F value to matrix
+						mat row[1,`++colindex'] = `nfeqtest'
+						mat row[1,`++colindex'] = `pfeqtest'
+						mat row[1,`++colindex'] = `ffeqtest'
+					}
+				}
+				else {
+					* Feq test not used
+					mat row[1,`++colindex'] = .m
+					mat row[1,`++colindex'] = .m
+					mat row[1,`++colindex'] = .m
+				}
+
+			******************************************************
+			*** All estimates calculated for this row
 
 			*Appending row for this balance var to result matrix
 			mat `rmat' = [`rmat'\row]
@@ -1879,6 +1896,23 @@ cap program drop 	export_tab
 		local tot_colnum = `grp_count' + 1
 
 		*Create one more column for N if N is displayed in column instead of row
+		if missing("`onerow'") {
+			local titlerow1 `"`titlerow1' _tab "" "'
+			local titlerow2 `"`titlerow2' _tab "" "'
+			local titlerow3 `"`titlerow3' _tab "`ntitle'" "'
+		}
+
+		*Add titles for summary row stats
+		local titlerow1 `"`titlerow1' _tab " (`tot_colnum') " "'
+		local titlerow2 `"`titlerow2' _tab "`tot_lbl'"        "'
+		local titlerow3 `"`titlerow3' _tab "Mean/`vtype'"     "'
+	}
+
+	********* joint orthogonality of each balance variable ***********************
+
+	if !missing("`feqtest'") {
+
+		*
 		if missing("`onerow'") {
 			local titlerow1 `"`titlerow1' _tab "" "'
 			local titlerow2 `"`titlerow2' _tab "" "'
