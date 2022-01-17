@@ -173,19 +173,6 @@ qui {
 		if "`nottest'"			== "" local TTEST_USED = 1
 		if "`nottest'"			!= "" local TTEST_USED = 0
 
-		*Is option pttest() used:
-		if "`pttest'" 			== "" local PTTEST_USED = 0
-		if "`pttest'" 			!= "" local PTTEST_USED = 1
-
-		*Is option pftest() used:
-		if "`pftest'" 			== "" local PFTEST_USED = 0
-		if "`pftest'" 			!= "" local PFTEST_USED = 1
-
-		*Is option pboth() used:
-		if "`pboth'" 			== "" local PBOTH_USED 	= 0
-		if "`pboth'" 			!= "" local PBOTH_USED 	= 1
-		if `PBOTH_USED' == 1 		  local PTTEST_USED = 1
-		if `PBOTH_USED' == 1 		  local PFTEST_USED = 1
 
 		*Is option pftest() used:
 		if "`stdev'" 			== "" local STDEV_USED = 0
@@ -198,10 +185,6 @@ qui {
 		*Is option feqtest() user:
 		if "`feqtest'" 			== "" local FEQTEST_USED = 0
 		if "`feqtest'" 			!= "" local FEQTEST_USED = 1
-
-		*Is option normdiff() used:
-		if "`normdiff'" 		== "" local NORMDIFF_USED = 0
-		if "`normdiff'" 		!= "" local NORMDIFF_USED = 1
 
 
 	** Output Options
@@ -222,7 +205,11 @@ qui {
 		if "`savetex'" 			== "" local SAVE_TEX_USED = 0
 		if "`savetex'" 			!= "" local SAVE_TEX_USED = 1
 
-		local SAVE_USED = max(`SAVE_CSV_USED',`SAVE_TEX_USED')
+		*Is option browse() used:
+		if "`browse'" 			== "" local BROWSE_USED = 0
+		if "`browse'" 			!= "" local BROWSE_USED = 1
+
+		local SAVE_USED = max(`SAVE_CSV_USED',`SAVE_CSV_USED',`SAVE_TEX_USED')
 
 		*Is option texnotewidth() used:
 		if "`texnotewidth'"		== "" local NOTEWIDTH_USED = 0
@@ -263,6 +250,25 @@ qui {
 		*Is option notablenote() used:
 		if "`tblnonote'" 		== "" local NONOTE_USED = 0
 		if "`tblnonote'" 		!= "" local NONOTE_USED = 1
+
+		/***********************************************
+			Deprecated options
+		************************************************/
+
+		local old_version_guide `"If you still need the old version of iebaltab, for example for reproduction of old code, see {browse  "https://github.com/worldbank/ietoolkit/blob/master/admin/run-old-versions.md" :this guide} for how to run old versions of any command in the ietoolkit package."'
+
+	  if !missing("`savebrowse'`save'") {
+			di as error `"{pstd}The options {input:savebrowse}, {input:save} and {input:browse} has been deprecated as of verion 7 of iebaltab. See if the options {input:savexlsx}, {input:savecsv} or {input:browse} has the functionality you need. `old_version_guide'{p_end}"'
+			error 198
+		}
+		if !missing("`balmiss'`balmissreg'`covmiss'`covmissreg'") {
+			di as error `"{pstd}The options {input:balmiss}, {input:balmissreg}, {input:covmiss} and {input:covmissreg} has been deprecated as of verion 7 of iebaltab. Instead, if needed and/or desired, you must modify missing values yourself before running the command. `old_version_guide'{p_end}"'
+			error 198
+		}
+		if !missing("`nottest'`normdiff'`pttest'`pftest'`pboth'") {
+			di as error `"{pstd}The options {input:nottest}, {input:normdiff}, {input:pttest}, {input:pftest} and {input:pboth} has been deprecated as of verion 7 of iebaltab. See if the options {input:pairoutput} or {input:ftestoutput} has the functionality you need. `old_version_guide'{p_end}"'
+			error 198
+		}
 
 
 	/***********************************************
@@ -524,13 +530,10 @@ qui {
 		}
 
 		if `STARSNOADD_USED' == 0 {
-
 			*Allow user defined p-values for stars or set the default values
 			if `STARLEVEL_USED' == 1 {
-
 				*Tokenize the string with the p-values entered by the user. The value entered are tested in syntax
 				tokenize "`starlevels'"
-
 				*Set user defined levels for 1, 2 and 3 stars
 				local p1star `1'
 				local p2star `2'
@@ -542,7 +545,6 @@ qui {
 				local p2star .05
 				local p3star .01
 			}
-
 			** Create locals with the values expressed
 			*  as percentages for the note to the table
 			local p1star_percent = `p1star' * 100
@@ -550,7 +552,6 @@ qui {
 			local p3star_percent = `p3star' * 100
 		}
 		else {
-
 			*Options starsomitt is used. No stars will be displayed. By setting
 			*these locals to nothing the loop adding stars will not be iterated
 			local p1star
