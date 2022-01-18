@@ -1665,7 +1665,7 @@ qui {
 					note("The value displayed for t-tests are the differences in the means across the groups.") ///
 					col_lbls(`COLUMN_LABELS') order_grp_codes(`ORDER_OF_GROUP_CODES') ///
 					pairs(`TEST_PAIR_CODES')  ///
-					row_lbls(`"`ROW_LABELS'"') `total' `onerow' `feqtest' tot_lbl("`tot_lbl'") ///
+					row_lbls(`"`ROW_LABELS'"') `total' `onerow' `feqtest' `ftest' tot_lbl("`tot_lbl'") ///
 					pout_lbl(`pout_lbl') pout_val(`pout_val') diformat("`diformat'")
 
 					tempfile tab_file
@@ -1747,7 +1747,7 @@ cap program drop 	export_tab
 	pairs(string) diformat(string) ///
 	row_lbls(string) tot_lbl(string) ///
 	pout_lbl(string) pout_val(string) ///
-	[onerow total feqtest]
+	[onerow total feqtest ftest]
 
 	//noi di "insdie export_tab"
 
@@ -1758,6 +1758,11 @@ cap program drop 	export_tab
 
 	local grp_count : list sizeof order_grp_codes
 	local row_count : list sizeof row_lbls
+
+	* Get a local with one item for each desc stats column
+	local desc_cols "`order_grp_codes'"
+	if !missing("`total'") local desc_cols "`desc_cols' t"
+	if missing("`onerow'") local desc_cols "`desc_cols' `desc_cols'"
 
 	if "`pout_val'" == "none" local pairs ""
 
@@ -1945,6 +1950,45 @@ cap program drop 	export_tab
 		file open  		`tab_name' using "`tab_file'", text write append
 		file write  	`tab_name' `row_up' _n `row_down' _n
 		file close 		`tab_name'
+	}
+
+	******************************************************************************
+	* Write f-test for pair test across all variables
+	******************************************************************************
+
+	if !missing("`ftest'") {
+
+		local fout_lbl "F-stat"
+		local fout_val "f"
+
+		* First column with row labels
+		local frow_up   `""F-test of joint significance (`fout_lbl')""'
+		local frow_down `""F-test, number of observations""' // Not used in onerow
+
+		* Skip all group columns and skip total column if applicable
+		foreach grp_code of local desc_cols {
+			local frow_up 	`"`frow_up' _tab "" "'
+			local frow_down `"`frow_down' _tab "" "'
+		}
+
+		*Write fstats
+		foreach pair of local pairs {
+			* Pairwise test statistics for this pair - get value from mat and apply format
+			local ftest_value = el(`fmat',1,colnumb(`fmat',"f`fout_val'_`pair'"))
+			local ftest_value 	: display `diformat' `ftest_value'
+			local ftest_n     = el(`fmat',1,colnumb(`fmat',"fn_`pair'"))
+			local frow_up   `"`frow_up'   _tab "`ftest_value'" "'
+			local frow_down `"`frow_down' _tab "`ftest_n'" "'
+		}
+
+		*Write the fstats rows
+		if !missing("`onerow'") local frow `"`frow_up'"'
+		else local frow `"`frow_up' _n `frow_down'"'
+		cap file close 	`tab_name'
+		file open  		`tab_name' using "`tab_file'", text write append
+		file write  	`tab_name' `frow' _n
+		file close 		`tab_name'
+
 	}
 
 	******************************************************************************
