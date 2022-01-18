@@ -236,7 +236,6 @@ qui {
 		if "`replace'" 			== "" local REPLACE_USED = 0
 		if "`replace'" 			!= "" local REPLACE_USED = 1
 
-
 		/***********************************************
 			Deprecated options
 		************************************************/
@@ -510,41 +509,19 @@ qui {
 			}
 		}
 
-		if `STARSNOADD_USED' == 0 {
-			*Allow user defined p-values for stars or set the default values
-			if `STARLEVEL_USED' == 1 {
-				*Tokenize the string with the p-values entered by the user. The value entered are tested in syntax
-				tokenize "`starlevels'"
-				*Set user defined levels for 1, 2 and 3 stars
-				local p1star `1'
-				local p2star `2'
-				local p3star `3'
-			}
-			else {
-				*Set default levels for 1, 2 and 3 stars
-				local p1star .1
-				local p2star .05
-				local p3star .01
-			}
-			** Create locals with the values expressed
-			*  as percentages for the note to the table
-			local p1star_percent = `p1star' * 100
-			local p2star_percent = `p2star' * 100
-			local p3star_percent = `p3star' * 100
-		}
-		else {
-			*Options starsomitt is used. No stars will be displayed. By setting
-			*these locals to nothing the loop adding stars will not be iterated
-			local p1star
-			local p2star
-			local p3star
-		}
 
-		*Error for starlevels incorrectly used together with starsnoadd
-		if `STARSNOADD_USED' & `STARLEVEL_USED' {
-			*Error for starlevels and starsnoadd incorrectly used together
-			noi display as error "{phang}Option starlevels() may not be used in combination with option starsnoadd"
-			error 197
+		******************************
+		* Handle STARS
+		******************************
+
+		* Test if nostar option used
+		if `STARSNOADD_USED' == 1 {
+			local starlevels ""
+		}
+		*If nostar not used and starlevels not specified, use defaults
+		else if `STARLEVEL_USED' == 0 {
+			*Set star levels to default values
+			local starlevels ".1 .05 .01"
 		}
 
 		****************************************************************************
@@ -1522,75 +1499,17 @@ qui {
 	/*******************************************************************************
 	*******************************************************************************/
 
-	* Prepare the covariate note.
-	if `COVARIATES_USED' == 1 {
-		local covars_comma = ""
 
-		*Loop over all covariates and add a comma
-		foreach covar of local covariates {
-			if "`covars_comma'" == "" {
-				local covars_comma "and `covar'"
-				local one_covar 1
-			}
-			else {
-				local covars_comma "`covar', `covars_comma'"
-				local one_covar 0
-			}
-		}
+	if missing("`tblnonote'") {
+		if missing("`tblnote'") {
+			generate_note, pout_lbl("`pout_lbl'") fix("`fixedeffect'") fix_used("`FIX_EFFECT_USED'") covars("`covariates'") `ftest' `feqtest' starlevels("`starlevels'") `stdev' vce("`vce'") vce_type("`vce_type'") clustervar("`cluster_var'") weight_used("`WEIGHT_USED'") weight_type("`weight_type'") weight_var("`weight_var'")
 
-		* If only one covariate, remove and from local and make note singular, and if multiple covariates, make note plural.
-		if `one_covar' == 1 {
-			local covars_comma = subinstr("`covars_comma'" , "and ", "", .)
-			local covar_note	"The covariate variable `covars_comma' is included in all estimation regressions. "
+			 local note_to_use "`r(table_note)'"
 		}
-		else {
-			local covar_note	"The covariate variables `covars_comma' are included in all estimation regressions. "
-		}
+		else local note_to_use `"`tblnote'"'
 	}
+	else else local note_to_use ""
 
-	*** Prepare the notes used below
-	local fixed_note	"Fixed effects using variable `fixedeffect' are included in all estimation regressions. "
-	local stars_note	"***, **, and * indicate significance at the `p3star_percent', `p2star_percent', and `p1star_percent' percent critical level. "
-
-	// if `PFTEST_USED' == 1 {
-	// 	local ftest_note "The value displayed for F-tests are p-values. "
-	// }
-	// else {
-	// 	local ftest_note "The value displayed for F-tests are the F-statistics. "
-	// }
-
-	if `VCE_USED' == 1 {
-
-		*Display variation in Standard errors (default) or in Standard Deviations
-		if `STDEV_USED' == 0 {
-			*Standard Errors string
-			local 	variance_type_name 	"Standard errors"
-		}
-		else {
-			*Standard Deviation string
-			local 	variance_type_name 	"Standard deviations"
-		}
-
-		if "`vce_type'" == "robust"		local error_est_note	"`variance_type_name' are robust. "
-		if "`vce_type'" == "cluster"  	local error_est_note	"`variance_type_name' are clustered at variable `cluster_var'. "
-		if "`vce_type'" == "bootstrap"  local error_est_note	"`variance_type_name' are estimeated using bootstrap. "
-	}
-
-	if `WEIGHT_USED' == 1 {
-
-		local f_weights "fweights fw freq weight"
-		local a_weights "aweights aw"
-		local p_weights "pweights pw"
-		local i_weights "iweights iw"
-
-		if `:list weight_type in f_weights' local weight_type = "frequency"
-		else if `:list weight_type in a_weights' local weight_type = "analytical"
-		else if `:list weight_type in p_weights' local weight_type = "probability"
-		else if `:list weight_type in i_weights' local weight_type = "importance"
-
-		local weight_note	"Observations are weighted using variable `weight_var' as `weight_type' weights."
-
-	}
 
 
 
@@ -1650,11 +1569,11 @@ qui {
 				noi di "run export_tab"
 				noi export_tab using `"`savecsv'"', ///
 					rmat(`rmat') fmat(`fmat') ntitle("`ntitle'") vtype("`vtype'") ///
-					note("The value displayed for t-tests are the differences in the means across the groups.") ///
+					note(`"`note_to_use'"') ///
 					col_lbls(`COLUMN_LABELS') order_grp_codes(`ORDER_OF_GROUP_CODES') ///
 					pairs(`TEST_PAIR_CODES')  ///
 					row_lbls(`"`ROW_LABELS'"') `total' `onerow' `feqtest' `ftest' tot_lbl("`tot_lbl'") ///
-					pout_lbl(`pout_lbl') pout_val(`pout_val') diformat("`diformat'")
+					pout_lbl(`pout_lbl') pout_val(`pout_val') diformat("`diformat'") starlevels("`starlevels'")
 
 					tempfile tab_file
 					save `tab_file'
@@ -1730,12 +1649,13 @@ cap program drop 	export_tab
 	program define	export_tab, rclass
 
 	syntax using , rmat(name) fmat(name) 					///
-	ntitle(string) vtype(string) note(string)		///
+	ntitle(string) vtype(string) 		///
 	col_lbls(string) order_grp_codes(numlist) ///
 	pairs(string) diformat(string) ///
 	row_lbls(string) tot_lbl(string) ///
 	pout_lbl(string) pout_val(string) ///
-	[onerow total feqtest ftest]
+	[note(string) onerow total feqtest ftest ///
+	starlevels(string)]
 
 	//noi di "insdie export_tab"
 
@@ -1917,9 +1837,11 @@ cap program drop 	export_tab
 			* F and p values for this test - get value from mat and apply format
 			local f_value = el(`rmat',`row_num',colnumb(`rmat',"feqf"))
 			local p_value = el(`rmat',`row_num',colnumb(`rmat',"feqp"))
+
+			count_stars, p(`p_value') starlevels(`starlevels')
 			local f_value : display `diformat' `f_value'
 			local p_value  : display `diformat' `p_value'
-			local row_up   `"`row_up'   _tab "`f_value'" "'
+			local row_up   `"`row_up'   _tab "`f_value'`r(stars)'" "'
 			local row_down `"`row_down' _tab "`p_value'" "'
 		}
 
@@ -1929,7 +1851,11 @@ cap program drop 	export_tab
 			* Pairwise test statistics for this pair - get value from mat and apply format
 			local test_value = el(`rmat',`row_num',colnumb(`rmat',"`pout_val'_`pair'"))
 			local test_value 	: display `diformat' `test_value'
-			local row_up   `"`row_up'   _tab "`test_value'" "'
+
+			local p_value = el(`rmat',`row_num',colnumb(`rmat',"p_`pair'"))
+			count_stars, p(`p_value') starlevels(`starlevels')
+
+			local row_up   `"`row_up'   _tab "`test_value'`r(stars)'" "'
 			local row_down `"`row_down' _tab "" "'
 		}
 
@@ -1978,7 +1904,6 @@ cap program drop 	export_tab
 		file open  		`tab_name' using "`tab_file'", text write append
 		file write  	`tab_name' `frow' _n
 		file close 		`tab_name'
-
 	}
 
 	******************************************************************************
@@ -2023,14 +1948,15 @@ cap program drop 	export_tab
 	}
 
 	******************************************************************************
-	* Write footer
+	* Write table note
 	******************************************************************************
-
-	*Write the title rows defined above
-	cap file close 	`tab_name'
-	file open  		`tab_name' using "`tab_file'", text write append
-	file write  	`tab_name' "`note'" _n
-	file close 		`tab_name'
+	if !missing("`note'") {
+		*Write the table note if one is defined
+		cap file close 	`tab_name'
+		file open  		`tab_name' using "`tab_file'", text write append
+		file write  	`tab_name' "`note'" _n
+		file close 		`tab_name'
+	}
 
 	******************************************************************************
 	* Import tabfile to memory
@@ -2125,4 +2051,76 @@ cap program drop 	isonerowok
 		noi di as error "{pstd}Option {input:onerow} may only be used if the number of observations with non-missing values are the same in all groups across all balance variables. This is not true for group(s): [`not_ok_grps']. Run the command again without this options to see in which column the number of observations is not the same for all rows.{p_end}"
 		error 499
 	}
+end
+
+cap program drop 	count_stars
+	program define	count_stars, rclass
+
+	syntax, p(numlist) starlevels(string)
+
+	local stars ""
+	tokenize "`starlevels'"
+	if `p' < `1' local stars "*"
+	if `p' < `2' local stars "**"
+	if `p' < `3' local stars "***"
+
+	return local stars "`stars'"
+end
+
+
+cap program drop 	generate_note
+	program define	generate_note, rclass
+
+	syntax, pout_lbl(string) [fix(string) fix_used(string) covars(string) ftest feqtest ///
+	starlevels(string)  stdev vce(string) ///
+	vce_type(string) clustervar(string) weight_used(string) weight_type(string) weight_var(string) ]
+
+	local table_note ""
+
+	* Test sentence
+	local test_sentence = ""
+	if !missing("`ftest'`feqtest'") & "`pout_lbl'" != "none" {
+		local test_sentence = "pairwise and f-test regressions"
+	}
+	else if !missing("`ftest'`feqtest'") local test_sentence = "f-test regressions"
+	else if "`pout_val'" != "none"       local test_sentence = "pairwise regressions"
+
+
+	if !missing("`covars'") local table_note "`table_note' Covariates used in `test_sentence': [`covars']."
+	if `fix_used' == 1      local table_note "`table_note' Fixed effect used in `test_sentence': [`fix']."
+
+	if !missing("`starlevels'") {
+		tokenize "`starlevels'"
+		local signint1 = 100 - (`1' * 100)
+		local signint2 = 100 - (`2' * 100)
+		local signint3 = 100 - (`3' * 100)
+		local table_note "`table_note' ***, **, and * indicate significance at the `signint3', `signint2', and `signint1' percent critical level."
+	}
+
+	if !missing("`vce'") {
+		*Display variation in Standard errors (default) or in Standard Deviations
+		if missing("`stdev'") local vname "Standard errors"
+		else                  local vname "Standard deviations"
+		if "`vce_type'" == "robust"		 local table_note "`table_note' `vname' are robust. "
+		if "`vce_type'" == "cluster"   local table_note "`table_note' `vname' are clustered at variable [`clustervar']. "
+		if "`vce_type'" == "bootstrap" local table_note "`table_note' `vname' are estimeated using bootstrap. "
+
+	}
+
+	if `weight_used' == 1 {
+
+		local f_weights "fweights fw freq weight"
+		local a_weights "aweights aw"
+		local p_weights "pweights pw"
+		local i_weights "iweights iw"
+
+		if `:list weight_type in f_weights' local weight_type = "frequency"
+		else if `:list weight_type in a_weights' local weight_type = "analytical"
+		else if `:list weight_type in p_weights' local weight_type = "probability"
+		else if `:list weight_type in i_weights' local weight_type = "importance"
+
+		local table_note "`table_note' Observations are weighted using variable `weight_var' as `weight_type' weights."
+  }
+
+	return local table_note `table_note'
 end
