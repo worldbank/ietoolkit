@@ -1840,15 +1840,16 @@ cap program drop 	export_tab
 
 	foreach pair of local pairs {
 
-		*Get each code from a testpair
+		*Get the group order from the two groups in each pair
 		getCodesFromPair `pair'
-		local code1 `r(code1)'
-		local code2 `r(code2)'
+		local order1 : list posof "`r(code1)'" in order_grp_codes
+		local order2 : list posof "`r(code2)'" in order_grp_codes
 
 		*Write test pair titles
-		local titlerow1 `"`titlerow1' _tab "Pairwise t-test""'
-		local titlerow2 `"`titlerow2' _tab "`pout_lbl'""'
-		local titlerow3 `"`titlerow3' _tab "(`code1')-(`code2')""'
+		local titlerow1 `"`titlerow1' _tab "(`order1')-(`order2')""'
+		local titlerow2 `"`titlerow2' _tab "Pairwise t-test""'
+		local titlerow3 `"`titlerow3' _tab "`pout_lbl'""'
+
 	}
 
 	********* Write the title lines **********************************************
@@ -1914,7 +1915,7 @@ cap program drop 	export_tab
 			local row_down `"`row_down' _tab "`var_value'" "'
 		}
 
-		********* Write Feq test stats ********************************************
+		********* Write Feq test stats (if applicable) *****************************
 
 		if !missing("`feqtest'") {
 			* Add column with N for the F test for all vars unless option onerow is used
@@ -1945,7 +1946,7 @@ cap program drop 	export_tab
 
 		********* Write row locals *************************************************
 
-		*Write the title rows defined above
+		*Write the stats rows to tab file
 		cap file close 	`tab_name'
 		file open  		`tab_name' using "`tab_file'", text write append
 		file write  	`tab_name' `row_up' _n `row_down' _n
