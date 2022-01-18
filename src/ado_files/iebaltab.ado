@@ -563,30 +563,30 @@ qui {
 			error 197
 		}
 
+		****************************************************************************
+		** Test input for pair-wise test stats
 
-		if !`TTEST_USED' {
-			if `PTTEST_USED' {
-				*Error for nottest and pttest incorrectly used together
-				noi display as error "{phang}Option pttest may not be used in combination with option nottest"
-				error 197
-			}
-			if `PBOTH_USED' {
-				*Error for nottest and pboth incorrectly used together
-				noi display as error "{phang}Option pboth may not be used in combination with option nottest"
-				error 197
-			}
+		* Use default value if none is specified by user
+		if missing("`pairoutput'") local pout_val "diff"
+		else local pout_val "`pairoutput'"
+
+		*Allowed apir test outputs
+		local allowed_pairtest_outputs "diff beta nrmd t p none"
+		if !`:list pout_val in allowed_pairtest_outputs' {
+			noi display as error "{phang}Value in option pairtestoutput(`pout_val') is not valid. Allowed values are [`allowed_pairtest_outputs']. See {help iebaltab:helpfile} for more details.{p_end}"
+			error 198
 		}
 
-		if `FTEST_USED' & !`TTEST_USED' & !`NORMDIFF_USED' {
-			*Error for F-test used, but not t-test of normalized difference:
-			*no columns are created for F-test to be displayed
-			noi di as error "{phang}Option ftest may not only be used if either t-tests or normalized differences are used. F-test for joing significance of balance variables will not be displayed. In order to display it, either use option normdiff or remove option nottest.{p_end}"
-			local FTEST_USED = 0
+		* Prepare the pair test labels
+		if "`pout_val'" == "diff" local pout_lbl "Mean difference"
+		if "`pout_val'" == "beta" local pout_lbl "Beta coefficient"
+		if "`pout_val'" == "nrmd" local pout_lbl "Normalized difference"
+		if "`pout_val'" == "t" local pout_lbl "T-statistics" //todo: include in matrix
+		if "`pout_val'" == "p" local pout_lbl "P-value"
+		if "`pout_val'" == "none" local pout_lbl "none"
 
-		}
-
-
-
+		****************************************************************************
+		** Test input for fixed effects
 
 		if `FIX_EFFECT_USED' == 1 {
 
@@ -639,8 +639,8 @@ qui {
 			*  to. This allows us to piggy back on Stata's internal testing to be
 			*  sure that the format specified is at least one of the valid numeric
 			*  formats in Stata
-				tempvar  formattest
-				gen 	`formattest' = 1
+			tempvar      formattest
+			gen         `formattest' = 1
 			cap	format  `formattest' `format'
 
 			if _rc == 120 {
@@ -978,7 +978,7 @@ qui {
 
 		local desc_stats   `r(desc_stats)'
 	  local pair_stats   `r(pair_stats)'
-		local allgrp_stats `r(allgrp_stats)'
+		local feq_stats    `r(feq_stats)'
 		local ftest_stats  `r(ftest_stats)'
 
 		noi mat list emptyRow
@@ -1200,83 +1200,99 @@ qui {
 
 			foreach ttest_pair of local TEST_PAIR_CODES {
 
-				*Get each code from a testpair
-        getCodesFromPair `ttest_pair'
-				local code1 `r(code1)'
-				local code2 `r(code2)'
-
-				local colnum_mean_code1 = colnumb(row,"mean_`code1'")
-				local colnum_mean_code2 = colnumb(row,"mean_`code2'")
-				mat row[1,`++colindex'] = el(row,1,`colnum_mean_code1') - el(row,1,`colnum_mean_code2')
-
-				* The command mean is used to test that there is variation in the
-				* balance var across these two groups. The regression that includes
-				* fixed effects and covariaties might run without error even if there is
-				* no variance across the two groups. The local varloc will determine if
-				* an error or a warning will be thrown or if the test results will be
-				* replaced with an "N/A".
-				if "`error_estm'" != "vce(robust)" 	local mean_error_estm `error_estm' //Robust not allowed in mean, but the mean here
-				noi di "Test var. Var [`balancevar'], test pair [`ttest_pair']"
-				mean `balancevar', over(`dummy_pair_`ttest_pair'') 	 `mean_error_estm'
-				mat var = e(V)
-				local varloc = max(var[1,1],var[2,2])
-
-				*Calculate standard deviation for sample of interest
-				sum `balancevar' if !missing(`dummy_pair_`ttest_pair'')
-				tempname scal_sd
-				scalar `scal_sd' = r(sd)
-
-				*Testing result and if valid, write to file with or without stars
-				if `varloc' == 0 {
-
-					local warn_means_num  	= `warn_means_num' + 1
-
-					local warn_means_name`warn_means_num'	"t-test"
-					local warn_means_group`warn_means_num' 	"(`code1')-(`code2')"
-					local warn_means_bvar`warn_means_num'	"`balancevar'"
-
-					* Adding missing value for each stat that is missing due to not running regression
-					foreach stat in baln balcl beta t p {
-						mat row[1,`++colindex'] = .v
+				*If none is used then no pair test stats are calculated
+				if "`pout_val'" == "none" {
+					foreach tot_stat of local pair_stats {
+						mat row[1,`++colindex'] = .m
 					}
 				}
 
+				*Calculate pair wise stats
 				else {
 
-					* Perform the balance test for this test pair for this balance var
-					noi di "Balance regression. Var [`balancevar'], test pair [`ttest_pair']"
-					reg `balancevar' `dummy_pair_`ttest_pair'' `covariates' i.`fixedeffect' `weight_option', `error_estm'
+					*Get each code from a testpair
+	        getCodesFromPair `ttest_pair'
+					local code1 `r(code1)'
+					local code2 `r(code2)'
 
-					*Number of observation for in these two groups
-					mat row[1,`++colindex'] = e(N)
-					*If clusters used, number of clusters in this these two groups, otehrwise .c
-					local ++colindex
-					if "`vce_type'" == "cluster" mat row[1,`colindex'] = e(N_clust)
-					else mat row[1,`colindex'] = .c
-				  *The diff between the groups after controling for fixed effects and covariates
-					mat row[1,`++colindex'] = e(b)[1,1]
+					local colnum_mean_code1 = colnumb(row,"mean_`code1'")
+					local colnum_mean_code2 = colnumb(row,"mean_`code2'")
+					mat row[1,`++colindex'] = el(row,1,`colnum_mean_code1') - el(row,1,`colnum_mean_code2')
 
-					*Perform the t-test and store p-value in pttest
-					test `dummy_pair_`ttest_pair''
-					mat row[1,`++colindex'] = r(p)
-				}
+					* The command mean is used to test that there is variation in the
+					* balance var across these two groups. The regression that includes
+					* fixed effects and covariaties might run without error even if there is
+					* no variance across the two groups. The local varloc will determine if
+					* an error or a warning will be thrown or if the test results will be
+					* replaced with an "N/A".
+					if "`error_estm'" != "vce(robust)" 	local mean_error_estm `error_estm' //Robust not allowed in mean, but the mean here
+					noi di "Test var. Var [`balancevar'], test pair [`ttest_pair']"
+					mean `balancevar', over(`dummy_pair_`ttest_pair'') 	 `mean_error_estm'
+					mat var = e(V)
+					local varloc = max(var[1,1],var[2,2])
 
-				*Testing result and if valid, write to file with or without stars
-				if `scal_sd' == 0 {
+					*Calculate standard deviation for sample of interest
+					sum `balancevar' if !missing(`dummy_pair_`ttest_pair'')
+					tempname scal_sd
+					scalar `scal_sd' = r(sd)
 
-					local warn_means_num  	= `warn_means_num' + 1
+					*Testing result and if valid, write to file with or without stars
+					if `varloc' == 0 {
 
-					local warn_means_name`warn_means_num'	"Norm diff"
-					local warn_means_group`warn_means_num' 	"(`first_group')-(`second_group')"
-					local warn_means_bvar`warn_means_num'	"`balancevar'"
+						local warn_means_num  	= `warn_means_num' + 1
 
-					* Adding missing value for no normdiff due to no standdev in balancevar for this pair
-					mat row[1,`++colindex'] = .n
+						local warn_means_name`warn_means_num'	"t-test"
+						local warn_means_group`warn_means_num' 	"(`code1')-(`code2')"
+						local warn_means_bvar`warn_means_num'	"`balancevar'"
 
-				}
-				else {
-					*Calculate and store the normalized difference
-					mat row[1,`++colindex'] = el(row,1,colnumb(row,"diff_`ttest_pair'")) / `scal_sd'
+						* Adding missing value for each stat that is missing due to not running regression
+						foreach stat in baln balcl beta t p {
+							mat row[1,`++colindex'] = .v
+						}
+					}
+
+					else {
+
+						* Perform the balance test for this test pair for this balance var
+						noi di "Balance regression. Var [`balancevar'], test pair [`ttest_pair']"
+						reg `balancevar' `dummy_pair_`ttest_pair'' `covariates' i.`fixedeffect' `weight_option', `error_estm'
+
+						*Number of observation for in these two groups
+						mat row[1,`++colindex'] = e(N)
+						*If clusters used, number of clusters in this these two groups, otehrwise .c
+						local ++colindex
+						if "`vce_type'" == "cluster" mat row[1,`colindex'] = e(N_clust)
+						else mat row[1,`colindex'] = .c
+
+						*The diff between the groups after controling for fixed effects and covariates
+						mat row[1,`++colindex'] = e(b)[1,1]
+						*The t-stat the the beta is different from 0
+						mat row[1,`++colindex'] = _b[`dummy_pair_`ttest_pair'']/_se[`dummy_pair_`ttest_pair'']
+
+						*Perform the t-test and store p-value in pttest
+						*Test is used instead of ttest as we test coefficients from reg
+						test `dummy_pair_`ttest_pair''
+						mat row[1,`++colindex'] = r(p)
+
+					}
+
+					*Testing result and if valid, write to file with or without stars
+					if `scal_sd' == 0 {
+
+						local warn_means_num  	= `warn_means_num' + 1
+
+						local warn_means_name`warn_means_num'	"Norm diff"
+						local warn_means_group`warn_means_num' 	"(`first_group')-(`second_group')"
+						local warn_means_bvar`warn_means_num'	"`balancevar'"
+
+						* Adding missing value for no normdiff due to no standdev in balancevar for this pair
+						mat row[1,`++colindex'] = .n
+
+					}
+					else {
+						*Calculate and store the normalized difference
+						mat row[1,`++colindex'] = el(row,1,colnumb(row,"diff_`ttest_pair'")) / `scal_sd'
+					}
 				}
 			}
 
@@ -1292,33 +1308,34 @@ qui {
 
 					*Perfeorm the F test
 					test `FEQTEST_INPUT'
-					local pfeqtest 	= r(p)
 					local ffeqtest 	= r(F)
+					local pfeqtest 	= r(p)
+
 
 					*Check if the test is valid. If not, print N/A and error message.
 					*Is yes, print test
 					if "`ffeqtest'" == "." {
-
 						local warn_ftest_num  	= `warn_ftest_num' + 1
 						local warn_ftest_bvar`warn_ftest_num'		"`balancevar'"
-
 						* Adding missing values for invalid feq test
-						mat row[1,`++colindex'] = .f
-						mat row[1,`++colindex'] = .f
-						mat row[1,`++colindex'] = .f
+						foreach feq_stat of local feq_stats {
+							mat row[1,`++colindex'] = .f
+						}
 					}
+					* Few test possible save results to matrix
 					else {
 						* Adding p value and F value to matrix
 						mat row[1,`++colindex'] = `nfeqtest'
-						mat row[1,`++colindex'] = `pfeqtest'
 						mat row[1,`++colindex'] = `ffeqtest'
+						mat row[1,`++colindex'] = `pfeqtest'
 					}
 				}
+
+				* Feq test not used -  save missing .m
 				else {
-					* Feq test not used
-					mat row[1,`++colindex'] = .m
-					mat row[1,`++colindex'] = .m
-					mat row[1,`++colindex'] = .m
+					foreach feq_stat of local feq_stats {
+						mat row[1,`++colindex'] = .m
+					}
 				}
 
 			******************************************************
@@ -1547,19 +1564,12 @@ qui {
 	local fixed_note	"Fixed effects using variable `fixedeffect' are included in all estimation regressions. "
 	local stars_note	"***, **, and * indicate significance at the `p3star_percent', `p2star_percent', and `p1star_percent' percent critical level. "
 
-	if `PTTEST_USED' == 1 {
-		local ttest_note "The value displayed for t-tests are p-values. "
-	}
-	else {
-		local ttest_note "The value displayed for t-tests are the differences in the means across the groups. "
-	}
-
-	if `PFTEST_USED' == 1 {
-		local ftest_note "The value displayed for F-tests are p-values. "
-	}
-	else {
-		local ftest_note "The value displayed for F-tests are the F-statistics. "
-	}
+	// if `PFTEST_USED' == 1 {
+	// 	local ftest_note "The value displayed for F-tests are p-values. "
+	// }
+	// else {
+	// 	local ftest_note "The value displayed for F-tests are the F-statistics. "
+	// }
 
 	if `VCE_USED' == 1 {
 
@@ -1637,18 +1647,6 @@ qui {
 		*********************
 		* Pair test outputs
 
-		* Use default value if none is specified by user
-		if missing("`pairoutput'") local pout_val "diff"
-		else local pout_val "`pairoutput'"
-
-		* Prepare the pair test labels
-		if "`pout_val'" == "diff" local pout_lbl "Mean difference"
-		if "`pout_val'" == "beta" local pout_lbl "Beta coefficient"
-		if "`pout_val'" == "nrmd" local pout_lbl "Normalized difference"
-		if "`pout_val'" == "t" local pout_lbl "T-statistics" //todo: include in matrix
-		if "`pout_val'" == "p" local pout_lbl "P-value"
-		if "`pout_val'" == "none" local pout_lbl "none"
-
 
 		*********************
 		* test that option onerow is ok to use if used
@@ -1667,7 +1665,7 @@ qui {
 					note("The value displayed for t-tests are the differences in the means across the groups.") ///
 					col_lbls(`COLUMN_LABELS') order_grp_codes(`ORDER_OF_GROUP_CODES') ///
 					pairs(`TEST_PAIR_CODES')  ///
-					row_lbls(`"`ROW_LABELS'"') `total' `onerow' tot_lbl("`tot_lbl'") ///
+					row_lbls(`"`ROW_LABELS'"') `total' `onerow' `feqtest' tot_lbl("`tot_lbl'") ///
 					pout_lbl(`pout_lbl') pout_val(`pout_val') diformat("`diformat'")
 
 					tempfile tab_file
@@ -1749,15 +1747,19 @@ cap program drop 	export_tab
 	pairs(string) diformat(string) ///
 	row_lbls(string) tot_lbl(string) ///
 	pout_lbl(string) pout_val(string) ///
-	[onerow total]
+	[onerow total feqtest]
 
 	//noi di "insdie export_tab"
+
+
 
 	noi mat list `rmat'
 	noi mat list `fmat'
 
 	local grp_count : list sizeof order_grp_codes
 	local row_count : list sizeof row_lbls
+
+	if "`pout_val'" == "none" local pairs ""
 
 	*Create a temporary textfile
 	tempname 	tab_name
@@ -1817,7 +1819,6 @@ cap program drop 	export_tab
 
 	if !missing("`feqtest'") {
 
-		*
 		if missing("`onerow'") {
 			local titlerow1 `"`titlerow1' _tab "" "'
 			local titlerow2 `"`titlerow2' _tab "" "'
@@ -1825,9 +1826,9 @@ cap program drop 	export_tab
 		}
 
 		*Add titles for summary row stats
-		local titlerow1 `"`titlerow1' _tab " (`tot_colnum') " "'
-		local titlerow2 `"`titlerow2' _tab "`tot_lbl'"        "'
-		local titlerow3 `"`titlerow3' _tab "Mean/`vtype'"     "'
+		local titlerow1 `"`titlerow1' _tab "Test for balance accross all variables" "'
+		local titlerow2 `"`titlerow2' _tab "All groups" "'
+		local titlerow3 `"`titlerow3' _tab "F-stat/P-value" "'
 	}
 
 	********* Test pairs titles **************************************************
@@ -1874,14 +1875,14 @@ cap program drop 	export_tab
 
 			* Add column with N for this group unless option onerow is used
 			if missing("`onerow'") {
-				local n_value = el(`rmat',`row_num',colnumb(`rmat',"n_`grp_code'"))
+				local n_value = el(`rmat',`row_num',colnumb(`rmat',"n_t"))
 				local row_up   `"`row_up'   _tab "`n_value'" "'
 				local row_down `"`row_down' _tab "" "'
 			}
 
 			* Mean and variance for this group - get value from mat and apply format
-			local mean_value = el(`rmat',`row_num',colnumb(`rmat',"mean_`grp_code'"))
-			local var_value = el(`rmat',`row_num',colnumb(`rmat',"`vtype'_`grp_code'"))
+			local mean_value = el(`rmat',`row_num',colnumb(`rmat',"mean_t"))
+			local var_value = el(`rmat',`row_num',colnumb(`rmat',"`vtype'_t"))
 			local mean_value : display `diformat' `mean_value'
 			local var_value  : display `diformat' `var_value'
 			local row_up   `"`row_up'   _tab "`mean_value'" "'
@@ -1906,6 +1907,25 @@ cap program drop 	export_tab
 			local var_value  : display `diformat' `var_value'
 			local row_up   `"`row_up'   _tab "`mean_value'" "'
 			local row_down `"`row_down' _tab "`var_value'" "'
+		}
+
+		********* Write Feq test stats ********************************************
+
+		if !missing("`feqtest'") {
+			* Add column with N for the F test for all vars unless option onerow is used
+			if missing("`onerow'") {
+				local n_value = el(`rmat',`row_num',colnumb(`rmat',"feqn"))
+				local row_up   `"`row_up'   _tab "`n_value'" "'
+				local row_down `"`row_down' _tab "" "'
+			}
+
+			* F and p values for this test - get value from mat and apply format
+			local f_value = el(`rmat',`row_num',colnumb(`rmat',"feqf"))
+			local p_value = el(`rmat',`row_num',colnumb(`rmat',"feqp"))
+			local f_value : display `diformat' `f_value'
+			local p_value  : display `diformat' `p_value'
+			local row_up   `"`row_up'   _tab "`f_value'" "'
+			local row_down `"`row_down' _tab "`p_value'" "'
 		}
 
 		********* Write pair test stats ********************************************
