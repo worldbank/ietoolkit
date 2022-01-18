@@ -15,8 +15,8 @@ qui {
 
   *Locals with stats names for each category
   local desc_stats   = "n cl mean se sd"
-  local pair_stats   = "diff tn tcl beta p nrmd"
-	local allgrp_stats = "feqn feqp feqf"
+  local pair_stats   = "diff tn tcl beta tt p nrmd"
+	local feq_stats    = "feqn feqf feqp "
 	local ftest_stats  = "fn ff fp"
 
   *Create columns for group desc statisitics
@@ -43,7 +43,7 @@ qui {
   }
 
 	*all balance var stats
-  foreach stat of local allgrp_stats {
+  foreach stat of local feq_stats {
     local colnames = "`colnames' `stat'"
     local emptyRow = "`emptyRow',."
   }
@@ -73,7 +73,7 @@ qui {
 	*Return all stats locals to be used in the command
   return local desc_stats   `desc_stats'
   return local pair_stats   `pair_stats'
-	return local allgrp_stats `allgrp_stats'
+	return local feq_stats    `feq_stats'
 	return local ftest_stats  `ftest_stats'
 
 
