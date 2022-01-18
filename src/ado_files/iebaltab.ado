@@ -1650,7 +1650,7 @@ qui {
 
 		*********************
 		* test that option onerow is ok to use if used
-		if (!missing("`onerow'")) isonerowok, mat(`rmat')
+		if (!missing("`onerow'")) noi isonerowok, rmat(`rmat') fmat(`fmat') `ftest' `feqtest'
 
 		***** Before using one_row - test the matrix that it is possible
 
@@ -1762,6 +1762,7 @@ cap program drop 	export_tab
 	* Get a local with one item for each desc stats column
 	local desc_cols "`order_grp_codes'"
 	if !missing("`total'") local desc_cols "`desc_cols' t"
+	if !missing("`feqtest'") local desc_cols "`desc_cols' feq"
 	if missing("`onerow'") local desc_cols "`desc_cols' `desc_cols'"
 
 	if "`pout_val'" == "none" local pairs ""
@@ -2014,9 +2015,15 @@ cap program drop 	export_tab
 			local n_row   `"`n_row' _tab "`n_value'" "'
 		}
 
+		*If feqtest was used, add the N from the first row
+		if !missing("`feqtest'") {
+			local n_value = el(`rmat',1,colnumb(`rmat',"feqn"))
+			local n_row   `"`n_row' _tab "`n_value'" "'
+		}
+
 		*Get the N from each pair
 		foreach pair of local pairs {
-			local n_value = el(`rmat',1,colnumb(`rmat',"tn_`pair'"))
+			local n_value = el(`rmat',1,colnumb(`rmat',"n_`pair'"))
 			local n_row   `"`n_row' _tab "`n_value'" "'
 		}
 
@@ -2070,38 +2077,64 @@ end
 cap program drop 	isonerowok
 	program define	isonerowok
 
-	syntax , mat(name)
+	syntax , rmat(name) fmat(name) [ftest feqtest]
 
 	local not_ok_grps ""
 
 	* Get all column names that starts on n_, i.e. all cols with N
-	local all_cnames : colnames `mat'
-	local ncnames ""
-	foreach cname of local all_cnames {
-		if substr("`cname'",1,2) == "n_" local ncnames "`ncnames' `cname'"
+	local all_cnames : colnames `rmat'
+	local groups_and_pairs ""
+	foreach cols_name of local all_cnames {
+		if substr("`cols_name'",1,2) == "n_" {
+			local group_or_pair = substr("`cols_name'",3,.)
+			local groups_and_pairs "`groups_and_pairs' `group_or_pair'"
+		}
 	}
 	//Remove total from test, as if all groups are the same, then total is the same
-	local ncnames = subinstr("`ncnames'","n_t","",1)
+	local cols_name = subinstr("`cols_name'","n_t","",1)
 
-	*Get number of rows
-	local matrows  : rowsof `mat'
-	*If matrix only has one row, then onerow is always ok
-	if `matrows' > 1 {
-		*Test if all values are the same in all n columns
-		foreach ncname of local ncnames {
-			local nval = el(`mat',1,colnumb(`mat',"`ncname'"))
-			forvalues row = 2/`matrows' {
-				if `nval' != el(`mat',`row',colnumb(`mat',"`ncname'")) {
-					local not_ok_grps : list not_ok_grps | ncname
-				}
+	*Get number of rows in rmat
+	local matrows  : rowsof `rmat'
+
+	*loop over all columns that start with n_
+	foreach g_or_p of local groups_and_pairs {
+		*Store the value of the first row of rmat
+		local nval = el(`rmat',1,colnumb(`rmat',"n_`g_or_p'"))
+
+		* If matrix has more than 1 row, then loop over those rows and
+		* test that n_ is the same
+		forvalues row = 2/`matrows' {
+			if `nval' != el(`rmat',`row',colnumb(`rmat',"n_`g_or_p'")) {
+				local not_ok_grps : list not_ok_grps | g_or_p
+			}
+	  }
+
+		* If ftest was used, and g_or_p is a pair like i_j then
+		* test if the value for the pair is the same
+		if !missing("`ftest'") & strpos("`g_or_p'","_") > 0 {
+			if `nval' != el(`fmat',1,colnumb(`fmat',"fn_`g_or_p'")) {
+				local not_ok_grps : list not_ok_grps | g_or_p
 			}
 		}
 	}
 
+	* Test all rows for feqtest
+	if !missing("`feqtest'") {
+		*Store the value of the first few row of rmat
+		local nval = el(`rmat',1,colnumb(`rmat',"feqn"))
+		* If matrix has more than 1 row, then loop over those rows and
+		* test that n_ is the same
+		forvalues row = 2/`matrows' {
+			if `nval' != el(`rmat',`row',colnumb(`rmat',"feqn")) {
+				local not_ok_grps : list not_ok_grps | feqtest
+			}
+	  }
+	}
+
+	* Display error if any
 	if ("`not_ok_grps'" != "") {
-		local not_ok_grps = subinstr("`not_ok_grps'","n_","",.)
 		local not_ok_grps : list sort not_ok_grps
-		noi di as error "{pstd}Option {input:onerow} may only be used if the number of observations with non-missing values are the same in all groups across all balance variables. This is not true for group(s): [`not_ok_grps'].{p_end}"
+		noi di as error "{pstd}Option {input:onerow} may only be used if the number of observations with non-missing values are the same in all groups across all balance variables. This is not true for group(s): [`not_ok_grps']. Run the command again without this options to see in which column the number of observations is not the same for all rows.{p_end}"
 		error 499
 	}
 end
