@@ -16,7 +16,7 @@
 				ROWLabels(string) onerow                                        ///
 				                                                                ///
 				/*Statistics and data manipulation*/                            ///
-				FIXedeffect(varname) COVariates(varlist ts fv) COVARMISSOK      ///
+				FIXedeffect(varname) COVariates(varlist ts fv) 						      ///
 				vce(string)   MISSMINmean(numlist min=1 max=1 >0)               ///
 				WEIGHTold(string)                                               ///
 				                                                                ///
@@ -27,7 +27,7 @@
 				pairoutput(string) ftestoutput(string)  ///
 				 STDev              ///
 				STARlevels(numlist descending min=3 max=3 >0 <1)			          ///
-				STARSNOadd FORMat(string) TBLNote(string)	NOTECombine	TBLNONote	///
+				STARSNOadd FORMat(string) TBLNote(string) TBLNONote	///
 				                                                                ///
 				/*Export and restore*/                                          ///
 				SAVEXlsx(string) SAVECsv(string) SAVETex(string) TEXNotewidth(numlist min=1 max=1)  ///
@@ -39,6 +39,7 @@
 				 SAVEBRowse BALMISS(string) BALMISSReg(string)            ///
 				COVMISS(string) COVMISSReg(string) SAVE(string) NOTtest	///
 				NORMDiff	PTtest	PFtest	PBoth ///
+				///Deprecated options still to handgle COVARMISSOK NOTECombine
 				]
 
 
@@ -150,10 +151,6 @@ qui {
 		if "`covariates'"		== "" local COVARIATES_USED = 0
 		if "`covariates'" 		!= "" local COVARIATES_USED = 1
 
-		*Is option covarmissok used:
-		if "`covarmissok'"		== "" local COVARMISSOK_USED = 0
-		if "`covarmissok'" 		!= "" local COVARMISSOK_USED = 1
-
 		*Is option cluster() used:
 		if "`vce'" 				== "" local VCE_USED = 0
 		if "`vce'" 				!= "" local VCE_USED = 1
@@ -173,7 +170,6 @@ qui {
 		*Is option nottest used:
 		if "`nottest'"			== "" local TTEST_USED = 1
 		if "`nottest'"			!= "" local TTEST_USED = 0
-
 
 		*Is option pftest() used:
 		if "`stdev'" 			== "" local STDEV_USED = 0
@@ -240,17 +236,6 @@ qui {
 		if "`replace'" 			== "" local REPLACE_USED = 0
 		if "`replace'" 			!= "" local REPLACE_USED = 1
 
-		*Is option tablenote() used:
-		if "`tblnote'" 			== "" local NOTE_USED = 0
-		if "`tblnote'" 			!= "" local NOTE_USED = 1
-
-		*Is option notecombine() used:
-		if "`notecombine'" 		== "" local NOTECOMBINE_USED = 0
-		if "`notecombine'" 		!= "" local NOTECOMBINE_USED = 1
-
-		*Is option notablenote() used:
-		if "`tblnonote'" 		== "" local NONOTE_USED = 0
-		if "`tblnonote'" 		!= "" local NONOTE_USED = 1
 
 		/***********************************************
 			Deprecated options
@@ -475,7 +460,6 @@ qui {
 		}
 
 		if `TOTALLABEL_USED' & !`TOTAL_USED' {
-
 			*Error for totallabel() incorrectly applied
 			noi display as error "{phang}Option totallabel() may only be used together with the option total"
 			error 197
@@ -597,6 +581,26 @@ qui {
 		}
 
 		****************************************************************************
+		** Test input for fixed effects and output warning if missing values
+
+		if `COVARIATES_USED' == 1 {
+			local covar_balancevars ""
+			foreach covar of local covariates {
+				cap assert `covar' < .
+				if _rc == 9 {
+					noi di ""
+					noi display as result "{phang}Warning: The variable [`covar'] in covariates(`covariates') is missing for some observations in the sample used. Before using the generated results, make sure that the number of observations in the table is as expected.{p_end}"
+				}
+
+				if `: list covar in balancevars' local covar_balancevars =trim("`covar_balancevars' `covar'")
+			}
+			if "`covar_balancevars'" != "" {
+					noi display as error "{phang}The covariate variable(s) [`covar_balancevars'] is/are also among the  balance variable(s) [`balancevars'] which is not allowed.{p_end}"
+					error 198
+			}
+		}
+
+		****************************************************************************
 		** Test input for fixed effects
 
 		if `WEIGHT_USED' == 1 {
@@ -694,14 +698,6 @@ qui {
 			local diformat = "%9.3f"
 		}
 
-
-		*Error for tblnonote incorrectly used together with notecombine
-		if `NOTECOMBINE_USED' & `NONOTE_USED' {
-
-			*Error for tblnonote incorrectly used together with notecombine
-			noi display as error "{phang}Option tblnonote may not be used in combination with option notecombine"
-			error 197
-		}
 
 		if `SAVE_USED' {
 			if `SAVE_CSV_USED' {
