@@ -586,43 +586,35 @@ qui {
 		if "`pout_val'" == "none" local pout_lbl "none"
 
 		****************************************************************************
-		** Test input for fixed effects
+		** Test input for fixed effects and output warning if missing values
 
 		if `FIX_EFFECT_USED' == 1 {
-
 			cap assert `fixedeffect' < .
 			if _rc == 9 {
-
-				noi display as error  "{phang}The variable in fixedeffect(`fixedeffect') is missing for some observations. This would cause observations to be dropped in the estimation regressions. See tabulation of `fixedeffect' below:{p_end}"
-				noi tab `fixedeffect', m
-				error 109
+				noi di ""
+				noi display as result "{phang}Warning: The variable in fixedeffect(`fixedeffect') is missing for some observations in the sample used. Before using the generated results, make sure that the number of observations in the table is as expected.{p_end}"
 			}
-
 		}
 
-		if `WEIGHT_USED' == 1 {
+		****************************************************************************
+		** Test input for fixed effects
 
+		if `WEIGHT_USED' == 1 {
 			* Parsing weight options
 			local weight_type = "`weight'"
-
 			* Parsing keeps the separating character
 			local weight_var = subinstr("`exp'","=","",.)
 
 			* Test is weight type specified is valie
 			local weight_options "fweights pweights aweights iweights fweight pweight aweight iweight fw freq weight pw aw iw"
-
 			if `:list weight_type in weight_options' == 0 {
-
 				noi display as error  "{phang} The option `weight_type' specified in weight() is not a valid weight option. Weight options are: fweights, fw, freq, weight, pweights, pw, aweights, aw, iweights, and iw. {p_end}"
 				error 198
-
 			}
 
 			* Test is weight variable specified if valid
 			capture confirm variable `weight_var'
-
 			if _rc {
-
 				noi display as error  "{phang} The option `weight_var' specified in weight() is not a variable. {p_end}"
 				error 198
 			}
