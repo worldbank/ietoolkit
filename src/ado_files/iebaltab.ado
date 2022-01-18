@@ -24,7 +24,7 @@
 				FTest FMissok FEQTest	                                     ///
 				                                                                ///
 				/*Output display*/                                              ///
-				pairoutput(string) foutput(string)  ///
+				pairoutput(string) ftestoutput(string)  ///
 				 STDev              ///
 				STARlevels(numlist descending min=3 max=3 >0 <1)			          ///
 				STARSNOadd FORMat(string) TBLNote(string)	NOTECombine	TBLNONote	///
@@ -37,7 +37,8 @@
 				/*Deprecated options
 				  - still included to throw helpful error if ever used */       ///
 				 SAVEBRowse BALMISS(string) BALMISSReg(string)            ///
-				COVMISS(string) COVMISSReg(string) SAVE(string)                 ///
+				COVMISS(string) COVMISSReg(string) SAVE(string) NOTtest	///
+				NORMDiff	PTtest	PFtest	PBoth ///
 				]
 
 
@@ -393,7 +394,6 @@ qui {
 				*Splitting code and label
 				gettoken code label : codeAndLabel
 
-
 				*** Codes
 
 				*Checking that code exist in grpvar and store it
@@ -406,7 +406,6 @@ qui {
 
 				*Storing the code in local to be used later
 				local grpLabelCodes `"`grpLabelCodes' "`code'" "'
-
 
 				*** Labels
 
@@ -422,7 +421,6 @@ qui {
 
 				*Storing the label in local to be used later
 				local grpLabelLables `"`grpLabelLables' "`label'" "'
-
 
 				*Parse char is not removed by gettoken
 				local col_labels_to_tokenize = subinstr("`col_labels_to_tokenize'" ,"@","",1)
@@ -455,7 +453,6 @@ qui {
 
 				*Storing the code in local to be used later
 				local rowLabelNames `"`rowLabelNames' "`name'" "'
-
 
 				*** Variable labels
 
