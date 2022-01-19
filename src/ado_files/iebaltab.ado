@@ -1288,6 +1288,9 @@ qui {
 					noi di "FEQ regression. Var [`balancevar']"
 					reg `balancevar' i.`grpvar' `covariates' i.`fixedeffect' `weight_option', `error_estm'
 					local nfeqtest 	= e(N)
+					*If clusters used, number of clusters in this reg, otehrwise .c
+					if "`vce_type'" == "cluster" local clfeqtest = e(N_clust)
+					else local clfeqtest = .c
 
 					*Perfeorm the F test
 					test `FEQTEST_INPUT'
@@ -1309,6 +1312,7 @@ qui {
 					else {
 						* Adding p value and F value to matrix
 						mat row[1,`++colindex'] = `nfeqtest'
+						mat row[1,`++colindex'] = `clfeqtest'
 						mat row[1,`++colindex'] = `ffeqtest'
 						mat row[1,`++colindex'] = `pfeqtest'
 					}
@@ -1355,6 +1359,10 @@ qui {
 
 		* Adding F score and number of observations to the matrix
 		mat `fmat'[1,`++Fcolindex'] = e(N)
+		*If clusters used, number of clusters in this reg, otehrwise .c
+		local ++Fcolindex
+		if "`vce_type'" == "cluster" mat `fmat'[1,`Fcolindex'] = e(N_clust)
+		else `fmat'[1,`Fcolindex'] = .c
 
 		*Test all balance variables for joint significance
 		cap testparm `balancevars'
@@ -1566,7 +1574,7 @@ qui {
 		else local vtype "se"
 
 		*N title
-		if "`vce_type'" == "cluster" local ntitle "N/[Clusters]"
+		if "`vce_type'" == "cluster" local ntitle "N/Clusters"
 		else local ntitle "N"
 
 		*********************
@@ -1575,7 +1583,12 @@ qui {
 
 		*********************
 		* test that option onerow is ok to use if used
-		if (!missing("`onerow'")) noi isonerowok, rmat(`rmat') fmat(`fmat') `ftest' `feqtest'
+		if (!missing("`onerow'")) {
+			isonerowok, rmat(`rmat') fmat(`fmat') stat("n") `ftest' `feqtest'
+			if "`vce_type'" == "cluster" {
+				isonerowok, rmat(`rmat') fmat(`fmat') stat("cl") `ftest' `feqtest'
+			}
+		}
 
 		***** Before using one_row - test the matrix that it is possible
 
@@ -1667,7 +1680,7 @@ cap program drop 	export_tab
 	program define	export_tab, rclass
 
 	syntax using , rmat(name) fmat(name) 					///
-	ntitle(string) vtype(string) 		///
+	ntitle(string) vtype(string) cl_used(string)		///
 	col_lbls(string) order_grp_codes(numlist) ///
 	pairs(string) diformat(string) ///
 	row_lbls(string) tot_lbl(string) ///
@@ -1683,12 +1696,14 @@ cap program drop 	export_tab
 	noi mat list `rmat'
 	noi mat list `fmat'
 
+	if !missing("`total'") local order_grp_codes "`order_grp_codes' t"
+	if !missing("`total'") local col_lbls "`col_lbls' `tot_lbl'"
+
 	local grp_count : list sizeof order_grp_codes
 	local row_count : list sizeof row_lbls
 
 	* Get a local with one item for each desc stats column
 	local desc_cols "`order_grp_codes'"
-	if !missing("`total'") local desc_cols "`desc_cols' t"
 	if !missing("`feqtest'") local desc_cols "`desc_cols' feq"
 	if missing("`onerow'") local desc_cols "`desc_cols' `desc_cols'"
 
@@ -1718,6 +1733,7 @@ cap program drop 	export_tab
 
 		*Titles for each group depending on the option one row used or not
 		if missing("`onerow'") {
+
 			local titlerow1 `"`titlerow1' _tab "" "'
 			local titlerow2 `"`titlerow2' _tab "" "'
 			local titlerow3 `"`titlerow3' _tab "`ntitle'" "'
@@ -1729,24 +1745,6 @@ cap program drop 	export_tab
 		local titlerow3 `"`titlerow3' _tab "Mean/`vtype'"     "'
 	}
 
-	********* Descriptive full sample stats title ********************************
-
-	if !missing("`total'") {
-		* Calcualte total column number
-		local tot_colnum = `grp_count' + 1
-
-		*Create one more column for N if N is displayed in column instead of row
-		if missing("`onerow'") {
-			local titlerow1 `"`titlerow1' _tab "" "'
-			local titlerow2 `"`titlerow2' _tab "" "'
-			local titlerow3 `"`titlerow3' _tab "`ntitle'" "'
-		}
-
-		*Add titles for summary row stats
-		local titlerow1 `"`titlerow1' _tab " (`tot_colnum') " "'
-		local titlerow2 `"`titlerow2' _tab "`tot_lbl'"        "'
-		local titlerow3 `"`titlerow3' _tab "Mean/`vtype'"     "'
-	}
 
 	********* joint orthogonality of each balance variable ***********************
 
@@ -1809,34 +1807,19 @@ cap program drop 	export_tab
 
 			* Add column with N for this group unless option onerow is used
 			if missing("`onerow'") {
-				local n_value = el(`rmat',`row_num',colnumb(`rmat',"n_t"))
+				*Get N for this group
+				local n_value = el(`rmat',`row_num',colnumb(`rmat',"n_`grp_code'"))
+				*Get number of clusters if clusters were used
+				local cl_n ""
+				if `cl_used' == 1 local cl_n = el(`rmat',`row_num',colnumb(`rmat',"cl_`grp_code'"))
+				* Write to row locals
 				local row_up   `"`row_up'   _tab "`n_value'" "'
-				local row_down `"`row_down' _tab "" "'
+				local row_down `"`row_down' _tab "`cl_n'" "'
 			}
 
 			* Mean and variance for this group - get value from mat and apply format
-			local mean_value = el(`rmat',`row_num',colnumb(`rmat',"mean_t"))
-			local var_value = el(`rmat',`row_num',colnumb(`rmat',"`vtype'_t"))
-			local mean_value : display `diformat' `mean_value'
-			local var_value  : display `diformat' `var_value'
-			local row_up   `"`row_up'   _tab "`mean_value'" "'
-			local row_down `"`row_down' _tab "`var_value'" "'
-		}
-
-		********* Write total smaple stats *****************************************
-
-		if !missing("`total'") {
-
-			* Add column with N for this group unless option onerow is used
-			if missing("`onerow'") {
-				local n_value = el(`rmat',`row_num',colnumb(`rmat',"n_t"))
-				local row_up   `"`row_up'   _tab "`n_value'" "'
-				local row_down `"`row_down' _tab "" "'
-			}
-
-			* Mean and variance for this group - get value from mat and apply format
-			local mean_value = el(`rmat',`row_num',colnumb(`rmat',"mean_t"))
-			local var_value = el(`rmat',`row_num',colnumb(`rmat',"`vtype'_t"))
+			local mean_value = el(`rmat',`row_num',colnumb(`rmat',"mean_`grp_code'"))
+			local var_value = el(`rmat',`row_num',colnumb(`rmat',"`vtype'_`grp_code'"))
 			local mean_value : display `diformat' `mean_value'
 			local var_value  : display `diformat' `var_value'
 			local row_up   `"`row_up'   _tab "`mean_value'" "'
@@ -1848,9 +1831,14 @@ cap program drop 	export_tab
 		if !missing("`feqtest'") {
 			* Add column with N for the F test for all vars unless option onerow is used
 			if missing("`onerow'") {
+				* Get the N for this test
 				local n_value = el(`rmat',`row_num',colnumb(`rmat',"feqn"))
+				*Get number of clusters if clusters were used
+				local cl_n ""
+				if `cl_used' == 1 local cl_n = el(`rmat',`row_num',colnumb(`rmat',"feqcl"))
+				* Write to row locals
 				local row_up   `"`row_up'   _tab "`n_value'" "'
-				local row_down `"`row_down' _tab "" "'
+				local row_down `"`row_down' _tab "`cl_n'" "'
 			}
 
 			* F and p values for this test - get value from mat and apply format
@@ -1896,11 +1884,13 @@ cap program drop 	export_tab
 		* First column with row labels
 		local frow_up   `""F-test of joint significance (`fout_lbl')""'
 		local frow_down `""F-test, number of observations""' // Not used in onerow
+		local frow_cl   `""F-test, number of clusters""'     // Only used with cluster and without onerow
 
 		* Skip all group columns and skip total column if applicable
 		foreach grp_code of local desc_cols {
 			local frow_up 	`"`frow_up' _tab "" "'
 			local frow_down `"`frow_down' _tab "" "'
+			local frow_cl   `"`frow_cl' _tab "" "'
 		}
 
 		*Write fstats
@@ -1909,20 +1899,22 @@ cap program drop 	export_tab
 			local ftest_value = el(`fmat',1,colnumb(`fmat',"f`fout_val'_`pair'"))
 			local ftest_value 	: display `diformat' `ftest_value'
 			local ftest_n     = el(`fmat',1,colnumb(`fmat',"fn_`pair'"))
+			local ftest_cl    = el(`fmat',1,colnumb(`fmat',"fcl_`pair'"))
 
 			local p_value = el(`fmat',1,colnumb(`fmat',"fp_`pair'"))
 			count_stars, p(`p_value') starlevels(`starlevels')
 
 			local frow_up   `"`frow_up'   _tab "`ftest_value'`r(stars)'" "'
 			local frow_down `"`frow_down' _tab "`ftest_n'" "'
+			local frow_cl   `"`frow_cl'   _tab "`ftest_cl'" "'
 		}
 
 		*Write the fstats rows
-		if !missing("`onerow'") local frow `"`frow_up'"'
-		else local frow `"`frow_up' _n `frow_down'"'
 		cap file close 	`tab_name'
 		file open  		`tab_name' using "`tab_file'", text write append
-		file write  	`tab_name' `frow' _n
+													                  file write  `tab_name' `frow_up' _n
+		if missing("`onerow'")                  file write  `tab_name' `frow_down' _n
+		if missing("`onerow'") & `cl_used' == 1 file write  `tab_name' `frow_cl' _n
 		file close 		`tab_name'
 	}
 
@@ -1933,37 +1925,39 @@ cap program drop 	export_tab
 	if !missing("`onerow'") {
 
 		*Initiate the row local for the N row if onerow is not missing
-		local n_row `""Number of observations""'
+		local n_row  `""Number of observations""'
+		local cl_row `""Number of clusters""'
 
 		*Get the N for each group
 		foreach grp_code of local order_grp_codes {
 			* Get the N from the first row (they must be the same for onerow to work)
-			local n_value = el(`rmat',1,colnumb(`rmat',"n_`grp_code'"))
-			local n_row   `"`n_row' _tab "`n_value'" "'
-		}
-
-		*If total was used, add the N from the first row
-		if !missing("`total'") {
-			local n_value = el(`rmat',1,colnumb(`rmat',"n_t"))
-			local n_row   `"`n_row' _tab "`n_value'" "'
+			local n_value  = el(`rmat',1,colnumb(`rmat',"n_`grp_code'"))
+			local cl_value = el(`rmat',1,colnumb(`rmat',"cl_`grp_code'"))
+			local n_row   `"`n_row'  _tab "`n_value'" "'
+			local cl_row  `"`cl_row' _tab "`cl_value'" "'
 		}
 
 		*If feqtest was used, add the N from the first row
 		if !missing("`feqtest'") {
 			local n_value = el(`rmat',1,colnumb(`rmat',"feqn"))
+			local cl_value = el(`rmat',1,colnumb(`rmat',"feqcl"))
 			local n_row   `"`n_row' _tab "`n_value'" "'
+			local cl_row  `"`cl_row' _tab "`cl_value'" "'
 		}
 
-		*Get the N from each pair
+		*Get the N/cl from each pair
 		foreach pair of local pairs {
-			local n_value = el(`rmat',1,colnumb(`rmat',"n_`pair'"))
+			local n_value  = el(`rmat',1,colnumb(`rmat',"n_`pair'"))
+			local cl_value = el(`rmat',1,colnumb(`rmat',"cl_`pair'"))
 			local n_row   `"`n_row' _tab "`n_value'" "'
+			local cl_row  `"`cl_row' _tab "`cl_value'" "'
 		}
 
 		*Write the N row to file
 		cap file close 	`tab_name'
 		file open  		`tab_name' using "`tab_file'", text write append
-		file write  	`tab_name' `n_row' _n
+		                  file write `tab_name' `n_row' _n
+		if `cl_used' == 1 file write `tab_name' `cl_row' _n
 		file close 		`tab_name'
 	}
 
@@ -2011,7 +2005,11 @@ end
 cap program drop 	isonerowok
 	program define	isonerowok
 
-	syntax , rmat(name) fmat(name) [ftest feqtest]
+	syntax , rmat(name) fmat(name) stat(string) [ftest feqtest]
+
+	*stat may only be "n" or "cl"
+	if "`stat'" == "n"  local unit "observations"
+	if "`stat'" == "cl" local unit "clusters"
 
 	local not_ok_grps ""
 
@@ -2019,26 +2017,24 @@ cap program drop 	isonerowok
 	local all_cnames : colnames `rmat'
 	local groups_and_pairs ""
 	foreach cols_name of local all_cnames {
-		if substr("`cols_name'",1,2) == "n_" {
+		if substr("`cols_name'",1,2) == "`stat'_" {
 			local group_or_pair = substr("`cols_name'",3,.)
 			local groups_and_pairs "`groups_and_pairs' `group_or_pair'"
 		}
 	}
-	//Remove total from test, as if all groups are the same, then total is the same
-	local cols_name = subinstr("`cols_name'","n_t","",1)
 
 	*Get number of rows in rmat
 	local matrows  : rowsof `rmat'
 
-	*loop over all columns that start with n_
+	*loop over all columns that start with n
 	foreach g_or_p of local groups_and_pairs {
 		*Store the value of the first row of rmat
-		local nval = el(`rmat',1,colnumb(`rmat',"n_`g_or_p'"))
+		local nval = el(`rmat',1,colnumb(`rmat',"`stat'_`g_or_p'"))
 
 		* If matrix has more than 1 row, then loop over those rows and
 		* test that n_ is the same
 		forvalues row = 2/`matrows' {
-			if `nval' != el(`rmat',`row',colnumb(`rmat',"n_`g_or_p'")) {
+			if `nval' != el(`rmat',`row',colnumb(`rmat',"`stat'_`g_or_p'")) {
 				local not_ok_grps : list not_ok_grps | g_or_p
 			}
 	  }
@@ -2046,7 +2042,7 @@ cap program drop 	isonerowok
 		* If ftest was used, and g_or_p is a pair like i_j then
 		* test if the value for the pair is the same
 		if !missing("`ftest'") & strpos("`g_or_p'","_") > 0 {
-			if `nval' != el(`fmat',1,colnumb(`fmat',"fn_`g_or_p'")) {
+			if `nval' != el(`fmat',1,colnumb(`fmat',"f`stat'_`g_or_p'")) {
 				local not_ok_grps : list not_ok_grps | g_or_p
 			}
 		}
@@ -2055,11 +2051,11 @@ cap program drop 	isonerowok
 	* Test all rows for feqtest
 	if !missing("`feqtest'") {
 		*Store the value of the first few row of rmat
-		local nval = el(`rmat',1,colnumb(`rmat',"feqn"))
+		local nval = el(`rmat',1,colnumb(`rmat',"feq`stat'"))
 		* If matrix has more than 1 row, then loop over those rows and
 		* test that n_ is the same
 		forvalues row = 2/`matrows' {
-			if `nval' != el(`rmat',`row',colnumb(`rmat',"feqn")) {
+			if `nval' != el(`rmat',`row',colnumb(`rmat',"feq`stat'")) {
 				local not_ok_grps : list not_ok_grps | feqtest
 			}
 	  }
@@ -2068,7 +2064,7 @@ cap program drop 	isonerowok
 	* Display error if any
 	if ("`not_ok_grps'" != "") {
 		local not_ok_grps : list sort not_ok_grps
-		noi di as error "{pstd}Option {input:onerow} may only be used if the number of observations with non-missing values are the same in all groups across all balance variables. This is not true for group(s): [`not_ok_grps']. Run the command again without this options to see in which column the number of observations is not the same for all rows.{p_end}"
+		noi di as error "{pstd}Option {input:onerow} may only be used if the number of `unit' with non-missing values are the same in all groups across all balance variables. This is not true for group(s): [`not_ok_grps']. Run the command again without this options to see in which column the number of `unit' is not the same for all rows.{p_end}"
 		error 499
 	}
 end

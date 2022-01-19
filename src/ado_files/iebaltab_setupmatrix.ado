@@ -15,9 +15,9 @@ qui {
 
   *Locals with stats names for each category
   local desc_stats   = "n cl mean se sd"
-  local pair_stats   = "diff n tcl beta t p nrmd"
-	local feq_stats    = "feqn feqf feqp "
-	local ftest_stats  = "fn ff fp"
+  local pair_stats   = "diff n cl beta t p nrmd"
+	local feq_stats    = "feqn feqcl feqf feqp"
+	local ftest_stats  = "fn fcl ff fp"
 
   *Create columns for group desc statisitics
   foreach group_code of local order_of_group_codes {
