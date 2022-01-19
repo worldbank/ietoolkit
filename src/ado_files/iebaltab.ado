@@ -25,7 +25,7 @@
 				                                                                ///
 				/*Output display*/                                              ///
 				pairoutput(string) ftestoutput(string)  ///
-				 STDev              ///
+				feqtestoutput(string)  STDev              ///
 				STARlevels(numlist descending min=3 max=3 >0 <1)			          ///
 				STARSNOadd FORMat(string) TBLNote(string) TBLNONote	///
 				                                                                ///
@@ -545,6 +545,24 @@ qui {
 		if "`pout_val'" == "t" local pout_lbl "T-statistics" //todo: include in matrix
 		if "`pout_val'" == "p" local pout_lbl "P-value"
 		if "`pout_val'" == "none" local pout_lbl "none"
+
+		****************************************************************************
+		** Test input for f over all balance variables
+
+		* Use default value if none is specified by user
+		if missing("`ftestoutput'") local fout_val "f"
+		else local fout_val "`ftestoutput'"
+
+		*Allowed apir test outputs
+		local allowed_ftest_outputs "f p"
+		if !`:list fout_val in allowed_ftest_outputs' {
+			noi display as error "{phang}Value in option ftestoutput(`fout_val') is not valid. Allowed values are [`allowed_ftest_outputs']. See {help iebaltab:helpfile} for more details.{p_end}"
+			error 198
+		}
+
+		* Prepare the pair test labels
+		if "`fout_val'" == "f" local fout_lbl "F-stat"
+		if "`fout_val'" == "p" local fout_lbl "P-value"
 
 		****************************************************************************
 		** Test input for fixed effects and output warning if missing values
@@ -1573,7 +1591,7 @@ qui {
 					col_lbls(`COLUMN_LABELS') order_grp_codes(`ORDER_OF_GROUP_CODES') ///
 					pairs(`TEST_PAIR_CODES')  ///
 					row_lbls(`"`ROW_LABELS'"') `total' `onerow' `feqtest' `ftest' tot_lbl("`tot_lbl'") ///
-					pout_lbl(`pout_lbl') pout_val(`pout_val') diformat("`diformat'") starlevels("`starlevels'")
+					pout_lbl(`pout_lbl') pout_val(`pout_val') fout_lbl(`fout_lbl') fout_val(`fout_val') diformat("`diformat'") starlevels("`starlevels'") cl_used("`CLUSTER_USED'")
 
 					tempfile tab_file
 					save `tab_file'
@@ -1654,8 +1672,9 @@ cap program drop 	export_tab
 	pairs(string) diformat(string) ///
 	row_lbls(string) tot_lbl(string) ///
 	pout_lbl(string) pout_val(string) ///
+	fout_lbl(string) fout_val(string) ///
 	[note(string) onerow total feqtest ftest ///
-	starlevels(string)]
+	starlevels(string) ]
 
 	//noi di "insdie export_tab"
 
@@ -1874,9 +1893,6 @@ cap program drop 	export_tab
 
 	if !missing("`ftest'") {
 
-		local fout_lbl "F-stat"
-		local fout_val "f"
-
 		* First column with row labels
 		local frow_up   `""F-test of joint significance (`fout_lbl')""'
 		local frow_down `""F-test, number of observations""' // Not used in onerow
@@ -1893,7 +1909,11 @@ cap program drop 	export_tab
 			local ftest_value = el(`fmat',1,colnumb(`fmat',"f`fout_val'_`pair'"))
 			local ftest_value 	: display `diformat' `ftest_value'
 			local ftest_n     = el(`fmat',1,colnumb(`fmat',"fn_`pair'"))
-			local frow_up   `"`frow_up'   _tab "`ftest_value'" "'
+
+			local p_value = el(`fmat',1,colnumb(`fmat',"fp_`pair'"))
+			count_stars, p(`p_value') starlevels(`starlevels')
+
+			local frow_up   `"`frow_up'   _tab "`ftest_value'`r(stars)'" "'
 			local frow_down `"`frow_down' _tab "`ftest_n'" "'
 		}
 
@@ -2056,13 +2076,15 @@ end
 cap program drop 	count_stars
 	program define	count_stars, rclass
 
-	syntax, p(numlist) starlevels(string)
+	syntax, p(numlist) [starlevels(string)]
 
 	local stars ""
-	tokenize "`starlevels'"
-	if `p' < `1' local stars "*"
-	if `p' < `2' local stars "**"
-	if `p' < `3' local stars "***"
+	if !missing("`starlevels'") {
+		tokenize "`starlevels'"
+		if `p' < `1' local stars "*"
+		if `p' < `2' local stars "**"
+		if `p' < `3' local stars "***"
+	}
 
 	return local stars "`stars'"
 end
