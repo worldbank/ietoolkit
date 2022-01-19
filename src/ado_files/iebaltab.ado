@@ -17,7 +17,7 @@
 				                                                                ///
 				/*Statistics and data manipulation*/                            ///
 				FIXedeffect(varname) COVariates(varlist ts fv) 						      ///
-				vce(string)   MISSMINmean(numlist min=1 max=1 >0)               ///
+				vce(string)              ///
 				WEIGHTold(string)                                               ///
 				                                                                ///
 				/*F-test and  FEQTest*/                                   ///
@@ -37,9 +37,9 @@
 				/*Deprecated options
 				  - still included to throw helpful error if ever used */       ///
 				 SAVEBRowse BALMISS(string) BALMISSReg(string)            ///
-				COVMISS(string) COVMISSReg(string) SAVE(string) NOTtest	///
-				NORMDiff	PTtest	PFtest	PBoth ///
-				///Deprecated options still to handgle COVARMISSOK NOTECombine
+				COVMISS(string) COVMISSReg(string) MISSMINmean(string) COVARMISSOK  SAVE(string) NOTtest	///
+				NORMDiff	PTtest	PFtest	PBoth NOTECombine ///
+				///Deprecated options still to handle:
 				]
 
 
@@ -243,18 +243,21 @@ qui {
 		local old_version_guide `"If you still need the old version of iebaltab, for example for reproduction of old code, see {browse  "https://github.com/worldbank/ietoolkit/blob/master/admin/run-old-versions.md" :this guide} for how to run old versions of any command in the ietoolkit package."'
 
 	  if !missing("`savebrowse'`save'") {
-			di as error `"{pstd}The options {input:savebrowse}, {input:save} and {input:browse} has been deprecated as of verion 7 of iebaltab. See if the options {input:savexlsx}, {input:savecsv} or {input:browse} has the functionality you need. `old_version_guide'{p_end}"'
+			di as error `"{pstd}The options {input:savebrowse}, {input:save} and {input:browse} have been deprecated as of verion 7 of iebaltab. See if the options {input:savexlsx}, {input:savecsv} or {input:browse} have the functionality you need. `old_version_guide'{p_end}"'
 			error 198
 		}
-		if !missing("`balmiss'`balmissreg'`covmiss'`covmissreg'") {
-			di as error `"{pstd}The options {input:balmiss}, {input:balmissreg}, {input:covmiss} and {input:covmissreg} has been deprecated as of verion 7 of iebaltab. Instead, if needed and/or desired, you must modify missing values yourself before running the command. `old_version_guide'{p_end}"'
+		if !missing("`balmiss'`balmissreg'`covmiss'`covmissreg'`missminmean'`covarmissok'") {
+			di as error `"{pstd}The options {input:balmiss}, {input:balmissreg}, {input:covmiss}, {input:covmissreg}, {input:missminmean} and {input:covarmissok} have been deprecated as of verion 7 of iebaltab. Instead, if needed and/or desired, you must modify missing values yourself before running the command. `old_version_guide'{p_end}"'
 			error 198
 		}
 		if !missing("`nottest'`normdiff'`pttest'`pftest'`pboth'") {
-			di as error `"{pstd}The options {input:nottest}, {input:normdiff}, {input:pttest}, {input:pftest} and {input:pboth} has been deprecated as of verion 7 of iebaltab. See if the options {input:pairoutput} or {input:ftestoutput} has the functionality you need. `old_version_guide'{p_end}"'
+			di as error `"{pstd}The options {input:nottest}, {input:normdiff}, {input:pttest}, {input:pftest} and {input:pboth} have been deprecated as of verion 7 of iebaltab. See if the options {input:pairoutput} or {input:ftestoutput} have the functionality you need. `old_version_guide'{p_end}"'
 			error 198
 		}
-
+		if !missing("`notecombine'") {
+			di as error `"{pstd}The option {input:notecombine} has been deprecated as of verion 7 of iebaltab. See if the options {input:tblnote} or {input:tblnonote} have the functionality you need. `old_version_guide'{p_end}"'
+			error 198
+		}
 
 	/***********************************************
 	************************************************
