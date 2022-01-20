@@ -1365,7 +1365,7 @@ qui {
 		*If clusters used, number of clusters in this reg, otehrwise .c
 		local ++Fcolindex
 		if "`vce_type'" == "cluster" mat `fmat'[1,`Fcolindex'] = e(N_clust)
-		else `fmat'[1,`Fcolindex'] = .c
+		else mat `fmat'[1,`Fcolindex'] = .c
 
 		*Test all balance variables for joint significance
 		cap testparm `balancevars'
