@@ -259,47 +259,49 @@ qui {
 			error 198
 		}
 
-	/***********************************************
-	************************************************
+/*******************************************************************************
+*******************************************************************************/
 
-		Prepare a list of group variables
+		* Testing the group variable
 
-	*************************************************
-	************************************************/
+/*******************************************************************************
+*******************************************************************************/
 
 		cap confirm numeric variable `grpvar'
 
-		if _rc != 0 {
+		* Tests if groupvar is numeric type
+		if _rc == 0 {
 
-			*Test for commands not allowed if grpvar is a string variable
+			* Test that grpvar only consists if integers
+			cap assert (int(`grpvar') == `grpvar')
+			if _rc == 9 {
+				noi display as error  "{phang}The variable in grpvar(`grpvar') is not a categorical variable. The variable may only include integers. See tabulation of `grpvar' below:{p_end}"
+				noi tab `grpvar', nol
+				error 109
+			}
+		}
 
-			if `CONTROL_USED' == 1 {
-				di as error "{pstd}The option control() can only be used if variable {it:`grpvar'} is a numeric variable. Use {help encode} to generate a numeric version of variable {it:`grpvar'}. It is best practice to store all categorical variables as labeled numeric variables.{p_end}"
-				error 198
-			}
-			if `ORDER_USED' == 1 {
-				di as error "{pstd}The option order() can only be used if variable {it:`grpvar'} is a numeric variable. Use {help encode} to generate a numeric version of variable {it:`grpvar'}. It is best practice to store all categorical variables as labeled numeric variables.{p_end}"
-				error 198
-			}
-			if `NOGRPLABEL_USED' == 1 {
-				di as error "{pstd}The option grpcodes can only be used if variable {it:`grpvar'} is a numeric variable. Use {help encode} to generate a numeric version of variable {it:`grpvar'}. It is best practice to store all categorical variables as labeled numeric variables.{p_end}"
-				error 198
-			}
-			if `GRPLABEL_USED' == 1 {
-				di as error "{pstd}The option grplabels() can only be used if variable {it:`grpvar'} is a numeric variable. Use {help encode} to generate a numeric version of variable {it:`grpvar'}. It is best practice to store all categorical variables as labeled numeric variables.{p_end}"
+		* Tests if groupvar is string type
+		else {
+
+			*Test for options not allowed if grpvar is a string variable
+			if !missing("`control'`order'`grpcodes'`grplabels'") {
+				local str_invalid_opt ""
+				if !missing("`control'")   local str_invalid_opt "`str_invalid_opt' control()"
+				if !missing("`order'")     local str_invalid_opt "`str_invalid_opt' order()"
+				if !missing("`grplabels'") local str_invalid_opt "`str_invalid_opt' grplabels()"
+				local str_invalid_options_used = itrim(trim("`str_invalid_opt' `grpcodes'"))
+				di as error "{pstd}The option(s) [`str_invalid_options_used'] can only be used when variable {input:`grpvar'} is a numeric variable. Use {help encode} to generate a numeric version of variable {input:`grpvar'}.{p_end}"
 				error 198
 			}
 
-			*Generate a encoded tempvar version of grpvar
+			*Generate a encoded numeric tempvar variable from string grpvar
 			tempvar grpvar_code
 			encode `grpvar' , gen(`grpvar_code')
 
 			*replace the grpvar local so that it uses the tempvar instead
 			local grpvar `grpvar_code'
-
 		}
-
-		** TODO allow string var
 
 		*Remove observations with a missing value in grpvar()
 		drop if missing(`grpvar')
@@ -310,16 +312,9 @@ qui {
 		*Saving the name of the value label of the grpvar()
 		local GRPVAR_VALUE_LABEL 	: value label `grpvar'
 
-		*Counting how many levels there are in groupvar
-		local GRPVAR_NUM_GROUPS : word count `GRP_CODES'
-
 		*Static dummy for grpvar() has no label
 		if "`GRPVAR_VALUE_LABEL'" == "" local GRPVAR_HAS_VALUE_LABEL = 0
 		if "`GRPVAR_VALUE_LABEL'" != "" local GRPVAR_HAS_VALUE_LABEL = 1
-
-		*Number of columns for Latex
-		local NUM_COL_GRP_TOT = `GRPVAR_NUM_GROUPS' + `TOTAL_USED'
-
 
 /*******************************************************************************
 *******************************************************************************/
@@ -330,24 +325,6 @@ qui {
 /*******************************************************************************
 *******************************************************************************/
 
-	** Group Options
-
-		cap confirm numeric variable `grpvar'
-		if _rc != 0 {
-			noi display as error "{phang}The variable listed in grpvar(`grpvar') is not a numeric variable. See {help encode} for options on how to make a categorical string variable into a categorical numeric variable{p_end}"
-			error 108
-		}
-		else {
-			** Testing that groupvar is a categorical variable. Int() rounds to
-			* integer, and if any values are non-integers then (int(`grpvar') == `grpvar) is
-			* not true
-			cap assert ( int(`grpvar') == `grpvar' )
-			if _rc == 9 {
-				noi display as error  "{phang}The variable in grpvar(`grpvar') is not a categorical variable. The variable may only include integers where each integer indicates which group each observation belongs to. See tabulation of `grpvar' below:{p_end}"
-				noi tab `grpvar', nol
-				error 109
-			}
-		}
 
 
 	** Column Options
