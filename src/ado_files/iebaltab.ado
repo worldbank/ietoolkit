@@ -1520,32 +1520,35 @@ qui {
 
 	}
 
-	/*******************************************************************************
-	*******************************************************************************/
+/*******************************************************************************
 
 			*Prepare note string
 
-	/*******************************************************************************
-	*******************************************************************************/
+*******************************************************************************/
 
-
+	*Test if options tblnonote or tblnote are used - if not generate default note
 	if missing("`tblnonote'") {
 		if missing("`tblnote'") {
 			generate_note, pout_lbl("`pout_lbl'") fix("`fixedeffect'") fix_used("`FIX_EFFECT_USED'") covars("`covariates'") `ftest' `feqtest' starlevels("`starlevels'") `stdev' vce("`vce'") vce_type("`vce_type'") clustervar("`cluster_var'") weight_used("`WEIGHT_USED'") weight_type("`weight_type'") weight_var("`weight_var'")
 
 			 local note_to_use "`r(table_note)'"
 		}
+		* Use user specified note
 		else local note_to_use `"`tblnote'"'
 	}
+	*Use no note
 	else else local note_to_use ""
 
+/*******************************************************************************
 
+			* Return values to the user
 
-
+*******************************************************************************/
 
 	*Restore from orginial preserve at top of command
 	restore
 
+	*Remove the first row that was just a place holder
 	matrix `rmat' = `rmat'[2...,1...]
 
 	mat returnRMat = `rmat'
@@ -1555,37 +1558,24 @@ qui {
 	return matrix iebaltabfmat returnFMat
 
 
-
-	/***********************************************
-	************************************************/
-
-		*Export tables from the matrix
-
-	/*************************************************
-	************************************************/
+/*******************************************************************************
+********************************************************************************
+		Export tables from results in the matrix
+********************************************************************************
+*******************************************************************************/
 
 		******************************************
-		*Export the data according to user specification
+		*Set locals used regardless of export method
 
-		noi di "export"
-
-		*Set export locals
-
-		** SE if standard errors are used (default)
-		*  or SD if standard deviation is used
+		** SE if standard errors are used (default) or SD if standard deviation is used
 		if `STDEV_USED' == 1 	local vtype "sd"
 		else local vtype "se"
 
-		*N title
+		*Create the title for the column with number of observations/clusters
 		if "`vce_type'" == "cluster" local ntitle "N/Clusters"
 		else local ntitle "N"
 
-		*********************
-		* Pair test outputs
-
-
-		*********************
-		* test that option onerow is ok to use if used
+		* Test that option onerow (if used) is ok - meaning the N is the same across rows
 		if (!missing("`onerow'")) {
 			isonerowok, rmat(`rmat') fmat(`fmat') stat("n") `ftest' `feqtest'
 			if "`vce_type'" == "cluster" {
@@ -1593,43 +1583,46 @@ qui {
 			}
 		}
 
-		***** Before using one_row - test the matrix that it is possible
+		******************************************
+		* Create tab delimited file and generate exports based on it
 
-		*Export to excel format
+		* Test if any option that requires the tab delimited file is used
 		if `SAVE_CSV_USED' | `SAVE_XSLX_USED' | `BROWSE_USED' {
 
 			preserve
-				// Run subommand that exports table to csv
-				noi di "run export_tab"
-				noi export_tab using `"`savecsv'"', ///
-					rmat(`rmat') fmat(`fmat') ntitle("`ntitle'") vtype("`vtype'") ///
-					note(`"`note_to_use'"') ///
-					col_lbls(`COLUMN_LABELS') order_grp_codes(`ORDER_OF_GROUP_CODES') ///
-					pairs(`TEST_PAIR_CODES')  ///
-					row_lbls(`"`ROW_LABELS'"') `total' `onerow' `feqtest' `ftest' tot_lbl("`tot_lbl'") ///
-					pout_lbl(`pout_lbl') pout_val(`pout_val') fout_lbl(`fout_lbl') fout_val(`fout_val') diformat("`diformat'") starlevels("`starlevels'") cl_used("`CLUSTER_USED'")
 
+				* Since commas can be used in labels it is tricky to write a comma seperated
+				* file (like csv) directly. Therefore, this function writes a tab delimited file
+				* as tabs are never valid labels. Then this tab delimited file is insheeted and
+				* this command use Stata's built in commands to export to csv and xlsx as those
+				* commands has built in support for handling commas in labels and other corner cases
+				noi export_tab , rmat(`rmat') fmat(`fmat') ///
+					order_grp_codes(`ORDER_OF_GROUP_CODES') pairs(`TEST_PAIR_CODES') ///
+					row_lbls(`"`ROW_LABELS'"') col_lbls(`COLUMN_LABELS')  ///
+					pout_lbl(`pout_lbl') pout_val(`pout_val') fout_lbl(`fout_lbl') fout_val(`fout_val') ///
+					tot_lbl("`tot_lbl'") `total' `onerow' `feqtest' `ftest'  ///
+					ntitle("`ntitle'") note(`"`note_to_use'"') vtype("`vtype'") cl_used("`CLUSTER_USED'") ///
+					diformat("`diformat'") starlevels("`starlevels'")
+
+					*Save the tab delimited file
 					tempfile tab_file
 					save `tab_file'
 
-					* Export the file in csv format
-					if `SAVE_CSV_USED' {
-						export delimited using "`savecsv'", novarnames quote `replace'
-					}
+					* Use Stata's built in commands for exporting to CSV
+					if `SAVE_CSV_USED' export delimited using "`savecsv'", novarnames quote `replace'
 
-					* Export the file in xlsx format
-					if `SAVE_XSLX_USED' {
-						export excel using "`savexlsx'", `replace'
-					}
+					* Use Stata's built in commands for exporting to Excel format
+					if `SAVE_XSLX_USED' export excel using "`savexlsx'", `replace'
 
+			* Bring back the original data
 			restore
+			* Overwrite in working memory the original data so results can be browsed
+			if `BROWSE_USED' use `tab_file', clear
+
 		}
 
-		* Browse the results in the output window. This overwrites data in memory
-		if `BROWSE_USED' {
-			use `tab_file', clear
-		}
-
+		******************************************
+		* Create tex file based on result matrices
 
 		// *Export to tex format
 		// if `SAVE_TEX_USED' {
@@ -1640,49 +1633,18 @@ end
 
 
 /*******************************************************************************
+********************************************************************************
 
-  Function to get and test the two codes in a test pair
-	pair 4_12 returns rlocal code1 = 4, and rlocal code2 = 12
+	Main export functions: tab delimited file from result matrices
 
-*******************************************************************************/
-cap program drop 	getCodesFromPair
-	program define	getCodesFromPair, rclass
-
-	args pair
-
-	* Parse the two codes from the test pair
-	local undscr_pos  = strpos("`pair'","_")
-	local code1 = substr("`pair'",1,`undscr_pos'-1)
-	local code2 = substr("`pair'",  `undscr_pos'+1,.)
-
-	*Test that the codes are just numbers and that they are not identical
-	cap confirm number `code1'`code2'
-	if _rc {
-		noi display as error "{phang}Both codes [`code1'] & [`code2'] in pair [`pair'] must be numbers.{p_end}"
-		error 7
-	}
-	if `code1' == `code2' {
-		noi display as error "{phang}The codes in [`pair'] may not be identical.{p_end}"
-		error 7
-	}
-
-    * Return second first so they are listed in correct order
-	* when using return list
-	return local code2 `code2'
-	return local code1 `code1'
-
-end
-
-/*******************************************************************************
-
-  Function that oupputs the result matrix to csv file
-
+********************************************************************************
 *******************************************************************************/
 
+* Read the result matrices and output the results in a tab delimited file
 cap program drop 	export_tab
 	program define	export_tab, rclass
 
-	syntax using , rmat(name) fmat(name) 					///
+	syntax , rmat(name) fmat(name) 					///
 	ntitle(string) vtype(string) cl_used(string)		///
 	col_lbls(string) order_grp_codes(numlist) ///
 	pairs(string) diformat(string) ///
@@ -1690,18 +1652,13 @@ cap program drop 	export_tab
 	pout_lbl(string) pout_val(string) ///
 	fout_lbl(string) fout_val(string) ///
 	[note(string) onerow total feqtest ftest ///
-	starlevels(string) ]
+	starlevels(string)]
 
-	//noi di "insdie export_tab"
-
-
-
-	noi mat list `rmat'
-	noi mat list `fmat'
-
+	* If total is used, add t to locals used when looping over desc stats
 	if !missing("`total'") local order_grp_codes "`order_grp_codes' t"
 	if !missing("`total'") local col_lbls "`col_lbls' `tot_lbl'"
 
+	* Count groups and number of balance vars
 	local grp_count : list sizeof order_grp_codes
 	local row_count : list sizeof row_lbls
 
@@ -1710,6 +1667,7 @@ cap program drop 	export_tab
 	if !missing("`feqtest'") local desc_cols "`desc_cols' feq"
 	if missing("`onerow'") local desc_cols "`desc_cols' `desc_cols'"
 
+	* If pair tests set to none, then set pairs to "" to not iterate that loop
 	if "`pout_val'" == "none" local pairs ""
 
 	*Create a temporary textfile
@@ -1985,11 +1943,12 @@ cap program drop 	export_tab
 
 end
 
-
 /*******************************************************************************
+********************************************************************************
 
-  Function that oupputs the result matrix to tex file
+	Main export functions: tex file from result matrices
 
+********************************************************************************
 *******************************************************************************/
 
 cap program drop 	export_tex
@@ -2002,9 +1961,54 @@ cap program drop 	export_tex
 
 end
 
+/*******************************************************************************
 ********************************************************************************
-*  Function that tests if each n_ column in the matrix has the same value for
-*	 all rows so that the N can be displayed on one row at the botton of the table
+
+	Utility functions
+
+********************************************************************************
+*******************************************************************************/
+
+/*******************************************************************************
+  getCodesFromPair:  to get codes from a test pair and test them
+	* From a test pair like 4_9 it tests that both codes are numbers and that they
+	* are not the same, then returns code left of "_" as code1 and code right of "_"
+	* as code2.
+*******************************************************************************/
+cap program drop 	getCodesFromPair
+	program define	getCodesFromPair, rclass
+
+	args pair
+
+	* Parse the two codes from the test pair
+	local undscr_pos  = strpos("`pair'","_")
+	local code1 = substr("`pair'",1,`undscr_pos'-1)
+	local code2 = substr("`pair'",  `undscr_pos'+1,.)
+
+	*Test that the codes are just numbers and that they are not identical
+	cap confirm number `code1'`code2'
+	if _rc {
+		noi display as error "{phang}Both codes [`code1'] & [`code2'] in pair [`pair'] must be numbers.{p_end}"
+		error 7
+	}
+	if `code1' == `code2' {
+		noi display as error "{phang}The codes in [`pair'] may not be identical.{p_end}"
+		error 7
+	}
+
+    * Return second first so they are listed in correct order
+	* when using return list
+	return local code2 `code2'
+	return local code1 `code1'
+
+end
+
+/*******************************************************************************
+  isonerowok: test if values in matrices are valid for option onerow
+	* In order to onerow to work, the values in colums with number of observations
+	* must be the same for all rows. The same applies to the number of clusters if
+	* clusters are used. This functions tests that.
+*******************************************************************************/
 cap program drop 	isonerowok
 	program define	isonerowok
 
@@ -2072,6 +2076,12 @@ cap program drop 	isonerowok
 	}
 end
 
+/*******************************************************************************
+  count_stars: count number of stars given p-value and star levels
+	* Returns a string with the number of stars given a p-value and the list of
+	* starlevels. If starlevels is empty (if option starsnoadd is used) then it
+	* will always return the empty string "".
+*******************************************************************************/
 cap program drop 	count_stars
 	program define	count_stars, rclass
 
@@ -2088,7 +2098,13 @@ cap program drop 	count_stars
 	return local stars "`stars'"
 end
 
-
+/*******************************************************************************
+  generate_note: generate a note documenting options used
+	* Returns a note meant to be used in tables to document what options are used.
+	* For example, what variable to use as fixed effect etc. This note is not
+	* meant to be a final note for a published table, but more as a way to automate
+	* documenting what options generated what results during explorative analys
+*******************************************************************************/
 cap program drop 	generate_note
 	program define	generate_note, rclass
 
@@ -2115,7 +2131,7 @@ cap program drop 	generate_note
 		local signint1 = 100 - (`1' * 100)
 		local signint2 = 100 - (`2' * 100)
 		local signint3 = 100 - (`3' * 100)
-		local table_note "`table_note' ***, **, and * indicate significance at the `signint3', `signint2', and `signint1' percent critical level."
+		local table_note "`table_note' Significance: ***=`signint3'%, **=`signint2'%, *=`signint1'%."
 	}
 
 	if !missing("`vce'") {
