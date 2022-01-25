@@ -36,7 +36,7 @@
 				                                                                ///
 				/*Deprecated options
 				  - still included to throw helpful error if ever used */       ///
-				 SAVEBRowse BALMISS(string) BALMISSReg(string)            ///
+				SAVEBRowse BALMISS(string) BALMISSReg(string)            ///
 				COVMISS(string) COVMISSReg(string) MISSMINmean(string) COVARMISSOK  SAVE(string) NOTtest	///
 				NORMDiff	PTtest	PFtest	PBoth NOTECombine ///
 				///Deprecated options still to handle:
@@ -260,11 +260,9 @@ qui {
 		}
 
 /*******************************************************************************
-*******************************************************************************/
 
 		* Testing the group variable
 
-/*******************************************************************************
 *******************************************************************************/
 
 		cap confirm numeric variable `grpvar'
@@ -350,7 +348,7 @@ qui {
 		}
 
 		*****************************
-		** Test row label inputs
+		** Test and parse row label inputs
 		if `ROWLABEL_USED' == 1 {
 			test_parse_label_input, labelinput("`rowlabels'") itemlist("`balancevars'") ///
 			row
@@ -405,9 +403,8 @@ qui {
 		}
 
 
-		******************************
-		* Handle STARS
-		******************************
+		****************************************************************************
+		** Star level input handling
 
 		* Test if nostar option used
 		if `STARSNOADD_USED' == 1 {
@@ -466,7 +463,7 @@ qui {
 			cap assert `fixedeffect' < .
 			if _rc == 9 {
 				noi di ""
-				noi display as result "{phang}Warning: The variable in fixedeffect(`fixedeffect') is missing for some observations in the sample used. Before using the generated results, make sure that the number of observations in the table is as expected.{p_end}"
+				noi display as text "{phang}Warning: The variable in {input:fixedeffect(`fixedeffect')} is missing for some observations in the sample used. Before using the generated results, make sure that the number of observations in the table is as expected.{p_end}"
 			}
 		}
 
@@ -479,11 +476,14 @@ qui {
 				cap assert `covar' < .
 				if _rc == 9 {
 					noi di ""
-					noi display as result "{phang}Warning: The variable [`covar'] in covariates(`covariates') is missing for some observations in the sample used. Before using the generated results, make sure that the number of observations in the table is as expected.{p_end}"
+					noi display as text "{phang}Warning: The variable [`covar'] in {input:covariates(`covariates')} is missing for some observations in the sample used. Before using the generated results, make sure that the number of observations in the table is as expected.{p_end}"
 				}
 
+				* Prepare a local of all covariates that is also a balance var (not allowed)
 				if `: list covar in balancevars' local covar_balancevars =trim("`covar_balancevars' `covar'")
 			}
+
+			* Thorw error if any covariates were found among the balance vars
 			if "`covar_balancevars'" != "" {
 					noi display as error "{phang}The covariate variable(s) [`covar_balancevars'] is/are also among the  balance variable(s) [`balancevars'] which is not allowed.{p_end}"
 					error 198
@@ -491,7 +491,7 @@ qui {
 		}
 
 		****************************************************************************
-		** Test input for fixed effects
+		** Test input for weights
 
 		if `WEIGHT_USED' == 1 {
 			* Parsing weight options
@@ -500,16 +500,16 @@ qui {
 			local weight_var = subinstr("`exp'","=","",.)
 
 			* Test is weight type specified is valie
-			local weight_options "fweights pweights aweights iweights fweight pweight aweight iweight fw freq weight pw aw iw"
-			if `:list weight_type in weight_options' == 0 {
-				noi display as error  "{phang} The option `weight_type' specified in weight() is not a valid weight option. Weight options are: fweights, fw, freq, weight, pweights, pw, aweights, aw, iweights, and iw. {p_end}"
+			local valid_weight_options "fweights pweights aweights iweights fweight pweight aweight iweight fw freq weight pw aw iw"
+			if `:list weight_type in valid_weight_options' == 0 {
+				noi display as error  "{phang} The option `weight_type' specified in {input:weight(`weight_type')} is not a valid weight option. Valid weight options are: [`valid_weight_options'].{p_end}"
 				error 198
 			}
 
-			* Test is weight variable specified if valid
+			* Test is weight variable specified is valid
 			capture confirm variable `weight_var'
 			if _rc {
-				noi display as error  "{phang} The option `weight_var' specified in weight() is not a variable. {p_end}"
+				noi display as error  "{phang} The variable `weight_var' specified in option {input:weight(`weight_var')} is not a variable.{p_end}"
 				error 198
 			}
 		}
@@ -2057,7 +2057,7 @@ cap program drop 	generate_note
 	else if "`pout_val'" != "none"       local test_sentence = "pairwise regressions"
 
 
-	if !missing("`covars'") local table_note "`table_note' Covariates used in `test_sentence': [`covars']."
+	if !missing("`covars'") local table_note "`table_note' Covariate(s) used in `test_sentence': [`covars']."
 	if `fix_used' == 1      local table_note "`table_note' Fixed effect used in `test_sentence': [`fix']."
 
 	if !missing("`starlevels'") {
@@ -2073,7 +2073,7 @@ cap program drop 	generate_note
 		if missing("`stdev'") local vname "Standard errors"
 		else                  local vname "Standard deviations"
 		if "`vce_type'" == "robust"		 local table_note "`table_note' `vname' are robust. "
-		if "`vce_type'" == "cluster"   local table_note "`table_note' `vname' are clustered at variable [`clustervar']. "
+		if "`vce_type'" == "cluster"   local table_note "`table_note' `vname' are clustered at variable: [`clustervar']. "
 		if "`vce_type'" == "bootstrap" local table_note "`table_note' `vname' are estimeated using bootstrap. "
 
 	}
