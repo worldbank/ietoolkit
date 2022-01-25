@@ -534,97 +534,25 @@ qui {
 		****************************************************************************
 		** Test file paths for save options
 
-		if `SAVE_USED' {
-			if `SAVE_CSV_USED' {
-
-				**Find the last . in the file path and assume that
-				* the file extension is what follows. If a file path has a . then
-				* the file extension must be explicitly specified by the user.
-
-				*Copy the full file path to the file suffix local
-				local file_suffix 	= "`save'"
-
-				** Find index for where the file type suffix start
-				local dot_index 	= strpos("`file_suffix'",".")
-
-				*If no dot then no file extension
-				if `dot_index' == 0  local file_suffix 	""
-
-				**If there is one or many . in the file path than loop over
-				* the file path until we have found the last one.
-				while `dot_index' > 0 {
-
-					*Extract the file index
-					local file_suffix 	= substr("`file_suffix'", `dot_index' + 1, .)
-
-					*Find index for where the file type suffix start
-					local dot_index 	= strpos("`file_suffix'",".")
-				}
-
-				*If no file format suffix is specified, use the default .xlsx
-				if "`file_suffix'" == "" {
-
-					local save `"`save'.xlsx"'
-				}
-
-				*If a file format suffix is specified make sure that it is one of the two allowed.
-				else if !("`file_suffix'" == "xls" | "`file_suffix'" == "xlsx") {
-
-					noi display as error "{phang}The file format specified in save(`save') is other than .xls or .xlsx. Only those two formats are allowed. If no format is specified .xlsx is the default. If you have a . in your file path, for example in a folder name, then you must specify the file extension .xls or .xlsx.{p_end}"
-					error 198
-				}
-			}
-			if `SAVE_TEX_USED' {
-
-				**Find the last . in the file path and assume that
-				* the file extension is what follows. If a file path has a . then
-				* the file extension must be explicitly specified by the user.
-
-				*Copy the full file path to the file suffix local
-				local tex_file_suffix 	= "`savetex'"
-
-				** Find index for where the file type suffix start
-				local tex_dot_index 	= strpos("`tex_file_suffix'",".")
-
-				*If no dot then no file extension
-				if `tex_dot_index' == 0  local tex_file_suffix 	""
-
-				**If there is one or many . in the file path than loop over
-				* the file path until we have found the last one.
-				while `tex_dot_index' > 0 {
-
-					*Extract the file index
-					local tex_file_suffix 	= substr("`tex_file_suffix'", `tex_dot_index' + 1, .)
-
-					*Find index for where the file type suffix start
-					local tex_dot_index 	= strpos("`tex_file_suffix'",".")
-				}
-
-				*If no file format suffix is specified, use the default .tex
-				if "`tex_file_suffix'" == "" {
-
-					local savetex `"`savetex'.tex"'
-				}
-
-				*If a file format suffix is specified make sure that it is one of the two allowed.
-				else if !("`tex_file_suffix'" == "tex" | "`tex_file_suffix'" == "txt") {
-
-					noi display as error "{phang}The file format specified in savetex(`savetex') is other than .tex or .txt. Only those two formats are allowed. If no format is specified .tex is the default. If you have a . in your file path, for example in a folder name, then you must specify the file extension .tex or .txt.{p_end}"
-					error 198
-				}
-
-				if `CAPTION_USED' {
-
-					* Make sure special characters are displayed correctly
-					local texcaption : subinstr local texcaption "%"  "\%" , all
-					local texcaption : subinstr local texcaption "_"  "\_" , all
-					local texcaption : subinstr local texcaption "&"  "\&" , all
-
-				}
-			}
-
+		if `SAVE_CSV_USED' {
+			test_parse_file_input, filepath(`savecsv') allowedformats(".csv") defaultformat(".csv") option("savecsv")
+			local savecsv "`r(filepath)'"
+		}
+		if `SAVE_XSLX_USED' {
+			test_parse_file_input, filepath(`savexlsx') allowedformats(".xlsx .xls") defaultformat(".xlsx") option("savexlsx")
+			local savexlsx "`r(filepath)'"
+		}
+		if `SAVE_TEX_USED' {
+			test_parse_file_input, filepath(`savetex') allowedformats(".tex") defaultformat(".tex") option("savetex")
+			local savetex "`r(filepath)'"
 		}
 
+
+		/*******************************************************************************
+
+				* Testing tex foramtting Options
+
+		*******************************************************************************/
 
 		* Check tex options
 		if `SAVE_TEX_USED' {
@@ -637,6 +565,15 @@ qui {
 					noi display as error `"{phang}The value specified in texnotewidth(`texnotewidth') is non-positive. Only positive numbers are allowed. For more information, {net "from http://en.wikibooks.org/wiki/LaTeX/Lengths.smcl":check LaTeX lengths manual}.{p_end}"'
 					error 198
 				}
+			}
+
+			if `CAPTION_USED' {
+
+				* Make sure special characters are displayed correctly
+				local texcaption : subinstr local texcaption "%"  "\%" , all
+				local texcaption : subinstr local texcaption "_"  "\_" , all
+				local texcaption : subinstr local texcaption "&"  "\&" , all
+
 			}
 
 			* Tex label must be a single word
@@ -1813,6 +1750,42 @@ end
 	* Test that each item listed is used in itemlist (groupcode or balance var)
 	* Test hat no label is missing for items included
 *******************************************************************************/
+cap program drop 	test_parse_file_input
+	program define	test_parse_file_input, rclass
+
+	syntax, filepath(string) allowedformats(string) defaultformat(string) option(string)
+
+	**Find the last . in the file path and find extension after it
+
+	** Find index for where the file type suffix start
+	local dot_index 	 = strpos(strreverse("`filepath'"),".")
+	local file_extension = substr("`filepath'",-`dot_index',.)
+
+	** If no dot then no file extension, use default
+	if `dot_index' == 0 {
+		local return_file "`filepath'`defaultformat'"
+	}
+  * File path good as is
+	else if `: list file_extension in allowedformats' {
+		local return_file "`filepath'"
+	}
+	* Format used is not allowed, throw error
+	else {
+		noi display as error "{phang}The file extension [`file_extension'] used in {input:`option'(`filepath')} is not within the allowed format(s): [`allowedformats'].{p_end}"
+		error 198
+	}
+
+	return local filepath "`return_file'"
+
+end
+
+/*******************************************************************************
+  test_parse_label_input: pars and test item/label lists
+	* Test that lists are on format "item1 label1 @ item2 label2"
+	* Test that each item listed is used in itemlist (groupcode or balance var)
+	* Test hat no label is missing for items included
+*******************************************************************************/
+
 cap program drop 	test_parse_label_input
 	program define	test_parse_label_input, rclass
 
