@@ -514,80 +514,25 @@ qui {
 			}
 		}
 
+		/*******************************************************************************
 
+				* Testing Output options
 
-	** Output Options
+		*******************************************************************************/
+
+		****************************************************************************
+		** Test input for format
 
 		** If the format option is specified, then test if there is a valid format specified
 		if `FORMAT_USED' == 1 {
-
-			** Creating a numeric mock variable that we attempt to apply the format
-			*  to. This allows us to piggy back on Stata's internal testing to be
-			*  sure that the format specified is at least one of the valid numeric
-			*  formats in Stata
-			tempvar      formattest
-			gen         `formattest' = 1
-			cap	format  `formattest' `format'
-
-			if _rc == 120 {
-
-				di as error "{phang}The format specified in format(`format') is not a valid Stata format. See {help format} for a list of valid Stata formats. This command only accept the f, fc, g, gc and e format.{p_end}"
-				error 120
-			}
-			else if _rc != 0 {
-
-				di as error "{phang}Something unexpected happened related to the option format(`format'). Make sure that the format you specified is a valid format. See {help format} for a list of valid Stata formats. If this problem remains, please report this error to kbjarkefur@worldbank.org.{p_end}"
-				error _rc
-			}
-			else {
-				** We know here that the format is one of the numeric formats that Stata allows
-
-				local fomrmatAllowed 0
-				local charLast  = substr("`format'", -1,.)
-				local char2Last = substr("`format'", -2,.)
-
-				if  "`charLast'" == "f" | "`charLast'" == "e" {
-					local fomrmatAllowed 1
-				}
-				else if "`charLast'" == "g" {
-					if "`char2Last'" == "tg" {
-						*format tg not allowed. all other valid formats ending on g are allowed
-						local fomrmatAllowed 0
-					}
-					else {
-
-						*Formats that end in g that is not tg can only be g which is allowed.
-						local fomrmatAllowed 1
-					}
-				}
-				else if  "`charLast'" == "c" {
-					if "`char2Last'" != "gc" & "`char2Last'" != "fc" {
-						*format ends on c but is neither fc nor gc
-						local fomrmatAllowed 0
-					}
-					else {
-
-						*Formats that end in c that are either fc or gc are allowed.
-						local fomrmatAllowed 1
-					}
-				}
-				else {
-					*format is neither f, fc, g, gc nor e
-					local fomrmatAllowed 0
-				}
-				if `fomrmatAllowed' == 0 {
-					di as error "{phang}The format specified in format(`format') is not allowed. Only format f, fc, g, gc and e are allowed. See {help format} for details on Stata formats.{p_end}"
-					error 120
-				}
-				*If format passed all tests, store it in the local used for display formats
-				local diformat = "`format'"
-			}
+			test_parse_format, format("`format'")
+			local diformat = "`r(diformat')"
 		}
-		else {
-			*Default value if fomramt not specified
-			local diformat = "%9.3f"
-		}
+		*Use default value if format not specified
+		else local diformat = "%9.3f"
 
+		****************************************************************************
+		** Test file paths for save options
 
 		if `SAVE_USED' {
 			if `SAVE_CSV_USED' {
@@ -1917,6 +1862,70 @@ cap program drop 	test_parse_label_input
 
 	return local items  "`items'"
 	return local labels `"`labels'"'
+
+end
+
+/*******************************************************************************
+  test_parse_format: pars and test format input
+	* Test that format specificed is a valid Stata format
+*******************************************************************************/
+cap program drop 	test_parse_format
+	program define	test_parse_format, rclass
+
+	syntax, format(string)
+
+	** Creating a numeric mock variable that we attempt to apply the format
+	*  to. This allows us to piggy back on Stata's internal testing to be
+	*  sure that the format specified is at least one of the valid numeric
+	*  formats in Stata
+	tempvar      formattest
+	gen         `formattest' = 1
+	cap	format  `formattest' `format'
+
+	if _rc == 120 {
+		noi di as error "{phang}The format specified in format(`format') is not a valid Stata format. See {help format} for a list of valid Stata formats. This command only accept the f, fc, g, gc and e format.{p_end}"
+		error 120
+	}
+	else if _rc != 0 {
+		noi di as error "{phang}Something unexpected happened related to the option format(`format'). Make sure that the format you specified is a valid format. See {help format} for a list of valid Stata formats. If this problem remains, please report this error to dimeanalytics@worldbank.org.{p_end}"
+		error _rc
+	}
+
+	************************
+	** We know now format is a valid Stata numeric format,
+	*  now test if it is one allowed in iebaltab
+
+	local fomrmatAllowed 0
+	local charLast  = substr("`format'", -1,.)
+	local char2Last = substr("`format'", -2,.)
+
+	*All formats ending on f and e are allowed
+	if  "`charLast'" == "f" | "`charLast'" == "e" local fomrmatAllowed 1
+
+	* Formats ending on g is allowed as long as it is not tg
+	else if "`charLast'" == "g" {
+		if "`char2Last'" == "tg" local fomrmatAllowed 0
+		else                     local fomrmatAllowed 1
+	}
+
+	* Formats ending on c is allowed as long as it is not gc or fc
+	else if  "`charLast'" == "c" {
+		if "`char2Last'" != "gc" & "`char2Last'" != "fc" local fomrmatAllowed 0
+		else                                             local fomrmatAllowed 1
+	}
+
+	*format is neither f, fc, g, gc nor e - no remaining format is allowed
+	else local fomrmatAllowed 0
+
+	* Throw error if an not allowed format is used
+	if `fomrmatAllowed' == 0 {
+		di as error "{phang}The format specified in {input:format(`format')} is not allowed. Only format f, fc, g, gc and e are allowed. See {help format} for details on Stata formats.{p_end}"
+		error 120
+	}
+
+	*If format passed all tests, store it in the local used for display formats
+	return local diformat "`format'"
+
 
 end
 
