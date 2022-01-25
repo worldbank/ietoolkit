@@ -367,51 +367,40 @@ qui {
 
 /*******************************************************************************
 
-		* Testing the group variable
+		* Testing Stats Options
 
 *******************************************************************************/
 
-	** Stats Options
+		****************************************************************************
+		** VCE input testing
 		local CLUSTER_USED 0
-
 		if `VCE_USED' == 1 {
-
+			* Remove comman and tokenize based on spaces
 			local vce_nocomma = subinstr("`vce'", "," , " ", 1)
-
 			tokenize "`vce_nocomma'"
 			local vce_type `1'
 
-			if "`vce_type'" == "robust" {
-
-				*Robust is allowed and not other tests needed
-			}
-			else if "`vce_type'" == "cluster" {
+			* Tests related to VCE Type being cluster
+			if "`vce_type'" == "cluster" {
 
 				*Create a local for displaying number of clusters
 				local CLUSTER_USED 1
-
 				local cluster_var `2'
 
-				cap confirm variable `cluster_var'
-
+				* Test that the variable used as cluster is indeed a variable
+				* and that it is numeric
+				cap confirm numeric variable `cluster_var'
 				if _rc {
-
-					*Error for vce(cluster) incorrectly applied
 					noi display as error "{phang}The cluster variable in vce(`vce') does not exist or is invalid for any other reason. See {help vce_option :help vce_option} for more information. "
 					error _rc
-
 				}
 			}
-			else if  "`vce_type'" == "bootstrap" {
 
-				*bootstrap is allowed and not other tests needed. Error checking is more comlex, add tests here in the future.
-			}
-			else {
-
-				*Error for vce() incorrectly applied
+			* Test that the vce_type is among any of the remaining options
+			* that does not need any extra testing, if not among then, throw an error.
+			else if inlist("`vce_type'","robust","bootstrap") == 0 {
 				noi display as error "{phang}The vce type `vce_type' in vce(`vce') is not allowed. Only robust, cluster and bootstrap are allowed. See {help vce_option :help vce_option} for more information."
 				error 198
-
 			}
 		}
 
