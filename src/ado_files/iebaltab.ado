@@ -1016,7 +1016,7 @@ qui {
 			if `rowLabPos' != 0 {
 				*Get the manually defined label for this balance variable
 				local 	row_label : word `rowLabPos' of `rowLabelLabels'
-				local ROW_LABELS `" `rowLabels_final' "`row_label'" "'
+				local ROW_LABELS `" `ROW_LABELS' "`row_label'" "'
 			}
 
 			************
@@ -1575,7 +1575,7 @@ qui {
 				* commands has built in support for handling commas in labels and other corner cases
 				noi export_tab , rmat(`rmat') fmat(`fmat') ///
 					order_grp_codes(`ORDER_OF_GROUP_CODES') pairs(`TEST_PAIR_CODES') ///
-					row_lbls(`"`ROW_LABELS'"') col_lbls(`COLUMN_LABELS')  ///
+					row_lbls(`"`ROW_LABELS'"') col_lbls(`"`COLUMN_LABELS'"')  ///
 					pout_lbl(`pout_lbl') pout_val(`pout_val') fout_lbl(`fout_lbl') fout_val(`fout_val') ///
 					tot_lbl("`tot_lbl'") `total' `onerow' `feqtest' `ftest'  ///
 					ntitle("`ntitle'") note(`"`note_to_use'"') vtype("`vtype'") cl_used("`CLUSTER_USED'") ///
@@ -1633,7 +1633,7 @@ cap program drop 	export_tab
 
 	* If total is used, add t to locals used when looping over desc stats
 	if !missing("`total'") local order_grp_codes "`order_grp_codes' t"
-	if !missing("`total'") local col_lbls "`col_lbls' `tot_lbl'"
+	if !missing("`total'") local col_lbls `"`col_lbls' "`tot_lbl'""'
 
 	* Count groups and number of balance vars
 	local grp_count : list sizeof order_grp_codes
