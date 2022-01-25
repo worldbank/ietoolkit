@@ -316,134 +316,60 @@ qui {
 		if "`GRPVAR_VALUE_LABEL'" == "" local GRPVAR_HAS_VALUE_LABEL = 0
 		if "`GRPVAR_VALUE_LABEL'" != "" local GRPVAR_HAS_VALUE_LABEL = 1
 
-/*******************************************************************************
-*******************************************************************************/
-
-		*Testing all options and generate locals from the input to be used
-		*across the command
 
 /*******************************************************************************
+
+		* Testing options related to order and lables of table columns and rows
+
 *******************************************************************************/
 
+	*****************************
+	** Test column order inputs
 
-
-	** Column Options
-
-		** If control() or order() is used, then the levels specified in those
-		*  options need to exist in the groupvar
-
-		local control_correct : list control in GRP_CODES
-		if `control_correct' == 0 {
+		** Test if any value used in control is a code used in grpvar
+		if `: list control in GRP_CODES' == 0 {
 			noi display as error "{phang}The code listed in control(`control') is not used in grpvar(`grpvar'). See tabulation of `grpvar' below:"
 			noi tab `grpvar', nol
 			error 197
 		}
 
-		local order_correct : list order in GRP_CODES
-		if `order_correct' == 0 {
+		** Test if any value used in order is a code used in grpvar
+		if `: list order in GRP_CODES' == 0 {
 			noi display as error  "{phang}One or more codes listed in order(`order') are not used in grpvar(`grpvar'). See tabulation of `grpvar' below:"
 			noi tab `grpvar', nol
 			error 197
 		}
 
+		*****************************
+		** Test and parse column label inputs
 		if `GRPLABEL_USED' == 1 {
-
-			local col_labels_to_tokenize `grplabels'
-
-			while "`col_labels_to_tokenize'" != "" {
-
-				*Parsing code and label pair
-				gettoken codeAndLabel col_labels_to_tokenize : col_labels_to_tokenize, parse("@")
-
-				*Splitting code and label
-				gettoken code label : codeAndLabel
-
-				*** Codes
-
-				*Checking that code exist in grpvar and store it
-				local code_correct : list code in GRP_CODES
-				if `code_correct' == 0 {
-					noi display as error  "{phang}Code [`code'] listed in grplabels(`grplabels') is not used in grpvar(`grpvar'). See tabulation of `grpvar' below:"
-					noi tab `grpvar', nol
-					error 198
-				}
-
-				*Storing the code in local to be used later
-				local grpLabelCodes `"`grpLabelCodes' "`code'" "'
-
-				*** Labels
-
-				*Removing leadning or trailing spaces
-				local label = trim("`label'")
-
-				*Testing that no label is missing
-				if "`label'" == "" {
-					noi display as error "{phang}For code [`code'] listed in grplabels(`grplabels') you have not specified any label. Labels are requried for all codes listed in grplabels(). See tabulation of `grpvar' below:"
-					noi tab `grpvar', nol
-					error 198
-				}
-
-				*Storing the label in local to be used later
-				local grpLabelLables `"`grpLabelLables' "`label'" "'
-
-				*Parse char is not removed by gettoken
-				local col_labels_to_tokenize = subinstr("`col_labels_to_tokenize'" ,"@","",1)
-			}
+			test_parse_label_input, labelinput("`grplabels'") itemlist("`GRP_CODES'") ///
+			column grpvar(`grpvar')
+			local grpLabelCodes  "`r(items)'"
+			local grpLabelLables "`r(labels)'"
 		}
 
-		if `ROWLABEL_USED' {
-
-			*** Test the validity for the rowlabel input
-
-			*Create a local with the rowlabel input to be tokenized
-			local row_labels_to_tokenize `rowlabels'
-
-			while "`row_labels_to_tokenize'" != "" {
-
-				*Parsing name and label pair
-				gettoken nameAndLabel row_labels_to_tokenize : row_labels_to_tokenize, parse("@")
-
-				*Splitting name and label
-				gettoken name label : nameAndLabel
-
-				*** Variable names
-
-				*Checking that the variables used in rowlabels() are included in the table
-				local name_correct : list name in balancevars
-				if `name_correct' == 0 {
-					noi display as error "{phang}Variable [`name'] listed in rowlabels(`rowlabels') is not found among the variables included in the balance table."
-					error 111
-				}
-
-				*Storing the code in local to be used later
-				local rowLabelNames `"`rowLabelNames' "`name'" "'
-
-				*** Variable labels
-
-				*Removing leading or trailing spaces
-				local label = trim("`label'")
-
-				*Testing that no label is missing
-				if "`label'" == "" {
-					noi display as error "{phang}For variable [`name'] listed in rowlabels(`rowlabels') you have not specified any label. Labels are requried for all variables listed in rowlabels(). The variable name itself will be used for any variables omitted from rowlabels(). See also option {help iebaltab:rowvarlabels}"
-					noi tab `grpvar', nol
-					error 198
-				}
-
-				*Storing the label in local to be used later
-				local rowLabelLabels `"`rowLabelLabels' "`label'" "'
-
-				*Parse char is not removed by gettoken
-				local row_labels_to_tokenize = subinstr("`row_labels_to_tokenize'" ,"@","",1)
-			}
+		*****************************
+		** Test row label inputs
+		if `ROWLABEL_USED' == 1 {
+			test_parse_label_input, labelinput("`rowlabels'") itemlist("`balancevars'") ///
+			row
+			local rowLabelNames  "`r(items)'"
+			local rowLabelLabels "`r(labels)'"
 		}
 
+		*****************************
+		* Warning if totallabel is used without total. Only warning as there is
+		* nothing preventing the comamnd to continue as normal
 		if `TOTALLABEL_USED' & !`TOTAL_USED' {
-			*Error for totallabel() incorrectly applied
-			noi display as error "{phang}Option totallabel() may only be used together with the option total"
-			error 197
+			noi display as text "{phang}Warning: Option {input:totallabel(`totallabel')} is ignored as option {input:total} was not used."
 		}
 
+/*******************************************************************************
+
+		* Testing the group variable
+
+*******************************************************************************/
 
 	** Stats Options
 		local CLUSTER_USED 0
@@ -1038,6 +964,7 @@ qui {
 			* If no manually row labels are defined, and option rowvarlabels is
 			* not used, then use balance var name
 			else local ROW_LABELS `" `ROW_LABELS' "`balancevar'" "'
+
 		}
 
 		************************************************
@@ -1945,6 +1872,65 @@ end
 
 ********************************************************************************
 *******************************************************************************/
+
+/*******************************************************************************
+  test_parse_label_input: pars and test item/label lists
+	* Test that lists are on format "item1 label1 @ item2 label2"
+	* Test that each item listed is used in itemlist (groupcode or balance var)
+	* Test hat no label is missing for items included
+*******************************************************************************/
+cap program drop 	test_parse_label_input
+	program define	test_parse_label_input, rclass
+
+	syntax, labelinput(string) itemlist(string) [row column grpvar(string)]
+
+	if !missing("`row'") {
+		local optionname "rowlabels"
+		local listoutput "the name of any of the balance variables used"
+		local itemname "balance variable"
+	}
+	else if !missing("`column'") {
+		local optionname "grplabels"
+		local listoutput "a value used in grpvar(`grpvar')"
+		local itemname "group code"
+	}
+	else noi di as error "{phang}test_parse_label_inpu: either [row] or [column] must be used.
+
+	local labelinput_tokenize "`labelinput'"
+
+	* Loop over each item/label pair
+	while "`labelinput_tokenize'" != "" {
+
+		*Parsing item/label pairs and then split to item and label
+		gettoken item_label labelinput_tokenize : labelinput_tokenize, parse("@")
+		gettoken item label : item_label
+		local label = trim("`label'") //Removing leadning or trailing spaces
+
+		*Test that item is part of item list
+		if `: list item in itemlist' == 0 {
+			noi display as error `"{phang}Item [`item'] in `optionname'("`labelinput'") is not `listoutput'.{p_end}"'
+			error 198
+		}
+
+		*Testing that no label is missing
+		if "`label'" == "" {
+			noi display as error `"{phang}For item [`item'] listed in `optionname'("`labelinput'") there is no label specified. Not all `itemname's need to be listed, but those listed must have a label. Omitted `itemname's get the deafult label. See {help iebaltab:help file} for more details.{p_end}"'
+			error 198
+		}
+
+		*Storing the code in local to be used later
+		local items "`items' `item'"
+		local labels `"`labels' "`label'""'
+
+		*Parse char is not removed by gettoken
+		local labelinput_tokenize = subinstr("`labelinput_tokenize'" ,"@","",1)
+	}
+
+	return local items  "`items'"
+	return local labels `"`labels'"'
+
+end
+
 
 /*******************************************************************************
   getCodesFromPair:  to get codes from a test pair and test them
