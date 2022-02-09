@@ -69,6 +69,7 @@ preserve
   
 // Initialize locals in new file
   file write edited "tempname theSORT theRNG allRNGS whichRNG allDATA theDATA" _n
+  file write edited "cap postclose posty" _n
   file write edited "tempfile posty" _n "postfile posty Line " ///
     "str15(Data Err_1 Seed Err_2 Sort Err_3) str2000(Path) using \`posty' , replace" _n
     
