@@ -258,7 +258,7 @@ file open checkr using `"`newfile2'"' , read
     file write edited `"`macval(line)'"' _n
     file read checkr line
   }
-  file write edited `"postclose posty"' _n
+  file write edited `"cap postclose posty"' _n
   file write edited `"use \`posty' , clear"' _n
   file write edited `"collapse (firstnm) Data Err_1 Seed Err_2 Sort Err_3 Path , by(Line)"' _n
   file write edited `"compress"' _n
