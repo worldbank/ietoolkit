@@ -55,6 +55,7 @@ preserve
   local loop = 0
   local logic = 0
   local linenum = 1
+  local clear 
   
 // Open the file to be checked
   di as err " "
@@ -68,8 +69,26 @@ preserve
   qui file open checkr using `newfile2' , write replace 
   
 // Initialize locals in new file
+  file write edited ///
+    "  cap drop _all            " _n  /// (see [D] drop)
+    "  cap frames reset         " _n  /// (see [D] frames reset)
+    "  cap collect clear        " _n  /// (see [TABLES] collect clear)
+    "  cap label drop _all      " _n  /// (see [D] label)
+    "  cap matrix drop _all     " _n  /// (see [P] matrix utility)
+    "  cap scalar drop _all     " _n  /// (see [P] scalar)
+    "  cap constraint drop _all " _n  /// (see [R] constraint)
+    "  cap cluster drop _all    " _n  /// (see [MV] cluster utility)
+    "  cap file close _all      " _n  /// (see [P] file)
+    "  cap postutil clear       " _n  /// (see [P] postfile)
+    "  cap _return drop _all    " _n  /// (see [P] _return)
+    "  cap discard              " _n  /// (see [P] discard)
+    "  cap timer clear          " _n  /// (see [P] timer)
+    "  cap putdocx clear        " _n  /// (see [RPT] putdocx begin)
+    "  cap putpdf clear         " _n  /// (see [RPT] putpdf begin)
+    "  cap mata: mata clear     " _n  /// (see [M-3] mata clear)
+    "  cap python clear         " _n  /// (see [P] PyStata integration)
+    "  cap java clear  " _n
   file write edited "tempname theSORT theRNG allRNGS whichRNG allDATA theDATA" _n
-  file write edited "cap postclose posty" _n
   file write edited "tempfile posty" _n "postfile posty Line " ///
     "str15(Data Err_1 Seed Err_2 Sort Err_3) str2000(Path) using \`posty' , replace" _n
     
@@ -252,14 +271,30 @@ file open checkr using `"`newfile2'"' , read
      "}" _n ///
   "// ADVANCE RNG AND CLEAR DATA -------------------------------------------" _n ///
     "qui di \`=rnormal()'" _n ///
-    "clear" _n /// 
+    "  cap drop _all            " _n  /// (see [D] drop)
+    "  cap frames reset         " _n  /// (see [D] frames reset)
+    "  cap collect clear        " _n  /// (see [TABLES] collect clear)
+    "  cap label drop _all      " _n  /// (see [D] label)
+    "  cap matrix drop _all     " _n  /// (see [P] matrix utility)
+    "  cap scalar drop _all     " _n  /// (see [P] scalar)
+    "  cap constraint drop _all " _n  /// (see [R] constraint)
+    "  cap cluster drop _all    " _n  /// (see [MV] cluster utility)
+    "  cap file close _all      " _n  /// (see [P] file)
+    "  cap _return drop _all    " _n  /// (see [P] _return)
+    "  cap mata: mata clear     " _n  /// (see [M-3] mata clear)
+/// "  cap discard              " _n  /// (see [P] discard)                     TODO: Figure out why [discard] kills postfile
+    "  cap timer clear          " _n  /// (see [P] timer)
+    "  cap putdocx clear        " _n  /// (see [RPT] putdocx begin)
+    "  cap putpdf clear         " _n  /// (see [RPT] putpdf begin)
+    "  cap python clear         " _n  /// (see [P] PyStata integration)
+    "  cap java clear  " _n ///
   "// SECOND RUN STARTS HERE ------------------------------------------------" _n _n
     
   while r(eof)==0 {
     file write edited `"`macval(line)'"' _n
     file read checkr line
   }
-  file write edited `"cap postclose posty"' _n
+  file write edited `"postclose posty"' _n
   file write edited `"use \`posty' , clear"' _n
   file write edited `"collapse (firstnm) Data Err_1 Seed Err_2 Sort Err_3 Path , by(Line)"' _n
   file write edited `"compress"' _n
