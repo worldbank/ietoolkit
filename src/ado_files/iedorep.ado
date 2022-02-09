@@ -105,6 +105,7 @@ while r(eof)==0 {
   
     // Set flag whenever looping word or logic word
     if strpos(`"`macval(line)'"',"if ")     local logic = 1
+    if strpos(`"`macval(line)'"',"else ")   local logic = 1
     if strpos(`"`macval(line)'"',"forv")    local  loop = 1
     if strpos(`"`macval(line)'"',"foreach") local  loop = 1
     if strpos(`"`macval(line)'"',"while")   local  loop = 1
