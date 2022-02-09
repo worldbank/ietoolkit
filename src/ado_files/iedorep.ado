@@ -245,7 +245,7 @@ file open checkr using `"`newfile2'"' , read
       "\`posty' \`theSORT' \`theRNG' \`allRNGS' \`whichRNG' \`allDATA' \`theDATA' \`theLOCALS'" _n ///
     `"mata : st_local("all_locals", invtokens(st_dir("local", "macro", "*")'))"' _n ///
     "local toDROP : list all_locals - theLOCALS" _n ///
-    "macro drop \`toDROP' " _n  ///
+    "cap macro drop \`toDROP' " _n  ///
     "foreach macro in \`toDROP' {" _n ///
     `"  mata : st_local("\`macro'","") "' _n ///
      "}" _n ///
