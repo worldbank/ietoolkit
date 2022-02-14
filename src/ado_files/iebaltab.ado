@@ -85,7 +85,6 @@ qui {
 
 		tempname rmat fmat
 
-
 	** Column Options
 
 		*Is option control() used:
@@ -243,19 +242,19 @@ qui {
 		local old_version_guide `"If you still need the old version of iebaltab, for example for reproduction of old code, see {browse  "https://github.com/worldbank/ietoolkit/blob/master/admin/run-old-versions.md" :this guide} for how to run old versions of any command in the ietoolkit package."'
 
 	  if !missing("`savebrowse'`save'") {
-			di as error `"{pstd}The options {input:savebrowse}, {input:save} and {input:browse} have been deprecated as of verion 7 of iebaltab. See if the options {input:savexlsx}, {input:savecsv} or {input:browse} have the functionality you need. `old_version_guide'{p_end}"'
+			di as error `"{pstd}The options {input:savebrowse}, {input:save} and {input:browse} have been deprecated as of version 7 of iebaltab. See if the options {input:savexlsx}, {input:savecsv} or {input:browse} have the functionality you need. `old_version_guide'{p_end}"'
 			error 198
 		}
 		if !missing("`balmiss'`balmissreg'`covmiss'`covmissreg'`missminmean'`covarmissok'") {
-			di as error `"{pstd}The options {input:balmiss}, {input:balmissreg}, {input:covmiss}, {input:covmissreg}, {input:missminmean} and {input:covarmissok} have been deprecated as of verion 7 of iebaltab. Instead, if needed and/or desired, you must modify missing values yourself before running the command. `old_version_guide'{p_end}"'
+			di as error `"{pstd}The options {input:balmiss}, {input:balmissreg}, {input:covmiss}, {input:covmissreg}, {input:missminmean} and {input:covarmissok} have been deprecated as of version 7 of iebaltab. Instead, if needed and/or desired, you must modify missing values yourself before running the command. `old_version_guide'{p_end}"'
 			error 198
 		}
 		if !missing("`nottest'`normdiff'`pttest'`pftest'`pboth'") {
-			di as error `"{pstd}The options {input:nottest}, {input:normdiff}, {input:pttest}, {input:pftest} and {input:pboth} have been deprecated as of verion 7 of iebaltab. See if the options {input:pairoutput} or {input:ftestoutput} have the functionality you need. `old_version_guide'{p_end}"'
+			di as error `"{pstd}The options {input:nottest}, {input:normdiff}, {input:pttest}, {input:pftest} and {input:pboth} have been deprecated as of version 7 of iebaltab. See if the options {input:pairoutput} or {input:ftestoutput} have the functionality you need. `old_version_guide'{p_end}"'
 			error 198
 		}
 		if !missing("`notecombine'") {
-			di as error `"{pstd}The option {input:notecombine} has been deprecated as of verion 7 of iebaltab. See if the options {input:tblnote} or {input:tblnonote} have the functionality you need. `old_version_guide'{p_end}"'
+			di as error `"{pstd}The option {input:notecombine} has been deprecated as of version 7 of iebaltab. See if the options {input:tblnote} or {input:tblnonote} have the functionality you need. `old_version_guide'{p_end}"'
 			error 198
 		}
 
@@ -547,7 +546,6 @@ qui {
 			local savetex "`r(filepath)'"
 		}
 
-
 		/*******************************************************************************
 
 				* Testing tex foramtting Options
@@ -640,7 +638,6 @@ qui {
 
 			noi display as error "{phang}Options texnotewidth, texdocument, texlabel, texcaption, texvspace and texcolwidth may only be used in combination with option savetex(){p_end}"
 			error 198
-
 		}
 
 
@@ -831,11 +828,9 @@ qui {
 
 			************
 			* Use variable name as row label
-
 			* If no manually row labels are defined, and option rowvarlabels is
 			* not used, then use balance var name
 			else local ROW_LABELS `" `ROW_LABELS' "`balancevar'" "'
-
 		}
 
 		************************************************
@@ -910,7 +905,7 @@ qui {
 			foreach group_code of local ORDER_OF_GROUP_CODES {
 
 				noi di "Desc stats. Var [`balancevar'], group code [`group_code']"
-				reg 	`balancevar' if `grpvar' == `group_code' `weight_option', `error_estm'
+				reg `balancevar' if `grpvar' == `group_code' `weight_option', `error_estm'
 
 				*Number of observation for this balancevar for this group
 				mat row[1,`++colindex'] = e(N)
@@ -934,7 +929,7 @@ qui {
 			noi di "Desc stats. Var [`balancevar'], total"
 			if !missing("`total'") {
 				* Estimate descriptive stats for total
-				reg 	`balancevar'  `weight_option', `error_estm'
+				reg `balancevar' `weight_option', `error_estm'
 				*Number of observation for this balancevar for this group
 				mat row[1,`++colindex'] = e(N)
 				*If clusters used, number of clusters in this balance var for this group, otherwise .c
