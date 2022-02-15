@@ -1113,72 +1113,63 @@ qui {
 	/************************************************
 	************************************************/
 
-	*Local used to count number of f-test that trigered warnings
-	local warn_joint_novar_num	0
-	local warn_joint_lovar_num	0
-	local warn_joint_robus_num	0
-	local fmiss_error           0
+	if !missing("`ftest'") {
 
-	local Fcolindex             0
+		* Initiate F matrix index
+		local Fcolindex 0
 
-	*Run the F-test on each pair
-	foreach ttest_pair of local TEST_PAIR_CODES {
+		*Run the F-test on each pair
+		foreach ftest_pair of local TEST_PAIR_CODES {
 
-		**********
-		* Run the regression for f-test
-		noi di "F regression. Var [`balancevars'], test pair [`ttest_pair']"
-		reg `dummy_pair_`ttest_pair'' `balancevars' `covariates' i.`fixedeffect' `weight_option',  `error_estm'
-		scalar reg_f = e(F)
+			*Get each code from a testpair
+			getCodesFromPair `ftest_pair'
+			local code1 `r(code1)'
+			local code2 `r(code2)'
 
-		* Adding F score and number of observations to the matrix
-		mat `fmat'[1,`++Fcolindex'] = e(N)
-		*If clusters used, number of clusters in this reg, otehrwise .c
-		local ++Fcolindex
-		if "`vce_type'" == "cluster" mat `fmat'[1,`Fcolindex'] = e(N_clust)
-		else mat `fmat'[1,`Fcolindex'] = .c
+			**********
+			* Run the regression for f-test
+			noi di "F regression. Var [`balancevars'], test pair [`ftest_pair']"
+			noi reg `dummy_pair_`ftest_pair'' `balancevars' `covariates' i.`fixedeffect' `weight_option', `error_estm'
 
-		*Test all balance variables for joint significance
-		cap testparm `balancevars'
-		scalar test_F = r(F)
-		scalar test_p = r(p)
+			* Find ommitted balance vars if any
+		 	local all_columns     : colnames r(table)
+			local omitted_balvars : list balancevars - all_columns
+			if !missing("`omitted_balvars'") noi display as text "{phang}Warning: One or more balance variables were omitted due to no variance in the F-test across all balance variables for group variable values `code1' and `code2'.{p_end}."
 
-		**********
-		* Write to table
+			* All variation in group var is explained by a balance variable
+			if e(r_2) == 1 noi display as text "{phang}Warning: All variance in the F-test across all balance variables for group variable values `code1' and `code2' is explained by one or more independent variables.{p_end}."
 
-		* No variance in either groups mean in any of the balance vars. F-test not possible to calculate
-		if _rc == 111 {
-
-			local warn_joint_novar_num	= `warn_joint_novar_num' + 1
-			local warn_joint_novar`warn_joint_novar_num' "(`first_group')-(`second_group')"
-		}
-
-		* Collinearity between one balance variable and the dependent treatment dummy
-		else if "`test_F'" == "." {
-
-			local warn_joint_lovar_num	= `warn_joint_lovar_num' + 1
-			local warn_joint_lovar`warn_joint_lovar_num' "(`first_group')-(`second_group')"
-		}
-
-		* F-test is incorreclty specified, error in this code
-		else if _rc != 0 {
-
-			noi di as error "F-test not valid. Please report this error to dimeanalytics@worldbank.org"
-			error _rc
-		}
-
-		* F-tests possible to calculate
-		else {
-
-			* Robust singularity, see help file. Similar to overfitted model. Result possible but probably not reliable
-			if "`reg_F'" == "." {
-
-				local warn_joint_robus_num	= `warn_joint_robus_num' + 1
-				local warn_joint_robus`warn_joint_robus_num' "(`first_group')-(`second_group')"
+			* If not possible to calculate F-test due to variance issues,
+			if !missing("`omitted_balvars'") | e(r_2) == 1 {
+				foreach f_stat of local ftest_stats {
+					mat `fmat'[1,`++Fcolindex'] = .v
+				}
 			}
-			mat `fmat'[1,`++Fcolindex'] = test_F
-			mat `fmat'[1,`++Fcolindex'] = test_p
+			else {
+				* Adding F score and number of observations to the matrix
+				mat `fmat'[1,`++Fcolindex'] = e(N)
+				*If clusters used, number of clusters in this reg, otehrwise .c
+				local ++Fcolindex
+				if "`vce_type'" == "cluster" mat `fmat'[1,`Fcolindex'] = e(N_clust)
+				else mat `fmat'[1,`Fcolindex'] = .c
+
+				*Test all balance variables for joint significance
+				testparm `balancevars'
+
+				*F-test possible store stats in matrix
+				mat `fmat'[1,`++Fcolindex'] = r(F)
+				mat `fmat'[1,`++Fcolindex'] = r(p)
+			}
 		}
 	}
+	else {
+		* F test not used, mark all f-test values as .m
+		foreach f_stat of local ftest_stats {
+			mat `fmat'[1,`++Fcolindex'] = .m
+		}
+	}
+
+
 
 	/*******************************************************************************
 	*******************************************************************************/
