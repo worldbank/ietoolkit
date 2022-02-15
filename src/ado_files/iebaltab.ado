@@ -874,19 +874,6 @@ qui {
 		* weight was used then this option will be left empty
 		if `WEIGHT_USED' local weight_option "[`weight_type' = `weight_var']"
 
-
-	** Create locals that control the warning table
-
-			*Mean test warnings
-			local warn_means_num    	0
-			local warn_ftest_num    	0
-
-			*Joint test warnings
-			local warn_joint_novar_num	0
-			local warn_joint_lovar_num	0
-			local warn_joint_robus_num	0
-
-
 	*****************************************************************************
 	*** Loop over each balance var and create the stats
 
@@ -976,10 +963,10 @@ qui {
 					reg `balancevar' `dummy_pair_`ttest_pair'' `covariates' i.`fixedeffect' `weight_option', `error_estm'
 
 					* R2 = 100
-					if (e(r2) == 1) noi display as text "{phang}Warning: All variance was exaplined by one variable in the regression for the pair-wise test of  variable [`balancevar'] for observations with values [`code1'] and [`code2'] in the groupvar [`grpvar'].{p_end}."
+					if (e(r2) == 1) noi display as text "{phang}Warning: All variance was explained by one variable in the regression for the pair-wise test of  variable [`balancevar'] for observations with values [`code1'] and [`code2'] in the groupvar [`grpvar'].{p_end}."
 
 					* R2 = 0
-					if (e(r2) == .) noi display as text "{phang}Warning: The R2 was not posible to calculate in the regression for the pair-wise test of  variable [`balancevar'] for observations with values [`code1'] and [`code2'] in the groupvar [`grpvar'].{p_end}."
+					if (e(r2) == .) noi display as text "{phang}Warning: The R2 was not possible to calculate in the regression for the pair-wise test of  variable [`balancevar'] for observations with values [`code1'] and [`code2'] in the groupvar [`grpvar'].{p_end}."
 
 					*If any of the tests
 					if (e(r2) == .) | (e(r2) == 1) {
@@ -1028,47 +1015,44 @@ qui {
 
 			if !missing("`feqtest'") {
 
-			    * Run regression
-					noi di "FEQ regression. Var [`balancevar']"
-					reg `balancevar' i.`grpvar' `covariates' i.`fixedeffect' `weight_option', `error_estm'
-					local nfeqtest 	= e(N)
+		    * Run regression
+				noi di "FEQ regression. Var [`balancevar']"
+				noi reg `balancevar' i.`grpvar' `covariates' i.`fixedeffect' `weight_option', `error_estm'
+				noi ereturn list
+
+				* R2 = 100
+				if (e(r2) == 1) noi display as text "{phang}Warning: All variance was explained by one variable in the regression for the feq-test over all values in the group variable [`grpvar'] for balance variable [`balancevar'].{p_end}."
+
+				* R2 = 0
+				if (e(r2) == .) noi display as text "{phang}Warning: The R2 value could not be calculated in the regression for the feq-test over all values in the group variable [`grpvar'] for balance variable [`balancevar'].{p_end}
+
+				*If any of the tests
+				if (e(r2) == .) | (e(r2) == 1) {
+					foreach stat of local feq_stats {
+							mat row[1,`++colindex'] = .v
+					}
+				}
+				else {
+					mat row[1,`++colindex'] = e(N)
 					*If clusters used, number of clusters in this reg, otehrwise .c
-					if "`vce_type'" == "cluster" local clfeqtest = e(N_clust)
-					else local clfeqtest = .c
+					local ++colindex
+					if "`vce_type'" == "cluster" mat row[1,`colindex'] = e(N_clust)
+					else mat row[1,`colindex'] = .c
 
 					*Perfeorm the F test
-					test `FEQTEST_INPUT'
-					local ffeqtest 	= r(F)
-					local pfeqtest 	= r(p)
+					noi test `FEQTEST_INPUT'
+					noi return list
+					mat row[1,`++colindex'] = r(F)
+					mat row[1,`++colindex'] = r(p)
 
-
-					*Check if the test is valid. If not, print N/A and error message.
-					*Is yes, print test
-					if "`ffeqtest'" == "." {
-						local warn_ftest_num  	= `warn_ftest_num' + 1
-						local warn_ftest_bvar`warn_ftest_num'		"`balancevar'"
-						* Adding missing values for invalid feq test
-						foreach feq_stat of local feq_stats {
-							mat row[1,`++colindex'] = .f
-						}
-					}
-					* Few test possible save results to matrix
-					else {
-						* Adding p value and F value to matrix
-						mat row[1,`++colindex'] = `nfeqtest'
-						mat row[1,`++colindex'] = `clfeqtest'
-						mat row[1,`++colindex'] = `ffeqtest'
-						mat row[1,`++colindex'] = `pfeqtest'
-					}
 				}
-
-				* Feq test not used -  save missing .m
-				else {
-					foreach feq_stat of local feq_stats {
-						mat row[1,`++colindex'] = .m
-					}
+			}
+			* Feq test not used -  save missing .m
+			else {
+				foreach feq_stat of local feq_stats {
+					mat row[1,`++colindex'] = .m
 				}
-
+			}
 			******************************************************
 			*** All estimates calculated for this row
 
@@ -1140,65 +1124,6 @@ qui {
 		}
 	}
 
-
-
-	/*******************************************************************************
-	*******************************************************************************/
-
-			*Compile and display warnings from regressions and tests
-
-	/*******************************************************************************
-	*******************************************************************************/
-
-	* Count if there were any warsnings generated above
-	local anywarning	= max(`warn_means_num',`warn_ftest_num',`warn_joint_novar_num', `warn_joint_lovar_num' ,`warn_joint_robus_num')
-	local anywarning_F	= max(`warn_joint_novar_num', `warn_joint_lovar_num' ,`warn_joint_robus_num')
-
-	* Display warnings related to the pairwise test regressions
-	if `anywarning' > 0 {
-
-		noi di as text ""
-		noi di as error "{hline}"
-		noi di as error "{pstd}Stata issued one or more warnings in relation to the tests in this balance table. Read the warning(s) below carefully before using the values generated for this table.{p_end}"
-		noi di as text ""
-
-		if `warn_means_num' > 0 {
-
-			noi di as text "{pmore}{bf:Difference-in-Means Tests:} The variance in both groups listed below is zero for the variable indicated and a difference-in-means test between the two groups is therefore not valid. Tests are reported as N/A in the table.{p_end}"
-			noi di as text ""
-
-			noi di as text "{col 9}{c TLC}{hline 11}{c TT}{hline 12}{c TT}{hline 37}{c TRC}"
-			noi di as text "{col 9}{c |}{col 13}Test{col 21}{c |}{col 25}Group{col 34}{c |}{col 39}Balance Variable{col 72}{c |}"
-			noi di as text "{col 9}{c LT}{hline 11}{c +}{hline 12}{c +}{hline 37}{c RT}"
-
-			forvalues warn_num = 1/`warn_means_num' {
-				noi di as text "{col 9}{c |}{col 11}`warn_means_name`warn_num''{col 21}{c |}{col 23}`warn_means_group`warn_num''{col 34}{c |}{col 37}`warn_means_bvar`warn_num''{col 72}{c |}"
-			}
-			noi di as text "{col 9}{c BLC}{hline 11}{c BT}{hline 12}{c BT}{hline 37}{c BRC}"
-			noi di as text ""
-		}
-
-		if `warn_ftest_num' > 0 {
-
-			noi di as text "{pmore}{bf:F-Test for Joint Orthogonality:} The variance all groups is zero for the variable indicated and a test of joint orthogonality for all groups is therefore not valid. Tests are reported as N/A in the table.{p_end}"
-			noi di as text ""
-
-			noi di as text "{col 9}{c TLC}{hline 25}{c TRC}"
-			noi di as text "{col 9}{c |}{col 13} Balance Variable{col 35}{c |}"
-			noi di as text "{col 9}{c LT}{hline 25}{c RT}"
-
-			forvalues warn_num = 1/`warn_ftest_num' {
-				noi di as text "{col 9}{c |}{col 12}`warn_ftest_bvar`warn_num''{col 35}{c |}"
-			}
-			noi di as text "{col 9}{c BLC}{hline 25}{c BRC}"
-			noi di as text ""
-		}
-
-		noi di as error "{pstd}Stata issued one or more warnings in relation to the tests in this balance table. Read the warning(s) above carefully before using the values generated for this table.{p_end}"
-		noi di as error "{hline}"
-		noi di as text ""
-
-	}
 
 /*******************************************************************************
 
