@@ -1947,16 +1947,16 @@ end
 /*******************************************************************************
   count_stars: count number of stars given p-value and star levels
 	* Returns a string with the number of stars given a p-value and the list of
-	* starlevels. If starlevels is empty (if option starsnoadd is used) then it
-	* will always return the empty string "".
+	* starlevels. If starlevels is empty (i.e. option starsnoadd is used)
+	* then it will always return the empty string "".
 *******************************************************************************/
 cap program drop 	count_stars
 	program define	count_stars, rclass
 
-	syntax, p(numlist) [starlevels(string)]
+	syntax, p(numlist missingokay) [starlevels(string)]
 
 	local stars ""
-	if !missing("`starlevels'") {
+	if !missing("`starlevels'") s{
 		tokenize "`starlevels'"
 		if `p' < `1' local stars "*"
 		if `p' < `2' local stars "**"
