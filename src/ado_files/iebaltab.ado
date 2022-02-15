@@ -1068,10 +1068,10 @@ qui {
 	/************************************************
 	************************************************/
 
-	if !missing("`ftest'") {
+	* Initiate F matrix index
+	local Fcolindex 0
 
-		* Initiate F matrix index
-		local Fcolindex 0
+	if !missing("`ftest'") {
 
 		*Run the F-test on each pair
 		foreach ftest_pair of local TEST_PAIR_CODES {
