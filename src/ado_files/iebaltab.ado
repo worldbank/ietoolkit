@@ -1137,10 +1137,10 @@ qui {
 			if !missing("`omitted_balvars'") noi display as text "{phang}Warning: One or more balance variables were omitted due to no variance in the F-test across all balance variables for group variable values `code1' and `code2'.{p_end}."
 
 			* All variation in group var is explained by a balance variable
-			if e(r_2) == 1 noi display as text "{phang}Warning: All variance in the F-test across all balance variables for group variable values `code1' and `code2' is explained by one or more independent variables.{p_end}."
+			if e(r2) == 1 noi display as text "{phang}Warning: All variance in the F-test across all balance variables for group variable values `code1' and `code2' is explained by one or more independent variables.{p_end}."
 
 			* If not possible to calculate F-test due to variance issues,
-			if !missing("`omitted_balvars'") | e(r_2) == 1 {
+			if !missing("`omitted_balvars'") | e(r2) == 1 {
 				foreach f_stat of local ftest_stats {
 					mat `fmat'[1,`++Fcolindex'] = .v
 				}
@@ -1221,58 +1221,6 @@ qui {
 			}
 			noi di as text "{col 9}{c BLC}{hline 25}{c BRC}"
 			noi di as text ""
-		}
-
-		* Display warnings related to the F test regression
-		if `anywarning_F' > 0 {
-			noi di as text "{pmore}{bf:Joint Significance Tests:} F-tests are not possible to perform or unreliable. See below for details:{p_end}"
-			noi di as text ""
-
-			if `warn_joint_novar_num' > 0 {
-
-				noi di as text "{pmore}In the following tests, F-tests were not valid as all variables were omitted in the joint significance test due to collinearity. Tests are reported as N/A in the table.{p_end}"
-				noi di as text ""
-
-				noi di as text "{col 9}{c TLC}{hline 12}{c TRC}"
-				noi di as text "{col 9}{c |}{col 13}Test{col 22}{c |}"
-				noi di as text "{col 9}{c LT}{hline 12}{c RT}"
-
-				forvalues warn_num = 1/`warn_joint_novar_num' {
-					noi di as text "{col 9}{c |}{col 12}`warn_joint_novar`warn_num''{col 22}{c |}"
-				}
-				noi di as text "{col 9}{c BLC}{hline 12}{c BRC}"
-				noi di as text ""
-			}
-			if `warn_joint_lovar_num' > 0 {
-
-				noi di as text "{pmore}In the following tests, F-tests are not valid as the variation in, and the covariation between, the balance variables is too close to zero in the joint test. This could be due to many reasons, but is usually due to a balance variable with high correlation with group dummy. Tests are reported as N/A in the table.{p_end}"
-				noi di as text ""
-
-				noi di as text "{col 9}{c TLC}{hline 12}{c TRC}"
-				noi di as text "{col 9}{c |}{col 13}Test{col 22}{c |}"
-				noi di as text "{col 9}{c LT}{hline 12}{c RT}"
-
-				forvalues warn_num = 1/`warn_joint_lovar_num' {
-					noi di as text "{col 9}{c |}{col 12}`warn_joint_lovar`warn_num''{col 22}{c |}"
-				}
-				noi di as text "{col 9}{c BLC}{hline 12}{c BRC}"
-				noi di as text ""
-			}
-			if `warn_joint_robus_num' > 0 {
-
-				noi di as text "{pmore}In the following tests, F-tests are possible to calculate, but Stata issued a warning. Read more about this warning {help j_robustsingular:here}. Tests are reported with F-values and significance stars (if applicable), but these results might be unreliable.{p_end}"
-				noi di as text ""
-
-				noi di as text "{col 9}{c TLC}{hline 12}{c TRC}"
-				noi di as text "{col 9}{c |}{col 13}Test{col 22}{c |}"
-				noi di as text "{col 9}{c LT}{hline 12}{c RT}"
-
-				forvalues warn_num = 1/`warn_joint_robus_num' {
-					noi di as text "{col 9}{c |}{col 12}`warn_joint_robus`warn_num''{col 22}{c |}"
-				}
-				noi di as text "{col 9}{c BLC}{hline 12}{c BRC}"
-				noi di as text ""
-			}
 		}
 
 		noi di as error "{pstd}Stata issued one or more warnings in relation to the tests in this balance table. Read the warning(s) above carefully before using the values generated for this table.{p_end}"
