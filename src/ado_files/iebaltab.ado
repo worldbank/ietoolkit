@@ -971,50 +971,32 @@ qui {
 					local code1 `r(code1)'
 					local code2 `r(code2)'
 
-					local colnum_mean_code1 = colnumb(row,"mean_`code1'")
-					local colnum_mean_code2 = colnumb(row,"mean_`code2'")
-					mat row[1,`++colindex'] = el(row,1,`colnum_mean_code1') - el(row,1,`colnum_mean_code2')
+					* Perform the balance test for this test pair for this balance var
+					noi di "Balance regression. Var [`balancevar'], test pair [`ttest_pair']"
+					reg `balancevar' `dummy_pair_`ttest_pair'' `covariates' i.`fixedeffect' `weight_option', `error_estm'
 
-					* The command mean is used to test that there is variation in the
-					* balance var across these two groups. The regression that includes
-					* fixed effects and covariaties might run without error even if there is
-					* no variance across the two groups. The local varloc will determine if
-					* an error or a warning will be thrown or if the test results will be
-					* replaced with an "N/A".
-					if "`error_estm'" != "vce(robust)" 	local mean_error_estm `error_estm' //Robust not allowed in mean, but the mean here
-					noi di "Test var. Var [`balancevar'], test pair [`ttest_pair']"
-					mean `balancevar', over(`dummy_pair_`ttest_pair'') 	 `mean_error_estm'
-					mat var = e(V)
-					local varloc = max(var[1,1],var[2,2])
+					* R2 = 100
+					if (e(r2) == 1) noi display as text "{phang}Warning: All variance was exaplined by one variable in the regression for the pair-wise test of  variable [`balancevar'] for observations with values [`code1'] and [`code2'] in the groupvar [`grpvar'].{p_end}."
 
-					*Calculate standard deviation for sample of interest
-					sum `balancevar' if !missing(`dummy_pair_`ttest_pair'')
-					tempname scal_sd
-					scalar `scal_sd' = r(sd)
+					* R2 = 0
+					if (e(r2) == .) noi display as text "{phang}Warning: The R2 was not posible to calculate in the regression for the pair-wise test of  variable [`balancevar'] for observations with values [`code1'] and [`code2'] in the groupvar [`grpvar'].{p_end}."
 
-					*Testing result and if valid, write to file with or without stars
-					if `varloc' == 0 {
-
-						local warn_means_num  	= `warn_means_num' + 1
-
-						local warn_means_name`warn_means_num'	"t-test"
-						local warn_means_group`warn_means_num' 	"(`code1')-(`code2')"
-						local warn_means_bvar`warn_means_num'	"`balancevar'"
-
-						* Adding missing value for each stat that is missing due to not running regression
-						foreach stat in baln balcl beta t p {
-							mat row[1,`++colindex'] = .v
+					*If any of the tests
+					if (e(r2) == .) | (e(r2) == 1) {
+						foreach stat of local pair_stats {
+								mat row[1,`++colindex'] = .v
 						}
 					}
-
 					else {
 
-						* Perform the balance test for this test pair for this balance var
-						noi di "Balance regression. Var [`balancevar'], test pair [`ttest_pair']"
-						reg `balancevar' `dummy_pair_`ttest_pair'' `covariates' i.`fixedeffect' `weight_option', `error_estm'
+						* Calculate the difference in means
+						local colnum_mean_code1 = colnumb(row,"mean_`code1'")
+						local colnum_mean_code2 = colnumb(row,"mean_`code2'")
+						mat row[1,`++colindex'] = el(row,1,`colnum_mean_code1') - el(row,1,`colnum_mean_code2')
 
 						*Number of observation for in these two groups
 						mat row[1,`++colindex'] = e(N)
+
 						*If clusters used, number of clusters in this these two groups, otehrwise .c
 						local ++colindex
 						if "`vce_type'" == "cluster" mat row[1,`colindex'] = e(N_clust)
@@ -1022,32 +1004,21 @@ qui {
 
 						*The diff between the groups after controling for fixed effects and covariates
 						mat row[1,`++colindex'] = e(b)[1,1]
+
+						*Get the standard error for this pair dummy and calculate st dev
+						local se_this_pair = _se[`dummy_pair_`ttest_pair'']
+						local sd_this_pair = `se_this_pair' * sqrt(e(N))
+
 						*The t-stat the the beta is different from 0
-						mat row[1,`++colindex'] = _b[`dummy_pair_`ttest_pair'']/_se[`dummy_pair_`ttest_pair'']
+						mat row[1,`++colindex'] = _b[`dummy_pair_`ttest_pair'']/`se_this_pair'
 
 						*Perform the t-test and store p-value in pttest
 						*Test is used instead of ttest as we test coefficients from reg
 						test `dummy_pair_`ttest_pair''
 						mat row[1,`++colindex'] = r(p)
 
-					}
-
-					*Testing result and if valid, write to file with or without stars
-					if `scal_sd' == 0 {
-
-						local warn_means_num  	= `warn_means_num' + 1
-
-						local warn_means_name`warn_means_num'	"Norm diff"
-						local warn_means_group`warn_means_num' 	"(`first_group')-(`second_group')"
-						local warn_means_bvar`warn_means_num'	"`balancevar'"
-
-						* Adding missing value for no normdiff due to no standdev in balancevar for this pair
-						mat row[1,`++colindex'] = .n
-
-					}
-					else {
 						*Calculate and store the normalized difference
-						mat row[1,`++colindex'] = el(row,1,colnumb(row,"diff_`ttest_pair'")) / `scal_sd'
+						mat row[1,`++colindex'] = el(row,1,colnumb(row,"diff_`ttest_pair'")) / `sd_this_pair'
 					}
 				}
 			}
