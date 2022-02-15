@@ -1956,7 +1956,7 @@ cap program drop 	count_stars
 	syntax, p(numlist missingokay) [starlevels(string)]
 
 	local stars ""
-	if !missing("`starlevels'") s{
+	if !missing("`starlevels'") {
 		tokenize "`starlevels'"
 		if `p' < `1' local stars "*"
 		if `p' < `2' local stars "**"
