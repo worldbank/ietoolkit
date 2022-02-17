@@ -725,8 +725,6 @@ qui {
 			replace `dummy_pair_`ttest_pair'' = 1 if `grpvar' == `code2'
 		}
 
-		do "C:\Users\wb462869\GitHub\ietoolkit\src\ado_files\iebaltab_setupmatrix.ado"
-
 		* Set up the matrix for all stats and estimates
 		noi setUpResultMatrix, order_of_group_codes(`ORDER_OF_GROUP_CODES') test_pair_codes(`TEST_PAIR_CODES')
 		mat emptyRow  = r(emptyRow)
@@ -751,7 +749,6 @@ qui {
 
 	************************************************
 	* Prepare column lables for groups
-
 
 		*Local that will store the final labels. These labels will be stored in the in final order of groups in groupvar
 		local COLUMN_LABELS ""
@@ -1573,6 +1570,93 @@ end
 
 ********************************************************************************
 *******************************************************************************/
+
+/*******************************************************************************
+  setUpResultMatrix: set up a matrices where result will be stored
+	* This command sets up two template matrices: emptyRow and emptyFRow.
+	* Both of them are of size 1 row and C columns, where C depends on the number
+	* of test pairs that are used. emptyRow will be used as a template once per
+	* balance variable outside this command, where each row is appended to a
+	* matrix of size B rows and C columns, where B is the number of balance vars.
+*******************************************************************************/
+
+*Sets up template for the result matrix
+cap program drop 	setUpResultMatrix
+	program define	setUpResultMatrix, rclass
+
+  syntax , order_of_group_codes(string) test_pair_codes(string)
+
+	*Locals for balance var row
+  local emptyRow = ""
+  local colnames = ""
+
+  *Locals for F test row
+	local emptyFRow = ""
+	local Fcolnames = ""
+
+  *Locals with stats names for each category
+  local desc_stats   = "n cl mean se sd"
+  local pair_stats   = "diff n cl beta t p nrmd"
+	local feq_stats    = "feqn feqcl feqf feqp"
+	local ftest_stats  = "fn fcl ff fp"
+
+  *Create columns for group desc statisitics
+  foreach group_code of local order_of_group_codes {
+    foreach stat of local desc_stats {
+      local colnames = "`colnames' `stat'_`group_code'"
+      local emptyRow = "`emptyRow',."
+    }
+  }
+
+  *Create columns for total obs desc statisitics
+  foreach stat of local desc_stats {
+    local colnames = "`colnames' `stat'_t"
+    local emptyRow = "`emptyRow',."
+  }
+
+  *balance var pair stats
+  foreach test_pair of local test_pair_codes {
+    foreach stat of local pair_stats {
+      local colnames = "`colnames' `stat'_`test_pair'"
+      local emptyRow = "`emptyRow',."
+    }
+  }
+
+	*all balance var stats
+  foreach stat of local feq_stats {
+    local colnames = "`colnames' `stat'"
+    local emptyRow = "`emptyRow',."
+  }
+
+	*ftest pairs stats
+  foreach test_pair of local test_pair_codes {
+    foreach stat of local ftest_stats {
+      local Fcolnames = "`Fcolnames' `stat'_`test_pair'"
+      local emptyFRow = "`emptyFRow',."
+    }
+  }
+
+  *Remove first comma in ",.,.,.,.," empty row
+	local emptyRow  = subinstr("`emptyRow'" ,",","",1)
+	local emptyFRow = subinstr("`emptyFRow'",",","",1)
+
+	*Create a one 1xN matrix that represents one balance var row
+	mat emptyRow = (`emptyRow')
+	mat colnames emptyRow = `colnames'
+	return matrix emptyRow emptyRow
+
+	*Create a one 1xN matrix that represents one F-test row
+	mat emptyFRow = (`emptyFRow')
+	mat colnames emptyFRow = `Fcolnames'
+	return matrix emptyFRow emptyFRow
+
+	*Return all stats locals to be used in the command
+  return local desc_stats   `desc_stats'
+  return local pair_stats   `pair_stats'
+	return local feq_stats    `feq_stats'
+	return local ftest_stats  `ftest_stats'
+
+end
 
 /*******************************************************************************
   test_parse_label_input: pars and test item/label lists
