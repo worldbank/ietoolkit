@@ -1226,10 +1226,10 @@ qui {
 		******************************************
 		* Create tex file based on result matrices
 
-		// *Export to tex format
-		// if `SAVE_TEX_USED' {
-		// 	// Run subommand that exports table to tex
-		// }
+		*Export to tex format
+		if `SAVE_TEX_USED' {
+			noi export_tex , rmat(`rmat') fmat(`fmat') texdoc_used
+		}
 }
 end
 
@@ -1560,6 +1560,164 @@ cap program drop 	export_tex
 
 	noi mat list `rmat'
 	noi mat list `fmat'
+
+	*Create a temporary texfile
+	tempname 	texname
+	tempfile	texfile
+
+	******************************************************************************
+	* Set up tex file type - stand alone tex doc or not
+	******************************************************************************
+
+
+	* If tex doc is used, prepare header so that the tex file can be compiled on
+	* its own. Default is that the table should be imported into another tex file
+	if `TEXDOC_USED' {
+
+		file open  `texname' using "`texfile'", text write replace
+		file write `texname' ///
+			"%%% Table created in Stata by iebaltab" _n ///
+			"%%% (https://github.com/worldbank/ietoolkit)" _n ///
+			"%%% (https://dimewiki.worldbank.org/iebaltab)" _n _n ///
+			"\documentclass{article}" _n _n ///
+			"% ----- Preamble " _n ///
+			"\usepackage[utf8]{inputenc}" _n ///
+			"\usepackage{adjustbox}" _n
+
+		file write `texname' ///
+			"% ----- End of preamble " _n _n ///
+			" \begin{document}" _n _n ///
+			"\begin{table}[!htbp]" _n ///
+			"\centering" _n
+
+		* Write tex caption if specified
+		if `CAPTION_USED' file write `texname' `"\caption{`texcaption'}"' _n
+
+		* Write tex label if specified
+		if `LABEL_USED' file write `texname' `"\label{`texlabel'}"' _n
+
+		file write `texname'	"\begin{adjustbox}{max width=\textwidth}" _n
+
+		file close `texname'
+	}
+
+	******************************************************************************
+	* Prepare tabular environment header
+	******************************************************************************
+
+	*Count number of columns in table
+	if `TEXCOLWIDTH_USED' == 0	local 		colstring	l
+	else						local 		colstring	p{`texcolwidth'}
+
+	*Add 1 col for stat, and 1 more for N if onerow not used
+	if (`ONEROW_USED' == 0) local	numcols 2
+	else                    local numcols 1
+	if (`ONEROW_USED' == 0) local	titlecols "cc"
+	else                    local titlecols "c"
+
+
+	*Add columns for each group desc stats (and for total if used)
+	forvalues repeat = 1/`NUM_COL_GRP_TOT' {
+		local	colstring	"`colstring'`titlecols'"
+  }
+
+	*Add columns of F-test for equality of means if used
+	if (`FEQTEST_USED' == 1) local	colstring	"`colstring'`titlecols'"
+
+	*Add columns for all test pairs to be displayed
+	foreach pair of local pairs {
+		local	colstring	"`colstring'`titlecols'"
+	}
+
+	*Write tabular environment header
+	file open  `texname' using "`texfile'", text write append
+	file write `texname' ///
+		"\begin{tabular}{@{\extracolsep{5pt}}`colstring'}" _n ///
+		"\\[-1.8ex]\hline \hline \\[-1.8ex]" _n
+	file close `texname'
+
+	******************************************************************************
+	* Create table title rows
+	******************************************************************************
+
+	** The titles consist of three rows across all
+	*  columns of the table. Each row is one local
+	local texrow1 ""
+	local texrow2 ""
+	local texrow3 `"Variable"'
+
+  *****************************
+	*Titles for descriptive stats
+	* TODO: Make sure this includes total
+	forvalues groupOrderNum = 1/`GRPVAR_NUM_GROUPS' {
+
+		*Get the code and label corresponding to the group
+		local groupLabel : word `groupOrderNum' of `grpLabels_final'
+		local groupCode  : word `groupOrderNum' of `ORDER_OF_GROUPS'
+
+		* Make sure special characters are displayed correctly
+		local texGroupLabel : subinstr local groupLabel    "%"  "\%" , all
+		local texGroupLabel : subinstr local texGroupLabel "_"  "\_" , all
+		local texGroupLabel : subinstr local texGroupLabel "&"  "\&" , all
+		local texGroupLabel : subinstr local texGroupLabel "\$"  "\\\\\\\$" , all
+
+		*Create one more column for N if N is displayesd in column instead of row
+		local texrow1 	`"`texrow1' & \multicolumn{2}{`numcols'}{(`groupOrderNum')} "'
+		local texrow2 	`"`texrow2' & \multicolumn{2}{`numcols'}{`texGroupLabel'} "'
+
+		if `ONEROW_USED' == 0 local texrow3 `"`texrow3' & `N_title' & Mean/`variance_type'"'
+    else                  local texrow3 `"`texrow3' & Mean/`variance_type' 	"'
+	}
+
+	*****************************
+	*Titles for feq test
+	if `FEQTEST_USED' {
+		local texrow1 `"`texrow1' & \multicolumn{`numcols'}{c}{F-test for balance}"'
+		local texrow2 `"`texrow2' & \multicolumn{`numcols'}{c}{accross all groups}"'
+		if (`ONEROW_USED' == 1) local texrow3 `"`texrow3' & F-stat/P-value"'
+		else                    local texrow3 `"`texrow3' & `N_title' & F-stat/P-value"'
+	}
+
+	*****************************
+	*Titles for pairwise tests
+
+	*Count number of columns for the pairwise test header
+	local testPairCount : list sizeof pairs
+	if (`ONEROW_USED' == 0)  local testPairCount = 2 * `testPairCount'
+	*Write the 1st and the 2nd row
+	local texrow1 `"`texrow1' & \multicolumn{`testPairCount'}{c}{Pairwise t-test} "'
+	local texrow2 `"`texrow2' & \multicolumn{`testPairCount'}{c}{`pout_lbl'} "'
+
+	*Add columns for all test pairs to be displayed
+	foreach pair of local pairs {
+		*Get the group order from the two groups in each pair
+		getCodesFromPair `pair'
+		local order1 : list posof "`r(code1)'" in order_grp_codes
+		local order2 : list posof "`r(code2)'" in order_grp_codes
+		local texrow3 `"`texrow3' & \multicolumn{`numcols'}{c}{(`order1')-(`order2')}"'
+	}
+
+	*****************************
+	*Write title rows
+
+	*Write the title rows defined above
+	file open  `texname' using "`texfile'", text write append
+	file write `texname' "`texrow1' \\" _n "`texrow2' \\" _n ///
+	                     "`texrow3' \\ \hline \\[-1.8ex] " _n
+	file close `texname'
+
+	******************************************************************************
+	* Create balance variable row
+	******************************************************************************
+
+
+	******************************************************************************
+	* --
+	******************************************************************************
+
+
+
+
 
 end
 
