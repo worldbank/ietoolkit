@@ -30,9 +30,13 @@
 				STARSNOadd FORMat(string) TBLNote(string) TBLNONote	///
 				                                                                ///
 				/*Export and restore*/                                          ///
-				SAVEXlsx(string) SAVECsv(string) SAVETex(string) TEXNotewidth(numlist min=1 max=1)  ///
+				SAVEXlsx(string) SAVECsv(string) SAVETex(string)                ///
+				REPLACE BROWSE            ///
+				                                                                ///
+				/*Tex options*/     				                                    ///
+				TEXNotewidth(numlist min=1 max=1)  ///
 				TEXCaption(string) TEXLabel(string) TEXDOCument	texvspace(string) ///
-				texcolwidth(string) REPLACE BROWSE                         ///
+				texcolwidth(string)                        ///
 				                                                                ///
 				/*Deprecated options
 				  - still included to throw helpful error if ever used */       ///
@@ -124,8 +128,6 @@ qui {
 
 		*Is option totallable() used:
 		if "`onenrow'" 			!= "" local onerow = "onerow" //Old name still supported for backward compatibility
-		if "`onerow'" 			== "" local ONEROW_USED = 0
-		if "`onerow'" 			!= "" local ONEROW_USED = 1
 
 
 	** Stats Options
@@ -210,18 +212,6 @@ qui {
 		*Is option texnotewidth() used:
 		if "`texnotewidth'"		== "" local NOTEWIDTH_USED = 0
 		if "`texnotewidth'"		!= "" local NOTEWIDTH_USED = 1
-
-		*Is option texnotewidth() used:
-		if "`texcaption'"		== "" local CAPTION_USED = 0
-		if "`texcaption'"		!= "" local CAPTION_USED = 1
-
-		*Is option texnotewidth() used:
-		if "`texlabel'"			== "" local LABEL_USED = 0
-		if "`texlabel'"			!= "" local LABEL_USED = 1
-
-		*Is option texdocument() used:
-		if "`texdocument'"		== "" local TEXDOC_USED = 0
-		if "`texdocument'"		!= "" local TEXDOC_USED = 1
 
 		*Is option texlinespace() used:
 		if "`texvspace'"		== "" local TEXVSPACE_USED = 0
@@ -565,35 +555,27 @@ qui {
 				}
 			}
 
-			if `CAPTION_USED' {
-
+			* Escape tex characters in caption string
+			if !missing("`texcaption'") {
 				* Make sure special characters are displayed correctly
 				local texcaption : subinstr local texcaption "%"  "\%" , all
 				local texcaption : subinstr local texcaption "_"  "\_" , all
 				local texcaption : subinstr local texcaption "&"  "\&" , all
-
 			}
 
 			* Tex label must be a single word
-			if `LABEL_USED' {
-
+			if !missing("`texlabel'") {
 				local label_words : word count `texlabel'
-
 				if `label_words' != 1 {
-
 					noi display as error `"{phang}The value specified in texlabel(`texlabel') is not allowed. For more information, {browse "https://en.wikibooks.org/wiki/LaTeX/Labels_and_Cross-referencing":check LaTeX labels manual}.{p_end}"'
 					error 198
 				}
-
 			}
 
-			if (`LABEL_USED' | `CAPTION_USED') {
-
-				if `TEXDOC_USED' == 0 {
-
-					noi display as error "{phang}Options texlabel and texcaption may only be used in combination with option texdocument {p_end}"
+			* texcaption and texlabel may not be used if texdocument is not used
+			if (!missing("`texcaption'`texlabel'") & missing("`texdocument'")) {
+				noi display as error "{phang}Options texlabel and texcaption may only be used in combination with option texdocument {p_end}"
 					error 198
-				}
 			}
 
 			if `TEXCOLWIDTH_USED' {
@@ -634,7 +616,7 @@ qui {
 		}
 
 		* Error for incorrectly using tex options
-		else if `NOTEWIDTH_USED' | `LABEL_USED' | `CAPTION_USED' | `TEXDOC_USED' | `TEXVSPACE_USED' | `TEXCOLWIDTH_USED' {
+		else if `NOTEWIDTH_USED' | !missing("`texlabel'`texcaption'") | !missing("`texdocument'") | `TEXVSPACE_USED' | `TEXCOLWIDTH_USED' {
 
 			noi display as error "{phang}Options texnotewidth, texdocument, texlabel, texcaption, texvspace and texcolwidth may only be used in combination with option savetex(){p_end}"
 			error 198
@@ -1228,7 +1210,11 @@ qui {
 
 		*Export to tex format
 		if `SAVE_TEX_USED' {
-			noi export_tex , rmat(`rmat') fmat(`fmat') texdoc_used
+			noi export_tex using "`savetex'", ///
+			   rmat(`rmat') fmat(`fmat') `texdocument' texcaption("`texcaption'") texlabel("`texlabel'") texcolwidth("`texcolwidth'") ///
+				 `total' `onerow' `feqtest' `ftest' ///
+				 col_lbls(`"`COLUMN_LABELS'"') tot_lbl("`tot_lbl'") ///
+				 order_grp_codes(`ORDER_OF_GROUP_CODES')
 		}
 }
 end
@@ -1320,8 +1306,8 @@ cap program drop 	export_tab
 		}
 
 		*Add titles for summary row stats
-		local titlerow1 `"`titlerow1' _tab "Test for balance accross all variables" "'
-		local titlerow2 `"`titlerow2' _tab "All groups" "'
+		local titlerow1 `"`titlerow1' _tab "F-test for balance" "'
+		local titlerow2 `"`titlerow2' _tab "accross all groups" "'
 		local titlerow3 `"`titlerow3' _tab "F-stat/P-value" "'
 	}
 
@@ -1556,7 +1542,20 @@ end
 cap program drop 	export_tex
 	program define	export_tex
 
-	syntax using , rmat(name) fmat(name) [note(string)]
+	syntax using , rmat(name) fmat(name) [note(string) ///
+	texdocument texcaption(string) ///
+	texlabel(string) texcolwidth(string) onerow total feqtest ftest ///
+	order_grp_codes(numlist) ///
+	col_lbls(string) tot_lbl(string) ///
+	]
+
+	* If total is used, add t to locals used when looping over desc stats
+	if !missing("`total'") local order_grp_codes "`order_grp_codes' t"
+	if !missing("`total'") local col_lbls `"`col_lbls' "`tot_lbl'""'
+
+	* Count groups and number of balance vars
+	local grp_count : list sizeof order_grp_codes
+	local row_count : list sizeof row_lbls
 
 	noi mat list `rmat'
 	noi mat list `fmat'
@@ -1572,7 +1571,7 @@ cap program drop 	export_tex
 
 	* If tex doc is used, prepare header so that the tex file can be compiled on
 	* its own. Default is that the table should be imported into another tex file
-	if `TEXDOC_USED' {
+	if !missing(`texdocument') {
 
 		file open  `texname' using "`texfile'", text write replace
 		file write `texname' ///
@@ -1591,10 +1590,10 @@ cap program drop 	export_tex
 			"\centering" _n
 
 		* Write tex caption if specified
-		if `CAPTION_USED' file write `texname' `"\caption{`texcaption'}"' _n
+		if !missing("`texcaption'") file write `texname' `"\caption{`texcaption'}"' _n
 
 		* Write tex label if specified
-		if `LABEL_USED' file write `texname' `"\label{`texlabel'}"' _n
+		if !missing("`texlabel'") file write `texname' `"\label{`texlabel'}"' _n
 
 		file write `texname'	"\begin{adjustbox}{max width=\textwidth}" _n
 
@@ -1605,24 +1604,25 @@ cap program drop 	export_tex
 	* Prepare tabular environment header
 	******************************************************************************
 
+  * TODO : WHAT IS THIS USED FOR?
 	*Count number of columns in table
-	if `TEXCOLWIDTH_USED' == 0	local 		colstring	l
-	else						local 		colstring	p{`texcolwidth'}
+	if missing("`texcolwidth'")	local colstring	"l"
+	else		                    local colstring	"p{`texcolwidth'}"
 
 	*Add 1 col for stat, and 1 more for N if onerow not used
-	if (`ONEROW_USED' == 0) local	numcols 2
-	else                    local numcols 1
-	if (`ONEROW_USED' == 0) local	titlecols "cc"
-	else                    local titlecols "c"
+	if missing("`onerow'") local numcols 2
+	else                   local numcols 1
+	if missing("`onerow'") local titlecols "cc"
+	else                   local titlecols "c"
 
 
 	*Add columns for each group desc stats (and for total if used)
-	forvalues repeat = 1/`NUM_COL_GRP_TOT' {
+	forvalues repeat = 1/`grp_count' {
 		local	colstring	"`colstring'`titlecols'"
   }
 
 	*Add columns of F-test for equality of means if used
-	if (`FEQTEST_USED' == 1) local	colstring	"`colstring'`titlecols'"
+	if !missing("`feqtest'") local	colstring	"`colstring'`titlecols'"
 
 	*Add columns for all test pairs to be displayed
 	foreach pair of local pairs {
@@ -1649,7 +1649,7 @@ cap program drop 	export_tex
   *****************************
 	*Titles for descriptive stats
 	* TODO: Make sure this includes total
-	forvalues groupOrderNum = 1/`GRPVAR_NUM_GROUPS' {
+	forvalues groupOrderNum = 1/`grp_count' {
 
 		*Get the code and label corresponding to the group
 		local groupLabel : word `groupOrderNum' of `grpLabels_final'
@@ -1665,16 +1665,16 @@ cap program drop 	export_tex
 		local texrow1 	`"`texrow1' & \multicolumn{2}{`numcols'}{(`groupOrderNum')} "'
 		local texrow2 	`"`texrow2' & \multicolumn{2}{`numcols'}{`texGroupLabel'} "'
 
-		if `ONEROW_USED' == 0 local texrow3 `"`texrow3' & `N_title' & Mean/`variance_type'"'
-    else                  local texrow3 `"`texrow3' & Mean/`variance_type' 	"'
+		if missing("`onerow'") local texrow3 `"`texrow3' & `N_title' & Mean/`variance_type'"'
+    else                   local texrow3 `"`texrow3' & Mean/`variance_type' 	"'
 	}
 
 	*****************************
 	*Titles for feq test
-	if `FEQTEST_USED' {
+	if !missing("`feqtest'") {
 		local texrow1 `"`texrow1' & \multicolumn{`numcols'}{c}{F-test for balance}"'
 		local texrow2 `"`texrow2' & \multicolumn{`numcols'}{c}{accross all groups}"'
-		if (`ONEROW_USED' == 1) local texrow3 `"`texrow3' & F-stat/P-value"'
+		if !missing("`onerow'") local texrow3 `"`texrow3' & F-stat/P-value"'
 		else                    local texrow3 `"`texrow3' & `N_title' & F-stat/P-value"'
 	}
 
@@ -1683,7 +1683,7 @@ cap program drop 	export_tex
 
 	*Count number of columns for the pairwise test header
 	local testPairCount : list sizeof pairs
-	if (`ONEROW_USED' == 0)  local testPairCount = 2 * `testPairCount'
+	if missing("`onerow'")  local testPairCount = 2 * `testPairCount'
 	*Write the 1st and the 2nd row
 	local texrow1 `"`texrow1' & \multicolumn{`testPairCount'}{c}{Pairwise t-test} "'
 	local texrow2 `"`texrow2' & \multicolumn{`testPairCount'}{c}{`pout_lbl'} "'
