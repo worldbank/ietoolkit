@@ -114,8 +114,89 @@ while r(eof)==0 {
   local linenum = `linenum' + 1
   
   // Reproduce file contents
-  file write edited `"`macval(line)'"' _n
-  file write checkr `"`macval(line)'"' _n  
+    // Catch any [clear all] or [ieboilstart] commands
+    if strpos(`"`macval(line)'"',"clear ") ///
+     & (   strpos(`"`macval(line)'"',"all") ///
+         | strpos(`"`macval(line)'"',"*") ) {
+      di as err "This file contained [clear all] or [clear *]. That has been replaced. Check functionality."
+      file write edited ///
+        "  cap drop _all            " _n  /// (see [D] drop)
+        "  cap frames reset         " _n  /// (see [D] frames reset)
+        "  cap collect clear        " _n  /// (see [TABLES] collect clear)
+        "  cap label drop _all      " _n  /// (see [D] label)
+        "  cap matrix drop _all     " _n  /// (see [P] matrix utility)
+        "  cap scalar drop _all     " _n  /// (see [P] scalar)
+        "  cap constraint drop _all " _n  /// (see [R] constraint)
+        "  cap cluster drop _all    " _n  /// (see [MV] cluster utility)
+        "  cap file close _all      " _n  /// (see [P] file)
+        "  cap _return drop _all    " _n  /// (see [P] _return)
+        "  cap mata: mata clear     " _n  /// (see [M-3] mata clear)
+        "  cap timer clear          " _n  /// (see [P] timer)
+        "  cap putdocx clear        " _n  /// (see [RPT] putdocx begin)
+        "  cap putpdf clear         " _n  /// (see [RPT] putpdf begin)
+        "  cap python clear         " _n  /// (see [P] PyStata integration)
+        "  cap java clear  " _n
+      file write checkr ///
+        "  cap drop _all            " _n  /// (see [D] drop)
+        "  cap frames reset         " _n  /// (see [D] frames reset)
+        "  cap collect clear        " _n  /// (see [TABLES] collect clear)
+        "  cap label drop _all      " _n  /// (see [D] label)
+        "  cap matrix drop _all     " _n  /// (see [P] matrix utility)
+        "  cap scalar drop _all     " _n  /// (see [P] scalar)
+        "  cap constraint drop _all " _n  /// (see [R] constraint)
+        "  cap cluster drop _all    " _n  /// (see [MV] cluster utility)
+        "  cap file close _all      " _n  /// (see [P] file)
+        "  cap _return drop _all    " _n  /// (see [P] _return)
+        "  cap mata: mata clear     " _n  /// (see [M-3] mata clear)
+        "  cap timer clear          " _n  /// (see [P] timer)
+        "  cap putdocx clear        " _n  /// (see [RPT] putdocx begin)
+        "  cap putpdf clear         " _n  /// (see [RPT] putpdf begin)
+        "  cap python clear         " _n  /// (see [P] PyStata integration)
+        "  cap java clear  " _n
+    }
+    else if strpos(`"`macval(line)'"',"ieboilstart ") {
+      di as err "This file contained [ieboilstart]. That has been modified. Check functionality."
+      file write edited ///
+        "  cap drop _all            " _n  /// (see [D] drop)
+        "  cap frames reset         " _n  /// (see [D] frames reset)
+        "  cap collect clear        " _n  /// (see [TABLES] collect clear)
+        "  cap label drop _all      " _n  /// (see [D] label)
+        "  cap matrix drop _all     " _n  /// (see [P] matrix utility)
+        "  cap scalar drop _all     " _n  /// (see [P] scalar)
+        "  cap constraint drop _all " _n  /// (see [R] constraint)
+        "  cap cluster drop _all    " _n  /// (see [MV] cluster utility)
+        "  cap file close _all      " _n  /// (see [P] file)
+        "  cap _return drop _all    " _n  /// (see [P] _return)
+        "  cap mata: mata clear     " _n  /// (see [M-3] mata clear)
+        "  cap timer clear          " _n  /// (see [P] timer)
+        "  cap putdocx clear        " _n  /// (see [RPT] putdocx begin)
+        "  cap putpdf clear         " _n  /// (see [RPT] putpdf begin)
+        "  cap python clear         " _n  /// (see [P] PyStata integration)
+        "  cap java clear  " _n
+      file write checkr ///
+        "  cap drop _all            " _n  /// (see [D] drop)
+        "  cap frames reset         " _n  /// (see [D] frames reset)
+        "  cap collect clear        " _n  /// (see [TABLES] collect clear)
+        "  cap label drop _all      " _n  /// (see [D] label)
+        "  cap matrix drop _all     " _n  /// (see [P] matrix utility)
+        "  cap scalar drop _all     " _n  /// (see [P] scalar)
+        "  cap constraint drop _all " _n  /// (see [R] constraint)
+        "  cap cluster drop _all    " _n  /// (see [MV] cluster utility)
+        "  cap file close _all      " _n  /// (see [P] file)
+        "  cap _return drop _all    " _n  /// (see [P] _return)
+        "  cap mata: mata clear     " _n  /// (see [M-3] mata clear)
+        "  cap timer clear          " _n  /// (see [P] timer)
+        "  cap putdocx clear        " _n  /// (see [RPT] putdocx begin)
+        "  cap putpdf clear         " _n  /// (see [RPT] putpdf begin)
+        "  cap python clear         " _n  /// (see [P] PyStata integration)
+        "  cap java clear  " _n
+      file write edited `"`macval(line)' noclear "' _n
+      file write checkr `"`macval(line)' noclear "' _n  
+    }
+    else {
+      file write edited `"`macval(line)'"' _n
+      file write checkr `"`macval(line)'"' _n  
+    }
   
   // Catch comments
   if strpos(`"`macval(line)'"',"/*") local comment = 1

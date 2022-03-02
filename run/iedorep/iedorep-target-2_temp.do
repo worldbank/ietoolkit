@@ -1,3 +1,21 @@
+  cap drop _all            
+  cap frames reset         
+  cap collect clear        
+  cap label drop _all      
+  cap matrix drop _all     
+  cap scalar drop _all     
+  cap constraint drop _all 
+  cap cluster drop _all    
+  cap file close _all      
+  cap postutil clear       
+  cap _return drop _all    
+  cap discard              
+  cap timer clear          
+  cap putdocx clear        
+  cap putpdf clear         
+  cap mata: mata clear     
+  cap python clear         
+  cap java clear  
 tempname theSORT theRNG allRNGS whichRNG allDATA theDATA
 tempfile posty
 postfile posty Line str15(Data Err_1 Seed Err_2 Sort Err_3) str2000(Path) using `posty' , replace
@@ -707,13 +725,28 @@ save `29' , emptyok
 local theLOCALS posty theSORT theRNG allRNGS whichRNG allDATA theDATA theLOCALS `posty' `theSORT' `theRNG' `allRNGS' `whichRNG' `allDATA' `theDATA' `theLOCALS'
 mata : st_local("all_locals", invtokens(st_dir("local", "macro", "*")'))
 local toDROP : list all_locals - theLOCALS
-macro drop `toDROP' 
+cap macro drop `toDROP' 
 foreach macro in `toDROP' {
   mata : st_local("`macro'","") 
 }
 // ADVANCE RNG AND CLEAR DATA -------------------------------------------
 qui di `=rnormal()'
-clear
+  cap drop _all            
+  cap frames reset         
+  cap collect clear        
+  cap label drop _all      
+  cap matrix drop _all     
+  cap scalar drop _all     
+  cap constraint drop _all 
+  cap cluster drop _all    
+  cap file close _all      
+  cap _return drop _all    
+  cap mata: mata clear     
+  cap timer clear          
+  cap putdocx clear        
+  cap putpdf clear         
+  cap python clear         
+  cap java clear  
 // SECOND RUN STARTS HERE ------------------------------------------------
 
 local `theRNG' = "`c(rngstate)'" 
