@@ -1210,11 +1210,15 @@ qui {
 
 		*Export to tex format
 		if `SAVE_TEX_USED' {
-			noi export_tex using "`savetex'", ///
-			   rmat(`rmat') fmat(`fmat') `texdocument' texcaption("`texcaption'") texlabel("`texlabel'") texcolwidth("`texcolwidth'") ///
-				 `total' `onerow' `feqtest' `ftest' ///
+			noi export_tex ,  texfile("`savetex'") ///
+			   rmat(`rmat') fmat(`fmat') pairs(`TEST_PAIR_CODES') `texdocument' texcaption("`texcaption'") ///
+				 texlabel("`texlabel'") texcolwidth("`texcolwidth'") texnotewidth("`texnotewidth'") ///
+				 pout_lbl(`pout_lbl') pout_val(`pout_val') fout_lbl(`fout_lbl') fout_val(`fout_val') ///
+				 `total' `onerow' `feqtest' `ftest' note(`"`note_to_use'"')  ///
+				 ntitle("`ntitle'") vtype("`vtype'") ///
 				 col_lbls(`"`COLUMN_LABELS'"') tot_lbl("`tot_lbl'") ///
-				 order_grp_codes(`ORDER_OF_GROUP_CODES')
+				 row_lbls(`"`ROW_LABELS'"') cl_used("`CLUSTER_USED'") ///
+				 order_grp_codes(`ORDER_OF_GROUP_CODES') `replace'
 		}
 }
 end
@@ -1348,7 +1352,7 @@ cap program drop 	export_tab
 
 		*locals for each row
 		local row_up   `""`row_lbl'""'
-		local row_down `""' // Not used in onerow
+		local row_down `""'
 
 		********* Write group descriptive stats ************************************
 
@@ -1542,27 +1546,30 @@ end
 cap program drop 	export_tex
 	program define	export_tex
 
-	syntax using , rmat(name) fmat(name) [note(string) ///
-	texdocument texcaption(string) ///
+	syntax , rmat(name) fmat(name) texfile(string) [note(string) pairs(string) ///
+	ntitle(string) vtype(string) cl_used(string) ///
+	pout_lbl(string) pout_val(string) fout_lbl(string) fout_val(string) ///
+	texdocument texcaption(string) texnotewidth(string) ///
 	texlabel(string) texcolwidth(string) onerow total feqtest ftest ///
 	order_grp_codes(numlist) ///
-	col_lbls(string) tot_lbl(string) ///
-	]
+	row_lbls(string) col_lbls(string) tot_lbl(string) ///
+	replace]
 
 	* If total is used, add t to locals used when looping over desc stats
 	if !missing("`total'") local order_grp_codes "`order_grp_codes' t"
 	if !missing("`total'") local col_lbls `"`col_lbls' "`tot_lbl'""'
 
 	* Count groups and number of balance vars
-	local grp_count : list sizeof order_grp_codes
-	local row_count : list sizeof row_lbls
+	local grp_count  : list sizeof order_grp_codes
+	local pair_count : list sizeof pairs
+	local row_count  : list sizeof row_lbls
 
 	noi mat list `rmat'
 	noi mat list `fmat'
 
 	*Create a temporary texfile
-	tempname 	texname
-	tempfile	texfile
+	tempname 	texhandle
+	tempfile	textmpfile
 
 	******************************************************************************
 	* Set up tex file type - stand alone tex doc or not
@@ -1571,10 +1578,10 @@ cap program drop 	export_tex
 
 	* If tex doc is used, prepare header so that the tex file can be compiled on
 	* its own. Default is that the table should be imported into another tex file
-	if !missing(`texdocument') {
+	if !missing("`texdocument'") {
 
-		file open  `texname' using "`texfile'", text write replace
-		file write `texname' ///
+		file open  `texhandle' using "`textmpfile'", text write replace
+		file write `texhandle' ///
 			"%%% Table created in Stata by iebaltab" _n ///
 			"%%% (https://github.com/worldbank/ietoolkit)" _n ///
 			"%%% (https://dimewiki.worldbank.org/iebaltab)" _n _n ///
@@ -1583,21 +1590,21 @@ cap program drop 	export_tex
 			"\usepackage[utf8]{inputenc}" _n ///
 			"\usepackage{adjustbox}" _n
 
-		file write `texname' ///
+		file write `texhandle' ///
 			"% ----- End of preamble " _n _n ///
 			" \begin{document}" _n _n ///
 			"\begin{table}[!htbp]" _n ///
 			"\centering" _n
 
 		* Write tex caption if specified
-		if !missing("`texcaption'") file write `texname' `"\caption{`texcaption'}"' _n
+		if !missing("`texcaption'") file write `texhandle' `"\caption{`texcaption'}"' _n
 
 		* Write tex label if specified
-		if !missing("`texlabel'") file write `texname' `"\label{`texlabel'}"' _n
+		if !missing("`texlabel'") file write `texhandle' `"\label{`texlabel'}"' _n
 
-		file write `texname'	"\begin{adjustbox}{max width=\textwidth}" _n
+		file write `texhandle'	"\begin{adjustbox}{max width=\textwidth}" _n
 
-		file close `texname'
+		file close `texhandle'
 	}
 
 	******************************************************************************
@@ -1614,6 +1621,8 @@ cap program drop 	export_tex
 	else                   local numcols 1
 	if missing("`onerow'") local titlecols "cc"
 	else                   local titlecols "c"
+	if missing("`onerow'") local frowcols "& & "
+	else                   local frowcols "& "
 
 
 	*Add columns for each group desc stats (and for total if used)
@@ -1630,11 +1639,11 @@ cap program drop 	export_tex
 	}
 
 	*Write tabular environment header
-	file open  `texname' using "`texfile'", text write append
-	file write `texname' ///
+	file open  `texhandle' using "`textmpfile'", text write append
+	file write `texhandle' ///
 		"\begin{tabular}{@{\extracolsep{5pt}}`colstring'}" _n ///
 		"\\[-1.8ex]\hline \hline \\[-1.8ex]" _n
-	file close `texname'
+	file close `texhandle'
 
 	******************************************************************************
 	* Create table title rows
@@ -1649,24 +1658,23 @@ cap program drop 	export_tex
   *****************************
 	*Titles for descriptive stats
 	* TODO: Make sure this includes total
-	forvalues groupOrderNum = 1/`grp_count' {
+	forvalues grp_num = 1/`grp_count' {
 
 		*Get the code and label corresponding to the group
-		local groupLabel : word `groupOrderNum' of `grpLabels_final'
-		local groupCode  : word `groupOrderNum' of `ORDER_OF_GROUPS'
+		local grp_lbl : word `grp_num' of `col_lbls'
 
 		* Make sure special characters are displayed correctly
-		local texGroupLabel : subinstr local groupLabel    "%"  "\%" , all
-		local texGroupLabel : subinstr local texGroupLabel "_"  "\_" , all
-		local texGroupLabel : subinstr local texGroupLabel "&"  "\&" , all
-		local texGroupLabel : subinstr local texGroupLabel "\$"  "\\\\\\\$" , all
+		local grp_lbl : subinstr local grp_lbl "%" "\%" , all
+		local grp_lbl : subinstr local grp_lbl "_" "\_" , all
+		local grp_lbl : subinstr local grp_lbl "&" "\&" , all
+		local grp_lbl : subinstr local grp_lbl "\$" "\\\\\\\$" , all
 
 		*Create one more column for N if N is displayesd in column instead of row
-		local texrow1 	`"`texrow1' & \multicolumn{2}{`numcols'}{(`groupOrderNum')} "'
-		local texrow2 	`"`texrow2' & \multicolumn{2}{`numcols'}{`texGroupLabel'} "'
+		local texrow1 	`"`texrow1' & \multicolumn{`numcols'}{c}{(`grp_num')} "'
+		local texrow2 	`"`texrow2' & \multicolumn{`numcols'}{c}{`grp_lbl'} "'
 
-		if missing("`onerow'") local texrow3 `"`texrow3' & `N_title' & Mean/`variance_type'"'
-    else                   local texrow3 `"`texrow3' & Mean/`variance_type' 	"'
+		if missing("`onerow'") local texrow3 `"`texrow3' & `ntitle' & Mean/`vtype'"'
+    else                   local texrow3 `"`texrow3' & Mean/`vtype' 	"'
 	}
 
 	*****************************
@@ -1675,18 +1683,17 @@ cap program drop 	export_tex
 		local texrow1 `"`texrow1' & \multicolumn{`numcols'}{c}{F-test for balance}"'
 		local texrow2 `"`texrow2' & \multicolumn{`numcols'}{c}{accross all groups}"'
 		if !missing("`onerow'") local texrow3 `"`texrow3' & F-stat/P-value"'
-		else                    local texrow3 `"`texrow3' & `N_title' & F-stat/P-value"'
+		else                    local texrow3 `"`texrow3' & `ntitle' & F-stat/P-value"'
 	}
 
 	*****************************
 	*Titles for pairwise tests
 
 	*Count number of columns for the pairwise test header
-	local testPairCount : list sizeof pairs
-	if missing("`onerow'")  local testPairCount = 2 * `testPairCount'
+	local numPairCols : list sizeof pairs
 	*Write the 1st and the 2nd row
-	local texrow1 `"`texrow1' & \multicolumn{`testPairCount'}{c}{Pairwise t-test} "'
-	local texrow2 `"`texrow2' & \multicolumn{`testPairCount'}{c}{`pout_lbl'} "'
+	local texrow1 `"`texrow1' & \multicolumn{`numPairCols'}{c}{Pairwise t-test} "'
+	local texrow2 `"`texrow2' & \multicolumn{`numPairCols'}{c}{`pout_lbl'} "'
 
 	*Add columns for all test pairs to be displayed
 	foreach pair of local pairs {
@@ -1694,30 +1701,241 @@ cap program drop 	export_tex
 		getCodesFromPair `pair'
 		local order1 : list posof "`r(code1)'" in order_grp_codes
 		local order2 : list posof "`r(code2)'" in order_grp_codes
-		local texrow3 `"`texrow3' & \multicolumn{`numcols'}{c}{(`order1')-(`order2')}"'
+		local texrow3 `"`texrow3' & (`order1')-(`order2')"'
 	}
 
 	*****************************
 	*Write title rows
 
 	*Write the title rows defined above
-	file open  `texname' using "`texfile'", text write append
-	file write `texname' "`texrow1' \\" _n "`texrow2' \\" _n ///
+	file open  `texhandle' using "`textmpfile'", text write append
+	file write `texhandle' "`texrow1' \\" _n "`texrow2' \\" _n ///
 	                     "`texrow3' \\ \hline \\[-1.8ex] " _n
-	file close `texname'
+	file close `texhandle'
 
 	******************************************************************************
 	* Create balance variable row
 	******************************************************************************
 
+	forvalues row_num = 1/`row_count' {
+
+		*Get the code and label corresponding to the group
+		local row_lbl : word `row_num' of `row_lbls'
+
+		* Make sure special characters are displayed correctly
+		local row_lbl : subinstr local row_lbl "%" "\%" , all
+		local row_lbl : subinstr local row_lbl "_" "\_" , all
+		local row_lbl : subinstr local row_lbl "&" "\&" , all
+		local row_lbl : subinstr local row_lbl "\$" "\\\\\\\$" , all
+
+		********* Initiate row locals and write row label **************************
+
+		*locals for each row
+		local row_up   `"`row_lbl'"'
+		local row_down `""'
+
+		********* Write group descriptive stats ************************************
+		foreach grp_code of local order_grp_codes {
+
+			* Add column with N for this group unless option onerow is used
+			if missing("`onerow'") {
+				*Get N for this group
+				local n_value = el(`rmat',`row_num',colnumb(`rmat',"n_`grp_code'"))
+				*Get number of clusters if clusters were used
+				local cl_n ""
+				if `cl_used' == 1 local cl_n = el(`rmat',`row_num',colnumb(`rmat',"cl_`grp_code'"))
+				* Write to row locals
+				local row_up   `"`row_up'   & `n_value' "'
+				local row_down `"`row_down' & `cl_n' "'
+			}
+
+			* Mean and variance for this group - get value from mat and apply format
+			local mean_value = el(`rmat',`row_num',colnumb(`rmat',"mean_`grp_code'"))
+			local var_value = el(`rmat',`row_num',colnumb(`rmat',"`vtype'_`grp_code'"))
+			local mean_value : display `diformat' `mean_value'
+			local var_value  : display `diformat' `var_value'
+			local row_up   `"`row_up'   & `mean_value' "'
+			local row_down `"`row_down' & `var_value' "'
+		}
+
+		********* Write Feq test stats (if applicable) *****************************
+		if !missing("`feqtest'") {
+			* Add column with N for the F test for all vars unless option onerow is used
+			if missing("`onerow'") {
+				* Get the N for this test
+				local n_value = el(`rmat',`row_num',colnumb(`rmat',"feqn"))
+				*Get number of clusters if clusters were used
+				local cl_n ""
+				if `cl_used' == 1 local cl_n = el(`rmat',`row_num',colnumb(`rmat',"feqcl"))
+				* Write to row locals
+				local row_up   `"`row_up'   & `n_value' "'
+				local row_down `"`row_down' & `cl_n' "'
+			}
+
+			* F and p values for this test - get value from mat and apply format
+			local f_value = el(`rmat',`row_num',colnumb(`rmat',"feqf"))
+			local p_value = el(`rmat',`row_num',colnumb(`rmat',"feqp"))
+
+			count_stars, p(`p_value') starlevels(`starlevels')
+			local f_value : display `diformat' `f_value'
+			local p_value  : display `diformat' `p_value'
+			local row_up   `"`row_up'   & `f_value'`r(stars)' "'
+			local row_down `"`row_down' & `p_value' "'
+		}
+
+		********* Write pair test stats ********************************************
+		foreach pair of local pairs {
+			* Pairwise test statistics for this pair - get value from mat and apply format
+			local test_value = el(`rmat',`row_num',colnumb(`rmat',"`pout_val'_`pair'"))
+			local test_value 	: display `diformat' `test_value'
+
+			local p_value = el(`rmat',`row_num',colnumb(`rmat',"p_`pair'"))
+			count_stars, p(`p_value') starlevels(`starlevels')
+
+			local row_up   `"`row_up'   & `test_value'`r(stars)' "'
+			local row_down `"`row_down' & "'
+		}
+
+		*Write the title rows defined above
+		file open  `texhandle' using "`textmpfile'", text write append
+		file write `texhandle' `"`row_up' \\"' _n `"`row_down' \\"' _n
+		file close `texhandle'
+
+	}
+
+	*Write a line after the last balance row
+	file open  `texhandle' using "`textmpfile'", text write append
+	file write `texhandle' "\hline \\[-1.8ex]" _n
+	file close `texhandle'
 
 	******************************************************************************
-	* --
+	* Write F-stat row
 	******************************************************************************
 
+	if !missing("`ftest'") {
+
+		* First column with row labels
+		local frow_up   `"F-test of joint significance (`fout_lbl')"'
+		local frow_down `"F-test, number of observations"' // Not used in onerow
+		local frow_cl   `"F-test, number of clusters"'    // Only used with cluster and without onerow
+
+		* Skip all group/total/feqtest columns
+		local f_col_skips = `grp_count'
+		if !missing("`feqtest'") local f_col_skips = `f_col_skips' + 1
+		forvalues grp_num = 1/`f_col_skips' {
+			local frow_up 	`"`frow_up' `frowcols' "'
+			local frow_down `"`frow_down' `frowcols' "'
+			local frow_cl   `"`frow_cl' `frowcols' "'
+		}
+
+		*Write fstats
+		foreach pair of local pairs {
+			* Pairwise test statistics for this pair - get value from mat and apply format
+			local ftest_value = el(`fmat',1,colnumb(`fmat',"f`fout_val'_`pair'"))
+			local ftest_value 	: display `diformat' `ftest_value'
+			local ftest_n     = el(`fmat',1,colnumb(`fmat',"fn_`pair'"))
+			local ftest_cl    = el(`fmat',1,colnumb(`fmat',"fcl_`pair'"))
+
+			local p_value = el(`fmat',1,colnumb(`fmat',"fp_`pair'"))
+			count_stars, p(`p_value') starlevels(`starlevels')
+
+			local frow_up   `"`frow_up'   & `ftest_value'`r(stars)' "'
+			local frow_down `"`frow_down' & `ftest_n' "'
+			local frow_cl   `"`frow_cl'   & `ftest_cl' "'
+		}
+
+		*Write the fstats rows
+		cap file close `texhandle'
+		file open  		 `texhandle' using "`textmpfile'", text write append
+																						file write  `texhandle' "`frow_up' \\" _n
+		if missing("`onerow'")                  file write  `texhandle' "`frow_down' \\" _n
+		if missing("`onerow'") & `cl_used' == 1 file write  `texhandle' "`frow_cl' \\" _n
+		file close 		`texhandle'
+	}
+
+	******************************************************************************
+	* Write onerow N (if applicable)
+	******************************************************************************
+
+	if !missing("`onerow'") {
+
+		*Initiate the row local for the N row if onerow is not missing
+		local n_row  "Number of observations"
+		local cl_row "Number of clusters"
+
+		*Get the N for each group
+		foreach grp_code of local order_grp_codes {
+			* Get the N from the first row (they must be the same for onerow to work)
+			local n_value  = el(`rmat',1,colnumb(`rmat',"n_`grp_code'"))
+			local cl_value = el(`rmat',1,colnumb(`rmat',"cl_`grp_code'"))
+			local n_row   "`n_row'  & `n_value' "
+			local cl_row  "`cl_row' & `cl_value' "
+		}
+
+		*If feqtest was used, add the N from the first row
+		if !missing("`feqtest'") {
+			local n_value = el(`rmat',1,colnumb(`rmat',"feqn"))
+			local cl_value = el(`rmat',1,colnumb(`rmat',"feqcl"))
+			local n_row   "`n_row' & `n_value'"
+			local cl_row  "`cl_row' & `cl_value'"
+		}
+
+		*Get the N/cl from each pair
+		foreach pair of local pairs {
+			local n_value  = el(`rmat',1,colnumb(`rmat',"n_`pair'"))
+			local cl_value = el(`rmat',1,colnumb(`rmat',"cl_`pair'"))
+			local n_row   "`n_row' & `n_value' "
+			local cl_row  "`cl_row' & `cl_value' "
+		}
+
+		*Write the N row to file
+		cap file close `texhandle'
+		file open  		 `texhandle' using "`textmpfile'", text write append
+		                  file write `texhandle' "`n_row' \\" _n
+		if `cl_used' == 1 file write `texhandle' "`cl_row' \\" _n
+		file close 		 `texhandle'
+	}
+
+	******************************************************************************
+	* Write table note
+	******************************************************************************
+
+	if !missing("`note'") {
+
+		* Make sure special characters are displayed correctly
+		local note : subinstr local note "%" "\%" , all
+		local note : subinstr local note "_" "\_" , all
+		local note : subinstr local note "&" "\&" , all
+		local note : subinstr local note "\$" "\\\\\\\$" , all
+
+		*Count number of columns
+		local totalColNo = 1 + `numcols'*`grp_count' + `pair_count'
+		if !missing("`feqtest'") local totalColNo = `totalColNo' + `numcols'
+
+		*Write the table note if one is defined
+		cap file close 	`texhandle'
+		file open  		`texhandle' using "`textmpfile'", text write append
+		file write `texhandle' "\hline \\[-1.8ex]" _n ///
+		"%%% This is the note. If it does not have the correct margins, use texnotewidth() option or change the number before '\textwidth' in line below to fit it to table size." _n ///
+		`"\multicolumn{`totalColNo'}{@{} p{`texnotewidth'\textwidth}}{\textit{Notes}: `note'}"' _n
+		file close 		`texhandle'
+	}
 
 
+	******************************************************************************
+	* Write end of file and copy to disk
+	******************************************************************************
 
+	* Close tex environments
+	file open  `texhandle' using "`textmpfile'", text write append
+	file write `texhandle' _n "\end{tabular}" _n
+	if !missing("`texdocument'") {
+		file write `texhandle' "\end{adjustbox}" _n "\end{table}" _n "\end{document}" _n
+	}
+	file close `texhandle'
+
+	* Write temporay tex file to disk
+  copy "`textmpfile'" "`texfile'" , `replace'
 
 end
 
