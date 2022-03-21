@@ -36,7 +36,7 @@
 				/*Tex options*/     				                                    ///
 				TEXNotewidth(numlist min=1 max=1)  ///
 				TEXCaption(string) TEXLabel(string) TEXDOCument	texvspace(string) ///
-				texcolwidth(string)                        ///
+				texcolwidth(string) texnotefile(string)                       ///
 				                                                                ///
 				/*Deprecated options
 				  - still included to throw helpful error if ever used */       ///
@@ -534,6 +534,11 @@ qui {
 		if `SAVE_TEX_USED' {
 			test_parse_file_input, filepath(`savetex') allowedformats(".tex") defaultformat(".tex") option("savetex")
 			local savetex "`r(filepath)'"
+		}
+
+		if !missing("`texnotefile'") {
+			test_parse_file_input, filepath(`texnotefile') allowedformats(".tex") defaultformat(".tex") option("texnotefile")
+			local texnotefile "`r(filepath)'"
 		}
 
 		/*******************************************************************************
@@ -1193,10 +1198,16 @@ qui {
 					save `tab_file'
 
 					* Use Stata's built in commands for exporting to CSV
-					if `SAVE_CSV_USED' export delimited using "`savecsv'", novarnames quote `replace'
+					if `SAVE_CSV_USED' {
+						export delimited using "`savecsv'", novarnames quote `replace'
+						noi di as result `"{phang}Balance table saved in csv format to: {browse "`savecsv'":`savecsv'}{p_end}"'
+					}
 
 					* Use Stata's built in commands for exporting to Excel format
-					if `SAVE_XSLX_USED' export excel using "`savexlsx'", `replace'
+					if `SAVE_XSLX_USED' {
+						export excel using "`savexlsx'", `replace'
+						noi di as result `"{phang}Balance table saved in Excel format to: {browse "`savexlsx'":`savexlsx'}{p_end}"'
+					}
 
 			* Bring back the original data
 			restore
@@ -1212,7 +1223,7 @@ qui {
 		if `SAVE_TEX_USED' {
 			noi export_tex ,  texfile("`savetex'") ///
 			   rmat(`rmat') fmat(`fmat') pairs(`TEST_PAIR_CODES') `texdocument' texcaption("`texcaption'") ///
-				 texlabel("`texlabel'") texcolwidth("`texcolwidth'") texnotewidth("`texnotewidth'") ///
+				 texlabel("`texlabel'") texcolwidth("`texcolwidth'") texnotewidth("`texnotewidth'") texnotefile("`texnotefile'") ///
 				 pout_lbl(`pout_lbl') pout_val(`pout_val') fout_lbl(`fout_lbl') fout_val(`fout_val') ///
 				 `total' `onerow' `feqtest' `ftest' note(`"`note_to_use'"')  ///
 				 ntitle("`ntitle'") vtype("`vtype'") ///
@@ -1553,7 +1564,7 @@ cap program drop 	export_tex
 	texlabel(string) texcolwidth(string) onerow total feqtest ftest ///
 	order_grp_codes(numlist) ///
 	row_lbls(string) col_lbls(string) tot_lbl(string) ///
-	replace]
+	replace texnotefile(string)]
 
 	* If total is used, add t to locals used when looping over desc stats
 	if !missing("`total'") local order_grp_codes "`order_grp_codes' t"
@@ -1568,8 +1579,8 @@ cap program drop 	export_tex
 	noi mat list `fmat'
 
 	*Create a temporary texfile
-	tempname 	texhandle
-	tempfile	textmpfile
+	tempname 	texhandle texnotehandle
+	tempfile	textmpfile texnotetmpfile
 
 	******************************************************************************
 	* Set up tex file type - stand alone tex doc or not
@@ -1596,11 +1607,9 @@ cap program drop 	export_tex
 			"\begin{table}[!htbp]" _n ///
 			"\centering" _n
 
-		* Write tex caption if specified
+		* Write tex caption and tex label if specified
 		if !missing("`texcaption'") file write `texhandle' `"\caption{`texcaption'}"' _n
-
-		* Write tex label if specified
-		if !missing("`texlabel'") file write `texhandle' `"\label{`texlabel'}"' _n
+		if !missing("`texlabel'")   file write `texhandle' `"\label{`texlabel'}"' _n
 
 		file write `texhandle'	"\begin{adjustbox}{max width=\textwidth}" _n
 
@@ -1897,9 +1906,20 @@ cap program drop 	export_tex
 	}
 
 	******************************************************************************
+	* Write last line in table
+	******************************************************************************
+
+	*Write the table note if one is defined
+	cap file close 	`texhandle'
+	file open  		`texhandle' using "`textmpfile'", text write append
+	file write `texhandle' "\hline \\[-1.8ex]" _n
+	file close 		`texhandle'
+
+	******************************************************************************
 	* Write table note
 	******************************************************************************
 
+	*Write note if not missing (for example tblnonote was used)
 	if !missing("`note'") {
 
 		* Make sure special characters are displayed correctly
@@ -1908,19 +1928,31 @@ cap program drop 	export_tex
 		local note : subinstr local note "&" "\&" , all
 		local note : subinstr local note "\$" "\\\\\\\$" , all
 
-		*Count number of columns
-		local totalColNo = 1 + `numcols'*`grp_count' + `pair_count'
-		if !missing("`feqtest'") local totalColNo = `totalColNo' + `numcols'
+		*If tex file option is not used, write in main file
+		if missing("`texnotefile'") {
+			*Count number of columns
+			local totalColNo = 1 + `numcols'*`grp_count' + `pair_count'
+			if !missing("`feqtest'") local totalColNo = `totalColNo' + `numcols'
 
-		*Write the table note if one is defined
-		cap file close 	`texhandle'
-		file open  		`texhandle' using "`textmpfile'", text write append
-		file write `texhandle' "\hline \\[-1.8ex]" _n ///
-		"%%% This is the note. If it does not have the correct margins, use texnotewidth() option or change the number before '\textwidth' in line below to fit it to table size." _n ///
-		`"\multicolumn{`totalColNo'}{@{} p{`texnotewidth'\textwidth}}{\textit{Notes}: `note'}"' _n
-		file close 		`texhandle'
+			*Write the table note if one is defined
+			cap file close 	`texhandle'
+			file open  		`texhandle' using "`textmpfile'", text write append
+			file write `texhandle' ///
+			"%%% This is the note. If it does not have the correct margins, use texnotewidth() option or change the number before '\textwidth' in line below to fit it to table size." _n ///
+			`"\multicolumn{`totalColNo'}{@{} p{`texnotewidth'\textwidth}}{`note'}"' _n
+			file close 		`texhandle'
+
+		}
+
+		* If applicable write a text note file that can be inported in tex's threparttable package
+		else {
+			file open  `texnotehandle' using "`texnotetmpfile'", text write append
+			file write `texnotehandle' "`note'" _n
+			file close `texnotehandle'
+			* Write temporay tex file to disk
+			copy "`texnotetmpfile'" "`texnotefile'" , `replace'
+		}
 	}
-
 
 	******************************************************************************
 	* Write end of file and copy to disk
@@ -1934,8 +1966,15 @@ cap program drop 	export_tex
 	}
 	file close `texhandle'
 
-	* Write temporay tex file to disk
+	* Write temporay tex file to disk and prepare success string
   copy "`textmpfile'" "`texfile'" , `replace'
+
+	* Report file writes to users
+	local success_string `"Balance table saved in LaTeX format to: {browse "`texfile'":`texfile'}"'
+	if !missing("`texnotefile'") local success_string  ///
+	  `"`success_string' and note file saved in LaTeX format to: {browse "`texnotefile'":`texnotefile'}"'
+	noi di as result `"{phang}`success_string'{p_end}"'
+
 
 end
 
@@ -2383,5 +2422,6 @@ cap program drop 	generate_note
 		local table_note "`table_note' Observations are weighted using variable `weight_var' as `weight_type' weights."
   }
 
-	return local table_note `table_note'
+	return local table_note "`table_note'"
+
 end
