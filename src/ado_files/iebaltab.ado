@@ -27,7 +27,8 @@
 				pairoutput(string) ftestoutput(string)  ///
 				feqtestoutput(string)  STDev              ///
 				STARlevels(numlist descending min=3 max=3 >0 <1)			          ///
-				STARSNOadd FORMat(string) TBLNote(string) TBLNONote	///
+				STARSNOadd FORMat(string) TBLNote(string) TBLNONote	         ///
+				TBLADDNote(string) ///
 				                                                                ///
 				/*Export and restore*/                                          ///
 				SAVEXlsx(string) SAVECsv(string) SAVETex(string)                ///
@@ -607,7 +608,7 @@ qui {
 				* Test if width unit is correctly specified
 				local 	vspace_unit = substr("`texvspace'",-2,2)
 				if 	!inlist("`vspace_unit'","cm","mm","pt","in","ex","em") {
-					noi display as error `"{phang}Option texvspace is incorrectly specified. Vertical space unit must be one of "cm", "mm", "pt", "in", "ex" or "em". For more information, {browse "https://en.wikibooks.org/wiki/LaTeX/Lengths":check LaTeX lengths manual}.{p_end}"'
+					noi display as error `"{phang}Option texvspace() is incorrectly specified. Vertical space unit must be one of "cm", "mm", "pt", "in", "ex" or "em". For more information, {browse "https://en.wikibooks.org/wiki/LaTeX/Lengths":check LaTeX lengths manual}.{p_end}"'
 					error 198
 				}
 
@@ -615,7 +616,7 @@ qui {
 				local 	vspace_value = subinstr("`texvspace'","`vspace_unit'","",.)
 				capture confirm number `vspace_value'
 				if _rc & inlist("`vspace_unit'","cm","mm","pt","in","ex","em") {
-					noi display as error "{phang}Option texvspace is incorrectly specified. Vertical space value must be numeric. See {help iebaltab:iebaltab help}. {p_end}"
+					noi display as error "{phang}Option texvspace() is incorrectly specified. Vertical space value must be numeric. See {help iebaltab:iebaltab help}. {p_end}"
 					error 198
 				}
 			}
@@ -624,7 +625,7 @@ qui {
 		* Error for incorrectly using tex options
 		else if `NOTEWIDTH_USED' | !missing("`texlabel'`texcaption'") | !missing("`texdocument'") | `TEXVSPACE_USED' | `TEXCOLWIDTH_USED' {
 
-			noi display as error "{phang}Options texnotewidth, texdocument, texlabel, texcaption, texvspace and texcolwidth may only be used in combination with option savetex(){p_end}"
+			noi display as error "{phang}Options texnotewidth(), texdocument, texlabel(), texcaption(), texvspace() and texcolwidth() may only be used in combination with option savetex(){p_end}"
 			error 198
 		}
 
@@ -1120,7 +1121,10 @@ qui {
 		else local note_to_use `"`tblnote'"'
 	}
 	*Use no note
-	else else local note_to_use ""
+	else local note_to_use ""
+
+	* Add note from tbladdnote command to default note if applicable
+	if !missing("`tbladdnote'") local note_to_use "`note_to_use' `tbladdnote'"
 
 /*******************************************************************************
 
@@ -1217,7 +1221,8 @@ qui {
 		if `SAVE_TEX_USED' {
 			noi export_tex ,  texfile("`savetex'") ///
 			   rmat(`rmat') fmat(`fmat') pairs(`TEST_PAIR_CODES') `texdocument' texcaption("`texcaption'") ///
-				 texlabel("`texlabel'") texcolwidth("`texcolwidth'") texnotewidth("`texnotewidth'") texnotefile("`texnotefile'") ///
+				 texlabel("`texlabel'") texcolwidth("`texcolwidth'") texnotewidth("`texnotewidth'") ///
+				  texnotefile("`texnotefile'") custom_row_space("`texvspace'") ///
 				 pout_lbl(`pout_lbl') pout_val(`pout_val') fout_lbl(`fout_lbl') fout_val(`fout_val') ///
 				 `total' `onerow' `feqtest' `ftest' note(`"`note_to_use'"')  ///
 				 ntitle("`ntitle'") vtype("`vtype'") ///
@@ -1556,7 +1561,7 @@ qui {
 	ntitle(string) vtype(string) cl_used(string) ///
 	pout_lbl(string) pout_val(string) fout_lbl(string) fout_val(string) ///
 	texdocument texcaption(string) texnotewidth(string) ///
-	texlabel(string) texcolwidth(string) onerow total feqtest ftest ///
+	texlabel(string) texcolwidth(string) custom_row_space(string) onerow total feqtest ftest ///
 	order_grp_codes(numlist) ///
 	row_lbls(string) col_lbls(string) tot_lbl(string) ///
 	replace texnotefile(string)]
@@ -1604,7 +1609,6 @@ qui {
 		if !missing("`texlabel'")   file write `texhandle' `"\label{`texlabel'}"' _n
 
 		file write `texhandle'	"\begin{adjustbox}{max width=\textwidth}" _n
-
 		file close `texhandle'
 	}
 
@@ -1612,7 +1616,10 @@ qui {
 	* Prepare tabular environment header
 	******************************************************************************
 
-  * TODO : WHAT IS THIS USED FOR?
+	* Set custom row height if applicable
+  if missing("`custom_row_space'") local custom_row_space_code ""
+	else local custom_row_space_code "\rule{0pt}{`custom_row_space'}"
+
 	*Count number of columns in table
 	if missing("`texcolwidth'")	local colstring	"l"
 	else		                    local colstring	"p{`texcolwidth'}"
@@ -1799,7 +1806,8 @@ qui {
 
 		*Write the title rows defined above
 		file open  `texhandle' using "`textmpfile'", text write append
-		file write `texhandle' `"`row_up' \\"' _n `"`row_down' \\"' _n
+		file write `texhandle' `"`row_up' `custom_row_space_code' \\"' _n ///
+		                       `"`row_down' `custom_row_space_code' \\"' _n
 		file close `texhandle'
 
 	}
@@ -1848,9 +1856,9 @@ qui {
 		*Write the fstats rows
 		cap file close `texhandle'
 		file open  		 `texhandle' using "`textmpfile'", text write append
-																						file write  `texhandle' "`frow_up' \\" _n
-		if missing("`onerow'")                  file write  `texhandle' "`frow_down' \\" _n
-		if missing("`onerow'") & `cl_used' == 1 file write  `texhandle' "`frow_cl' \\" _n
+																						file write  `texhandle' "`frow_up' `custom_row_space_code' \\" _n
+		if missing("`onerow'")                  file write  `texhandle' "`frow_down' `custom_row_space_code' \\" _n
+		if missing("`onerow'") & `cl_used' == 1 file write  `texhandle' "`frow_cl' `custom_row_space_code' \\" _n
 		file close 		`texhandle'
 	}
 
@@ -1892,8 +1900,8 @@ qui {
 		*Write the N row to file
 		cap file close `texhandle'
 		file open  		 `texhandle' using "`textmpfile'", text write append
-		                  file write `texhandle' "`n_row' \\" _n
-		if `cl_used' == 1 file write `texhandle' "`cl_row' \\" _n
+		                  file write `texhandle' "`n_row' `custom_row_space_code' \\" _n
+		if `cl_used' == 1 file write `texhandle' "`cl_row' `custom_row_space_code' \\" _n
 		file close 		 `texhandle'
 	}
 
