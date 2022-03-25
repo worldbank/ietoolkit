@@ -46,7 +46,8 @@
 				///Deprecated options still to handle:
 				]
 
-
+  *Add space between code and output
+  noi di ""
 
 		********HELPFILE TODO*********
 		*1. Explain difference in se between group by itself and the standard errors used in the t-test
@@ -315,14 +316,14 @@ qui {
 
 		** Test if any value used in control is a code used in grpvar
 		if `: list control in GRP_CODES' == 0 {
-			noi display as error "{phang}The code listed in control(`control') is not used in grpvar(`grpvar'). See tabulation of `grpvar' below:"
+			noi display as error "{phang}The code listed in control(`control') is not used in grpvar(`grpvar'). See tabulation of `grpvar' below:{p_end}"
 			noi tab `grpvar', nol
 			error 197
 		}
 
 		** Test if any value used in order is a code used in grpvar
 		if `: list order in GRP_CODES' == 0 {
-			noi display as error  "{phang}One or more codes listed in order(`order') are not used in grpvar(`grpvar'). See tabulation of `grpvar' below:"
+			noi display as error  "{phang}One or more codes listed in order(`order') are not used in grpvar(`grpvar'). See tabulation of `grpvar' below:{p_end}"
 			noi tab `grpvar', nol
 			error 197
 		}
@@ -349,7 +350,7 @@ qui {
 		* Warning if totallabel is used without total. Only warning as there is
 		* nothing preventing the comamnd to continue as normal
 		if `TOTALLABEL_USED' & !`TOTAL_USED' {
-			noi display as text "{phang}Warning: Option {input:totallabel(`totallabel')} is ignored as option {input:total} was not used."
+			noi display as text "{phang}Warning: Option {input:totallabel(`totallabel')} is ignored as option {input:total} was not used.{p_end}"
 		}
 
 /*******************************************************************************
@@ -378,7 +379,7 @@ qui {
 				* and that it is numeric
 				cap confirm numeric variable `cluster_var'
 				if _rc {
-					noi display as error "{phang}The cluster variable in vce(`vce') does not exist or is invalid for any other reason. See {help vce_option :help vce_option} for more information. "
+					noi display as error "{phang}The cluster variable in vce(`vce') does not exist or is invalid for any other reason. See {help vce_option :help vce_option} for more information.{p_end}"
 					error _rc
 				}
 			}
@@ -386,7 +387,7 @@ qui {
 			* Test that the vce_type is among any of the remaining options
 			* that does not need any extra testing, if not among then, throw an error.
 			else if inlist("`vce_type'","robust","bootstrap") == 0 {
-				noi display as error "{phang}The vce type `vce_type' in vce(`vce') is not allowed. Only robust, cluster and bootstrap are allowed. See {help vce_option :help vce_option} for more information."
+				noi display as error "{phang}The vce type `vce_type' in vce(`vce') is not allowed. Only robust, cluster and bootstrap are allowed. See {help vce_option :help vce_option} for more information.{p_end}"
 				error 198
 			}
 		}
@@ -692,8 +693,6 @@ qui {
 		*Number of test pairs
 		local COUNT_TEST_PAIRS : list sizeof TEST_PAIR_CODES
 
-		noi di "`ORDER_OF_GROUP_CODES'"
-
 		************************************************
 		* Setup tempvar dummies for each test pair that is
 		* 0 for first code and 1 for second code and
@@ -722,9 +721,6 @@ qui {
 	  local pair_stats   `r(pair_stats)'
 		local feq_stats    `r(feq_stats)'
 		local ftest_stats  `r(ftest_stats)'
-
-		noi mat list emptyRow
-		noi mat list `fmat'
 
 /*******************************************************************************
 *******************************************************************************/
@@ -875,7 +871,7 @@ qui {
 
 			foreach group_code of local ORDER_OF_GROUP_CODES {
 
-				noi di "Desc stats. Var [`balancevar'], group code [`group_code']"
+				//noi di "Desc stats. Var [`balancevar'], group code [`group_code']"
 				reg `balancevar' if `grpvar' == `group_code' `weight_option', `error_estm'
 
 				*Number of observation for this balancevar for this group
@@ -897,7 +893,7 @@ qui {
 			******************************************************
 			*** Get descriptive stats for total
 
-			noi di "Desc stats. Var [`balancevar'], total"
+			//noi di "Desc stats. Var [`balancevar'], total"
 			if !missing("`total'") {
 				* Estimate descriptive stats for total
 				reg `balancevar' `weight_option', `error_estm'
@@ -943,7 +939,7 @@ qui {
 					local code2 `r(code2)'
 
 					* Perform the balance test for this test pair for this balance var
-					noi di "Balance regression. Var [`balancevar'], test pair [`ttest_pair']"
+					//noi di "Balance regression. Var [`balancevar'], test pair [`ttest_pair']"
 					reg `balancevar' `dummy_pair_`ttest_pair'' `covariates' i.`fixedeffect' `weight_option', `error_estm'
 
 					* R2 = 100
@@ -1000,9 +996,8 @@ qui {
 			if !missing("`feqtest'") {
 
 		    * Run regression
-				noi di "FEQ regression. Var [`balancevar']"
-				noi reg `balancevar' i.`grpvar' `covariates' i.`fixedeffect' `weight_option', `error_estm'
-				noi ereturn list
+				//noi di "FEQ regression. Var [`balancevar']"
+				reg `balancevar' i.`grpvar' `covariates' i.`fixedeffect' `weight_option', `error_estm'
 
 				* R2 = 100
 				if (e(r2) == 1) noi display as text "{phang}Warning: All variance was explained by one variable in the regression for the feq-test over all values in the group variable [`grpvar'] for balance variable [`balancevar'].{p_end}."
@@ -1024,8 +1019,7 @@ qui {
 					else mat row[1,`colindex'] = .c
 
 					*Perfeorm the F test
-					noi test `FEQTEST_INPUT'
-					noi return list
+					test `FEQTEST_INPUT'
 					mat row[1,`++colindex'] = r(F)
 					mat row[1,`++colindex'] = r(p)
 
@@ -1067,8 +1061,8 @@ qui {
 
 			**********
 			* Run the regression for f-test
-			noi di "F regression. Var [`balancevars'], test pair [`ftest_pair']"
-			noi reg `dummy_pair_`ftest_pair'' `balancevars' `covariates' i.`fixedeffect' `weight_option', `error_estm'
+			//noi di "F regression. Var [`balancevars'], test pair [`ftest_pair']"
+			reg `dummy_pair_`ftest_pair'' `balancevars' `covariates' i.`fixedeffect' `weight_option', `error_estm'
 
 			* Find ommitted balance vars if any
 		 	local all_columns     : colnames r(table)
@@ -1247,6 +1241,7 @@ end
 cap program drop 	export_tab
 	program define	export_tab, rclass
 
+qui {
 	syntax , rmat(name) fmat(name) 					///
 	ntitle(string) vtype(string) cl_used(string)		///
 	col_lbls(string) order_grp_codes(numlist) ///
@@ -1543,7 +1538,7 @@ cap program drop 	export_tab
 	* Import tab file to memory to be exported as csv, xlsx or be browsed.
 	* Tabs are used as they are never used in labels, making manual writing easier
 	insheet using "`tab_file'", tab clear
-
+}
 end
 
 /*******************************************************************************
@@ -1556,7 +1551,7 @@ end
 
 cap program drop 	export_tex
 	program define	export_tex
-
+qui {
 	syntax , rmat(name) fmat(name) texfile(string) [note(string) pairs(string) ///
 	ntitle(string) vtype(string) cl_used(string) ///
 	pout_lbl(string) pout_val(string) fout_lbl(string) fout_val(string) ///
@@ -1574,9 +1569,6 @@ cap program drop 	export_tex
 	local grp_count  : list sizeof order_grp_codes
 	local pair_count : list sizeof pairs
 	local row_count  : list sizeof row_lbls
-
-	noi mat list `rmat'
-	noi mat list `fmat'
 
 	*Create a temporary texfile
 	tempname 	texhandle texnotehandle
@@ -1946,9 +1938,10 @@ cap program drop 	export_tex
 
 		* If applicable write a text note file that can be inported in tex's threparttable package
 		else {
-			file open  `texnotehandle' using "`texnotetmpfile'", text write append
+			file open  `texnotehandle' using "`texnotetmpfile'", text write replace
 			file write `texnotehandle' "`note'" _n
 			file close `texnotehandle'
+
 			* Write temporay tex file to disk
 			copy "`texnotetmpfile'" "`texnotefile'" , `replace'
 		}
@@ -1975,7 +1968,7 @@ cap program drop 	export_tex
 	  `"`success_string' and note file saved in LaTeX format to: {browse "`texnotefile'":`texnotefile'}"'
 	noi di as result `"{phang}`success_string'{p_end}"'
 
-
+}
 end
 
 /*******************************************************************************
@@ -2337,6 +2330,8 @@ cap program drop 	isonerowok
 		noi di as error "{pstd}Option {input:onerow} may only be used if the number of `unit' with non-missing values are the same in all groups across all balance variables. This is not true for group(s): [`not_ok_grps']. Run the command again without this options to see in which column the number of `unit' is not the same for all rows.{p_end}"
 		error 499
 	}
+
+}
 end
 
 /*******************************************************************************
