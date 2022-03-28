@@ -21,17 +21,19 @@
 
 
 ************* Regular
+	*  L
 	sysuse auto
 
 	set seed 34543673
 
 	gen tmt = (runiform()<.5)
-
 	recode tmt (0 = 6) (1 = 2)
-
 	replace tmt = 10231 if (runiform()<.2)
 	replace tmt = 4 	if (runiform()<.2)
 	tab		tmt
+
+	lab define tmtlbl 4 "control/unobserved" 2 "Oi in %" 6 "taco & slsa"
+	lab val tmt tmtlbl
 
 
 	gen this_cluster = tmt
@@ -40,25 +42,29 @@
 
 	tostring tmt, gen(tmt_str)
 
-	lab define tmtlbl 4 "control/unobserved" 2 "Oi in %" 6 "taco & slsa"
 
-	lab val tmt tmtlbl
 
 	//replace weight = 10
 
-	//bysort tmt_cl : keep if _n <= 20
-	//bysort tmt_cl : replace weight = 5 if _n < _N /2
+
 
 	/***************************************************************************
 	  Table 1 - csv, excel, tex and texnote
 	***************************************************************************/
 	preserve
+
+		local tnum 1
+		local csvfile "iebt-csv`tnum'"
+		local exlfile "iebt-xlsx`tnum'"
+		local texfile "iebt-tex`tnum'"
+		local txnfile "iebt-tex`tnum'-note"
+
 		iebaltab weight price , grpvar(tmt_cl) replace ///
 			ftest feqtest control(1)   ///
-			savecsv("${out_fldr}/iebt-csv1")          ///
-			savexlsx("${out_fldr}/iebt-xlsx1")        ///
-			savetex("${out_fldr}/iebt-tex1")          ///
-			texnotefile("${out_fldr}/iebt-tex1-note") ///
+			savecsv("${out_fldr}/`csvfile'")     ///
+			savexlsx("${out_fldr}/`exlfile'")    ///
+			savetex("${out_fldr}/`texfile'")     ///
+			texnotefile("${out_fldr}/`txnfile'") ///
 			cov(mpg) fixed(foreign)
 
 		* Test no regaular missing values in matrices
@@ -71,9 +77,13 @@
 	  Table 2 - tex table fragement only
 	***************************************************************************/
 	preserve
+
+		local tnum 2
+		local texfile "iebt-tex`tnum'"
+
 		iebaltab weight price , grpvar(tmt_cl) replace ///
 			ftest feqtest control(1)   ///
-			savetex("${out_fldr}/iebt-tex2")  ///
+			savetex("${out_fldr}/`texfile'")     ///
 			cov(mpg) fixed(foreign)
 
 		* Test no regaular missing values in matrices
@@ -86,9 +96,13 @@
 	  Table 3 - tex table fragement only with options
 	***************************************************************************/
 	preserve
+
+		local tnum 3
+		local texfile "iebt-tex`tnum'"
+
 		iebaltab weight price , grpvar(tmt_cl) replace ///
 			ftest feqtest control(1)   ///
-			savetex("${out_fldr}/iebt-tex3")  ///
+			savetex("${out_fldr}/`texfile'")     ///
 			cov(mpg) fixed(foreign) ///
 			texvspace(1cm) texcolwidth(4cm) ///
 			tbladdnote("Options used: texvspace(1cm) - tall rows, texcolwidth(3cm) short first column ")
@@ -103,9 +117,13 @@
 	  Table 4 - tex stand alone doc
 	***************************************************************************/
 	preserve
+
+		local tnum 4
+		local texfile "iebt-texdoc`tnum'"
+
 		iebaltab weight price , grpvar(tmt_cl) replace ///
 			ftest feqtest control(1)   ///
-			savetex("${out_fldr}/iebt-texdoc4")  ///
+			savetex("${out_fldr}/`texfile'")     ///
 			cov(mpg) fixed(foreign) texdocument
 
 		* Test no regaular missing values in matrices
@@ -118,9 +136,13 @@
 	  Table 5 - tex stand alone doc with options
 	***************************************************************************/
 	preserve
+
+		local tnum 5
+		local texfile "iebt-texdoc`tnum'"
+
 		iebaltab weight price , grpvar(tmt_cl) replace ///
 			ftest feqtest control(1)   ///
-			savetex("${out_fldr}/iebt-texdoc5")  ///
+			savetex("${out_fldr}/`texfile'")     ///
 			cov(mpg) fixed(foreign) texdocument ///
 			texnotewidth(1.5) texvspace(1cm) texcolwidth(2cm)  ///
 			texcaption("Table 5") texlabel("T5")
@@ -136,12 +158,19 @@
 	  Table 6 - csv, excel, tex and texnote - rowlabels, weird tmt levels, total
 	***************************************************************************/
 	preserve
+
+		local tnum 6
+		local csvfile "iebt-csv`tnum'"
+		local exlfile "iebt-xlsx`tnum'"
+		local texfile "iebt-tex`tnum'"
+		local txnfile "iebt-tex`tnum'-note"
+
 		iebaltab weight price , grpvar(tmt) replace ///
 			ftest feqtest total rowvarlabels   ///
-			savecsv("${out_fldr}/iebt-csv6")          ///
-			savexlsx("${out_fldr}/iebt-xlsx6")        ///
-			savetex("${out_fldr}/iebt-tex6")          ///
-			texnotefile("${out_fldr}/iebt-tex6-note") ///
+			savecsv("${out_fldr}/`csvfile'")     ///
+			savexlsx("${out_fldr}/`exlfile'")    ///
+			savetex("${out_fldr}/`texfile'")     ///
+			texnotefile("${out_fldr}/`txnfile'") ///
 			cov(mpg) fixed(foreign) ///
 			tbladdnote("Many groups, rowvarlabels")
 
@@ -155,12 +184,19 @@
 	  Table 7 - csv, excel, tex and texnote -  order
 	***************************************************************************/
 	preserve
+
+		local tnum 7
+		local csvfile "iebt-csv`tnum'"
+		local exlfile "iebt-xlsx`tnum'"
+		local texfile "iebt-tex`tnum'"
+		local txnfile "iebt-tex`tnum'-note"
+
 		iebaltab weight price , grpvar(tmt) replace ///
 			total order(4 10231) control(6) grpcodes                       ///
-			savecsv("${out_fldr}/iebt-csv7")          ///
-			savexlsx("${out_fldr}/iebt-xlsx7")        ///
-			savetex("${out_fldr}/iebt-tex7")          ///
-			texnotefile("${out_fldr}/iebt-tex7-note") ///
+			savecsv("${out_fldr}/`csvfile'")     ///
+			savexlsx("${out_fldr}/`exlfile'")    ///
+			savetex("${out_fldr}/`texfile'")     ///
+			texnotefile("${out_fldr}/`txnfile'") ///
 			cov(mpg) fixed(foreign) ///
 			tbladdnote("column order should be 4 10231 6 2, and 6 is control so pair test only with this group")
 
@@ -174,14 +210,21 @@
 	  Table 8 - csv, excel, tex and texnote - manual labels (and order)
 	***************************************************************************/
 	preserve
+
+		local tnum 8
+		local csvfile "iebt-csv`tnum'"
+		local exlfile "iebt-xlsx`tnum'"
+		local texfile "iebt-tex`tnum'"
+		local txnfile "iebt-tex`tnum'-note"
+
 		iebaltab weight price , grpvar(tmt) replace ///
 			total control(6)  rowvarlabels                  ///
 			grplabels("4 Pizza and Pineapple (m) @ 6 Control (m)")                 ///
 			totallabel("Total manual label (m)") rowlabels("price Priset (m)")     ///
-			savecsv("${out_fldr}/iebt-csv8")          ///
-			savexlsx("${out_fldr}/iebt-xlsx8")        ///
-			savetex("${out_fldr}/iebt-tex8")          ///
-			texnotefile("${out_fldr}/iebt-tex8-note") ///
+			savecsv("${out_fldr}/`csvfile'")     ///
+			savexlsx("${out_fldr}/`exlfile'")    ///
+			savetex("${out_fldr}/`texfile'")     ///
+			texnotefile("${out_fldr}/`txnfile'") ///
 			cov(mpg) fixed(foreign) ///
 			tbladdnote("Row and column manual lables.")
 
