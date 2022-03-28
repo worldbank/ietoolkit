@@ -1232,7 +1232,7 @@ qui {
 				  texnotefile("`texnotefile'") custom_row_space("`texvspace'") ///
 				 pout_lbl(`pout_lbl') pout_val(`pout_val') fout_lbl(`fout_lbl') fout_val(`fout_val') ///
 				 `total' `onerow' `feqtest' `ftest' note(`"`note_to_use'"')  ///
-				 ntitle("`ntitle'") vtype("`vtype'") ///
+				 ntitle("`ntitle'") vtype("`vtype'") diformat("`diformat'") ///
 				 col_lbls(`"`COLUMN_LABELS'"') tot_lbl("`tot_lbl'") ///
 				 row_lbls(`"`ROW_LABELS'"') cl_used("`CLUSTER_USED'") ///
 				 order_grp_codes(`ORDER_OF_GROUP_CODES') `replace'
@@ -1569,7 +1569,7 @@ qui {
 	pout_lbl(string) pout_val(string) fout_lbl(string) fout_val(string) ///
 	texdocument texcaption(string) texnotewidth(string) ///
 	texlabel(string) texcolwidth(string) custom_row_space(string) onerow total feqtest ftest ///
-	order_grp_codes(numlist) ///
+	order_grp_codes(numlist) diformat(string) ///
 	row_lbls(string) col_lbls(string) tot_lbl(string) ///
 	replace texnotefile(string)]
 
