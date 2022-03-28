@@ -638,23 +638,29 @@ qui {
 /*******************************************************************************
 *******************************************************************************/
 
-	************************************************
-	*Group order
+	  ************************************************
+	  *Group order
 
-		* If option order is always used to set the orders of the group columns. If
-		* option control is used when order is not used, then the code for the
-		* control group will be used in order.
-		if !`ORDER_USED' & `CONTROL_USED' local order `control'
+		*List all codes in order_code_rest
+		local order_code_rest `GRP_CODES'
 
-		* Put all group codes not in local order in local order_code_rest. If
-		* neither option order or control were used, then local order_code_rest is
-		* identical to local GRP_CODES
-		local order_code_rest : list GRP_CODES - order
+    * First - use manually specified groups from order()
+		if `ORDER_USED' {
+			local ORDER_OF_GROUP_CODES `order'
+			local order_code_rest : list GRP_CODES - order
+		}
 
-		* The final order is compiled by combining local order with local
-		* order_code_rest. If neither option order or control were used, then local
-		* ORDER_OF_GROUP_CODES is identical to local order_code_rest and GRP_CODES
-		local ORDER_OF_GROUP_CODES `order' `order_code_rest'
+		* Second - if control used and was not speci was not in order, then
+		if `CONTROL_USED' & !`: list control in order' {
+			local ORDER_OF_GROUP_CODES `ORDER_OF_GROUP_CODES' `control'
+			local order_code_rest : list order_code_rest - control
+		}
+
+		* Last - apply all other codes in alphanumeric order
+		local ORDER_OF_GROUP_CODES `ORDER_OF_GROUP_CODES' `order_code_rest'
+
+		************************************************
+		*Feq-test equation
 
 		* Loop from the second element in the list of group codes to the last and
 		* create a list on the format 2.tmt=3.tmt=0 where tmt is the grpvar and the
