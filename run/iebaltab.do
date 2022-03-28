@@ -263,7 +263,8 @@
 			savexlsx("${out_fldr}/`exlfile'")    ///
 			savetex("${out_fldr}/`texfile'")     ///
 			texnotefile("${out_fldr}/`txnfile'") ///
-			cov(mpg) fixed(foreign)
+			cov(mpg) fixed(foreign) ///
+			tbladdnote("Warning for missing value in fixedeffect(foreign) and in covariates(mpg)")
 			
 		* Expected outcome: Warning for missing value in 
 		* fixedeffect(foreign) and in covariates(mpg), but no warning for weight
@@ -293,7 +294,8 @@
 			savexlsx("${out_fldr}/`exlfile'")    ///
 			savetex("${out_fldr}/`texfile'")     ///
 			texnotefile("${out_fldr}/`txnfile'") ///
-			cov(mpg) fixed(foreign)
+			cov(mpg) fixed(foreign) ///
+			tbladdnote("added cluster")
 
 		* Test no regaular missing values in matrices
 		mat mat1 = r(iebaltabrmat)
@@ -319,7 +321,8 @@
 			savexlsx("${out_fldr}/`exlfile'")    ///
 			savetex("${out_fldr}/`texfile'")     ///
 			texnotefile("${out_fldr}/`txnfile'") ///
-			cov(mpg) fixed(foreign)
+			cov(mpg) fixed(foreign) ///
+			tbladdnote("added onerow")
 
 		* Test no regaular missing values in matrices
 		mat mat1 = r(iebaltabrmat)
@@ -347,7 +350,8 @@
 			savexlsx("${out_fldr}/`exlfile'")    ///
 			savetex("${out_fldr}/`texfile'")     ///
 			texnotefile("${out_fldr}/`txnfile'") ///
-			cov(mpg) fixed(foreign)
+			cov(mpg) fixed(foreign) ///
+			tbladdnote("added onerow and cluster")
 
 		* Test no regaular missing values in matrices
 		mat mat1 = r(iebaltabrmat)
