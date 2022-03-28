@@ -36,7 +36,7 @@
 	tostring tmt, gen(tmt_str)
 	
 	* Tmt labels
-	lab define tmtlbl 4 "control/unobserved" 2 "Oi in %" 6 "taco & slsa"
+	lab define tmtlbl 4 "control/unobserved" 2 "Oi in %" 6 "taco & salsa"
 	lab val tmt tmtlbl
 	
 	*Cluster variable

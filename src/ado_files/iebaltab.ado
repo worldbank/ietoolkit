@@ -1162,8 +1162,8 @@ qui {
 		*Set locals used regardless of export method
 
 		** SE if standard errors are used (default) or SD if standard deviation is used
-		if `STDEV_USED' == 1 	local vtype "sd"
-		else local vtype "se"
+		if `STDEV_USED' == 1 	local vtype "SD"
+		else local vtype "SE"
 
 		*Create the title for the column with number of observations/clusters
 		if "`vce_type'" == "cluster" local ntitle "N/Clusters"
@@ -1313,7 +1313,7 @@ qui {
 		*Add titles for summary row stats
 		local titlerow1 `"`titlerow1' _tab " (`grp_colnum') " "'
 		local titlerow2 `"`titlerow2' _tab "`grp_lbl'"        "'
-		local titlerow3 `"`titlerow3' _tab "Mean/`vtype'"     "'
+		local titlerow3 `"`titlerow3' _tab "Mean/(`vtype')"     "'
 	}
 
 
@@ -1329,7 +1329,7 @@ qui {
 
 		*Add titles for summary row stats
 		local titlerow1 `"`titlerow1' _tab "F-test for balance" "'
-		local titlerow2 `"`titlerow2' _tab "accross all groups" "'
+		local titlerow2 `"`titlerow2' _tab "across all groups" "'
 		local titlerow3 `"`titlerow3' _tab "F-stat/P-value" "'
 	}
 
@@ -1688,15 +1688,15 @@ qui {
 		local texrow1 	`"`texrow1' & \multicolumn{`numcols'}{c}{(`grp_num')} "'
 		local texrow2 	`"`texrow2' & \multicolumn{`numcols'}{c}{`grp_lbl'} "'
 
-		if missing("`onerow'") local texrow3 `"`texrow3' & `ntitle' & Mean/`vtype'"'
-    else                   local texrow3 `"`texrow3' & Mean/`vtype' 	"'
+		if missing("`onerow'") local texrow3 `"`texrow3' & `ntitle' & Mean/(`vtype')"'
+    else                   local texrow3 `"`texrow3' & Mean/(`vtype') 	"'
 	}
 
 	*****************************
 	*Titles for feq test
 	if !missing("`feqtest'") {
 		local texrow1 `"`texrow1' & \multicolumn{`numcols'}{c}{F-test for balance}"'
-		local texrow2 `"`texrow2' & \multicolumn{`numcols'}{c}{accross all groups}"'
+		local texrow2 `"`texrow2' & \multicolumn{`numcols'}{c}{across all groups}"'
 		if !missing("`onerow'") local texrow3 `"`texrow3' & F-stat/P-value"'
 		else                    local texrow3 `"`texrow3' & `ntitle' & F-stat/P-value"'
 	}
@@ -1819,16 +1819,17 @@ qui {
 
 	}
 
-	*Write a line after the last balance row
-	file open  `texhandle' using "`textmpfile'", text write append
-	file write `texhandle' "\hline \\[-1.8ex]" _n
-	file close `texhandle'
 
 	******************************************************************************
 	* Write F-stat row
 	******************************************************************************
 
 	if !missing("`ftest'") {
+
+		*Write a line after the last balance row
+		file open  `texhandle' using "`textmpfile'", text write append
+		file write `texhandle' "\hline \\[-1.8ex]" _n
+		file close `texhandle'
 
 		* First column with row labels
 		local frow_up   `"F-test of joint significance (`fout_lbl')"'
