@@ -2401,9 +2401,9 @@ cap program drop 	generate_note
 
 	if !missing("`starlevels'") {
 		tokenize "`starlevels'"
-		local signint1 = 100 - (`1' * 100)
-		local signint2 = 100 - (`2' * 100)
-		local signint3 = 100 - (`3' * 100)
+		local signint1 = (`1' * 100)
+		local signint2 = (`2' * 100)
+		local signint3 = (`3' * 100)
 		local table_note "`table_note' Significance: ***=`signint3'%, **=`signint2'%, *=`signint1'%."
 	}
 
