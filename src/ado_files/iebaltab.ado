@@ -15,13 +15,13 @@
 				GRPCodes GRPLabels(string) TOTALLabel(string) ROWVarlabels      ///
 				ROWLabels(string) onerow                                        ///
 				                                                                ///
-				/*Statistics and data manipulation*/                            ///
+				/*Statistics*/                            ///
 				FIXedeffect(varname) COVariates(varlist ts fv) 						      ///
 				vce(string)              ///
 				WEIGHTold(string)                                               ///
 				                                                                ///
 				/*F-test and  FEQTest*/                                   ///
-				FTest FMissok FEQTest	                                     ///
+				FTest FEQTest	                                     ///
 				                                                                ///
 				/*Output display*/                                              ///
 				pairoutput(string) ftestoutput(string)  ///
@@ -41,8 +41,9 @@
 				                                                                ///
 				/*Deprecated options
 				  - still included to throw helpful error if ever used */       ///
-				SAVEBRowse BALMISS(string) BALMISSReg(string)            ///
-				COVMISS(string) COVMISSReg(string) MISSMINmean(string) COVARMISSOK  SAVE(string) NOTtest	///
+				SAVEBRowse SAVE(string) ///
+				BALMISS(string) BALMISSReg(string) COVMISS(string) COVMISSReg(string) ///
+				MISSMINmean(string) COVARMISSOK FMissok NOTtest	///
 				NORMDiff	PTtest	PFtest	PBoth NOTECombine ///
 				///Deprecated options still to handle:
 				]
@@ -237,8 +238,8 @@ qui {
 			di as error `"{pstd}The options {input:savebrowse}, {input:save} and {input:browse} have been deprecated as of version 7 of iebaltab. See if the options {input:savexlsx}, {input:savecsv} or {input:browse} have the functionality you need. `old_version_guide'{p_end}"'
 			error 198
 		}
-		if !missing("`balmiss'`balmissreg'`covmiss'`covmissreg'`missminmean'`covarmissok'") {
-			di as error `"{pstd}The options {input:balmiss}, {input:balmissreg}, {input:covmiss}, {input:covmissreg}, {input:missminmean} and {input:covarmissok} have been deprecated as of version 7 of iebaltab. Instead, if needed and/or desired, you must modify missing values yourself before running the command. `old_version_guide'{p_end}"'
+		if !missing("`balmiss'`balmissreg'`covmiss'`covmissreg'`missminmean'`covarmissok'`fmissok'") {
+			di as error `"{pstd}The options {input:balmiss}, {input:balmissreg}, {input:covmiss}, {input:missminmean}, {input:covarmissok} and {input:fmissok} have been deprecated as of version 7 of iebaltab. Instead, if needed and/or desired, you must modify missing values yourself before running the command. `old_version_guide'{p_end}"'
 			error 198
 		}
 		if !missing("`nottest'`normdiff'`pttest'`pftest'`pboth'") {
@@ -453,8 +454,7 @@ qui {
 		if `FIX_EFFECT_USED' == 1 {
 			cap assert `fixedeffect' < .
 			if _rc == 9 {
-				noi di ""
-				noi display as text "{phang}Warning: The variable in {input:fixedeffect(`fixedeffect')} is missing for some observations in the sample used. Before using the generated results, make sure that the number of observations in the table is as expected.{p_end}"
+				noi display as text "{phang}{input:Warning:} At least one observation in the sample has at least one missing value in a variable used in {input:fixedeffect(`fixedeffect')}. Before using the generated results, make sure that the number of observations in the table is as expected.{p_end}"
 			}
 		}
 
@@ -466,8 +466,7 @@ qui {
 			foreach covar of local covariates {
 				cap assert `covar' < .
 				if _rc == 9 {
-					noi di ""
-					noi display as text "{phang}Warning: The variable [`covar'] in {input:covariates(`covariates')} is missing for some observations in the sample used. Before using the generated results, make sure that the number of observations in the table is as expected.{p_end}"
+					noi display as text "{phang}{input:Warning:} At least one observation in the sample has at least one missing value in the variable [`covar'] used in {input:covariates(`covariates')}. Before using the generated results, make sure that the number of observations in the table is as expected.{p_end}"
 				}
 
 				* Prepare a local of all covariates that is also a balance var (not allowed)
@@ -650,7 +649,7 @@ qui {
 			local order_code_rest : list GRP_CODES - order
 		}
 
-		* Second - if control used and was not speci was not in order, then
+		* Second - if control used and was not specified in order already
 		if `CONTROL_USED' & !`: list control in order' {
 			local ORDER_OF_GROUP_CODES `ORDER_OF_GROUP_CODES' `control'
 			local order_code_rest : list order_code_rest - control
@@ -2347,7 +2346,6 @@ cap program drop 	isonerowok
 		error 499
 	}
 
-}
 end
 
 /*******************************************************************************
