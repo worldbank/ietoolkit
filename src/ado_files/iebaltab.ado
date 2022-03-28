@@ -1098,8 +1098,10 @@ qui {
 	}
 	else {
 		* F test not used, mark all f-test values as .m
-		foreach f_stat of local ftest_stats {
-			mat `fmat'[1,`++Fcolindex'] = .m
+		foreach ftest_pair of local TEST_PAIR_CODES {
+			foreach f_stat of local ftest_stats {
+				mat `fmat'[1,`++Fcolindex'] = .m
+			}
 		}
 	}
 
