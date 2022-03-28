@@ -32,20 +32,25 @@
 	replace tmt = 4 	if (runiform()<.2)
 	tab		tmt
 
+	* String treatment variable
+	tostring tmt, gen(tmt_str)
+	
+	* Tmt labels
 	lab define tmtlbl 4 "control/unobserved" 2 "Oi in %" 6 "taco & slsa"
 	lab val tmt tmtlbl
+	
+	*Cluster variable
+	gen test_cluster_var = tmt
+	sum test_cluster_var, d
+	gen tmt_cl = (test_cluster_var <= r(p50))
 
 
-	gen this_cluster = tmt
-	sum this_cluster, d
-	gen tmt_cl = (this_cluster <= r(p50))
-
-	tostring tmt, gen(tmt_str)
 
 
 
 	//replace weight = 10
-
+		//bysort tmt_cl : keep if _n <= 20
+		//bysort tmt_cl : replace weight = 5 if _n < _N /2
 
 
 	/***************************************************************************
@@ -233,3 +238,120 @@
 		mat mat2 = r(iebaltabfmat)
 		ie_test_mat_nomiss, mat1(mat1) mat2(mat2)
 	restore
+
+	/***************************************************************************
+	  Table 9 - missing covariate and fixed effect value warnings
+	***************************************************************************/
+
+	preserve
+		
+		* Replace one value in three different obs for balance var, covariate
+		* and fixed effect
+		bysort tmt_cl : replace weight  = . if _n == 1 & tmt_cl == 1
+		bysort tmt_cl : replace mpg     = . if _n == 2 & tmt_cl == 1
+		bysort tmt_cl : replace foreign = . if _n == 3 & tmt_cl == 1
+		
+		local tnum 9
+		local csvfile "iebt-csv`tnum'"
+		local exlfile "iebt-xlsx`tnum'"
+		local texfile "iebt-tex`tnum'"
+		local txnfile "iebt-tex`tnum'-note"
+
+		iebaltab weight price , grpvar(tmt_cl) replace ///
+			ftest feqtest    ///
+			savecsv("${out_fldr}/`csvfile'")     ///
+			savexlsx("${out_fldr}/`exlfile'")    ///
+			savetex("${out_fldr}/`texfile'")     ///
+			texnotefile("${out_fldr}/`txnfile'") ///
+			cov(mpg) fixed(foreign)
+			
+		* Expected outcome: Warning for missing value in 
+		* fixedeffect(foreign) and in covariates(mpg), but no warning for weight
+
+		* Test no regaular missing values in matrices
+		mat mat1 = r(iebaltabrmat)
+		mat mat2 = r(iebaltabfmat)
+		ie_test_mat_nomiss, mat1(mat1) mat2(mat2)
+	restore
+
+	/***************************************************************************
+	  Table 10 - cluster
+	***************************************************************************/
+
+	preserve
+		
+		local tnum 10
+		local csvfile "iebt-csv`tnum'"
+		local exlfile "iebt-xlsx`tnum'"
+		local texfile "iebt-tex`tnum'"
+		local txnfile "iebt-tex`tnum'-note"
+
+		iebaltab weight price , grpvar(tmt_cl) replace ///
+			vce(cluster test_cluster_var)  ///
+			ftest feqtest total ///
+			savecsv("${out_fldr}/`csvfile'")     ///
+			savexlsx("${out_fldr}/`exlfile'")    ///
+			savetex("${out_fldr}/`texfile'")     ///
+			texnotefile("${out_fldr}/`txnfile'") ///
+			cov(mpg) fixed(foreign)
+
+		* Test no regaular missing values in matrices
+		mat mat1 = r(iebaltabrmat)
+		mat mat2 = r(iebaltabfmat)
+		ie_test_mat_nomiss, mat1(mat1) mat2(mat2)
+	restore
+
+	/***************************************************************************
+	  Table 11 - onerow - basic stats
+	***************************************************************************/
+
+	preserve
+		
+		local tnum 11
+		local csvfile "iebt-csv`tnum'"
+		local exlfile "iebt-xlsx`tnum'"
+		local texfile "iebt-tex`tnum'"
+		local txnfile "iebt-tex`tnum'-note"
+
+		iebaltab weight price , grpvar(tmt_cl) replace ///
+			onerow ///
+			savecsv("${out_fldr}/`csvfile'")     ///
+			savexlsx("${out_fldr}/`exlfile'")    ///
+			savetex("${out_fldr}/`texfile'")     ///
+			texnotefile("${out_fldr}/`txnfile'") ///
+			cov(mpg) fixed(foreign)
+
+		* Test no regaular missing values in matrices
+		mat mat1 = r(iebaltabrmat)
+		mat mat2 = r(iebaltabfmat)
+		ie_test_mat_nomiss, mat1(mat1) mat2(mat2)
+	restore
+	
+	
+	/***************************************************************************
+	  Table 12 - onerow - all stats that change cols and cluster var
+	***************************************************************************/
+
+	preserve
+		
+		local tnum 12
+		local csvfile "iebt-csv`tnum'"
+		local exlfile "iebt-xlsx`tnum'"
+		local texfile "iebt-tex`tnum'"
+		local txnfile "iebt-tex`tnum'-note"
+
+		iebaltab weight price , grpvar(tmt_cl) replace ///
+			onerow vce(cluster test_cluster_var)  ///
+			ftest feqtest total                  ///
+			savecsv("${out_fldr}/`csvfile'")     ///
+			savexlsx("${out_fldr}/`exlfile'")    ///
+			savetex("${out_fldr}/`texfile'")     ///
+			texnotefile("${out_fldr}/`txnfile'") ///
+			cov(mpg) fixed(foreign)
+
+		* Test no regaular missing values in matrices
+		mat mat1 = r(iebaltabrmat)
+		mat mat2 = r(iebaltabfmat)
+		ie_test_mat_nomiss, mat1(mat1) mat2(mat2)
+	restore
+
