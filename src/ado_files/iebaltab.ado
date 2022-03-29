@@ -1162,8 +1162,9 @@ qui {
 		*Set locals used regardless of export method
 
 		** SE if standard errors are used (default) or SD if standard deviation is used
-		if `STDEV_USED' == 1 	local vtype "SD"
-		else local vtype "SE"
+		if `STDEV_USED' == 1 	local vtitle "SD"
+		else local vtitle "SE"
+		local vtype = lower("`vtitle'")
 
 		*Create the title for the column with number of observations/clusters
 		if "`vce_type'" == "cluster" local ntitle "N/Clusters"
@@ -1195,7 +1196,7 @@ qui {
 					row_lbls(`"`ROW_LABELS'"') col_lbls(`"`COLUMN_LABELS'"')  ///
 					pout_lbl(`pout_lbl') pout_val(`pout_val') fout_lbl(`fout_lbl') fout_val(`fout_val') ///
 					tot_lbl("`tot_lbl'") `total' `onerow' `feqtest' `ftest'  ///
-					ntitle("`ntitle'") note(`"`note_to_use'"') vtype("`vtype'") cl_used("`CLUSTER_USED'") ///
+					ntitle("`ntitle'") note(`"`note_to_use'"') vtype("`vtype'") vtitle("`vtitle'") cl_used("`CLUSTER_USED'") ///
 					diformat("`diformat'") starlevels("`starlevels'")
 
 					*Save the tab delimited file
@@ -1232,7 +1233,7 @@ qui {
 				  texnotefile("`texnotefile'") custom_row_space("`texvspace'") ///
 				 pout_lbl(`pout_lbl') pout_val(`pout_val') fout_lbl(`fout_lbl') fout_val(`fout_val') ///
 				 `total' `onerow' `feqtest' `ftest' note(`"`note_to_use'"')  ///
-				 ntitle("`ntitle'") vtype("`vtype'") diformat("`diformat'") ///
+				 ntitle("`ntitle'") vtype("`vtype'") vtitle("`vtitle'") diformat("`diformat'") ///
 				 col_lbls(`"`COLUMN_LABELS'"') tot_lbl("`tot_lbl'") ///
 				 row_lbls(`"`ROW_LABELS'"') cl_used("`CLUSTER_USED'") ///
 				 order_grp_codes(`ORDER_OF_GROUP_CODES') `replace'
@@ -1255,7 +1256,7 @@ cap program drop 	export_tab
 
 qui {
 	syntax , rmat(name) fmat(name) 					///
-	ntitle(string) vtype(string) cl_used(string)		///
+	ntitle(string) vtype(string) vtitle(string) cl_used(string)		///
 	col_lbls(string) order_grp_codes(numlist) ///
 	pairs(string) diformat(string) ///
 	row_lbls(string) tot_lbl(string) ///
@@ -1313,7 +1314,7 @@ qui {
 		*Add titles for summary row stats
 		local titlerow1 `"`titlerow1' _tab " (`grp_colnum') " "'
 		local titlerow2 `"`titlerow2' _tab "`grp_lbl'"        "'
-		local titlerow3 `"`titlerow3' _tab "Mean/(`vtype')"     "'
+		local titlerow3 `"`titlerow3' _tab "Mean/(`vtitle')"     "'
 	}
 
 
@@ -1565,7 +1566,7 @@ cap program drop 	export_tex
 	program define	export_tex
 qui {
 	syntax , rmat(name) fmat(name) texfile(string) [note(string) pairs(string) ///
-	ntitle(string) vtype(string) cl_used(string) ///
+	ntitle(string) vtype(string) vtitle(string) cl_used(string) ///
 	pout_lbl(string) pout_val(string) fout_lbl(string) fout_val(string) ///
 	texdocument texcaption(string) texnotewidth(string) ///
 	texlabel(string) texcolwidth(string) custom_row_space(string) onerow total feqtest ftest ///
@@ -1688,8 +1689,8 @@ qui {
 		local texrow1 	`"`texrow1' & \multicolumn{`numcols'}{c}{(`grp_num')} "'
 		local texrow2 	`"`texrow2' & \multicolumn{`numcols'}{c}{`grp_lbl'} "'
 
-		if missing("`onerow'") local texrow3 `"`texrow3' & `ntitle' & Mean/(`vtype')"'
-    else                   local texrow3 `"`texrow3' & Mean/(`vtype') 	"'
+		if missing("`onerow'") local texrow3 `"`texrow3' & `ntitle' & Mean/(`vtitle')"'
+    else                   local texrow3 `"`texrow3' & Mean/(`vtitle') 	"'
 	}
 
 	*****************************
