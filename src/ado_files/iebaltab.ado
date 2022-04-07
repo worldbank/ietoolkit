@@ -15,27 +15,27 @@
 				GRPCodes GRPLabels(string) TOTALLabel(string) ROWVarlabels      ///
 				ROWLabels(string) onerow                                        ///
 				                                                                ///
-				/*Statistics*/                            ///
+				/*Statistics*/                                                  ///
 				FIXedeffect(varname) COVariates(varlist ts fv) 						      ///
-				vce(string)              ///
+				vce(string)                                                     ///
 				WEIGHTold(string)                                               ///
 				                                                                ///
-				/*F-test and  FEQTest*/                                   ///
-				FTest FEQTest	                                     ///
+				/*F-test and  FEQTest*/                                         ///
+				FTest FEQTest	                                                  ///
 				                                                                ///
 				/*Output display*/                                              ///
-				pairoutput(string) ftestoutput(string)  ///
-				feqtestoutput(string)  STDev              ///
+				pairoutput(string) ftestoutput(string)                          ///
+				feqtestoutput(string)  STDev                                    ///
 				STARlevels(numlist descending min=3 max=3 >0 <1)			          ///
-				STARSNOadd FORMat(string) TBLNote(string) TBLNONote	         ///
-				TBLADDNote(string) ///
+				STARSNOadd FORMat(string) TBLNote(string) TBLNONote	            ///
+				TBLADDNote(string)                                              ///
 				                                                                ///
 				/*Export and restore*/                                          ///
 				SAVEXlsx(string) SAVECsv(string) SAVETex(string)                ///
-				REPLACE BROWSE            ///
+				REPLACE BROWSE                                                  ///
 				                                                                ///
 				/*Tex options*/     				                                    ///
-				TEXNotewidth(numlist min=1 max=1)  ///
+				TEXNotewidth(numlist min=1 max=1)                               ///
 				TEXCaption(string) TEXLabel(string) TEXDOCument	texvspace(string) ///
 				texcolwidth(string) texnotefile(string)                       ///
 				                                                                ///
