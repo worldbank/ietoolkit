@@ -15,15 +15,23 @@ command please see the {browse "https://dimewiki.worldbank.org/wiki/Iegraph":DIM
 
 {phang2}
 {cmdab:iegraph} {varlist}
-, [ {cmdab:basicti:tle(}{it:string}{cmd:)} {cmdab:varl:abels}
+, [
+{cmdab:basicti:tle(}{it:string}{cmd:)}
+{cmdab:varl:abels}
+{cmdab:save(}{it:string}{cmd:)}
+{cmdab:gray:scale}
+{cmdab:yzero}
 {cmdab:barl:abel}
 {cmdab:mlabc:olor:(}{it:{help colorstyle:colorname}}{cmd:)}
 {cmdab:mlabp:osition:(}{it:{help clockposstyle:clockpos}}{cmd:)}
 {cmdab:mlabs:ize:(}{it:{help textsizestyle:size}}{cmd:)}
-{cmd:barlabelformat}}
-{cmdab:save(}{it:string}{cmd:)} {cmdab:gray:scale} {cmdab:yzero}
-{cmd:noconfbars} {cmdab:confbarsnone(}{it:varlist}{cmd:)} {cmdab:confintval(}{it:numlist}{cmd:)}
-{cmd:norestore} {cmdab:baropt:ions(}{it:string}{cmd:)} {cmdab:ignoredummytest}
+{cmd:barlabelformat}
+{cmd:noconfbars}
+{cmdab:confbarsnone(}{it:varlist}{cmd:)}
+{cmdab:confintval(}{it:numlist}{cmd:)}
+{cmd:norestore}
+{cmdab:baropt:ions(}{it:string}{cmd:)}
+{cmdab:ignoredummytest}
 {it:{help scatter##twoway_options:twoway_scatter_options}}
 ]
 
