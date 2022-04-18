@@ -462,7 +462,7 @@ cap	program drop	iegraph
 			format label %9.1f
 		}
 
-		local barLabel = `"(scatter mean position, msymbol(none) mlab(label) mlabposition(`mlabposition') mlabcolor(`mlabcolor'))"'
+		local barLabel = `"(scatter mean position, msymbol(none) mlab(label) mlabsize(`mlabsize') mlabposition(`mlabposition') mlabcolor(`mlabcolor'))"'
 	}
 
 	local titleOption `" , xtitle("") ytitle("`e(depvar)'") "'
