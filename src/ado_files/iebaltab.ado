@@ -37,15 +37,13 @@
 				/*Tex options*/     				                                    ///
 				TEXNotewidth(numlist min=1 max=1)                               ///
 				TEXCaption(string) TEXLabel(string) TEXDOCument	texvspace(string) ///
-				texcolwidth(string) texnotefile(string)                       ///
+				texcolwidth(string) texnotefile(string)                         ///
 				                                                                ///
-				/*Deprecated options
-				  - still included to throw helpful error if ever used */       ///
-				SAVEBRowse SAVE(string) ///
-				BALMISS(string) BALMISSReg(string) COVMISS(string) COVMISSReg(string) ///
-				MISSMINmean(string) COVARMISSOK FMissok NOTtest	///
-				NORMDiff	PTtest	PFtest	PBoth NOTECombine ///
-				///Deprecated options still to handle:
+				/* Deprecated options - still included to throw helpful error if ever used */ ///
+				SAVEBRowse SAVE(string)                                                       ///
+				BALMISS(string) BALMISSReg(string) COVMISS(string) COVMISSReg(string)         ///
+				MISSMINmean(string) COVARMISSOK FMissok NOTtest	                              ///
+				NORMDiff	PTtest	PFtest	PBoth NOTECombine                                   ///
 				]
 
   *Add space between code and output
