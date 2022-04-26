@@ -24,8 +24,7 @@
 				FTest FEQTest	                                                  ///
 				                                                                ///
 				/*Output display*/                                              ///
-				pairoutput(string) ftestoutput(string)                          ///
-				feqtestoutput(string)  STDev                                    ///
+				stats(string) STDev                                             ///
 				STARlevels(numlist descending min=3 max=3 >0 <1)			          ///
 				STARSNOadd FORMat(string) TBLNote(string) TBLNONote	            ///
 				TBLADDNote(string)                                              ///
@@ -407,44 +406,29 @@ qui {
 		}
 
 		****************************************************************************
-		** Test input for pair-wise test stats
+		** Test input for user specified stats
 
-		* Use default value if none is specified by user
-		if missing("`pairoutput'") local pout_val "diff"
-		else local pout_val "`pairoutput'"
+		parse_and_clean_stats, stats("`stats'")
+		local stats_string "`r(stats_string)'"
 
-		*Allowed apir test outputs
-		local allowed_pairtest_outputs "diff beta nrmd t p none"
-		if !`:list pout_val in allowed_pairtest_outputs' {
-			noi display as error "{phang}Value in option pairtestoutput(`pout_val') is not valid. Allowed values are [`allowed_pairtest_outputs']. See {help iebaltab:helpfile} for more details.{p_end}"
-			error 198
+		* If ftest not used, issue warning if preference for ftest was specified
+		if missing("`ftest'") {
+			get_stat_label_stats_string, stats_string("`stats_string'") testname("f")
+			if `r(deafult_used)' == 0 noi di as text "{phang}{input:Warning:} A stats perference was specified in [stats(`stats')] for F test across all variables, but no such test will be done as the option [ftest] for that test was not specified.{p_end}"
 		}
 
-		* Prepare the pair test labels
-		if "`pout_val'" == "diff" local pout_lbl "Mean difference"
-		if "`pout_val'" == "beta" local pout_lbl "Beta coefficient"
-		if "`pout_val'" == "nrmd" local pout_lbl "Normalized difference"
-		if "`pout_val'" == "t" local pout_lbl "T-statistics" //todo: include in matrix
-		if "`pout_val'" == "p" local pout_lbl "P-value"
-		if "`pout_val'" == "none" local pout_lbl "none"
-
-		****************************************************************************
-		** Test input for f over all balance variables
-
-		* Use default value if none is specified by user
-		if missing("`ftestoutput'") local fout_val "f"
-		else local fout_val "`ftestoutput'"
-
-		*Allowed apir test outputs
-		local allowed_ftest_outputs "f p"
-		if !`:list fout_val in allowed_ftest_outputs' {
-			noi display as error "{phang}Value in option ftestoutput(`fout_val') is not valid. Allowed values are [`allowed_ftest_outputs']. See {help iebaltab:helpfile} for more details.{p_end}"
-			error 198
+		* If feqtest not used, issue warning if preference for feqtest was specified
+		if missing("`feqtest'") {
+			get_stat_label_stats_string, stats_string("`stats_string'") testname("feq")
+			if `r(deafult_used)' == 0 noi di as text "{phang}{input:Warning:} A stats perference was specified in [stats(`stats')] for F test across all groups, but no such test will be done as the option [feqtest] for that test was not specified.{p_end}"
 		}
 
-		* Prepare the pair test labels
-		if "`fout_val'" == "f" local fout_lbl "F-stat"
-		if "`fout_val'" == "p" local fout_lbl "P-value"
+		* If feqtest not used, issue warning if preference for feqtest was specified
+		get_stat_label_stats_string, stats_string("`stats_string'") testname("pair")
+		if "`r(stat)'" == "none" & !missing("`ftest'") {
+			noi di as text "{phang}{input:Warning:} The option [ftest] cannot be combined with [pair(none)] in [stats(`stats')] as there would be nowhere to display the F-test results. The option [ftest] is therefore ignored.{p_end}"
+			local ftest ""
+		}
 
 		****************************************************************************
 		** Test input for fixed effects and output warning if missing values
@@ -1118,7 +1102,11 @@ qui {
 	*Test if options tblnonote or tblnote are used - if not generate default note
 	if missing("`tblnonote'") {
 		if missing("`tblnote'") {
-			generate_note, pout_lbl("`pout_lbl'") fix("`fixedeffect'") fix_used("`FIX_EFFECT_USED'") covars("`covariates'") `ftest' `feqtest' starlevels("`starlevels'") `stdev' vce("`vce'") vce_type("`vce_type'") clustervar("`cluster_var'") weight_used("`WEIGHT_USED'") weight_type("`weight_type'") weight_var("`weight_var'")
+			generate_note, stats_string("`stats_string'") fix("`fixedeffect'") ///
+			fix_used("`FIX_EFFECT_USED'") covars("`covariates'") `ftest' `feqtest' ///
+			starlevels("`starlevels'") `stdev' vce("`vce'") vce_type("`vce_type'") ///
+			clustervar("`cluster_var'") weight_used("`WEIGHT_USED'")               ///
+			weight_type("`weight_type'") weight_var("`weight_var'")
 
 			 local note_to_use "`r(table_note)'"
 		}
@@ -1176,6 +1164,10 @@ qui {
 			}
 		}
 
+		* If pair tests set to none, then set pairs to "" to not iterate that loop
+		get_stat_label_stats_string, stats_string("`stats_string'") testname("pair")
+		if "`r(stat_label)'" == "none" local TEST_PAIR_CODES ""
+
 		******************************************
 		* Create tab delimited file and generate exports based on it
 
@@ -1192,7 +1184,7 @@ qui {
 				noi export_tab , rmat(`rmat') fmat(`fmat') ///
 					order_grp_codes(`ORDER_OF_GROUP_CODES') pairs(`TEST_PAIR_CODES') ///
 					row_lbls(`"`ROW_LABELS'"') col_lbls(`"`COLUMN_LABELS'"')  ///
-					pout_lbl(`pout_lbl') pout_val(`pout_val') fout_lbl(`fout_lbl') fout_val(`fout_val') ///
+					stats_string("`stats_string'") ///
 					tot_lbl("`tot_lbl'") `total' `onerow' `feqtest' `ftest'  ///
 					ntitle("`ntitle'") note(`"`note_to_use'"') vtype("`vtype'") vtitle("`vtitle'") cl_used("`CLUSTER_USED'") ///
 					diformat("`diformat'") starlevels("`starlevels'")
@@ -1229,7 +1221,7 @@ qui {
 			   rmat(`rmat') fmat(`fmat') pairs(`TEST_PAIR_CODES') `texdocument' texcaption("`texcaption'") ///
 				 texlabel("`texlabel'") texcolwidth("`texcolwidth'") texnotewidth("`texnotewidth'") ///
 				  texnotefile("`texnotefile'") custom_row_space("`texvspace'") ///
-				 pout_lbl(`pout_lbl') pout_val(`pout_val') fout_lbl(`fout_lbl') fout_val(`fout_val') ///
+				 stats_string("`stats_string'") ///
 				 `total' `onerow' `feqtest' `ftest' note(`"`note_to_use'"')  ///
 				 ntitle("`ntitle'") vtype("`vtype'") vtitle("`vtitle'") diformat("`diformat'") ///
 				 col_lbls(`"`COLUMN_LABELS'"') tot_lbl("`tot_lbl'") ///
@@ -1256,11 +1248,10 @@ qui {
 	syntax , rmat(name) fmat(name) 					///
 	ntitle(string) vtype(string) vtitle(string) cl_used(string)		///
 	col_lbls(string) order_grp_codes(numlist) ///
-	pairs(string) diformat(string) ///
+	 diformat(string) ///
 	row_lbls(string) tot_lbl(string) ///
-	pout_lbl(string) pout_val(string) ///
-	fout_lbl(string) fout_val(string) ///
-	[note(string) onerow total feqtest ftest ///
+	[pairs(string) stats_string(string) ///
+	note(string) onerow total feqtest ftest ///
 	starlevels(string)]
 
 	* If total is used, add t to locals used when looping over desc stats
@@ -1276,8 +1267,13 @@ qui {
 	if !missing("`feqtest'") local desc_cols "`desc_cols' feq"
 	if missing("`onerow'") local desc_cols "`desc_cols' `desc_cols'"
 
-	* If pair tests set to none, then set pairs to "" to not iterate that loop
-	if "`pout_val'" == "none" local pairs ""
+  * Get stats and label for pairs and f-test
+	get_stat_label_stats_string, stats_string("`stats_string'") testname("pair")
+	local pout_val "`r(stat)'"
+	local pout_lbl "`r(stat_label)'"
+	get_stat_label_stats_string, stats_string("`stats_string'") testname("f")
+	local fout_val "`r(stat)'"
+	local fout_lbl "`r(stat_label)'"
 
 	*Create a temporary textfile
 	tempname 	tab_name
@@ -1565,7 +1561,7 @@ cap program drop 	export_tex
 qui {
 	syntax , rmat(name) fmat(name) texfile(string) [note(string) pairs(string) ///
 	ntitle(string) vtype(string) vtitle(string) cl_used(string) ///
-	pout_lbl(string) pout_val(string) fout_lbl(string) fout_val(string) ///
+	stats_string(string) ///
 	texdocument texcaption(string) texnotewidth(string) ///
 	texlabel(string) texcolwidth(string) custom_row_space(string) onerow total feqtest ftest ///
 	order_grp_codes(numlist) diformat(string) ///
@@ -1580,6 +1576,14 @@ qui {
 	local grp_count  : list sizeof order_grp_codes
 	local pair_count : list sizeof pairs
 	local row_count  : list sizeof row_lbls
+
+	* Get stats and label for pairs and f-test
+	get_stat_label_stats_string, stats_string("`stats_string'") testname("pair")
+	local pout_val "`r(stat)'"
+	local pout_lbl "`r(stat_label)'"
+	get_stat_label_stats_string, stats_string("`stats_string'") testname("f")
+	local fout_val "`r(stat)'"
+	local fout_lbl "`r(stat_label)'"
 
 	*Create a temporary texfile
 	tempname 	texhandle texnotehandle
@@ -1703,19 +1707,21 @@ qui {
 	*****************************
 	*Titles for pairwise tests
 
-	*Count number of columns for the pairwise test header
-	local numPairCols : list sizeof pairs
-	*Write the 1st and the 2nd row
-	local texrow1 `"`texrow1' & \multicolumn{`numPairCols'}{c}{Pairwise t-test} "'
-	local texrow2 `"`texrow2' & \multicolumn{`numPairCols'}{c}{`pout_lbl'} "'
+	* Only add pair titles if there are pairs to be displayed
+	if `pair_count' > 0 {
 
-	*Add columns for all test pairs to be displayed
-	foreach pair of local pairs {
-		*Get the group order from the two groups in each pair
-		getCodesFromPair `pair'
-		local order1 : list posof "`r(code1)'" in order_grp_codes
-		local order2 : list posof "`r(code2)'" in order_grp_codes
-		local texrow3 `"`texrow3' & (`order1')-(`order2')"'
+		*Write the 1st and the 2nd row
+		local texrow1 `"`texrow1' & \multicolumn{`pair_count'}{c}{Pairwise t-test} "'
+		local texrow2 `"`texrow2' & \multicolumn{`pair_count'}{c}{`pout_lbl'} "'
+
+		*Add columns for all test pairs to be displayed
+		foreach pair of local pairs {
+			*Get the group order from the two groups in each pair
+			getCodesFromPair `pair'
+			local order1 : list posof "`r(code1)'" in order_grp_codes
+			local order2 : list posof "`r(code2)'" in order_grp_codes
+			local texrow3 `"`texrow3' & (`order1')-(`order2')"'
+		}
 	}
 
 	*****************************
@@ -2082,6 +2088,168 @@ cap program drop 	setUpResultMatrix
 end
 
 /*******************************************************************************
+  get_stat_label_from_stats_string: parse and test user stats preference
+	* Test that items in stats() are on the format: stats(pair(t) f(p))
+	* Test that testsnames specified are allowed stats: allowed_test_names
+	* Test that testsnames specified are allowed stats: allowed_`testname'_stats
+*******************************************************************************/
+
+cap program drop parse_and_clean_stats
+	program define parse_and_clean_stats, rclass
+
+	syntax, [stats(string)]
+
+	*Define locals used in command
+	local cleaned_stats ""
+	local used_test_names ""
+
+	*********************
+	* Allowed inputs
+
+	*List allowed test names
+	local allowed_test_names "pair f feq"
+
+	*List allowed test names
+	local allowed_pair_stats "diff beta nrmd t p none"
+	local allowed_f_stats    "f p"
+	local allowed_feq_stats  "f p"
+
+	*********************
+	* Prepare inputs
+
+	*Clean up exessive spaced in input
+	local stats =trim(itrim("`stats'"))
+
+	*********************
+	* Parse inputs
+
+	*Create local of stats to parst over in while loop
+	local stats_to_parse `stats'
+
+	*Parst over stats one at the time until all are parsed
+	while "`stats_to_parse'" != "" {
+
+		* Parse next item
+		gettoken testname stats_to_parse : stats_to_parse, parse("(")
+
+		***************
+		* Test name
+
+		*Parse next test tname
+		local testname = trim("`testname'")
+
+		* test if multiple testnames used or any testname missing () - such as stats(pair f(p))
+		if `: word count `testname'' != 1 {
+			noi di as error "{phang}The [stats(`stats')] is not formatted properly. Make sure that each test name is follewed by a single stat inside a (). For example: [stats(pair(t) f(p))].{p_end}"
+			error 198
+		}
+
+		*Test that the testname is an allowed test name
+		if !`: list testname in allowed_test_names' {
+			noi di as error "{phang}The test name [`testname'] in [stats(`stats')] is not an allowed test name. Allowed names are [`allowed_test_names'].{p_end}"
+			error 198
+		}
+
+		*Test that the testname is only used once
+		if `: list testname in used_test_names' {
+			noi di as error "{phang}The test name [`testname'] in [stats(`stats')] is used more than one time which is not allowed.{p_end}"
+			error 198
+		}
+		*Save list of already used stats names
+		local used_test_names "`used_test_names' `testname'"
+
+		***************
+		*  Stat name
+
+		* Parse the stats name for this test
+		gettoken statname stats_to_parse : stats_to_parse, parse(")")
+		local statname = trim(subinstr("`statname'","(","",1))
+
+		*Make sure that only one stat was listed
+		if `: word count `statname'' != 1 {
+			noi di as error "{phang}The [`testname'(`statname')] in [stats(`stats')] is not formatted properly. Make sure that each test name is follewed by a single stat inside a ().{p_end}"
+			error 198
+		}
+
+		* Make sure that the statname used was a valid statname
+		if !`: list statname in allowed_`testname'_stats' {
+			noi di as error "{phang}The name [`statname'] in [`testname'(`statname')] in [stats(`stats')] is an allowed statistics name. Allowed names are [`allowed_`testname'_stats'].{p_end}"
+			error 198
+		}
+
+		*noi di "Parsed output [`testname'(`statname')]"
+		local cleaned_stats "`cleaned_stats' `testname':`statname'"
+
+		* Remove last ) for this stat, so string can be parsed again
+		local stats_to_parse = trim(subinstr("`stats_to_parse'",")","",1))
+
+	}
+
+	local cleaned_stats = trim("`cleaned_stats'")
+	return local stats_string `cleaned_stats'
+
+end
+
+/*******************************************************************************
+  get_stat_label_stats_string: return stat and its label for the test
+  * stats_string is expected to have been cleaned in parse_and_clean_stats
+	* Returns user specified or default stat from stats_string: r(stat)
+	* Returns label for the stat used: r(stat_label)
+*******************************************************************************/
+
+cap program drop get_stat_label_stats_string
+	program define get_stat_label_stats_string, rclass
+
+	syntax, [stats_string(string)] testname(string)
+
+	* Initialize local if deafult stat was used
+	local default_used 0
+
+	*Test deafult stats
+	local pair_default "diff"
+	local f_default    "f"
+	local feq_default  "f"
+
+	* Pair test stat labels
+	local pair_diff_label "Mean difference"
+	local pair_beta_label "Beta coefficient"
+	local pair_nrmd_label "Normalized difference"
+	local pair_t_label    "t-statistics"
+	local pair_p_label    "P-value"
+	local pair_none_label "none"
+
+	* F-test stat labels
+	local f_f_label "F-stat"
+	local f_p_label "P-value"
+
+	* Feq-test stat labels
+	local feq_f_label "F-stat"
+	local feq_p_label "P-value"
+
+	* Get position of this stat - returns 0 if not used
+	local stats_pos = strpos("`stats_string'","`testname':")
+
+	* Stat not specified by user, return default
+	if `stats_pos' == 0 {
+		local return_stat "``testname'_default'"
+		local default_used 1
+	}
+
+	*Stat specified by user. Parse and use it.
+	else {
+		*Cut off string after the test name and the stat to use is the first word
+		local str_cutoff = `stats_pos' + strlen("`testname':")
+		local rest_of_string = substr("`stats_string'",`str_cutoff',.)
+		local return_stat : word 1 of `rest_of_string'
+	}
+
+	return local deafult_used `default_used'
+	return local stat_label "``testname'_`return_stat'_label'"
+	return local stat       "`return_stat'"
+
+end
+
+/*******************************************************************************
   test_parse_label_input: pars and test item/label lists
 	* Test that lists are on format "item1 label1 @ item2 label2"
 	* Test that each item listed is used in itemlist (groupcode or balance var)
@@ -2380,11 +2548,15 @@ end
 cap program drop 	generate_note
 	program define	generate_note, rclass
 
-	syntax, pout_lbl(string) [fix(string) fix_used(string) covars(string) ftest feqtest ///
+	syntax, [stats_string(string) fix(string) fix_used(string) covars(string) ftest feqtest ///
 	starlevels(string)  stdev vce(string) ///
 	vce_type(string) clustervar(string) weight_used(string) weight_type(string) weight_var(string) ]
 
 	local table_note ""
+
+	* Get stats and label for pairs and f-test
+	get_stat_label_stats_string, stats_string("`stats_string'") testname("pair")
+	local pout_lbl "`r(stat_label)'"
 
 	* Test sentence
 	local test_sentence = ""

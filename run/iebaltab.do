@@ -359,3 +359,32 @@
 		ie_test_mat_nomiss, mat1(mat1) mat2(mat2)
 	restore
 
+	
+	/***************************************************************************
+	  Table 13 - test pair and f stats preferences
+	***************************************************************************/
+	preserve
+
+		local tnum 13
+		local csvfile "iebt-csv`tnum'"
+		local exlfile "iebt-xlsx`tnum'"
+		local texfile "iebt-tex`tnum'"
+		local txnfile "iebt-tex`tnum'-note"
+
+		iebaltab weight price , grpvar(tmt_cl) replace ///
+			ftest feqtest control(1)   ///
+			savecsv("${out_fldr}/`csvfile'")     ///
+			savexlsx("${out_fldr}/`exlfile'")    ///
+			savetex("${out_fldr}/`texfile'")     ///
+			texnotefile("${out_fldr}/`txnfile'") ///
+			stats(f(p) pair(nrmd))               ///
+			cov(mpg) fixed(foreign)
+
+		* Test no regaular missing values in matrices
+		mat mat1 = r(iebaltabrmat)
+		mat mat2 = r(iebaltabfmat)
+		ie_test_mat_nomiss, mat1(mat1) mat2(mat2)
+	restore
+	
+	
+	
