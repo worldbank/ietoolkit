@@ -14,11 +14,10 @@ command please see the {browse "https://dimewiki.worldbank.org/wiki/Iebaltab":DI
 {title:Syntax}
 
 {phang2}
-{cmdab:iebaltab} {it:balancevarlist} [{help if:if}] [{help in:in}] [{help weight}]
-, {cmdab:grpv:ar(}{it:varname}{cmd:)} {c -(} {cmdab:save(}{it:{help filename}}{cmd:)} | {cmdab:savet:ex(}{it:{help filename}}{cmd:)} | {cmdab:browse} {c )-}
-[
+{cmd:iebaltab} {it:balancevarlist} [{help if:if}] [{help in:in}] [{help weight}]
+, {opt grpv:ar(varname)} [
 {it:{help iebaltab##columnoptions:column_options} {help iebaltab##labeloptions:label_options}}
-{it:{help iebaltab##statsoptions:stats_options} {help iebaltab##ftestoptions:ftest_options}}
+{it:{help iebaltab##statsoptions:stats_options}}
 {it: {help iebaltab##displayoptioins:display_options} {help iebaltab##exportoptions:export_options}}
 ]
 
@@ -31,74 +30,58 @@ will test for differences across the categories in grpvar({it:varname}). See not
 {synoptline}
 {pstd}{it:    {ul:{hi:Required options:}}}{p_end}
 
-{synopt :{cmdab:grpv:ar(}{it:varname}{cmd:)}}Variable indicating groups (or treatment arms){p_end}
-
-{pstd}{it:One of these options must be used:}{p_end}
-{synopt :{cmdab:save(}{it:{help filename}}{cmd:)}}Save table to Excel file on disk {p_end}
-{synopt :{cmdab:savet:ex(}{it:{help filename}}{cmd:)}}Save table to LaTeX file on disk {p_end}
-{synopt :{cmdab:browse}}View the table in the data browser{p_end}
+{synopt :{opt grpv:ar(varname)}}Variable indicating groups (or treatment arms){p_end}
 
 {pstd}{it:    {ul:{hi:Optional options}}}{p_end}
 
 {marker columnoptions}{...}
 {pstd}{it:    Columns and order of columns options:}{p_end}
-{synopt :{cmdab:co:ntrol(}{it:groupcode}{cmd:)}}One group is tested against all other groups in t-tests and F-tests. Default is all groups against each other.{p_end}
-{synopt :{cmdab:or:der(}{it:groupcodelist}{cmd:)}}Manually set the group column order in the table. Default is ascending. See details on {it:groupcodelist} below.{p_end}
-{synopt :{cmdab:tot:al}}Include descriptive stats on all groups combined{p_end}
+{synopt :{opt co:ntrol(groupcode)}}One group is tested against all other groups in t-tests and F-tests. Default is all groups against each other.{p_end}
+{synopt :{opt or:der(groupcodelist)}}Manually set the group column order in the table. Default is ascending. See details on {it:groupcodelist} below.{p_end}
+{synopt :{opt tot:al}}Include descriptive stats on all groups combined{p_end}
 
 {marker labeloptions}{...}
 {pstd}{it:    Column and row labels:}{p_end}
-{synopt :{cmdab:grpc:odes}}Use the treatment arm codes as group column titles{p_end}
-{synopt :{cmdab:grpl:abels(}{it:codetitles}{cmd:)}}Manually set the group column titles. See details on {it:codetitles} below.{p_end}
-{synopt :{cmdab:totall:abel(}{it:string}{cmd:)}}Manually set the total column title{p_end}
-{synopt :{cmdab:rowv:arlabels}}Use the variable labels instead of variable name as row titles{p_end}
-{synopt :{cmdab:rowl:abels(}{it:nametitles}{cmd:)}}Manually set the row titles. See details on {it:nametitles} below.{p_end}
-{synopt :{cmdab:onerow}}Write number of observations (and number of clusters if applicable) in one row at the bottom of the table.{p_end}
+{synopt :{opt grpc:odes}}Use the treatment arm codes as group column titles{p_end}
+{synopt :{opt grpl:abels(codetitles)}}Manually set the group column titles. See details on {it:codetitles} below.{p_end}
+{synopt :{opt totall:abel(string)}}Manually set the total column title{p_end}
+{synopt :{opt rowv:arlabels}}Use the variable labels instead of variable name as row titles{p_end}
+{synopt :{opt rowl:abels(nametitles)}}Manually set the row titles. See details on {it:nametitles} below.{p_end}
+{synopt :{opt onerow}}Write number of observations (and number of clusters if applicable) in one row at the bottom of the table.{p_end}
 
 {marker statsoptions}{...}
-{pstd}{it:    Statistics and data modification:}{p_end}
-{synopt :{cmdab:balmiss:(}{it:reptype}{cmd:)}}Replaces missing values in balance variables with either zeros, the mean or the group mean. See details on {it:reptype} below.{p_end}
-{synopt :{cmdab:balmissr:eg(}{it:reptype}{cmd:)}}Similar to {cmd:balmiss()} but treats {help missing:extended missing values} still as missing.  See details on {it:reptype} below.{p_end}
-{synopt :{cmdab:vce:(}{it:{help vce_option:vce_types}}{cmd:)}}Options for variance estimation. {hi:Robust}, {hi:cluster} {it:clustervar} or {hi:bootstrap}{p_end}
-{synopt :{cmdab:fix:edeffect(}{it:varname}{cmd:)}}Include fixed effects in the regressions for t-tests (and for F-tests if applicable){p_end}
-{synopt :{cmdab:cov:ariates(}{it:{help varlist}}{cmd:)}}Include covariates (control variables) in the regressions for t-tests (and for F-tests if applicable){p_end}
-{synopt :{cmd:covarmissok}}Allows for observations to be dropped due to missing values in covariate variables{p_end}
-{synopt :{cmdab:covmiss:(}{it:reptype}{cmd:)}}Replaces missing values in covariate variables with either zeros, the mean or the group mean. See details on {it:reptype} below.{p_end}
-{synopt :{cmdab:covmissr:eg(}{it:reptype}{cmd:)}}Similar to {cmd:covmiss()} but treats {help missing:extended missing values} still as missing. See details on {it:reptype} below.{p_end}
-{synopt :{cmdab:missmin:mean(}{it:{help numlist:numlist}}{cmd:)}}Sets a minimum number of observations that a mean or group mean must be based on in options requiring {it:reptype}.{p_end}
-
-{marker ftestoptions}{...}
-{pstd}{it:    F-test:}{p_end}
-{synopt :{cmdab:ft:est}}Include a row with the F-test for joint significance of all balance variables{p_end}
-{synopt :{cmdab:fm:issok}}Suppress the error caused by missing values in F-test{p_end}
-{synopt :{cmd:fnoobs}}Do not display number of observations from the F-test regressions{p_end}
+{pstd}{it:    Statistics:}{p_end}
+{synopt :{opth vce:(vce_option:vce_types)}}Options for variance estimation. {hi:Robust}, {hi:cluster} {it:clustervar} or {hi:bootstrap}{p_end}
+{synopt :{opth fix:edeffect(varname)}}Include fixed effects in the regressions for t-tests (and for F-tests if applicable){p_end}
+{synopt :{opth cov:ariates(varlist)}}Include covariates (control variables) in the regressions for t-tests (and for F-tests if applicable){p_end}
+{synopt :{opt ft:est}}Include a row with the F-test for joint significance across all balance variables{p_end}
+{synopt :{opt fnoobs}}Do not display number of observations from the F-test regressions{p_end}
+{synopt :{opt feqt:est}}Include a row with the F-test for joint significance across all groups for each variable {p_end}
+{synopt :{opt stats(stats_string)}}Specify which statistics to display in the tables. See details on {it:stats_string} below.{p_end}
 
 {marker displayoptions}{...}
 {pstd}{it:    Table display options:}{p_end}
-{synopt :{cmdab:pt:test}}Show p-values instead of difference-in-means between the groups in the column for t-tests{p_end}
-{synopt :{cmdab:not:test}}Suppresses the column for pairwise t-tests{p_end}
-{synopt :{cmdab:normd:iff}}Adds a column with pairwise normalized differences{p_end}
-{synopt :{cmdab:feqt:est}}Adds a column with F-test for joint orthogonality of each balance variable across all treatment arms{p_end}
-{synopt :{cmdab:pf:test}}Show p-values instead of F-statistics for all F-tests{p_end}
-{synopt :{cmdab:pb:oth}}Identical to specifying both {cmd:pttest} and {cmd:pftest}{p_end}
-{synopt :{cmdab:std:ev}}Displays standard deviations instead of standard errors{p_end}
-{synopt :{cmdab:star:levels(}{it:{help numlist:numlist}}{cmd:)}}Manually set the three significance levels used for significance stars{p_end}
-{synopt :{cmdab:starsno:add}}Do not add any stars to the table{p_end}
-{synopt :{cmdab:form:at(}{it:{help format:%fmt}}{cmd:)}}Apply Stata formats to the values outputted in the table{p_end}
-{synopt :{cmdab:tbln:ote(}{it:string}{cmd:)}}Add a note to the bottom of the table{p_end}
-{synopt :{cmdab:notec:ombine}}Combine all notes (manually entered or automatically generated) to one row{p_end}
-{synopt :{cmdab:tblnon:ote}}Disable any notes automatically generated by the command{p_end}
+{synopt :{opt std:ev}}Displays standard deviations instead of standard errors{p_end}
+{synopt :{opth star:levels(numlist)}}Manually set the three significance levels used for significance stars{p_end}
+{synopt :{opt starsno:add}}Do not add any stars to the table{p_end}
+{synopt :{opth form:at(format:%fmt)}}Apply Stata formats to the values outputted in the table{p_end}
+{synopt :{opt tbln:ote(string)}}Add a note to the bottom of the table{p_end}
+{synopt :{opt notec:ombine}}Combine all notes (manually entered or automatically generated) to one row{p_end}
+{synopt :{opt tblnon:ote}}Disable any notes automatically generated by the command{p_end}
 
 {marker exportoptions}{...}
 {pstd}{it:    Export and browse options:}{p_end}
-{synopt :{cmd:replace}}Replace file on disk if the file already exists{p_end}
-{synopt :{cmdab:savebr:owse}}View the table in the browser window also after saving the table to file{p_end}
-{synopt :{cmdab:texn:otewidth(}{it:{help numlist:numlist}}{cmd:)}}Manually adjust width of note{p_end}
-{synopt :{cmdab:texc:aption(}{it:string}{cmd:)}}Specify TeX table caption{p_end}
-{synopt :{cmdab:texl:abel(}{it:string}{cmd:)}}Specify TeX label{p_end}
-{synopt :{cmdab:texdoc:ument}}Creates a stand-alone TeX document{p_end}
-{synopt :{cmd:texvspace(}{it:string}{cmd:)}}Manually set size of the line space between two rows on TeX output{p_end}
-{synopt :{cmd:texcolwidth(}{it:string}{cmd:)}}Limit width of the first column on TeX output{p_end}
+{synopt :{opt browse}}View the table in the data browser{p_end}
+{synopt :{opth savex:lsx(filename)}}Save table to Excel file on disk.{p_end}
+{synopt :{opth savec:sv(filename)}}Save table to csv-file on disk{p_end}
+{synopt :{opth savet:ex(filename)}}Save table to LaTeX file on disk{p_end}
+{synopt :{opt replace}}Replace file on disk if the file already exists{p_end}
+{synopt :{opth texn:otewidth(numlist)}}Manually adjust width of note{p_end}
+{synopt :{opt texc:aption(string)}}Specify TeX table caption{p_end}
+{synopt :{opt texl:abel(string)}}Specify TeX label{p_end}
+{synopt :{opt texdoc:ument}}Creates a stand-alone TeX document{p_end}
+{synopt :{opt texvspace(string)}}Manually set size of the line space between two rows on TeX output{p_end}
+{synopt :{opt texcolwidth(string)}}Limit width of the first column on TeX output{p_end}
 
 {synoptline}
 
