@@ -972,6 +972,10 @@ qui {
 						test `dummy_pair_`ttest_pair''
 						mat row[1,`++colindex'] = r(p)
 
+						*Store standard error and standard deviation
+						mat row[1,`++colindex'] = `se_this_pair'
+						mat row[1,`++colindex'] = `sd_this_pair'
+
 						*Calculate and store the normalized difference
 						mat row[1,`++colindex'] = el(row,1,colnumb(row,"diff_`ttest_pair'")) / `sd_this_pair'
 					}
@@ -2025,7 +2029,7 @@ cap program drop 	setUpResultMatrix
 
   *Locals with stats names for each category
   local desc_stats   = "n cl mean se sd"
-  local pair_stats   = "diff n cl beta t p nrmd"
+  local pair_stats   = "diff n cl beta t p se sd nrmd"
 	local feq_stats    = "feqn feqcl feqf feqp"
 	local ftest_stats  = "fn fcl ff fp"
 
@@ -2110,7 +2114,7 @@ cap program drop parse_and_clean_stats
 	local allowed_test_names "pair f feq"
 
 	*List allowed test names
-	local allowed_pair_stats "diff beta nrmd t p none"
+	local allowed_pair_stats "diff beta t p nrmd se sd none"
 	local allowed_f_stats    "f p"
 	local allowed_feq_stats  "f p"
 
@@ -2216,6 +2220,8 @@ cap program drop get_stat_label_stats_string
 	local pair_nrmd_label "Normalized difference"
 	local pair_t_label    "t-statistics"
 	local pair_p_label    "P-value"
+	local pair_se_label   "Standard error"
+	local pair_sd_label   "Standard deviation"
 	local pair_none_label "none"
 
 	* F-test stat labels
