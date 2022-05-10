@@ -16,8 +16,8 @@
   cap mata: mata clear     
   cap python clear         
   cap java clear  
-tempname theSORT theRNG allRNGS whichRNG allDATA theDATA
-tempfile posty
+tempname theSORT theRNG allRNGS whichRNG theDATA
+tempfile posty allDATA
 postfile posty Line str15(Data Err_1 Seed Err_2 Sort Err_3) str2000(Path) using `posty' , replace
 local `theRNG' = "`c(rngstate)'" 
 local `theSORT' = "`c(sortrngstate)'" 
@@ -32,12 +32,11 @@ local `allRNGS' = "``allRNGS'' `c(rngstate)'"
 if ("`c(sortrngstate)'" != "``theSORT''") {
 post posty (1)  ("") ("") ("") ("") ("Sorted") ("") ("")  
 local `theSORT' = "`c(sortrngstate)'" 
-preserve
-xpose, clear
+save `allDATA' , replace
 tempfile 1_x
 save `1_x' , emptyok
 local theLOCALS "`theLOCALS' 1_x" 
-restore
+use `allDATA' , clear
 }
 datasignature
 if ("`r(datasignature)'" != "``theDATA''") {
@@ -56,12 +55,11 @@ local `allRNGS' = "``allRNGS'' `c(rngstate)'"
 if ("`c(sortrngstate)'" != "``theSORT''") {
 post posty (2)  ("") ("") ("") ("") ("Sorted") ("") ("")  
 local `theSORT' = "`c(sortrngstate)'" 
-preserve
-xpose, clear
+save `allDATA' , replace
 tempfile 2_x
 save `2_x' , emptyok
 local theLOCALS "`theLOCALS' 2_x" 
-restore
+use `allDATA' , clear
 }
 datasignature
 if ("`r(datasignature)'" != "``theDATA''") {
@@ -80,12 +78,11 @@ local `allRNGS' = "``allRNGS'' `c(rngstate)'"
 if ("`c(sortrngstate)'" != "``theSORT''") {
 post posty (3)  ("") ("") ("") ("") ("Sorted") ("") ("")  
 local `theSORT' = "`c(sortrngstate)'" 
-preserve
-xpose, clear
+save `allDATA' , replace
 tempfile 3_x
 save `3_x' , emptyok
 local theLOCALS "`theLOCALS' 3_x" 
-restore
+use `allDATA' , clear
 }
 datasignature
 if ("`r(datasignature)'" != "``theDATA''") {
@@ -104,12 +101,11 @@ local `allRNGS' = "``allRNGS'' `c(rngstate)'"
 if ("`c(sortrngstate)'" != "``theSORT''") {
 post posty (4)  ("") ("") ("") ("") ("Sorted") ("") ("")  
 local `theSORT' = "`c(sortrngstate)'" 
-preserve
-xpose, clear
+save `allDATA' , replace
 tempfile 4_x
 save `4_x' , emptyok
 local theLOCALS "`theLOCALS' 4_x" 
-restore
+use `allDATA' , clear
 }
 datasignature
 if ("`r(datasignature)'" != "``theDATA''") {
@@ -128,12 +124,11 @@ local `allRNGS' = "``allRNGS'' `c(rngstate)'"
 if ("`c(sortrngstate)'" != "``theSORT''") {
 post posty (5)  ("") ("") ("") ("") ("Sorted") ("") ("")  
 local `theSORT' = "`c(sortrngstate)'" 
-preserve
-xpose, clear
+save `allDATA' , replace
 tempfile 5_x
 save `5_x' , emptyok
 local theLOCALS "`theLOCALS' 5_x" 
-restore
+use `allDATA' , clear
 }
 datasignature
 if ("`r(datasignature)'" != "``theDATA''") {
@@ -152,12 +147,11 @@ local `allRNGS' = "``allRNGS'' `c(rngstate)'"
 if ("`c(sortrngstate)'" != "``theSORT''") {
 post posty (6)  ("") ("") ("") ("") ("Sorted") ("") ("")  
 local `theSORT' = "`c(sortrngstate)'" 
-preserve
-xpose, clear
+save `allDATA' , replace
 tempfile 6_x
 save `6_x' , emptyok
 local theLOCALS "`theLOCALS' 6_x" 
-restore
+use `allDATA' , clear
 }
 datasignature
 if ("`r(datasignature)'" != "``theDATA''") {
@@ -176,12 +170,11 @@ local `allRNGS' = "``allRNGS'' `c(rngstate)'"
 if ("`c(sortrngstate)'" != "``theSORT''") {
 post posty (7)  ("") ("") ("") ("") ("Sorted") ("") ("")  
 local `theSORT' = "`c(sortrngstate)'" 
-preserve
-xpose, clear
+save `allDATA' , replace
 tempfile 7_x
 save `7_x' , emptyok
 local theLOCALS "`theLOCALS' 7_x" 
-restore
+use `allDATA' , clear
 }
 datasignature
 if ("`r(datasignature)'" != "``theDATA''") {
@@ -200,12 +193,11 @@ local `allRNGS' = "``allRNGS'' `c(rngstate)'"
 if ("`c(sortrngstate)'" != "``theSORT''") {
 post posty (8)  ("") ("") ("") ("") ("Sorted") ("") ("")  
 local `theSORT' = "`c(sortrngstate)'" 
-preserve
-xpose, clear
+save `allDATA' , replace
 tempfile 8_x
 save `8_x' , emptyok
 local theLOCALS "`theLOCALS' 8_x" 
-restore
+use `allDATA' , clear
 }
 datasignature
 if ("`r(datasignature)'" != "``theDATA''") {
@@ -224,12 +216,11 @@ local `allRNGS' = "``allRNGS'' `c(rngstate)'"
 if ("`c(sortrngstate)'" != "``theSORT''") {
 post posty (9)  ("") ("") ("") ("") ("Sorted") ("") ("")  
 local `theSORT' = "`c(sortrngstate)'" 
-preserve
-xpose, clear
+save `allDATA' , replace
 tempfile 9_x
 save `9_x' , emptyok
 local theLOCALS "`theLOCALS' 9_x" 
-restore
+use `allDATA' , clear
 }
 datasignature
 if ("`r(datasignature)'" != "``theDATA''") {
@@ -248,12 +239,11 @@ local `allRNGS' = "``allRNGS'' `c(rngstate)'"
 if ("`c(sortrngstate)'" != "``theSORT''") {
 post posty (10)  ("") ("") ("") ("") ("Sorted") ("") ("")  
 local `theSORT' = "`c(sortrngstate)'" 
-preserve
-xpose, clear
+save `allDATA' , replace
 tempfile 10_x
 save `10_x' , emptyok
 local theLOCALS "`theLOCALS' 10_x" 
-restore
+use `allDATA' , clear
 }
 datasignature
 if ("`r(datasignature)'" != "``theDATA''") {
@@ -272,12 +262,11 @@ local `allRNGS' = "``allRNGS'' `c(rngstate)'"
 if ("`c(sortrngstate)'" != "``theSORT''") {
 post posty (11)  ("") ("") ("") ("") ("Sorted") ("") ("")  
 local `theSORT' = "`c(sortrngstate)'" 
-preserve
-xpose, clear
+save `allDATA' , replace
 tempfile 11_x
 save `11_x' , emptyok
 local theLOCALS "`theLOCALS' 11_x" 
-restore
+use `allDATA' , clear
 }
 datasignature
 if ("`r(datasignature)'" != "``theDATA''") {
@@ -296,12 +285,11 @@ local `allRNGS' = "``allRNGS'' `c(rngstate)'"
 if ("`c(sortrngstate)'" != "``theSORT''") {
 post posty (12)  ("") ("") ("") ("") ("Sorted") ("") ("")  
 local `theSORT' = "`c(sortrngstate)'" 
-preserve
-xpose, clear
+save `allDATA' , replace
 tempfile 12_x
 save `12_x' , emptyok
 local theLOCALS "`theLOCALS' 12_x" 
-restore
+use `allDATA' , clear
 }
 datasignature
 if ("`r(datasignature)'" != "``theDATA''") {
@@ -320,12 +308,11 @@ local `allRNGS' = "``allRNGS'' `c(rngstate)'"
 if ("`c(sortrngstate)'" != "``theSORT''") {
 post posty (13)  ("") ("") ("") ("") ("Sorted") ("") ("")  
 local `theSORT' = "`c(sortrngstate)'" 
-preserve
-xpose, clear
+save `allDATA' , replace
 tempfile 13_x
 save `13_x' , emptyok
 local theLOCALS "`theLOCALS' 13_x" 
-restore
+use `allDATA' , clear
 }
 datasignature
 if ("`r(datasignature)'" != "``theDATA''") {
@@ -344,12 +331,11 @@ local `allRNGS' = "``allRNGS'' `c(rngstate)'"
 if ("`c(sortrngstate)'" != "``theSORT''") {
 post posty (14)  ("") ("") ("") ("") ("Sorted") ("") ("")  
 local `theSORT' = "`c(sortrngstate)'" 
-preserve
-xpose, clear
+save `allDATA' , replace
 tempfile 14_x
 save `14_x' , emptyok
 local theLOCALS "`theLOCALS' 14_x" 
-restore
+use `allDATA' , clear
 }
 datasignature
 if ("`r(datasignature)'" != "``theDATA''") {
@@ -368,12 +354,11 @@ local `allRNGS' = "``allRNGS'' `c(rngstate)'"
 if ("`c(sortrngstate)'" != "``theSORT''") {
 post posty (15)  ("") ("") ("") ("") ("Sorted") ("") ("")  
 local `theSORT' = "`c(sortrngstate)'" 
-preserve
-xpose, clear
+save `allDATA' , replace
 tempfile 15_x
 save `15_x' , emptyok
 local theLOCALS "`theLOCALS' 15_x" 
-restore
+use `allDATA' , clear
 }
 datasignature
 if ("`r(datasignature)'" != "``theDATA''") {
@@ -392,12 +377,11 @@ local `allRNGS' = "``allRNGS'' `c(rngstate)'"
 if ("`c(sortrngstate)'" != "``theSORT''") {
 post posty (16)  ("") ("") ("") ("") ("Sorted") ("") ("")  
 local `theSORT' = "`c(sortrngstate)'" 
-preserve
-xpose, clear
+save `allDATA' , replace
 tempfile 16_x
 save `16_x' , emptyok
 local theLOCALS "`theLOCALS' 16_x" 
-restore
+use `allDATA' , clear
 }
 datasignature
 if ("`r(datasignature)'" != "``theDATA''") {
@@ -416,12 +400,11 @@ local `allRNGS' = "``allRNGS'' `c(rngstate)'"
 if ("`c(sortrngstate)'" != "``theSORT''") {
 post posty (17)  ("") ("") ("") ("") ("Sorted") ("") ("")  
 local `theSORT' = "`c(sortrngstate)'" 
-preserve
-xpose, clear
+save `allDATA' , replace
 tempfile 17_x
 save `17_x' , emptyok
 local theLOCALS "`theLOCALS' 17_x" 
-restore
+use `allDATA' , clear
 }
 datasignature
 if ("`r(datasignature)'" != "``theDATA''") {
@@ -440,12 +423,11 @@ local `allRNGS' = "``allRNGS'' `c(rngstate)'"
 if ("`c(sortrngstate)'" != "``theSORT''") {
 post posty (18)  ("") ("") ("") ("") ("Sorted") ("") ("")  
 local `theSORT' = "`c(sortrngstate)'" 
-preserve
-xpose, clear
+save `allDATA' , replace
 tempfile 18_x
 save `18_x' , emptyok
 local theLOCALS "`theLOCALS' 18_x" 
-restore
+use `allDATA' , clear
 }
 datasignature
 if ("`r(datasignature)'" != "``theDATA''") {
@@ -464,12 +446,11 @@ local `allRNGS' = "``allRNGS'' `c(rngstate)'"
 if ("`c(sortrngstate)'" != "``theSORT''") {
 post posty (19)  ("") ("") ("") ("") ("Sorted") ("") ("")  
 local `theSORT' = "`c(sortrngstate)'" 
-preserve
-xpose, clear
+save `allDATA' , replace
 tempfile 19_x
 save `19_x' , emptyok
 local theLOCALS "`theLOCALS' 19_x" 
-restore
+use `allDATA' , clear
 }
 datasignature
 if ("`r(datasignature)'" != "``theDATA''") {
@@ -488,12 +469,11 @@ local `allRNGS' = "``allRNGS'' `c(rngstate)'"
 if ("`c(sortrngstate)'" != "``theSORT''") {
 post posty (20)  ("") ("") ("") ("") ("Sorted") ("") ("")  
 local `theSORT' = "`c(sortrngstate)'" 
-preserve
-xpose, clear
+save `allDATA' , replace
 tempfile 20_x
 save `20_x' , emptyok
 local theLOCALS "`theLOCALS' 20_x" 
-restore
+use `allDATA' , clear
 }
 datasignature
 if ("`r(datasignature)'" != "``theDATA''") {
@@ -512,12 +492,11 @@ local `allRNGS' = "``allRNGS'' `c(rngstate)'"
 if ("`c(sortrngstate)'" != "``theSORT''") {
 post posty (21)  ("") ("") ("") ("") ("Sorted") ("") ("")  
 local `theSORT' = "`c(sortrngstate)'" 
-preserve
-xpose, clear
+save `allDATA' , replace
 tempfile 21_x
 save `21_x' , emptyok
 local theLOCALS "`theLOCALS' 21_x" 
-restore
+use `allDATA' , clear
 }
 datasignature
 if ("`r(datasignature)'" != "``theDATA''") {
@@ -536,12 +515,11 @@ local `allRNGS' = "``allRNGS'' `c(rngstate)'"
 if ("`c(sortrngstate)'" != "``theSORT''") {
 post posty (22)  ("") ("") ("") ("") ("Sorted") ("") ("")  
 local `theSORT' = "`c(sortrngstate)'" 
-preserve
-xpose, clear
+save `allDATA' , replace
 tempfile 22_x
 save `22_x' , emptyok
 local theLOCALS "`theLOCALS' 22_x" 
-restore
+use `allDATA' , clear
 }
 datasignature
 if ("`r(datasignature)'" != "``theDATA''") {
@@ -560,12 +538,11 @@ local `allRNGS' = "``allRNGS'' `c(rngstate)'"
 if ("`c(sortrngstate)'" != "``theSORT''") {
 post posty (23)  ("") ("") ("") ("") ("Sorted") ("") ("")  
 local `theSORT' = "`c(sortrngstate)'" 
-preserve
-xpose, clear
+save `allDATA' , replace
 tempfile 23_x
 save `23_x' , emptyok
 local theLOCALS "`theLOCALS' 23_x" 
-restore
+use `allDATA' , clear
 }
 datasignature
 if ("`r(datasignature)'" != "``theDATA''") {
@@ -584,12 +561,11 @@ local `allRNGS' = "``allRNGS'' `c(rngstate)'"
 if ("`c(sortrngstate)'" != "``theSORT''") {
 post posty (24)  ("") ("") ("") ("") ("Sorted") ("") ("")  
 local `theSORT' = "`c(sortrngstate)'" 
-preserve
-xpose, clear
+save `allDATA' , replace
 tempfile 24_x
 save `24_x' , emptyok
 local theLOCALS "`theLOCALS' 24_x" 
-restore
+use `allDATA' , clear
 }
 datasignature
 if ("`r(datasignature)'" != "``theDATA''") {
@@ -608,12 +584,11 @@ local `allRNGS' = "``allRNGS'' `c(rngstate)'"
 if ("`c(sortrngstate)'" != "``theSORT''") {
 post posty (25)  ("") ("") ("") ("") ("Sorted") ("") ("")  
 local `theSORT' = "`c(sortrngstate)'" 
-preserve
-xpose, clear
+save `allDATA' , replace
 tempfile 25_x
 save `25_x' , emptyok
 local theLOCALS "`theLOCALS' 25_x" 
-restore
+use `allDATA' , clear
 }
 datasignature
 if ("`r(datasignature)'" != "``theDATA''") {
@@ -632,12 +607,11 @@ local `allRNGS' = "``allRNGS'' `c(rngstate)'"
 if ("`c(sortrngstate)'" != "``theSORT''") {
 post posty (26)  ("") ("") ("") ("") ("Sorted") ("") ("")  
 local `theSORT' = "`c(sortrngstate)'" 
-preserve
-xpose, clear
+save `allDATA' , replace
 tempfile 26_x
 save `26_x' , emptyok
 local theLOCALS "`theLOCALS' 26_x" 
-restore
+use `allDATA' , clear
 }
 datasignature
 if ("`r(datasignature)'" != "``theDATA''") {
@@ -657,12 +631,11 @@ local `allRNGS' = "``allRNGS'' `c(rngstate)'"
 if ("`c(sortrngstate)'" != "``theSORT''") {
 post posty (27)  ("") ("") ("") ("") ("Sorted") ("") ("")  
 local `theSORT' = "`c(sortrngstate)'" 
-preserve
-xpose, clear
+save `allDATA' , replace
 tempfile 27_x
 save `27_x' , emptyok
 local theLOCALS "`theLOCALS' 27_x" 
-restore
+use `allDATA' , clear
 }
 datasignature
 if ("`r(datasignature)'" != "``theDATA''") {
@@ -681,12 +654,11 @@ local `allRNGS' = "``allRNGS'' `c(rngstate)'"
 if ("`c(sortrngstate)'" != "``theSORT''") {
 post posty (28)  ("") ("") ("") ("") ("Sorted") ("") ("")  
 local `theSORT' = "`c(sortrngstate)'" 
-preserve
-xpose, clear
+save `allDATA' , replace
 tempfile 28_x
 save `28_x' , emptyok
 local theLOCALS "`theLOCALS' 28_x" 
-restore
+use `allDATA' , clear
 }
 datasignature
 if ("`r(datasignature)'" != "``theDATA''") {
@@ -705,12 +677,11 @@ local `allRNGS' = "``allRNGS'' `c(rngstate)'"
 if ("`c(sortrngstate)'" != "``theSORT''") {
 post posty (29)  ("") ("") ("") ("") ("Sorted") ("") ("")  
 local `theSORT' = "`c(sortrngstate)'" 
-preserve
-xpose, clear
+save `allDATA' , replace
 tempfile 29_x
 save `29_x' , emptyok
 local theLOCALS "`theLOCALS' 29_x" 
-restore
+use `allDATA' , clear
 }
 datasignature
 if ("`r(datasignature)'" != "``theDATA''") {
@@ -729,12 +700,11 @@ local `allRNGS' = "``allRNGS'' `c(rngstate)'"
 if ("`c(sortrngstate)'" != "``theSORT''") {
 post posty (30)  ("") ("") ("") ("") ("Sorted") ("") ("")  
 local `theSORT' = "`c(sortrngstate)'" 
-preserve
-xpose, clear
+save `allDATA' , replace
 tempfile 30_x
 save `30_x' , emptyok
 local theLOCALS "`theLOCALS' 30_x" 
-restore
+use `allDATA' , clear
 }
 datasignature
 if ("`r(datasignature)'" != "``theDATA''") {
@@ -787,13 +757,12 @@ post posty (1)  ("") ("") ("") ("ERROR! ") ("") ("") ("")
 }
 if ("`c(sortrngstate)'" != "``theSORT''") {
 local `theSORT' = "`c(sortrngstate)'" 
-preserve
-xpose, clear
+save `allDATA' , replace
 cap cf _all using `1_x'
 if _rc != 0 {
 post posty (1)  ("") ("") ("") ("") ("") ("ERROR! ") ("")  
 }
-restore
+use `allDATA' , clear
 }
 datasignature
 if ("`r(datasignature)'" != "``theDATA''") {
@@ -813,13 +782,12 @@ post posty (2)  ("") ("") ("") ("ERROR! ") ("") ("") ("")
 }
 if ("`c(sortrngstate)'" != "``theSORT''") {
 local `theSORT' = "`c(sortrngstate)'" 
-preserve
-xpose, clear
+save `allDATA' , replace
 cap cf _all using `2_x'
 if _rc != 0 {
 post posty (2)  ("") ("") ("") ("") ("") ("ERROR! ") ("")  
 }
-restore
+use `allDATA' , clear
 }
 datasignature
 if ("`r(datasignature)'" != "``theDATA''") {
@@ -839,13 +807,12 @@ post posty (3)  ("") ("") ("") ("ERROR! ") ("") ("") ("")
 }
 if ("`c(sortrngstate)'" != "``theSORT''") {
 local `theSORT' = "`c(sortrngstate)'" 
-preserve
-xpose, clear
+save `allDATA' , replace
 cap cf _all using `3_x'
 if _rc != 0 {
 post posty (3)  ("") ("") ("") ("") ("") ("ERROR! ") ("")  
 }
-restore
+use `allDATA' , clear
 }
 datasignature
 if ("`r(datasignature)'" != "``theDATA''") {
@@ -865,13 +832,12 @@ post posty (4)  ("") ("") ("") ("ERROR! ") ("") ("") ("")
 }
 if ("`c(sortrngstate)'" != "``theSORT''") {
 local `theSORT' = "`c(sortrngstate)'" 
-preserve
-xpose, clear
+save `allDATA' , replace
 cap cf _all using `4_x'
 if _rc != 0 {
 post posty (4)  ("") ("") ("") ("") ("") ("ERROR! ") ("")  
 }
-restore
+use `allDATA' , clear
 }
 datasignature
 if ("`r(datasignature)'" != "``theDATA''") {
@@ -891,13 +857,12 @@ post posty (5)  ("") ("") ("") ("ERROR! ") ("") ("") ("")
 }
 if ("`c(sortrngstate)'" != "``theSORT''") {
 local `theSORT' = "`c(sortrngstate)'" 
-preserve
-xpose, clear
+save `allDATA' , replace
 cap cf _all using `5_x'
 if _rc != 0 {
 post posty (5)  ("") ("") ("") ("") ("") ("ERROR! ") ("")  
 }
-restore
+use `allDATA' , clear
 }
 datasignature
 if ("`r(datasignature)'" != "``theDATA''") {
@@ -917,13 +882,12 @@ post posty (6)  ("") ("") ("") ("ERROR! ") ("") ("") ("")
 }
 if ("`c(sortrngstate)'" != "``theSORT''") {
 local `theSORT' = "`c(sortrngstate)'" 
-preserve
-xpose, clear
+save `allDATA' , replace
 cap cf _all using `6_x'
 if _rc != 0 {
 post posty (6)  ("") ("") ("") ("") ("") ("ERROR! ") ("")  
 }
-restore
+use `allDATA' , clear
 }
 datasignature
 if ("`r(datasignature)'" != "``theDATA''") {
@@ -943,13 +907,12 @@ post posty (7)  ("") ("") ("") ("ERROR! ") ("") ("") ("")
 }
 if ("`c(sortrngstate)'" != "``theSORT''") {
 local `theSORT' = "`c(sortrngstate)'" 
-preserve
-xpose, clear
+save `allDATA' , replace
 cap cf _all using `7_x'
 if _rc != 0 {
 post posty (7)  ("") ("") ("") ("") ("") ("ERROR! ") ("")  
 }
-restore
+use `allDATA' , clear
 }
 datasignature
 if ("`r(datasignature)'" != "``theDATA''") {
@@ -969,13 +932,12 @@ post posty (8)  ("") ("") ("") ("ERROR! ") ("") ("") ("")
 }
 if ("`c(sortrngstate)'" != "``theSORT''") {
 local `theSORT' = "`c(sortrngstate)'" 
-preserve
-xpose, clear
+save `allDATA' , replace
 cap cf _all using `8_x'
 if _rc != 0 {
 post posty (8)  ("") ("") ("") ("") ("") ("ERROR! ") ("")  
 }
-restore
+use `allDATA' , clear
 }
 datasignature
 if ("`r(datasignature)'" != "``theDATA''") {
@@ -995,13 +957,12 @@ post posty (9)  ("") ("") ("") ("ERROR! ") ("") ("") ("")
 }
 if ("`c(sortrngstate)'" != "``theSORT''") {
 local `theSORT' = "`c(sortrngstate)'" 
-preserve
-xpose, clear
+save `allDATA' , replace
 cap cf _all using `9_x'
 if _rc != 0 {
 post posty (9)  ("") ("") ("") ("") ("") ("ERROR! ") ("")  
 }
-restore
+use `allDATA' , clear
 }
 datasignature
 if ("`r(datasignature)'" != "``theDATA''") {
@@ -1021,13 +982,12 @@ post posty (10)  ("") ("") ("") ("ERROR! ") ("") ("") ("")
 }
 if ("`c(sortrngstate)'" != "``theSORT''") {
 local `theSORT' = "`c(sortrngstate)'" 
-preserve
-xpose, clear
+save `allDATA' , replace
 cap cf _all using `10_x'
 if _rc != 0 {
 post posty (10)  ("") ("") ("") ("") ("") ("ERROR! ") ("")  
 }
-restore
+use `allDATA' , clear
 }
 datasignature
 if ("`r(datasignature)'" != "``theDATA''") {
@@ -1047,13 +1007,12 @@ post posty (11)  ("") ("") ("") ("ERROR! ") ("") ("") ("")
 }
 if ("`c(sortrngstate)'" != "``theSORT''") {
 local `theSORT' = "`c(sortrngstate)'" 
-preserve
-xpose, clear
+save `allDATA' , replace
 cap cf _all using `11_x'
 if _rc != 0 {
 post posty (11)  ("") ("") ("") ("") ("") ("ERROR! ") ("")  
 }
-restore
+use `allDATA' , clear
 }
 datasignature
 if ("`r(datasignature)'" != "``theDATA''") {
@@ -1073,13 +1032,12 @@ post posty (12)  ("") ("") ("") ("ERROR! ") ("") ("") ("")
 }
 if ("`c(sortrngstate)'" != "``theSORT''") {
 local `theSORT' = "`c(sortrngstate)'" 
-preserve
-xpose, clear
+save `allDATA' , replace
 cap cf _all using `12_x'
 if _rc != 0 {
 post posty (12)  ("") ("") ("") ("") ("") ("ERROR! ") ("")  
 }
-restore
+use `allDATA' , clear
 }
 datasignature
 if ("`r(datasignature)'" != "``theDATA''") {
@@ -1099,13 +1057,12 @@ post posty (13)  ("") ("") ("") ("ERROR! ") ("") ("") ("")
 }
 if ("`c(sortrngstate)'" != "``theSORT''") {
 local `theSORT' = "`c(sortrngstate)'" 
-preserve
-xpose, clear
+save `allDATA' , replace
 cap cf _all using `13_x'
 if _rc != 0 {
 post posty (13)  ("") ("") ("") ("") ("") ("ERROR! ") ("")  
 }
-restore
+use `allDATA' , clear
 }
 datasignature
 if ("`r(datasignature)'" != "``theDATA''") {
@@ -1125,13 +1082,12 @@ post posty (14)  ("") ("") ("") ("ERROR! ") ("") ("") ("")
 }
 if ("`c(sortrngstate)'" != "``theSORT''") {
 local `theSORT' = "`c(sortrngstate)'" 
-preserve
-xpose, clear
+save `allDATA' , replace
 cap cf _all using `14_x'
 if _rc != 0 {
 post posty (14)  ("") ("") ("") ("") ("") ("ERROR! ") ("")  
 }
-restore
+use `allDATA' , clear
 }
 datasignature
 if ("`r(datasignature)'" != "``theDATA''") {
@@ -1151,13 +1107,12 @@ post posty (15)  ("") ("") ("") ("ERROR! ") ("") ("") ("")
 }
 if ("`c(sortrngstate)'" != "``theSORT''") {
 local `theSORT' = "`c(sortrngstate)'" 
-preserve
-xpose, clear
+save `allDATA' , replace
 cap cf _all using `15_x'
 if _rc != 0 {
 post posty (15)  ("") ("") ("") ("") ("") ("ERROR! ") ("")  
 }
-restore
+use `allDATA' , clear
 }
 datasignature
 if ("`r(datasignature)'" != "``theDATA''") {
@@ -1177,13 +1132,12 @@ post posty (16)  ("") ("") ("") ("ERROR! ") ("") ("") ("")
 }
 if ("`c(sortrngstate)'" != "``theSORT''") {
 local `theSORT' = "`c(sortrngstate)'" 
-preserve
-xpose, clear
+save `allDATA' , replace
 cap cf _all using `16_x'
 if _rc != 0 {
 post posty (16)  ("") ("") ("") ("") ("") ("ERROR! ") ("")  
 }
-restore
+use `allDATA' , clear
 }
 datasignature
 if ("`r(datasignature)'" != "``theDATA''") {
@@ -1203,13 +1157,12 @@ post posty (17)  ("") ("") ("") ("ERROR! ") ("") ("") ("")
 }
 if ("`c(sortrngstate)'" != "``theSORT''") {
 local `theSORT' = "`c(sortrngstate)'" 
-preserve
-xpose, clear
+save `allDATA' , replace
 cap cf _all using `17_x'
 if _rc != 0 {
 post posty (17)  ("") ("") ("") ("") ("") ("ERROR! ") ("")  
 }
-restore
+use `allDATA' , clear
 }
 datasignature
 if ("`r(datasignature)'" != "``theDATA''") {
@@ -1229,13 +1182,12 @@ post posty (18)  ("") ("") ("") ("ERROR! ") ("") ("") ("")
 }
 if ("`c(sortrngstate)'" != "``theSORT''") {
 local `theSORT' = "`c(sortrngstate)'" 
-preserve
-xpose, clear
+save `allDATA' , replace
 cap cf _all using `18_x'
 if _rc != 0 {
 post posty (18)  ("") ("") ("") ("") ("") ("ERROR! ") ("")  
 }
-restore
+use `allDATA' , clear
 }
 datasignature
 if ("`r(datasignature)'" != "``theDATA''") {
@@ -1255,13 +1207,12 @@ post posty (19)  ("") ("") ("") ("ERROR! ") ("") ("") ("")
 }
 if ("`c(sortrngstate)'" != "``theSORT''") {
 local `theSORT' = "`c(sortrngstate)'" 
-preserve
-xpose, clear
+save `allDATA' , replace
 cap cf _all using `19_x'
 if _rc != 0 {
 post posty (19)  ("") ("") ("") ("") ("") ("ERROR! ") ("")  
 }
-restore
+use `allDATA' , clear
 }
 datasignature
 if ("`r(datasignature)'" != "``theDATA''") {
@@ -1281,13 +1232,12 @@ post posty (20)  ("") ("") ("") ("ERROR! ") ("") ("") ("")
 }
 if ("`c(sortrngstate)'" != "``theSORT''") {
 local `theSORT' = "`c(sortrngstate)'" 
-preserve
-xpose, clear
+save `allDATA' , replace
 cap cf _all using `20_x'
 if _rc != 0 {
 post posty (20)  ("") ("") ("") ("") ("") ("ERROR! ") ("")  
 }
-restore
+use `allDATA' , clear
 }
 datasignature
 if ("`r(datasignature)'" != "``theDATA''") {
@@ -1307,13 +1257,12 @@ post posty (21)  ("") ("") ("") ("ERROR! ") ("") ("") ("")
 }
 if ("`c(sortrngstate)'" != "``theSORT''") {
 local `theSORT' = "`c(sortrngstate)'" 
-preserve
-xpose, clear
+save `allDATA' , replace
 cap cf _all using `21_x'
 if _rc != 0 {
 post posty (21)  ("") ("") ("") ("") ("") ("ERROR! ") ("")  
 }
-restore
+use `allDATA' , clear
 }
 datasignature
 if ("`r(datasignature)'" != "``theDATA''") {
@@ -1333,13 +1282,12 @@ post posty (22)  ("") ("") ("") ("ERROR! ") ("") ("") ("")
 }
 if ("`c(sortrngstate)'" != "``theSORT''") {
 local `theSORT' = "`c(sortrngstate)'" 
-preserve
-xpose, clear
+save `allDATA' , replace
 cap cf _all using `22_x'
 if _rc != 0 {
 post posty (22)  ("") ("") ("") ("") ("") ("ERROR! ") ("")  
 }
-restore
+use `allDATA' , clear
 }
 datasignature
 if ("`r(datasignature)'" != "``theDATA''") {
@@ -1359,13 +1307,12 @@ post posty (23)  ("") ("") ("") ("ERROR! ") ("") ("") ("")
 }
 if ("`c(sortrngstate)'" != "``theSORT''") {
 local `theSORT' = "`c(sortrngstate)'" 
-preserve
-xpose, clear
+save `allDATA' , replace
 cap cf _all using `23_x'
 if _rc != 0 {
 post posty (23)  ("") ("") ("") ("") ("") ("ERROR! ") ("")  
 }
-restore
+use `allDATA' , clear
 }
 datasignature
 if ("`r(datasignature)'" != "``theDATA''") {
@@ -1385,13 +1332,12 @@ post posty (24)  ("") ("") ("") ("ERROR! ") ("") ("") ("")
 }
 if ("`c(sortrngstate)'" != "``theSORT''") {
 local `theSORT' = "`c(sortrngstate)'" 
-preserve
-xpose, clear
+save `allDATA' , replace
 cap cf _all using `24_x'
 if _rc != 0 {
 post posty (24)  ("") ("") ("") ("") ("") ("ERROR! ") ("")  
 }
-restore
+use `allDATA' , clear
 }
 datasignature
 if ("`r(datasignature)'" != "``theDATA''") {
@@ -1411,13 +1357,12 @@ post posty (25)  ("") ("") ("") ("ERROR! ") ("") ("") ("")
 }
 if ("`c(sortrngstate)'" != "``theSORT''") {
 local `theSORT' = "`c(sortrngstate)'" 
-preserve
-xpose, clear
+save `allDATA' , replace
 cap cf _all using `25_x'
 if _rc != 0 {
 post posty (25)  ("") ("") ("") ("") ("") ("ERROR! ") ("")  
 }
-restore
+use `allDATA' , clear
 }
 datasignature
 if ("`r(datasignature)'" != "``theDATA''") {
@@ -1437,13 +1382,12 @@ post posty (26)  ("") ("") ("") ("ERROR! ") ("") ("") ("")
 }
 if ("`c(sortrngstate)'" != "``theSORT''") {
 local `theSORT' = "`c(sortrngstate)'" 
-preserve
-xpose, clear
+save `allDATA' , replace
 cap cf _all using `26_x'
 if _rc != 0 {
 post posty (26)  ("") ("") ("") ("") ("") ("ERROR! ") ("")  
 }
-restore
+use `allDATA' , clear
 }
 datasignature
 if ("`r(datasignature)'" != "``theDATA''") {
@@ -1463,13 +1407,12 @@ post posty (27)  ("") ("") ("") ("ERROR! ") ("") ("") ("")
 }
 if ("`c(sortrngstate)'" != "``theSORT''") {
 local `theSORT' = "`c(sortrngstate)'" 
-preserve
-xpose, clear
+save `allDATA' , replace
 cap cf _all using `27_x'
 if _rc != 0 {
 post posty (27)  ("") ("") ("") ("") ("") ("ERROR! ") ("")  
 }
-restore
+use `allDATA' , clear
 }
 datasignature
 if ("`r(datasignature)'" != "``theDATA''") {
@@ -1489,13 +1432,12 @@ post posty (28)  ("") ("") ("") ("ERROR! ") ("") ("") ("")
 }
 if ("`c(sortrngstate)'" != "``theSORT''") {
 local `theSORT' = "`c(sortrngstate)'" 
-preserve
-xpose, clear
+save `allDATA' , replace
 cap cf _all using `28_x'
 if _rc != 0 {
 post posty (28)  ("") ("") ("") ("") ("") ("ERROR! ") ("")  
 }
-restore
+use `allDATA' , clear
 }
 datasignature
 if ("`r(datasignature)'" != "``theDATA''") {
@@ -1515,13 +1457,12 @@ post posty (29)  ("") ("") ("") ("ERROR! ") ("") ("") ("")
 }
 if ("`c(sortrngstate)'" != "``theSORT''") {
 local `theSORT' = "`c(sortrngstate)'" 
-preserve
-xpose, clear
+save `allDATA' , replace
 cap cf _all using `29_x'
 if _rc != 0 {
 post posty (29)  ("") ("") ("") ("") ("") ("ERROR! ") ("")  
 }
-restore
+use `allDATA' , clear
 }
 datasignature
 if ("`r(datasignature)'" != "``theDATA''") {
@@ -1541,13 +1482,12 @@ post posty (30)  ("") ("") ("") ("ERROR! ") ("") ("") ("")
 }
 if ("`c(sortrngstate)'" != "``theSORT''") {
 local `theSORT' = "`c(sortrngstate)'" 
-preserve
-xpose, clear
+save `allDATA' , replace
 cap cf _all using `30_x'
 if _rc != 0 {
 post posty (30)  ("") ("") ("") ("") ("") ("ERROR! ") ("")  
 }
-restore
+use `allDATA' , clear
 }
 datasignature
 if ("`r(datasignature)'" != "``theDATA''") {

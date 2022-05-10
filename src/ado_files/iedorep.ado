@@ -88,8 +88,8 @@ preserve
     "  cap mata: mata clear     " _n  /// (see [M-3] mata clear)
     "  cap python clear         " _n  /// (see [P] PyStata integration)
     "  cap java clear  " _n
-  file write edited "tempname theSORT theRNG allRNGS whichRNG allDATA theDATA" _n
-  file write edited "tempfile posty" _n "postfile posty Line " ///
+  file write edited "tempname theSORT theRNG allRNGS whichRNG theDATA" _n
+  file write edited "tempfile posty allDATA" _n "postfile posty Line " ///
     "str15(Data Err_1 Seed Err_2 Sort Err_3) str2000(Path) using \`posty' , replace" _n
     
   file write edited `"local \`theRNG' = "\`c(rngstate)'" "' _n
@@ -272,25 +272,23 @@ while r(eof)==0 {
       `"if ("\`c(sortrngstate)'" != "\`\`theSORT''") {"' _n ///
         `"post posty (`linenum_real') `allsort1' "' _n ///
         `"local \`theSORT' = "\`c(sortrngstate)'" "' _n ///
-        `"preserve"' _n ///
-        `"xpose, clear"' _n ///
+        `"save \`allDATA' , replace"' _n ///
         `"tempfile `linenum_real'_x"' _n ///
         `"save \``linenum_real'_x' , emptyok"' _n ///
         `"local theLOCALS "\`theLOCALS' `linenum_real'_x" "' _n ///
-        `"restore"' _n ///
+        `"use \`allDATA' , clear"' _n ///
       `"}"'_n      
       
       // Flag Errors to Sort RNG state
       file write checkr ///
       `"if ("\`c(sortrngstate)'" != "\`\`theSORT''") {"' _n ///
         `"local \`theSORT' = "\`c(sortrngstate)'" "' _n ///
-        `"preserve"' _n ///
-        `"xpose, clear"' _n ///
+        `"save \`allDATA' , replace"' _n ///
         `"cap cf _all using \``linenum_real'_x'"' _n ///
         `"if _rc != 0 {"'_n ///
             `"post posty (`linenum_real') `allsort2' "' _n ///
         `"}"'_n ///
-        `"restore"' _n ///
+        `"use \`allDATA' , clear"' _n ///
       `"}"'_n  
       
       // Flag changes to DATA state
