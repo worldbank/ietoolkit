@@ -272,23 +272,19 @@ while r(eof)==0 {
       `"if ("\`c(sortrngstate)'" != "\`\`theSORT''") {"' _n ///
         `"post posty (`linenum_real') `allsort1' "' _n ///
         `"local \`theSORT' = "\`c(sortrngstate)'" "' _n ///
-        `"save \`allDATA' , replace"' _n ///
         `"tempfile `linenum_real'_x"' _n ///
         `"save \``linenum_real'_x' , emptyok"' _n ///
         `"local theLOCALS "\`theLOCALS' `linenum_real'_x" "' _n ///
-        `"use \`allDATA' , clear"' _n ///
       `"}"'_n      
       
       // Flag Errors to Sort RNG state
       file write checkr ///
       `"if ("\`c(sortrngstate)'" != "\`\`theSORT''") {"' _n ///
         `"local \`theSORT' = "\`c(sortrngstate)'" "' _n ///
-        `"save \`allDATA' , replace"' _n ///
         `"cap cf _all using \``linenum_real'_x'"' _n ///
         `"if _rc != 0 {"'_n ///
             `"post posty (`linenum_real') `allsort2' "' _n ///
         `"}"'_n ///
-        `"use \`allDATA' , clear"' _n ///
       `"}"'_n  
       
       // Flag changes to DATA state
