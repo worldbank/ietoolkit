@@ -14,7 +14,7 @@ command please see the {browse "https://dimewiki.worldbank.org/wiki/iedorep":DIM
 
 {title:Syntax}
 
-{phang2} {cmdab:iedorep} "{it:/path/do/do-file.do}" , [ recursive alldata allseed allsort ]
+{phang2} {cmdab:iedorep} "{it:/path/do/do-file.do}" , [ {cmdab:r:ecursive} {cmdab:alldata allseed allsort} ]
 
 {marker desc}
 {title:Description}

@@ -4,7 +4,7 @@ cap  program drop  iedorep
   program define   iedorep, rclass
   
   syntax anything , ///
-  [recursive] ///
+  [Recursive] ///
   [alldata] [allsort] [allseed] /// Verbose reporting of non-errors
   [debug] [qui] // Programming option to view exact temp do-file
   
