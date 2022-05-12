@@ -45,6 +45,9 @@
 				NORMDiff	PTtest	PFtest	PBoth NOTECombine                                   ///
 				]
 
+  local full_user_input = "iebaltab " + trim(itrim(`"`0'"'))
+  local full_user_input : subinstr local full_user_input "\" "/" , all
+
   *Add space between code and output
   noi di ""
 
@@ -1115,13 +1118,13 @@ qui {
 	*Test if options tblnonote or tblnote are used - if not generate default note
 	if missing("`tblnonote'") {
 		if missing("`tblnote'") {
-			generate_note, stats_string("`stats_string'") fix("`fixedeffect'") ///
+			generate_note, full_user_input(`"`full_user_input'"') stats_string("`stats_string'") fix("`fixedeffect'") ///
 			fix_used("`FIX_EFFECT_USED'") covars("`covariates'") `ftest' `feqtest' ///
 			starlevels("`starlevels'") `stdev' vce("`vce'") vce_type("`vce_type'") ///
 			clustervar("`cluster_var'") weight_used("`WEIGHT_USED'")               ///
 			weight_type("`weight_type'") weight_var("`weight_var'")
 
-			 local note_to_use "`r(table_note)'"
+			 local note_to_use `"`r(table_note)'"'
 		}
 		* Use user specified note
 		else local note_to_use `"`tblnote'"'
@@ -1130,7 +1133,7 @@ qui {
 	else local note_to_use ""
 
 	* Add note from tbladdnote command to default note if applicable
-	if !missing("`tbladdnote'") local note_to_use "`note_to_use' `tbladdnote'"
+	if !missing("`tbladdnote'") local note_to_use `"`note_to_use' `tbladdnote'"'
 
 /*******************************************************************************
 
@@ -1543,11 +1546,12 @@ qui {
 	******************************************************************************
 	* Write table note
 	******************************************************************************
-	if !missing("`note'") {
+
+	if !missing(`"`note'"') {
 		*Write the table note if one is defined
 		cap file close 	`tab_name'
 		file open  		`tab_name' using "`tab_file'", text write append
-		file write  	`tab_name' "`note'" _n
+		file write  	`tab_name' `"`note'"' _n
 		file close 		`tab_name'
 	}
 
@@ -1557,7 +1561,8 @@ qui {
 
 	* Import tab file to memory to be exported as csv, xlsx or be browsed.
 	* Tabs are used as they are never used in labels, making manual writing easier
-	insheet using "`tab_file'", tab clear
+	import delimited `tab_file', delimiters("\t") clear
+
 }
 end
 
@@ -1946,13 +1951,14 @@ qui {
 	******************************************************************************
 
 	*Write note if not missing (for example tblnonote was used)
-	if !missing("`note'") {
+	if !missing(`"`note'"') {
 
 		* Make sure special characters are displayed correctly
 		local note : subinstr local note "%" "\%" , all
 		local note : subinstr local note "_" "\_" , all
 		local note : subinstr local note "&" "\&" , all
 		local note : subinstr local note "\$" "\\\\\\\$" , all
+
 
 		*If tex file option is not used, write in main file
 		if missing("`texnotefile'") {
@@ -1973,7 +1979,7 @@ qui {
 		* If applicable write a text note file that can be inported in tex's threparttable package
 		else {
 			file open  `texnotehandle' using "`texnotetmpfile'", text write replace
-			file write `texnotehandle' "`note'" _n
+			file write `texnotehandle' `"`note'"' _n
 			file close `texnotehandle'
 
 			* Write temporay tex file to disk
@@ -2564,7 +2570,7 @@ end
 cap program drop 	generate_note
 	program define	generate_note, rclass
 
-	syntax, [stats_string(string) fix(string) fix_used(string) covars(string) ftest feqtest ///
+	syntax, full_user_input(string) [stats_string(string) fix(string) fix_used(string) covars(string) ftest feqtest ///
 	starlevels(string)  stdev vce(string) ///
 	vce_type(string) clustervar(string) weight_used(string) weight_type(string) weight_var(string) ]
 
@@ -2619,6 +2625,9 @@ cap program drop 	generate_note
 		local table_note "`table_note' Observations are weighted using variable `weight_var' as `weight_type' weights."
   }
 
-	return local table_note "`table_note'"
+	* Add the full user input when running the command
+  	local table_note `"`table_note' Full user input as written by user: [`full_user_input']"'
+
+	return local table_note = trim(itrim(`"`table_note'"'))
 
 end
