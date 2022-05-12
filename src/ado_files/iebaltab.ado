@@ -984,9 +984,9 @@ qui {
 						mat row[1,`++colindex'] = `sd_this_pair'
 
 						*Calculate and store the normalized difference and normlized beta
-						local norm_denominator = .5 * sqrt(        ///
+						local norm_denominator = sqrt( .5 * (     ///
 						    el(row,1,colnumb(row,"var_`code1'")) + ///
-						    el(row,1,colnumb(row,"var_`code2'")) )
+						    el(row,1,colnumb(row,"var_`code2'")) ))
 						mat row[1,`++colindex'] = el(row,1,colnumb(row,"diff_`ttest_pair'")) / `norm_denominator'
 						mat row[1,`++colindex'] = el(row,1,colnumb(row,"beta_`ttest_pair'")) / `norm_denominator'
 
