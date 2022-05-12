@@ -63,13 +63,11 @@
 		local exlfile "iebt-xlsx`tnum'"
 		local texfile "iebt-tex`tnum'"
 		local txnfile "iebt-tex`tnum'-note"
+        local allsave `"savecsv("${out_fldr}/`csvfile'") savexlsx("${out_fldr}/`exlfile'") savetex("${out_fldr}/`texfile'") texnotefile("${out_fldr}/`txnfile'") "'
 
-		iebaltab weight price , grpvar(tmt_cl) replace ///
-			ftest feqtest control(1)   ///
-			savecsv("${out_fldr}/`csvfile'")     ///
-			savexlsx("${out_fldr}/`exlfile'")    ///
-			savetex("${out_fldr}/`texfile'")     ///
-			texnotefile("${out_fldr}/`txnfile'") ///
+		iebaltab weight price , `allsave' ///
+            grpvar(tmt_cl) replace        ///
+			ftest feqtest control(1)      ///
 			cov(mpg) fixed(foreign)
 
 		* Test no regaular missing values in matrices
@@ -86,9 +84,10 @@
 		local tnum 2
 		local texfile "iebt-tex`tnum'"
 
-		iebaltab weight price , grpvar(tmt_cl) replace ///
-			ftest feqtest control(1)   ///
-			savetex("${out_fldr}/`texfile'")     ///
+		iebaltab weight price ,              ///
+            grpvar(tmt_cl) replace           ///
+			ftest feqtest control(1)         ///
+			savetex("${out_fldr}/`texfile'") ///
 			cov(mpg) fixed(foreign)
 
 		* Test no regaular missing values in matrices
@@ -105,11 +104,12 @@
 		local tnum 3
 		local texfile "iebt-tex`tnum'"
 
-		iebaltab weight price , grpvar(tmt_cl) replace ///
-			ftest feqtest control(1)   ///
-			savetex("${out_fldr}/`texfile'")     ///
-			cov(mpg) fixed(foreign) ///
-			texvspace(1cm) texcolwidth(4cm) ///
+		iebaltab weight price ,              ///
+            grpvar(tmt_cl) replace           ///
+			ftest feqtest control(1)         ///
+			savetex("${out_fldr}/`texfile'") ///
+			cov(mpg) fixed(foreign)          ///
+			texvspace(1cm) texcolwidth(4cm)  ///
 			tbladdnote("Options used: texvspace(1cm) - tall rows, texcolwidth(3cm) short first column ")
 
 		* Test no regaular missing values in matrices
@@ -126,9 +126,10 @@
 		local tnum 4
 		local texfile "iebt-texdoc`tnum'"
 
-		iebaltab weight price , grpvar(tmt_cl) replace ///
-			ftest feqtest control(1)   ///
-			savetex("${out_fldr}/`texfile'")     ///
+		iebaltab weight price ,                 ///
+            grpvar(tmt_cl) replace              ///
+			ftest feqtest control(1)            ///
+			savetex("${out_fldr}/`texfile'")    ///
 			cov(mpg) fixed(foreign) texdocument
 
 		* Test no regaular missing values in matrices
@@ -145,11 +146,12 @@
 		local tnum 5
 		local texfile "iebt-texdoc`tnum'"
 
-		iebaltab weight price , grpvar(tmt_cl) replace ///
-			ftest feqtest control(1)   ///
-			savetex("${out_fldr}/`texfile'")     ///
-			cov(mpg) fixed(foreign) texdocument ///
-			texnotewidth(1.5) texvspace(1cm) texcolwidth(2cm)  ///
+		iebaltab weight price ,                               ///
+            grpvar(tmt_cl) replace                            ///
+			ftest feqtest control(1)                          ///
+			savetex("${out_fldr}/`texfile'")                  ///
+			cov(mpg) fixed(foreign) texdocument               ///
+			texnotewidth(1.5) texvspace(1cm) texcolwidth(2cm) ///
 			texcaption("Table 5") texlabel("T5")
 
 		* Test no regaular missing values in matrices
@@ -169,14 +171,12 @@
 		local exlfile "iebt-xlsx`tnum'"
 		local texfile "iebt-tex`tnum'"
 		local txnfile "iebt-tex`tnum'-note"
+        local allsave `"savecsv("${out_fldr}/`csvfile'") savexlsx("${out_fldr}/`exlfile'") savetex("${out_fldr}/`texfile'") texnotefile("${out_fldr}/`txnfile'") "'
 
-		iebaltab weight price , grpvar(tmt) replace ///
-			ftest feqtest total rowvarlabels   ///
-			savecsv("${out_fldr}/`csvfile'")     ///
-			savexlsx("${out_fldr}/`exlfile'")    ///
-			savetex("${out_fldr}/`texfile'")     ///
-			texnotefile("${out_fldr}/`txnfile'") ///
-			cov(mpg) fixed(foreign) ///
+		iebaltab weight price , `allsave'           ///
+            grpvar(tmt) replace                     ///
+			ftest feqtest total rowvarlabels        ///
+			cov(mpg) fixed(foreign)                 ///
 			tbladdnote("Many groups, rowvarlabels")
 
 		* Test no regaular missing values in matrices
@@ -195,14 +195,12 @@
 		local exlfile "iebt-xlsx`tnum'"
 		local texfile "iebt-tex`tnum'"
 		local txnfile "iebt-tex`tnum'-note"
+        local allsave `"savecsv("${out_fldr}/`csvfile'") savexlsx("${out_fldr}/`exlfile'") savetex("${out_fldr}/`texfile'") texnotefile("${out_fldr}/`txnfile'") "'
 
-		iebaltab weight price , grpvar(tmt) replace ///
-			total order(4 10231) control(6) grpcodes                       ///
-			savecsv("${out_fldr}/`csvfile'")     ///
-			savexlsx("${out_fldr}/`exlfile'")    ///
-			savetex("${out_fldr}/`texfile'")     ///
-			texnotefile("${out_fldr}/`txnfile'") ///
-			cov(mpg) fixed(foreign) ///
+		iebaltab weight price , `allsave'             ///
+            grpvar(tmt) replace                       ///
+			total order(4 10231) control(6) grpcodes  ///
+			cov(mpg) fixed(foreign)                   ///
 			tbladdnote("column order should be 4 10231 6 2, and 6 is control so pair test only with this group")
 
 		* Test no regaular missing values in matrices
@@ -221,16 +219,14 @@
 		local exlfile "iebt-xlsx`tnum'"
 		local texfile "iebt-tex`tnum'"
 		local txnfile "iebt-tex`tnum'-note"
+        local allsave `"savecsv("${out_fldr}/`csvfile'") savexlsx("${out_fldr}/`exlfile'") savetex("${out_fldr}/`texfile'") texnotefile("${out_fldr}/`txnfile'") "'
 
-		iebaltab weight price , grpvar(tmt) replace ///
-			total control(6)  rowvarlabels                  ///
-			grplabels("4 Pizza and Pineapple (m) @ 6 Control (m)")                 ///
-			totallabel("Total manual label (m)") rowlabels("price Priset (m)")     ///
-			savecsv("${out_fldr}/`csvfile'")     ///
-			savexlsx("${out_fldr}/`exlfile'")    ///
-			savetex("${out_fldr}/`texfile'")     ///
-			texnotefile("${out_fldr}/`txnfile'") ///
-			cov(mpg) fixed(foreign) ///
+		iebaltab weight price , `allsave'                                      ///
+            grpvar(tmt) replace                                                ///
+			total control(6)  rowvarlabels                                     ///
+			grplabels("4 Pizza and Pineapple (m) @ 6 Control (m)")             ///
+			totallabel("Total manual label (m)") rowlabels("price Priset (m)") ///
+			cov(mpg) fixed(foreign)                                            ///
 			tbladdnote("Row and column manual lables.")
 
 		* Test no regaular missing values in matrices
@@ -256,14 +252,12 @@
 		local exlfile "iebt-xlsx`tnum'"
 		local texfile "iebt-tex`tnum'"
 		local txnfile "iebt-tex`tnum'-note"
+        local allsave `"savecsv("${out_fldr}/`csvfile'") savexlsx("${out_fldr}/`exlfile'") savetex("${out_fldr}/`texfile'") texnotefile("${out_fldr}/`txnfile'") "'
 
-		iebaltab weight price , grpvar(tmt_cl) replace ///
-			ftest feqtest    ///
-			savecsv("${out_fldr}/`csvfile'")     ///
-			savexlsx("${out_fldr}/`exlfile'")    ///
-			savetex("${out_fldr}/`texfile'")     ///
-			texnotefile("${out_fldr}/`txnfile'") ///
-			cov(mpg) fixed(foreign) ///
+		iebaltab weight price , `allsave' ///
+            grpvar(tmt_cl) replace        ///
+			ftest feqtest                 ///
+			cov(mpg) fixed(foreign)       ///
 			tbladdnote("Warning for missing value in fixedeffect(foreign) and in covariates(mpg)")
 			
 		* Expected outcome: Warning for missing value in 
@@ -286,15 +280,13 @@
 		local exlfile "iebt-xlsx`tnum'"
 		local texfile "iebt-tex`tnum'"
 		local txnfile "iebt-tex`tnum'-note"
+        local allsave `"savecsv("${out_fldr}/`csvfile'") savexlsx("${out_fldr}/`exlfile'") savetex("${out_fldr}/`texfile'") texnotefile("${out_fldr}/`txnfile'") "'
 
-		iebaltab weight price , grpvar(tmt_cl) replace ///
-			vce(cluster test_cluster_var)  ///
-			ftest feqtest total ///
-			savecsv("${out_fldr}/`csvfile'")     ///
-			savexlsx("${out_fldr}/`exlfile'")    ///
-			savetex("${out_fldr}/`texfile'")     ///
-			texnotefile("${out_fldr}/`txnfile'") ///
-			cov(mpg) fixed(foreign) ///
+		iebaltab weight price , `allsave' ///
+            grpvar(tmt_cl) replace        ///
+			vce(cluster test_cluster_var) ///
+			ftest feqtest total           ///
+			cov(mpg) fixed(foreign)       ///
 			tbladdnote("added cluster")
 
 		* Test no regaular missing values in matrices
@@ -314,14 +306,12 @@
 		local exlfile "iebt-xlsx`tnum'"
 		local texfile "iebt-tex`tnum'"
 		local txnfile "iebt-tex`tnum'-note"
+        local allsave `"savecsv("${out_fldr}/`csvfile'") savexlsx("${out_fldr}/`exlfile'") savetex("${out_fldr}/`texfile'") texnotefile("${out_fldr}/`txnfile'") "'
 
-		iebaltab weight price , grpvar(tmt_cl) replace ///
-			onerow ///
-			savecsv("${out_fldr}/`csvfile'")     ///
-			savexlsx("${out_fldr}/`exlfile'")    ///
-			savetex("${out_fldr}/`texfile'")     ///
-			texnotefile("${out_fldr}/`txnfile'") ///
-			cov(mpg) fixed(foreign) ///
+		iebaltab weight price , `allsave' ///
+            grpvar(tmt_cl) replace        ///
+			onerow                        ///
+			cov(mpg) fixed(foreign)       ///
 			tbladdnote("added onerow")
 
 		* Test no regaular missing values in matrices
@@ -342,15 +332,13 @@
 		local exlfile "iebt-xlsx`tnum'"
 		local texfile "iebt-tex`tnum'"
 		local txnfile "iebt-tex`tnum'-note"
+        local allsave `"savecsv("${out_fldr}/`csvfile'") savexlsx("${out_fldr}/`exlfile'") savetex("${out_fldr}/`texfile'") texnotefile("${out_fldr}/`txnfile'") "'
 
-		iebaltab weight price , grpvar(tmt_cl) replace ///
-			onerow vce(cluster test_cluster_var)  ///
+		iebaltab weight price , `allsave'        ///
+            grpvar(tmt_cl) replace               ///
+			onerow vce(cluster test_cluster_var) ///
 			ftest feqtest total                  ///
-			savecsv("${out_fldr}/`csvfile'")     ///
-			savexlsx("${out_fldr}/`exlfile'")    ///
-			savetex("${out_fldr}/`texfile'")     ///
-			texnotefile("${out_fldr}/`txnfile'") ///
-			cov(mpg) fixed(foreign) ///
+			cov(mpg) fixed(foreign)              ///
 			tbladdnote("added onerow and cluster")
 
 		* Test no regaular missing values in matrices
@@ -370,14 +358,12 @@
 		local exlfile "iebt-xlsx`tnum'"
 		local texfile "iebt-tex`tnum'"
 		local txnfile "iebt-tex`tnum'-note"
+        local allsave `"savecsv("${out_fldr}/`csvfile'") savexlsx("${out_fldr}/`exlfile'") savetex("${out_fldr}/`texfile'") texnotefile("${out_fldr}/`txnfile'") "'
 
-		iebaltab weight price , grpvar(tmt_cl) replace ///
-			ftest control(1)   ///
-			savecsv("${out_fldr}/`csvfile'")     ///
-			savexlsx("${out_fldr}/`exlfile'")    ///
-			savetex("${out_fldr}/`texfile'")     ///
-			texnotefile("${out_fldr}/`txnfile'") ///
-			stats(f(p) pair(nrmd))               ///
+		iebaltab weight price , `allsave' ///
+            grpvar(tmt_cl) replace        ///
+			ftest control(1)              ///
+			stats(f(p) pair(nrmd))        ///
 			cov(mpg) fixed(foreign)
 
 		* Test no regaular missing values in matrices
@@ -396,14 +382,12 @@
 		local exlfile "iebt-xlsx`tnum'"
 		local texfile "iebt-tex`tnum'"
 		local txnfile "iebt-tex`tnum'-note"
+        local allsave `"savecsv("${out_fldr}/`csvfile'") savexlsx("${out_fldr}/`exlfile'") savetex("${out_fldr}/`texfile'") texnotefile("${out_fldr}/`txnfile'") "'
 
-		iebaltab weight price , grpvar(tmt_cl) replace ///
-			ftest feqtest control(1)   ///
-			savecsv("${out_fldr}/`csvfile'")     ///
-			savexlsx("${out_fldr}/`exlfile'")    ///
-			savetex("${out_fldr}/`texfile'")     ///
-			texnotefile("${out_fldr}/`txnfile'") ///
-			stats(pair(none))               ///
+		iebaltab weight price , `allsave' ///
+            grpvar(tmt_cl) replace        ///
+			ftest feqtest control(1)      ///
+			stats(pair(none))             ///
 			cov(mpg) fixed(foreign)
 
 		* Test no regaular missing values in matrices
@@ -422,13 +406,11 @@
 		local exlfile "iebt-xlsx`tnum'"
 		local texfile "iebt-tex`tnum'"
 		local txnfile "iebt-tex`tnum'-note"
+        local allsave `"savecsv("${out_fldr}/`csvfile'") savexlsx("${out_fldr}/`exlfile'") savetex("${out_fldr}/`texfile'") texnotefile("${out_fldr}/`txnfile'") "'
 
-		iebaltab weight price , grpvar(tmt_cl) replace ///
-			ftest control(1)   ///
-			savecsv("${out_fldr}/`csvfile'")     ///
-			savexlsx("${out_fldr}/`exlfile'")    ///
-			savetex("${out_fldr}/`texfile'")     ///
-			texnotefile("${out_fldr}/`txnfile'") ///
+		iebaltab weight price , `allsave' ///
+            grpvar(tmt_cl) replace        ///
+			ftest control(1)              ///
 			stats(pair(se))               ///
 			cov(mpg) fixed(foreign)
 
