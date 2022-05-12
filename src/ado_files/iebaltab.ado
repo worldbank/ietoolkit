@@ -870,6 +870,8 @@ qui {
 				else mat row[1,`colindex'] = .c
 				*Mean of balance var for this group
 				mat row[1,`++colindex'] = _b[_cons]
+				*Variance of balance var for this group
+				mat row[1,`++colindex'] = e(rss)/e(df_r)
 				*Standard error of balance var for this group
 				mat row[1,`++colindex'] = _se[_cons]
 				*Standard deviation of balance var for this group
@@ -893,6 +895,8 @@ qui {
 				else mat row[1,`colindex'] = .c
 				*Mean of balance var for this group
 				mat row[1,`++colindex'] = _b[_cons]
+				*Variance of balance var for this group
+				mat row[1,`++colindex'] = e(rss)/e(df_r)
 				*Standard error of balance var for this group
 				mat row[1,`++colindex'] = _se[_cons]
 				*Standard deviation of balance var for this group
@@ -2028,7 +2032,7 @@ cap program drop 	setUpResultMatrix
 	local Fcolnames = ""
 
   *Locals with stats names for each category
-  local desc_stats   = "n cl mean se sd"
+  local desc_stats   = "n cl mean var se sd"
   local pair_stats   = "diff n cl beta t p se sd nrmd"
 	local feq_stats    = "feqn feqcl feqf feqp"
 	local ftest_stats  = "fn fcl ff fp"
