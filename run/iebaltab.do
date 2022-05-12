@@ -413,6 +413,53 @@
 			ftest control(1)              ///
 			stats(pair(se))               ///
 			cov(mpg) fixed(foreign)
+            
+
+		* Test no regaular missing values in matrices
+		mat mat1 = r(iebaltabrmat)
+		mat mat2 = r(iebaltabfmat)
+		ie_test_mat_nomiss, mat1(mat1) mat2(mat2)
+	restore	
+    
+    /***************************************************************************
+	  Table 16 - test showing no pair tests
+	***************************************************************************/
+	preserve
+    
+		local tnum 16
+		local csvfile "iebt-csv`tnum'"
+		local exlfile "iebt-xlsx`tnum'"
+		local texfile "iebt-tex`tnum'"
+		local txnfile "iebt-tex`tnum'-note"
+        local allsave `"savecsv("${out_fldr}/`csvfile'") savexlsx("${out_fldr}/`exlfile'") savetex("${out_fldr}/`texfile'") texnotefile("${out_fldr}/`txnfile'") "'
+
+		iebaltab weight price , `allsave' ///
+            grpvar(tmt_cl) replace        ///
+			stats(pair(normd))            ///
+			cov(mpg) fixed(foreign)
+
+		* Test no regaular missing values in matrices
+		mat mat1 = r(iebaltabrmat)
+		mat mat2 = r(iebaltabfmat)
+		ie_test_mat_nomiss, mat1(mat1) mat2(mat2)
+	restore
+	
+	/***************************************************************************
+	  Table 17 - more test pair stats preferences
+	***************************************************************************/
+	preserve
+    
+		local tnum 17
+		local csvfile "iebt-csv`tnum'"
+		local exlfile "iebt-xlsx`tnum'"
+		local texfile "iebt-tex`tnum'"
+		local txnfile "iebt-tex`tnum'-note"
+        local allsave `"savecsv("${out_fldr}/`csvfile'") savexlsx("${out_fldr}/`exlfile'") savetex("${out_fldr}/`texfile'") texnotefile("${out_fldr}/`txnfile'") "'
+
+		iebaltab weight price , `allsave' ///
+            grpvar(tmt_cl) replace        ///
+			stats(pair(normd))            ///
+			cov(mpg) fixed(foreign)
 
 		* Test no regaular missing values in matrices
 		mat mat1 = r(iebaltabrmat)

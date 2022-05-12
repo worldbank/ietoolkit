@@ -980,8 +980,13 @@ qui {
 						mat row[1,`++colindex'] = `se_this_pair'
 						mat row[1,`++colindex'] = `sd_this_pair'
 
-						*Calculate and store the normalized difference
-						mat row[1,`++colindex'] = el(row,1,colnumb(row,"diff_`ttest_pair'")) / `sd_this_pair'
+						*Calculate and store the normalized difference and normlized beta
+						local norm_denominator = .5 * sqrt(        ///
+						    el(row,1,colnumb(row,"var_`code1'")) + ///
+						    el(row,1,colnumb(row,"var_`code2'")) )
+						mat row[1,`++colindex'] = el(row,1,colnumb(row,"diff_`ttest_pair'")) / `norm_denominator'
+						mat row[1,`++colindex'] = el(row,1,colnumb(row,"beta_`ttest_pair'")) / `norm_denominator'
+
 					}
 				}
 			}
@@ -2033,7 +2038,7 @@ cap program drop 	setUpResultMatrix
 
   *Locals with stats names for each category
   local desc_stats   = "n cl mean var se sd"
-  local pair_stats   = "diff n cl beta t p se sd nrmd"
+  local pair_stats   = "diff n cl beta t p se sd nrmd nrmb"
 	local feq_stats    = "feqn feqcl feqf feqp"
 	local ftest_stats  = "fn fcl ff fp"
 
@@ -2118,7 +2123,7 @@ cap program drop parse_and_clean_stats
 	local allowed_test_names "pair f feq"
 
 	*List allowed test names
-	local allowed_pair_stats "diff beta t p nrmd se sd none"
+	local allowed_pair_stats "diff beta t p nrmd nrmb se sd none"
 	local allowed_f_stats    "f p"
 	local allowed_feq_stats  "f p"
 
@@ -2222,6 +2227,7 @@ cap program drop get_stat_label_stats_string
 	local pair_diff_label "Mean difference"
 	local pair_beta_label "Beta coefficient"
 	local pair_nrmd_label "Normalized difference"
+	local pair_nrmb_label "Normalized beta coefficient"
 	local pair_t_label    "t-statistics"
 	local pair_p_label    "P-value"
 	local pair_se_label   "Standard error"
