@@ -435,7 +435,7 @@
 
 		iebaltab weight price , `allsave' ///
             grpvar(tmt_cl) replace        ///
-			stats(pair(normd))            ///
+			stats(pair(nrmd))            ///
 			cov(mpg) fixed(foreign)
 
 		* Test no regaular missing values in matrices
@@ -458,7 +458,7 @@
 
 		iebaltab weight price , `allsave' ///
             grpvar(tmt_cl) replace        ///
-			stats(pair(normd))            ///
+			stats(pair(nrmb))            ///
 			cov(mpg) fixed(foreign)
 
 		* Test no regaular missing values in matrices
