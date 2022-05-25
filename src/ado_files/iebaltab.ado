@@ -13,6 +13,7 @@
 				ORder(numlist int min=1) 									///
 				COntrol(numlist int max=1) 									///
 				TOTal 														///
+				TREATMINUSCONTROL											///
 																			///
 				/*Column and row labels*/									///
 				GRPCodes													///
@@ -132,6 +133,10 @@ qui {
 		*Is option totallable() used:
 		if "`totallabel'" 		== "" local TOTALLABEL_USED = 0
 		if "`totallabel'" 		!= "" local TOTALLABEL_USED = 1
+		
+		*Is option treatminuscontrol() used:
+		if "`treatminuscontrol'" == "" local TREATMINUSCONTROL_USED = 0 
+		if "`treatminuscontrol'" != "" local TREATMINUSCONTROL_USED = 1 
 
 
 	** Row Options
@@ -1760,7 +1765,8 @@ qui {
 					local second_group = substr("`ttest_pair'",  `undscr_pos'+1,.)
 
 					*Create the local with the difference to be displayed in the table
-					local diff_`ttest_pair' =  `mean_`first_group'' - `mean_`second_group'' //means from section above
+					if !`TREATMINUSCONTROL_USED' local diff_`ttest_pair' =  `mean_`first_group'' - `mean_`second_group'' //means from section above
+					if  `TREATMINUSCONTROL_USED' local diff_`ttest_pair' =  `mean_`second_group'' - `mean_`first_group'' //means from section above
 
 					*Create a temporary varaible used as the dummy to indicate
 					*which observation is in the first and in the second group
@@ -1793,7 +1799,8 @@ qui {
 						local warn_means_num  	= `warn_means_num' + 1
 
 						local warn_means_name`warn_means_num'	"t-test"
-						local warn_means_group`warn_means_num' 	"(`first_group')-(`second_group')"
+						if !`TREATMINUSCONTROL_USED' local warn_means_test`warn_means_num' "(`first_group')-(`second_group')"
+						if  `TREATMINUSCONTROL_USED' local warn_means_test`warn_means_num' "(`second_group')-(`first_group')"
 						local warn_means_bvar`warn_means_num'	"`balancevar'"
 
 						local tableRowUp	`" `tableRowUp' _tab "N/A" "'
@@ -2783,9 +2790,11 @@ program define iecontrolheader, rclass
 									local titlerow1 `"`titlerow1' _tab "t-test""'
 				if `PTTEST_USED' 	local titlerow2 `"`titlerow2' _tab "p-value""'
 				else 				local titlerow2 `"`titlerow2' _tab "Difference""'
-									local titlerow3 `"`titlerow3' _tab "(`ctrlGrpPos')-(`second_ttest_group')""'
+									if !`TREATMINUSCONTROL_USED' local titlerow3 `"`titlerow3' _tab "(`ctrlGrpPos') - (`second_ttest_group')""'
+									if  `TREATMINUSCONTROL_USED' local titlerow3 `"`titlerow3' _tab "(`second_ttest_group') - (`ctrlGrpPos')""'
 
-									local texrow3  `" `texrow3'  & (`ctrlGrpPos')-(`second_ttest_group') "'
+									if !`TREATMINUSCONTROL_USED' local texrow3  `" `texrow3'  & (`ctrlGrpPos')-(`second_ttest_group') "'
+									if  `TREATMINUSCONTROL_USED' local texrow3  `" `texrow3'  & (`second_ttest_group')-(`ctrlGrpPos') "'
 
 			}
 		}
@@ -2852,9 +2861,11 @@ program define ienocontrolheader, rclass
 									local titlerow1 `"`titlerow1' _tab "t-test""'
 				if `PTTEST_USED' 	local titlerow2 `"`titlerow2' _tab "p-value""'
 				else 				local titlerow2 `"`titlerow2' _tab "Difference""'
-									local titlerow3  `"`titlerow3' _tab "(`first_ttest_group')-(`second_ttest_group')""'
+									if !`TREATMINUSCONTROL_USED' local titlerow3 `"`titlerow3' _tab "(`ctrlGrpPos') - (`second_ttest_group')""'
+									if  `TREATMINUSCONTROL_USED' local titlerow3 `"`titlerow3' _tab "(`second_ttest_group') - (`ctrlGrpPos')""'
 
-									local texrow3  `" `texrow3' & (`first_ttest_group')-(`second_ttest_group') "'
+									if !`TREATMINUSCONTROL_USED' local texrow3  `" `texrow3' & (`first_ttest_group')-(`second_ttest_group') "'
+									if  `TREATMINUSCONTROL_USED' local texrow3  `" `texrow3' & (`second_ttest_group')-(`first_ttest_group') "'
 			}
 		}
 	}
@@ -2872,9 +2883,11 @@ program define ienocontrolheader, rclass
 
 				local titlerow1 `"`titlerow1' _tab "Normalized""'
 				local titlerow2 `"`titlerow2' _tab "difference""'
-				local titlerow3 `"`titlerow3' _tab "(`first_ttest_group')-(`second_ttest_group')""'
+				if !`TREATMINUSCONTROL_USED' local titlerow3 `"`titlerow3' _tab "(`ctrlGrpPos') - (`second_ttest_group')""'
+				if  `TREATMINUSCONTROL_USED' local titlerow3 `"`titlerow3' _tab "(`second_ttest_group') - (`ctrlGrpPos')""'
 
-				local texrow3  `" `texrow3'  & (`first_ttest_group')-(`second_ttest_group') "'
+				if !`TREATMINUSCONTROL_USED' local texrow3  `" `texrow3' & (`first_ttest_group')-(`second_ttest_group') "'
+				if  `TREATMINUSCONTROL_USED' local texrow3  `" `texrow3' & (`second_ttest_group')-(`first_ttest_group') "'
 			}
 		}
 	}
