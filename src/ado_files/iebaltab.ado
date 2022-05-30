@@ -666,7 +666,7 @@ qui {
 			*Loop over all non-control codes and create pairs with them and the control code
 			local non_control_codes : list ORDER_OF_GROUP_CODES - control
 			foreach code_2 of local non_control_codes {
-				local TEST_PAIR_CODES = "`TEST_PAIR_CODES' `control'_`code_2'"
+				local TEST_PAIR_CODES = "`TEST_PAIR_CODES' `code_2'_`control'"
 			}
 		}
 		else {
@@ -698,8 +698,8 @@ qui {
 			*Tempvar dummy for the codes in the test pair and missing for other obs
 			tempvar  dummy_pair_`ttest_pair'
 			gen     `dummy_pair_`ttest_pair'' = .
-			replace `dummy_pair_`ttest_pair'' = 0 if `grpvar' == `code1'
-			replace `dummy_pair_`ttest_pair'' = 1 if `grpvar' == `code2'
+			replace `dummy_pair_`ttest_pair'' = 1 if `grpvar' == `code1'
+			replace `dummy_pair_`ttest_pair'' = 0 if `grpvar' == `code2'
 		}
 
 		* Set up the matrix for all stats and estimates
