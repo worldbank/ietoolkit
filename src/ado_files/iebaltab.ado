@@ -1324,7 +1324,7 @@ qui {
 		*Add titles for summary row stats
 		local titlerow1 `"`titlerow1' _tab " (`grp_colnum') " "'
 		local titlerow2 `"`titlerow2' _tab "`grp_lbl'"        "'
-		local titlerow3 `"`titlerow3' _tab "Mean/(`vtitle')"     "'
+		local titlerow3 `"`titlerow3' _tab "Mean/`vtitle'"     "'
 	}
 
 
@@ -1337,7 +1337,6 @@ qui {
 			local titlerow2 `"`titlerow2' _tab "" "'
 			local titlerow3 `"`titlerow3' _tab "`ntitle'" "'
 		}
-
 		*Add titles for summary row stats
 		local titlerow1 `"`titlerow1' _tab "F-test for balance" "'
 		local titlerow2 `"`titlerow2' _tab "across all groups" "'
@@ -1354,6 +1353,11 @@ qui {
 		local order2 : list posof "`r(code2)'" in order_grp_codes
 
 		*Write test pair titles
+		if missing("`onerow'") {
+			local titlerow1 `"`titlerow1' _tab "" "'
+			local titlerow2 `"`titlerow2' _tab "" "'
+			local titlerow3 `"`titlerow3' _tab "`ntitle'" "'
+		}
 		local titlerow1 `"`titlerow1' _tab "(`order1')-(`order2')""'
 		local titlerow2 `"`titlerow2' _tab "Pairwise t-test""'
 		local titlerow3 `"`titlerow3' _tab "`pout_lbl'""'
@@ -1437,6 +1441,19 @@ qui {
 		********* Write pair test stats ********************************************
 
 		foreach pair of local pairs {
+
+			* Add column with N for this group unless option onerow is used
+			if missing("`onerow'") {
+				*Get N for this group
+				local n_value = el(`rmat',`row_num',colnumb(`rmat',"n_`pair'"))
+				*Get number of clusters if clusters were used
+				local cl_n ""
+				if `cl_used' == 1 local cl_n = el(`rmat',`row_num',colnumb(`rmat',"cl_`pair'"))
+				* Write to row locals
+				local row_up   `"`row_up'   _tab "`n_value'" "'
+				local row_down `"`row_down' _tab "`cl_n'" "'
+			}
+
 			* Pairwise test statistics for this pair - get value from mat and apply format
 			local test_value = el(`rmat',`row_num',colnumb(`rmat',"`pout_val'_`pair'"))
 			local test_value 	: display `diformat' `test_value'
@@ -1475,6 +1492,10 @@ qui {
 			local frow_cl   `"`frow_cl' _tab "" "'
 		}
 
+		* 
+		if missing("`onerow'") local ftabs "_tab _tab"
+		else                   local ftabs "_tab"
+
 		*Write fstats
 		foreach pair of local pairs {
 			* Pairwise test statistics for this pair - get value from mat and apply format
@@ -1486,9 +1507,9 @@ qui {
 			local p_value = el(`fmat',1,colnumb(`fmat',"fp_`pair'"))
 			count_stars, p(`p_value') starlevels(`starlevels')
 
-			local frow_up   `"`frow_up'   _tab "`ftest_value'`r(stars)'" "'
-			local frow_down `"`frow_down' _tab "`ftest_n'" "'
-			local frow_cl   `"`frow_cl'   _tab "`ftest_cl'" "'
+			local frow_up   `"`frow_up'   `ftabs' "`ftest_value'`r(stars)'" "'
+			local frow_down `"`frow_down' `ftabs' "`ftest_n'" "'
+			local frow_cl   `"`frow_cl'   `ftabs' "`ftest_cl'" "'
 		}
 
 		*Write the fstats rows
@@ -1710,7 +1731,7 @@ qui {
 		local texrow2 	`"`texrow2' & \multicolumn{`numcols'}{c}{`grp_lbl'} "'
 
 		if missing("`onerow'") local texrow3 `"`texrow3' & `ntitle' & Mean/(`vtitle')"'
-    else                   local texrow3 `"`texrow3' & Mean/(`vtitle') 	"'
+        else                   local texrow3 `"`texrow3' & Mean/`vtitle'"'
 	}
 
 	*****************************
@@ -1728,18 +1749,23 @@ qui {
 	* Only add pair titles if there are pairs to be displayed
 	if `pair_count' > 0 {
 
-		*Write the 1st and the 2nd row
-		local texrow1 `"`texrow1' & \multicolumn{`pair_count'}{c}{Pairwise t-test} "'
-		local texrow2 `"`texrow2' & \multicolumn{`pair_count'}{c}{`pout_lbl'} "'
-
-		*Add columns for all test pairs to be displayed
+		*Add columns for all test pairs to be displayed and stats titles
 		foreach pair of local pairs {
 			*Get the group order from the two groups in each pair
 			getCodesFromPair `pair'
 			local order1 : list posof "`r(code1)'" in order_grp_codes
 			local order2 : list posof "`r(code2)'" in order_grp_codes
-			local texrow3 `"`texrow3' & (`order1')-(`order2')"'
+			local texrow1 `"`texrow1' & \multicolumn{`numcols'}{c}{(`order1')-(`order2')}"'
+
+			if !missing("`onerow'") local texrow3 `"`texrow3' & `pout_lbl'"'
+			else                    local texrow3 `"`texrow3' & `ntitle' & `pout_lbl'"'
 		}
+
+		*Write  2nd row for test stats
+		local pair_cols = `pair_count' * `numcols'
+		local texrow2 `"`texrow2' & \multicolumn{`pair_cols'}{c}{Pairwise t-test} "'
+
+
 	}
 
 	*****************************
@@ -1823,6 +1849,20 @@ qui {
 
 		********* Write pair test stats ********************************************
 		foreach pair of local pairs {
+
+			* Add column with N for this group unless option onerow is used
+			if missing("`onerow'") {
+				*Get N for this group
+				local n_value = el(`rmat',`row_num',colnumb(`rmat',"n_`pair'"))
+				*Get number of clusters if clusters were used
+				local cl_n ""
+				if `cl_used' == 1 local cl_n = el(`rmat',`row_num',colnumb(`rmat',"cl_`pair'"))
+				* Write to row locals
+				local row_up   `"`row_up'   & `n_value' "'
+				local row_down `"`row_down' & `cl_n' "'
+			}
+
+
 			* Pairwise test statistics for this pair - get value from mat and apply format
 			local test_value = el(`rmat',`row_num',colnumb(`rmat',"`pout_val'_`pair'"))
 			local test_value 	: display `diformat' `test_value'
@@ -1879,9 +1919,9 @@ qui {
 			local p_value = el(`fmat',1,colnumb(`fmat',"fp_`pair'"))
 			count_stars, p(`p_value') starlevels(`starlevels')
 
-			local frow_up   `"`frow_up'   & `ftest_value'`r(stars)' "'
-			local frow_down `"`frow_down' & `ftest_n' "'
-			local frow_cl   `"`frow_cl'   & `ftest_cl' "'
+			local frow_up   `"`frow_up'   `frowcols' `ftest_value'`r(stars)' "'
+			local frow_down `"`frow_down' `frowcols' `ftest_n' "'
+			local frow_cl   `"`frow_cl'   `frowcols' `ftest_cl' "'
 		}
 
 		*Write the fstats rows
