@@ -413,19 +413,19 @@
 			ftest control(1)              ///
 			stats(pair(se))               ///
 			cov(mpg) fixed(foreign)
-            
+           
 
 		* Test no regaular missing values in matrices
 		mat mat1 = r(iebaltabrmat)
 		mat mat2 = r(iebaltabfmat)
 		ie_test_mat_nomiss, mat1(mat1) mat2(mat2)
 	restore	
-    
+   
     /***************************************************************************
-	  Table 16 - test showing no pair tests
+	  Table 16 - test normalized difference
 	***************************************************************************/
 	preserve
-    
+   
 		local tnum 16
 		local csvfile "iebt-csv`tnum'"
 		local exlfile "iebt-xlsx`tnum'"
@@ -435,7 +435,7 @@
 
 		iebaltab weight price , `allsave' ///
             grpvar(tmt_cl) replace        ///
-			stats(pair(nrmd))            ///
+			stats(pair(nrmd))             ///
 			cov(mpg) fixed(foreign)
 
 		* Test no regaular missing values in matrices
@@ -445,10 +445,10 @@
 	restore
 	
 	/***************************************************************************
-	  Table 17 - more test pair stats preferences
+	  Table 17 - test normalized adjusted difference
 	***************************************************************************/
 	preserve
-    
+   
 		local tnum 17
 		local csvfile "iebt-csv`tnum'"
 		local exlfile "iebt-xlsx`tnum'"
@@ -458,8 +458,54 @@
 
 		iebaltab weight price , `allsave' ///
             grpvar(tmt_cl) replace        ///
-			stats(pair(nrmb))            ///
+			stats(pair(nrmb))             ///
 			cov(mpg) fixed(foreign)
+
+		* Test no regaular missing values in matrices
+		mat mat1 = r(iebaltabrmat)
+		mat mat2 = r(iebaltabfmat)
+		ie_test_mat_nomiss, mat1(mat1) mat2(mat2)
+	restore	
+   
+    
+    /***************************************************************************
+	  Table 18 - test normalized difference
+	***************************************************************************/
+	preserve
+    
+		local tnum 18
+		local csvfile "iebt-csv`tnum'"
+		local exlfile "iebt-xlsx`tnum'"
+		local texfile "iebt-tex`tnum'"
+		local txnfile "iebt-tex`tnum'-note"
+        local allsave `"savecsv("${out_fldr}/`csvfile'") savexlsx("${out_fldr}/`exlfile'") savetex("${out_fldr}/`texfile'") texnotefile("${out_fldr}/`txnfile'") "'
+
+		iebaltab weight price , `allsave' ///
+            grpvar(tmt_cl) replace        ///
+			stats(pair(diff))
+
+
+		* Test no regaular missing values in matrices
+		mat mat1 = r(iebaltabrmat)
+		mat mat2 = r(iebaltabfmat)
+		ie_test_mat_nomiss, mat1(mat1) mat2(mat2)
+	restore
+	
+	/***************************************************************************
+	  Table 19 - test normalized adjusted difference
+	***************************************************************************/
+	preserve
+    
+		local tnum 19
+		local csvfile "iebt-csv`tnum'"
+		local exlfile "iebt-xlsx`tnum'"
+		local texfile "iebt-tex`tnum'"
+		local txnfile "iebt-tex`tnum'-note"
+        local allsave `"savecsv("${out_fldr}/`csvfile'") savexlsx("${out_fldr}/`exlfile'") savetex("${out_fldr}/`texfile'") texnotefile("${out_fldr}/`txnfile'") "'
+
+		iebaltab weight price , `allsave' ///
+            grpvar(tmt_cl) replace        ///
+			stats(pair(beta))
 
 		* Test no regaular missing values in matrices
 		mat mat1 = r(iebaltabrmat)
