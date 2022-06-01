@@ -24,7 +24,7 @@
 				FTest FEQTest	                                                  ///
 				                                                                ///
 				/*Output display*/                                              ///
-				stats(string) STDev                                             ///
+				stats(string)                                              ///
 				STARlevels(numlist descending min=3 max=3 >0 <1)			          ///
 				STARSNOadd FORMat(string) TBLNote(string) TBLNONote	            ///
 				TBLADDNote(string)                                              ///
@@ -42,7 +42,7 @@
 				SAVEBRowse SAVE(string)                                                       ///
 				BALMISS(string) BALMISSReg(string) COVMISS(string) COVMISSReg(string)         ///
 				MISSMINmean(string) COVARMISSOK FMissok NOTtest	                              ///
-				NORMDiff	PTtest	PFtest	PBoth NOTECombine                                   ///
+				NORMDiff STDev PTtest PFtest PBoth NOTECombine                                 ///
 				]
 
   local full_user_input = "iebaltab " + trim(itrim(`"`0'"'))
@@ -175,10 +175,6 @@ qui {
 		if "`nottest'"			== "" local TTEST_USED = 1
 		if "`nottest'"			!= "" local TTEST_USED = 0
 
-		*Is option pftest() used:
-		if "`stdev'" 			== "" local STDEV_USED = 0
-		if "`stdev'" 			!= "" local STDEV_USED = 1
-
 		*Is option weight() used:
 		if "`weight'" 			== "" local WEIGHT_USED = 0
 		if "`weight'" 			!= "" local WEIGHT_USED = 1
@@ -242,8 +238,8 @@ qui {
 			di as error `"{pstd}The options {input:balmiss}, {input:balmissreg}, {input:covmiss}, {input:missminmean}, {input:covarmissok} and {input:fmissok} have been deprecated as of version 7 of iebaltab. Instead, if needed and/or desired, you must modify missing values yourself before running the command. `old_version_guide'{p_end}"'
 			error 198
 		}
-		if !missing("`nottest'`normdiff'`pttest'`pftest'`pboth'") {
-			di as error `"{pstd}The options {input:nottest}, {input:normdiff}, {input:pttest}, {input:pftest} and {input:pboth} have been deprecated as of version 7 of iebaltab. See if the options {input:pairoutput} or {input:ftestoutput} have the functionality you need. `old_version_guide'{p_end}"'
+		if !missing("`nottest'`normdiff'`pttest'`pftest'`pboth'`stdev'") {
+			di as error `"{pstd}The options {input:nottest}, {input:normdiff}, {input:pttest}, {input:pftest}, {input:pboth} and {input:stdev} have been deprecated as of version 7 of iebaltab. See if the option {input:stats()} has the functionality you need. `old_version_guide'{p_end}"'
 			error 198
 		}
 		if !missing("`notecombine'") {
@@ -362,6 +358,31 @@ qui {
 *******************************************************************************/
 
 		****************************************************************************
+		** Test input for user specified stats
+
+		parse_and_clean_stats, stats("`stats'")
+		local stats_string "`r(stats_string)'"
+
+		* If ftest not used, issue warning if preference for ftest was specified
+		if missing("`ftest'") {
+			get_stat_label_stats_string, stats_string("`stats_string'") testname("f")
+			if `r(deafult_used)' == 0 noi di as text "{phang}{input:Warning:} A stats perference was specified in [stats(`stats')] for F test across all variables, but no such test will be done as the option [ftest] for that test was not specified.{p_end}"
+		}
+
+		* If feqtest not used, issue warning if preference for feqtest was specified
+		if missing("`feqtest'") {
+			get_stat_label_stats_string, stats_string("`stats_string'") testname("feq")
+			if `r(deafult_used)' == 0 noi di as text "{phang}{input:Warning:} A stats perference was specified in [stats(`stats')] for F test across all groups, but no such test will be done as the option [feqtest] for that test was not specified.{p_end}"
+		}
+
+		* If feqtest not used, issue warning if preference for feqtest was specified
+		get_stat_label_stats_string, stats_string("`stats_string'") testname("pair")
+		if "`r(stat)'" == "none" & !missing("`ftest'") {
+			noi di as text "{phang}{input:Warning:} The option [ftest] cannot be combined with [pair(none)] in [stats(`stats')] as there would be nowhere to display the F-test results. The option [ftest] is therefore ignored.{p_end}"
+			local ftest ""
+		}
+
+		****************************************************************************
 		** VCE input testing
 		local CLUSTER_USED 0
 		if `VCE_USED' == 1 {
@@ -385,10 +406,22 @@ qui {
 					error _rc
 				}
 			}
-
+			else if "`vce_type'" == "bootstrap" {
+				get_stat_label_stats_string, stats_string("`stats_string'") testname("desc")
+			    local dout_val "`r(stat)'"
+				get_stat_label_stats_string, stats_string("`stats_string'") testname("pair")
+				local pout_val "`r(stat)'"
+				if ("`dout_val'" == "var") | ("`pout_val'" == "nrmb") | ("`pout_val'" == "nrmd") {
+					noi display as error "{phang}The vce type {input:bootstrap} may not be combines with {input:desc(var)}, {input:pair(nrmb)} or {input:pair(nrmd)} in {input:stats(`stats')}.{p_end}"
+					error 198
+				}
+			}
+			else if "`vce_type'" == "robust" {
+				*no test needed here, always allowed
+			}
 			* Test that the vce_type is among any of the remaining options
 			* that does not need any extra testing, if not among then, throw an error.
-			else if inlist("`vce_type'","robust","bootstrap") == 0 {
+			else {
 				noi display as error "{phang}The vce type `vce_type' in vce(`vce') is not allowed. Only robust, cluster and bootstrap are allowed. See {help vce_option :help vce_option} for more information.{p_end}"
 				error 198
 			}
@@ -406,31 +439,6 @@ qui {
 		else if `STARLEVEL_USED' == 0 {
 			*Set star levels to default values
 			local starlevels ".1 .05 .01"
-		}
-
-		****************************************************************************
-		** Test input for user specified stats
-
-		parse_and_clean_stats, stats("`stats'")
-		local stats_string "`r(stats_string)'"
-
-		* If ftest not used, issue warning if preference for ftest was specified
-		if missing("`ftest'") {
-			get_stat_label_stats_string, stats_string("`stats_string'") testname("f")
-			if `r(deafult_used)' == 0 noi di as text "{phang}{input:Warning:} A stats perference was specified in [stats(`stats')] for F test across all variables, but no such test will be done as the option [ftest] for that test was not specified.{p_end}"
-		}
-
-		* If feqtest not used, issue warning if preference for feqtest was specified
-		if missing("`feqtest'") {
-			get_stat_label_stats_string, stats_string("`stats_string'") testname("feq")
-			if `r(deafult_used)' == 0 noi di as text "{phang}{input:Warning:} A stats perference was specified in [stats(`stats')] for F test across all groups, but no such test will be done as the option [feqtest] for that test was not specified.{p_end}"
-		}
-
-		* If feqtest not used, issue warning if preference for feqtest was specified
-		get_stat_label_stats_string, stats_string("`stats_string'") testname("pair")
-		if "`r(stat)'" == "none" & !missing("`ftest'") {
-			noi di as text "{phang}{input:Warning:} The option [ftest] cannot be combined with [pair(none)] in [stats(`stats')] as there would be nowhere to display the F-test results. The option [ftest] is therefore ignored.{p_end}"
-			local ftest ""
 		}
 
 		****************************************************************************
@@ -874,7 +882,9 @@ qui {
 				*Mean of balance var for this group
 				mat row[1,`++colindex'] = _b[_cons]
 				*Variance of balance var for this group
-				mat row[1,`++colindex'] = e(rss)/e(df_r)
+				local ++colindex
+				if "`vce_type'" == "bootstrap" mat row[1,`colindex'] = .b
+				else 						   mat row[1,`colindex'] = e(rss)/e(df_r)
 				*Standard error of balance var for this group
 				mat row[1,`++colindex'] = _se[_cons]
 				*Standard deviation of balance var for this group
@@ -984,12 +994,18 @@ qui {
 						mat row[1,`++colindex'] = `sd_this_pair'
 
 						*Calculate and store the normalized difference and normlized beta
-						local norm_denominator = sqrt( .5 * (     ///
-						    el(row,1,colnumb(row,"var_`code1'")) + ///
-						    el(row,1,colnumb(row,"var_`code2'")) ))
-						mat row[1,`++colindex'] = el(row,1,colnumb(row,"diff_`ttest_pair'")) / `norm_denominator'
-						mat row[1,`++colindex'] = el(row,1,colnumb(row,"beta_`ttest_pair'")) / `norm_denominator'
-
+						if "`vce_type'" == "bootstrap" {
+							* These statsare missing if using bootstrap
+							mat row[1,`++colindex'] = .b
+							mat row[1,`++colindex'] = .b
+						}
+						else {
+							local nrmdenom = sqrt( .5 * (     ///
+							    el(row,1,colnumb(row,"var_`code1'")) + ///
+							    el(row,1,colnumb(row,"var_`code2'")) ))
+							mat row[1,`++colindex'] = el(row,1,colnumb(row,"diff_`ttest_pair'")) / `nrmdenom'
+							mat row[1,`++colindex'] = el(row,1,colnumb(row,"beta_`ttest_pair'")) / `nrmdenom'
+						}
 					}
 				}
 			}
@@ -1120,7 +1136,7 @@ qui {
 		if missing("`tblnote'") {
 			generate_note, full_user_input(`"`full_user_input'"') stats_string("`stats_string'") fix("`fixedeffect'") ///
 			fix_used("`FIX_EFFECT_USED'") covars("`covariates'") `ftest' `feqtest' ///
-			starlevels("`starlevels'") `stdev' vce("`vce'") vce_type("`vce_type'") ///
+			starlevels("`starlevels'") vce("`vce'") vce_type("`vce_type'") ///
 			clustervar("`cluster_var'") weight_used("`WEIGHT_USED'")               ///
 			weight_type("`weight_type'") weight_var("`weight_var'")
 
@@ -1163,11 +1179,6 @@ qui {
 		******************************************
 		*Set locals used regardless of export method
 
-		** SE if standard errors are used (default) or SD if standard deviation is used
-		if `STDEV_USED' == 1 	local vtitle "SD"
-		else local vtitle "SE"
-		local vtype = lower("`vtitle'")
-
 		*Create the title for the column with number of observations/clusters
 		if "`vce_type'" == "cluster" local ntitle "N/Clusters"
 		else local ntitle "N"
@@ -1202,7 +1213,7 @@ qui {
 					row_lbls(`"`ROW_LABELS'"') col_lbls(`"`COLUMN_LABELS'"')  ///
 					stats_string("`stats_string'") ///
 					tot_lbl("`tot_lbl'") `total' `onerow' `feqtest' `ftest'  ///
-					ntitle("`ntitle'") note(`"`note_to_use'"') vtype("`vtype'") vtitle("`vtitle'") cl_used("`CLUSTER_USED'") ///
+					ntitle("`ntitle'") note(`"`note_to_use'"') cl_used("`CLUSTER_USED'") ///
 					diformat("`diformat'") starlevels("`starlevels'")
 
 					*Save the tab delimited file
@@ -1239,7 +1250,7 @@ qui {
 				  texnotefile("`texnotefile'") custom_row_space("`texvspace'") ///
 				 stats_string("`stats_string'") ///
 				 `total' `onerow' `feqtest' `ftest' note(`"`note_to_use'"')  ///
-				 ntitle("`ntitle'") vtype("`vtype'") vtitle("`vtitle'") diformat("`diformat'") ///
+				 ntitle("`ntitle'") diformat("`diformat'") ///
 				 col_lbls(`"`COLUMN_LABELS'"') tot_lbl("`tot_lbl'") ///
 				 row_lbls(`"`ROW_LABELS'"') cl_used("`CLUSTER_USED'") ///
 				 order_grp_codes(`ORDER_OF_GROUP_CODES') `replace'
@@ -1262,7 +1273,7 @@ cap program drop 	export_tab
 
 qui {
 	syntax , rmat(name) fmat(name) 					///
-	ntitle(string) vtype(string) vtitle(string) cl_used(string)		///
+	ntitle(string) cl_used(string)		///
 	col_lbls(string) order_grp_codes(numlist) ///
 	 diformat(string) ///
 	row_lbls(string) tot_lbl(string) ///
@@ -1283,7 +1294,12 @@ qui {
 	if !missing("`feqtest'") local desc_cols "`desc_cols' feq"
 	if missing("`onerow'") local desc_cols "`desc_cols' `desc_cols'"
 
-  * Get stats and label for pairs and f-test
+
+
+  * Get stats and label for descreptive stats, pairs and f-test
+    get_stat_label_stats_string, stats_string("`stats_string'") testname("desc")
+    local dout_val "`r(stat)'"
+    local dout_lbl "`r(stat_label)'"
 	get_stat_label_stats_string, stats_string("`stats_string'") testname("pair")
 	local pout_val "`r(stat)'"
 	local pout_lbl "`r(stat_label)'"
@@ -1324,7 +1340,7 @@ qui {
 		*Add titles for summary row stats
 		local titlerow1 `"`titlerow1' _tab " (`grp_colnum') " "'
 		local titlerow2 `"`titlerow2' _tab "`grp_lbl'"        "'
-		local titlerow3 `"`titlerow3' _tab "Mean/`vtitle'"     "'
+		local titlerow3 `"`titlerow3' _tab "Mean/`dout_lbl'"  "'
 	}
 
 
@@ -1405,7 +1421,7 @@ qui {
 
 			* Mean and variance for this group - get value from mat and apply format
 			local mean_value = el(`rmat',`row_num',colnumb(`rmat',"mean_`grp_code'"))
-			local var_value = el(`rmat',`row_num',colnumb(`rmat',"`vtype'_`grp_code'"))
+			local var_value = el(`rmat',`row_num',colnumb(`rmat',"`pout_val'_`grp_code'"))
 			local mean_value : display `diformat' `mean_value'
 			local var_value  : display `diformat' `var_value'
 			local row_up   `"`row_up'   _tab "`mean_value'" "'
@@ -1599,7 +1615,7 @@ cap program drop 	export_tex
 	program define	export_tex
 qui {
 	syntax , rmat(name) fmat(name) texfile(string) [note(string) pairs(string) ///
-	ntitle(string) vtype(string) vtitle(string) cl_used(string) ///
+	ntitle(string) cl_used(string) ///
 	stats_string(string) ///
 	texdocument texcaption(string) texnotewidth(string) ///
 	texlabel(string) texcolwidth(string) custom_row_space(string) onerow total feqtest ftest ///
@@ -1616,7 +1632,11 @@ qui {
 	local pair_count : list sizeof pairs
 	local row_count  : list sizeof row_lbls
 
-	* Get stats and label for pairs and f-test
+
+	* Get stats and label for descriptive, pairs and f-test
+	get_stat_label_stats_string, stats_string("`stats_string'") testname("desc")
+	local dout_val "`r(stat)'"
+	local dout_lbl "`r(stat_label)'"
 	get_stat_label_stats_string, stats_string("`stats_string'") testname("pair")
 	local pout_val "`r(stat)'"
 	local pout_lbl "`r(stat_label)'"
@@ -1730,8 +1750,8 @@ qui {
 		local texrow1 	`"`texrow1' & \multicolumn{`numcols'}{c}{(`grp_num')} "'
 		local texrow2 	`"`texrow2' & \multicolumn{`numcols'}{c}{`grp_lbl'} "'
 
-		if missing("`onerow'") local texrow3 `"`texrow3' & `ntitle' & Mean/(`vtitle')"'
-        else                   local texrow3 `"`texrow3' & Mean/`vtitle'"'
+		if missing("`onerow'") local texrow3 `"`texrow3' & `ntitle' & Mean/(`dout_lbl')"'
+        else                   local texrow3 `"`texrow3' & Mean/`dout_lbl'"'
 	}
 
 	*****************************
@@ -1815,7 +1835,7 @@ qui {
 
 			* Mean and variance for this group - get value from mat and apply format
 			local mean_value = el(`rmat',`row_num',colnumb(`rmat',"mean_`grp_code'"))
-			local var_value = el(`rmat',`row_num',colnumb(`rmat',"`vtype'_`grp_code'"))
+			local var_value = el(`rmat',`row_num',colnumb(`rmat',"`dout_val'_`grp_code'"))
 			local mean_value : display `diformat' `mean_value'
 			local var_value  : display `diformat' `var_value'
 			local row_up   `"`row_up'   & `mean_value' "'
@@ -2166,9 +2186,10 @@ cap program drop parse_and_clean_stats
 	* Allowed inputs
 
 	*List allowed test names
-	local allowed_test_names "pair f feq"
+	local allowed_test_names "desc pair f feq"
 
 	*List allowed test names
+	local allowed_desc_stats "se var sd"
 	local allowed_pair_stats "diff beta t p nrmd nrmb se sd none"
 	local allowed_f_stats    "f p"
 	local allowed_feq_stats  "f p"
@@ -2232,7 +2253,7 @@ cap program drop parse_and_clean_stats
 
 		* Make sure that the statname used was a valid statname
 		if !`: list statname in allowed_`testname'_stats' {
-			noi di as error "{phang}The name [`statname'] in [`testname'(`statname')] in [stats(`stats')] is an allowed statistics name. Allowed names are [`allowed_`testname'_stats'].{p_end}"
+			noi di as error "{phang}The name [`statname'] in [`testname'(`statname')] in [stats(`stats')] is not an allowed statistics name. Allowed names are [`allowed_`testname'_stats'].{p_end}"
 			error 198
 		}
 
@@ -2265,9 +2286,15 @@ cap program drop get_stat_label_stats_string
 	local default_used 0
 
 	*Test deafult stats
+	local desc_default "se"
 	local pair_default "diff"
 	local f_default    "f"
 	local feq_default  "f"
+
+	* Pair test stat labels
+	local desc_se_label  "SE"
+	local desc_var_label "Var"
+	local desc_sd_label  "SD"
 
 	* Pair test stat labels
 	local pair_diff_label "Mean difference"
@@ -2611,7 +2638,7 @@ cap program drop 	generate_note
 	program define	generate_note, rclass
 
 	syntax, full_user_input(string) [stats_string(string) fix(string) fix_used(string) covars(string) ftest feqtest ///
-	starlevels(string)  stdev vce(string) ///
+	starlevels(string) vce(string) ///
 	vce_type(string) clustervar(string) weight_used(string) weight_type(string) weight_var(string) ]
 
 	local table_note ""
@@ -2642,12 +2669,9 @@ cap program drop 	generate_note
 
 	if !missing("`vce'") {
 		*Display variation in Standard errors (default) or in Standard Deviations
-		if missing("`stdev'") local vname "Standard errors"
-		else                  local vname "Standard deviations"
-		if "`vce_type'" == "robust"		 local table_note "`table_note' `vname' are robust. "
-		if "`vce_type'" == "cluster"   local table_note "`table_note' `vname' are clustered at variable: [`clustervar']. "
-		if "`vce_type'" == "bootstrap" local table_note "`table_note' `vname' are estimeated using bootstrap. "
-
+		if "`vce_type'" == "robust"		 local table_note "`table_note' Errors are robust. "
+		if "`vce_type'" == "cluster"   local table_note "`table_note' Errors are clustered at variable: [`clustervar']. "
+		if "`vce_type'" == "bootstrap" local table_note "`table_note' Errors are estimeated using bootstrap. "
 	}
 
 	if `weight_used' == 1 {
