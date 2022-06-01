@@ -24,14 +24,14 @@
 				FTest FEQTest	                                                  ///
 				                                                                ///
 				/*Output display*/                                              ///
-				stats(string)                                              ///
-				STARlevels(numlist descending min=3 max=3 >0 <1)			          ///
+				stats(string)                                                   ///
+				STARlevels(numlist descending min=3 max=3 >0 <1)			    ///
 				STARSNOadd FORMat(string) TBLNote(string) TBLNONote	            ///
 				TBLADDNote(string)                                              ///
 				                                                                ///
 				/*Export and restore*/                                          ///
 				SAVEXlsx(string) SAVECsv(string) SAVETex(string)                ///
-				REPLACE BROWSE                                                  ///
+				texnotefile(string) REPLACE BROWSE                              ///
 				                                                                ///
 				/*Tex options*/     				                                    ///
 				TEXNotewidth(numlist min=1 max=1)                               ///
@@ -41,7 +41,7 @@
 				/* Deprecated options - still included to throw helpful error if ever used */ ///
 				SAVEBRowse SAVE(string)                                                       ///
 				BALMISS(string) BALMISSReg(string) COVMISS(string) COVMISSReg(string)         ///
-				MISSMINmean(string) COVARMISSOK FMissok NOTtest	                              ///
+				MISSMINmean(string) COVARMISSOK FMissok NOTtest	foobs                         ///
 				NORMDiff STDev PTtest PFtest PBoth NOTECombine                                 ///
 				]
 
@@ -143,10 +143,6 @@ qui {
 		if "`fmissok'" 			== "" local F_MISS_OK = 0
 		if "`fmissok'" 			!= "" local F_MISS_OK = 1
 
-		*Is option fnoobs used:
-		if "`fnoobs'" 			== "" local F_NO_OBS = 0
-		if "`fnoobs'" 			!= "" local F_NO_OBS = 1
-
 		*Is option fixedeffect() used:
 		if "`fixedeffect'"		== "" local FIX_EFFECT_USED = 0
 		if "`fixedeffect'" 		!= "" local FIX_EFFECT_USED = 1
@@ -242,8 +238,8 @@ qui {
 			di as error `"{pstd}The options {input:nottest}, {input:normdiff}, {input:pttest}, {input:pftest}, {input:pboth} and {input:stdev} have been deprecated as of version 7 of iebaltab. See if the option {input:stats()} has the functionality you need. `old_version_guide'{p_end}"'
 			error 198
 		}
-		if !missing("`notecombine'") {
-			di as error `"{pstd}The option {input:notecombine} has been deprecated as of version 7 of iebaltab. See if the options {input:tblnote} or {input:tblnonote} have the functionality you need. `old_version_guide'{p_end}"'
+		if !missing("`notecombine'`fnoobs'") {
+			di as error `"{pstd}The option {input:notecombine} has been deprecated as of version 7 of iebaltab. See the {help iebaltab} help file for more information. `old_version_guide'{p_end}"'
 			error 198
 		}
 
@@ -543,12 +539,9 @@ qui {
 
 		* Check tex options
 		if `SAVE_TEX_USED' {
-
 			* Note width must be positive
 			if `NOTEWIDTH_USED' {
-
 				if `texnotewidth' <= 0 {
-
 					noi display as error `"{phang}The value specified in texnotewidth(`texnotewidth') is non-positive. Only positive numbers are allowed. For more information, {net "from http://en.wikibooks.org/wiki/LaTeX/Lengths.smcl":check LaTeX lengths manual}.{p_end}"'
 					error 198
 				}
@@ -1144,12 +1137,14 @@ qui {
 		}
 		* Use user specified note
 		else local note_to_use `"`tblnote'"'
+
+		* Add note from tbladdnote command to default note if applicable
+		if !missing("`tbladdnote'") local note_to_use `"`note_to_use' `tbladdnote'"'
 	}
 	*Use no note
 	else local note_to_use ""
 
-	* Add note from tbladdnote command to default note if applicable
-	if !missing("`tbladdnote'") local note_to_use `"`note_to_use' `tbladdnote'"'
+
 
 /*******************************************************************************
 
@@ -1508,7 +1503,7 @@ qui {
 			local frow_cl   `"`frow_cl' _tab "" "'
 		}
 
-		* 
+		*Skip a column if onerow not used
 		if missing("`onerow'") local ftabs "_tab _tab"
 		else                   local ftabs "_tab"
 
@@ -2099,14 +2094,14 @@ cap program drop 	setUpResultMatrix
   local colnames = ""
 
   *Locals for F test row
-	local emptyFRow = ""
-	local Fcolnames = ""
+  local emptyFRow = ""
+  local Fcolnames = ""
 
   *Locals with stats names for each category
   local desc_stats   = "n cl mean var se sd"
   local pair_stats   = "diff n cl beta t p se sd nrmd nrmb"
-	local feq_stats    = "feqn feqcl feqf feqp"
-	local ftest_stats  = "fn fcl ff fp"
+  local feq_stats    = "feqn feqcl feqf feqp"
+  local ftest_stats  = "fn fcl ff fp"
 
   *Create columns for group desc statisitics
   foreach group_code of local order_of_group_codes {
@@ -2277,7 +2272,7 @@ end
 	* Returns label for the stat used: r(stat_label)
 *******************************************************************************/
 
-cap program drop get_stat_label_stats_string
+cap program drop   get_stat_label_stats_string
 	program define get_stat_label_stats_string, rclass
 
 	syntax, [stats_string(string)] testname(string)
