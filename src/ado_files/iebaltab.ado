@@ -97,26 +97,6 @@ qui {
 		if missing("`fixedeffect'") local FIX_EFFECT_USED = 0
 		else                        local FIX_EFFECT_USED = 1
 
-
-	** Output Options
-
-
-		*Is option texnotewidth() used:
-		if "`texnotewidth'"		== "" local NOTEWIDTH_USED = 0
-		if "`texnotewidth'"		!= "" local NOTEWIDTH_USED = 1
-
-		*Is option texlinespace() used:
-		if "`texvspace'"		== "" local TEXVSPACE_USED = 0
-		if "`texvspace'"		!= "" local TEXVSPACE_USED = 1
-
-		*Is option texcolwidth() used:
-		if "`texcolwidth'"		== "" local TEXCOLWIDTH_USED = 0
-		if "`texcolwidth'"		!= "" local TEXCOLWIDTH_USED = 1
-
-		*Is option restore() used:
-		if "`replace'" 			== "" local REPLACE_USED = 0
-		if "`replace'" 			!= "" local REPLACE_USED = 1
-
 		/***********************************************
 			Deprecated options
 		************************************************/
@@ -432,7 +412,7 @@ qui {
 		* Check tex options
 		if !missing("`savetex'") {
 			* Note width must be positive
-			if `NOTEWIDTH_USED' {
+			if !missing("`texnotewidth'") {
 				if `texnotewidth' <= 0 {
 					noi display as error `"{phang}The value specified in texnotewidth(`texnotewidth') is non-positive. Only positive numbers are allowed. For more information, {net "from http://en.wikibooks.org/wiki/LaTeX/Lengths.smcl":check LaTeX lengths manual}.{p_end}"'
 					error 198
@@ -462,7 +442,7 @@ qui {
 					error 198
 			}
 
-			if `TEXCOLWIDTH_USED' {
+			if !missing("`texcolwidth'") {
 
 				* Test if width unit is correctly specified
 				local 	texcolwidth_unit = substr("`texcolwidth'",-2,2)
@@ -480,7 +460,7 @@ qui {
 				}
 			}
 
-			if `TEXVSPACE_USED' {
+			if !missing("`texvspace'") {
 
 				* Test if width unit is correctly specified
 				local 	vspace_unit = substr("`texvspace'",-2,2)
@@ -500,8 +480,7 @@ qui {
 		}
 
 		* Error for incorrectly using tex options
-		else if `NOTEWIDTH_USED' | !missing("`texlabel'`texcaption'") | !missing("`texdocument'") | `TEXVSPACE_USED' | `TEXCOLWIDTH_USED' {
-
+		else if !missing("`texnotewidth'`texlabel'`texcaption'`texdocument'`texvspace'`texcolwidth'") {
 			noi display as error "{phang}Options texnotewidth(), texdocument, texlabel(), texcaption(), texvspace() and texcolwidth() may only be used in combination with option savetex(){p_end}"
 			error 198
 		}
