@@ -82,7 +82,7 @@ qui {
 	/***********************************************
 	************************************************
 
-		Set initial constants
+		Some initial locals and option handling
 
 	*************************************************
 	************************************************/
@@ -90,68 +90,14 @@ qui {
 		*Create local for balance vars with more descriptive name
 		local balancevars `varlist'
 
+		*Create place holders for the two result matrices
 		tempname rmat fmat
-
-
-	** Row Options
-
-		*Is option total() used:
-		if "`rowvarlabels'" 	== "" local ROWVARLABEL_USED = 0
-		if "`rowvarlabels'" 	!= "" local ROWVARLABEL_USED = 1
-
-		*Is option totallable() used:
-		if "`rowlabels'" 		== "" local ROWLABEL_USED = 0
-		if "`rowlabels'" 		!= "" local ROWLABEL_USED = 1
-
-		*Is option totallable() used:
-		if "`onenrow'" 			!= "" local onerow = "onerow" //Old name still supported for backward compatibility
-
 
 	** Stats Options
 
-		*Is option ftest used:
-		if "`ftest'" 			== "" local FTEST_USED = 0
-		if "`ftest'" 			!= "" local FTEST_USED = 1
-
-		*Is option fmiss used:
-		if "`fmissok'" 			== "" local F_MISS_OK = 0
-		if "`fmissok'" 			!= "" local F_MISS_OK = 1
-
-		*Is option fixedeffect() used:
-		if "`fixedeffect'"		== "" local FIX_EFFECT_USED = 0
-		if "`fixedeffect'" 		!= "" local FIX_EFFECT_USED = 1
-
-		*Is option covariates() used:
-		if "`covariates'"		== "" local COVARIATES_USED = 0
-		if "`covariates'" 		!= "" local COVARIATES_USED = 1
-
-		*Is option cluster() used:
-		if "`vce'" 				== "" local VCE_USED = 0
-		if "`vce'" 				!= "" local VCE_USED = 1
-
-		*Is option missminmean() used:
-		if "`missminmean'" 		== "" local MISSMINMEAN_USED = 0
-		if "`missminmean'" 		!= "" local MISSMINMEAN_USED = 1
-
-		*Is option starlevels() used:
-		if "`starlevels'" 		== "" local STARLEVEL_USED = 0
-		if "`starlevels'" 		!= "" local STARLEVEL_USED = 1
-
-		*Is option starsnoadd used:
-		if "`starsnoadd'" 		== "" local STARSNOADD_USED = 0
-		if "`starsnoadd'" 		!= "" local STARSNOADD_USED = 1
-
-		*Is option nottest used:
-		if "`nottest'"			== "" local TTEST_USED = 1
-		if "`nottest'"			!= "" local TTEST_USED = 0
-
-		*Is option weight() used:
-		if "`weight'" 			== "" local WEIGHT_USED = 0
-		if "`weight'" 			!= "" local WEIGHT_USED = 1
-
-		*Is option feqtest() user:
-		if "`feqtest'" 			== "" local FEQTEST_USED = 0
-		if "`feqtest'" 			!= "" local FEQTEST_USED = 1
+		*Local to indicate if manual effects are included
+		if missing("`fixedeffect'") local FIX_EFFECT_USED = 0
+		else                        local FIX_EFFECT_USED = 1
 
 
 	** Output Options
@@ -307,7 +253,7 @@ qui {
 
 		*****************************
 		** Test and parse row label inputs
-		if `ROWLABEL_USED' == 1 {
+		if  !missing("`rowlabels'") {
 			test_parse_label_input, labelinput("`rowlabels'") itemlist("`balancevars'") ///
 			row
 			local rowLabelNames  "`r(items)'"
@@ -355,7 +301,7 @@ qui {
 		****************************************************************************
 		** VCE input testing
 		local CLUSTER_USED 0
-		if `VCE_USED' == 1 {
+		if !missing("`vce'") {
 			* Remove comman and tokenize based on spaces
 			local vce_nocomma = subinstr("`vce'", "," , " ", 1)
 			tokenize "`vce_nocomma'"
@@ -401,20 +347,16 @@ qui {
 		****************************************************************************
 		** Star level input handling
 
-		* Test if nostar option used
-		if `STARSNOADD_USED' == 1 {
-			local starlevels ""
-		}
+		* Surpress stars if starsnoadd is used
+		if !missing("`starsnoadd'") local starlevels ""
 		*If nostar not used and starlevels not specified, use defaults
-		else if `STARLEVEL_USED' == 0 {
-			*Set star levels to default values
-			local starlevels ".1 .05 .01"
-		}
+		else if missing("`starlevels'") local starlevels ".1 .05 .01"
+
 
 		****************************************************************************
 		** Test input for fixed effects and output warning if missing values
 
-		if `FIX_EFFECT_USED' == 1 {
+		if !missing("`fixedeffect'") {
 			cap assert `fixedeffect' < .
 			if _rc == 9 {
 				noi display as text "{phang}{input:Warning:} At least one observation in the sample has at least one missing value in a variable used in {input:fixedeffect(`fixedeffect')}. Before using the generated results, make sure that the number of observations in the table is as expected.{p_end}"
@@ -424,7 +366,7 @@ qui {
 		****************************************************************************
 		** Test input for fixed effects and output warning if missing values
 
-		if `COVARIATES_USED' == 1 {
+		if !missing("`covariates'") {
 			local covar_balancevars ""
 			foreach covar of local covariates {
 				cap assert `covar' < .
@@ -446,7 +388,7 @@ qui {
 		****************************************************************************
 		** Test input for weights
 
-		if `WEIGHT_USED' == 1 {
+		if !missing("`weight'") {
 			* Parsing weight options
 			local weight_type = "`weight'"
 			* Parsing keeps the separating character
@@ -763,7 +705,7 @@ qui {
 			* Use var label in balance var as row label
 
 			*Use variable label if option is specified
-			else if `ROWVARLABEL_USED' {
+			else if !missing("`rowvarlabels'") {
 				*Get the variable label used for this variable and trim it
 				local var_label : variable label `balancevar'
 				local var_label = trim("`var_label'")
@@ -798,10 +740,9 @@ qui {
 	*** Setting default values or specified values for fixed effects and clusters
 
 		**********************************
-		*Preparing fixed effect option
-		if !`FIX_EFFECT_USED' {
-			* If a fixed effect var is not specified, so that areg may be uses. A
-			* fixed effect with no variation does not have any effect on the estimates
+		* If a fixed effect var is not specified, so that areg may be uses. A
+		* fixed effect with no variation does not have any effect on the estimates
+		if missing("`fixedeffect'") {
 			tempvar  fixedeffect
 			gen 	`fixedeffect' = 1
 		}
@@ -811,14 +752,14 @@ qui {
 
 		* The varname for cluster is prepared to be put in the areg options. If
 		* option vce() was not used then this local will be left empty
-		if `VCE_USED' local error_estm vce(`vce')
+		if !missing("`vce'") local error_estm vce(`vce')
 
 		**********************************
 		*Preparing weight option
 
 		* The varname for weight is prepared to be put in the reg options. If no
 		* weight was used then this option will be left empty
-		if `WEIGHT_USED' local weight_option "[`weight_type' = `weight_var']"
+		if !missing("`weight'") local weight_option "[`weight_type' = `weight_var']"
 
 	*****************************************************************************
 	*** Loop over each balance var and create the stats
@@ -1104,7 +1045,7 @@ qui {
 			generate_note, full_user_input(`"`full_user_input'"') stats_string("`stats_string'") fix("`fixedeffect'") ///
 			fix_used("`FIX_EFFECT_USED'") covars("`covariates'") `ftest' `feqtest' ///
 			starlevels("`starlevels'") vce("`vce'") vce_type("`vce_type'") ///
-			clustervar("`cluster_var'") weight_used("`WEIGHT_USED'")               ///
+			clustervar("`cluster_var'")             ///
 			weight_type("`weight_type'") weight_var("`weight_var'")
 
 			 local note_to_use `"`r(table_note)'"'
@@ -2612,7 +2553,8 @@ cap program drop 	generate_note
 
 	syntax, full_user_input(string) [stats_string(string) fix(string) fix_used(string) covars(string) ftest feqtest ///
 	starlevels(string) vce(string) ///
-	vce_type(string) clustervar(string) weight_used(string) weight_type(string) weight_var(string) ]
+	vce_type(string) clustervar(string) ///
+	weight_type(string) weight_var(string) ]
 
 	local table_note ""
 
@@ -2647,14 +2589,14 @@ cap program drop 	generate_note
 		if "`vce_type'" == "bootstrap" local table_note "`table_note' Errors are estimeated using bootstrap. "
 	}
 
-	if `weight_used' == 1 {
+	if !missing("`weight_var'`weight_type'") {
 
 		local f_weights "fweights fw freq weight"
 		local a_weights "aweights aw"
 		local p_weights "pweights pw"
 		local i_weights "iweights iw"
 
-		if `:list weight_type in f_weights' local weight_type = "frequency"
+		if      `:list weight_type in f_weights' local weight_type = "frequency"
 		else if `:list weight_type in a_weights' local weight_type = "analytical"
 		else if `:list weight_type in p_weights' local weight_type = "probability"
 		else if `:list weight_type in i_weights' local weight_type = "importance"
