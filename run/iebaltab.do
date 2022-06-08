@@ -243,9 +243,10 @@ qui {
 		
 		* Replace one value in three different obs for balance var, covariate
 		* and fixed effect
-		bysort tmt_cl : replace weight  = . if _n == 1 & tmt_cl == 1
-		bysort tmt_cl : replace mpg     = . if _n == 2 & tmt_cl == 1
-		bysort tmt_cl : replace foreign = . if _n == 3 & tmt_cl == 1
+        sort tmt_cl make
+		by tmt_cl : replace weight  = . if _n == 1 & tmt_cl == 1
+		by tmt_cl : replace mpg     = . if _n == 2 & tmt_cl == 1
+		by tmt_cl : replace foreign = . if _n == 3 & tmt_cl == 1
 		
 		local tnum 9
 		local csvfile "iebt-csv`tnum'"
