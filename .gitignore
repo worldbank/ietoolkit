@@ -63,4 +63,7 @@ _config.yml
 test/
 
 #Outputs in the run/outputs folder
-run/output
+run/output/**/.xlsx
+run/output/**/.csv
+
+run/output/iegitaddmd/
