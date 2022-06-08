@@ -51,10 +51,7 @@
   *Add space between code and output
   noi di ""
 
-		********HELPFILE TODO*********
-		*1. Explain difference in se between group by itself and the standard errors used in the t-test
-
-	preserve
+  preserve
 qui {
 
 	/***********************************************
@@ -65,10 +62,10 @@ qui {
 	*************************************************
 	************************************************/
 
-	*Set minimum version for this command
-	version 12
+		*Set minimum version for this command
+		version 12
 
-	* Backwards compatibility for weight option
+		* Backwards compatibility for weight option
 		if "`weightold'" != "" & "`exp'" == "" {
 			tokenize `weightold', parse(=)
 			local weight "`1'"
@@ -103,7 +100,7 @@ qui {
 
 		local old_version_guide `"If you still need the old version of iebaltab, for example for reproduction of old code, see {browse  "https://github.com/worldbank/ietoolkit/blob/master/admin/run-old-versions.md" :this guide} for how to run old versions of any command in the ietoolkit package."'
 
-	  if !missing("`savebrowse'`save'") {
+		if !missing("`savebrowse'`save'") {
 			di as error `"{pstd}The options {input:savebrowse}, {input:save} and {input:browse} have been deprecated as of version 7 of iebaltab. See if the options {input:savexlsx}, {input:savecsv} or {input:browse} have the functionality you need. `old_version_guide'{p_end}"'
 			error 198
 		}
@@ -309,7 +306,6 @@ qui {
 		*If nostar not used and starlevels not specified, use defaults
 		else if missing("`starlevels'") local starlevels ".1 .05 .01"
 
-
 		****************************************************************************
 		** Test input for fixed effects and output warning if missing values
 
@@ -494,13 +490,13 @@ qui {
 /*******************************************************************************
 *******************************************************************************/
 
-	  ************************************************
-	  *Group order
+	  	************************************************
+	  	*Group order
 
 		*List all codes in order_code_rest
 		local order_code_rest `GRP_CODES'
 
-    * First - use manually specified groups from order()
+    	* First - use manually specified groups from order()
 		if !missing("`order'") {
 			local ORDER_OF_GROUP_CODES `order'
 			local order_code_rest : list GRP_CODES - order
@@ -581,7 +577,7 @@ qui {
 		mat `fmat'  = r(emptyFRow)
 
 		local desc_stats   `r(desc_stats)'
-	  local pair_stats   `r(pair_stats)'
+	  	local pair_stats   `r(pair_stats)'
 		local feq_stats    `r(feq_stats)'
 		local ftest_stats  `r(ftest_stats)'
 
@@ -802,7 +798,7 @@ qui {
 				else {
 
 					*Get each code from a testpair
-	        getCodesFromPair `ttest_pair'
+	        		getCodesFromPair `ttest_pair'
 					local code1 `r(code1)'
 					local code2 `r(code2)'
 
@@ -878,7 +874,7 @@ qui {
 
 			if !missing("`feqtest'") {
 
-		    * Run regression
+		    	* Run regression
 				//noi di "FEQ regression. Var [`balancevar']"
 				reg `balancevar' i.`grpvar' `covariates' i.`fixedeffect' `weight_option', `error_estm'
 
@@ -914,6 +910,7 @@ qui {
 					mat row[1,`++colindex'] = .m
 				}
 			}
+
 			******************************************************
 			*** All estimates calculated for this row
 
@@ -1110,15 +1107,15 @@ qui {
 		*Export to tex format
 		if !missing("`savetex'") {
 			noi export_tex ,  texfile("`savetex'") ///
-			   rmat(`rmat') fmat(`fmat') pairs(`TEST_PAIR_CODES') `texdocument' texcaption("`texcaption'") ///
-				 texlabel("`texlabel'") texcolwidth("`texcolwidth'") texnotewidth("`texnotewidth'") ///
-				  texnotefile("`texnotefile'") custom_row_space("`texvspace'") ///
-				 stats_string("`stats_string'") ///
-				 `total' `onerow' `feqtest' `ftest' note(`"`note_to_use'"')  ///
-				 ntitle("`ntitle'") diformat("`diformat'") ///
-				 col_lbls(`"`COLUMN_LABELS'"') tot_lbl("`tot_lbl'") ///
-				 row_lbls(`"`ROW_LABELS'"') cl_used("`CLUSTER_USED'") ///
-				 order_grp_codes(`ORDER_OF_GROUP_CODES') `replace'
+				rmat(`rmat') fmat(`fmat') pairs(`TEST_PAIR_CODES') `texdocument' texcaption("`texcaption'") ///
+				texlabel("`texlabel'") texcolwidth("`texcolwidth'") texnotewidth("`texnotewidth'") ///
+				texnotefile("`texnotefile'") custom_row_space("`texvspace'") ///
+				stats_string("`stats_string'") ///
+				`total' `onerow' `feqtest' `ftest' note(`"`note_to_use'"')  ///
+				ntitle("`ntitle'") diformat("`diformat'") ///
+				col_lbls(`"`COLUMN_LABELS'"') tot_lbl("`tot_lbl'") ///
+				row_lbls(`"`ROW_LABELS'"') cl_used("`CLUSTER_USED'") ///
+				order_grp_codes(`ORDER_OF_GROUP_CODES') `replace'
 		}
 }
 end
@@ -1138,13 +1135,13 @@ cap program drop 	export_tab
 
 qui {
 	syntax , rmat(name) fmat(name) 					///
-	ntitle(string) cl_used(string)		///
-	col_lbls(string) order_grp_codes(numlist) ///
-	 diformat(string) ///
-	row_lbls(string) tot_lbl(string) ///
-	[pairs(string) stats_string(string) ///
-	note(string) onerow total feqtest ftest ///
-	starlevels(string)]
+		ntitle(string) cl_used(string)		///
+		col_lbls(string) order_grp_codes(numlist) ///
+		diformat(string) ///
+		row_lbls(string) tot_lbl(string) ///
+		[pairs(string) stats_string(string) ///
+		note(string) onerow total feqtest ftest ///
+		starlevels(string)]
 
 	* If total is used, add t to locals used when looping over desc stats
 	if !missing("`total'") local order_grp_codes "`order_grp_codes' t"
@@ -1194,7 +1191,6 @@ qui {
 
 		*Titles for each group depending on the option one row used or not
 		if missing("`onerow'") {
-
 			local titlerow1 `"`titlerow1' _tab "" "'
 			local titlerow2 `"`titlerow2' _tab "" "'
 			local titlerow3 `"`titlerow3' _tab "`ntitle'" "'
@@ -1216,6 +1212,7 @@ qui {
 			local titlerow2 `"`titlerow2' _tab "" "'
 			local titlerow3 `"`titlerow3' _tab "`ntitle'" "'
 		}
+
 		*Add titles for summary row stats
 		local titlerow1 `"`titlerow1' _tab "F-test for balance" "'
 		local titlerow2 `"`titlerow2' _tab "across all groups" "'
@@ -1896,7 +1893,6 @@ qui {
 			"%%% This is the note. If it does not have the correct margins, use texnotewidth() option or change the number before '\textwidth' in line below to fit it to table size." _n ///
 			`"\multicolumn{`totalColNo'}{@{} p{`texnotewidth'\textwidth}}{`note'}"' _n
 			file close 		`texhandle'
-
 		}
 
 		* If applicable write a text note file that can be inported in tex's threparttable package
@@ -1917,9 +1913,7 @@ qui {
 	* Close tex environments
 	file open  `texhandle' using "`textmpfile'", text write append
 	file write `texhandle' _n "\end{tabular}" _n
-	if !missing("`texdocument'") {
-		file write `texhandle' "\end{adjustbox}" _n "\end{table}" _n "\end{document}" _n
-	}
+	if !missing("`texdocument'") file write `texhandle' "\end{adjustbox}" _n "\end{table}" _n "\end{document}" _n
 	file close `texhandle'
 
 	* Write temporay tex file to disk and prepare success string
@@ -2355,7 +2349,6 @@ cap program drop 	test_parse_format
 
 	*If format passed all tests, store it in the local used for display formats
 	return local diformat "`format'"
-
 
 end
 
