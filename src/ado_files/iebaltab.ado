@@ -1,7 +1,7 @@
 *! version 6.3 5NOV2019 DIME Analytics dimeanalytics@worldbank.org
 
-	capture program drop iebaltab,
-	program define iebaltab, rclass
+	capture program drop   iebaltab,
+	        program define iebaltab, rclass
 
 		syntax varlist(numeric) [if] [in] [aw fw pw iw],                    ///
                                                                         ///
@@ -35,13 +35,13 @@
 				                                                                ///
 				/*Tex options*/     				                                    ///
 				TEXNotewidth(numlist min=1 max=1)                               ///
-				TEXCaption(string) TEXLabel(string) TEXDOCument	texvspace(string) ///
-				texcolwidth(string) texnotefile(string)                         ///
+				TEXCaption(string) TEXLabel(string) TEXDOCument	                ///
+				texvspace(string) texcolwidth(string)                           ///
 				                                                                ///
 				/* Deprecated options - still included to throw helpful error if ever used */ ///
 				SAVEBRowse SAVE(string)                                                       ///
 				BALMISS(string) BALMISSReg(string) COVMISS(string) COVMISSReg(string)         ///
-				MISSMINmean(string) COVARMISSOK FMissok NOTtest	foobs                         ///
+				MISSMINmean(string) COVARMISSOK FMissok NOTtest	fnoobs                         ///
 				NORMDiff STDev PTtest PFtest PBoth NOTECombine                                 ///
 				]
 
@@ -239,7 +239,7 @@ qui {
 			error 198
 		}
 		if !missing("`notecombine'`fnoobs'") {
-			di as error `"{pstd}The option {input:notecombine} has been deprecated as of version 7 of iebaltab. See the {help iebaltab} help file for more information. `old_version_guide'{p_end}"'
+			di as error `"{pstd}The option {input:notecombine} and {input:fnoobs} has been deprecated as of version 7 of iebaltab. See the {help iebaltab} help file for more information. `old_version_guide'{p_end}"'
 			error 198
 		}
 
