@@ -92,32 +92,6 @@ qui {
 
 		tempname rmat fmat
 
-	** Column Options
-
-		*Is option control() used:
-		if "`control'" 			== "" local CONTROL_USED = 0
-		if "`control'" 			!= "" local CONTROL_USED = 1
-
-		*Is option order() used:
-		if "`order'" 			== "" local ORDER_USED = 0
-		if "`order'" 			!= "" local ORDER_USED = 1
-
-		*Is option grpcodes used:
-		if "`grpcodes'"			== "" local NOGRPLABEL_USED = 0
-		if "`grpcodes'" 		!= "" local NOGRPLABEL_USED = 1
-
-		*Is option nolabel used:
-		if "`grplabels'" 		== "" local GRPLABEL_USED = 0
-		if "`grplabels'" 		!= "" local GRPLABEL_USED = 1
-
-		*Is option total() used:
-		if "`total'" 			== "" local TOTAL_USED = 0
-		if "`total'" 			!= "" local TOTAL_USED = 1
-
-		*Is option totallable() used:
-		if "`totallabel'" 		== "" local TOTALLABEL_USED = 0
-		if "`totallabel'" 		!= "" local TOTALLABEL_USED = 1
-
 
 	** Row Options
 
@@ -324,7 +298,7 @@ qui {
 
 		*****************************
 		** Test and parse column label inputs
-		if `GRPLABEL_USED' == 1 {
+		if !missing("`grplabels'") {
 			test_parse_label_input, labelinput("`grplabels'") itemlist("`GRP_CODES'") ///
 			column grpvar(`grpvar')
 			local grpLabelCodes  "`r(items)'"
@@ -343,7 +317,7 @@ qui {
 		*****************************
 		* Warning if totallabel is used without total. Only warning as there is
 		* nothing preventing the comamnd to continue as normal
-		if `TOTALLABEL_USED' & !`TOTAL_USED' {
+		if !missing("`totallabel'") & missing("`total'") {
 			noi display as text "{phang}Warning: Option {input:totallabel(`totallabel')} is ignored as option {input:total} was not used.{p_end}"
 		}
 
@@ -630,13 +604,13 @@ qui {
 		local order_code_rest `GRP_CODES'
 
     * First - use manually specified groups from order()
-		if `ORDER_USED' {
+		if !missing("`order'") {
 			local ORDER_OF_GROUP_CODES `order'
 			local order_code_rest : list GRP_CODES - order
 		}
 
 		* Second - if control used and was not specified in order already
-		if `CONTROL_USED' & !`: list control in order' {
+		if !missing("`control'") & !`: list control in order' {
 			local ORDER_OF_GROUP_CODES `ORDER_OF_GROUP_CODES' `control'
 			local order_code_rest : list order_code_rest - control
 		}
@@ -663,7 +637,7 @@ qui {
 
 		local TEST_PAIR_CODES = ""
 
-		if `CONTROL_USED' {
+		if !missing("`control'") {
 			*Loop over all non-control codes and create pairs with them and the control code
 			local non_control_codes : list ORDER_OF_GROUP_CODES - control
 			foreach code_2 of local non_control_codes {
@@ -749,7 +723,7 @@ qui {
 
 			* If option grpcodes was used or grpvar has no value label, then the codes
 			* must be used as column labels
-			else if `NOGRPLABEL_USED' | !`GRPVAR_HAS_VALUE_LABEL' {
+			else if !missing("`grpcodes'") | !`GRPVAR_HAS_VALUE_LABEL' {
 				*Not using value labels, simply using the group code as the label in the final table
 				local	COLUMN_LABELS `" `COLUMN_LABELS' "`groupCode'" "'
 			}
@@ -809,7 +783,7 @@ qui {
 		* Prepare column label for total column
 
 		* Use custom total label or default : "Total"
-		if `TOTALLABEL_USED' local tot_lbl `totallabel'
+		if !missing("`totallabel'" ) local tot_lbl `totallabel'
 		else local tot_lbl "Total"
 
 /*******************************************************************************
@@ -2509,6 +2483,10 @@ cap program drop 	getCodesFromPair
 	local code2 = substr("`pair'",  `undscr_pos'+1,.)
 
 	*Test that the codes are just numbers and that they are not identical
+	if (missing("`code1'") | missing("`code2'")) {
+		noi display as error "{phang}One or both codes in [`pair'] is missing.{p_end}"
+		error 7
+	}
 	cap confirm number `code1'`code2'
 	if _rc {
 		noi display as error "{phang}Both codes [`code1'] & [`code2'] in pair [`pair'] must be numbers.{p_end}"
