@@ -41,7 +41,7 @@
 	
 	*Cluster variable
 	gen test_cluster_var = tmt
-	//sum test_cluster_var, d
+	qui sum test_cluster_var, d
 	gen tmt_cl = (test_cluster_var <= r(p50))
 
 
@@ -68,7 +68,7 @@ qui {
 		noi iebaltab weight price , `allsave' ///
             grpvar(tmt_cl) replace        ///
 			ftest feqtest control(1)      ///
-			cov(mpg) fixed(foreign)
+			cov(mpg) fixed(foreign) 
 
 		* Test no regaular missing values in matrices
 		mat mat1 = r(iebaltabrmat)
