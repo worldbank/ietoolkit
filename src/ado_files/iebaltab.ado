@@ -93,8 +93,6 @@ qui {
 		*Create place holders for the two result matrices
 		tempname rmat fmat
 
-	** Stats Options
-
 		*Local to indicate if manual effects are included
 		if missing("`fixedeffect'") local FIX_EFFECT_USED = 0
 		else                        local FIX_EFFECT_USED = 1
@@ -102,27 +100,6 @@ qui {
 
 	** Output Options
 
-		*Is option format() used:
-		if "`format'" 			== "" local FORMAT_USED = 0
-		if "`format'" 			!= "" local FORMAT_USED = 1
-
-		*Is option savexlsx() used:
-		if "`savexlsx'" 		== "" local SAVE_XSLX_USED = 0
-		if "`savexlsx'" 		!= "" local SAVE_XSLX_USED = 1
-
-		*Is option savecsv() used:
-		if "`savecsv'" 			== "" local SAVE_CSV_USED = 0
-		if "`savecsv'" 			!= "" local SAVE_CSV_USED = 1
-
-		*Is option savetex() used:
-		if "`savetex'" 			== "" local SAVE_TEX_USED = 0
-		if "`savetex'" 			!= "" local SAVE_TEX_USED = 1
-
-		*Is option browse() used:
-		if "`browse'" 			== "" local BROWSE_USED = 0
-		if "`browse'" 			!= "" local BROWSE_USED = 1
-
-		local SAVE_USED = max(`SAVE_CSV_USED',`SAVE_CSV_USED',`SAVE_TEX_USED')
 
 		*Is option texnotewidth() used:
 		if "`texnotewidth'"		== "" local NOTEWIDTH_USED = 0
@@ -419,7 +396,7 @@ qui {
 		** Test input for format
 
 		** If the format option is specified, then test if there is a valid format specified
-		if `FORMAT_USED' == 1 {
+		if !missing("`format'") {
 			test_parse_format, format("`format'")
 			local diformat = "`r(diformat')"
 		}
@@ -429,19 +406,18 @@ qui {
 		****************************************************************************
 		** Test file paths for save options
 
-		if `SAVE_CSV_USED' {
+		if !missing("`savecsv'") {
 			test_parse_file_input, filepath(`savecsv') allowedformats(".csv") defaultformat(".csv") option("savecsv")
 			local savecsv "`r(filepath)'"
 		}
-		if `SAVE_XSLX_USED' {
+		if !missing("`savexlsx'") {
 			test_parse_file_input, filepath(`savexlsx') allowedformats(".xlsx .xls") defaultformat(".xlsx") option("savexlsx")
 			local savexlsx "`r(filepath)'"
 		}
-		if `SAVE_TEX_USED' {
+		if !missing("`savetex'") {
 			test_parse_file_input, filepath(`savetex') allowedformats(".tex") defaultformat(".tex") option("savetex")
 			local savetex "`r(filepath)'"
 		}
-
 		if !missing("`texnotefile'") {
 			test_parse_file_input, filepath(`texnotefile') allowedformats(".tex") defaultformat(".tex") option("texnotefile")
 			local texnotefile "`r(filepath)'"
@@ -454,7 +430,7 @@ qui {
 		*******************************************************************************/
 
 		* Check tex options
-		if `SAVE_TEX_USED' {
+		if !missing("`savetex'") {
 			* Note width must be positive
 			if `NOTEWIDTH_USED' {
 				if `texnotewidth' <= 0 {
@@ -1109,7 +1085,7 @@ qui {
 		* Create tab delimited file and generate exports based on it
 
 		* Test if any option that requires the tab delimited file is used
-		if `SAVE_CSV_USED' | `SAVE_XSLX_USED' | `BROWSE_USED' {
+		if !missing("`savecsv'`savexlsx'`browse'") {
 
 			preserve
 
@@ -1131,13 +1107,13 @@ qui {
 					save `tab_file'
 
 					* Use Stata's built in commands for exporting to CSV
-					if `SAVE_CSV_USED' {
+					if !missing("`savecsv'") {
 						export delimited using "`savecsv'", novarnames quote `replace'
 						noi di as result `"{phang}Balance table saved in csv format to: {browse "`savecsv'":`savecsv'}{p_end}"'
 					}
 
 					* Use Stata's built in commands for exporting to Excel format
-					if `SAVE_XSLX_USED' {
+					if !missing("`savexlsx'") {
 						export excel using "`savexlsx'", `replace'
 						noi di as result `"{phang}Balance table saved in Excel format to: {browse "`savexlsx'":`savexlsx'}{p_end}"'
 					}
@@ -1145,7 +1121,7 @@ qui {
 			* Bring back the original data
 			restore
 			* Overwrite in working memory the original data so results can be browsed
-			if `BROWSE_USED' use `tab_file', clear
+			if !missing("`browse'") use `tab_file', clear
 
 		}
 
@@ -1153,7 +1129,7 @@ qui {
 		* Create tex file based on result matrices
 
 		*Export to tex format
-		if `SAVE_TEX_USED' {
+		if !missing("`savetex'") {
 			noi export_tex ,  texfile("`savetex'") ///
 			   rmat(`rmat') fmat(`fmat') pairs(`TEST_PAIR_CODES') `texdocument' texcaption("`texcaption'") ///
 				 texlabel("`texlabel'") texcolwidth("`texcolwidth'") texnotewidth("`texnotewidth'") ///
@@ -1203,8 +1179,6 @@ qui {
 	local desc_cols "`order_grp_codes'"
 	if !missing("`feqtest'") local desc_cols "`desc_cols' feq"
 	if missing("`onerow'") local desc_cols "`desc_cols' `desc_cols'"
-
-
 
   * Get stats and label for descreptive stats, pairs and f-test
     get_stat_label_stats_string, stats_string("`stats_string'") testname("desc")
