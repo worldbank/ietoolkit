@@ -121,11 +121,11 @@ capture program drop iesave
 qui {
 	  *Optimize storage on disk
 	  compress
-	
+}	
 /*******************************************************************************
 	Creating lists for data types
 *******************************************************************************/
-	
+qui{	
 	* String -------------------------------------------------------------------
 	
 	  ds, 	has(type string)
@@ -138,7 +138,7 @@ qui {
       local num_vars `r(varlist)'
 	  
 	  * Date (anything with date display format)
-	  ds, 	has(format %t* %-t*)
+	  ds, 	has(format %t*)
       local date_vars `r(varlist)'
 	  
 	  * All unlabeled
@@ -257,6 +257,8 @@ qui {
 	  		n(`N')   	    		///
 			str_vars(`str_vars')	///
 			cont_vars(`cont_vars')	///
+			date_vars(`date_vars')	///
+			cat_vars(`cat_vars')	///
 	  		`reportreplace' 		///
 			`keepvarorder'
 	  }	  
@@ -332,10 +334,10 @@ cap program drop write_var_report
 	  file open  `logname' 	using "`logfile'", text write replace
 	  file write `logname' 	"Number of observations:, `n'" _n ///
 							"ID variable(s):, `idvars'" _n ///
-							"Data signature:, `datasig'"
+							"Data signature:, `datasig'" _n _n
 	  file close `logname'
 	  
-	  foreach vartype in str cont {
+	  foreach vartype in str cont date {
 	  	if !missing("``vartype'_vars'")  write_`vartype'_report  ``vartype'_vars', logname("`logname'") logfile("`logfile'")
 	  }
 	  
@@ -355,7 +357,7 @@ cap program drop write_str_report
 	* Open the file and write headear
 	file open  		`logname' using "`logfile'", text write append
 	file write  	`logname' "Variable type: String" _n
-	file write  	`logname' "Name, Var label, Type, Complete observations, Number of levels" _n
+	file write  	`logname' "Name,Label,Type,Complete observations,Number of levels" _n
 	file close 		`logname'
 	
 	foreach var of local varlist {
@@ -392,7 +394,7 @@ cap program drop write_cont_report
 	* Open the file and write headear
 	file open  		`logname' using "`logfile'", text write append
 	file write  	`logname' "Variable type: Continuous" _n
-	file write  	`logname' "Name, Var label, Type, Complete observations, Mean, SD, p0, p25, p50, p75, p100" _n
+	file write  	`logname' "Name,Label,Type,Complete observations,Mean,SD,p0,p25,p50,p75,p100" _n
 	file close 		`logname'
 	
 	foreach var of local varlist {
@@ -415,6 +417,51 @@ cap program drop write_cont_report
 		*Write variable row to file
 		file open  `logname' using "`logfile'", text write append
 		file write `logname' `"`"`var'"',"`varlabel'","`vartype'",`varcomplete',`mean',`sd',`p0',`p25',`p50',`p75',`p100'"' _n
+		file close `logname'
+		
+	}
+	
+	file open  		`logname' using "`logfile'", text write append
+	file write  	`logname' _n
+	file close 		`logname'
+	
+end
+
+// Write date variable report --------------------------------------------------
+
+cap program drop write_date_report
+	program 	 write_date_report
+	
+	syntax varlist, logfile(string) logname(string)
+	
+	* Open the file and write headear
+	file open  		`logname' using "`logfile'", text write append
+	file write  	`logname' "Variable type: Date or date-time" _n
+	file write  	`logname' "Name,Label,Format,Complete observations,Unique values,Mean,SD,Min,Median,Max" _n
+	file close 		`logname'
+	
+	foreach var of local varlist {
+		
+		* Get labels
+		local varlabel: 	variable label  `var'
+		local varformat: 	format 			`var'
+
+		* Number of levels and complete observations
+		qui levelsof `var'
+		local varlevels 	= r(r)
+		local varcomplete	= r(N)	
+		
+		* Distribution
+		qui sum `var', det
+		local mean			= r(mean)
+		local sd			= r(sd)
+		local min			= r(min)
+		local median		= r(p50)
+		local max			= r(max)
+
+		*Write variable row to file
+		file open  `logname' using "`logfile'", text write append
+		file write `logname' `"`"`var'"',"`varlabel'","`varformat'",`varcomplete',`varlevels',`mean',`sd',`min',`median',`max'"' _n
 		file close `logname'
 		
 	}
@@ -453,7 +500,6 @@ cap program drop write_cat_report
 		file open  `logname' using "`logfile'", text write append
 		file write `logname' `"`"var"',"`varlabel'","`vartype'",`varcomplete', `varlevels'"' _n
 		file close `logname'
-		
 	}
 	
 	file open  		`logname' using "`logfile'", text write append
