@@ -150,7 +150,7 @@ qui{
 	  local cat_vars : list cat_vars - date_vars
 	  
 	  * Continuous (all numeric variables that are not date or categorical)
-	  local noncont_num_vars : list iesave_date | iesave_cat
+	  local noncont_num_vars : list date_vars | cat_vars
       local cont_vars 		 : list num_vars - noncont_num_vars
 }	
 
