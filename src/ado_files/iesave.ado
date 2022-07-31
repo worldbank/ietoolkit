@@ -501,7 +501,7 @@ cap program drop write_cat_report
 	* Open the file and write headear
 	file open  		`logname' using "`logfile'", text write append
 	file write  	`logname' "Variable type: Categorical" _n
-	file write  	`logname' "Name,Label,Value label,Complete observations,Number of levels" _n
+	file write  	`logname' "Name,Label,Value label,Complete observations,Number of levels,Top count" _n
 	file close 		`logname'
 	
 	foreach var of local varlist {
@@ -515,15 +515,55 @@ cap program drop write_cat_report
 		local varlevels 	= r(r)
 		local varcomplete	= r(N)	
 	
+		* Most frequent categories
+		top_count `var', `debug'
+		local topcount = r(top_count)
+		
 		*Write variable row to file
 		file open  `logname' using "`logfile'", text write append
-		file write `logname' `"`var',`varlabel',`vallabel',`varcomplete', `varlevels'"' _n
+		file write `logname' `"`var',`varlabel',`vallabel',`varcomplete',`varlevels',`topcount'"' _n
 		file close `logname'
 	}
 	
 	file open  		`logname' using "`logfile'", text write append
 	file write  	`logname' _n
 	file close 		`logname'
+	
+end
+
+cap program drop top_count
+	program		 top_count, rclass
+	
+	syntax varname, [debug]
+	
+	if !missing("`debug'") noi di "Entering top_count subcommand"
+	
+	preserve
+		
+		* Count number of observations per level
+		gen count = 1
+		collapse (sum) count if !missing(`varlist'), by(`varlist')
+		
+		* Sort levels by number of observations, in descending order
+		gsort -count
+				
+		* Calculate number of levels to be displayed (minimum between 5 and the number of levels)
+		qui count
+		if (r(N) > 5) 	local max	5
+		else			local max	= r(N)
+			
+		* Write the number of observations per level
+		forvalues rank = 1/`max' {
+		    local level = `varlist'[`rank']
+			local count = count[`rank']
+		    local top_count `"`top_count' `level':`count'"'
+		}
+		
+	restore
+	
+	* Return top count to be reported
+			local top_count = strtrim("`top_count'")
+	return 	local top_count "`top_count'"
 	
 end
 
