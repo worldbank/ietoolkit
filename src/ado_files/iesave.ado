@@ -386,7 +386,7 @@ cap program drop write_str_report
 		
 		*Write variable row to file
 		file open  `logname' using "`logfile'", text write append
-		file write `logname' `"`"`var'"',"`varlabel'","`vartype'",`varcomplete', `varlevels'"' _n
+		file write `logname' `"`var',`varlabel',`vartype',`varcomplete', `varlevels'"' _n
 		file close `logname'
 		
 	}
@@ -431,7 +431,7 @@ cap program drop write_cont_report
 
 		*Write variable row to file
 		file open  `logname' using "`logfile'", text write append
-		file write `logname' `"`"`var'"',"`varlabel'","`vartype'",`varcomplete',`mean',`sd',`p0',`p25',`p50',`p75',`p100'"' _n
+		file write `logname' `"`var',`varlabel',`vartype',`varcomplete',`mean',`sd',`p0',`p25',`p50',`p75',`p100'"' _n
 		file close `logname'
 		
 	}
@@ -478,7 +478,7 @@ cap program drop write_date_report
 
 		*Write variable row to file
 		file open  `logname' using "`logfile'", text write append
-		file write `logname' `"`"`var'"',"`varlabel'","`varformat'",`varcomplete',`varlevels',`mean',`sd',`min',`median',`max'"' _n
+		file write `logname' `"`var',`varlabel',`varformat',`varcomplete',`varlevels',`mean',`sd',`min',`median',`max'"' _n
 		file close `logname'
 		
 	}
@@ -517,7 +517,7 @@ cap program drop write_cat_report
 	
 		*Write variable row to file
 		file open  `logname' using "`logfile'", text write append
-		file write `logname' `"`"`var'"',"`varlabel'","`vallabel'",`varcomplete', `varlevels'"' _n
+		file write `logname' `"`var',`varlabel',`vallabel',`varcomplete', `varlevels'"' _n
 		file close `logname'
 	}
 	
