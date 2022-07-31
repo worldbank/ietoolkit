@@ -2,5 +2,18 @@ Number of observations:, 73
 ID variable(s):, make
 Data signature:, 73:11(91736):2975254862:883507947Variable type: String
 Name, Var label, Type, Complete observations, Number of levels
-`"var"',"Make and Model","str17",r(N), r(r)
+`"make"',"Make and Model","str17",73, 73
+
+Variable type: Continuous
+Name, Var label, Type, Complete observations, Mean, SD, p0, p25, p50, p75, p100
+`"price"',"Price","int",73,6165.260273972603,2969.907864392978,3291,4195,4934,6342,15906
+`"mpg"',"Mileage (mpg)","byte",73,21.38356164383562,5.777422861128147,12,18,20,25,41
+`"rep78"',"Repair Record 1978","byte",68,3.411764705882353,.9960413304025398,1,3,3,4,5
+`"headroom"',"Headroom (in.)","float",73,2.986301369863014,.8497246397923974,1.5,2.5,3,3.5,5
+`"trunk"',"Trunk space (cu. ft.)","byte",73,13.63013698630137,4.165022506658772,5,10,14,16,22
+`"weight"',"Weight (lbs.)","int",73,3009.86301369863,778.1450399484321,1760,2240,3180,3600,4840
+`"length"',"Length (in.)","int",73,187.6027397260274,22.23781796726481,142,170,192,203,233
+`"turn"',"Turn Circle (ft.) ","byte",73,39.58904109589041,4.399607357601977,31,36,40,43,51
+`"gear_ratio"',"Gear Ratio","float",73,3.0252054815423,.4506295136775498,2.190000057220459,2.730000019073486,2.970000028610229,3.369999885559082,3.890000104904175
+`"foreign"',"Car type","byte",73,.3013698630136986,.4620284835750965,0,0,0,1,1
 

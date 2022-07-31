@@ -20,8 +20,8 @@ capture program drop iesave
 
 		*There are only three versions relevant here. Stata 11 can read Stata 12 format,
 		*and Stata 15 and 16 saves in Stata 14 format anyways.
-	  local valid_dta_versions "12 13 14"
-	  if `:list saveversion in valid_dta_versions' == 0 {
+		local valid_dta_versions "12 13 14"
+		if `:list saveversion in valid_dta_versions' == 0 {
 	    di ""
 	    di as error "{phang}In option {input:saveversion(`saveversion')} only the following values are allowed [`valid_dta_versions']. Stata 15 and 16 use the same .dta format as Stata 14. If you have Stata 14 or higher you can read more at {help saveold :help saveold}).{p_end}"
 	    error 198
@@ -118,7 +118,7 @@ capture program drop iesave
 /*******************************************************************************
 		Optimize storage on disk
 *******************************************************************************/
-
+qui {
 	  *Optimize storage on disk
 	  compress
 	
@@ -152,8 +152,7 @@ capture program drop iesave
 	  * Continuous (all numeric variables that are not date or categorical)
 	  local noncont_num_vars : list iesave_date | iesave_cat
       local cont_vars 		 : list num_vars - noncont_num_vars
-	  
-	
+}	
 /*******************************************************************************
 		Prepare output
 *******************************************************************************/
@@ -191,7 +190,7 @@ capture program drop iesave
 	  local datasig `r(datasignature)'
 
 	  *Get total number of obs and vars
-	  describe
+	  qui describe
 	  local N `r(N)'
 	  local numVars `r(k)'
 }
@@ -257,6 +256,7 @@ capture program drop iesave
 	  		idvars(`idvars') 		///
 	  		n(`N')   	    		///
 			str_vars(`str_vars')	///
+			cont_vars(`cont_vars')	///
 	  		`reportreplace' 		///
 			`keepvarorder'
 	  }	  
@@ -264,7 +264,7 @@ capture program drop iesave
 /*******************************************************************************
 		Save data
 *******************************************************************************/
-{
+qui {
 		*Stata 12.X just save as normal
 		if `c(stata_version)' < 13 { // "< 13" to cover both 12.0 and 12.1
 			save "`using'" , `replace'
@@ -284,9 +284,9 @@ capture program drop iesave
 		else {
 			saveold "`using'" , `replace' v(`saveversion')
 		}
-
+}
 		noi di `"{phang}Data saved in .dta version `saveversion' at {browse `"`using'"':`using'}{p_end}"'
-}		
+		
 /*******************************************************************************
 		returned values
 *******************************************************************************/
@@ -322,8 +322,6 @@ cap program drop write_var_report
 	syntax , file(string) datasig(string) idvars(string) n(string) ///
 		[date_vars(varlist) str_vars(varlist) cat_vars(varlist) cont_vars(varlist)] ///
 		[replace keepvarorder]
-
-	*qui {
 		
 	  *Set up tempfile locals
 	  tempname 	logname
@@ -337,16 +335,17 @@ cap program drop write_var_report
 							"Data signature:, `datasig'"
 	  file close `logname'
 	  
-	  if !missing("`str_vars'") write_str_report `str_vars', logname("`logname'") logfile("`logfile'")
-
+	  foreach vartype in str cont {
+	  	if !missing("``vartype'_vars'")  write_`vartype'_report  ``vartype'_vars', logname("`logname'") logfile("`logfile'")
+	  }
+	  
 	  *Copy temp file to file location
 	  copy "`logfile'"  "`file'", `replace'
 	  noi di `"{phang}Meta data saved to {browse `"`file'"':`file'}{p_end}"'
-	*}
-
+	  
 end
 
-// Write variable report -------------------------------------------------------
+// Write string variable report ------------------------------------------------
 
 cap program drop write_str_report
 	program 	 write_str_report
@@ -366,10 +365,90 @@ cap program drop write_str_report
 		local vartype: 	type 			`var'
 
 		* Number of levels and complete observations
-		levelsof `var'
-		local varlevels 	r(r)
-		local varcomplete 	r(N)
+		qui levelsof `var'
+		local varlevels 	= r(r)
+		local varcomplete	= r(N)	
+		
+		*Write variable row to file
+		file open  `logname' using "`logfile'", text write append
+		file write `logname' `"`"`var'"',"`varlabel'","`vartype'",`varcomplete', `varlevels'"' _n
+		file close `logname'
+		
+	}
+	
+	file open  		`logname' using "`logfile'", text write append
+	file write  	`logname' _n
+	file close 		`logname'
+	
+end
 
+// Write continuous variable report --------------------------------------------
+
+cap program drop write_cont_report
+	program 	 write_cont_report
+	
+	syntax varlist, logfile(string) logname(string)
+	
+	* Open the file and write headear
+	file open  		`logname' using "`logfile'", text write append
+	file write  	`logname' "Variable type: Continuous" _n
+	file write  	`logname' "Name, Var label, Type, Complete observations, Mean, SD, p0, p25, p50, p75, p100" _n
+	file close 		`logname'
+	
+	foreach var of local varlist {
+		
+		* Get labels
+		local varlabel: variable label  `var'
+		local vartype: 	type 			`var'
+
+		* Number of levels and complete observations
+		qui sum `var', det
+		local varcomplete 	= r(N)
+		local mean			= r(mean)
+		local sd			= r(sd)
+		local p0			= r(min)
+		local p25			= r(p25)
+		local p50			= r(p50)
+		local p75			= r(p75)
+		local p100			= r(max)
+
+		*Write variable row to file
+		file open  `logname' using "`logfile'", text write append
+		file write `logname' `"`"`var'"',"`varlabel'","`vartype'",`varcomplete',`mean',`sd',`p0',`p25',`p50',`p75',`p100'"' _n
+		file close `logname'
+		
+	}
+	
+	file open  		`logname' using "`logfile'", text write append
+	file write  	`logname' _n
+	file close 		`logname'
+	
+end
+
+// Write categorical variable report -------------------------------------------
+
+cap program drop write_cat_report
+	program 	 write_cat_report
+	
+	syntax varlist, logfile(string) logname(string)
+	
+	* Open the file and write headear
+	file open  		`logname' using "`logfile'", text write append
+	file write  	`logname' "Variable type: Categorical" _n
+	file write  	`logname' "Name, Var label, Type, Complete observations, Value label, Number of levels, Number of unlabelled levels, Top count" _n
+	file close 		`logname'
+	
+	foreach var of local varlist {
+		
+		* Get labels
+		local varlabel: variable label  `var'
+		local vartype: 	type 			`var'
+
+		* Number of levels and complete observations
+		qui levelsof `var'
+		local varlevels 	= r(r)
+		local varcomplete	= r(N)	
+	
 		*Write variable row to file
 		file open  `logname' using "`logfile'", text write append
 		file write `logname' `"`"var"',"`varlabel'","`vartype'",`varcomplete', `varlevels'"' _n
