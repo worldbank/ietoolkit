@@ -1,0 +1,6 @@
+Number of observations:, 73
+ID variable(s):, make
+Data signature:, 73:11(91736):2975254862:883507947Variable type: String
+Name, Var label, Type, Complete observations, Number of levels
+`"var"',"Make and Model","str17",r(N), r(r)
+

@@ -233,4 +233,13 @@
 		}
 	}
 
+// Test meta data report -------------------------------------------------------
+
+	iesave using "${runoutput}/iesave/auto.dta", ///
+		idvars(make) ///
+		saveversion(14) ///
+		replace ///
+		userinfo ///
+		varreport("${runoutput}/iesave/auto.csv", replace)	
+
 ***************************** End of do-file ***********************************

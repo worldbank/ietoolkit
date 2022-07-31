@@ -1,11 +1,9 @@
 *! version 6.3 5NOV2019 DIME Analytics dimeanalytics@worldbank.org
 
-	capture program drop iesave
-			program      iesave , rclass
+capture program drop iesave
+		program      iesave , rclass
 
-	qui {
-
-	  syntax using/,  IDvars(varlist) SAVEVersion(string) [replace userinfo]
+	syntax using/,  IDvars(varlist) SAVEVersion(string) [replace userinfo varreport(string)]
 
 	  *Save the three possible user settings before setting
 	  * is standardized for this command
@@ -16,7 +14,7 @@
 /*******************************************************************************
 	Test input
 *******************************************************************************/
-
+{
 	  ***************
 	  * Dta version test
 
@@ -50,39 +48,7 @@
 	  	di as error "{phang}Option {input:reportreplace} may only be used in combination with {input:varreport()}.{p_end}"
 	  	error 198
 	  }
-
-	  *Test varrepport input if it is used
-	  if ("`varreport'" != "") {
-
-	  	*standardize file path to only use forward slash
-	  	local varreport_std = subinstr(`"`varreport'"',"\","/",.)
-
-	  	* Get file extension and folder from file path
-	  	local varreport_fileext = substr(`"`varreport_std'"',strlen(`"`varreport_std'"')-strpos(strreverse(`"`varreport_std'"'),".")+1,.)
-	  	local varreport_folder  = substr(`"`varreport_std'"',1,strlen(`"`varreport_std'"')-strpos(strreverse(`"`varreport_std'"'),"/"))
-
-	  	*Test that the file extension is csv
-	  	if !(`"`varreport_fileext'"' == ".csv") {
-	  		noi di as error `"{phang}The report file [`varreport'] must include the file extension .csv.{p_end}"'
-	  		error 601
-	  	}
-
-	  	*Test that the folder exist
-	  	mata : st_numscalar("r(dirExist)", direxists("`varreport_folder'"))
-	  	if (`r(dirExist)' == 0)  {
-	  		noi di as error `"{phang}The folder in [`varreport'] does not exist.{p_end}"'
-	  		error 601
-	  	}
-
-	  	*Test if reportreplace is used if the file already exist
-	  	cap confirm file "`varreport'"
-	  	if (_rc == 0 & "`reportreplace'" == "") {
-	  		noi di as error `"{phang}The report file [`varreport'] already exists, use the option {input:reportreplace} if you want to overwrite this file.{p_end}"'
-	  		error 601
-	  	}
-	  }
-
-
+	  
 	  ***************
 	  * save file path options
 
@@ -113,11 +79,11 @@
 	  	noi di as error `"{phang}The data file [`using'] already exists. Use the option [replace] if you want to overwrite the data.{p_end}"'
 	  	error 602
 	  }
-
+}
 /*******************************************************************************
 	  ID variables
 *******************************************************************************/
-
+{
 	  *Test that the ID var(s) is uniquely and fully identifying
 		capture isid `idvars'
 		if _rc {
@@ -148,7 +114,7 @@
 		  noi di ""
 		  isid `idvars'
 		}
-
+}
 /*******************************************************************************
 		Optimize storage on disk
 *******************************************************************************/
@@ -160,39 +126,38 @@
 	Creating lists for data types
 *******************************************************************************/
 	
-	  *Define list of locals with vars by category
-	  
-	  ** String
-	  *  Definition : any var with type string
+	* String -------------------------------------------------------------------
 	
-          local iesave_str `r(varlist)'
+	  ds, 	has(type string)
+      local str_vars `r(varlist)'
 	  
-	  ** Date
-	  *  Definition : anything with date display format
-	  ds , has(format %t* %-t*)
-          local iesave_date `r(varlist)'
+	* Numeric ------------------------------------------------------------------
 	  
-	  **Categorical
-	  * Defintion : all numeric variables with labels that are not defined as dates
-	  ds , has(type numeric)              //All numerice
-          local iesave_num `r(varlist)'
-       	  ds, not(vallabel)                   //All without value labels
-	  local iesave_novallab `r(varlist)'
-	
-	  * Use set operators to get a list of categorical variables
-	  local iesave_cat : list iesave_num - iesave_novallab
-	  local iesave_cat : list iesave_cat - iesave_date
+	  * All numeric
+	  ds, 	has(type numeric)
+      local num_vars `r(varlist)'
 	  
-	  ** Continuous 
-	  *  Defintion : all numeric variables that are not date or categorical
-	  local iesave_num_oth : list iesave_date | iesave_cat
-          local iesave_cont : list iesave_num - iesave_num_oth
+	  * Date (anything with date display format)
+	  ds, 	has(format %t* %-t*)
+      local date_vars `r(varlist)'
+	  
+	  * All unlabeled
+	  ds, 	not(vallabel)
+	  local novallab_vars `r(varlist)'
+	  
+	  * Categorical variables (labeled numeric variables that are not dates)
+	  local cat_vars : list num_vars - novallab_vars
+	  local cat_vars : list cat_vars - date_vars
+	  
+	  * Continuous (all numeric variables that are not date or categorical)
+	  local noncont_num_vars : list iesave_date | iesave_cat
+      local cont_vars 		 : list num_vars - noncont_num_vars
 	  
 	
 /*******************************************************************************
 		Prepare output
 *******************************************************************************/
-
+{
 	  *Save username to char is nameuser was used
 	  if "`userinfo'" == "" {
 	  	local user "Username withheld"
@@ -229,11 +194,11 @@
 	  describe
 	  local N `r(N)'
 	  local numVars `r(k)'
-
+}
 /*******************************************************************************
 		Save to char
 *******************************************************************************/
-
+{
 	  *Store the ID vars in char
 	  char _dta[iesave_idvars]        "`idvars'"
 	  char _dta[iesave_N]             "`N'"
@@ -244,11 +209,62 @@
 	  char _dta[iesave_version]       "`version_char'"
 	  char _dta[iesave_datasignature] "`datasig'"
 	  char _dta[iesave_success]       "iesave (https://dimewiki.worldbank.org/iesave) ran successfully"
+}
+/*******************************************************************************
+		Save report
+*******************************************************************************/
+	  
+	  if !missing("`varreport'") {
+	  	
+		* Get options for variable report
+	  	tokenize "`varreport'", parse(",")
+									local report_path 	= strtrim("`1'") // file path
+		if regex("`3'", "replace") 	local reportreplace	replace 		 // all other options
+		if regex("`3'", "noalpha") 	local keepvarorder	keepvarorder 	 // all other options
+		
+		* Test input
+		local varreport_std = subinstr(`"`report_path'"',"\","/",.)
 
+	  	* Get file extension and folder from file path
+	  	local varreport_fileext = substr(`"`varreport_std'"',strlen(`"`varreport_std'"')-strpos(strreverse(`"`varreport_std'"'),".")+1,.)
+	  	local varreport_folder  = substr(`"`varreport_std'"',1,strlen(`"`varreport_std'"')-strpos(strreverse(`"`varreport_std'"'),"/"))
+
+	  	*Test that the file extension is csv
+	  	if !(`"`varreport_fileext'"' == ".csv") {
+	  		noi di as error `"{phang}The report file [`report_path'] must include the file extension .csv.{p_end}"'
+	  		error 601
+	  	}
+
+	  	*Test that the folder exist
+	  	mata : st_numscalar("r(dirExist)", direxists("`varreport_folder'"))
+	  	if (`r(dirExist)' == 0)  {
+	  		noi di as error `"{phang}The folder in [`varreport'] does not exist.{p_end}"'
+	  		error 601
+	  	}
+
+	  	*Test if reportreplace is used if the file already exist
+	  	cap confirm file "`report_path'"
+	  	if (_rc == 0 & "`reportreplace'" == "") {
+	  		noi di as error `"{phang}The report file [`report_path'] already exists, use the option {input:reportreplace} if you want to overwrite this file.{p_end}"'
+	  		error 601
+	  	}
+		
+		* Write csv with variable report that can be version controlled
+		* in git to track when variables change
+		write_var_report, 			///
+	  		file(`report_path') 	///
+	  		datasig(`datasig') 		///
+	  		idvars(`idvars') 		///
+	  		n(`N')   	    		///
+			str_vars(`str_vars')	///
+	  		`reportreplace' 		///
+			`keepvarorder'
+	  }	  
+	  
 /*******************************************************************************
 		Save data
 *******************************************************************************/
-
+{
 		*Stata 12.X just save as normal
 		if `c(stata_version)' < 13 { // "< 13" to cover both 12.0 and 12.1
 			save "`using'" , `replace'
@@ -270,12 +286,11 @@
 		}
 
 		noi di `"{phang}Data saved in .dta version `saveversion' at {browse `"`using'"':`using'}{p_end}"'
-
-		
+}		
 /*******************************************************************************
 		returned values
 *******************************************************************************/
-
+{
 		*Return the outputs to return locals
 		return local idvars       "`idvars'"
 		return local username     "`user'"
@@ -284,10 +299,88 @@
 		return local datasig      "`datasig'"
 		return local N            "`N'"
 		return local numvars      "`numVars'"
-		return local iesave_str	  "`iesave_str'"
-		return local iesave_date  "`iesave_date'"
-		return local iesave_cat   "`iesave_cat'"
-		return local iesave_cont  "`iesave_cont'"
-
+		return local iesave_str	  "`str_vars'"
+		return local iesave_date  "`date_vars'"
+		return local iesave_cat   "`cat_vars'"
+		return local iesave_cont  "`cont_vars'"
 }
 end
+
+/*******************************************************************************
+********************************************************************************
+
+	UTILITY COMMANDS
+
+********************************************************************************
+*******************************************************************************/
+
+// Write variable report -------------------------------------------------------
+
+cap program drop write_var_report
+	program 	 write_var_report
+
+	syntax , file(string) datasig(string) idvars(string) n(string) ///
+		[date_vars(varlist) str_vars(varlist) cat_vars(varlist) cont_vars(varlist)] ///
+		[replace keepvarorder]
+
+	*qui {
+		
+	  *Set up tempfile locals
+	  tempname 	logname
+	  tempfile	logfile
+	  capture file close `logfile'
+
+	  *Open the file and write headear
+	  file open  `logname' 	using "`logfile'", text write replace
+	  file write `logname' 	"Number of observations:, `n'" _n ///
+							"ID variable(s):, `idvars'" _n ///
+							"Data signature:, `datasig'"
+	  file close `logname'
+	  
+	  if !missing("`str_vars'") write_str_report `str_vars', logname("`logname'") logfile("`logfile'")
+
+	  *Copy temp file to file location
+	  copy "`logfile'"  "`file'", `replace'
+	  noi di `"{phang}Meta data saved to {browse `"`file'"':`file'}{p_end}"'
+	*}
+
+end
+
+// Write variable report -------------------------------------------------------
+
+cap program drop write_str_report
+	program 	 write_str_report
+	
+	syntax varlist, logfile(string) logname(string)
+	
+	* Open the file and write headear
+	file open  		`logname' using "`logfile'", text write append
+	file write  	`logname' "Variable type: String" _n
+	file write  	`logname' "Name, Var label, Type, Complete observations, Number of levels" _n
+	file close 		`logname'
+	
+	foreach var of local varlist {
+		
+		* Get labels
+		local varlabel: variable label  `var'
+		local vartype: 	type 			`var'
+
+		* Number of levels and complete observations
+		levelsof `var'
+		local varlevels 	r(r)
+		local varcomplete 	r(N)
+
+		*Write variable row to file
+		file open  `logname' using "`logfile'", text write append
+		file write `logname' `"`"var"',"`varlabel'","`vartype'",`varcomplete', `varlevels'"' _n
+		file close `logname'
+		
+	}
+	
+	file open  		`logname' using "`logfile'", text write append
+	file write  	`logname' _n
+	file close 		`logname'
+	
+end
+
+********************************************************************************
