@@ -3,18 +3,26 @@
 capture program drop iesave
 		program      iesave , rclass
 
-	syntax using/,  IDvars(varlist) SAVEVersion(string) [replace userinfo varreport(string) debug]
+	syntax using/,  IDvars(varlist) [replace userinfo report(string) debug SAVEVersion(string) version(string)]
 
 	  *Save the three possible user settings before setting
 	  * is standardized for this command
 	  local version_char "c(stata_version):`c(stata_version)' c(version):`c(version)' c(userversion):`c(userversion)'"
 
 	  version 12
+	  
+	  
 
 /*******************************************************************************
 	Test input
 *******************************************************************************/
 {
+    
+	if missing("`version'") & missing("`saveversion'") {
+	    noi di as error "{phang}option {bf:version()} required{p_end}"
+		error 198
+	}
+	else if missing("`version'") local version `saveversion'
 	  ***************
 	  * Dta version test
 
@@ -23,7 +31,7 @@ capture program drop iesave
 		local valid_dta_versions "12 13 14"
 		if `:list saveversion in valid_dta_versions' == 0 {
 	    di ""
-	    di as error "{phang}In option {input:saveversion(`saveversion')} only the following values are allowed [`valid_dta_versions']. Stata 15 and 16 use the same .dta format as Stata 14. If you have Stata 14 or higher you can read more at {help saveold :help saveold}).{p_end}"
+	    di as error "{phang}In option {input:version(`version')} only the following values are allowed [`valid_dta_versions']. Stata 15 and 16 use the same .dta format as Stata 14. If you have Stata 14 or higher you can read more at {help saveold :help saveold}).{p_end}"
 	    error 198
 	  }
 
@@ -32,20 +40,20 @@ capture program drop iesave
 	  *Stata 14, 15 and 15 can save in Stata 14, 13 and 12. There is no new format
 		*for Stata 15 and 16 (Stata 14 has a limit on number of variables that can
 		*be held in memory, but that has nothing to do with the format used.)
-		if (`c(stata_version)' < 13 & `saveversion' > 12) { // "<13" to include versions like 12.1 etc.
-	  	di as error "{phang}You are using Stata version `c(stata_version)' and you are therefore only able to save in the Stata 12 .dta-format. The version you indicated in {input:saveversion(`saveversion')}  is too recent for your version of Stata.{p_end}"
+		if (`c(stata_version)' < 13 & `version' > 12) { // "<13" to include versions like 12.1 etc.
+	  	di as error "{phang}You are using Stata version `c(stata_version)' and you are therefore only able to save in the Stata 12 .dta-format. The version you indicated in {input:version(`version')}  is too recent for your version of Stata.{p_end}"
 	  	error 198
 	  }
-		else if (`c(stata_version)' < 14 & `saveversion' > 13) {
-			di as error "{phang}You are using Stata version `c(stata_version)' and you are therefore only able to save in the Stata 12 and 13 .dta-format. The version you indicated in {input:saveversion(`saveversion')} is too recent for your version of Stata.{p_end}"
+		else if (`c(stata_version)' < 14 & `version' > 13) {
+			di as error "{phang}You are using Stata version `c(stata_version)' and you are therefore only able to save in the Stata 12 and 13 .dta-format. The version you indicated in {input:version(`version')} is too recent for your version of Stata.{p_end}"
 			error 198
 		}
 
 	  ***************
 	  * var report tests
 
-	  if ("`reportreplace'" != "") & ("`varreport'" == "") {
-	  	di as error "{phang}Option {input:reportreplace} may only be used in combination with {input:varreport()}.{p_end}"
+	  if ("`reportreplace'" != "") & ("`report'" == "") {
+	  	di as error "{phang}Option {input:reportreplace} may only be used in combination with {input:report()}.{p_end}"
 	  	error 198
 	  }
 	  
@@ -221,31 +229,31 @@ qui{
 		Save report
 *******************************************************************************/
 	  
-	  if !missing("`varreport'") {
+	  if !missing("`report'") {
 	  	
 		* Get options for variable report
-	  	tokenize "`varreport'", parse(",")
+	  	tokenize "`report'", parse(",")
 									local report_path 	= strtrim("`1'") // file path
 		if regex("`3'", "replace") 	local reportreplace	replace 		 // all other options
 		if regex("`3'", "noalpha") 	local keepvarorder	keepvarorder 	 // all other options
 		
 		* Test input
-		local varreport_std = subinstr(`"`report_path'"',"\","/",.)
+		local report_std = subinstr(`"`report_path'"',"\","/",.)
 
 	  	* Get file extension and folder from file path
-	  	local varreport_fileext = substr(`"`varreport_std'"',strlen(`"`varreport_std'"')-strpos(strreverse(`"`varreport_std'"'),".")+1,.)
-	  	local varreport_folder  = substr(`"`varreport_std'"',1,strlen(`"`varreport_std'"')-strpos(strreverse(`"`varreport_std'"'),"/"))
+	  	local report_fileext = substr(`"`report_std'"',strlen(`"`report_std'"')-strpos(strreverse(`"`report_std'"'),".")+1,.)
+	  	local report_folder  = substr(`"`report_std'"',1,strlen(`"`report_std'"')-strpos(strreverse(`"`report_std'"'),"/"))
 
 	  	*Test that the file extension is csv
-	  	if !(`"`varreport_fileext'"' == ".csv") {
+	  	if !(`"`report_fileext'"' == ".csv") {
 	  		noi di as error `"{phang}The report file [`report_path'] must include the file extension .csv.{p_end}"'
 	  		error 601
 	  	}
 
 	  	*Test that the folder exist
-	  	mata : st_numscalar("r(dirExist)", direxists("`varreport_folder'"))
+	  	mata : st_numscalar("r(dirExist)", direxists("`report_folder'"))
 	  	if (`r(dirExist)' == 0)  {
-	  		noi di as error `"{phang}The folder in [`varreport'] does not exist.{p_end}"'
+	  		noi di as error `"{phang}The folder in [`report'] does not exist.{p_end}"'
 	  		error 601
 	  	}
 
@@ -285,8 +293,8 @@ qui {
 		}
 		*Stata 13, 12.1 just save as normal
 		else if `c(stata_version)' < 14 { // "< 14" to cover both 13.0 and 13.1
-			*if saveversion() is 12 then use save old otherwise use regular old
-			if `saveversion' == 12 {
+			*if version() is 12 then use save old otherwise use regular old
+			if `version' == 12 {
 				saveold "`using'" , `replace'
 			}
 			else {
@@ -296,10 +304,10 @@ qui {
 		*For all Stata newver than 13.X use saveold for all versions as it
 		*handles the cases when saving in the same version makes saveold redundant
 		else {
-			saveold "`using'" , `replace' v(`saveversion')
+			saveold "`using'" , `replace' v(`version')
 		}
 }
-		noi di `"{phang}Data saved in .dta version `saveversion' at {browse `"`using'"':`using'}{p_end}"'
+		noi di `"{phang}Data saved in .dta version `version' at {browse `"`using'"':`using'}{p_end}"'
 		
 /*******************************************************************************
 		returned values
