@@ -271,6 +271,7 @@ qui{
 			cat_vars(`cat_vars')	///
 	  		`reportreplace' 		///
 			`keepvarorder'			///
+			`userinfo'				///
 			`debug'
 	  }	  
 	  
@@ -335,7 +336,7 @@ cap program drop write_var_report
 	syntax , file(string) datasig(string) idvars(string) n(string) ///
 		user(string) time(string) ///
 		[date_vars(varlist) str_vars(varlist) cat_vars(varlist) cont_vars(varlist)] ///
-		[replace keepvarorder debug]
+		[replace keepvarorder userinfo debug]
 		
 	if !missing("`debug'") noi di "Entering write_var_report subcommand"
 	
@@ -346,10 +347,15 @@ cap program drop write_var_report
 
 	  *Open the file and write headear
 	  file open  `logname' 	using "`logfile'", text write replace
-	  file write `logname' 	"Number of observations:, `n'" _n ///
-							"ID variable(s):, `idvars'" _n ///
-							"Data signature:, `datasig'" _n ///
-							"Last saved by user `user' at `time'" _n _n
+	  file write `logname' 	"Number of observations:,`n'" _n ///
+							"ID variable(s):,`idvars'" _n ///
+							"Data signature:,`datasig'" _n 
+							
+	if !missing("userinfo") {
+	  file write `logname'  "Last saved by:,`user'" _n 
+	}
+	
+	  file write `logname' 	"Last at:,`time'" _n _n
 	  file close `logname'
 	  
 	  foreach vartype in str cont date cat {
