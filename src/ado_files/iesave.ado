@@ -154,12 +154,12 @@ qui{
       local cont_vars 		 : list num_vars - noncont_num_vars
 }	
 
-if !missing("`debug'") {
-	noi di "date_vars: `date_vars'"
-	noi di "cat_vars: `cat_vars'"
-	noi di "cont_vars: `cont_vars'"
-	noi di "str_vars: `str_vars'"
-}
+	if !missing("`debug'") {
+		noi di "date_vars: `date_vars'"
+		noi di "cat_vars: `cat_vars'"
+		noi di "cont_vars: `cont_vars'"
+		noi di "str_vars: `str_vars'"
+	}
 
 /*******************************************************************************
 		Prepare output
@@ -263,6 +263,8 @@ if !missing("`debug'") {
 	  		datasig(`datasig') 		///
 	  		idvars(`idvars') 		///
 	  		n(`N')   	    		///
+			user(`user_char')		///
+			time(`timesave')		///
 			str_vars(`str_vars')	///
 			cont_vars(`cont_vars')	///
 			date_vars(`date_vars')	///
@@ -331,6 +333,7 @@ cap program drop write_var_report
 	program 	 write_var_report
 
 	syntax , file(string) datasig(string) idvars(string) n(string) ///
+		user(string) time(string) ///
 		[date_vars(varlist) str_vars(varlist) cat_vars(varlist) cont_vars(varlist)] ///
 		[replace keepvarorder debug]
 		
@@ -345,7 +348,8 @@ cap program drop write_var_report
 	  file open  `logname' 	using "`logfile'", text write replace
 	  file write `logname' 	"Number of observations:, `n'" _n ///
 							"ID variable(s):, `idvars'" _n ///
-							"Data signature:, `datasig'" _n _n
+							"Data signature:, `datasig'" _n ///
+							"Last saved by user `user' at `time'" _n _n
 	  file close `logname'
 	  
 	  foreach vartype in str cont date cat {
