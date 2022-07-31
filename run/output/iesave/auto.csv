@@ -28,3 +28,7 @@ Variable type: Date or date-time
 Name,Label,Format,Complete observations,Unique values,Mean,SD,Min,Median,Max
 `"date"',"","%td",74,74,16987.32432432432,3064.404588564298,10995,17108.5,21821
 
+Variable type: Categorical
+Name,Label,Value label,Complete observations,Number of levels
+`"var"',"Car type","origin",74, 2
+

@@ -3,7 +3,7 @@
 capture program drop iesave
 		program      iesave , rclass
 
-	syntax using/,  IDvars(varlist) SAVEVersion(string) [replace userinfo varreport(string)]
+	syntax using/,  IDvars(varlist) SAVEVersion(string) [replace userinfo varreport(string) debug]
 
 	  *Save the three possible user settings before setting
 	  * is standardized for this command
@@ -153,6 +153,14 @@ qui{
 	  local noncont_num_vars : list iesave_date | iesave_cat
       local cont_vars 		 : list num_vars - noncont_num_vars
 }	
+
+if !missing("`debug'") {
+	noi di "date_vars: `date_vars'"
+	noi di "cat_vars: `cat_vars'"
+	noi di "cont_vars: `cont_vars'"
+	noi di "str_vars: `str_vars'"
+}
+
 /*******************************************************************************
 		Prepare output
 *******************************************************************************/
@@ -260,7 +268,8 @@ qui{
 			date_vars(`date_vars')	///
 			cat_vars(`cat_vars')	///
 	  		`reportreplace' 		///
-			`keepvarorder'
+			`keepvarorder'			///
+			`debug'
 	  }	  
 	  
 /*******************************************************************************
@@ -323,8 +332,10 @@ cap program drop write_var_report
 
 	syntax , file(string) datasig(string) idvars(string) n(string) ///
 		[date_vars(varlist) str_vars(varlist) cat_vars(varlist) cont_vars(varlist)] ///
-		[replace keepvarorder]
+		[replace keepvarorder debug]
 		
+	if !missing("`debug'") noi di "Entering write_var_report subcommand"
+	
 	  *Set up tempfile locals
 	  tempname 	logname
 	  tempfile	logfile
@@ -337,8 +348,8 @@ cap program drop write_var_report
 							"Data signature:, `datasig'" _n _n
 	  file close `logname'
 	  
-	  foreach vartype in str cont date {
-	  	if !missing("``vartype'_vars'")  write_`vartype'_report  ``vartype'_vars', logname("`logname'") logfile("`logfile'")
+	  foreach vartype in str cont date cat {
+	  	if !missing("``vartype'_vars'")  write_`vartype'_report  ``vartype'_vars', logname("`logname'") logfile("`logfile'") `debug'
 	  }
 	  
 	  *Copy temp file to file location
@@ -352,7 +363,9 @@ end
 cap program drop write_str_report
 	program 	 write_str_report
 	
-	syntax varlist, logfile(string) logname(string)
+	syntax varlist, logfile(string) logname(string) [debug]
+	
+	if !missing("`debug'") noi di "Entering write_str_report subcommand"
 	
 	* Open the file and write headear
 	file open  		`logname' using "`logfile'", text write append
@@ -389,7 +402,9 @@ end
 cap program drop write_cont_report
 	program 	 write_cont_report
 	
-	syntax varlist, logfile(string) logname(string)
+	syntax varlist, logfile(string) logname(string) [debug]
+	
+	if !missing("`debug'") noi di "Entering write_cont_report subcommand"
 	
 	* Open the file and write headear
 	file open  		`logname' using "`logfile'", text write append
@@ -432,7 +447,9 @@ end
 cap program drop write_date_report
 	program 	 write_date_report
 	
-	syntax varlist, logfile(string) logname(string)
+	syntax varlist, logfile(string) logname(string) [debug]
+	
+	if !missing("`debug'") noi di "Entering write_date_report subcommand"
 	
 	* Open the file and write headear
 	file open  		`logname' using "`logfile'", text write append
@@ -477,19 +494,21 @@ end
 cap program drop write_cat_report
 	program 	 write_cat_report
 	
-	syntax varlist, logfile(string) logname(string)
+	syntax varlist, logfile(string) logname(string) [debug]
+	
+	if !missing("`debug'") noi di "Entering write_cat_report subcommand"
 	
 	* Open the file and write headear
 	file open  		`logname' using "`logfile'", text write append
 	file write  	`logname' "Variable type: Categorical" _n
-	file write  	`logname' "Name, Var label, Type, Complete observations, Value label, Number of levels, Number of unlabelled levels, Top count" _n
+	file write  	`logname' "Name,Label,Value label,Complete observations,Number of levels" _n
 	file close 		`logname'
 	
 	foreach var of local varlist {
 		
 		* Get labels
 		local varlabel: variable label  `var'
-		local vartype: 	type 			`var'
+		local vallabel: value 	 label	`var'
 
 		* Number of levels and complete observations
 		qui levelsof `var'
@@ -498,7 +517,7 @@ cap program drop write_cat_report
 	
 		*Write variable row to file
 		file open  `logname' using "`logfile'", text write append
-		file write `logname' `"`"var"',"`varlabel'","`vartype'",`varcomplete', `varlevels'"' _n
+		file write `logname' `"`"`var'"',"`varlabel'","`vallabel'",`varcomplete', `varlevels'"' _n
 		file close `logname'
 	}
 	
