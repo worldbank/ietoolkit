@@ -235,6 +235,15 @@
 
 // Test meta data report -------------------------------------------------------
 
+	set seed 1989
+	
+	sysuse auto, clear
+	gen day 	= runiform(1, 30)
+	gen month 	= runiform(1, 12)
+	gen year 	= runiform(1990, 2020)
+	gen date 	= mdy(month, day, year)
+	format date %td
+	
 	iesave using "${runoutput}/iesave/auto.dta", ///
 		idvars(make) ///
 		saveversion(14) ///

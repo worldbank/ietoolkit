@@ -342,7 +342,7 @@ cap program drop write_var_report
 	  }
 	  
 	  *Copy temp file to file location
-	  copy "`logfile'"  "`file'", `replace'
+	  qui copy "`logfile'"  "`file'", `replace'
 	  noi di `"{phang}Meta data saved to {browse `"`file'"':`file'}{p_end}"'
 	  
 end
