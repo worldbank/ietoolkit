@@ -14,9 +14,6 @@
 	*Load utility function that helps create folders inbetween test runs
 	qui do "${ietoolkit_clone}/run/ie_recurse_mkdir.do"
 
-	*Path to test output folder
-	local test_folder "${runoutput}/iesave"
-
 	/*******************************************************************************
 		Run this run file once for each save file version
 	*******************************************************************************/
@@ -28,10 +25,10 @@
 	foreach stata_ver of local stata_versions {
 
 		*Delete any content from previous round
-		ie_recurse_rmdir, folder("`test_folder'") okifnotexist
+		ie_recurse_rmdir, folder("${runoutput}/iesave") okifnotexist
 
 		* Create the output folder (and all its parents is needed)
-		ie_recurse_mkdir, folder("`test_folder'")
+		ie_recurse_mkdir, folder("${runoutput}/iesave")
 
 		*Lsit of all files this run file is expected to create
 		local expected_files ""
@@ -46,7 +43,7 @@
 
 		* single id
 		sysuse auto, clear
-		iesave using "`test_folder'/id_1.dta", 	///
+		iesave using "${runoutput}/iesave/id_1.dta", 	///
 			idvars(make) 													///
 			saveversion(`stata_ver') 							///
 			replace
@@ -57,7 +54,7 @@
 		* idvars list
 		sysuse auto, clear
 	  gen id = make
-		iesave using "`test_folder'/id_2.dta", 	///
+		iesave using "${runoutput}/iesave/id_2.dta", 	///
 			idvars(make id) 											///
 			saveversion(`stata_ver') 							///
 			replace
@@ -69,7 +66,7 @@
 		sysuse auto, clear
 		gen id = _n if _n != 74
 
-		cap iesave using "`test_folder'/err_id_1.dta", 	///
+		cap iesave using "${runoutput}/iesave/err_id_1.dta", 	///
 			idvars(id) replace 														///
 			saveversion(`stata_ver')
 
@@ -82,7 +79,7 @@
 		replace id = 8 in 11
 		replace id = 8 in 21
 
-		cap iesave using "`test_folder'/err_id_2.dta", 	///
+		cap iesave using "${runoutput}/iesave/err_id_2.dta", 	///
 			idvars(id) replace												///
 			saveversion(`stata_ver')
 
@@ -93,7 +90,7 @@
 		*********************/
 
 		sysuse auto, clear
-		iesave using "`test_folder'/user_1.dta",	///
+		iesave using "${runoutput}/iesave/user_1.dta",	///
 			idvars(make) replace										///
 			saveversion(`stata_ver')
 
@@ -101,7 +98,7 @@
 		local expected_files `"`expected_files' "user_1.dta""'
 
 		*open the file again and test that placeholder text were used
-		use "`test_folder'/user_1.dta", clear
+		use "${runoutput}/iesave/user_1.dta", clear
 		assert "Username withheld, see option userinfo in command iesave" == "`: char _dta[iesave_username]'"
 		assert "Computer ID withheld, see option userinfo in command iesave" == "`: char _dta[iesave_computerid]'"
 
@@ -118,26 +115,26 @@
 		*****************
 		* idvars and saveversion required options
 		sysuse auto, clear
-		cap iesave using "`test_folder'/err_syntax_1.dta"
+		cap iesave using "${runoutput}/iesave/err_syntax_1.dta"
 		assert _rc == 198
 
 		sysuse auto, clear
-		cap iesave using "`test_folder'/err_syntax_2.dta", saveversion(`stata_ver')
+		cap iesave using "${runoutput}/iesave/err_syntax_2.dta", saveversion(`stata_ver')
 		assert _rc == 198
 
 		sysuse auto, clear
-		cap iesave using "`test_folder'/err_syntax_3.dta", idvars(make)
+		cap iesave using "${runoutput}/iesave/err_syntax_3.dta", idvars(make)
 		assert _rc == 198
 
 
 	  *****************
 		* incorrect .dta version value
-		cap iesave using "`test_folder'/err_syntax_4.dta", idvars(make) saveversion(18)
+		cap iesave using "${runoutput}/iesave/err_syntax_4.dta", idvars(make) saveversion(18)
 		assert _rc == 198
 
 		*****************
 		* reportreplace may only be used with varreport
-		cap iesave using "`test_folder'/err_syntax_5.dta", ///
+		cap iesave using "${runoutput}/iesave/err_syntax_5.dta", ///
 			idvars(make) saveversion(`stata_ver') 		///
 			reportreplace
 		assert _rc == 198
@@ -153,7 +150,7 @@
 		sysuse auto, clear
 
 		*1. Run iesave
-		iesave using "`test_folder'/char_1.dta", ///
+		iesave using "${runoutput}/iesave/char_1.dta", ///
 			idvars(make) saveversion(`stata_ver') replace userinfo
 
 		*Add these files to list of expected files
@@ -166,7 +163,7 @@
 		}
 
 		*3. Open the dataset just saved
-		use "`test_folder'/char_1.dta", clear
+		use "${runoutput}/iesave/char_1.dta", clear
 		qui datasignature
 		local datasig `r(datasignature)'
 
@@ -195,7 +192,7 @@
 		sysuse auto, clear
 		drop if trunk > 22
 		drop displacement
-		iesave using "`test_folder'/char_2.dta", ///
+		iesave using "${runoutput}/iesave/char_2.dta", ///
 			idvars(make) saveversion(`stata_ver') replace userinfo
 
 		*Add these files to list of expected files
@@ -216,7 +213,7 @@
 		***************************************************************/
 
 		*List files in output folder and remove the double qoutes
-		local files_in_folder : dir `"`test_folder'"' files "*"	, respectcase
+		local files_in_folder : dir `"${runoutput}/iesave"' files "*"	, respectcase
 
 		*Get list of missing and extra files
 		local missing_files : list expected_files - files_in_folder

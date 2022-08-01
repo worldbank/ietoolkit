@@ -3,7 +3,7 @@
 capture program drop iesave
 		program      iesave , rclass
 
-	syntax using/,  IDvars(varlist) [replace userinfo report(string) debug SAVEVersion(string) version(string)]
+	syntax using/,  IDvars(varlist) [replace userinfo report(string) debug SAVEVersion(string) version(string) noalpha]
 
 	  *Save the three possible user settings before setting
 	  * is standardized for this command
@@ -136,21 +136,23 @@ qui {
 qui{	
 	* String -------------------------------------------------------------------
 	
-	  ds, 	has(type string)
+	  if missing("`noalpha'") local alpha alpha
+	
+	  ds, 	has(type string) `alpha'
       local str_vars `r(varlist)'
 	  
 	* Numeric ------------------------------------------------------------------
 	  
 	  * All numeric
-	  ds, 	has(type numeric)
+	  ds, 	has(type numeric) `alpha'
       local num_vars `r(varlist)'
 	  
 	  * Date (anything with date display format)
-	  ds, 	has(format %t*)
+	  ds, 	has(format %t*) `alpha'
       local date_vars `r(varlist)'
 	  
 	  * All unlabeled
-	  ds, 	not(vallabel)
+	  ds, 	not(vallabel) `alpha'
 	  local novallab_vars `r(varlist)'
 	  
 	  * Categorical variables (labeled numeric variables that are not dates)
@@ -235,8 +237,7 @@ qui{
 	  	tokenize "`report'", parse(",")
 									local report_path 	= strtrim("`1'") // file path
 		if regex("`3'", "replace") 	local reportreplace	replace 		 // all other options
-		if regex("`3'", "noalpha") 	local keepvarorder	keepvarorder 	 // all other options
-		
+	  	  
 		* Test input
 		local report_std = subinstr(`"`report_path'"',"\","/",.)
 
@@ -245,8 +246,8 @@ qui{
 	  	local report_folder  = substr(`"`report_std'"',1,strlen(`"`report_std'"')-strpos(strreverse(`"`report_std'"'),"/"))
 
 	  	*Test that the file extension is csv
-	  	if !(`"`report_fileext'"' == ".csv") {
-	  		noi di as error `"{phang}The report file [`report_path'] must include the file extension .csv.{p_end}"'
+	  	if !inlist(`"`report_fileext'"', ".csv", ".md") {
+	  		noi di as error `"{phang}The report file [`report_path'] must include the file extensions .csv or .md.{p_end}"'
 	  		error 601
 	  	}
 
@@ -266,20 +267,21 @@ qui{
 		
 		* Write csv with variable report that can be version controlled
 		* in git to track when variables change
-		write_var_report, 			///
-	  		file(`report_path') 	///
-	  		datasig(`datasig') 		///
-	  		idvars(`idvars') 		///
-	  		n(`N')   	    		///
-			user(`user_char')		///
-			time(`timesave')		///
-			str_vars(`str_vars')	///
-			cont_vars(`cont_vars')	///
-			date_vars(`date_vars')	///
-			cat_vars(`cat_vars')	///
-	  		`reportreplace' 		///
-			`keepvarorder'			///
-			`userinfo'				///
+		write_var_report, 				///
+	  		file(`report_path') 		///
+	  		datasig(`datasig') 			///
+	  		idvars(`idvars') 			///	
+	  		n(`N')   	    			///
+			user(`user_char')			///
+			time(`timesave')			///
+			str_vars(`str_vars')		///
+			cont_vars(`cont_vars')		///
+			date_vars(`date_vars')		///
+			cat_vars(`cat_vars')		///
+			format(`report_fileext') 	///
+	  		`reportreplace' 			///
+			`keepvarorder'				///
+			`userinfo'					///
 			`debug'
 	  }	  
 	  
@@ -341,10 +343,11 @@ end
 cap program drop write_var_report
 	program 	 write_var_report
 
-	syntax , file(string) datasig(string) idvars(string) n(string) ///
+	syntax , file(string) format(string) ///
+		datasig(string) idvars(string) n(string) ///
 		user(string) time(string) ///
 		[date_vars(varlist) str_vars(varlist) cat_vars(varlist) cont_vars(varlist)] ///
-		[replace keepvarorder userinfo debug]
+		[replace userinfo debug]
 		
 	if !missing("`debug'") noi di "Entering write_var_report subcommand"
 	
@@ -353,21 +356,19 @@ cap program drop write_var_report
 	  tempfile	logfile
 	  capture file close `logfile'
 
-	  *Open the file and write headear
-	  file open  `logname' 	using "`logfile'", text write replace
-	  file write `logname' 	"Number of observations:,`n'" _n ///
-							"ID variable(s):,`idvars'" _n ///
-							"Data signature:,`datasig'" _n 
-							
-	if !missing("userinfo") {
-	  file write `logname'  "Last saved by:,`user'" _n 
-	}
-	
-	  file write `logname' 	"Last at:,`time'" _n _n
-	  file close `logname'
+		  write_header, ///
+			n(`n') idvars(`idvars') datasig(`datasig') user(`user') time(`time') `userinfo' ///
+			format(`format') ///
+			logname("`logname'") logfile("`logfile'") `debug'
 	  
 	  foreach vartype in str cont date cat {
-	  	if !missing("``vartype'_vars'")  write_`vartype'_report  ``vartype'_vars', logname("`logname'") logfile("`logfile'") `debug'
+	  	if !missing("``vartype'_vars'") {
+			if !missing("`debug'") noi di "vartype: `vartype'"
+			
+			write_`vartype'_report  ``vartype'_vars', ///
+				format(`format') ///
+				logname("`logname'") logfile("`logfile'") `debug'
+		}
 	  }
 	  
 	  *Copy temp file to file location
@@ -376,21 +377,127 @@ cap program drop write_var_report
 	  
 end
 
+cap program drop write_header
+	program 	 write_header
+
+	syntax, ///
+		n(string) idvars(string) datasig(string) user(string) time(string) /// 
+		logfile(string) logname(string) format(string) ///
+		[debug userinfo]
+		
+	if !missing("`debug'") noi di "Entering write_header subcommand"
+	
+	if ("`format'" == ".csv") {
+		local sep ","
+	}
+	if ("`format'" == ".md")  {
+		local marker "**"
+		local sep	 " "
+	}
+	
+	*Open the file and write headear
+	  file open  `logname' 	using "`logfile'", text write replace
+	  file write `logname' 	"`marker'Number of observations:`marker'`sep'`n'" _n ///
+							"`marker'ID variable(s):`marker'`sep'`idvars'" _n ///
+							"`marker'Data signature:`marker'`sep'`datasig'" _n 
+							
+	if !missing("`userinfo'") {
+	  file write `logname'  "`marker'Last saved by:`marker'`sep'`user'" _n 
+	}
+	
+	  file write `logname' 	"`marker'Last saved at:`marker'`sep'`time'" _n _n
+	  file close `logname'
+ 
+end
+
+cap program drop write_line
+	program 	 write_line
+
+	syntax anything, logfile(string) logname(string) format(string) [debug]
+		
+	if !missing("`debug'") noi di "Entering write_line subcommand"
+	
+	if 		("`format'" == ".csv") local sep ","
+	else if ("`format'" == ".md")  local sep "|"
+								   local line = subinstr(`anything', "_", "`sep'", .) 
+	if		 ("`format'" == ".md") local line   |`line'|
+
+	file open  `logname' using "`logfile'", text write append
+	file write `logname' 	  `"`line'"' _n
+	file close `logname'
+  
+end
+
+cap program drop write_title
+	program 	 write_title
+
+	syntax anything, logfile(string) logname(string) format(string) [debug]
+		
+	if !missing("`debug'") noi di "Entering write_title subcommand"
+	
+	if ("`format'" == ".md")  local marker "##"
+ 
+	local line `marker'`anything'
+noi di `"`line'"'
+	file open  `logname' using "`logfile'", text write append
+	file write `logname' 	  `"`line'"' _n
+	file close `logname'
+	  	  
+end
+
+cap program drop write_table_header
+	program 	 write_table_header
+
+	syntax anything, logfile(string) logname(string) format(string) [debug]
+		
+	if !missing("`debug'") noi di "Entering write_table_header subcommand"
+
+	* Prepare options
+	if ("`format'" == ".md") {
+		local line  = subinstr(`anything', ",", "|", .)
+		local line    |`line'|
+		local n_col = length(`"`line'"') - length(subinstr(`"`line'"', "|", "", .)) + 1
+	}
+	else {
+		local line  `anything'
+	}
+	
+	* Write table header
+	
+			file open  `logname' using "`logfile'", text write append
+			file write `logname' 	  `"`line'"' _n
+
+	if ("`format'" == ".md") {
+		
+			file write `logname' 	  `"|"'
+		
+		forvalues col = 1/`n_col' {
+			file write `logname' 	  `"---|"'
+		}
+			file write `logname' 	  _n
+	}
+	
+			file close `logname'
+	  	  
+end
+
 // Write string variable report ------------------------------------------------
 
 cap program drop write_str_report
 	program 	 write_str_report
 	
-	syntax varlist, logfile(string) logname(string) [debug]
+	syntax varlist, logfile(string) logname(string) format(string) [debug]
 	
 	if !missing("`debug'") noi di "Entering write_str_report subcommand"
 	
 	* Open the file and write headear
-	file open  		`logname' using "`logfile'", text write append
-	file write  	`logname' "Variable type: String" _n
-	file write  	`logname' "Name,Label,Type,Complete observations,Number of levels" _n
-	file close 		`logname'
+	write_title Variable type: String, ///
+			logfile("`logfile'") logname("`logname'") format("`format'") `debug'
 	
+	write_table_header "Name,Label,Type,Complete observations,Number of levels", ///
+			logfile("`logfile'") logname("`logname'") format("`format'") `debug'
+	
+	* Calculate column values	
 	foreach var of local varlist {
 		
 		* Get labels
@@ -401,11 +508,10 @@ cap program drop write_str_report
 		qui levelsof `var'
 		local varlevels 	= r(r)
 		local varcomplete	= r(N)	
-		
+				
 		*Write variable row to file
-		file open  `logname' using "`logfile'", text write append
-		file write `logname' `"`var',`varlabel',`vartype',`varcomplete', `varlevels'"' _n
-		file close `logname'
+		write_line `"`var'_`varlabel'_`vartype'_`varcomplete'_`varlevels'"', ///
+			logfile("`logfile'") logname("`logname'") format("`format'") `debug'
 		
 	}
 	
@@ -420,16 +526,19 @@ end
 cap program drop write_cont_report
 	program 	 write_cont_report
 	
-	syntax varlist, logfile(string) logname(string) [debug]
+	syntax varlist, logfile(string) logname(string) format(string) [debug]
 	
 	if !missing("`debug'") noi di "Entering write_cont_report subcommand"
 	
-	* Open the file and write headear
-	file open  		`logname' using "`logfile'", text write append
-	file write  	`logname' "Variable type: Continuous" _n
-	file write  	`logname' "Name,Label,Type,Complete observations,Mean,SD,p0,p25,p50,p75,p100" _n
-	file close 		`logname'
+	* Section title
+	write_title Variable type: Continuous, ///
+			logfile("`logfile'") logname("`logname'") format("`format'") `debug'
 	
+	* Column header
+	write_table_header "Name,Label,Type,Complete observations,Mean,SD,p0,p25,p50,p75,p100", ///
+			logfile("`logfile'") logname("`logname'") format("`format'") `debug'
+
+	* Calculate column values	
 	foreach var of local varlist {
 		
 		* Get labels
@@ -448,10 +557,8 @@ cap program drop write_cont_report
 		local p100			= r(max)
 
 		*Write variable row to file
-		file open  `logname' using "`logfile'", text write append
-		file write `logname' `"`var',`varlabel',`vartype',`varcomplete',`mean',`sd',`p0',`p25',`p50',`p75',`p100'"' _n
-		file close `logname'
-		
+		write_line `"`var'_`varlabel'_`vartype'_`varcomplete'_`mean'_`sd'_`p0'_`p25'_`p50'_`p75'_`p100'"', ///
+			logfile("`logfile'") logname("`logname'") format("`format'") `debug'
 	}
 	
 	file open  		`logname' using "`logfile'", text write append
@@ -465,16 +572,18 @@ end
 cap program drop write_date_report
 	program 	 write_date_report
 	
-	syntax varlist, logfile(string) logname(string) [debug]
+	syntax varlist, logfile(string) logname(string) format(string) [debug]
 	
 	if !missing("`debug'") noi di "Entering write_date_report subcommand"
-	
+
 	* Open the file and write headear
-	file open  		`logname' using "`logfile'", text write append
-	file write  	`logname' "Variable type: Date or date-time" _n
-	file write  	`logname' "Name,Label,Format,Complete observations,Unique values,Mean,SD,Min,Median,Max" _n
-	file close 		`logname'
+	write_title Variable type: Date or date-time, ///
+			logfile("`logfile'") logname("`logname'") format("`format'") `debug'
 	
+	write_table_header "Name,Label,Format,Complete observations,Unique values,Mean,SD,Min,Median,Max", ///
+			logfile("`logfile'") logname("`logname'") format("`format'") `debug'
+		
+	* Calculate column values	
 	foreach var of local varlist {
 		
 		* Get labels
@@ -493,12 +602,13 @@ cap program drop write_date_report
 		local min			= r(min)
 		local median		= r(p50)
 		local max			= r(max)
+noi di "601"	
 
-		*Write variable row to file
-		file open  `logname' using "`logfile'", text write append
-		file write `logname' `"`var',`varlabel',`varformat',`varcomplete',`varlevels',`mean',`sd',`min',`median',`max'"' _n
-		file close `logname'
+		noi di `"`var'_`varlabel'_`varformat'_`varcomplete'_`varlevels'_`mean'_`sd'_`min'_`median'_`max'"'
 		
+		*Write variable row to file
+		write_line `"`var'_`varlabel'_`varformat'_`varcomplete'_`varlevels'_`mean'_`sd'_`min'_`median'_`max'"', ///
+			logfile("`logfile'") logname("`logname'") format("`format'") `debug'
 	}
 	
 	file open  		`logname' using "`logfile'", text write append
@@ -512,16 +622,19 @@ end
 cap program drop write_cat_report
 	program 	 write_cat_report
 	
-	syntax varlist, logfile(string) logname(string) [debug]
+	syntax varlist, logfile(string) logname(string) format(string) [debug]
 	
 	if !missing("`debug'") noi di "Entering write_cat_report subcommand"
 	
-	* Open the file and write headear
-	file open  		`logname' using "`logfile'", text write append
-	file write  	`logname' "Variable type: Categorical" _n
-	file write  	`logname' "Name,Label,Value label,Complete observations,Number of levels,Number of unlabeled levels,Top count" _n
-	file close 		`logname'
+	* Section title
+	write_title Variable type: Categorical, ///
+			logfile("`logfile'") logname("`logname'") format("`format'") `debug'
 	
+	* Table header
+	write_table_header "Name,Label,Value label,Complete observations,Number of levels,Number of unlabeled levels,Top count", ///
+			logfile("`logfile'") logname("`logname'") format("`format'") `debug'
+
+	* Calculate column values
 	foreach var of local varlist {
 		
 		* Get labels
@@ -542,9 +655,8 @@ cap program drop write_cat_report
 		local topcount = r(top_count)
 		
 		*Write variable row to file
-		file open  `logname' using "`logfile'", text write append
-		file write `logname' `"`var',`varlabel',`vallabel',`varcomplete',`varlevels',`nunlabeled',`topcount'"' _n
-		file close `logname'
+		write_line `"`var'_`varlabel'_`vallabel'_`varcomplete'_`varlevels'_`nunlabeled'_`topcount'"', ///
+			logfile("`logfile'") logname("`logname'") format("`format'") `debug'
 	}
 	
 	file open  		`logname' using "`logfile'", text write append
