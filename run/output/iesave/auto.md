@@ -7,13 +7,13 @@
 
 ## Variable type: String
 
-| Name | Label | Type | Complete observations | Number of levels |
+| Name | Label | Type | Complete obs | Number of levels |
 |---|---|---|---|---|
 | make | Make and Model | str17 | 74 | 74 |
 
 ## Variable type: Continuous
 
-| Name | Label | Type | Complete observations | Mean | SD | p0 | p25 | p50 | p75 | p100 |
+| Name | Label | Type | Complete obs | Mean | Std Dev | p0 | p25 | p50 | p75 | p100 |
 |---|---|---|---|---|---|---|---|---|---|---|
 | day |  | float | 74 | 15.69839745115589 | 9.142045845400267 | 1.236236810684204 | 7.424164772033691 | 14.43680381774902 | 24.42776298522949 | 29.36405944824219 |
 | displacement | Displacement (cu. in.) | int | 74 | 197.2972972972973 | 91.83721896440397 | 79 | 119 | 196 | 250 | 425 |
@@ -31,13 +31,13 @@
 
 ## Variable type: Date or date-time
 
-| Name | Label | Format | Complete observations | Unique values | Mean | SD | Min | Median | Max |
+| Name | Label | Format | Complete obs | Unique values | Mean | Std Dev | Min | Median | Max |
 |---|---|---|---|---|---|---|---|---|---|
 | date |  | %td | 74 | 74 | 16987.32432432432 | 3064.404588564298 | 10995 | 17108.5 | 21821 |
 
 ## Variable type: Categorical
 
-| Name | Label | Value label | Complete observations | Number of levels | Number of unlabeled levels | Top count |
+| Name | Label | Value label | Complete obs | Number of levels | Number of unlabeled levels | Top count |
 |---|---|---|---|---|---|---|
 | foreign | Car type | origin | 74 | 2 | 0 | Domestic:52 Foreign:22 |
 

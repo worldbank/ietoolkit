@@ -502,7 +502,7 @@ cap program drop write_str_report
 	write_title Variable type: String, ///
 			logfile("`logfile'") logname("`logname'") format("`format'") `debug'
 	
-	write_table_header "Name,Label,Type,Complete observations,Number of levels", ///
+	write_table_header "Name,Label,Type,Complete obs,Number of levels", ///
 			logfile("`logfile'") logname("`logname'") format("`format'") `debug'
 	
 	* Calculate column values	
@@ -543,7 +543,7 @@ cap program drop write_cont_report
 			logfile("`logfile'") logname("`logname'") format("`format'") `debug'
 	
 	* Column header
-	write_table_header "Name,Label,Type,Complete observations,Mean,Std Dev,p0,p25,p50,p75,p100", ///
+	write_table_header "Name,Label,Type,Complete obs,Mean,Std Dev,p0,p25,p50,p75,p100", ///
 			logfile("`logfile'") logname("`logname'") format("`format'") `debug'
 
 	* Calculate column values	
@@ -588,7 +588,7 @@ cap program drop write_date_report
 	write_title Variable type: Date or date-time, ///
 			logfile("`logfile'") logname("`logname'") format("`format'") `debug'
 	
-	write_table_header "Name,Label,Format,Complete observations,Unique values,Mean,Std Dev,Min,Median,Max", ///
+	write_table_header "Name,Label,Format,Complete obs,Unique values,Mean,Std Dev,Min,Median,Max", ///
 			logfile("`logfile'") logname("`logname'") format("`format'") `debug'
 		
 	* Calculate column values	
@@ -639,7 +639,7 @@ cap program drop write_cat_report
 			logfile("`logfile'") logname("`logname'") format("`format'") `debug'
 	
 	* Table header
-	write_table_header "Name,Label,Value label,Complete observations,Number of levels,Number of unlabeled levels,Top count", ///
+	write_table_header "Name,Label,Value label,Complete obs,Number of levels,Number of unlabeled levels,Top count", ///
 			logfile("`logfile'") logname("`logname'") format("`format'") `debug'
 
 	* Calculate column values

@@ -6,7 +6,7 @@ Last saved by:,wb501238
 Last saved at:,18:59:03 1 Aug 2022
 
 Variable type: String
-Name,Label,Type,Complete observations,Number of levels
+Name,Label,Type,Complete obs,Number of levels
 make,Make and Model,str17,74,74
 
 Variable type: Continuous
@@ -26,10 +26,10 @@ weight,Weight (lbs.),int,74,3019.45945945946,777.1935671373662,1760,2240,3190,36
 year,,float,74,2006.574415052259,8.383728129085801,1990.054809570313,1999.98876953125,2006.737243652344,2013.239624023438,2019.763305664063
 
 Variable type: Date or date-time
-Name,Label,Format,Complete observations,Unique values,Mean,SD,Min,Median,Max
 date,,%td,74,74,16987.32432432432,3064.404588564298,10995,17108.5,21821
+Name,Label,Format,Complete obs,Unique values,Mean,Std Dev,Min,Median,Max
 
 Variable type: Categorical
-Name,Label,Value label,Complete observations,Number of levels,Number of unlabeled levels,Top count
+Name,Label,Value label,Complete obs,Number of levels,Number of unlabeled levels,Top count
 foreign,Car type,origin,74,2,0,Domestic:52 Foreign:22
 
