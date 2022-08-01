@@ -391,21 +391,22 @@ cap program drop write_header
 		local sep ","
 	}
 	if ("`format'" == ".md")  {
+		local item   "- "
 		local marker "**"
 		local sep	 " "
 	}
 	
 	*Open the file and write headear
 	  file open  `logname' 	using "`logfile'", text write replace
-	  file write `logname' 	"`marker'Number of observations:`marker'`sep'`n'" _n ///
-							"`marker'ID variable(s):`marker'`sep'`idvars'" _n ///
-							"`marker'Data signature:`marker'`sep'`datasig'" _n 
+	  file write `logname' 	"`item'`marker'Number of observations:`marker'`sep'`n'" _n ///
+							"`item'`marker'ID variable(s):`marker'`sep'`idvars'" _n ///
+							"`item'`marker'Data signature:`marker'`sep'`datasig'" _n 
 							
 	if !missing("`userinfo'") {
-	  file write `logname'  "`marker'Last saved by:`marker'`sep'`user'" _n 
+	  file write `logname'  "`item'`marker'Last saved by:`marker'`sep'`user'" _n 
 	}
 	
-	  file write `logname' 	"`marker'Last saved at:`marker'`sep'`time'" _n _n
+	  file write `logname' 	"`item'`marker'Last saved at:`marker'`sep'`time'" _n _n
 	  file close `logname'
  
 end
@@ -418,9 +419,9 @@ cap program drop write_line
 	if !missing("`debug'") noi di "Entering write_line subcommand"
 	
 	if 		("`format'" == ".csv") local sep ","
-	else if ("`format'" == ".md")  local sep "|"
+	else if ("`format'" == ".md")  local sep " | "
 								   local line = subinstr(`anything', "_", "`sep'", .) 
-	if		 ("`format'" == ".md") local line   |`line'|
+	if		 ("`format'" == ".md") local line   | `line' |
 
 	file open  `logname' using "`logfile'", text write append
 	file write `logname' 	  `"`line'"' _n
@@ -435,13 +436,13 @@ cap program drop write_title
 		
 	if !missing("`debug'") noi di "Entering write_title subcommand"
 	
-	if ("`format'" == ".md")  local marker "##"
- 
-	local line `marker'`anything'
-noi di `"`line'"'
-	file open  `logname' using "`logfile'", text write append
-	file write `logname' 	  `"`line'"' _n
-	file close `logname'
+	if ("`format'" == ".md") local marker 	"## "
+							 local line 	`marker'`anything'
+	
+							 file open  `logname' using "`logfile'", text write append
+							 file write `logname' `"`line'"' _n
+	if ("`format'" == ".md") file write `logname' _n
+							 file close `logname'
 	  	  
 end
 
@@ -454,9 +455,9 @@ cap program drop write_table_header
 
 	* Prepare options
 	if ("`format'" == ".md") {
-		local line  = subinstr(`anything', ",", "|", .)
-		local line    |`line'|
-		local n_col = length(`"`line'"') - length(subinstr(`"`line'"', "|", "", .)) + 1
+		local line  = subinstr(`anything', ",", " | ", .)
+		local line    | `line' |
+		local n_col = length(`"`line'"') - length(subinstr(`"`line'"', "|", "", .)) -1
 	}
 	else {
 		local line  `anything'
@@ -535,7 +536,7 @@ cap program drop write_cont_report
 			logfile("`logfile'") logname("`logname'") format("`format'") `debug'
 	
 	* Column header
-	write_table_header "Name,Label,Type,Complete observations,Mean,SD,p0,p25,p50,p75,p100", ///
+	write_table_header "Name,Label,Type,Complete observations,Mean,Std Dev,p0,p25,p50,p75,p100", ///
 			logfile("`logfile'") logname("`logname'") format("`format'") `debug'
 
 	* Calculate column values	
@@ -580,7 +581,7 @@ cap program drop write_date_report
 	write_title Variable type: Date or date-time, ///
 			logfile("`logfile'") logname("`logname'") format("`format'") `debug'
 	
-	write_table_header "Name,Label,Format,Complete observations,Unique values,Mean,SD,Min,Median,Max", ///
+	write_table_header "Name,Label,Format,Complete observations,Unique values,Mean,Std Dev,Min,Median,Max", ///
 			logfile("`logfile'") logname("`logname'") format("`format'") `debug'
 		
 	* Calculate column values	
