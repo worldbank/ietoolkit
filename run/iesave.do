@@ -22,8 +22,8 @@
 	else if `c(stata_version)' < 14 local stata_versions 12 13
 	else                            local stata_versions 12 13 14
 
-	foreach stata_ver of local stata_versions {
-
+	//foreach stata_ver of local stata_versions {
+local stata_ver 14
 		*Delete any content from previous round
 		ie_recurse_rmdir, folder("${runoutput}/iesave") okifnotexist
 
@@ -228,7 +228,7 @@
 			noi di as error `"{phang}The following files were not expecetd to be creaetd by this run-file but they were created [`extra_files']{p_end}"'
 			error 9
 		}
-	}
+
 
 // Test meta data report -------------------------------------------------------
 
@@ -247,6 +247,14 @@
 		replace ///
 		userinfo ///
 		report("${runoutput}/iesave/auto.csv", replace)	debug
+		
+		
+	iesave using "${runoutput}/iesave/auto.dta", ///
+		idvars(make) ///
+		version(14) ///
+		replace ///
+		userinfo ///
+		report("${runoutput}/iesave/auto.md", replace)	debug
 
 
 ***************************** End of do-file ***********************************
