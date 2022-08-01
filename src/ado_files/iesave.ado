@@ -563,6 +563,10 @@ cap program drop write_cont_report
 		local p50			= r(p50)
 		local p75			= r(p75)
 		local p100			= r(max)
+		
+		foreach stat in mean sd p0 p25 p50 p75 p100 {
+			local `stat' : di %9.4g ``stat''
+		}
 
 		*Write variable row to file
 		write_line `"`var'_`varlabel'_`vartype'_`varcomplete'_`mean'_`sd'_`p0'_`p25'_`p50'_`p75'_`p100'"', ///
@@ -598,21 +602,25 @@ cap program drop write_date_report
 		local varlabel: 	variable label  `var'
 		local varformat: 	format 			`var'
 
-		* Number of levels and complete observations
+		* Number of levels and Complete obs
 		qui levelsof `var'
 		local varlevels 	= r(r)
 		local varcomplete	= r(N)	
 		
 		* Distribution
 		qui sum `var', det
-		local mean			= r(mean)
 		local sd			= r(sd)
 		local min			= r(min)
-		local median		= r(p50)
-		local max			= r(max)
-noi di "601"	
-
-		noi di `"`var'_`varlabel'_`varformat'_`varcomplete'_`varlevels'_`mean'_`sd'_`min'_`median'_`max'"'
+		local mean		= r(mean)
+		local sd		= r(sd)
+		local min		= r(min)
+		local median	= r(p50)
+		local max		= r(max)
+		
+		foreach stat in mean min median max {
+			local `stat' : di `varformat' ``stat''
+		}
+			local sd 	 : di %9.4g `sd'
 		
 		*Write variable row to file
 		write_line `"`var'_`varlabel'_`varformat'_`varcomplete'_`varlevels'_`mean'_`sd'_`min'_`median'_`max'"', ///
