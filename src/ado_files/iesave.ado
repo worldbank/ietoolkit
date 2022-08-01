@@ -91,7 +91,7 @@ capture program drop iesave
 /*******************************************************************************
 	  ID variables
 *******************************************************************************/
-{
+qui {
 	  *Test that the ID var(s) is uniquely and fully identifying
 		capture isid `idvars'
 		if _rc {
@@ -519,7 +519,7 @@ cap program drop write_cat_report
 	* Open the file and write headear
 	file open  		`logname' using "`logfile'", text write append
 	file write  	`logname' "Variable type: Categorical" _n
-	file write  	`logname' "Name,Label,Value label,Complete observations,Number of levels,Top count" _n
+	file write  	`logname' "Name,Label,Value label,Complete observations,Number of levels,Number of unlabeled levels,Top count" _n
 	file close 		`logname'
 	
 	foreach var of local varlist {
@@ -533,13 +533,17 @@ cap program drop write_cat_report
 		local varlevels 	= r(r)
 		local varcomplete	= r(N)	
 	
+		* Count of unlabeled levels
+		n_unlabeled `var', label(`vallabel') `debug'
+		local nunlabeled = r(n_unlabeled)
+		
 		* Most frequent categories
 		top_count `var', `debug'
 		local topcount = r(top_count)
 		
 		*Write variable row to file
 		file open  `logname' using "`logfile'", text write append
-		file write `logname' `"`var',`varlabel',`vallabel',`varcomplete',`varlevels',`topcount'"' _n
+		file write `logname' `"`var',`varlabel',`vallabel',`varcomplete',`varlevels',`nunlabeled',`topcount'"' _n
 		file close `logname'
 	}
 	
@@ -584,5 +588,36 @@ cap program drop top_count
 	return 	local top_count "`top_count'"
 	
 end
+
+cap program drop n_unlabeled
+	program		 n_unlabeled, rclass
+	
+	syntax varname, label(string) [debug]
+	
+	if !missing("`debug'") noi di "Entering n_unlabeled subcommand"
+	
+	qui {
+	    preserve
+		
+			uselabel `label', clear
+			levelsof value, local(labeled_values)
+			
+		restore
+		
+		levelsof `varlist', local(all_values)
+		
+		local unlabeled_values : list all_values - labeled_values
+		
+		if !missing("`unlabeled_values'") {
+			 local n_unlabeled : word count "`unlabeled_values'"
+		}
+		else local n_unlabeled 0
+	}
+	
+	* Return top count to be reported
+	return 	local n_unlabeled `n_unlabeled'
+	
+end
+
 
 ********************************************************************************

@@ -246,9 +246,10 @@
 	
 	iesave using "${runoutput}/iesave/auto.dta", ///
 		idvars(make) ///
-		saveversion(14) ///
+		version(14) ///
 		replace ///
 		userinfo ///
-		varreport("${runoutput}/iesave/auto.csv", replace)	
+		report("${runoutput}/iesave/auto.csv", replace)	debug
+
 
 ***************************** End of do-file ***********************************
