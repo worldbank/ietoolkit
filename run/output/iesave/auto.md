@@ -2,7 +2,7 @@
 **ID variable(s):** make
 **Data signature:** 74:16(110350):932916212:1889387683
 **Last saved by:** wb501238
-**Last saved at:** 18:34:15 1 Aug 2022
+**Last saved at:** 18:38:16 1 Aug 2022
 
 ##Variable type: String
 |Name|Label|Type|Complete observations|Number of levels|
@@ -34,5 +34,5 @@
 ##Variable type: Categorical
 |Name|Label|Value label|Complete observations|Number of levels|Number of unlabeled levels|Top count|
 |---|---|---|---|---|---|---|---|---|
-|foreign|Car type|origin|74|2|0|0:52 1:22|
+|foreign|Car type|origin|74|2|0|Domestic:52 Foreign:22|
 

@@ -677,6 +677,7 @@ cap program drop top_count
 		* Count number of observations per level
 		gen count = 1
 		collapse (sum) count if !missing(`varlist'), by(`varlist')
+		decode `varlist', gen(label)
 		
 		* Sort levels by number of observations, in descending order
 		gsort -count
@@ -688,7 +689,7 @@ cap program drop top_count
 			
 		* Write the number of observations per level
 		forvalues rank = 1/`max' {
-		    local level = `varlist'[`rank']
+		    local level = label[`rank']
 			local count = count[`rank']
 		    local top_count `"`top_count' `level':`count'"'
 		}
