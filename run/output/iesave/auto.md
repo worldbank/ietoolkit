@@ -1,4 +1,5 @@
 - **Number of observations:** 74
+- **Number of variables:** 16
 - **ID variable(s):** make
 - **Data signature:** 74:16(110350):932916212:1889387683
 - **Last saved by:** wb501238

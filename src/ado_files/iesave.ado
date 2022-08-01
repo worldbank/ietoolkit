@@ -134,6 +134,9 @@ qui {
 	Creating lists for data types
 *******************************************************************************/
 qui{	
+	
+	  local n_vars `c(k)'
+	
 	* String -------------------------------------------------------------------
 	
 	  if missing("`noalpha'") local alpha alpha
@@ -272,6 +275,7 @@ qui{
 	  		datasig(`datasig') 			///
 	  		idvars(`idvars') 			///	
 	  		n(`N')   	    			///
+			n_vars(`n_vars')			///
 			user(`user_char')			///
 			time(`timesave')			///
 			str_vars(`str_vars')		///
@@ -344,7 +348,7 @@ cap program drop write_var_report
 	program 	 write_var_report
 
 	syntax , file(string) format(string) ///
-		datasig(string) idvars(string) n(string) ///
+		datasig(string) idvars(string) n(string) n_vars(string) ///
 		user(string) time(string) ///
 		[date_vars(varlist) str_vars(varlist) cat_vars(varlist) cont_vars(varlist)] ///
 		[replace userinfo debug]
@@ -357,7 +361,9 @@ cap program drop write_var_report
 	  capture file close `logfile'
 
 		  write_header, ///
-			n(`n') idvars(`idvars') datasig(`datasig') user(`user') time(`time') `userinfo' ///
+			n(`n') n_vars(`n_vars') idvars(`idvars') ///
+			datasig(`datasig') ///
+			user(`user') time(`time') `userinfo' ///
 			format(`format') ///
 			logname("`logname'") logfile("`logfile'") `debug'
 	  
@@ -381,7 +387,7 @@ cap program drop write_header
 	program 	 write_header
 
 	syntax, ///
-		n(string) idvars(string) datasig(string) user(string) time(string) /// 
+		n(string) n_vars(string) idvars(string) datasig(string) user(string) time(string) /// 
 		logfile(string) logname(string) format(string) ///
 		[debug userinfo]
 		
@@ -399,6 +405,7 @@ cap program drop write_header
 	*Open the file and write headear
 	  file open  `logname' 	using "`logfile'", text write replace
 	  file write `logname' 	"`item'`marker'Number of observations:`marker'`sep'`n'" _n ///
+							"`item'`marker'Number of variables:`marker'`sep'`n_vars'" _n ///
 							"`item'`marker'ID variable(s):`marker'`sep'`idvars'" _n ///
 							"`item'`marker'Data signature:`marker'`sep'`datasig'" _n 
 							
