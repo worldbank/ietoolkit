@@ -3,7 +3,7 @@
 - **ID variable(s):** make
 - **Data signature:** 74:16(110350):932916212:1889387683
 - **Last saved by:** wb501238
-- **Last saved at:** 19:20:39 1 Aug 2022
+- **Last saved at:** 11:39:57 2 Aug 2022
 
 ## Variable type: String
 
@@ -17,7 +17,7 @@
 |---|---|---|---|---|---|---|---|---|---|---|
 | day |  | float | 74 |      15.7 |     9.142 |     1.236 |     7.424 |     14.44 |     24.43 |     29.36 |
 | displacement | Displacement (cu. in.) | int | 74 |     197.3 |     91.84 |        79 |       119 |       196 |       250 |       425 |
-| gear | ratio | Gear Ratio | float | 74 |     3.015 |     .4563 |      2.19 |      2.73 |     2.955 |      3.37 |      3.89 |
+| gear_ratio | Gear Ratio | float | 74 |     3.015 |     .4563 |      2.19 |      2.73 |     2.955 |      3.37 |      3.89 |
 | headroom | Headroom (in.) | float | 74 |     2.993 |      .846 |       1.5 |       2.5 |         3 |       3.5 |         5 |
 | length | Length (in.) | int | 74 |     187.9 |     22.27 |       142 |       170 |     192.5 |       204 |       233 |
 | month |  | float | 74 |     6.533 |     3.053 |      1.23 |       4.2 |     6.398 |     9.273 |     11.85 |

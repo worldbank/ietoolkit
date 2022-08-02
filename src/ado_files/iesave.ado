@@ -427,7 +427,7 @@ cap program drop write_line
 	
 	if 		("`format'" == ".csv") local sep ","
 	else if ("`format'" == ".md")  local sep " | "
-								   local line = subinstr(`anything', "_", "`sep'", .) 
+								   local line = subinstr(`anything', "~", "`sep'", .) 
 	if		 ("`format'" == ".md") local line   | `line' |
 
 	file open  `logname' using "`logfile'", text write append
@@ -518,7 +518,7 @@ cap program drop write_str_report
 		local varcomplete	= r(N)	
 				
 		*Write variable row to file
-		write_line `"`var'_`varlabel'_`vartype'_`varcomplete'_`varlevels'"', ///
+		write_line `"`var'~`varlabel'~`vartype'~`varcomplete'~`varlevels'"', ///
 			logfile("`logfile'") logname("`logname'") format("`format'") `debug'
 		
 	}
@@ -569,7 +569,7 @@ cap program drop write_cont_report
 		}
 
 		*Write variable row to file
-		write_line `"`var'_`varlabel'_`vartype'_`varcomplete'_`mean'_`sd'_`p0'_`p25'_`p50'_`p75'_`p100'"', ///
+		write_line `"`var'~`varlabel'~`vartype'~`varcomplete'~`mean'~`sd'~`p0'~`p25'~`p50'~`p75'~`p100'"', ///
 			logfile("`logfile'") logname("`logname'") format("`format'") `debug'
 	}
 	
@@ -609,8 +609,8 @@ cap program drop write_date_report
 		
 		* Distribution
 		qui sum `var', det
-		local sd			= r(sd)
-		local min			= r(min)
+		local sd		= r(sd)
+		local min		= r(min)
 		local mean		= r(mean)
 		local sd		= r(sd)
 		local min		= r(min)
@@ -623,7 +623,7 @@ cap program drop write_date_report
 			local sd 	 : di %9.4g `sd'
 		
 		*Write variable row to file
-		write_line `"`var'_`varlabel'_`varformat'_`varcomplete'_`varlevels'_`mean'_`sd'_`min'_`median'_`max'"', ///
+		write_line `"`var'~`varlabel'~`varformat'~`varcomplete'~`varlevels'~`mean'~`sd'~`min'~`median'~`max'"', ///
 			logfile("`logfile'") logname("`logname'") format("`format'") `debug'
 	}
 	
@@ -671,7 +671,7 @@ cap program drop write_cat_report
 		local topcount = r(top_count)
 		
 		*Write variable row to file
-		write_line `"`var'_`varlabel'_`vallabel'_`varcomplete'_`varlevels'_`nunlabeled'_`topcount'"', ///
+		write_line `"`var'~`varlabel'~`vallabel'~`varcomplete'~`varlevels'~`nunlabeled'~`topcount'"', ///
 			logfile("`logfile'") logname("`logname'") format("`format'") `debug'
 	}
 	
