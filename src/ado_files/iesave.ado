@@ -137,10 +137,8 @@ qui {
 /*******************************************************************************
 	Creating lists for data types
 *******************************************************************************/
-
-	*Get number of variables
-	local n_vars `c(k)'
-
+qui{	
+	
 	* String -------------------------------------------------------------------
 
 	if missing("`noalpha'") local alpha alpha
@@ -208,6 +206,12 @@ qui {
 	local N `c(N)'
 	local numVars `c(k)'
 
+	*Get total number of obs and vars
+	qui describe
+	local N `r(N)'
+	local numVars `c(k)'
+	
+}
 /*******************************************************************************
 		Save to char
 *******************************************************************************/
@@ -264,12 +268,12 @@ qui {
 		* Write csv with variable report that can be version controlled
 		* in git to track when variables change
 		write_var_report, 				///
-			file(`report_path') 		///
-			datasig(`datasig') 			///
-			idvars(`idvars') 			///
-			n(`N')   	    			///
-			n_vars(`n_vars')			///
-			user(`user')			///
+	  		file(`report_path') 		///
+	  		datasig(`datasig') 			///
+	  		idvars(`idvars') 			///	
+	  		n(`N')   	    			///
+			n_vars(`numVars')			///
+			user(`user_char')			///
 			time(`timesave')			///
 			str_vars(`str_vars')		///
 			cont_vars(`cont_vars')		///
