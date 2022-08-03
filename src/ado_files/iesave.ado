@@ -417,6 +417,9 @@ cap program drop write_line
 								   local line = subinstr(`anything', "~", "`sep'", .) 
 	if		 ("`format'" == ".md") local line   | `line' |
 
+	*Remove excessive spaces in the line before writing it to file
+	local line = trim(itrim("`line'"))
+	
 	file open  `logname' using "`logfile'", text write append
 	file write `logname' 	  `"`line'"' _n
 	file close `logname'
