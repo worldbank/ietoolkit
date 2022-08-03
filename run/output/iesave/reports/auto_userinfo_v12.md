@@ -4,7 +4,7 @@ This report was created by the Stata command iesave (version 7). Read more about
 - **Number of variables:** 16
 - **ID variable(s):** make
 - **Data signature:** 74:16(110350):932916212:1889387683
-- **Last saved by:** Username withheld, see option userinfo in command iesave.
+- **Last saved by:** wb501238
 - **Last saved at:** 15:48:37 3 Aug 2022
 
 ## Variable type: String

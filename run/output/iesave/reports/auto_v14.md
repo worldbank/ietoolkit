@@ -1,9 +1,11 @@
+This report was created by the Stata command iesave (version 7). Read more about this command and the purpose of this report on https://dimewiki.worldbank.org/iesave
+
 - **Number of observations:** 74
 - **Number of variables:** 16
 - **ID variable(s):** make
 - **Data signature:** 74:16(110350):932916212:1889387683
-- **Last saved by:** 
-- **Last saved at:** 13:07:31 3 Aug 2022
+- **Last saved by:** Username withheld, see option userinfo in command iesave.
+- **Last saved at:** 15:48:45 3 Aug 2022
 
 ## Variable type: String
 
@@ -39,5 +41,5 @@
 
 | Name | Label | Value label | Complete obs | Number of levels | Number of unlabeled levels | Top count |
 |---|---|---|---|---|---|---|
-| foreign | "Car type" | "origin" | 74 | 2 | 0 | Domestic:52 Foreign:22 |
+| foreign | "Car type" | origin | 74 | 2 | 0 | Domestic:52 Foreign:22 |
 

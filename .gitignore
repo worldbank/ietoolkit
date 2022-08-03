@@ -43,7 +43,7 @@ _config.yml
 !/**/*.do
 !/**/*.ado
 !/**/*.sthlp
-!/**/output/iesave/*.csv
+!/**/output/iesave/reports/*.csv
 
 # R
 !/**/*.R

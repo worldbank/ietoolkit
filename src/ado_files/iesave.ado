@@ -203,13 +203,9 @@ qui{
 	local datasig `r(datasignature)'
 
 	*Get total number of obs and vars
-	local N `c(N)'
-	local numVars `c(k)'
-
-	*Get total number of obs and vars
-	qui describe
-	local N `r(N)'
-	local numVars `c(k)'
+	local N 	  = _N
+	noi di "Number of obs: `N'"
+	local numVars = c(k)
 	
 }
 /*******************************************************************************
@@ -273,7 +269,7 @@ qui{
 	  		idvars(`idvars') 			///	
 	  		n(`N')   	    			///
 			n_vars(`numVars')			///
-			user(`user_char')			///
+			user(`user')				///
 			time(`timesave')			///
 			str_vars(`str_vars')		///
 			cont_vars(`cont_vars')		///
@@ -282,8 +278,8 @@ qui{
 			format(`report_fileext') 	///
 			`reportreplace' 			///
 			`keepvarorder'				///
-			`userinfo'					///
 			`debug'
+			
 	}
 
 /*******************************************************************************
@@ -340,9 +336,9 @@ cap program drop write_var_report
 
 	syntax , file(string) format(string) ///
 		datasig(string) idvars(string) n(string) n_vars(string) ///
-		time(string) ///
+		time(string) user(string) ///
 		[date_vars(varlist) str_vars(varlist) cat_vars(varlist) cont_vars(varlist)] ///
-		[replace user(string) userinfo debug]
+		[replace debug]
 
 	if !missing("`debug'") noi di "Entering write_var_report subcommand"
 
@@ -354,7 +350,7 @@ cap program drop write_var_report
 	  write_header, ///
 		n(`n') n_vars(`n_vars') idvars(`idvars') ///
 		datasig(`datasig') ///
-		user(`user') time(`time') `userinfo' ///
+		user(`user') time(`time') ///
 		format(`format') ///
 		logname("`logname'") logfile("`logfile'") `debug'
 
@@ -378,10 +374,10 @@ cap program drop write_header
 	program 	 write_header
 
 	syntax, ///
-		n(string) n_vars(string) idvars(string) datasig(string) time(string) ///
+		n(string) n_vars(string) idvars(string) datasig(string) time(string) user(string) ///
 		logfile(string) logname(string) format(string) ///
-		[debug userinfo user(string)]
-
+		[debug ]
+		
 	if !missing("`debug'") noi di "Entering write_header subcommand"
 
 	if ("`format'" == ".csv") {
@@ -389,22 +385,20 @@ cap program drop write_header
 	}
 	if ("`format'" == ".md")  {
 		local item   "- "
-		local marker "**"
+		local bf 	 "**"
 		local sep	 " "
 	}
 
 	*Open the file and write headear
 	  file open  `logname' 	using "`logfile'", text write replace
-	  file write `logname' 	"`item'`marker'Number of observations:`marker'`sep'`n'" _n ///
-							"`item'`marker'Number of variables:`marker'`sep'`n_vars'" _n ///
-							"`item'`marker'ID variable(s):`marker'`sep'`idvars'" _n ///
-							"`item'`marker'Data signature:`marker'`sep'`datasig'" _n
+	  file write `logname' 	"This report was created by the Stata command iesave (version 7). Read more about this command and the purpose of this report on https://dimewiki.worldbank.org/iesave" _n _n ///
+							"`item'`bf'Number of observations:`bf'`sep'`n'" _n ///
+							"`item'`bf'Number of variables:`bf'`sep'`n_vars'" _n ///
+							"`item'`bf'ID variable(s):`bf'`sep'`idvars'" _n ///
+							"`item'`bf'Data signature:`bf'`sep'`datasig'" _n ///
+							"`item'`bf'Last saved by:`bf'`sep'`user'" _n
 
-	if !missing("`userinfo'") {
-	  file write `logname'  "`item'`marker'Last saved by:`marker'`sep'`user'" _n
-	}
-
-	  file write `logname' 	"`item'`marker'Last saved at:`marker'`sep'`time'" _n _n
+	  file write `logname' 	"`item'`bf'Last saved at:`bf'`sep'`time'" _n _n
 	  file close `logname'
 
 end
@@ -665,7 +659,7 @@ cap program drop write_cat_report
 		local topcount = r(top_count)
 
 		*Write variable row to file
-		write_line `"`var'~"`varlabel'"~"`vallabel'"~`varcomplete'~`varlevels'~`nunlabeled'~`topcount'"', ///
+		write_line `"`var'~"`varlabel'"~`vallabel'~`varcomplete'~`varlevels'~`nunlabeled'~`topcount'"', ///
 			logfile("`logfile'") logname("`logname'") format("`format'") `debug'
 	}
 

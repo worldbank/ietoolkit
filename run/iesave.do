@@ -254,15 +254,21 @@
 		saveversion(14) ///
 		replace ///
 		userinfo ///
-		report("${runoutput}/iesave/reports/auto_v`stata_ver'.csv", replace)	debug 
+		report("${runoutput}/iesave/reports/auto_v`stata_ver'.csv", replace) debug 
 		
 		
 	iesave using "`version_folder'/auto.dta", ///
 		idvars(make) ///
 		saveversion(14) ///
 		replace ///
-		userinfo ///
 		report("${runoutput}/iesave/reports/auto_v`stata_ver'.md", replace)	debug 
+		
+	iesave using "`version_folder'/auto.dta", ///
+		idvars(make) ///
+		saveversion(14) ///
+		replace ///
+		userinfo ///
+		report("${runoutput}/iesave/reports/auto_userinfo_v`stata_ver'.md", replace)	debug 
 
 }
         
