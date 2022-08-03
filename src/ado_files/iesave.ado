@@ -340,9 +340,9 @@ cap program drop write_var_report
 
 	syntax , file(string) format(string) ///
 		datasig(string) idvars(string) n(string) n_vars(string) ///
-		user(string) time(string) ///
+		time(string) ///
 		[date_vars(varlist) str_vars(varlist) cat_vars(varlist) cont_vars(varlist)] ///
-		[replace userinfo debug]
+		[replace user(string) userinfo debug]
 
 	if !missing("`debug'") noi di "Entering write_var_report subcommand"
 
@@ -378,9 +378,9 @@ cap program drop write_header
 	program 	 write_header
 
 	syntax, ///
-		n(string) n_vars(string) idvars(string) datasig(string) user(string) time(string) ///
+		n(string) n_vars(string) idvars(string) datasig(string) time(string) ///
 		logfile(string) logname(string) format(string) ///
-		[debug userinfo]
+		[debug userinfo user(string)]
 
 	if !missing("`debug'") noi di "Entering write_header subcommand"
 
@@ -419,10 +419,10 @@ cap program drop write_line
 	if 		("`format'" == ".csv") local sep ","
 	else if ("`format'" == ".md")  local sep " | "
 								   local line = subinstr(`anything', "~", "`sep'", .) 
-	if		 ("`format'" == ".md") local line   | `line' |
+	if		("`format'" == ".md")  local line   | `line' |
 
 	*Remove excessive spaces in the line before writing it to file
-	local line = trim(itrim("`line'"))
+	local line = trim(itrim(`"`line'"'))
 	
 	file open  `logname' using "`logfile'", text write append
 	file write `logname' 	  `"`line'"' _n
@@ -512,7 +512,7 @@ cap program drop write_str_report
 		local varcomplete	= r(N)
 
 		*Write variable row to file
-		write_line `"`var'~`varlabel'~`vartype'~`varcomplete'~`varlevels'"', ///
+		write_line `"`var'~"`varlabel'"~`vartype'~`varcomplete'~`varlevels'"', ///
 			logfile("`logfile'") logname("`logname'") format("`format'") `debug'
 
 	}
@@ -563,7 +563,7 @@ cap program drop write_cont_report
 		}
 
 		*Write variable row to file
-		write_line `"`var'~`varlabel'~`vartype'~`varcomplete'~`mean'~`sd'~`p0'~`p25'~`p50'~`p75'~`p100'"', ///
+		write_line `"`var'~"`varlabel'"~`vartype'~`varcomplete'~`mean'~`sd'~`p0'~`p25'~`p50'~`p75'~`p100'"', ///
 			logfile("`logfile'") logname("`logname'") format("`format'") `debug'
 	}
 
@@ -617,7 +617,7 @@ cap program drop write_date_report
 			local sd 	 : di %9.4g `sd'
 
 		*Write variable row to file
-		write_line `"`var'~`varlabel'~`varformat'~`varcomplete'~`varlevels'~`mean'~`sd'~`min'~`median'~`max'"', ///
+		write_line `"`var'~"`varlabel'"~`varformat'~`varcomplete'~`varlevels'~`mean'~`sd'~`min'~`median'~`max'"', ///
 			logfile("`logfile'") logname("`logname'") format("`format'") `debug'
 	}
 
@@ -665,7 +665,7 @@ cap program drop write_cat_report
 		local topcount = r(top_count)
 
 		*Write variable row to file
-		write_line `"`var'~`varlabel'~`vallabel'~`varcomplete'~`varlevels'~`nunlabeled'~`topcount'"', ///
+		write_line `"`var'~"`varlabel'"~"`vallabel'"~`varcomplete'~`varlevels'~`nunlabeled'~`topcount'"', ///
 			logfile("`logfile'") logname("`logname'") format("`format'") `debug'
 	}
 
