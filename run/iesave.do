@@ -22,13 +22,15 @@
 	else if `c(stata_version)' < 14 local stata_versions 12 13
 	else                            local stata_versions 12 13 14
 
-	//foreach stata_ver of local stata_versions {
-local stata_ver 14
+	foreach stata_ver of local stata_versions {
+        
+        local version_folder "${runoutput}/iesave/v`stata_ver'"
+    
 		*Delete any content from previous round
-		ie_recurse_rmdir, folder("${runoutput}/iesave") okifnotexist
+		ie_recurse_rmdir, folder("`version_folder'") okifnotexist
 
 		* Create the output folder (and all its parents is needed)
-		ie_recurse_mkdir, folder("${runoutput}/iesave")
+		ie_recurse_mkdir, folder("`version_folder'")
 
 		*Lsit of all files this run file is expected to create
 		local expected_files ""
@@ -43,18 +45,24 @@ local stata_ver 14
 
 		* single id
 		sysuse auto, clear
-		iesave using "${runoutput}/iesave/id_1.dta", 	///
-			idvars(make) 													///
-			saveversion(`stata_ver') 							///
+		iesave using "`version_folder'/id_1.dta", 	///
+			idvars(make) 							///
+			saveversion(`stata_ver') 				///
 			replace
+        
+        * Test that command truly save in correct format
+        dtaversion "`version_folder'/id_1.dta"
+        if `stata_ver' == 12 assert `r(version)' == 115
+        if `stata_ver' == 13 assert `r(version)' == 117
+        if `stata_ver' == 14 assert `r(version)' == 118
 
 		*Add this file to list of expected files
 		local expected_files `"`expected_files' "id_1.dta""'
 
 		* idvars list
 		sysuse auto, clear
-	  gen id = make
-		iesave using "${runoutput}/iesave/id_2.dta", 	///
+	    gen id = make
+		iesave using "`version_folder'/id_2.dta", 	///
 			idvars(make id) 											///
 			saveversion(`stata_ver') 							///
 			replace
@@ -66,10 +74,9 @@ local stata_ver 14
 		sysuse auto, clear
 		gen id = _n if _n != 74
 
-		cap iesave using "${runoutput}/iesave/err_id_1.dta", 	///
+		cap iesave using "`version_folder'/err_id_1.dta", 	///
 			idvars(id) replace 														///
 			saveversion(`stata_ver')
-
 		assert _rc == 459
 
 		* Duplicates in the idvars
@@ -79,10 +86,9 @@ local stata_ver 14
 		replace id = 8 in 11
 		replace id = 8 in 21
 
-		cap iesave using "${runoutput}/iesave/err_id_2.dta", 	///
+		cap iesave using "`version_folder'/err_id_2.dta", 	///
 			idvars(id) replace												///
 			saveversion(`stata_ver')
-
 		assert _rc == 459
 
 		/*********************
@@ -90,7 +96,7 @@ local stata_ver 14
 		*********************/
 
 		sysuse auto, clear
-		iesave using "${runoutput}/iesave/user_1.dta",	///
+		iesave using "`version_folder'/user_1.dta",	///
 			idvars(make) replace										///
 			saveversion(`stata_ver')
 
@@ -98,9 +104,9 @@ local stata_ver 14
 		local expected_files `"`expected_files' "user_1.dta""'
 
 		*open the file again and test that placeholder text were used
-		use "${runoutput}/iesave/user_1.dta", clear
-		assert "Username withheld, see option userinfo in command iesave" == "`: char _dta[iesave_username]'"
-		assert "Computer ID withheld, see option userinfo in command iesave" == "`: char _dta[iesave_computerid]'"
+		use "`version_folder'/user_1.dta", clear
+		assert "Username withheld, see option userinfo in command iesave." == "`: char _dta[iesave_username]'"
+		assert "Computer ID withheld, see option userinfo in command iesave." == "`: char _dta[iesave_computerid]'"
 
 	/*******************************************************************************
 	    * Invalid syntaxes
@@ -115,26 +121,26 @@ local stata_ver 14
 		*****************
 		* idvars and saveversion required options
 		sysuse auto, clear
-		cap iesave using "${runoutput}/iesave/err_syntax_1.dta"
+		cap iesave using "`version_folder'/err_syntax_1.dta"
 		assert _rc == 198
 
 		sysuse auto, clear
-		cap iesave using "${runoutput}/iesave/err_syntax_2.dta", saveversion(`stata_ver')
+		cap iesave using "`version_folder'/err_syntax_2.dta", saveversion(`stata_ver')
 		assert _rc == 198
 
 		sysuse auto, clear
-		cap iesave using "${runoutput}/iesave/err_syntax_3.dta", idvars(make)
+		cap iesave using "`version_folder'/err_syntax_3.dta", idvars(make)
 		assert _rc == 198
 
 
 	  *****************
 		* incorrect .dta version value
-		cap iesave using "${runoutput}/iesave/err_syntax_4.dta", idvars(make) saveversion(18)
+		cap iesave using "`version_folder'/err_syntax_4.dta", idvars(make) saveversion(18)
 		assert _rc == 198
 
 		*****************
 		* reportreplace may only be used with varreport
-		cap iesave using "${runoutput}/iesave/err_syntax_5.dta", ///
+		cap iesave using "`version_folder'/err_syntax_5.dta", ///
 			idvars(make) saveversion(`stata_ver') 		///
 			reportreplace
 		assert _rc == 198
@@ -150,7 +156,7 @@ local stata_ver 14
 		sysuse auto, clear
 
 		*1. Run iesave
-		iesave using "${runoutput}/iesave/char_1.dta", ///
+		iesave using "`version_folder'/char_1.dta", ///
 			idvars(make) saveversion(`stata_ver') replace userinfo
 
 		*Add these files to list of expected files
@@ -163,7 +169,7 @@ local stata_ver 14
 		}
 
 		*3. Open the dataset just saved
-		use "${runoutput}/iesave/char_1.dta", clear
+		use "`version_folder'/char_1.dta", clear
 		qui datasignature
 		local datasig `r(datasignature)'
 
@@ -174,16 +180,16 @@ local stata_ver 14
 		assert !missing("`char_computerid'")
 		assert !missing("`char_datasignature'")
 
-		assert "`char_idvars'" 				== "make"
-		assert  `char_N'  						== _N
-		assert "`char_username'" 			== "`c(username)'"
-		assert "`char_computerid'"		== "`c(hostname)'"
-		assert "`char_datasignature'"	== "`datasig'"
+		assert "`char_idvars'"         == "make"
+		assert  `char_N'               == _N
+		assert "`char_username'"       == "`c(username)'"
+		assert "`char_computerid'"     == "`c(hostname)'"
+		assert "`char_datasignature'"  == "`datasig'"
 
 		*Make sure that time saved in char is less than time after sleeping for 3 sec
 		sleep 3000
 		assert Clock("`char_timesave'", "hmsDMY") < ///
-					 Clock("`c(current_time)' `c(current_date)'", "hmsDMY")
+               Clock("`c(current_time)' `c(current_date)'", "hmsDMY")
 
 		/**************************************************************
 		Validate if char values are as expected after make data changes
@@ -192,28 +198,28 @@ local stata_ver 14
 		sysuse auto, clear
 		drop if trunk > 22
 		drop displacement
-		iesave using "${runoutput}/iesave/char_2.dta", ///
+		iesave using "`version_folder'/char_2.dta", ///
 			idvars(make) saveversion(`stata_ver') replace userinfo
 
 		*Add these files to list of expected files
 		local expected_files `"`expected_files' "char_2.dta""'
 
-		di `" assert "`char_idvars'" 				== "`: char _dta[iesave_idvars]'" "'
-		di `" assert "`char_username'" 			== "`: char _dta[iesave_username]'" "'
-		di `" assert "`char_computerid'"		== "`: char _dta[iesave_computerid]'" "'
+		di `" assert "`char_idvars'" 		== "`: char _dta[iesave_idvars]'" "'
+		di `" assert "`char_username'" 		== "`: char _dta[iesave_username]'" "'
+		di `" assert "`char_computerid'"	== "`: char _dta[iesave_computerid]'" "'
 		di `" assert "`char_datasignature'"	!= "`: char _dta[iesave_datasignature]'" "'
 
 		assert "`char_idvars'" 				== "`: char _dta[iesave_idvars]'"
 		assert "`char_username'" 			== "`: char _dta[iesave_username]'"
-		assert "`char_computerid'"		== "`: char _dta[iesave_computerid]'"
-		assert "`char_datasignature'"	!= "`: char _dta[iesave_datasignature]'"
+		assert "`char_computerid'"		    == "`: char _dta[iesave_computerid]'"
+		assert "`char_datasignature'"	    != "`: char _dta[iesave_datasignature]'"
 
 		/**************************************************************
 		Test that only the exact data sets expected are created
 		***************************************************************/
 
 		*List files in output folder and remove the double qoutes
-		local files_in_folder : dir `"${runoutput}/iesave"' files "*"	, respectcase
+		local files_in_folder : dir `"`version_folder'"' files "*"	, respectcase
 
 		*Get list of missing and extra files
 		local missing_files : list expected_files - files_in_folder
@@ -221,11 +227,11 @@ local stata_ver 14
 
 		*Output error if there were extra or missing files
 		if `"`missing_files'"' != "" {
-			noi di as error `"{phang}The following files were expecetd to be creaetd by this run0file but they were not created [`missing_files']{p_end}"'
+			noi di as error `"{phang}The following files were expecetd to be created by this run0file but they were not created [`missing_files']{p_end}"'
 			error 9
 		}
 		if `"`extra_files'"' != "" {
-			noi di as error `"{phang}The following files were not expecetd to be creaetd by this run-file but they were created [`extra_files']{p_end}"'
+			noi di as error `"{phang}The following files were not expecetd to be created by this run-file but they were created [`extra_files']{p_end}"'
 			error 9
 		}
 
@@ -240,21 +246,24 @@ local stata_ver 14
 	gen year 	= runiform(1990, 2020)
 	gen date 	= mdy(month, day, year)
 	format date %td
+    
+    lab var mpg "Milage , mpg"
 	
-	iesave using "${runoutput}/iesave/auto.dta", ///
+	iesave using "`version_folder'/auto.dta", ///
 		idvars(make) ///
-		version(14) ///
+		saveversion(14) ///
 		replace ///
 		userinfo ///
-		report("${runoutput}/iesave/auto.csv", replace)	debug
+		report("${runoutput}/iesave/reports/auto_v`stata_ver'.csv", replace)	debug 
 		
 		
-	iesave using "${runoutput}/iesave/auto.dta", ///
+	iesave using "`version_folder'/auto.dta", ///
 		idvars(make) ///
-		version(14) ///
+		saveversion(14) ///
 		replace ///
 		userinfo ///
-		report("${runoutput}/iesave/auto.md", replace)	debug
+		report("${runoutput}/iesave/reports/auto_v`stata_ver'.md", replace)	debug 
 
-
+}
+        
 ***************************** End of do-file ***********************************
