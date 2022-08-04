@@ -137,8 +137,8 @@ qui {
 /*******************************************************************************
 	Creating lists for data types
 *******************************************************************************/
-qui{	
-	
+qui{
+
 	* String -------------------------------------------------------------------
 
 	if missing("`noalpha'") local alpha alpha
@@ -206,7 +206,7 @@ qui{
 	local N 	  = _N
 	noi di "Number of obs: `N'"
 	local numVars = c(k)
-	
+
 }
 /*******************************************************************************
 		Save to char
@@ -266,7 +266,7 @@ qui{
 		write_var_report, 				///
 	  		file(`report_path') 		///
 	  		datasig(`datasig') 			///
-	  		idvars(`idvars') 			///	
+	  		idvars(`idvars') 			///
 	  		n(`N')   	    			///
 			n_vars(`numVars')			///
 			user(`user')				///
@@ -279,7 +279,7 @@ qui{
 			`reportreplace' 			///
 			`keepvarorder'				///
 			`debug'
-			
+
 	}
 
 /*******************************************************************************
@@ -377,7 +377,7 @@ cap program drop write_header
 		n(string) n_vars(string) idvars(string) datasig(string) time(string) user(string) ///
 		logfile(string) logname(string) format(string) ///
 		[debug ]
-		
+
 	if !missing("`debug'") noi di "Entering write_header subcommand"
 
 	if ("`format'" == ".csv") {
@@ -389,9 +389,14 @@ cap program drop write_header
 		local sep	 " "
 	}
 
+	*Get the version of ietoolkit installed
+	cap ietoolkit
+	if missing("`r(version)'") local ietkit_v "%% ietoolkit not installed through SSC %%"
+	else                       local ietkit_v "version `r(version)'"
+
 	*Open the file and write headear
 	  file open  `logname' 	using "`logfile'", text write replace
-	  file write `logname' 	"This report was created by the Stata command iesave (version 7). Read more about this command and the purpose of this report on https://dimewiki.worldbank.org/iesave" _n _n ///
+	  file write `logname' 	"This report was created by the Stata command iesave (`ietkit_v'). Read more about this command and the purpose of this report on https://dimewiki.worldbank.org/iesave" _n _n ///
 							"`item'`bf'Number of observations:`bf'`sep'`n'" _n ///
 							"`item'`bf'Number of variables:`bf'`sep'`n_vars'" _n ///
 							"`item'`bf'ID variable(s):`bf'`sep'`idvars'" _n ///
@@ -412,12 +417,12 @@ cap program drop write_line
 
 	if 		("`format'" == ".csv") local sep ","
 	else if ("`format'" == ".md")  local sep " | "
-								   local line = subinstr(`anything', "~", "`sep'", .) 
+								   local line = subinstr(`anything', "~", "`sep'", .)
 	if		("`format'" == ".md")  local line   | `line' |
 
 	*Remove excessive spaces in the line before writing it to file
 	local line = trim(itrim(`"`line'"'))
-	
+
 	file open  `logname' using "`logfile'", text write append
 	file write `logname' 	  `"`line'"' _n
 	file close `logname'
