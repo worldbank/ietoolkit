@@ -17,17 +17,22 @@
 	/*******************************************************************************
 		Run this run file once for each save file version
 	*******************************************************************************/
-  * Only include the version your Stata version can run
+
+    *Remove all previously generated output (if any)
+    ie_recurse_rmdir, folder("${runoutput}/iesave") okifnotexist
+    
+    *Remove and re-create the reports folders
+    local report_folder "${runoutput}/iesave/reports"
+    ie_recurse_mkdir, folder("`report_folder'")
+ 
+    * Only include the version your Stata version can run
 	if 			`c(stata_version)' < 13 local stata_versions 12
 	else if `c(stata_version)' < 14 local stata_versions 12 13
 	else                            local stata_versions 12 13 14
-
+ 
 	foreach stata_ver of local stata_versions {
         
         local version_folder "${runoutput}/iesave/v`stata_ver'"
-    
-		*Delete any content from previous round
-		ie_recurse_rmdir, folder("`version_folder'") okifnotexist
 
 		* Create the output folder (and all its parents is needed)
 		ie_recurse_mkdir, folder("`version_folder'")
@@ -254,21 +259,21 @@
 		saveversion(14) ///
 		replace ///
 		userinfo ///
-		report("${runoutput}/iesave/reports/auto_v`stata_ver'.csv", replace) debug 
+		report("`report_folder'/auto_v`stata_ver'.csv", replace) debug 
 		
 		
 	iesave using "`version_folder'/auto.dta", ///
 		idvars(make) ///
 		saveversion(14) ///
 		replace ///
-		report("${runoutput}/iesave/reports/auto_v`stata_ver'.md", replace)	debug 
+		report("`report_folder'/auto_v`stata_ver'.md", replace)	debug 
 		
 	iesave using "`version_folder'/auto.dta", ///
 		idvars(make) ///
 		saveversion(14) ///
 		replace ///
 		userinfo ///
-		report("${runoutput}/iesave/reports/auto_userinfo_v`stata_ver'.md", replace)	debug 
+		report("`report_folder'/auto_userinfo_v`stata_ver'.md", replace)	debug 
 
 }
         
