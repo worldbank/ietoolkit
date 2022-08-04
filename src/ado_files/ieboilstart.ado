@@ -226,6 +226,12 @@
 		set varabbrev off `permanently'
 		local setDispLocal "`setDispLocal'{break}{col 5}set varabbrev {col 22}off`permanently_col'"
 
+		set type float `permanently'
+		local setDispLocal "`setDispLocal'{break}{col 5}set type {col 22}float`permanently_col'"
+
+		set rng default
+		local setDispLocal "`setDispLocal'{break}{col 5}set rng {col 22}default"
+
 		/*********************************
 
 			Add custom lines of code
