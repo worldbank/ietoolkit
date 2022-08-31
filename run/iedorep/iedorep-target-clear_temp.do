@@ -40,9 +40,8 @@ datasignature
 if ("`r(datasignature)'" != "``theDATA''") {
 post posty (1)  ("Changed") ("") ("") ("") ("") ("") ("")  
 local `theDATA' = "`r(datasignature)'" 
-tempfile 1
 local theLOCALS "`theLOCALS' 1" 
-save `1' , emptyok
+local 1 = "`r(datasignature)'" 
 }
 
 if ("`c(rngstate)'" != "``theRNG''") {
@@ -61,9 +60,8 @@ datasignature
 if ("`r(datasignature)'" != "``theDATA''") {
 post posty (2)  ("Changed") ("") ("") ("") ("") ("") ("")  
 local `theDATA' = "`r(datasignature)'" 
-tempfile 2
 local theLOCALS "`theLOCALS' 2" 
-save `2' , emptyok
+local 2 = "`r(datasignature)'" 
 }
   cap drop _all            
   cap frames reset         
@@ -97,9 +95,8 @@ datasignature
 if ("`r(datasignature)'" != "``theDATA''") {
 post posty (3)  ("Changed") ("") ("") ("") ("") ("") ("")  
 local `theDATA' = "`r(datasignature)'" 
-tempfile 3
 local theLOCALS "`theLOCALS' 3" 
-save `3' , emptyok
+local 3 = "`r(datasignature)'" 
 }
 
 if ("`c(rngstate)'" != "``theRNG''") {
@@ -118,9 +115,8 @@ datasignature
 if ("`r(datasignature)'" != "``theDATA''") {
 post posty (4)  ("Changed") ("") ("") ("") ("") ("") ("")  
 local `theDATA' = "`r(datasignature)'" 
-tempfile 4
 local theLOCALS "`theLOCALS' 4" 
-save `4' , emptyok
+local 4 = "`r(datasignature)'" 
 }
 sysuse auto.dta
 if ("`c(rngstate)'" != "``theRNG''") {
@@ -139,9 +135,8 @@ datasignature
 if ("`r(datasignature)'" != "``theDATA''") {
 post posty (5)  ("Changed") ("") ("") ("") ("") ("") ("")  
 local `theDATA' = "`r(datasignature)'" 
-tempfile 5
 local theLOCALS "`theLOCALS' 5" 
-save `5' , emptyok
+local 5 = "`r(datasignature)'" 
 }
 
 if ("`c(rngstate)'" != "``theRNG''") {
@@ -160,9 +155,8 @@ datasignature
 if ("`r(datasignature)'" != "``theDATA''") {
 post posty (6)  ("Changed") ("") ("") ("") ("") ("") ("")  
 local `theDATA' = "`r(datasignature)'" 
-tempfile 6
 local theLOCALS "`theLOCALS' 6" 
-save `6' , emptyok
+local 6 = "`r(datasignature)'" 
 }
   cap drop _all            
   cap frames reset         
@@ -197,9 +191,8 @@ datasignature
 if ("`r(datasignature)'" != "``theDATA''") {
 post posty (7)  ("Changed") ("") ("") ("") ("") ("") ("")  
 local `theDATA' = "`r(datasignature)'" 
-tempfile 7
 local theLOCALS "`theLOCALS' 7" 
-save `7' , emptyok
+local 7 = "`r(datasignature)'" 
 }
   `r(version)'
 if ("`c(rngstate)'" != "``theRNG''") {
@@ -218,9 +211,8 @@ datasignature
 if ("`r(datasignature)'" != "``theDATA''") {
 post posty (8)  ("Changed") ("") ("") ("") ("") ("") ("")  
 local `theDATA' = "`r(datasignature)'" 
-tempfile 8
 local theLOCALS "`theLOCALS' 8" 
-save `8' , emptyok
+local 8 = "`r(datasignature)'" 
 }
   cap drop _all            
   cap frames reset         
@@ -254,9 +246,8 @@ datasignature
 if ("`r(datasignature)'" != "``theDATA''") {
 post posty (9)  ("Changed") ("") ("") ("") ("") ("") ("")  
 local `theDATA' = "`r(datasignature)'" 
-tempfile 9
 local theLOCALS "`theLOCALS' 9" 
-save `9' , emptyok
+local 9 = "`r(datasignature)'" 
 }
 sysuse auto.dta , clear
 if ("`c(rngstate)'" != "``theRNG''") {
@@ -275,9 +266,8 @@ datasignature
 if ("`r(datasignature)'" != "``theDATA''") {
 post posty (10)  ("Changed") ("") ("") ("") ("") ("") ("")  
 local `theDATA' = "`r(datasignature)'" 
-tempfile 10
 local theLOCALS "`theLOCALS' 10" 
-save `10' , emptyok
+local 10 = "`r(datasignature)'" 
 }
 
 if ("`c(rngstate)'" != "``theRNG''") {
@@ -296,9 +286,8 @@ datasignature
 if ("`r(datasignature)'" != "``theDATA''") {
 post posty (11)  ("Changed") ("") ("") ("") ("") ("") ("")  
 local `theDATA' = "`r(datasignature)'" 
-tempfile 11
 local theLOCALS "`theLOCALS' 11" 
-save `11' , emptyok
+local 11 = "`r(datasignature)'" 
 }
 //
 if ("`c(rngstate)'" != "``theRNG''") {
@@ -317,9 +306,8 @@ datasignature
 if ("`r(datasignature)'" != "``theDATA''") {
 post posty (12)  ("Changed") ("") ("") ("") ("") ("") ("")  
 local `theDATA' = "`r(datasignature)'" 
-tempfile 12
 local theLOCALS "`theLOCALS' 12" 
-save `12' , emptyok
+local 12 = "`r(datasignature)'" 
 }
 
 // CLEANUP LOCALS BETWEEN FILES -------------------------------------------
@@ -372,8 +360,7 @@ post posty (1)  ("") ("") ("") ("") ("") ("ERROR! ") ("")
 datasignature
 if ("`r(datasignature)'" != "``theDATA''") {
 local `theDATA' = "`r(datasignature)'" 
-cap cf _all using `1'
-if _rc != 0 {
+if ("`r(datasignature)'" != "`1'") {
 post posty (1)  ("") ("ERROR! ") ("") ("") ("") ("") ("")  
 }
 }
@@ -395,8 +382,7 @@ post posty (2)  ("") ("") ("") ("") ("") ("ERROR! ") ("")
 datasignature
 if ("`r(datasignature)'" != "``theDATA''") {
 local `theDATA' = "`r(datasignature)'" 
-cap cf _all using `2'
-if _rc != 0 {
+if ("`r(datasignature)'" != "`2'") {
 post posty (2)  ("") ("ERROR! ") ("") ("") ("") ("") ("")  
 }
 }
@@ -433,8 +419,7 @@ post posty (3)  ("") ("") ("") ("") ("") ("ERROR! ") ("")
 datasignature
 if ("`r(datasignature)'" != "``theDATA''") {
 local `theDATA' = "`r(datasignature)'" 
-cap cf _all using `3'
-if _rc != 0 {
+if ("`r(datasignature)'" != "`3'") {
 post posty (3)  ("") ("ERROR! ") ("") ("") ("") ("") ("")  
 }
 }
@@ -456,8 +441,7 @@ post posty (4)  ("") ("") ("") ("") ("") ("ERROR! ") ("")
 datasignature
 if ("`r(datasignature)'" != "``theDATA''") {
 local `theDATA' = "`r(datasignature)'" 
-cap cf _all using `4'
-if _rc != 0 {
+if ("`r(datasignature)'" != "`4'") {
 post posty (4)  ("") ("ERROR! ") ("") ("") ("") ("") ("")  
 }
 }
@@ -479,8 +463,7 @@ post posty (5)  ("") ("") ("") ("") ("") ("ERROR! ") ("")
 datasignature
 if ("`r(datasignature)'" != "``theDATA''") {
 local `theDATA' = "`r(datasignature)'" 
-cap cf _all using `5'
-if _rc != 0 {
+if ("`r(datasignature)'" != "`5'") {
 post posty (5)  ("") ("ERROR! ") ("") ("") ("") ("") ("")  
 }
 }
@@ -502,8 +485,7 @@ post posty (6)  ("") ("") ("") ("") ("") ("ERROR! ") ("")
 datasignature
 if ("`r(datasignature)'" != "``theDATA''") {
 local `theDATA' = "`r(datasignature)'" 
-cap cf _all using `6'
-if _rc != 0 {
+if ("`r(datasignature)'" != "`6'") {
 post posty (6)  ("") ("ERROR! ") ("") ("") ("") ("") ("")  
 }
 }
@@ -541,8 +523,7 @@ post posty (7)  ("") ("") ("") ("") ("") ("ERROR! ") ("")
 datasignature
 if ("`r(datasignature)'" != "``theDATA''") {
 local `theDATA' = "`r(datasignature)'" 
-cap cf _all using `7'
-if _rc != 0 {
+if ("`r(datasignature)'" != "`7'") {
 post posty (7)  ("") ("ERROR! ") ("") ("") ("") ("") ("")  
 }
 }
@@ -564,8 +545,7 @@ post posty (8)  ("") ("") ("") ("") ("") ("ERROR! ") ("")
 datasignature
 if ("`r(datasignature)'" != "``theDATA''") {
 local `theDATA' = "`r(datasignature)'" 
-cap cf _all using `8'
-if _rc != 0 {
+if ("`r(datasignature)'" != "`8'") {
 post posty (8)  ("") ("ERROR! ") ("") ("") ("") ("") ("")  
 }
 }
@@ -602,8 +582,7 @@ post posty (9)  ("") ("") ("") ("") ("") ("ERROR! ") ("")
 datasignature
 if ("`r(datasignature)'" != "``theDATA''") {
 local `theDATA' = "`r(datasignature)'" 
-cap cf _all using `9'
-if _rc != 0 {
+if ("`r(datasignature)'" != "`9'") {
 post posty (9)  ("") ("ERROR! ") ("") ("") ("") ("") ("")  
 }
 }
@@ -625,8 +604,7 @@ post posty (10)  ("") ("") ("") ("") ("") ("ERROR! ") ("")
 datasignature
 if ("`r(datasignature)'" != "``theDATA''") {
 local `theDATA' = "`r(datasignature)'" 
-cap cf _all using `10'
-if _rc != 0 {
+if ("`r(datasignature)'" != "`10'") {
 post posty (10)  ("") ("ERROR! ") ("") ("") ("") ("") ("")  
 }
 }
@@ -648,8 +626,7 @@ post posty (11)  ("") ("") ("") ("") ("") ("ERROR! ") ("")
 datasignature
 if ("`r(datasignature)'" != "``theDATA''") {
 local `theDATA' = "`r(datasignature)'" 
-cap cf _all using `11'
-if _rc != 0 {
+if ("`r(datasignature)'" != "`11'") {
 post posty (11)  ("") ("ERROR! ") ("") ("") ("") ("") ("")  
 }
 }
@@ -671,8 +648,7 @@ post posty (12)  ("") ("") ("") ("") ("") ("ERROR! ") ("")
 datasignature
 if ("`r(datasignature)'" != "``theDATA''") {
 local `theDATA' = "`r(datasignature)'" 
-cap cf _all using `12'
-if _rc != 0 {
+if ("`r(datasignature)'" != "`12'") {
 post posty (12)  ("") ("ERROR! ") ("") ("") ("") ("") ("")  
 }
 }

@@ -293,9 +293,8 @@ while r(eof)==0 {
       `"if ("\`r(datasignature)'" != "\`\`theDATA''") {"' _n ///
         `"post posty (`linenum_real') `alldata1' "' _n ///
         `"local \`theDATA' = "\`r(datasignature)'" "' _n ///
-        `"tempfile `linenum_real'"' _n ///
         `"local theLOCALS "\`theLOCALS' `linenum_real'" "' _n ///
-        `"save \``linenum_real'' , emptyok"' _n ///
+        `"local `linenum_real' = "\`r(datasignature)'" "' _n ///
       `"}"'_n
       
       // Error changes to DATA state
@@ -303,8 +302,7 @@ while r(eof)==0 {
       "datasignature" _n ///
       `"if ("\`r(datasignature)'" != "\`\`theDATA''") {"' _n ///
         `"local \`theDATA' = "\`r(datasignature)'" "' _n ///
-        `"cap cf _all using \``linenum_real''"' _n ///
-        `"if _rc != 0 {"'_n ///
+        `"if ("\`r(datasignature)'" != "\``linenum_real''") {"'_n ///
             `"post posty (`linenum_real') `alldata2' "' _n ///
         `"}"'_n ///
       `"}"'_n
