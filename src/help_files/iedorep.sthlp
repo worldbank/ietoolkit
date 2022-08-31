@@ -27,11 +27,11 @@ command please see the {browse "https://dimewiki.worldbank.org/wiki/iedorep":DIM
 {phang}{cmdab:iedorep} will run the do-file twice and flag three types of possible
   errors between the first and the second run of the do-file.
   (1) Changes to data which leave the data at a different state 
-  in the same line of the do-file.
+  in the same line of the do-file. (Changes in the datasignature)
   (2) Changes to the random number generator state 
-  which result in a different state at the same line in the do-file. 
+  which result in a different state at the same line in the do-file. (Changes in the RNG state)
   (3) Changes to the sort order of the data which leave the data
-  in a different sort order at the same line of the do-file.
+  in a different sort order at the same line of the do-file. (Changes in the sortseed)
   {break}
   
 {phang} {cmdab:iedorep} is designed to be used targeting a master do-file (it will work on any file).
@@ -50,7 +50,7 @@ command please see the {browse "https://dimewiki.worldbank.org/wiki/iedorep":DIM
   {cmdab:iedorep} will execute again targeting that filepath.
   
 {phang}The {cmdab:alldata}, {cmdab:allseed} , and {cmdab:allsort} options will
-  report any time the data is sorted, the RNG state changes, or the sort order of the data changed,
+  report any time the data is changed, the RNG state changes, or the sort order of the data changed,
   even if the result is consistent between the two do-file runs.
   This is only recommended for advanced diagnostics; 
   for example, if replicability problems persist despite no errors appearing.
