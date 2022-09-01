@@ -96,7 +96,7 @@ will test for differences across the categories in grpvar({it:varname}). See not
 The command tests for statistically significant difference in the balance variables between
 the categories defined in the {opt grpvar(varname)}. The command can either test one control group
 against all other groups, using the {opt control(groupcode)} option,
-or test all groups against each other. The command also allows for
+or test all groups against each other (the default). The command also allows for
 fixed effects, covariates and different types of variance estimators.{p_end}
 
 {pstd}The balance variables are expected to be continuous or binary variables.
@@ -106,20 +106,22 @@ which is most likely statistically invalid.
 Consider converting each category to binary variables.{p_end}
 
 {pstd}The command also attaches notes to the bottom of the table that
-documents how the command was specified, what fixed effects and covariates were used (if any),
-what level of significance was used etc.
-This automatic note is meant to be used during explorative analysis only and
+documents how the command was specified when the table was generated.
+This automatic note is meant to be used during explorative analysis only and eventually
 be replaced with a manual note suitable for publication using {opt tblnote(string)}.{p_end}
 
 {title:Options (detailed descriptions)}
 
 {pstd}{it:{ul:{hi:Required options:}}}{p_end}
 
-{phang}{opth grpv:ar(varname)} specifies the variable indicating groups (or treatment arms) across which
-	the command will test for difference in mean of the balance var. The group variable can only be one variable and
-	it must be numeric and may only hold integers. See {help egen:egen group} for help on creating a single variable with
-	an integer representing each category from string variables and/or multiple variables. Observations with missing values
-	in this variable will be excluded when running this command.
+{phang}{opth grpv:ar(varname)} specifies the variable indicating groups
+(for example treatment arms) across which the command will
+test for difference in mean of the balance variable.
+The group variable can only be one variable and
+it must be numeric and may only hold integers.
+See {help egen:egen group} for help on creating a single variable where
+each integer represents a category from string variables and/or multiple variables.
+Observations with missing values in this variable will be excluded when running this command.
 
 {pstd}{it:{ul:{hi:Optional options}}}{p_end}
 
