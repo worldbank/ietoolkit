@@ -1,3 +1,9 @@
+%%% Table created in Stata by command iebaltab
+%%% (https://github.com/worldbank/ietoolkit)
+%%% (https://dimewiki.worldbank.org/iebaltab)
+%%% The command was specified exactly like this: 
+%%% iebaltab weight price , savecsv("C:/Users/wb462869/GitHub/ietoolkit/run/output/iebaltab/iebt-csv10") savexlsx("C:/Users/wb462869/GitHub/ietoolkit/run/output/iebaltab/iebt-xlsx10") savetex("C:/Users/wb462869/GitHub/ietoolkit/run/output/iebaltab/iebt-tex10") texnotefile("C:/Users/wb462869/GitHub/ietoolkit/run/output/iebaltab/iebt-tex10-note") grpvar(tmt_cl) replace vce(cluster test_cluster_var) ftest feqtest total cov(mpg) fixed(foreign) tbladdnote("added cluster")
+
 \begin{tabular}{@{\extracolsep{5pt}}lcccccccccc}
 \\[-1.8ex]\hline \hline \\[-1.8ex]
  & \multicolumn{2}{c}{(1)}  & \multicolumn{2}{c}{(2)}  & \multicolumn{2}{c}{(3)}  & \multicolumn{2}{c}{F-test for balance} & \multicolumn{2}{c}{(1)-(2)} \\

@@ -1113,7 +1113,7 @@ qui {
 				rmat(`rmat') fmat(`fmat') pairs(`TEST_PAIR_CODES') `texdocument' texcaption("`texcaption'") ///
 				texlabel("`texlabel'") texcolwidth("`texcolwidth'") texnotewidth("`texnotewidth'") ///
 				texnotefile("`texnotefile'") custom_row_space("`texvspace'") ///
-				stats_string("`stats_string'") ///
+				stats_string("`stats_string'") userinput(`"`full_user_input'"') ///
 				`total' `onerow' `feqtest' `ftest' note(`"`note_to_use'"')  ///
 				ntitle("`ntitle'") diformat("`diformat'") ///
 				col_lbls(`"`COLUMN_LABELS'"') tot_lbl("`tot_lbl'") ///
@@ -1484,7 +1484,7 @@ qui {
 	texlabel(string) texcolwidth(string) custom_row_space(string) onerow total feqtest ftest ///
 	order_grp_codes(numlist) diformat(string) ///
 	row_lbls(string) col_lbls(string) tot_lbl(string) ///
-	replace texnotefile(string)]
+	replace texnotefile(string) userinput(string)]
 
 	* If total is used, add t to locals used when looping over desc stats
 	if !missing("`total'") local order_grp_codes "`order_grp_codes' t"
@@ -1515,6 +1515,15 @@ qui {
 	* Set up tex file type - stand alone tex doc or not
 	******************************************************************************
 
+	* Write this comment at the top of each tex file
+	file open  `texhandle' using "`textmpfile'", text write replace
+	file write `texhandle' ///
+		"%%% Table created in Stata by command iebaltab" _n ///
+		"%%% (https://github.com/worldbank/ietoolkit)" _n ///
+		"%%% (https://dimewiki.worldbank.org/iebaltab)" _n ///
+		"%%% The command was specified exactly like this: " _n ///
+		`"%%% `userinput'"'_n _n
+	file close `texhandle'
 
 	* If tex doc is used, prepare header so that the tex file can be compiled on
 	* its own. Default is that the table should be imported into another tex file
@@ -1522,15 +1531,10 @@ qui {
 
 		file open  `texhandle' using "`textmpfile'", text write replace
 		file write `texhandle' ///
-			"%%% Table created in Stata by iebaltab" _n ///
-			"%%% (https://github.com/worldbank/ietoolkit)" _n ///
-			"%%% (https://dimewiki.worldbank.org/iebaltab)" _n _n ///
 			"\documentclass{article}" _n _n ///
 			"% ----- Preamble " _n ///
 			"\usepackage[utf8]{inputenc}" _n ///
-			"\usepackage{adjustbox}" _n
-
-		file write `texhandle' ///
+			"\usepackage{adjustbox}" _n ///
 			"% ----- End of preamble " _n _n ///
 			" \begin{document}" _n _n ///
 			"\begin{table}[!htbp]" _n ///
