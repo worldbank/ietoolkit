@@ -125,27 +125,44 @@ Observations with missing values in this variable will be excluded when running 
 
 {pstd}{it:{ul:{hi:Optional options}}}{p_end}
 
-{pstd}{it:Columns options:}{p_end}
+{pstd}{it:Column and row options:}{p_end}
 
-{phang}{opt co:ntrol(groupcode)} specifies one group that is the control group that all other groups
-are tested against for difference in means and where {it:groupcode} is an integer used in {opt grpvar()}.
-The default is that all groups are tested against each other. The control group will be listed first
-(leftmost) in the table unless another order is specified in {opt order()}.
-When using {opt control()} the order if the pair in the pair-wise are (non-control)-(control)
+{phang}{opt co:ntrol(groupcode)} specifies one group that is the control group
+that all other groups are tested against for difference in means and
+where {it:groupcode} is an integer used in {opt grpvar()}.
+The default is that all groups are tested against each other.
+The control group will be listed first (leftmost) in the table
+unless another order is specified in {opt order()}.
+When using {opt control()} the order of the groups in the pair is (non-control)-(control)
 so that a positive statistic (for example {it:diff} or {it:beta}) indicates that
 the mean for the non-control is larger than for the control.{p_end}
 
 {phang}{opt or:der(groupcodelist)} manually sets the column order of the groups in the table. {it:groupcodelist} may
 be any or all of the values in the group variable specified in {opt grpvar()}.
 The default order if this option is omitted is ascending order of the values in the group variable.
-Any values omitted from this option will be sorted in ascending order after the values included.{p_end}
+If any values in {opt grpvar()} are omitted when using this option,
+they will be sorted in ascending order after the values included.{p_end}
 
-{phang}{opt tot:al} includes a column with descriptive stats on the full sample.{p_end}
+{phang}{opt tot:al} includes a column with descriptive statistics on the full sample.
+This column still exclude observations with missing values in {opt grpvar()}.{p_end}
 
-{pstd}{it:Regression options:}{p_end}
+{phang}{opt onerow} displays the number of observations in an additional row
+at the bottom of the table. If the number of observations are not identical
+across all rows within a column, then this option throws an error.
+This also applies to number of clusters.
+If not specified, the number of observations (and clusters) per variable per group
+is displayed on the same row in an additional column
+next to the descriptive statistics.{p_end}
 
-{phang}{opth vce:(vce_option:vce_types)} sets the type of variance estimator to be used in all regressions for this
-command. See {help vce_option:vce_types} for more details, but the only types allowed in this command are {hi:robust}, {hi:cluster} {it:clustervar} or {hi:bootstrap}. See the {help iebaltab##est_defs:estimation definition} section for exact definitions on how these vce types are included in the regression.{p_end}
+{pstd}{it:Estimation options:}{p_end}
+
+{phang}{opth vce:(vce_option:vce_types)} sets the type of variance estimator
+to be used in all regressions for this command.
+See {help vce_option:vce_types} for more details.
+However, the types allowed in this command are only
+{hi:robust}, {hi:cluster} {it:clustervar} or {hi:bootstrap}.
+See the {help iebaltab##est_defs:estimation definition} section
+for exact definitions on how these vce types are included in the regressions.{p_end}
 
 {phang}{opth fix:edeffect(varname)} specifies a single variable to be used as fixed effects in all regressions
 part from descriptive stats regressions.
@@ -155,26 +172,33 @@ If more than one variable is needed as fixed effects, and it is not desirable to
 then they can be included using the {opt i.} notation in the {opt covariates()} option.
 See the {help iebaltab##est_defs:estimation definition} section for exact definitions on how the fixed effects are included in the regressions.{p_end}
 
-{phang}{opth cov:ariates(varlist)}} includes the variables specified in the regressions for t-tests (and for
+{phang}{opth cov:ariates(varlist)} includes the variables specified in the regressions for t-tests (and for
 F-tests if applicable) as covariate variables (control variables). See the description section above for details on how the covariates
 are included in the estimation regressions. The covariate variables must be numeric variables.
 See the {help iebaltab##est_defs:estimation definition} section for exact definitions on how the covariates are included in the regressions.{p_end}
 
-{phang}{opt ft:est} add a single row in the table with one F-test for each test pair,
-testing for joint significance across all balance variables.
+{phang}{opt ft:est} add a single row at the bottom fo the the table with
+one F-test for each test pair, testing for joint significance across all balance variables.
 See the {help iebaltab##est_defs:estimation definition} section for exact definitions on how these tests are estimated.{p_end}
 
 {phang}{opt feqt:est} adds a single column in the table with an F-test for each balance variable,
 testing for joint significance across all groups in {opt grpvar()}.
 See the {help iebaltab##est_defs:estimation definition} section for exact definitions on how these tests are estimated.{p_end}
 
-{pstd}{it:Table display options:}{p_end}
+{pstd}{it:Statistics display options:}{p_end}
 
 {marker statstr}{...}
-{phang}{cmd:stats(}{it:{help iebaltab##statstr:stats_string}}{cmd:)}} is the option where which statistics to display are specified. The {it:stats_string} is expected to be on this format (where at least one of the sub-arguements
-{opt desc}, {opt pair}, {opt f} and {opt feq} are required): {cmd: stats(desc({it:desc_stats}) pair({it:pair_stats}) f({it:f_stats}) feq({it:feq_stats))}}.
-The table below lists the valid values for {it:desc_stats}, {it:pair_stats}, {it:f_stats} and {it:feq_stats}.
-See the {help iebaltab##est_defs:estimation definition} section for exact definitions on how these values are estimated/calculated.{p_end}
+{phang}{cmd:stats(}{it:{help iebaltab##statstr:stats_string}}{cmd:)}
+indicates which statistics to be displayed in the table.
+The {it:stats_string} is expected to be on this format (where at least one of the sub-arguements
+{opt desc}, {opt pair}, {opt f} and {opt feq} are required):{p_end}
+
+{pmore}{cmd: stats(desc({it:desc_stats}) pair({it:pair_stats}) f({it:f_stats}) feq({it:feq_stats))}}{p_end}
+
+{pmore}The table below lists the valid values for
+{it:desc_stats}, {it:pair_stats}, {it:f_stats} and {it:feq_stats}.
+See the {help iebaltab##est_defs:estimation definition} section
+for exact definitions of these values and how they are estimated/calculated.{p_end}
 
 {p2colset 9 21 23 0}{...}
 {p2col:{it:desc_stats:}}{cmd:se var sd}{p_end}
@@ -182,94 +206,143 @@ See the {help iebaltab##est_defs:estimation definition} section for exact defini
 {p2col:{it:f_stats:}}{cmd:f p}{p_end}
 {p2col:{it:feq_stats:}}{cmd:f p}{p_end}
 
-{phang}{opt onerow} displays the number of observations in an additional row at the bottom of the table.
-If some number of observations are not identical within a column this option throws an error.
-This also applies to number of clusters.
-If not specified, the number of observations (and clusters) per variable per group
-is displayed on the same row in additional column besides the mean value.{p_end}
-
-{phang}{opth star:levels(numlist)} manually sets the three significance levels
-used for significance stars. Use decimals in descending order. The default is (.1 .05 .01) where .1 corresponds
+{phang}{opth star:levels(numlist)} manually sets the
+three significance levels used for significance stars.
+Expected input is decimals (between the value 0 and 1) in descending order.
+The default is (.1 .05 .01) where .1 corresponds
 to one star, .05 to two stars and .01 to three stars.{p_end}
 
 {phang}{opt starsno:add} makes the command not add any stars to the table. This option makes the most sense in combination
 with {cmd:pttest}, {cmd:pftest} or {cmd:pboth} but is possible to use by itself as well.{p_end}
 
 {phang}{opth form:at(format:%fmt)} applies the Stata formats specified to all values outputted
-in the table. All values apart from integers, for example number of observations, for which the format is always %9.0f.{p_end}
+in the table apart from values that always are integers.
+Example of values that always are integers is number of observations.
+For these integer values the format is always %9.0f.
+The default for all other values when this option is not used is %9.3f.{p_end}
 
-{phang}{opt tbln:ote(string)} replaces the default note at the bottom of the table with this manually entered string.{p_end}
+{pstd}{it:Label and notes options:}{p_end}
 
-{phang}{opt tbladdn:ote(string)} adds the manually entered string to the deafult note at the bottom of the table.{p_end}
+{phang}{opt grpc:odes} makes the integer values used for the group codes in
+{opt grpvar()} the group column titles.
+The default is to use the value labels used in {opt grpvar()}.
+If no value labels are used for the variable in {opt grpvar()},
+then this option does not make a difference.{p_end}
+
+{phang}{opt grpl:abels(codetitles)} manually sets the group column titles.
+{it:codetitles} is a string on the following format:{p_end}
+
+{pmore}{opt grplabels("code1 title1 @ code2 title2 @ code3 title3")}{p_end}
+
+{pmore}Where code1, code2 etc. must correspond to the integer values used for each
+group used in the variable {opt grpvar()},
+and title1, title2 etc. are the titles to be used for the corresponding integer value.
+The character "@" may not be used in any title.
+Codes omitted from this option will be assigned a column title
+as if this option was not used.
+This option takes precedence over {cmd:grpcodes} when used together,
+meaning that group codes are only used for groups
+that are not included in the {it:codetitlestring}.
+The title can consist of several words.
+Everything that follows the code until the end of a string
+or a "@" will be included in the title.{p_end}
+
+{phang}{opt totall:abel(string)} manually sets the column title for the total column.{p_end}
+
+{phang}{opt rowv:arlabels} use the variable labels instead of variable name as row titles.
+The default is to use the variable name. For variables with no variable label defined,
+the variable name is used as row label even when this option is specified.{p_end}
+
+{phang}{opt rowl:abels(nametitles)} manually sets the row titles for each
+of the balance variables in the table.
+{it:nametitles} is a string in the following format:{p_end}
+
+{pmore}{opt rowlabels("name1 title1 @ name2 title2 @ name3 title3")}{p_end}
+
+{pmore}Where name1, name2 etc. are variable names used as balance variables,
+and title1, title2 etc. are the titles to be used for the corresponding variable.
+The character "@" may not be used in any of the titles.
+Variables omitted from this option are assigned a row title as if this option was not used.
+This option takes precedence over {cmd:rowvarlabels} when used together,
+meaning that default labels are only used for variables
+that are not included in the {it:nametitlestring}.
+The title can consist of several words.
+Everything that follows the variable name until
+the end of a string or a "@" will be included in the title.{p_end}
+
+{phang}{opt tbln:ote(string)} replaces the default note at the bottom
+of the table with this manually entered string.
+The default note is a very informative string that will help you
+remember exactly how you specified the command when generating the table.
+But the default note is most likely not suitable
+for the final publication of the table.
+If exporting to LaTeX, the exact specification of the table is
+written in a comment at the top of the LaTeX file.{p_end}
+
+{phang}{opt tbladdn:ote(string)} adds the manually entered string to the default note at the bottom of the table.{p_end}
 
 {phang}{opt tblnon:ote} makes this command not add any automatically generated or manually specified notes to the table.{p_end}
 
-{pstd}{it:Column and row labels:}{p_end}
-
-{phang}{opt grpc:odes}} makes the integers for the group codes in {cmd:grpvar(}{it:varname}{cmd:)} the group column titles. The default
-is to use the value labels used in {cmdab:grpv:ar(}{it:varname}{cmd:)}. If no value labels are used, then this option does
-not make a difference.{p_end}
-
-{phang}{opt grpl:abels(codetitles)} manually sets the group column titles. {it:codetitles} is a string
-on the following format {it:"code1 title1 @ code2 title2 @ code3 title3"} etc. where code1, code2 etc. are values for each group used
-in {opt grpvar()} and title1, title2 etc. are the corresponding titles. The character "@" may not be used
-in any of the titles. Codes omitted from this option will be assigned a column title as if this option was not used. This option
-has precedence over {cmd:grpcodes} when used together, meaning that group codes are only used for groups that are not included
-in the {it:codetitlestring}. The title can consist of several words. Everything that follows the code until the end of a string
-or a "@" will be included in the title.{p_end}
-
-{phang}{opt totall:abel(string)}} manually sets the column title for the total column.{p_end}
-
-{phang}{opt rowv:arlabels} use the variable labels instead of variable name as row titles. The default is to use the
-variable name. For variables with no variable label defined, the variable name is used regardless.{p_end}
-
-{phang}{opt rowl:abels(nametitles)} manually sets the row titles for each of the balance variables in the
-table. {it:nametitles} is a string in the following format {it:"name1 title1 @ name2 title2 @ name3 title3"} etc. where
-name1, name2 etc. are variable names and title1, title2 etc. are the corresponding row titles. The character "@" may not
-be used in any of the titles. Variables omitted from this option are assigned a row title as if this option was not used. This option
-has precedence over {cmd:rowvarlabels} when used together, meaning that variable labels are only used for variables that are not included
-in the {it:nametitlestring}. The title can consist of several words. Everything that follows the variable name until the end
-of a string or a "@" will be included in the title.{p_end}
-
 {pstd}{it:Export options:}{p_end}
 
-{phang}{opt  browse} views the table in the browser window similarly to {opt browse} instead of saving the table to disk.{p_end}
+{phang}{opt  browse} replaces the data in memory with the table
+so it can be viewed using the command {h browse} instead of saving it to disk.
+This is only meant to be used during explorative analysis
+when figuring out how to specify the command.
+Note that this overwrites data in memory.{p_end}
 
 {phang}{opth savex:lsx(filename)} exports the table to an Excel (.xsl/.xlsx) file and saves it on disk.{p_end}
 
-{phang}{opth savec:sv(filename)} exports the table to a comma seperated (.csv) file and saves it on disk.{p_end}
+{phang}{opth savec:sv(filename)} exports the table to a comma separated (.csv) file and saves it on disk.{p_end}
 
 {phang}{opth savet:ex(filename)} exports the table to a LaTeX (.tex) file and saves it on disk.{p_end}
 
 {phang}{opth texnotefile(filename)} exports the table note in a separate LaTeX file on disk.
+When this option is used, no note is included in the {opt savetex()} file.
 This allows importing the table using the {it:threeparttable} LaTeX package which
 is an easy way to make sure the note always has the same width as the table.
 See example in the example section below.{p_end}
 
-{phang}{opt replace} allows for the file in {opt savexlsx()}, {opt savexcsv()} or {opt savetex()} to be overwritten if the file already exist on disk.{p_end}
+{phang}{opt replace} allows for the file in {opt savexlsx()}, {opt savexcsv()} or {opt savetex()}
+to be overwritten if the file already exist on disk.{p_end}
 
 {pstd}{it:LaTeX options:}{p_end}
 
-{phang}{opth texn:otewidth(numlist)} manually adjusts the width of the note to fit the size of the table.
-The note width is a multiple of text width. If not specified, default is one, which makes the table width equal to text width.
-Consider also using {opth texnotefile()} and the LaTeX package {it:threeparttable}.{p_end}
+{phang}{opth texn:otewidth(numlist)} manually adjusts the width of the note
+to fit the size of the table.
+The note width is a multiple of text width.
+If not specified, default is one, which makes the table width equal to text width.
+However, when the table is resized when rendered in LaTeX
+this is not always the same as the table width.
+Consider also using {opt texnotefile()} and the LaTeX package {it:threeparttable}.{p_end}
 
-{phang}{opt texc:aption(string)} writes table's caption in LaTeX file. Can only be used with option {opt texdocument}.{p_end}
+{phang}{opt texdoc:ument} creates a stand-alone LaTeX document ready to be compiled.
+The default is that {opt savetex()} creates a fragmented LaTeX file
+consisting only of a tabular environment.
+This fragment is then meant to be imported to a main LaTeX file
+that holds text and may import other tables.{p_end}
 
-{phang}{opt texl:abel(string)} specifies table's label, used for meta-reference across LaTeX file. Can only be used with option {opt texdocument}.{p_end}
+{phang}{opt texc:aption(string)} writes the table's caption in LaTeX file.
+Can only be used with option {opt texdocument}.{p_end}
 
-{phang}{opt texdoc:ument}  creates a stand-alone LaTeX document that can be readily compiled, without the need to import it to a different file.
-As default, {opt savetex()} creates a fragmented LaTeX file consisting only of a tabular environment.
-This fragment is then meant to be importet to a main LaTeX file that holds text and imports other tables.{p_end}
+{phang}{opt texl:abel(string)} specifies table's label,
+used for meta-reference across LaTeX file.
+Can only be used with option {opt texdocument}.{p_end}
 
-{phang}{opt texvspace(string)} sets the size of the line space between table rows. {it:string} must consist of a numeric value
-and one of the following units: "cm", "mm", "pt", "in", "ex" or "em". Note that the resulting line space displayed will be equal to the
-specified value minus the height of one line of text. Default is "3ex". For more information on units,
-{browse "https://en.wikibooks.org/wiki/LaTeX/Lengths":check LaTeX lengths manual}. {p_end}
+{phang}{opt texvspace(string)} sets the size of the line space between table rows.
+{it:string} must consist of a numeric value with one of the following units:
+"cm", "mm", "pt", "in", "ex" or "em".
+Note that the resulting line space displayed will be equal to the
+specified value minus the height of one line of text.
+Default is "3ex". For more information on these units,
+{browse "https://en.wikibooks.org/wiki/LaTeX/Lengths":check LaTeX lengths manual}.{p_end}
 
-{phang}{cmd:texcolwidth(}{it:string}{cmd:)} limits the width of table's first column so that a line break is added when a variable's name
-or label is too long. {it:string} must consist of a numeric value and one of the following units: "cm", "mm", "pt", "in", "ex" or "em".
-For more information on these units, {browse "https://en.wikibooks.org/wiki/LaTeX/Lengths":check LaTeX lengths manual}. {p_end}
+{phang}{cmd:texcolwidth(}{it:string}{cmd:)} limits the width of table's first column
+so that a line break is added when a variable's name or label is too long.
+{it:string} must consist of a numeric value with one of the following units:
+"cm", "mm", "pt", "in", "ex" or "em".
+For more information on these units,
+{browse "https://en.wikibooks.org/wiki/LaTeX/Lengths":check LaTeX lengths manual}.{p_end}
 
 {marker est_defs}{...}
 {title:Estimation definitions and display options}
