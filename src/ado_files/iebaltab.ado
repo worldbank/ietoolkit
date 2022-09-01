@@ -123,6 +123,12 @@ qui {
 
 *******************************************************************************/
 
+		* Test that the groupvar is not one of the balancevars
+		if `: list grpvar in balancevars' {
+			noi display as error  "{phang}The variable [`grpvar'] may not be in both grpvar(`grpvar') and the varlist used as balance variables [`balancevars'].{p_end}"
+			error 198
+		}
+
 		cap confirm numeric variable `grpvar'
 
 		* Tests if groupvar is numeric type
