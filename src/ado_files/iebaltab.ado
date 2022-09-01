@@ -3,46 +3,43 @@
 	capture program drop   iebaltab,
 	        program define iebaltab, rclass
 
-		syntax varlist(numeric) [if] [in] [aw fw pw iw],                    ///
-                                                                        ///
-				/*Group variable*/                                              ///
+		syntax varlist(numeric) [if] [in] [aw fw pw iw],                        ///
+                                                                                ///
+				/*Required options*/                                            ///
 				GRPVar(varname)                                                 ///
 				[                                                               ///
-				/*Columns and order of columns*/                                ///
-				ORder(numlist int min=1) COntrol(numlist int max=1) TOTal       ///
-                                                                        ///
-				/*Column and row labels*/                                       ///
-				GRPCodes GRPLabels(string) TOTALLabel(string) ROWVarlabels      ///
-				ROWLabels(string) onerow                                        ///
-				                                                                ///
-				/*Statistics*/                                                  ///
-				FIXedeffect(varname) COVariates(varlist ts fv) 						      ///
-				vce(string)                                                     ///
-				WEIGHTold(string)                                               ///
-				                                                                ///
-				/*F-test and  FEQTest*/                                         ///
-				FTest FEQTest	                                                  ///
-				                                                                ///
-				/*Output display*/                                              ///
+				/*Column and row options*/                                      ///
+				COntrol(numlist int max=1) ORder(numlist int min=1)             ///
+				TOTal onerow                                                    ///
+                                                                                ///
+				/*Estimation options*/                                          ///
+				vce(string) FIXedeffect(varname) COVariates(varlist ts fv) 	    ///
+				FTest FEQTest WEIGHTold(string)                                 ///
+                                                                                ///
+				/*Stat display options*/                                        ///
 				stats(string)                                                   ///
 				STARlevels(numlist descending min=3 max=3 >0 <1)			    ///
-				STARSNOadd FORMat(string) TBLNote(string) TBLNONote	            ///
-				TBLADDNote(string)                                              ///
+				STARSNOadd FORMat(string)                                       ///
 				                                                                ///
+				/*Label/notes options*/                                         ///
+				GRPCodes GRPLabels(string) TOTALLabel(string) ROWVarlabels      ///
+				ROWLabels(string) TBLNote(string) TBLADDNote(string) TBLNONote  ///
+			                                                                    ///
 				/*Export and restore*/                                          ///
-				SAVEXlsx(string) SAVECsv(string) SAVETex(string)                ///
-				texnotefile(string) REPLACE BROWSE                              ///
+				BROWSE SAVEXlsx(string) SAVECsv(string) SAVETex(string)         ///
+				texnotefile(string) REPLACE                                     ///
 				                                                                ///
-				/*Tex options*/     				                                    ///
+				/*LaTeX options*/     				                            ///
 				TEXNotewidth(numlist min=1 max=1)                               ///
 				TEXCaption(string) TEXLabel(string) TEXDOCument	                ///
 				texvspace(string) texcolwidth(string)                           ///
 				                                                                ///
-				/* Deprecated options - still included to throw helpful error if ever used */ ///
-				SAVEBRowse SAVE(string)                                                       ///
-				BALMISS(string) BALMISSReg(string) COVMISS(string) COVMISSReg(string)         ///
-				MISSMINmean(string) COVARMISSOK FMissok NOTtest	fnoobs                         ///
-				NORMDiff STDev PTtest PFtest PBoth NOTECombine                                 ///
+				/* Deprecated options - still included to throw                 ///
+				helpful error if ever used */                                   ///
+				SAVEBRowse SAVE(string) BALMISS(string) BALMISSReg(string)      ///
+				COVMISS(string) COVMISSReg(string) MISSMINmean(string)          ///
+				COVARMISSOK FMissok NOTtest	fnoobs NORMDiff STDev PTtest        ///
+				PFtest PBoth NOTECombine                                        ///
 				]
 
   local full_user_input = "iebaltab " + trim(itrim(`"`0'"'))

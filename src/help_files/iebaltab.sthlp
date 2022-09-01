@@ -16,9 +16,9 @@ command please see the {browse "https://dimewiki.worldbank.org/wiki/Iebaltab":DI
 {phang2}
 {cmd:iebaltab} {it:balancevarlist} [{help if:if}] [{help in:in}] [{help weight}]
 , {opt grpv:ar(varname)} [
-{it:{help iebaltab##columnoptions:column_options}}
-{it:{help iebaltab##regoptions:regression_options}}
-{it:{help iebaltab##displayoptioins:display_options}}
+{it:{help iebaltab##columnrowoptions:columnrow_options}}
+{it:{help iebaltab##estimateoptions:estimation_options}}
+{it:{help iebaltab##statoptions:stat_display_options}}
 {it:{help iebaltab##labeloptions:label_options}}
 {it:{help iebaltab##exportoptions:export_options}}
 {it:{help iebaltab##latexoptions:latex_options}}
@@ -33,47 +33,47 @@ will test for differences across the categories in grpvar({it:varname}). See not
 {synoptline}
 {pstd}{it:    {ul:{hi:Required options:}}}{p_end}
 
-{synopt :{opth grpv:ar(varname)}}Variable indicating groups (or treatment arms){p_end}
+{synopt :{opth grpv:ar(varname)}}Variable indicating groups (for example treatment arms){p_end}
 
 {pstd}{it:    {ul:{hi:Optional options}}}{p_end}
 
-{marker columnoptions}{...}
-{synopthdr:Columns options}
-{synopt :{opt co:ntrol(groupcode)}}Indicate a single group that all other groups are tested against. Default is all groups are tested against each other.{p_end}
-{synopt :{opt or:der(groupcodelist)}}Manually set the order the groups appear in the table. Default is ascending. See details on {it:groupcodelist} below.{p_end}
-{synopt :{opt tot:al}}Include descriptive stats on all observations included in the table.{p_end}
+{marker columnrowoptions}{...}
+{synopthdr:Column and row options}
+{synopt :{opt co:ntrol(groupcode)}}Indicate a single group that all other groups are tested against. Default is all groups are tested against each other{p_end}
+{synopt :{opt or:der(groupcodelist)}}Manually set the order the groups appear in the table. Default is ascending. See details on {it:groupcodelist} below{p_end}
+{synopt :{opt tot:al}}Include descriptive stats on all observations included in the table{p_end}
+{synopt :{opt onerow}}Write number of observations (and number of clusters if applicable) in one row at the bottom of the table{p_end}
 
-{marker regoptions}{...}
-{synopthdr:Regression options}
-{synopt :{opth vce:(vce_option:vce_types)}}Options for variance estimation.{p_end}
+{marker estimateoptions}{...}
+{synopthdr:Estimation options}
+{synopt :{opth vce:(vce_option:vce_types)}}Options for estimating variance{p_end}
 {synopt :{opth fix:edeffect(varname)}}Include fixed effects in the regressions for t-tests (and for F-tests if applicable){p_end}
 {synopt :{opth cov:ariates(varlist)}}Include covariates (control variables) in the regressions for t-tests (and for F-tests if applicable){p_end}
-{synopt :{opt ft:est}}Include a row with the F-test for joint significance across all balance variables{p_end}
-{synopt :{opt feqt:est}}Include a row with the F-test for joint significance across all groups for each variable {p_end}
+{synopt :{opt ft:est}}Include a row with the F-test for joint significance across all balance variables for each test pair{p_end}
+{synopt :{opt feqt:est}}Include a column with the F-test for joint significance across all groups for each variable{p_end}
 
-{marker displayoptions}{...}
-{synopthdr:Table display options}
-{synopt :{cmd:stats(}{it:{help iebaltab##statstr:stats_string}}{cmd:)}}Specify which statistics to display in the tables.{p_end}
-{synopt :{opt onerow}}Write number of observations (and number of clusters if applicable) in one row at the bottom of the table.{p_end}
+{marker statoptions}{...}
+{synopthdr:Stat display options}
+{synopt :{cmd:stats(}{it:{help iebaltab##statstr:stats_string}}{cmd:)}}Specify which statistics to display in the tables. See options for {it:stats_string} below{p_end}
 {synopt :{opth star:levels(numlist)}}Manually set the three significance levels used for significance stars{p_end}
 {synopt :{opt starsno:add}}Do not add any stars to the table{p_end}
 {synopt :{opth form:at(format:%fmt)}}Apply Stata formats to the values outputted in the table{p_end}
+
+{marker labeloptions}{...}
+{synopthdr:Label/notes options}
+{synopt :{opt grpc:odes}}Use the values in the {opt grpvar()} variable as column titles even if the variable has value labels{p_end}
+{synopt :{opt grpl:abels(codetitles)}}Manually set the group column titles. See details on {it:codetitles} below{p_end}
+{synopt :{opt totall:abel(string)}}Manually set the title of the total column{p_end}
+{synopt :{opt rowv:arlabels}}Use the variable labels instead of variable name as row titles{p_end}
+{synopt :{opt rowl:abels(nametitles)}}Manually set the row titles. See details on {it:nametitles} below{p_end}
 {synopt :{opt tbln:ote(string)}}Replace the default note at the bottom of the table{p_end}
 {synopt :{opt tbladdn:ote(string)}}Add note to the default note at the bottom of the table{p_end}
 {synopt :{opt tblnon:ote}}Suppresses any note at the bottom of the table{p_end}
 
-{marker labeloptions}{...}
-{synopthdr:Row/col label options}
-{synopt :{opt grpc:odes}}Use the values in the {opt grpvar()} variable as column titles even if the variable has value labels.{p_end}
-{synopt :{opt grpl:abels(codetitles)}}Manually set the group column titles. See details on {it:codetitles} below.{p_end}
-{synopt :{opt totall:abel(string)}}Manually set the title of the total column.{p_end}
-{synopt :{opt rowv:arlabels}}Use the variable labels instead of variable name as row titles.{p_end}
-{synopt :{opt rowl:abels(nametitles)}}Manually set the row titles. See details on {it:nametitles} below.{p_end}
-
 {marker exportoptions}{...}
 {synopthdr:Export options}
-{synopt :{opt browse}}View the table in the data browser{p_end}
-{synopt :{opth savex:lsx(filename)}}Save table to Excel file on disk.{p_end}
+{synopt :{opt browse}}View table in the data browser{p_end}
+{synopt :{opth savex:lsx(filename)}}Save table to Excel file on disk{p_end}
 {synopt :{opth savec:sv(filename)}}Save table to csv-file on disk{p_end}
 {synopt :{opth savet:ex(filename)}}Save table to LaTeX file on disk{p_end}
 {synopt :{opth texnotefile(filename)}}Save table note in a separate LaTeX file on disk{p_end}
@@ -84,7 +84,7 @@ will test for differences across the categories in grpvar({it:varname}). See not
 {synopt :{opth texn:otewidth(numlist)}}Manually adjust width of note{p_end}
 {synopt :{opt texc:aption(string)}}Specify LaTeX table caption{p_end}
 {synopt :{opt texl:abel(string)}}Specify LaTeX label{p_end}
-{synopt :{opt texdoc:ument}}Creates a stand-alone LaTeX document{p_end}
+{synopt :{opt texdoc:ument}}Create a stand-alone LaTeX document{p_end}
 {synopt :{opt texvspace(string)}}Manually set size of the line space between two rows on LaTeX output{p_end}
 {synopt :{opt texcolwidth(string)}}Limit width of the first column on LaTeX output{p_end}
 
