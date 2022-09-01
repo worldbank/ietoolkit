@@ -1281,7 +1281,7 @@ qui {
 
 			* Mean and variance for this group - get value from mat and apply format
 			local mean_value = el(`rmat',`row_num',colnumb(`rmat',"mean_`grp_code'"))
-			local var_value = el(`rmat',`row_num',colnumb(`rmat',"`pout_val'_`grp_code'"))
+			local var_value = el(`rmat',`row_num',colnumb(`rmat',"`dout_val'_`grp_code'"))
 			local mean_value : display `diformat' `mean_value'
 			local var_value  : display `diformat' `var_value'
 			local row_up   `"`row_up'   _tab "`mean_value'" "'
