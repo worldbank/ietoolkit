@@ -347,7 +347,7 @@ For more information on these units,
 {marker est_defs}{...}
 {title:Estimation definitions and display options}
 
-{pstd}This section details regressions are used to estimate
+{pstd}This section details the regressions that are used to estimate
 the statistics displayed in the in the generated balance tables.
 For each test there is a {it:basic form} example to highlight the core of the test,
 and an {it:all options} example that shows exactly how all options are applied.
@@ -356,12 +356,11 @@ Here is a glossary for the terms used in this section:{p_end}
 {p2colset 5 23 23 0}{...}
 {p2col:{it:balance variable}}The variables listed as {it:balancevarlist}{p_end}
 {p2col:{it:groupvar}}The variable specified in {opt grpvar(varname)}{p_end}
-{p2col:{it:group code}}Each value in {it:groupvar}{p_end}
+{p2col:{it:groupcode}}Each value in {it:groupvar}{p_end}
 {p2col:{it:test pair}}Combination of {it:group codes} to be used in pair wise tests{p_end}
 {p2col:{it:test pair dummy}}A dummy variable where the first {it:group code} in a {it:test pair}
 has the value 1 and the second {it:group code} has the value 0,
-and all other observations has missing values.{p_end}
-
+and all other observations has missing values{p_end}
 
 {pstd}{ul:{it:Group descriptive statistics}}{break}
 Descriptive statistics for all groups are always displayed in the table.
@@ -378,14 +377,18 @@ the descriptive statistics is calculated using the following code:{p_end}
 {pstd}{it:Statistics displayed in table:}{p_end}
 {p2colset 5 12 14 0}{...}
 {p2col:{it:mean}}Always displayed. Retrieved from {cmd:_b[cons]} after {cmd:reg}.{p_end}
-{p2col:{it:se}}Displayed if {cmd: stats(desc(se))} is specified (default if nothing specified). Retrieved from {cmd:_se[cons]} after {cmd:reg}.{p_end}
-{p2col:{it:var}}Displayed if {cmd: stats(desc(var))} is specified. Calculated as {cmd:e(rss)/e(df_r)} after {cmd:reg}{p_end}
-{p2col:{it:sd}}Displayed if {cmd:stats(desc(sd))} is specified. Calculated as {cmd:_se[_cons] * sqrt(e(N))} after {cmd:reg}{p_end}
+{p2col:{it:se}}Displayed if {cmd: stats(desc(se))} is specified (default if nothing specified).
+Retrieved from {cmd:_se[cons]} after {cmd:reg}.{p_end}
+{p2col:{it:var}}Displayed if {cmd: stats(desc(var))} is specified.
+Calculated as {cmd:e(rss)/e(df_r)} after {cmd:reg}.{p_end}
+{p2col:{it:sd}}Displayed if {cmd:stats(desc(sd))} is specified.
+Calculated as {cmd:_se[_cons] * sqrt(e(N))} after {cmd:reg}.{p_end}
 
 {pstd}{ul:{it:Pair-wise test statistics}}{break}
-Pair-wise test statistics is always displayed in the table unless {cmd:stats(pair({it:none}))} is used.
+Pair-wise test statistics is always displayed in the table
+unless {cmd:stats(pair({it:none}))} is used.
 For each balance variable and for each test pair, this code is used.
-Since observations not included in the test pair has missing values in the test pair dummy,
+Since observations not included in the test pair have missing values in the test pair dummy,
 they are excluded from the regression without using an if-statement.
 
 {pstd}{it:basic form:}
@@ -398,14 +401,36 @@ they are excluded from the regression without using an if-statement.
 
 {pstd}{it:Statistics displayed in table:}{p_end}
 {p2colset 5 12 14 0}{...}
-{p2col:{it:diff}}Displayed if {cmd:stats(pair(diff))} is specified (default if nothing specified). Calculated as the mean of first group minus the mean of the second group. Means as from the descriptive statistics explained above.{p_end}
-{p2col:{it:beta}}Displayed if {cmd:stats(pair(beta))} is specified. Retrieved from {cmd:e(b)[1,1]} after {cmd:reg}.{p_end}
-{p2col:{it:t}}Displayed if {cmd:stats(pair(t))} is specified. Calculated as {cmd:_b[testpairdummy]/_se[testpairdummy]} after {cmd:reg}.{p_end}
-{p2col:{it:p}}Displayed if {cmd:stats(pair(p))} is specified. Retrieved from {cmd:e(p)} after {cmd:test}{p_end}
+{p2col:{it:diff}}Displayed if {cmd:stats(pair(diff))} is specified (default if nothing specified).
+Calculated as the mean of first group minus the mean of the second group.
+Means are taken from the descriptive statistics explained above.{p_end}
+{p2col:{it:beta}}Displayed if {cmd:stats(pair(beta))} is specified.
+Retrieved from {cmd:e(b)[1,1]} after {cmd:reg}.{p_end}
+{p2col:{it:t}}Displayed if {cmd:stats(pair(t))} is specified.
+Calculated as {cmd:_b[testpairdummy]/_se[testpairdummy]} after {cmd:reg}.{p_end}
+{p2col:{it:p}}Displayed if {cmd:stats(pair(p))} is specified.
+Retrieved from {cmd:e(p)} after {cmd:test}{p_end}
 {p2col:{it:nrmd}}Displayed if {cmd:stats(pair(nrmd))} is specified. Calculated as {cmd: diff/sqrt(.5*(var_code1+var_code2))} where diff is the same as diff in this table, and var_code1 and var_code2 are the variance from group 1 and 2 as described in the descriptive statistics section.{p_end}
 {p2col:{it:nrmb}}Displayed if {cmd:stats(pair(nrmb))} is specified. Calculated as {cmd: beta/sqrt(.5*(var_code1+var_code2))} where beta is the same as beta in this table, and var_code1 and var_code2 are the variance from group 1 and 2 as described in the descriptive statistics section.{p_end}
 {p2col:{it:se}}Displayed if {cmd:stats(pair(se))} is specified. Retrieved from {cmd:_se[testpairdummy]} after {cmd:reg}.{p_end}
 {p2col:{it:sd}}Displayed if {cmd:stats(pair(sd))} is specified. Calculated as {cmd:_se[testpairdummy] * sqrt(e(N))} after {cmd:reg}.{p_end}
+
+{pstd}{ul:{it:F-test statistics for balance across all balance variables}}{break}
+Displayed if option {opt ftest} is used.
+For each test pair the following code is used.
+
+{pstd}{it:basic form:}
+{break}{input:reg testgroupdummy balancevars }
+{break}{input:testparm balancevars}{p_end}
+
+{pstd}{it:all options:}
+{break}{input:reg testgroupdummy balancevars covariates i.fixedeffect weights, vce(vce_option)}
+{break}{input:testparm balancevars}{p_end}
+
+{pstd}{it:Statistics displayed in table:}{p_end}
+{p2colset 5 12 14 0}{...}
+{p2col:{it:f}}Displayed if {cmd: stats(feq(f))} is specified (default if nothing specified). Retrieved from {cmd:r(F)} after {cmd:testparm}.{p_end}
+{p2col:{it:p}}Displayed if {cmd: stats(feq(p))} is specified. Retrieved from {cmd:r(p)} after {cmd:testparm}.{p_end}
 
 {pstd}{ul:{it:F-test statistics for balance across all groups}}{break}
 Dipslayed in the table if the option {opt feqtest} is used.
@@ -427,22 +452,6 @@ represents all group codes apart from the first code.
 {p2col:{it:f}}Displayed if {cmd: stats(feq(f))} is specified (default if nothing specified). Retrieved from {cmd:r(F)} after {cmd:test}.{p_end}
 {p2col:{it:p}}Displayed if {cmd: stats(feq(p))} is specified. Retrieved from {cmd:r(p)} after {cmd:test}.{p_end}
 
-{pstd}{ul:{it:F-test statistics for balance across all balance variables}}{break}
-Displayed if option {opt ftest} is used.
-For each test pair the following code is used.
-
-{pstd}{it:basic form:}
-{break}{input:reg testgroupdummy balancevars }
-{break}{input:testparm balancevars}{p_end}
-
-{pstd}{it:all options:}
-{break}{input:reg testgroupdummy balancevars covariates i.fixedeffect weights, vce(vce_option)}
-{break}{input:testparm balancevars}{p_end}
-
-{pstd}{it:Statistics displayed in table:}{p_end}
-{p2colset 5 12 14 0}{...}
-{p2col:{it:f}}Displayed if {cmd: stats(feq(f))} is specified (default if nothing specified). Retrieved from {cmd:r(F)} after {cmd:testparm}.{p_end}
-{p2col:{it:p}}Displayed if {cmd: stats(feq(p))} is specified. Retrieved from {cmd:r(p)} after {cmd:testparm}.{p_end}
 
 {title:Examples}
 
@@ -500,16 +509,11 @@ Something that is surprisingly difficult.
 	\end{table}
 	{text}
 
-{title:Acknowledgements}
-
-{phang}We would like to acknowledge the help in testing and proofreading we received in relation to this command and help file from (in alphabetic order):{p_end}
-{pmore}John Dundas{break}Seungmin Lee{break}
-
 {title:Author}
 
-{phang}All commands in ietoolkit is developed by DIME Analytics at DECIE, The World Bank's unit for Development Impact Evaluations.
+{phang}All commands in ietoolkit are developed by DIME Analytics at DIME, The World Bank's department for Development Impact Evaluations.
 
-{phang}Main author: Kristoffer Bjarkefur, Luiza Cardoso De Andrade, DIME Analytics, The World Bank Group
+{phang}Main authors: Kristoffer Bjarkefur, Luiza Cardoso De Andrade, DIME Analytics, The World Bank Group
 
 {phang}Please send bug-reports, suggestions and requests for clarifications
 		 writing "ietoolkit iebaltab" in the subject line to:{break}
