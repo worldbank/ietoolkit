@@ -1100,8 +1100,11 @@ qui {
 			* Bring back the original data
 			restore
 			* Overwrite in working memory the original data so results can be browsed
-			if !missing("`browse'") use `tab_file', clear
-
+			if !missing("`browse'") {
+				use `tab_file', clear
+				* Reduce max lenght of col 1 to 32 so varnames will show but note will be shrunk
+				format v1 %35s
+			}
 		}
 
 		******************************************
