@@ -358,7 +358,7 @@ Here is a glossary for the terms used in this section:{p_end}
 {p2col:{it:groupvar}}The variable specified in {opt grpvar(varname)}{p_end}
 {p2col:{it:groupcode}}Each value in {it:groupvar}{p_end}
 {p2col:{it:test pair}}Combination of {it:group codes} to be used in pair wise tests{p_end}
-{p2col:{it:test pair dummy}}A dummy variable where the first {it:group code} in a {it:test pair}
+{p2col:{it:tp_dummy}}A dummy variable where the first {it:group code} in a {it:test pair}
 has the value 1 and the second {it:group code} has the value 0,
 and all other observations has missing values{p_end}
 
@@ -374,15 +374,26 @@ the descriptive statistics is calculated using the following code:{p_end}
 {pstd}{it:all options:}
 {break}{input:reg balancevar if groupvar = groupcode weights, vce(vce_option)}{p_end}
 
-{pstd}{it:Statistics displayed in table:}{p_end}
-{p2colset 5 12 14 0}{...}
-{p2col:{it:mean}}Always displayed. Retrieved from {cmd:_b[cons]} after {cmd:reg}.{p_end}
-{p2col:{it:se}}Displayed if {cmd: stats(desc(se))} is specified (default if nothing specified).
-Retrieved from {cmd:_se[cons]} after {cmd:reg}.{p_end}
-{p2col:{it:var}}Displayed if {cmd: stats(desc(var))} is specified.
-Calculated as {cmd:e(rss)/e(df_r)} after {cmd:reg}.{p_end}
-{p2col:{it:sd}}Displayed if {cmd:stats(desc(sd))} is specified.
-Calculated as {cmd:_se[_cons] * sqrt(e(N))} after {cmd:reg}.{p_end}
+{pstd}The table below shows the stats estimated/calculated based on this regression.
+A star (*) in the {it:Stat} column indicate that is the optional statistics displayed by default
+if the {inp:stats()} option is used.
+The {it:Display option} column shows what sub-option to use in {inp:stats()} to display this statistic.
+The {it:Mat col} column shows what the column name in the result matrix for the column that stores this stat.
+{it:gc} stands for {it:groupcode}, see definition above.
+See more about the result matrices in the {it:Result matrices} section below.
+The last column shows how the command obtains the stat in the Stata code.{p_end}
+
+{c TLC}{hline 9}{c TT}{hline 19}{c TT}{hline 9}{c TT}{hline 33}{c TRC}
+{c |} Stat {col 11}{c |} Display option {col 31}{c |} Mat col {col 37}{c |} Estimation/calculation {col 75}{c |}
+{c LT}{hline 9}{c +}{hline 19}{c +}{hline 9}{c +}{hline 33}{c RT}
+{c |} # obs {col 11}{c |} Always displayed {col 31}{c |} n_{it:gc} {col 41}{c |} {cmd:e(N)} after {cmd:reg} {col 75}{c |}
+{c |} cluster {col 11}{c |} Displayed if used {col 31}{c |} cl_{it:gc} {col 41}{c |} {cmd:e(N_clust)} after {cmd:reg} {col 75}{c |}
+{c |} mean {col 11}{c |} Always displayed {col 31}{c |} mean_{it:gc} {col 41}{c |} {cmd:_b[cons]} after {cmd:reg} {col 75}{c |}
+{c |} se * {col 11}{c |} {inp:stats(desc(se))} {col 31}{c |} se_{it:gc} {col 41}{c |} {cmd:_se[cons]} after {cmd:reg} {col 75}{c |}
+{c |} var {col 11}{c |} {inp:stats(desc(var))} {col 31}{c |} var_{it:gc} {col 41}{c |} {cmd:e(rss)/e(df_r)} after {cmd:reg} {col 75}{c |}
+{c |} sd {col 11}{c |} {inp:stats(desc(sd))} {col 31}{c |} sd_{it:gc} {col 41}{c |} {cmd:_se[_cons]*sqrt(e(N))} after {cmd:reg} {col 71}{c |}
+{c BLC}{hline 9}{c BT}{hline 19}{c BT}{hline 9}{c BT}{hline 33}{c BRC}
+
 
 {pstd}{ul:{it:Pair-wise test statistics}}{break}
 Pair-wise test statistics is always displayed in the table
@@ -392,45 +403,68 @@ Since observations not included in the test pair have missing values in the test
 they are excluded from the regression without using an if-statement.
 
 {pstd}{it:basic form:}
-{break}{input:reg balancevar testpairdummy}
-{break}{input:test testgroupdummy}{p_end}
+{break}{input:reg balancevar tp_dummy}
+{break}{input:test tp_dummy}{p_end}
 
 {pstd}{it:all options:}
-{break}{input:reg balancevar testpairdummy covariates i.fixedeffect weights, vce(vce_option)}
-{break}{input:test testgroupdummy}{p_end}
+{break}{input:reg balancevar tp_dummy covariates i.fixedeffect weights, vce(vce_option)}
+{break}{input:test tp_dummy}{p_end}
 
-{pstd}{it:Statistics displayed in table:}{p_end}
-{p2colset 5 12 14 0}{...}
-{p2col:{it:diff}}Displayed if {cmd:stats(pair(diff))} is specified (default if nothing specified).
-Calculated as the mean of first group minus the mean of the second group.
-Means are taken from the descriptive statistics explained above.{p_end}
-{p2col:{it:beta}}Displayed if {cmd:stats(pair(beta))} is specified.
-Retrieved from {cmd:e(b)[1,1]} after {cmd:reg}.{p_end}
-{p2col:{it:t}}Displayed if {cmd:stats(pair(t))} is specified.
-Calculated as {cmd:_b[testpairdummy]/_se[testpairdummy]} after {cmd:reg}.{p_end}
-{p2col:{it:p}}Displayed if {cmd:stats(pair(p))} is specified.
-Retrieved from {cmd:e(p)} after {cmd:test}{p_end}
-{p2col:{it:nrmd}}Displayed if {cmd:stats(pair(nrmd))} is specified. Calculated as {cmd: diff/sqrt(.5*(var_code1+var_code2))} where diff is the same as diff in this table, and var_code1 and var_code2 are the variance from group 1 and 2 as described in the descriptive statistics section.{p_end}
-{p2col:{it:nrmb}}Displayed if {cmd:stats(pair(nrmb))} is specified. Calculated as {cmd: beta/sqrt(.5*(var_code1+var_code2))} where beta is the same as beta in this table, and var_code1 and var_code2 are the variance from group 1 and 2 as described in the descriptive statistics section.{p_end}
-{p2col:{it:se}}Displayed if {cmd:stats(pair(se))} is specified. Retrieved from {cmd:_se[testpairdummy]} after {cmd:reg}.{p_end}
-{p2col:{it:sd}}Displayed if {cmd:stats(pair(sd))} is specified. Calculated as {cmd:_se[testpairdummy] * sqrt(e(N))} after {cmd:reg}.{p_end}
+{pstd}The table below shows the stats estimated/calculated based on this regression.
+A star (*) in the {it:Stat} column indicate that is the optional statistics displayed by default
+if the {inp:stats()} option is used.
+The {it:Display option} column shows what sub-option to use in {inp:stats()} to display this statistic.
+The {it:Mat col} column shows what the column name in the result matrix for the column that stores this stat.
+{it:tp} stands for {it:test pair}, see definition above.
+See more about the result matrices in the {it:Result matrices} section below.
+The last column shows how the command obtains the stat in the Stata code.
+See the group descriptive statistics above for {inp:mean_1}, {inp:mean_2}, {inp:var_1} and {inp:var_2}
+in the table below.{p_end}
+
+{c TLC}{hline 8}{c TT}{hline 19}{c TT}{hline 9}{c TT}{hline 45}{c TRC}
+{c |} Stat {col 10}{c |} Display option {col 30}{c |} Mat col {col 37}{c |} Estimation/calculation {col 86}{c |}
+{c LT}{hline 8}{c +}{hline 19}{c +}{hline 9}{c +}{hline 45}{c RT}
+{c |} diff * {col 8}{c |} {inp:stats(pair(diff))} {col 27}{c |} diff_{it:tp} {col 37}{c |} If pair 1_2: {inp:mean_1}-{inp:mean_2} {col 86}{c |}
+{c |} beta {col 10}{c |} {inp:stats(pair(beta))} {col 27}{c |} beta_{it:tp} {col 37}{c |} {inp:e(b)[1,1]} after {inp:reg}{col 86}{c |}
+{c |} t {col 10}{c |} {inp:stats(pair(t))} {col 30}{c |} t_{it:tp} {col 40}{c |} {inp:_b[tp_dummy]/_se[tp_dummy]} after {inp:reg}{col 86}{c |}
+{c |} p {col 10}{c |} {inp:stats(pair(p))} {col 30}{c |} p_{it:tp} {col 40}{c |} {cmd:e(p)} after {cmd:test}{col 86}{c |}
+{c |} nrmd {col 10}{c |} {inp:stats(pair(nrmd))} {col 30}{c |} nrmd_{it:tp} {col 40}{c |} If pair 1_2: {inp:diff_{it:tp}/sqrt(.5*(var_1+var_2))} {col 86}{c |}
+{c |} nrmb {col 10}{c |} {inp:stats(pair(nrmb))} {col 30}{c |} nrmb_{it:tp} {col 40}{c |} If pair 1_2: {inp:beta_{it:tp}/sqrt(.5*(var_1+var_2))}{col 86}{c |}
+{c |} se {col 10}{c |} {inp:stats(pair(se))} {col 30}{c |} se_{it:tp} {col 40}{c |} {cmd:_se[tp_dummy]} after {cmd:reg}{col 86}{c |}
+{c |} sd {col 10}{c |} {inp:stats(pair(sd))} {col 30}{c |} sd_{it:tp} {col 40}{c |} {cmd:_se[tp_dummy] * sqrt(e(N))} after {cmd:reg}{col 86}{c |}
+{c BLC}{hline 8}{c BT}{hline 19}{c BT}{hline 9}{c BT}{hline 45}{c BRC}
+
 
 {pstd}{ul:{it:F-test statistics for balance across all balance variables}}{break}
 Displayed if option {opt ftest} is used.
 For each test pair the following code is used.
 
 {pstd}{it:basic form:}
-{break}{input:reg testgroupdummy balancevars }
+{break}{input:reg tp_dummy balancevars }
 {break}{input:testparm balancevars}{p_end}
 
 {pstd}{it:all options:}
-{break}{input:reg testgroupdummy balancevars covariates i.fixedeffect weights, vce(vce_option)}
+{break}{input:reg tp_dummy balancevars covariates i.fixedeffect weights, vce(vce_option)}
 {break}{input:testparm balancevars}{p_end}
 
-{pstd}{it:Statistics displayed in table:}{p_end}
-{p2colset 5 12 14 0}{...}
-{p2col:{it:f}}Displayed if {cmd: stats(feq(f))} is specified (default if nothing specified). Retrieved from {cmd:r(F)} after {cmd:testparm}.{p_end}
-{p2col:{it:p}}Displayed if {cmd: stats(feq(p))} is specified. Retrieved from {cmd:r(p)} after {cmd:testparm}.{p_end}
+{pstd}The table below shows the stats estimated/calculated based on this regression.
+A star (*) in the {it:Stat} column indicate that is the optional statistics displayed by default
+if the {inp:stats()} option is used.
+The {it:Display option} column shows what sub-option to use in {inp:stats()} to display this statistic.
+The {it:Mat col} column shows what the column name in the result matrix for the column that stores this stat.
+{it:tp} stands for {it:test pair}, see definition above.
+The f-test statistics is stored in a separate result matrix called {inp:r(iebaltabfmat)}
+See more about the result matrices in the {it:Result matrices} section below.
+The last column shows how the command obtains the stat in the Stata code.{p_end}
+
+{c TLC}{hline 9}{c TT}{hline 19}{c TT}{hline 9}{c TT}{hline 24}{c TRC}
+{c |} Stat {col 11}{c |} Display option {col 31}{c |} Mat col {col 41}{c |} Estimation/calculation {col 66}{c |}
+{c LT}{hline 9}{c +}{hline 19}{c +}{hline 9}{c +}{hline 24}{c RT}
+{c |} # obs {col 11}{c |} Always displayed {col 31}{c |} fn_{it:tp} {col 41}{c |} {cmd:e(N)} after {cmd:reg} {col 66}{c |}
+{c |} cluster {col 11}{c |} Displayed if used {col 31}{c |} fcl_{it:tp} {col 41}{c |} {cmd:e(N_clust)} after {cmd:reg} {col 66}{c |}
+{c |} f * {col 11}{c |} {inp:stats(f(f))} {col 31}{c |} ff_{it:tp} {col 41}{c |} {cmd:r(F)} after {cmd:testparm} {col 66}{c |}
+{c |} p {col 11}{c |} {inp:stats(f(p))} {col 31}{c |} fp_{it:tp} {col 41}{c |} {cmd:r(p)} after {cmd:testparm} {col 66}{c |}
+{c BLC}{hline 9}{c BT}{hline 19}{c BT}{hline 9}{c BT}{hline 24}{c BRC}
 
 {pstd}{ul:{it:F-test statistics for balance across all groups}}{break}
 Dipslayed in the table if the option {opt feqtest} is used.
@@ -447,10 +481,23 @@ represents all group codes apart from the first code.
 {break}{input:reg balancevar i.groupvar covariates i.fixedeffect weights, vce(vce_option)}
 {break}{input:test feqtestinput}{p_end}
 
-{pstd}{it:Statistics displayed in table:}{p_end}
-{p2colset 5 12 14 0}{...}
-{p2col:{it:f}}Displayed if {cmd: stats(feq(f))} is specified (default if nothing specified). Retrieved from {cmd:r(F)} after {cmd:test}.{p_end}
-{p2col:{it:p}}Displayed if {cmd: stats(feq(p))} is specified. Retrieved from {cmd:r(p)} after {cmd:test}.{p_end}
+{pstd}The table below shows the stats estimated/calculated based on this regression.
+A star (*) in the {it:Stat} column indicate that is the optional statistics displayed by default
+if the {inp:stats()} option is used.
+The {it:Display option} column shows what sub-option to use in {inp:stats()} to display this statistic.
+The {it:Mat col} column shows what the column name in the result matrix for the column that stores this stat.
+See more about the result matrices in the {it:Result matrices} section below.
+The last column shows how the command obtains the stat in the Stata code.{p_end}
+
+{c TLC}{hline 9}{c TT}{hline 19}{c TT}{hline 9}{c TT}{hline 24}{c TRC}
+{c |} Stat {col 11}{c |} Display option {col 31}{c |} Mat col {col 41}{c |} Estimation/calculation {col 66}{c |}
+{c LT}{hline 9}{c +}{hline 19}{c +}{hline 9}{c +}{hline 24}{c RT}
+{c |} # obs {col 11}{c |} Always displayed {col 31}{c |} feqn {col 41}{c |} {cmd:e(N)} after {cmd:reg} {col 66}{c |}
+{c |} cluster {col 11}{c |} Displayed if used {col 31}{c |} feqcl {col 41}{c |} {cmd:e(N_clust)} after {cmd:reg} {col 66}{c |}
+{c |} f * {col 11}{c |} {inp:stats(feq(f))} {col 31}{c |} feqf {col 41}{c |} {cmd:r(F)} after {cmd:test} {col 66}{c |}
+{c |} p {col 11}{c |} {inp:stats(feq(p))} {col 31}{c |} feqp {col 41}{c |} {cmd:r(p)} after {cmd:test} {col 66}{c |}
+{c BLC}{hline 9}{c BT}{hline 19}{c BT}{hline 9}{c BT}{hline 24}{c BRC}
+
 
 
 {title:Examples}
