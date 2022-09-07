@@ -457,42 +457,80 @@ represents all group codes apart from the first code.
 
 {pstd} {hi:Example 1.}
 
-{phang2}{inp:iebaltab {it:outcome_variable}, grpvar({it:treatment_variable}) browse}{p_end}
+{pmore}{inp:sysuse census}{break}
+{inp:gen group = runiform() < .5}{break}
+{inp:iebaltab pop medage, grpvar(group) browse}{break}
+{inp:browse}{p_end}
 
-{pmore}In the example above, let's assume that {it:treatment_variable} is a variable that is 0 for observations in
- the control group, and 1 for observations in the treatment group. Then in this example, the command will
- show the mean of {it:outcome_variable} and the standard error of that mean for the control group and the treatment
- group separately, and it will show the difference between the two groups and test if that difference is statistically significant.
-
+{pmore}In the example above, Stata's built in census data is used.
+First a dummy variable is created at random.
+Using this random group variable a balance table is created testing for
+differences in {inp:pop} and {inp:medage}.
+By using {inp:browse} the data in memory is replaced with the table so that
+the table can be used in the browse window.
+You most likely never should use the {inp:browse} option in your final code
+but it is convenient in examples like this and when first testing the command.
+See examples on how to save file to disk below.{p_end}
 
 {pstd} {hi:Example 2.}
 
-{phang2}{inp:global project_folder "C:\Users\project\baseline\results"}{p_end}
-{phang2}{inp:iebaltab {it:outcome_variable}, grpvar({it:treatment_variable}) savexlsx("$project_folder\balancetable.xlsx")}{p_end}
+{pmore}{inp:sysuse census}{break}
+{inp:iebaltab pop medage, grpvar(region) browse}{break}
+{inp:browse}{p_end}
 
-{pmore}The only difference between example 1 and this example is that in this example the table is saved to file instead of being shown in the browser window.{p_end}
+{pmore}In this example we use the variable region as group variable that has four categories.
+All groups are tested against each other.{p_end}
 
 {pstd} {hi:Example 3.}
 
-{phang2}{inp:iebaltab {it:outcome1 outcome2 outcome3}, grpvar({it:treatment_variable}) savexlsx({it:"$project_folder\balancetable.xlsx"}) rowvarlabels rowlabels({it:"outcome1 Outcome variable 1 @ outcome2 Second outcome variable"})}{p_end}
+{pmore}{inp:sysuse census}{break}
+{inp:iebaltab pop medage, grpvar(region) browse control(4)}{break}
+{inp:browse}{p_end}
 
-{pmore}Example 3 builds on example 2. There are now 3 variables listed as balance variables. In option {opt rowlabels()} two
- of those balance variables have been given a new label to be displayed as row title instead of the variable name. Instead of outcome1
- the row title will be "Outcome variable 1", and instead of outcome2 the row title will be "Second outcome variable". For balance variable
- outcome3 that is not included in {cmd:rowlabels()}, the command will use the variable label defined for outcome3 as row title since
- option {cms:rowarlabels} was specified. If outcome3 does not have any row variable defined, then the variable name will be used
- as row title, just like the default.{p_end}
+{pmore}Comparing all groups against each other becomes unfeasible when the number of
+categories in the group variable grows.
+The option {inp:control()} overrides this behavior so that the category indicated
+in this options are tested against all other groups,
+but the other groups are not tested against each other.
+For statistics where the direction matters (for example {it:diff} or {it:beta})
+the order is changed so that the test is ({it:other_group} - {it:control})
+such that a positive value indicates that the other group has a higher
+mean in the balance variable.{p_end}
 
- {pstd} {hi:Example 4.}
+{pstd} {hi:Example 4.}
 
-{phang2}{inp:global project_folder "C:\Users\project\baseline\results"}{p_end}
-{phang2}{inp:iebaltab {it:outcome_variable}, grpvar({it:treatment_variable}) savetex({it:"$project_folder\balancetable.tex"}) texcolwidth({it:"$project_folder\balancetable_note.tex"})}{p_end}
+{pmore}{inp:sysuse census}{break}
+{inp:iebaltab pop medage, grpvar(region) browse control(4) stats(desc(var) pair(p))}{break}
+{inp:browse}{p_end}
 
-{pmore}In example 4 the table is exported to the file {it:"$project_folder\balancetable.tex"}
-but the table note is exported to {it:"$project_folder\balancetable_note.tex"}.
-This allows you to import your table and note like this in your LaTeX code
-which is a an easy way to align your table note with the rest of the table.
-Something that is surprisingly difficult.
+{pmore}You can control which statistics to output in using the {inp:stats()} option.
+In this example, the sub-option {inp:desc(var)} indicates that
+the variance should be displayed in the descriptive statistics section
+instead of standard error which is the default.
+The sub-option {inp:pair(p)} indicates that
+the p-value in from the t-tests in the pairwise test section should be displayed
+instead of the difference in mean between the groups which is the default.
+See above in this help file for full details on the sub-options you may use.{p_end}
+
+{pstd} {hi:Example 5.}
+
+{pmore}{inp:sysuse census}{break}
+{inp:local outfld {it:"path/to/folder"}}{break}
+{inp:iebaltab pop medage, grpvar(region) control(4) ///}{break}
+{space 2}{inp:stats(desc(var) pair(p)) replace ///}{break}
+{space 2}{inp:savecsv("`outfld'/iebtb.csv") savexlsx("`outfld'/iebtb.xlsx") ///}{break}
+{space 2}{inp:savetex("`outfld'/iebtb.tex") texnotefile("`outfld'/iebtb_note.tex")}{p_end}
+
+{pmore}This example shows how to export the tables to the three formats supported.
+CSV, Excel and LaTeX.
+To run this code you must update the path {it:"path/to/folder"} to point
+to a folder on your computer where the tables can be exported to.
+This is what we recommend over using the {inp:browse} options for final code.
+When exporting to LaTeX we recommend exporting the note to a seperate file
+using the option {inp:texnotefile()} and then import it in LaTeX using the
+package {inp:threeparttable} like the code below.
+It makes it easier to align the note with the table when LaTeX adjust the size
+of the table to fit a page.
 
 	{input}
 	\begin{table}
