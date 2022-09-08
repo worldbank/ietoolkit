@@ -498,11 +498,32 @@ The last column shows how the command obtains the stat in the Stata code.{p_end}
 {c |} p {col 11}{c |} {inp:stats(feq(p))} {col 31}{c |} feqp {col 41}{c |} {cmd:r(p)} after {cmd:test} {col 66}{c |}
 {c BLC}{hline 9}{c BT}{hline 19}{c BT}{hline 9}{c BT}{hline 24}{c BRC}
 
+{title:Result matrices}
 
+{pstd}There is an unlimited variation in preferences for
+how a balance table should be structured or look.
+A single command like {inp:iebaltab} simply cannot satisfy them all.
+To still enable infinite customization this commands return two matrices
+with all the stats calculated by this command.
+From these matrices all values can be extracted and
+put into any output of your liking.{p_end}
+
+{pstd}The two returned matrices are called {inp:iebtab_rmat} and {inp:iebtab_fmat}.
+All stats related to the f-test  across all balance variables (option {inp:ftest})
+are stored in the {inp:iebtab_fmat} matrix,
+all other stats are stored in the {inp:iebtab_rmat} matrix.
+The {inp:iebtab_fmat} matrix always has exactly one row with the row name {it:fstats}.
+The {inp:iebtab_rmat} matrix has one row per balance variable
+and each row is named after each balance var.
+In both matrices the column names corresponds to a statistics.
+The column name for each statistics and its definition can be found
+in the {it:Estimation/statistics definitions} section above.{p_end}
+
+{pstd}See examples below for how to access the values.{p_end}
 
 {title:Examples}
 
-{pstd} {hi:Example 1.}
+{pstd}{hi:Example 1.}
 
 {pmore}{inp:sysuse census}{break}
 {inp:gen group = runiform() < .5}{break}
@@ -593,6 +614,23 @@ of the table to fit a page.
 	  \end{adjustbox}
 	\end{table}
 	{text}
+
+{pstd}{hi:Example 6.}
+
+{pmore}{inp:sysuse census}{break}
+{inp:iebaltab pop medage, grpvar(region)}{break}
+{inp:local rnum = rownumb(r(iebtab_rmat),"medage")}{break}
+{inp:local cnum = colnumb(r(iebtab_rmat),"p_2_4")}{break}
+{inp:local p_medage_2_4 = el(r(iebtab_rmat),`rnum',`cnum')}{break}
+{inp:di "The p-value in the test for medage between region 2 and 4 is: `p_medage_2_4'"}{p_end}
+
+{pmore}In this example none of the export options ({inp:browse},{inp:savecsv()} etc.) are used
+and the only place where the results are stored is in the r(iebtab_rmat) matrix.
+The {inp:rownumb()} and the {inp:colnumb()} functions can be used to get
+the row and column number from the row and column names.
+These row and and column numbers can be used to get the individual value in the function {inp:el()}.
+If you know the row and column number you can use the {inp:el()} function directly.{p_end}
+
 
 {title:Author}
 

@@ -1031,8 +1031,8 @@ qui {
 	mat returnRMat = `rmat'
 	mat returnFMat = `fmat'
 
-	return matrix iebaltabrmat returnRMat
-	return matrix iebaltabfmat returnFMat
+	return matrix iebtab_rmat returnRMat
+	return matrix iebtab_fmat returnFMat
 
 
 /*******************************************************************************
@@ -2023,6 +2023,7 @@ cap program drop 	setUpResultMatrix
 	*Create a one 1xN matrix that represents one F-test row
 	mat emptyFRow = (`emptyFRow')
 	mat colnames emptyFRow = `Fcolnames'
+	mat rownames emptyFRow = "fstats"
 	return matrix emptyFRow emptyFRow
 
 	*Return all stats locals to be used in the command
