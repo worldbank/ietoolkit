@@ -19,21 +19,21 @@ command please see the {browse "https://dimewiki.worldbank.org/wiki/Iebaltab":DI
 {it:{help iebaltab##columnrowoptions:columnrow_options}}
 {it:{help iebaltab##estimateoptions:estimation_options}}
 {it:{help iebaltab##statoptions:stat_display_options}}
-{it:{help iebaltab##labeloptions:label_options}}
+{it:{help iebaltab##labeloptions:label_note_options}}
 {it:{help iebaltab##exportoptions:export_options}}
 {it:{help iebaltab##latexoptions:latex_options}}
 ]
 
 {phang2}where {it:balancevarlist} is one or several continuous or binary variables (from here on called balance variables) for which the command
-will test for differences across the categories in grpvar({it:varname}). See note on non-binary categorical balance variables in the description section below.
+will test for differences across the categories in {opt grpvar(varname)}.
 
 {marker opts}{...}
 {synoptset 22}{...}
-{synopthdr:options}
+{synopthdr:Options}
 {synoptline}
 {pstd}{it:    {ul:{hi:Required options:}}}{p_end}
 
-{synopt :{opth grpv:ar(varname)}}Variable indicating groups (for example treatment arms){p_end}
+{synopt :{opth grpv:ar(varname)}}Variable indicating the groups (ex. treatment arms) to test across{p_end}
 
 {pstd}{it:    {ul:{hi:Optional options}}}{p_end}
 
@@ -47,8 +47,8 @@ will test for differences across the categories in grpvar({it:varname}). See not
 {marker estimateoptions}{...}
 {synopthdr:Estimation options}
 {synopt :{opth vce:(vce_option:vce_types)}}Options for estimating variance{p_end}
-{synopt :{opth fix:edeffect(varname)}}Include fixed effects in the regressions for t-tests (and for F-tests if applicable){p_end}
-{synopt :{opth cov:ariates(varlist)}}Include covariates (control variables) in the regressions for t-tests (and for F-tests if applicable){p_end}
+{synopt :{opth fix:edeffect(varname)}}Include fixed effects in the pair-wise regressions (and for F-tests if applicable){p_end}
+{synopt :{opth cov:ariates(varlist)}}Include covariates (control variables) in the pair-wise regressions (and for F-tests if applicable){p_end}
 {synopt :{opt ft:est}}Include a row with the F-test for joint significance across all balance variables for each test pair{p_end}
 {synopt :{opt feqt:est}}Include a column with the F-test for joint significance across all groups for each variable{p_end}
 
@@ -57,11 +57,11 @@ will test for differences across the categories in grpvar({it:varname}). See not
 {synopt :{cmd:stats(}{it:{help iebaltab##statstr:stats_string}}{cmd:)}}Specify which statistics to display in the tables. See options for {it:stats_string} below{p_end}
 {synopt :{opth star:levels(numlist)}}Manually set the three significance levels used for significance stars{p_end}
 {synopt :{opt starsno:add}}Do not add any stars to the table{p_end}
-{synopt :{opth form:at(format:%fmt)}}Apply Stata formats to the values outputted in the table{p_end}
+{synopt :{opth form:at(format:%fmt)}}Apply Stata formats to the non-integer values outputted in the table{p_end}
 
 {marker labeloptions}{...}
 {synopthdr:Label/notes options}
-{synopt :{opt grpc:odes}}Use the values in the {opt grpvar()} variable as column titles even if the variable has value labels{p_end}
+{synopt :{opt grpc:odes}}Use the values in the {opt grpvar()} variable as column titles. Default is to use value labels if any{p_end}
 {synopt :{opt grpl:abels(codetitles)}}Manually set the group column titles. See details on {it:codetitles} below{p_end}
 {synopt :{opt totall:abel(string)}}Manually set the title of the total column{p_end}
 {synopt :{opt rowv:arlabels}}Use the variable labels instead of variable name as row titles{p_end}
@@ -110,6 +110,9 @@ documents how the command was specified when the table was generated.
 This automatic note is meant to be used during explorative analysis only and eventually
 be replaced with a manual note suitable for publication using {opt tblnote(string)}.{p_end}
 
+{pstd}How all statistics has bee generated has carefully been documented in the
+{help iebaltab##est_defs:estimation/statistics definitions} section below.
+
 {title:Options (detailed descriptions)}
 
 {pstd}{it:{ul:{hi:Required options:}}}{p_end}
@@ -134,7 +137,7 @@ The default is that all groups are tested against each other.
 The control group will be listed first (leftmost) in the table
 unless another order is specified in {opt order()}.
 When using {opt control()} the order of the groups in the pair is (non-control)-(control)
-so that a positive statistic (for example {it:diff} or {it:beta}) indicates that
+so that a positive statistic (in for example {it:diff} or {it:beta}) indicates that
 the mean for the non-control is larger than for the control.{p_end}
 
 {phang}{opt or:der(groupcodelist)} manually sets the column order of the groups in the table. {it:groupcodelist} may
@@ -212,8 +215,7 @@ Expected input is decimals (between the value 0 and 1) in descending order.
 The default is (.1 .05 .01) where .1 corresponds
 to one star, .05 to two stars and .01 to three stars.{p_end}
 
-{phang}{opt starsno:add} makes the command not add any stars to the table. This option makes the most sense in combination
-with {cmd:pttest}, {cmd:pftest} or {cmd:pboth} but is possible to use by itself as well.{p_end}
+{phang}{opt starsno:add} makes the command not add any stars to the table{p_end}
 
 {phang}{opth form:at(format:%fmt)} applies the Stata formats specified to all values outputted
 in the table apart from values that always are integers.
@@ -303,7 +305,8 @@ This allows importing the table using the {it:threeparttable} LaTeX package whic
 is an easy way to make sure the note always has the same width as the table.
 See example in the example section below.{p_end}
 
-{phang}{opt replace} allows for the file in {opt savexlsx()}, {opt savexcsv()} or {opt savetex()}
+{phang}{opt replace} allows for the file in {opt savexlsx()}, {opt savexcsv()},
+{opt savetex()} or {opt texnotefile()}
 to be overwritten if the file already exist on disk.{p_end}
 
 {pstd}{it:LaTeX options:}{p_end}
@@ -345,10 +348,10 @@ For more information on these units,
 {browse "https://en.wikibooks.org/wiki/LaTeX/Lengths":check LaTeX lengths manual}.{p_end}
 
 {marker est_defs}{...}
-{title:Estimation definitions and display options}
+{title:Estimation/statistics definitions}
 
 {pstd}This section details the regressions that are used to estimate
-the statistics displayed in the in the generated balance tables.
+the statistics displayed in the balance tables generated by this command.
 For each test there is a {it:basic form} example to highlight the core of the test,
 and an {it:all options} example that shows exactly how all options are applied.
 Here is a glossary for the terms used in this section:{p_end}
@@ -376,10 +379,12 @@ the descriptive statistics is calculated using the following code:{p_end}
 
 {pstd}The table below shows the stats estimated/calculated based on this regression.
 A star (*) in the {it:Stat} column indicate that is the optional statistics displayed by default
-if the {inp:stats()} option is used.
+if the {inp:stats()} option is not used.
 The {it:Display option} column shows what sub-option to use in {inp:stats()} to display this statistic.
 The {it:Mat col} column shows what the column name in the result matrix for the column that stores this stat.
 {it:gc} stands for {it:groupcode}, see definition above.
+If the option {inp:total} is used,
+then {it:gc} will also include {it:t} for stats on the full sample.
 See more about the result matrices in the {it:Result matrices} section below.
 The last column shows how the command obtains the stat in the Stata code.{p_end}
 
@@ -412,14 +417,15 @@ they are excluded from the regression without using an if-statement.
 
 {pstd}The table below shows the stats estimated/calculated based on this regression.
 A star (*) in the {it:Stat} column indicate that is the optional statistics displayed by default
-if the {inp:stats()} option is used.
+if the {inp:stats()} option is not used.
 The {it:Display option} column shows what sub-option to use in {inp:stats()} to display this statistic.
 The {it:Mat col} column shows what the column name in the result matrix for the column that stores this stat.
 {it:tp} stands for {it:test pair}, see definition above.
 See more about the result matrices in the {it:Result matrices} section below.
 The last column shows how the command obtains the stat in the Stata code.
-See the group descriptive statistics above for {inp:mean_1}, {inp:mean_2}, {inp:var_1} and {inp:var_2}
-in the table below.{p_end}
+See the group descriptive statistics above for definitions on
+{inp:mean_1}, {inp:mean_2}, {inp:var_1} and {inp:var_2}
+also used in the table below.{p_end}
 
 {c TLC}{hline 8}{c TT}{hline 19}{c TT}{hline 9}{c TT}{hline 45}{c TRC}
 {c |} Stat {col 10}{c |} Display option {col 30}{c |} Mat col {col 37}{c |} Estimation/calculation {col 86}{c |}
@@ -436,7 +442,7 @@ in the table below.{p_end}
 
 
 {pstd}{ul:{it:F-test statistics for balance across all balance variables}}{break}
-Displayed if option {opt ftest} is used.
+Displayed in the balance table if the option {opt ftest} is used.
 For each test pair the following code is used.
 
 {pstd}{it:basic form:}
@@ -449,11 +455,12 @@ For each test pair the following code is used.
 
 {pstd}The table below shows the stats estimated/calculated based on this regression.
 A star (*) in the {it:Stat} column indicate that is the optional statistics displayed by default
-if the {inp:stats()} option is used.
+if the {inp:stats()} option is not used.
 The {it:Display option} column shows what sub-option to use in {inp:stats()} to display this statistic.
 The {it:Mat col} column shows what the column name in the result matrix for the column that stores this stat.
 {it:tp} stands for {it:test pair}, see definition above.
-The f-test statistics is stored in a separate result matrix called {inp:r(iebaltabfmat)}
+The F-test statistics is stored in
+a separate result matrix called {inp:r(iebtab_fmat)}.
 See more about the result matrices in the {it:Result matrices} section below.
 The last column shows how the command obtains the stat in the Stata code.{p_end}
 
@@ -467,10 +474,11 @@ The last column shows how the command obtains the stat in the Stata code.{p_end}
 {c BLC}{hline 9}{c BT}{hline 19}{c BT}{hline 9}{c BT}{hline 24}{c BRC}
 
 {pstd}{ul:{it:F-test statistics for balance across all groups}}{break}
-Dipslayed in the table if the option {opt feqtest} is used.
-For each balance variable this code is used.
+Dipslayed in the balance table if the option {opt feqtest} is used.
+For each balance variable the below code is used where
 {it:feqtestinput} is a list on the format
-{input:x2.groupvar=x3.groupvar...xn.groupvar=0}, where {input:x2}, {input:x3} ... {input:xn},
+{input:x2.groupvar = x3.groupvar ... xn.groupvar = 0},
+and where {input:x2}, {input:x3} ... {input:xn},
 represents all group codes apart from the first code.
 
 {pstd}{it:basic form:}
@@ -483,7 +491,7 @@ represents all group codes apart from the first code.
 
 {pstd}The table below shows the stats estimated/calculated based on this regression.
 A star (*) in the {it:Stat} column indicate that is the optional statistics displayed by default
-if the {inp:stats()} option is used.
+if the {inp:stats()} option is not used.
 The {it:Display option} column shows what sub-option to use in {inp:stats()} to display this statistic.
 The {it:Mat col} column shows what the column name in the result matrix for the column that stores this stat.
 See more about the result matrices in the {it:Result matrices} section below.
@@ -509,7 +517,7 @@ From these matrices all values can be extracted and
 put into any output of your liking.{p_end}
 
 {pstd}The two returned matrices are called {inp:iebtab_rmat} and {inp:iebtab_fmat}.
-All stats related to the f-test  across all balance variables (option {inp:ftest})
+All stats related to the F-test  across all balance variables (option {inp:ftest})
 are stored in the {inp:iebtab_fmat} matrix,
 all other stats are stored in the {inp:iebtab_rmat} matrix.
 The {inp:iebtab_fmat} matrix always has exactly one row with the row name {it:fstats}.
@@ -547,7 +555,7 @@ A value for number of clusters are only reported if the
 variance estimator option is set to {inp:vce(cluster {it:clustervar})}.{p_end}
 
 {pstd}{ul:{it:Missing value: .f}}{break}
-Missing value {inp:.f} is used to indicate that f-test option for
+Missing value {inp:.f} is used to indicate that F-test option for
 that statistics (either {inp:fstat} or {inp:feqstat}) was not used,
 and the value was therefore not calculated.{p_end}
 
@@ -629,9 +637,9 @@ By using {inp:browse} the data in memory is replaced with the table so that
 the table can be used in the browse window.
 You most likely never should use the {inp:browse} option in your final code
 but it is convenient in examples like this and when first testing the command.
-See examples on how to save file to disk below.{p_end}
+See examples on how to save the table to a file on disk below.{p_end}
 
-{pstd} {hi:Example 2.}
+{pstd}{hi:Example 2.}
 
 {pmore}{inp:sysuse census}{break}
 {inp:iebaltab pop medage, grpvar(region) browse}{break}
@@ -640,7 +648,7 @@ See examples on how to save file to disk below.{p_end}
 {pmore}In this example we use the variable region as group variable that has four categories.
 All groups are tested against each other.{p_end}
 
-{pstd} {hi:Example 3.}
+{pstd}{hi:Example 3.}
 
 {pmore}{inp:sysuse census}{break}
 {inp:iebaltab pop medage, grpvar(region) browse control(4)}{break}
@@ -656,7 +664,7 @@ the order is changed so that the test is ({it:other_group} - {it:control})
 such that a positive value indicates that the other group has a higher
 mean in the balance variable.{p_end}
 
-{pstd} {hi:Example 4.}
+{pstd}{hi:Example 4.}
 
 {pmore}{inp:sysuse census}{break}
 {inp:iebaltab pop medage, grpvar(region) browse control(4) stats(desc(var) pair(p))}{break}
@@ -671,7 +679,7 @@ the p-value in from the t-tests in the pairwise test section should be displayed
 instead of the difference in mean between the groups which is the default.
 See above in this help file for full details on the sub-options you may use.{p_end}
 
-{pstd} {hi:Example 5.}
+{pstd}{hi:Example 5.}
 
 {pmore}{inp:sysuse census}{break}
 {inp:local outfld {it:"path/to/folder"}}{break}
@@ -715,8 +723,9 @@ of the table to fit a page.
 {inp:local p_medage_2_4 = el(r(iebtab_rmat),`rnum',`cnum')}{break}
 {inp:di "The p-value in the test for medage between region 2 and 4 is: `p_medage_2_4'"}{p_end}
 
-{pmore}In this example none of the export options ({inp:browse},{inp:savecsv()} etc.) are used
-and the only place where the results are stored is in the r(iebtab_rmat) matrix.
+{pmore}In this example none of the export options ({inp:browse}, {inp:savecsv()} etc.) are used
+and the only place where the results are stored
+is in the {inp:r(iebtab_rmat)} matrix.
 The {inp:rownumb()} and the {inp:colnumb()} functions can be used to get
 the row and column number from the row and column names.
 These row and and column numbers can be used to get the individual value in the function {inp:el()}.
