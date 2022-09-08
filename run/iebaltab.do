@@ -48,11 +48,6 @@
 
 qui {
 
-	//replace weight = 10
-		//bysort tmt_cl : keep if _n <= 20
-		//bysort tmt_cl : replace weight = 5 if _n < _N /2
-
-
 	/***************************************************************************
 	  Table 1 - csv, excel, tex and texnote
 	***************************************************************************/
@@ -71,8 +66,8 @@ qui {
 			cov(mpg) fixed(foreign) 
 
 		* Test no regaular missing values in matrices
-		mat mat1 = r(iebaltabrmat)
-		mat mat2 = r(iebaltabfmat)
+		mat mat1 = r(iebtab_rmat)
+		mat mat2 = r(iebtab_fmat)
 		noi ie_test_mat_nomiss, mat1(mat1) mat2(mat2)
 	restore
 
@@ -91,8 +86,8 @@ qui {
 			cov(mpg) fixed(foreign)
 
 		* Test no regaular missing values in matrices
-		mat mat1 = r(iebaltabrmat)
-		mat mat2 = r(iebaltabfmat)
+		mat mat1 = r(iebtab_rmat)
+		mat mat2 = r(iebtab_fmat)
 		noi ie_test_mat_nomiss, mat1(mat1) mat2(mat2)
   restore
 
@@ -113,8 +108,8 @@ qui {
 			tbladdnote("Options used: texvspace(1cm) - tall rows, texcolwidth(3cm) short first column ")
 
 		* Test no regaular missing values in matrices
-		mat mat1 = r(iebaltabrmat)
-		mat mat2 = r(iebaltabfmat)
+		mat mat1 = r(iebtab_rmat)
+		mat mat2 = r(iebtab_fmat)
 		noi ie_test_mat_nomiss, mat1(mat1) mat2(mat2)
 	restore
 
@@ -133,8 +128,8 @@ qui {
 			cov(mpg) fixed(foreign) texdocument
 
 		* Test no regaular missing values in matrices
-		mat mat1 = r(iebaltabrmat)
-		mat mat2 = r(iebaltabfmat)
+		mat mat1 = r(iebtab_rmat)
+		mat mat2 = r(iebtab_fmat)
 		noi ie_test_mat_nomiss, mat1(mat1) mat2(mat2)
 	restore
 
@@ -155,8 +150,8 @@ qui {
 			texcaption("Table 5") texlabel("T5")
 
 		* Test no regaular missing values in matrices
-		mat mat1 = r(iebaltabrmat)
-		mat mat2 = r(iebaltabfmat)
+		mat mat1 = r(iebtab_rmat)
+		mat mat2 = r(iebtab_fmat)
 		noi ie_test_mat_nomiss, mat1(mat1) mat2(mat2)
 	restore
 
@@ -180,8 +175,8 @@ qui {
 			tbladdnote("Many groups, rowvarlabels")
 
 		* Test no regaular missing values in matrices
-		mat mat1 = r(iebaltabrmat)
-		mat mat2 = r(iebaltabfmat)
+		mat mat1 = r(iebtab_rmat)
+		mat mat2 = r(iebtab_fmat)
 		noi ie_test_mat_nomiss, mat1(mat1) mat2(mat2)
 	restore
 
@@ -204,8 +199,8 @@ qui {
 			tbladdnote("column order should be 4 10231 6 2, and 6 is control so pair test only with this group")
 
 		* Test no regaular missing values in matrices
-		mat mat1 = r(iebaltabrmat)
-		mat mat2 = r(iebaltabfmat)
+		mat mat1 = r(iebtab_rmat)
+		mat mat2 = r(iebtab_fmat)
 		noi ie_test_mat_nomiss, mat1(mat1) mat2(mat2)
 	restore
 
@@ -230,8 +225,8 @@ qui {
 			tbladdnote("Row and column manual lables.")
 
 		* Test no regaular missing values in matrices
-		mat mat1 = r(iebaltabrmat)
-		mat mat2 = r(iebaltabfmat)
+		mat mat1 = r(iebtab_rmat)
+		mat mat2 = r(iebtab_fmat)
 		noi ie_test_mat_nomiss, mat1(mat1) mat2(mat2)
 	restore
 
@@ -265,8 +260,8 @@ qui {
 		* fixedeffect(foreign) and in covariates(mpg), but no warning for weight
 
 		* Test no regaular missing values in matrices
-		mat mat1 = r(iebaltabrmat)
-		mat mat2 = r(iebaltabfmat)
+		mat mat1 = r(iebtab_rmat)
+		mat mat2 = r(iebtab_fmat)
 		noi ie_test_mat_nomiss, mat1(mat1) mat2(mat2)
 	restore
 
@@ -291,8 +286,8 @@ qui {
 			tbladdnote("added cluster")
 
 		* Test no regaular missing values in matrices
-		mat mat1 = r(iebaltabrmat)
-		mat mat2 = r(iebaltabfmat)
+		mat mat1 = r(iebtab_rmat)
+		mat mat2 = r(iebtab_fmat)
 		noi ie_test_mat_nomiss, mat1(mat1) mat2(mat2)
 	restore
 
@@ -316,8 +311,8 @@ qui {
 			tbladdnote("added onerow")
 
 		* Test no regaular missing values in matrices
-		mat mat1 = r(iebaltabrmat)
-		mat mat2 = r(iebaltabfmat)
+		mat mat1 = r(iebtab_rmat)
+		mat mat2 = r(iebtab_fmat)
 		noi ie_test_mat_nomiss, mat1(mat1) mat2(mat2)
 	restore
 	
@@ -343,8 +338,8 @@ qui {
 			tbladdnote("added onerow and cluster")
 
 		* Test no regaular missing values in matrices
-		mat mat1 = r(iebaltabrmat)
-		mat mat2 = r(iebaltabfmat)
+		mat mat1 = r(iebtab_rmat)
+		mat mat2 = r(iebtab_fmat)
 		noi ie_test_mat_nomiss, mat1(mat1) mat2(mat2)
 	restore
 
@@ -368,8 +363,8 @@ qui {
 			cov(mpg) fixed(foreign)
 
 		* Test no regaular missing values in matrices
-		mat mat1 = r(iebaltabrmat)
-		mat mat2 = r(iebaltabfmat)
+		mat mat1 = r(iebtab_rmat)
+		mat mat2 = r(iebtab_fmat)
 		noi ie_test_mat_nomiss, mat1(mat1) mat2(mat2)
 	restore
 	
@@ -392,8 +387,8 @@ qui {
 			cov(mpg) fixed(foreign)
 
 		* Test no regaular missing values in matrices
-		mat mat1 = r(iebaltabrmat)
-		mat mat2 = r(iebaltabfmat)
+		mat mat1 = r(iebtab_rmat)
+		mat mat2 = r(iebtab_fmat)
 		noi ie_test_mat_nomiss, mat1(mat1) mat2(mat2)
 	restore
 	
@@ -417,8 +412,8 @@ qui {
            
 
 		* Test no regaular missing values in matrices
-		mat mat1 = r(iebaltabrmat)
-		mat mat2 = r(iebaltabfmat)
+		mat mat1 = r(iebtab_rmat)
+		mat mat2 = r(iebtab_fmat)
 		noi ie_test_mat_nomiss, mat1(mat1) mat2(mat2)
 	restore	
    
@@ -440,8 +435,8 @@ qui {
 			cov(mpg) fixed(foreign)
 
 		* Test no regaular missing values in matrices
-		mat mat1 = r(iebaltabrmat)
-		mat mat2 = r(iebaltabfmat)
+		mat mat1 = r(iebtab_rmat)
+		mat mat2 = r(iebtab_fmat)
 		noi ie_test_mat_nomiss, mat1(mat1) mat2(mat2)
 	restore
 	
@@ -463,8 +458,8 @@ qui {
 			cov(mpg) fixed(foreign)
 
 		* Test no regaular missing values in matrices
-		mat mat1 = r(iebaltabrmat)
-		mat mat2 = r(iebaltabfmat)
+		mat mat1 = r(iebtab_rmat)
+		mat mat2 = r(iebtab_fmat)
 		noi ie_test_mat_nomiss, mat1(mat1) mat2(mat2)
 	restore	
    
@@ -487,8 +482,8 @@ qui {
 
 
 		* Test no regaular missing values in matrices
-		mat mat1 = r(iebaltabrmat)
-		mat mat2 = r(iebaltabfmat)
+		mat mat1 = r(iebtab_rmat)
+		mat mat2 = r(iebtab_fmat)
 		noi ie_test_mat_nomiss, mat1(mat1) mat2(mat2)
 	restore
 	
@@ -509,8 +504,8 @@ qui {
 			stats(pair(beta))
 
 		* Test no regaular missing values in matrices
-		mat mat1 = r(iebaltabrmat)
-		mat mat2 = r(iebaltabfmat)
+		mat mat1 = r(iebtab_rmat)
+		mat mat2 = r(iebtab_fmat)
 		noi ie_test_mat_nomiss, mat1(mat1) mat2(mat2)
 	restore	
     
@@ -533,8 +528,8 @@ qui {
 
 
 		* Test no regaular missing values in matrices
-		mat mat1 = r(iebaltabrmat)
-		mat mat2 = r(iebaltabfmat)
+		mat mat1 = r(iebtab_rmat)
+		mat mat2 = r(iebtab_fmat)
 		noi ie_test_mat_nomiss, mat1(mat1) mat2(mat2)
 	restore
 	
@@ -555,8 +550,8 @@ qui {
 			stats(desc(sd) pair(p)) vce(bootstrap)
             
 		* Test no regaular missing values in matrices
-		mat mat1 = r(iebaltabrmat)
-		mat mat2 = r(iebaltabfmat)
+		mat mat1 = r(iebtab_rmat)
+		mat mat2 = r(iebtab_fmat)
 		noi ie_test_mat_nomiss, mat1(mat1) mat2(mat2)
         
 	restore	
