@@ -521,6 +521,97 @@ in the {it:Estimation/statistics definitions} section above.{p_end}
 
 {pstd}See examples below for how to access the values.{p_end}
 
+{title:Missing values}
+
+{pstd}When statistics are estimated/calculated they can be missing for multiple reasons.
+This section explain what each
+{help missing:extended missing values} ({inp:.c},{inp:.v} etc.) represents.
+The exported tables or the result matrices should never include
+the standard missing value ({inp:.}).
+If you ever encounter the standard missing value in any of them,
+please report that using the contact information at the bottom of this help file.{p_end}
+
+{pstd}{ul:{it:Missing value: .b}}{break}
+Missing value {inp:.b} means that the statistics
+could not be estimated/calculated as bootstrapping was set
+to be used as the variance estimator in {inp:vce(bootstrap)}.
+When bootstrap is used there is no single value for variance
+to be reported in stat {inp:desc(var)}.
+As a result of that, the stats {inp:pair(nrmd)} and {inp:pair(nrmb)}
+are not reported either as they use the variance as input.{p_end}
+
+{pstd}{ul:{it:Missing value: .c}}{break}
+Missing value {inp:.c} are only used when there is
+no number of clusters to report as the errors estimations were not cluster.
+A value for number of clusters are only reported if the
+variance estimator option is set to {inp:vce(cluster {it:clustervar})}.{p_end}
+
+{pstd}{ul:{it:Missing value: .f}}{break}
+Missing value {inp:.f} is used to indicate that f-test option for
+that statistics (either {inp:fstat} or {inp:feqstat}) was not used,
+and the value was therefore not calculated.{p_end}
+
+{pstd}{ul:{it:Missing value: .m}}{break}
+Missing value {inp:.m} is used to indicate that an option to skip
+a full section was used. For example, {inp:stats(pair(none))} where all
+pair-wise statistics are skipped.{p_end}
+
+{pstd}{ul:{it:Missing value: .n}}{break}
+Missing value {inp:.n} is used to indicate that the R-squared value
+was not defined in the pair-wise regression for this test pair.
+This is most likely caused by no variance in the balance variable.
+Here is an example:{p_end}
+
+{pstd}{inp:sysuse census}{break}
+{inp:gen constant = 1}{break}
+{inp:iebaltab medage constant, grpvar(region) browse}{p_end}
+
+{pstd}In this example the variable {inp:constant} has no variance.
+This variable has the mean 1 and 0 variance in the descriptive statistics
+and statistics can be reported in the descriptive statistics section.
+However, the R-square value is not defined for any test pair
+in the pair-wise regression,
+and no pair-wise stats are reported for the {inp:constant} variable.{p_end}
+
+{pstd}{ul:{it:Missing value: .o}}{break}
+Missing value {inp:.o} is used to indicate that in the F-test regression
+for joint significance across all balance variables (see option {inp:ftest})
+for this test pair and at least one balance variable was omitted.
+This is most likely caused by no variance in that balance variable.
+Here is an example:{p_end}
+
+{pstd}{inp:sysuse census}{break}
+{inp:replace pop = 0 if (region == 1) | (region == 2)}{break}
+{inp:iebaltab medage pop, grpvar(region) ftest browse}{p_end}
+
+{pstd}In this example the variable {inp:pop} has no variance in test pair 1_2,
+and that variable will be omitted from the F-test regression and
+no stats are reported for this F-test for this test pair.{p_end}
+
+{pstd}{ul:{it:Missing value: .t}}{break}
+Missing value {inp:.t} is used to indicate that no descriptive statistics
+were calculated for the full sample since the option {inp:total} was not used.{p_end}
+
+{pstd}{ul:{it:Missing value: .v}}{break}
+Missing value {inp:.v} is used to indicate that
+all variance in the balance variable can be explained by one or several
+other variables included in the regression.
+This is defined as the R-squared value is 1.
+Here are a few examples:{p_end}
+
+{pstd}{inp:sysuse census}{break}
+{inp:gen region2 = region}{break}
+{inp:gen pop_neg = 0}{break}
+{inp:replace pop_neg = pop * -1 if (region == 1) | (region == 2)}{break}
+{inp:iebaltab medage pop region2, grpvar(region) covar(pop_neg) browse}{p_end}
+
+{pstd}The variance in variable {inp:region2} is perfectly explained
+by the group variable {inp:region} for each test pair
+and the R-sqaured is 1 in all pair-wise regressions and no statistics are reported.
+Similarly, {inp:pop_neg} that is included as a covariate control variable
+has prefect negative correlation with the balance variable {inp:pop} in test pair 1_2.
+The R-sqaured is 1 in the regression for pair 1_2 and no pair-wise statistics are reported for that pair.{p_end}
+
 {title:Examples}
 
 {pstd}{hi:Example 1.}

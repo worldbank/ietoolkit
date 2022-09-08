@@ -779,9 +779,9 @@ qui {
 				mat row[1,`++colindex'] = `sd'
 			}
 			else {
-				*If total not specified, then put .m in all total columns
+				*If total not specified, then put .t in all total columns
 				foreach tot_stat of local desc_stats {
-					mat row[1,`++colindex'] = .m
+					mat row[1,`++colindex'] = .t
 				}
 			}
 
@@ -791,7 +791,8 @@ qui {
 			foreach ttest_pair of local TEST_PAIR_CODES {
 
 				*If none is used then no pair test stats are calculated
-				if "`pout_val'" == "none" {
+				get_stat_label_stats_string, stats_string("`stats_string'") testname("pair")
+				if "`r(stat_label)'" == "none" {
 					foreach tot_stat of local pair_stats {
 						mat row[1,`++colindex'] = .m
 					}
@@ -809,14 +810,17 @@ qui {
 					//noi di "Balance regression. Var [`balancevar'], test pair [`ttest_pair']"
 					reg `balancevar' `dummy_pair_`ttest_pair'' `covariates' i.`fixedeffect' `weight_option', `error_estm'
 
-					* R2 = 100
-					if (e(r2) == 1) noi display as text "{phang}Warning: All variance was explained by one variable in the regression for the pair-wise test of  variable [`balancevar'] for observations with values [`code1'] and [`code2'] in the groupvar [`grpvar'].{p_end}."
-
-					* R2 = 0
-					if (e(r2) == .) noi display as text "{phang}Warning: The R2 was not possible to calculate in the regression for the pair-wise test of  variable [`balancevar'] for observations with values [`code1'] and [`code2'] in the groupvar [`grpvar'].{p_end}."
-
 					*If any of the tests
-					if (e(r2) == .) | (e(r2) == 1) {
+					if (e(r2) == .) {
+						* R2 is undefined
+						noi display as text "{phang}Warning: The R2 was not possible to calculate in the regression for the pair-wise test of variable [`balancevar'] for observations with values [`code1'] and [`code2'] in the groupvar [`grpvar'].{p_end}."
+						foreach stat of local pair_stats {
+								mat row[1,`++colindex'] = .n
+						}
+					}
+					else if (e(r2) == 1) {
+						* R2 = 100
+						noi display as text "{phang}Warning: All variance was explained by one or several variables in the regression for the pair-wise test of variable [`balancevar'] for observations with values [`code1'] and [`code2'] in the groupvar [`grpvar'].{p_end}."
 						foreach stat of local pair_stats {
 								mat row[1,`++colindex'] = .v
 						}
@@ -881,14 +885,17 @@ qui {
 				//noi di "FEQ regression. Var [`balancevar']"
 				reg `balancevar' i.`grpvar' `covariates' i.`fixedeffect' `weight_option', `error_estm'
 
-				* R2 = 100
-				if (e(r2) == 1) noi display as text "{phang}Warning: All variance was explained by one variable in the regression for the feq-test over all values in the group variable [`grpvar'] for balance variable [`balancevar'].{p_end}."
-
-				* R2 = 0
-				if (e(r2) == .) noi display as text "{phang}Warning: The R2 value could not be calculated in the regression for the feq-test over all values in the group variable [`grpvar'] for balance variable [`balancevar'].{p_end}
-
 				*If any of the tests
-				if (e(r2) == .) | (e(r2) == 1) {
+				if (e(r2) == .) {
+					* R2 undefined
+					noi display as text "{phang}Warning: The R2 value could not be calculated in the regression for the feq-test over all values in the group variable [`grpvar'] for balance variable [`balancevar'].{p_end}"
+					foreach stat of local feq_stats {
+							mat row[1,`++colindex'] = .n
+					}
+				}
+				else if  (e(r2) == 1) {
+					* R2 = 1
+					noi display as text "{phang}Warning: All variance was explained by one or several variables in the regression for the feq-test over all values in the group variable [`grpvar'] for balance variable [`balancevar'].{p_end}"
 					foreach stat of local feq_stats {
 							mat row[1,`++colindex'] = .v
 					}
@@ -907,10 +914,10 @@ qui {
 
 				}
 			}
-			* Feq test not used -  save missing .m
+			* Feq test not used -  save missing .f
 			else {
 				foreach feq_stat of local feq_stats {
-					mat row[1,`++colindex'] = .m
+					mat row[1,`++colindex'] = .f
 				}
 			}
 
@@ -950,13 +957,16 @@ qui {
 			* Find ommitted balance vars if any
 		 	local all_columns     : colnames r(table)
 			local omitted_balvars : list balancevars - all_columns
-			if !missing("`omitted_balvars'") noi display as text "{phang}Warning: One or more balance variables were omitted due to no variance in the F-test across all balance variables for group variable values `code1' and `code2'.{p_end}."
-
-			* All variation in group var is explained by a balance variable
-			if e(r2) == 1 noi display as text "{phang}Warning: All variance in the F-test across all balance variables for group variable values `code1' and `code2' is explained by one or more independent variables.{p_end}."
-
 			* If not possible to calculate F-test due to variance issues,
-			if !missing("`omitted_balvars'") | e(r2) == 1 {
+			if !missing("`omitted_balvars'") {
+				noi display as text "{phang}Warning: One or more balance variables were omitted due to no variance in the F-test across all balance variables for group variable values `code1' and `code2'.{p_end}."
+				foreach f_stat of local ftest_stats {
+					mat `fmat'[1,`++Fcolindex'] = .o
+				}
+			}
+			else if (e(r2) == 1) {
+				* R2 = 1
+				noi display as text "{phang}Warning: All variance in the F-test across all balance variables for group variable values `code1' and `code2' is explained by one or more independent variables.{p_end}."
 				foreach f_stat of local ftest_stats {
 					mat `fmat'[1,`++Fcolindex'] = .v
 				}
@@ -979,10 +989,10 @@ qui {
 		}
 	}
 	else {
-		* F test not used, mark all f-test values as .m
+		* F test not used, mark all f-test values as .f
 		foreach ftest_pair of local TEST_PAIR_CODES {
 			foreach f_stat of local ftest_stats {
-				mat `fmat'[1,`++Fcolindex'] = .m
+				mat `fmat'[1,`++Fcolindex'] = .f
 			}
 		}
 	}
@@ -2513,7 +2523,7 @@ cap program drop 	generate_note
 	vce_type(string) clustervar(string) ///
 	weight_type(string) weight_var(string) ]
 
-	local table_note ""
+	local table_note "If the table includes missing values (.n, .o, .v etc.) see the Missing values section in the help file for the Stata command iebaltab for definitions of these values. "
 
 	* Get stats and label for pairs and f-test
 	get_stat_label_stats_string, stats_string("`stats_string'") testname("pair")
