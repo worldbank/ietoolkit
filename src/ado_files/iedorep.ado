@@ -377,7 +377,7 @@ Cleanup and then run the combined temp dofile
 *****************************************************************************/  
 
   file close _all
-  
+  di as err `"Entering `anything' run...."'
   clear
   if `"`debug'"' != "" {
     local debugpath = subinstr(`"`anything'"',".do","_temp.do",.)
@@ -385,6 +385,7 @@ Cleanup and then run the combined temp dofile
     `qui' do `newfile1'
   }
   else qui do `newfile1'
+  di as err `"Done with `anything'!"'
   
 /*****************************************************************************
 Output flags and errors
