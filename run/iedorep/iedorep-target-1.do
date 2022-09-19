@@ -8,6 +8,10 @@ local MYFAKELOCAL = `MYFAKELOCAL' + 1
 
 #d cr
 
+// TEST COMMENT
+
+global do "nothing"
+
 expand 2 , gen(check)
 
 isid make check, sort
