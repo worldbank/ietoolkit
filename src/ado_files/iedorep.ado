@@ -135,7 +135,8 @@ while r(eof)==0 {
         "  cap putdocx clear        " _n  /// (see [RPT] putdocx begin)
         "  cap putpdf clear         " _n  /// (see [RPT] putpdf begin)
         "  cap python clear         " _n  /// (see [P] PyStata integration)
-        "  cap java clear  " _n
+        "  cap java clear           " _n  ///
+        "  cap estimates clear  " _n
       file write checkr ///
         "  cap drop _all            " _n  /// (see [D] drop)
         "  cap frames reset         " _n  /// (see [D] frames reset)
@@ -152,7 +153,8 @@ while r(eof)==0 {
         "  cap putdocx clear        " _n  /// (see [RPT] putdocx begin)
         "  cap putpdf clear         " _n  /// (see [RPT] putpdf begin)
         "  cap python clear         " _n  /// (see [P] PyStata integration)
-        "  cap java clear  " _n
+        "  cap java clear           " _n  ///
+        "  cap estimates clear  " _n
     }
     else if strpos(`"`macval(line)'"',"ieboilstart")  {
       di as err "This file contained [ieboilstart]. That has been modified. Check functionality."
@@ -172,7 +174,8 @@ while r(eof)==0 {
         "  cap putdocx clear        " _n  /// (see [RPT] putdocx begin)
         "  cap putpdf clear         " _n  /// (see [RPT] putpdf begin)
         "  cap python clear         " _n  /// (see [P] PyStata integration)
-        "  cap java clear  " _n
+        "  cap java clear           " _n  ///
+        "  cap estimates clear  " _n
       file write checkr ///
         "  cap drop _all            " _n  /// (see [D] drop)
         "  cap frames reset         " _n  /// (see [D] frames reset)
@@ -189,7 +192,8 @@ while r(eof)==0 {
         "  cap putdocx clear        " _n  /// (see [RPT] putdocx begin)
         "  cap putpdf clear         " _n  /// (see [RPT] putpdf begin)
         "  cap python clear         " _n  /// (see [P] PyStata integration)
-        "  cap java clear  " _n
+        "  cap java clear           " _n  ///
+        "  cap estimates clear  " _n
       file write edited `"`macval(line)' noclear "' _n
       file write checkr `"`macval(line)' noclear "' _n  
     }
