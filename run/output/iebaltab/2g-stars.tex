@@ -2,7 +2,7 @@
 %%% (https://github.com/worldbank/ietoolkit)
 %%% (https://dimewiki.worldbank.org/iebaltab)
 %%% The command was specified exactly like this: 
-%%% iebaltab price mpg trunk headroom weight length turn displacement gear_ratio, grpvar(foreign) savexlsx("C:/Users/luizaandrade/Documents/GitHub/ietoolkit/run/output/iebaltab/2g.xlsx") savecsv("C:/Users/luizaandrade/Documents/GitHub/ietoolkit/run/output/iebaltab/2g-control.csv") savetex("C:/Users/luizaandrade/Documents/GitHub/ietoolkit/run/output/iebaltab/2g.tex") replace
+%%% iebaltab price mpg trunk headroom weight length turn displacement gear_ratio, grpvar(foreign) starlevels(.05 .01 .001) savetex("C:/Users/luizaandrade/Documents/GitHub/ietoolkit/run/output/iebaltab/2g-stars.tex") replace
 
 \begin{tabular}{@{\extracolsep{5pt}}lcccccc}
 \\[-1.8ex]\hline \hline \\[-1.8ex]
@@ -29,6 +29,6 @@ gear\_ratio   & 52    &     2.807    & 22    &     3.507    & 74    &    -0.701 
  &   &     0.047  &   &     0.063  &   &   \\
 \hline \\[-1.8ex]
 %%% This is the note. If it does not have the correct margins, use texnotewidth() option or change the number before '\textwidth' in line below to fit it to table size.
-\multicolumn{6}{@{} p{\textwidth}}{If the table includes missing values (.n, .o, .v etc.) see the Missing values section in the help file for the Stata command iebaltab for definitions of these values. Significance: ***=1\%, **=5\%, *=10\%. Full user input as written by user: [iebaltab price mpg trunk headroom weight length turn displacement gear\_ratio, grpvar(foreign) savexlsx("C:/Users/luizaandrade/Documents/GitHub/ietoolkit/run/output/iebaltab/2g.xlsx") savecsv("C:/Users/luizaandrade/Documents/GitHub/ietoolkit/run/output/iebaltab/2g-control.csv") savetex("C:/Users/luizaandrade/Documents/GitHub/ietoolkit/run/output/iebaltab/2g.tex") replace]}
+\multicolumn{6}{@{} p{\textwidth}}{If the table includes missing values (.n, .o, .v etc.) see the Missing values section in the help file for the Stata command iebaltab for definitions of these values. Significance: ***=.1\%, **=1\%, *=5\%. Full user input as written by user: [iebaltab price mpg trunk headroom weight length turn displacement gear\_ratio, grpvar(foreign) starlevels(.05 .01 .001) savetex("C:/Users/luizaandrade/Documents/GitHub/ietoolkit/run/output/iebaltab/2g-stars.tex") replace]}
 
 \end{tabular}

@@ -33,7 +33,8 @@ restore
 iebaltab `vars', grpvar(foreign) ///
 	savexlsx("`out'/2g.xlsx") ///
 	savecsv("`out'/2g-control.csv") ///
-	savetex("`out'/2g.tex")
+	savetex("`out'/2g.tex") ///
+	replace
 	
 iebaltab `vars', grpvar(tmt) ///
 		savetex("`out'/3g.tex") ///
@@ -99,23 +100,67 @@ iebaltab `vars', grpvar(tmt) ///
 		onerow ///
 		savetex("`out'/2g-onerow.tex") ///
 		replace
-	
+
+**# Estimation options ---------------------------------------------------------
+	iebaltab `vars', grpvar(foreign) ///
+		fixedeffect(stratum) ///
+		savetex("`out'/2g-fe.tex") ///
+		replace
+		
+	iebaltab `vars', grpvar(tmt) ///
+		covariates(foreign) ///
+		stats(pair(p)) ///
+		savetex("`out'/3g-cov.tex") ///
+		replace
+		
+	iebaltab `vars', grpvar(foreign) ///
+		fixedeffect(stratum) ///
+		ftest ///
+		savetex("`out'/2g-ftest.tex") ///
+		replace
+		
+	iebaltab `vars', grpvar(foreign) ///
+		fixedeffect(stratum) ///
+		ftest ///
+		savetex("`out'/2g-feqtest.tex") ///
+		replace
+		
+	iebaltab `vars', grpvar(foreign) ///
+		stats(pair(p)) ///
+		savetex("`out'/2g-pair.tex") ///
+		replace
+		
+	iebaltab `vars', grpvar(foreign) ///
+		vce(cluster stratum) ///
+		stats(pair(p)) ///
+		savetex("`out'/2g-cluster.tex") ///
+		replace
+
+**# Stat display options -------------------------------------------------------		
+
+/*	iebaltab `vars', grpvar(foreign) ///
+		format("%9.2f") ///
+		savetex("`out'/2g-fmt.tex") ///
+		replace
+*/		
+	iebaltab `vars', grpvar(foreign) ///
+		starsnoadd ///
+		savetex("`out'/2g-nostars.tex") ///
+		replace
+		
+	iebaltab `vars', grpvar(foreign) ///
+		starlevels(.05 .01 .001) ///
+		savetex("`out'/2g-stars.tex") ///
+		replace
+		
+		
+	iebaltab `vars', grpvar(foreign) ///
+		stats(pair(diff se)) ///
+		savetex("`out'/2g-diff-se.tex") ///
+		replace
 	
 exit
-
-/**# Estimation options      Description
-    vce(vce_types)          Options for estimating variance
-    fixedeffect(varname)    Include fixed effects in the pair-wise regressions (and for F-tests if applicable)
-    covariates(varlist)     Include covariates (control variables) in the pair-wise regressions (and for F-tests if applicable)
-    ftest                   Include a row with the F-test for joint significance across all balance variables for each test pair
-    feqtest                 Include a column with the F-test for joint significance across all groups for each variable
-
-**# Stat display options    Description
-    stats(stats_string)     Specify which statistics to display in the tables. See options for stats_string below
-    starlevels(numlist)     Manually set the three significance levels used for significance stars
-    starsnoadd              Do not add any stars to the table
-    format(%fmt)            Apply Stata formats to the non-integer values outputted in the table
-
+    
 **# Label/notes options     Description
     grpcodes                Use the values in the grpvar() variable as column titles. Default is to use value labels if any
     grplabels(codetitles)   Manually set the group column titles. See details on codetitles below
@@ -125,8 +170,6 @@ exit
     tblnote(string)         Replace the default note at the bottom of the table
     tbladdnote(string)      Add note to the default note at the bottom of the table
     tblnonote               Suppresses any note at the bottom of the table
-*/
-
 
 **# LaTeX options           Description
     texnotewidth(numlist)   Manually adjust width of note
