@@ -2098,7 +2098,7 @@ cap program drop parse_and_clean_stats
 
 		* test if multiple testnames used or any testname missing () - such as stats(pair f(p))
 		if `: word count `testname'' != 1 {
-			noi di as error "{phang}The [stats(`stats')] is not formatted properly. Make sure that each test name is follewed by a single stat inside a (). For example: [stats(pair(t) f(p))].{p_end}"
+			noi di as error "{phang}The [stats(`stats')] is not formatted properly. Make sure that each test name is followed by a single stat inside a (). For example: [stats(pair(t) f(p))].{p_end}"
 			error 198
 		}
 
@@ -2125,7 +2125,7 @@ cap program drop parse_and_clean_stats
 
 		*Make sure that only one stat was listed
 		if `: word count `statname'' != 1 {
-			noi di as error "{phang}The [`testname'(`statname')] in [stats(`stats')] is not formatted properly. Make sure that each test name is follewed by a single stat inside a ().{p_end}"
+			noi di as error "{phang}The [`testname'(`statname')] in [stats(`stats')] is not formatted properly. Make sure that each test name is followed by a single stat inside a ().{p_end}"
 			error 198
 		}
 
