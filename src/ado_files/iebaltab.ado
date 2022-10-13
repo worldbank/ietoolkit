@@ -26,7 +26,7 @@
 				ROWLabels(string) TBLNote(string) TBLADDNote(string) TBLNONote  ///
 			                                                                    ///
 				/*Export and restore*/                                          ///
-				BROWSE SAVEXlsx(string) SAVECsv(string) SAVETex(string)         ///
+				BRowse SAVEXlsx(string) SAVECsv(string) SAVETex(string)         ///
 				texnotefile(string) REPLACE                                     ///
 				                                                                ///
 				/*LaTeX options*/     				                            ///
