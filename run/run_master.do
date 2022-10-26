@@ -4,7 +4,7 @@
 *******************************************************************************/
 
     * Add the path to your local clone of the [ietoolkit] repo
-    if "`c(username)'" == "WB462869" {
+    if lower(c(username)) == "wb462869" {
         global ietoolkit_clone   "C:\Users\wb462869\GitHub\ietoolkit"
     }
     
@@ -34,8 +34,8 @@
     PART 2: Switches
 *******************************************************************************/
 
-    local iegitaddmd = 1
-    local iekdensity = 1
+    local iegitaddmd = 0
+    local iekdensity = 0
     local iesave     = 1
 
 /*******************************************************************************
