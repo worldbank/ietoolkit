@@ -52,7 +52,7 @@
 		sysuse auto, clear
 		iesave using "`version_folder'/id_1.dta", 	///
 			idvars(make) 							///
-			saveversion(`stata_ver') 				///
+			dtaversion(`stata_ver') 				///
 			replace
         
         * Test that command truly save in correct format
@@ -69,7 +69,7 @@
 	    gen id = make
 		iesave using "`version_folder'/id_2.dta", 	///
 			idvars(make id) 											///
-			saveversion(`stata_ver') 							///
+			dtaversion(`stata_ver') 							///
 			replace
 
 		*Add this file to list of expected files
@@ -81,7 +81,7 @@
 
 		cap iesave using "`version_folder'/err_id_1.dta", 	///
 			idvars(id) replace 														///
-			saveversion(`stata_ver')
+			dtaversion(`stata_ver')
 		assert _rc == 459
 
 		* Duplicates in the idvars
@@ -93,7 +93,7 @@
 
 		cap iesave using "`version_folder'/err_id_2.dta", 	///
 			idvars(id) replace												///
-			saveversion(`stata_ver')
+			dtaversion(`stata_ver')
 		assert _rc == 459
 
 		/*********************
@@ -103,7 +103,7 @@
 		sysuse auto, clear
 		iesave using "`version_folder'/user_1.dta",	///
 			idvars(make) replace										///
-			saveversion(`stata_ver')
+			dtaversion(`stata_ver')
 
 		*Add these files to list of expected files
 		local expected_files `"`expected_files' "user_1.dta""'
@@ -124,13 +124,13 @@
 		assert _rc == 100
 
 		*****************
-		* idvars and saveversion required options
+		* idvars and dtaversion required options
 		sysuse auto, clear
 		cap iesave using "`version_folder'/err_syntax_1.dta"
 		assert _rc == 198
 
 		sysuse auto, clear
-		cap iesave using "`version_folder'/err_syntax_2.dta", saveversion(`stata_ver')
+		cap iesave using "`version_folder'/err_syntax_2.dta", dtaversion(`stata_ver')
 		assert _rc == 198
 
 		sysuse auto, clear
@@ -140,13 +140,13 @@
 
 	  *****************
 		* incorrect .dta version value
-		cap iesave using "`version_folder'/err_syntax_4.dta", idvars(make) saveversion(18)
+		cap iesave using "`version_folder'/err_syntax_4.dta", idvars(make) dtaversion(18)
 		assert _rc == 198
 
 		*****************
 		* reportreplace may only be used with varreport
 		cap iesave using "`version_folder'/err_syntax_5.dta", ///
-			idvars(make) saveversion(`stata_ver') 		///
+			idvars(make) dtaversion(`stata_ver') 		///
 			reportreplace
 		assert _rc == 198
 
@@ -162,7 +162,7 @@
 
 		*1. Run iesave
 		iesave using "`version_folder'/char_1.dta", ///
-			idvars(make) saveversion(`stata_ver') replace userinfo
+			idvars(make) dtaversion(`stata_ver') replace userinfo
 
 		*Add these files to list of expected files
 		local expected_files `"`expected_files' "char_1.dta""'
@@ -204,7 +204,7 @@
 		drop if trunk > 22
 		drop displacement
 		iesave using "`version_folder'/char_2.dta", ///
-			idvars(make) saveversion(`stata_ver') replace userinfo
+			idvars(make) dtaversion(`stata_ver') replace userinfo
 
 		*Add these files to list of expected files
 		local expected_files `"`expected_files' "char_2.dta""'
@@ -256,7 +256,7 @@
 	
 	iesave using "`version_folder'/auto.dta", ///
 		idvars(make) ///
-		saveversion(14) ///
+		dtaversion(`stata_ver') ///
 		replace ///
 		userinfo ///
 		report("`report_folder'/auto_v`stata_ver'.csv", replace) debug 
@@ -264,13 +264,13 @@
 		
 	iesave using "`version_folder'/auto.dta", ///
 		idvars(make) ///
-		saveversion(14) ///
+		dtaversion(`stata_ver') ///
 		replace ///
 		report("`report_folder'/auto_v`stata_ver'.md", replace)	debug 
 		
 	iesave using "`version_folder'/auto.dta", ///
 		idvars(make) ///
-		saveversion(14) ///
+		dtaversion(`stata_ver') ///
 		replace ///
 		userinfo ///
 		report("`report_folder'/auto_userinfo_v`stata_ver'.md", replace)	debug 

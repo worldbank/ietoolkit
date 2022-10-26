@@ -5,11 +5,18 @@ capture program drop iesave
 
 	syntax using/,  ///
 		/* Required options */ ///
-        IDvars(varlist)       ///
-		///
+        IDvars(varlist)    ///
+				dtaversion(string) ///
+													 ///
 		[ ///
 		/* options options */ ///
-		replace userinfo report(string) debug saveversion(string) noalpha ///
+		    replace        ///
+				userinfo       ///
+				report(string) ///
+				noalpha        ///
+		///
+		/* undcomented dev tools*/ ///
+				debug ///
 		]
 
 	  *Save the three possible user settings before setting
@@ -26,19 +33,12 @@ qui {
 
 	***************
 	* Dta version test
-
-	if missing("`saveversion'")  {
-	    noi di as error "{phang}option {bf:version()} required{p_end}"
-		error 198
-	}
-
-
     *There are only three versions relevant here. Stata 11 can read Stata 12 format,
     *and Stata 15 and later saves in Stata 14 format anyways.
-    local valid_dta_versions "12 13 14"
-    if `:list version in valid_dta_versions' == 0 {
+    local valid_dtaversions "12 13 14"
+    if `:list dtaversion in valid_dtaversions' == 0 {
         noi di ""
-        noi di as error "{phang}In option {input:version(`saveversion')} only the following values are allowed [`valid_dta_versions']. Stata 15 and later use the same .dta format as Stata 14. If you have Stata 14 or higher you can read more at {help saveold :help saveold}).{p_end}"
+        noi di as error "{phang}In option {input:version(`dtaversion')} only the following values are allowed [`valid_dtaversions']. Stata 15 and later use the same .dta format as Stata 14. If you have Stata 14 or higher you can read more at {help saveold :help saveold}).{p_end}"
         error 198
     }
 
@@ -47,12 +47,12 @@ qui {
     *Stata 14, 15 and 15 can save in Stata 14, 13 and 12. There is no new format
     *for Stata 15 and 16 (Stata 14 has a limit on number of variables that can
     *be held in memory, but that has nothing to do with the format used.)
-    if (`c(stata_version)' < 13 & `saveversion' > 12) { // "<13" to include versions like 12.1 etc.
-	    noi di as error "{phang}You are using Stata version `c(stata_version)' and you are therefore only able to save in the Stata 12 .dta-format. The version you indicated in {input:version(`saveversion')} is too recent for your version of Stata.{p_end}"
+    if (`c(stata_version)' < 13 & `dtaversion' > 12) { // "<13" to include versions like 12.1 etc.
+	    noi di as error "{phang}You are using Stata version `c(stata_version)' and you are therefore only able to save in the Stata 12 .dta-format. The version you indicated in {input:dtaversions(`dtaversion')} is too recent for your version of Stata.{p_end}"
 	    error 198
     }
-    else if (`c(stata_version)' < 14 & `saveversion' > 13) {
-	    noi di as error "{phang}You are using Stata version `c(stata_version)' and you are therefore only able to save in the Stata 12 and 13 .dta-format. The version you indicated in {input:version(`saveversion')} is too recent for your version of Stata.{p_end}"
+    else if (`c(stata_version)' < 14 & `dtaversion' > 13) {
+	    noi di as error "{phang}You are using Stata version `c(stata_version)' and you are therefore only able to save in the Stata 12 and 13 .dta-format. The version you indicated in {input:dtaversions(`dtaversion')} is too recent for your version of Stata.{p_end}"
         error 198
     }
 
@@ -188,11 +188,13 @@ qui{
 		*be read outside the context of this command.
 		local user "Username withheld, `see_option_str'"
 		local computer "Computer ID withheld, `see_option_str'"
+		local reportuser "User info withheld, `see_option_str'"
 	}
 	else {
 		*If user info is uncluded then no exlination is needed and all are the same
 		local user "`c(username)'"
 		local computer "`c(hostname)'"
+		local reportuser "`user' - `computer'"
 	}
 
 	*Save time and date
@@ -266,19 +268,20 @@ qui{
 		write_var_report, 				///
 	  		file(`report_path') 		///
 	  		datasig(`datasig') 			///
+				dtaversion(`dtaversion') ///
 	  		idvars(`idvars') 			///
 	  		n(`N')   	    			///
-			n_vars(`numVars')			///
-			user(`user')				///
-			time(`timesave')			///
-			str_vars(`str_vars')		///
-			cont_vars(`cont_vars')		///
-			date_vars(`date_vars')		///
-			cat_vars(`cat_vars')		///
-			format(`report_fileext') 	///
-			`reportreplace' 			///
-			`keepvarorder'				///
-			`debug'
+			  n_vars(`numVars')			///
+			  user(`reportuser')				///
+			  time(`timesave')			///
+			  str_vars(`str_vars')		///
+			  cont_vars(`cont_vars')		///
+			  date_vars(`date_vars')		///
+			  cat_vars(`cat_vars')		///
+			  format(`report_fileext') 	///
+			  `reportreplace' 			///
+			  `keepvarorder'				///
+			  `debug'
 
 	}
 
@@ -292,14 +295,14 @@ qui{
 	*Stata 13, 12.1 just save as normal
 	else if `c(stata_version)' < 14 { // "< 14" to cover both 13.0 and 13.1
 		*if version() is 12 then use save old otherwise use regular old
-		if `saveversion' == 12 saveold "`using'" , `replace'
+		if `dtaversion' == 12 saveold "`using'" , `replace'
 		else                   save    "`using'" , `replace'
 	}
 	*For all Stata newver than 13.X use saveold for all versions as it
 	*handles the cases when saving in the same version makes saveold redundant
-	else saveold "`using'" , `replace' v(`saveversion')
+	else saveold "`using'" , `replace' v(`dtaversion')
 
-	noi di `"{phang}Data saved in .dta version `saveversion' at {browse `"`using'"':`using'}{p_end}"'
+	noi di `"{phang}Data saved in .dta version `dtaversion' at {browse `"`using'"':`using'}{p_end}"'
 
 /*******************************************************************************
 		returned values
@@ -335,7 +338,7 @@ cap program drop write_var_report
 	program 	 write_var_report
 
 	syntax , file(string) format(string) ///
-		datasig(string) idvars(string) n(string) n_vars(string) ///
+		datasig(string) dtaversion(string) idvars(string) n(string) n_vars(string) ///
 		time(string) user(string) ///
 		[date_vars(varlist) str_vars(varlist) cat_vars(varlist) cont_vars(varlist)] ///
 		[replace debug]
@@ -348,11 +351,11 @@ cap program drop write_var_report
 	  capture file close `logfile'
 
 	  write_header, ///
-		n(`n') n_vars(`n_vars') idvars(`idvars') ///
-		datasig(`datasig') ///
-		user(`user') time(`time') ///
-		format(`format') ///
-		logname("`logname'") logfile("`logfile'") `debug'
+		   n(`n') n_vars(`n_vars') idvars(`idvars') ///
+		   datasig(`datasig') dtaversion(`dtaversion') ///
+		   user(`user') time(`time') ///
+		   format(`format') ///
+		   logname("`logname'") logfile("`logfile'") `debug'
 
 	  foreach vartype in str cont date cat {
 	  	if !missing("``vartype'_vars'") {
@@ -375,7 +378,7 @@ cap program drop write_header
 
 	syntax, ///
 		n(string) n_vars(string) idvars(string) datasig(string) time(string) user(string) ///
-		logfile(string) logname(string) format(string) ///
+		logfile(string) logname(string) format(string) dtaversion(string) ///
 		[debug ]
 
 	if !missing("`debug'") noi di "Entering write_header subcommand"
@@ -400,6 +403,7 @@ cap program drop write_header
 							"`item'`bf'Number of observations:`bf'`sep'`n'" _n ///
 							"`item'`bf'Number of variables:`bf'`sep'`n_vars'" _n ///
 							"`item'`bf'ID variable(s):`bf'`sep'`idvars'" _n ///
+							"`item'`bf'.dta version used:`bf'`sep'`dtaversion'" _n ///
 							"`item'`bf'Data signature:`bf'`sep'`datasig'" _n ///
 							"`item'`bf'Last saved by:`bf'`sep'`user'" _n
 

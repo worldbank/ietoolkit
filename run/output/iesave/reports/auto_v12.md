@@ -3,9 +3,10 @@ This report was created by the Stata command iesave (version 6.4). Read more abo
 - **Number of observations:** 74
 - **Number of variables:** 16
 - **ID variable(s):** make
+- **.dta version used:** 12
 - **Data signature:** 74:16(110350):932916212:1889387683
-- **Last saved by:** Username withheld, see option userinfo in command iesave.
-- **Last saved at:** 08:37:02 26 Oct 2022
+- **Last saved by:** User info withheld, see option userinfo in command iesave.
+- **Last saved at:** 13:15:07 26 Oct 2022
 
 ## Variable type: String
 
