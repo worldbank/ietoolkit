@@ -259,22 +259,33 @@
 		dtaversion(`stata_ver') ///
 		replace ///
 		userinfo ///
-		report("`report_folder'/auto_v`stata_ver'.csv", replace) debug 
+		reportpath("`report_folder'/auto_v`stata_ver'.csv") reportreplace debug 
 		
 		
 	iesave using "`version_folder'/auto.dta", ///
 		idvars(make) ///
 		dtaversion(`stata_ver') ///
 		replace ///
-		report("`report_folder'/auto_v`stata_ver'.md", replace)	debug 
+		reportpath("`report_folder'/auto_v`stata_ver'.md") reportreplace debug 
 		
 	iesave using "`version_folder'/auto.dta", ///
 		idvars(make) ///
 		dtaversion(`stata_ver') ///
 		replace ///
 		userinfo ///
-		report("`report_folder'/auto_userinfo_v`stata_ver'.md", replace)	debug 
+		reportpath("`report_folder'/auto_userinfo_v`stata_ver'.md") reportreplace debug 
 
 }
-        
+
+	* Test default file path in report
+	local default_fldr "`report_folder'/report_default"
+	ie_recurse_mkdir, folder("`default_fldr'")
+
+	sysuse auto, clear
+	iesave using "`default_fldr'/my_strange_datafile_name.dta", ///
+		idvars(make) ///
+		dtaversion(14) ///
+		replace ///
+		report reportreplace debug 
+			
 ***************************** End of do-file ***********************************

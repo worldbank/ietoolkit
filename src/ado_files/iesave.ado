@@ -9,13 +9,15 @@ capture program drop iesave
 				dtaversion(string) ///
 													 ///
 		[ ///
-		/* options options */ ///
-		    replace        ///
-				userinfo       ///
-				report(string) ///
-				noalpha        ///
+		/* options options */  ///
+		    replace            ///
+				userinfo           ///
+				report             ///
+				reportreplace      ///
+				reportpath(string) ///
+				noalpha            ///
 		///
-		/* undcomented dev tools*/ ///
+		/* dev tools*/         ///
 				debug ///
 		]
 
@@ -57,12 +59,16 @@ qui {
     }
 
     ***************
-	* var report tests
+	  * Report input tests
 
-	if ("`reportreplace'" != "") & ("`report'" == "") {
-	    noi di as error "{phang}Option {input:reportreplace} may only be used in combination with {input:report()}.{p_end}"
-	    error 198
-	}
+	  * If reportpath used but not report,
+		* then set the local report as if the option report was used.
+		if missing("`report'") & !missing("`reportpath'") local report "report"
+
+    if !missing("`reportreplace'") & missing("`report'") {
+      noi di as error "{phang}Option {input:reportreplace} may only be used in combination with {opt report}.{p_end}"
+      error 198
+  	}
 
     ***************
     * save file path options
@@ -231,13 +237,14 @@ qui{
 
 	if !missing("`report'") {
 
-		* Get options for variable report
-		tokenize "`report'", parse(",")
-								    local report_path 	= strtrim("`1'") // file path
-        if regex("`3'", "replace") 	local reportreplace	replace 		 // all other options
+		* Use same location and file name if reportpath not explicitly provided
+		if missing("`reportpath'") {
+		  * using already cleaned so replace the file path
+			local reportpath = subinstr("`using'",".dta",".md",.)
+		}
 
-	    * Test input
-	    local report_std = subinstr(`"`report_path'"',"\","/",.)
+	  * Test input
+	  local report_std = subinstr(`"`reportpath'"',"\","/",.)
 
 		* Get file extension and folder from file path
 		local report_fileext = substr(`"`report_std'"',strlen(`"`report_std'"')-strpos(strreverse(`"`report_std'"'),".")+1,.)
@@ -245,42 +252,42 @@ qui{
 
 		*Test that the file extension is csv
 		if !inlist(`"`report_fileext'"', ".csv", ".md") {
-			noi di as error `"{phang}The report file [`report_path'] must include the file extensions .csv or .md.{p_end}"'
+			noi di as error `"{phang}The report file [`reportpath'] must include the file extensions .csv or .md.{p_end}"'
 			error 601
 		}
 
 		*Test that the folder exist
 		mata : st_numscalar("r(dirExist)", direxists("`report_folder'"))
 		if (`r(dirExist)' == 0)  {
-			noi di as error `"{phang}The folder in [`report'] does not exist.{p_end}"'
+			noi di as error `"{phang}The folder in [`reportpath'] does not exist.{p_end}"'
 			error 601
 		}
 
 		*Test if reportreplace is used if the file already exist
-		cap confirm file "`report_path'"
+		cap confirm file "`reportpath'"
 		if (_rc == 0 & "`reportreplace'" == "") {
-			noi di as error `"{phang}The report file [`report_path'] already exists, use the option {input:reportreplace} if you want to overwrite this file.{p_end}"'
+			noi di as error `"{phang}The report file [`reportpath'] already exists, use the option {input:reportreplace} if you want to overwrite this file.{p_end}"'
 			error 601
 		}
 
 		* Write csv with variable report that can be version controlled
 		* in git to track when variables change
-		write_var_report, 				///
-	  		file(`report_path') 		///
-	  		datasig(`datasig') 			///
+		write_var_report,            ///
+	  		file(`reportpath')       ///
+	  		datasig(`datasig')       ///
 				dtaversion(`dtaversion') ///
-	  		idvars(`idvars') 			///
-	  		n(`N')   	    			///
-			  n_vars(`numVars')			///
-			  user(`reportuser')				///
-			  time(`timesave')			///
-			  str_vars(`str_vars')		///
-			  cont_vars(`cont_vars')		///
-			  date_vars(`date_vars')		///
-			  cat_vars(`cat_vars')		///
-			  format(`report_fileext') 	///
-			  `reportreplace' 			///
-			  `keepvarorder'				///
+	  		idvars(`idvars')         ///
+	  		n(`N')                   ///
+			  n_vars(`numVars')        ///
+			  user(`reportuser')       ///
+			  time(`timesave')         ///
+			  str_vars(`str_vars')     ///
+			  cont_vars(`cont_vars')   ///
+			  date_vars(`date_vars')   ///
+			  cat_vars(`cat_vars')     ///
+			  format(`report_fileext') ///
+			  `reportreplace'          ///
+			  `keepvarorder'           ///
 			  `debug'
 
 	}
@@ -341,7 +348,7 @@ cap program drop write_var_report
 		datasig(string) dtaversion(string) idvars(string) n(string) n_vars(string) ///
 		time(string) user(string) ///
 		[date_vars(varlist) str_vars(varlist) cat_vars(varlist) cont_vars(varlist)] ///
-		[replace debug]
+		[reportreplace debug]
 
 	if !missing("`debug'") noi di "Entering write_var_report subcommand"
 
