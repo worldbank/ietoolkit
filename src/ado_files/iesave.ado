@@ -3,22 +3,21 @@
 capture program drop iesave
 		program      iesave , rclass
 
-	syntax using/,  ///
+	syntax using/,             ///
 		/* Required options */ ///
-        IDvars(varlist)    ///
-				dtaversion(string) ///
-													 ///
-		[ ///
+        IDvars(varlist)        ///
+		    dtaversion(string) ///
+                               ///
+		[                      ///
 		/* options options */  ///
 		    replace            ///
-				userinfo           ///
-				report             ///
-				reportreplace      ///
-				reportpath(string) ///
-				noalpha            ///
-		///
+            userinfo           ///
+            report             ///
+            reportpath(string) ///
+            noalpha            ///
+		                       ///
 		/* dev tools*/         ///
-				debug ///
+            debug              ///
 		]
 
 	  *Save the three possible user settings before setting
@@ -59,16 +58,11 @@ qui {
     }
 
     ***************
-	  * Report input tests
+    * Report input tests
 
-	  * If reportpath used but not report,
-		* then set the local report as if the option report was used.
-		if missing("`report'") & !missing("`reportpath'") local report "report"
-
-    if !missing("`reportreplace'") & missing("`report'") {
-      noi di as error "{phang}Option {input:reportreplace} may only be used in combination with {opt report}.{p_end}"
-      error 198
-  	}
+    * If reportpath used but not report,
+    * then set the local report as if the option report was used.
+    if missing("`report'") & !missing("`reportpath'") local report "report"
 
     ***************
     * save file path options
@@ -263,32 +257,32 @@ qui{
 			error 601
 		}
 
-		*Test if reportreplace is used if the file already exist
+		*Test if replace is used if the file already exist
 		cap confirm file "`reportpath'"
-		if (_rc == 0 & "`reportreplace'" == "") {
-			noi di as error `"{phang}The report file [`reportpath'] already exists, use the option {input:reportreplace} if you want to overwrite this file.{p_end}"'
+		if (_rc == 0 & "`replace'" == "") {
+			noi di as error `"{phang}The report file [`reportpath'] already exists, use the option {input:replace} if you want to overwrite this file.{p_end}"'
 			error 601
 		}
 
 		* Write csv with variable report that can be version controlled
 		* in git to track when variables change
-		write_var_report,            ///
-	  		file(`reportpath')       ///
-	  		datasig(`datasig')       ///
-				dtaversion(`dtaversion') ///
-	  		idvars(`idvars')         ///
-	  		n(`N')                   ///
-			  n_vars(`numVars')        ///
-			  user(`reportuser')       ///
-			  time(`timesave')         ///
-			  str_vars(`str_vars')     ///
-			  cont_vars(`cont_vars')   ///
-			  date_vars(`date_vars')   ///
-			  cat_vars(`cat_vars')     ///
-			  format(`report_fileext') ///
-			  `reportreplace'          ///
-			  `keepvarorder'           ///
-			  `debug'
+		noi write_var_report,        ///
+            file(`reportpath')       ///
+            datasig(`datasig')       ///
+            dtaversion(`dtaversion') ///
+            idvars(`idvars')         ///
+            n(`N')                   ///
+            n_vars(`numVars')        ///
+            user(`reportuser')       ///
+            time(`timesave')         ///
+            str_vars(`str_vars')     ///
+            cont_vars(`cont_vars')   ///
+            date_vars(`date_vars')   ///
+            cat_vars(`cat_vars')     ///
+            format(`report_fileext') ///
+            `replace'          ///
+            `keepvarorder'           ///
+            `debug'
 
 	}
 
@@ -348,8 +342,8 @@ cap program drop write_var_report
 		datasig(string) dtaversion(string) idvars(string) n(string) n_vars(string) ///
 		time(string) user(string) ///
 		[date_vars(varlist) str_vars(varlist) cat_vars(varlist) cont_vars(varlist)] ///
-		[reportreplace debug]
-
+		[replace debug]
+qui {
 	if !missing("`debug'") noi di "Entering write_var_report subcommand"
 
 	  *Set up tempfile locals
@@ -375,9 +369,9 @@ cap program drop write_var_report
 	  }
 
 	  *Copy temp file to file location
-	  qui copy "`logfile'"  "`file'", `replace'
+	  copy "`logfile'"  "`file'", `replace'
 	  noi di `"{phang}Meta data saved to {browse `"`file'"':`file'}{p_end}"'
-
+}
 end
 
 cap program drop write_header
