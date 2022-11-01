@@ -23,9 +23,9 @@ and option to save meta data report about the data saved.
 {synoptline}
 {synopthdr:Save options}
 {synopt :{opth id:vars(varlist)}} The variable(s) that uniquely identified the data set.{p_end}
-{synopt :{opt replace}} Replace data file if it already exits.{p_end}
-{synopt :{opt dtaversion(number)}} Indicate witch {inp:.dta} version to use when saving.{p_end}
-{synopt :{opt userinfo}} Include userinfo in meta data.{p_end}
+{synopt :{opt replace}} Replaces data file if it already exits.{p_end}
+{synopt :{opt dtaversion(number)}} Indicates witch {inp:.dta} version to use when saving.{p_end}
+{synopt :{opt userinfo}} Include user info in meta data.{p_end}
 
 {synopthdr:Report options}
 {synopt :{opt report}} Creates a report with meta data about the data.{p_end}
@@ -107,8 +107,8 @@ This option includes that information in the meta data saved to {inp:char}
 
 {dlgtab:Report options}
 
-{phang}{opt report} Create a report with meta data about the data.
-The default is to saved the report in Markdown format in the same location as the data file
+{phang}{opt report} Creates a report with meta data about the data.
+The default is to saved the report in markdown format in the same location as the data file
 using the same name as the data file but with .md as the file extension.
 
 {phang}{opt csv} Creates the report in csv format instead of markdown.

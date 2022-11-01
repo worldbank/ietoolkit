@@ -57,7 +57,7 @@ qui {
 			if `dtaversion' >= `valid_dta' local highest_valid_version `valid_dta'
 		}
 		* Output that a different version will be used and use that version
-		noi di as result "{phang}{input:dtaversion(`dtaversion')} was specified but {input:dtaversion(`highest_valid_version')} will be used as not all Stata versions has a corresponding .dta version{p_end}"
+		noi di as result "{phang}{input:dtaversion(`dtaversion')} was specified but {input:dtaversion(`highest_valid_version')} will be used as not all Stata versions has a corresponding .dta version and .dta version `highest_valid_version' is the highest version that can be read in Stata `dtaversion'.{p_end}"
 		local dtaversion `highest_valid_version'
 	}
 
