@@ -124,9 +124,40 @@ then the option replace needs to be used in this option as well.
 {phang}{opt noalpha} By default, the variables are sorted alphabetically in the report.
 If this option is used, then the variables are sorted in the same order as in the data set.
 
-
 {title:Examples}
 
+{pstd}{bf:{ul:Example 1}}{p_end}
+
+{pstd}This is the most basic usage of {cmd:iesave}.
+It saves the data set to the path in {it:using} after it has checked
+that the variable {inp:make} is uniquely and fully identifying the data and
+that the data is stored in the most efficient format.{p_end}
+
+{pstd}{inp:sysuse auto, clear}{break}
+{inp:local myfolder {it:"/path/to/file/"}}{break}
+{inp:iesave using {it:"`myfolder'/data1.dta"}, replace ///}{break}
+{space 2}{inp:idvars(make) dtaversion(15)}{p_end}
+
+{pstd}{bf:{ul:Example 2}}{p_end}
+
+{pstd}This example is similar to example 1, but it also saves a report
+with the meta data about the data set to {it:"`myfolder'/data2.md"}.{p_end}
+
+{pstd}{inp:sysuse auto, clear}{break}
+{inp:local myfolder {it:"/path/to/file/"}}{break}
+{inp:iesave using {it:"`myfolder'/data2.dta"}, replace  ///}{break}
+{space 2}{inp:idvars(make) dtaversion(15) report}{p_end}
+
+{pstd}{bf:{ul:Example 3}}{p_end}
+
+{pstd}This example is similar to example 2, but it saves the report in csv format
+and saves it in the custom location {it:"`myfolder'/reports/data-report.csv"}.{p_end}
+
+{pstd}{inp:sysuse auto, clear}{break}
+{inp:local myfolder {it:"/path/to/file/"}}{break}
+{inp:iesave using {it:"`myfolder'/data2.dta"}, replace  ///}{break}
+{space 2}{inp:idvars(make) dtaversion(15) report{space 9}///}{break}
+{space 2}{inp:reportpath({it:"`myfolder'/reports/data-report.csv"})}{p_end}
 
 {title:Author}
 
