@@ -2,6 +2,9 @@
 	/*******************************************************************************
 	  Set up
 	*******************************************************************************/
+    
+    * Comment out to run without debug mode
+    local debug debug
 
 	* Load the version in this clone into memory. If you need to use the version
 	* currently installed in you instance of Stata, then simply re-start Stata.
@@ -254,38 +257,62 @@
     
     lab var mpg "Milage , mpg"
 	
-	iesave using "`version_folder'/auto.dta", ///
+    * Use defaults
+    iesave using "`report_folder'/auto_defualt_v`stata_ver'.dta", ///
 		idvars(make) ///
 		dtaversion(`stata_ver') ///
-		replace ///
+        report
+
+    * Use csv and userinfo
+	iesave using "`report_folder'/autocsv_v`stata_ver'.dta", ///
+		idvars(make) ///
+		dtaversion(`stata_ver') ///
 		userinfo ///
-		reportpath("`report_folder'/auto_v`stata_ver'.csv") reportreplace debug 
-		
-		
-	iesave using "`version_folder'/auto.dta", ///
+		reportpath("`report_folder'/autocsv_v`stata_ver'.csv") `debug' 
+	
+    *User location
+    local userlocation "`report_folder'/userlocation"
+    ie_recurse_mkdir, folder("`userlocation'")
+	
+	iesave using "`report_folder'/auto_location_v`stata_ver'.dta", ///
 		idvars(make) ///
 		dtaversion(`stata_ver') ///
-		replace ///
-		reportpath("`report_folder'/auto_v`stata_ver'.md") reportreplace debug 
-		
-	iesave using "`version_folder'/auto.dta", ///
-		idvars(make) ///
-		dtaversion(`stata_ver') ///
-		replace ///
 		userinfo ///
-		reportpath("`report_folder'/auto_userinfo_v`stata_ver'.md") reportreplace debug 
+		reportpath("`userlocation'/auto_location_v`stata_ver'.md") `debug' 
 
 }
 
-	* Test default file path in report
-	local default_fldr "`report_folder'/report_default"
-	ie_recurse_mkdir, folder("`default_fldr'")
+    // Test replace options for meta data report -------------------------------
+    
+    * Default location
+	sysuse auto, clear
+	iesave using "`report_folder'/report_replace.dta", ///
+		idvars(make) ///
+		dtaversion(13) ///
+		report `debug' 
 
 	sysuse auto, clear
-	iesave using "`default_fldr'/my_strange_datafile_name.dta", ///
+	iesave using "`report_folder'/report_replace.dta", ///
 		idvars(make) ///
-		dtaversion(14) ///
+		dtaversion(13) ///
 		replace ///
-		report reportreplace debug 
+		report `debug' 
+
+
+    * User specified location
+	sysuse auto, clear
+	iesave using "`report_folder'/reportpath_replace.dta", ///
+		idvars(make) ///
+		dtaversion(13) ///
+        reportpath("`report_folder'/reportpath_replace.csv") ///
+		`debug' 
+
+	sysuse auto, clear
+	iesave using "`report_folder'/reportpath_replace.dta", ///
+		idvars(make) ///
+		dtaversion(13) ///
+        reportpath("`report_folder'/reportpath_replace.csv", replace) ///
+		replace  ///
+		`debug' 
 			
 ***************************** End of do-file ***********************************

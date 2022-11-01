@@ -128,9 +128,6 @@ qui {
         noi di as error `"{phang}The only option after "," in reportpath(`reportpath') allowed is "replace".{p_end}"'
         error 601
       }
-
-      noi di "RSTD `report_std'"
-      noi di "RR `reportreplace'"
     }
 
 		* Test input
@@ -280,7 +277,7 @@ qui{
 
 	*Get total number of obs and vars
 	local N 	  = _N
-	noi di "Number of obs: `N'"
+	if !missing("`debug'") noi di "Number of obs: `N'"
 	local numVars = c(k)
 
 }
@@ -302,8 +299,6 @@ qui{
 /*******************************************************************************
 		Save report
 *******************************************************************************/
-
-  noi di "RR `reportreplace'"
 
 		* Write csv with variable report that can be version controlled
 		* in git to track when variables change
