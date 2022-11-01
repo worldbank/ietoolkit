@@ -154,27 +154,11 @@ iebaltab `vars', grpvar(tmt) ///
 		replace
 		
 		
+/*	This should work at some point, but is not yet implemented
 	iebaltab `vars', grpvar(foreign) ///
 		stats(pair(diff se)) ///
 		savetex("`out'/2g-diff-se.tex") ///
 		replace
-	
+*/	
 exit
     
-**# Label/notes options     Description
-    grpcodes                Use the values in the grpvar() variable as column titles. Default is to use value labels if any
-    grplabels(codetitles)   Manually set the group column titles. See details on codetitles below
-    totallabel(string)      Manually set the title of the total column
-    rowvarlabels            Use the variable labels instead of variable name as row titles
-    rowlabels(nametitles)   Manually set the row titles. See details on nametitles below
-    tblnote(string)         Replace the default note at the bottom of the table
-    tbladdnote(string)      Add note to the default note at the bottom of the table
-    tblnonote               Suppresses any note at the bottom of the table
-
-**# LaTeX options           Description
-    texnotewidth(numlist)   Manually adjust width of note
-    texcaption(string)      Specify LaTeX table caption
-    texlabel(string)        Specify LaTeX label
-    texdocument             Create a stand-alone LaTeX document
-    texvspace(string)       Manually set size of the line space between two rows on LaTeX output
-    texcolwidth(string)     Limit width of the first column on LaTeX output
