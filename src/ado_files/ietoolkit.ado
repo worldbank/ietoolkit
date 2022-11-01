@@ -26,9 +26,13 @@ program ietoolkit, rclass
 		Output
 	**********************/
 
+	* Stata versions commands in this package allows when applicable
+	return local  stata_target_versions "12 12.0 12.1 13 13.0 13.1 14 14.0 14.1 14.2 15 15.0 15.1 16.0 16.1 17.0"
+	return local  dta_target_versions   "12 13 14"
+
 	* Prepare returned locals
-	return local 	versiondate "`versionDate'"
-	return scalar 	version		= `version'
+	return local  versiondate     "`versionDate'"
+	return scalar version		      = `version'
 
 	* Display output
 	noi di ""

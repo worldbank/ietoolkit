@@ -33,16 +33,33 @@ capture program drop iesave
 *******************************************************************************/
 qui {
 
+
+	* Get target versionss from ietoolkit command
+	ietoolkit
+	local valid_stata_versions "`r(stata_target_versions)'"
+	local valid_dta_versions   "`r(dta_target_versions)'"
+
 	***************
 	* Dta version test
-    *There are only three versions relevant here. Stata 11 can read Stata 12 format,
-    *and Stata 15 and later saves in Stata 14 format anyways.
-    local valid_dtaversions "12 13 14"
-    if `:list dtaversion in valid_dtaversions' == 0 {
+		* All valid Stata versions target in ietoolkit (as defined in the command ietoolkit)
+		* is valid input. (Although not all Stata version has a new dta version, see below)
+    if `:list dtaversion in valid_stata_versions' == 0 {
         noi di ""
-        noi di as error "{phang}In option {input:version(`dtaversion')} only the following values are allowed [`valid_dtaversions']. Stata 15 and later use the same .dta format as Stata 14. If you have Stata 14 or higher you can read more at {help saveold :help saveold}).{p_end}"
+        noi di as error "{phang}In option {input:version(`dtaversion')}, only the following values are allowed [`valid_stata_versions'].{p_end}"
         error 198
     }
+
+		* There are only three versions relevant here. Stata 11 can read Stata 12 format,
+    * and Stata 15 and later saves in Stata 14 format anyways. If the version entered
+		* does not correspond to a dta version,
+		if `:list dtaversion in valid_dta_versions' == 0 {
+			foreach valid_dta of local valid_dta_versions {
+				if `dtaversion' >= `valid_dta' local highest_valid_version `valid_dta'
+			}
+			* Output that a different version will be used and use that version
+			noi di as result "{phang}{input:dtaversion(`dtaversion')} was specified but {input:dtaversion(`highest_valid_version')} will be used as not all Stata versions has a corresponding .dta version{p_end}"
+			local dtaversion `highest_valid_version'
+		}
 
     *Test that you can save in the data format you used.
     *Stata 12 can only save in Stata 12. Stata 13 can save in Stata 13 and 12
