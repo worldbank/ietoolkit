@@ -13,6 +13,7 @@ capture program drop iesave
         replace            ///
         userinfo           ///
         report             ///
+        csv                ///
         reportpath(string) ///
         noalpha            ///
                            ///
@@ -116,7 +117,13 @@ qui {
 
 		* Use same location and file name if reportpath not explicitly provided
 		if missing(`"`reportpath'"') {
-      local report_std = subinstr(`"`using'"',".dta",".md",.)
+
+      * Default extension or csv option
+      local report_default_ext ".md"
+      if missing("`csv'") local report_default_ext ".md"
+      else                local report_default_ext ".csv"
+
+      local report_std = subinstr(`"`using'"',".dta","`report_default_ext'",1)
       local reportreplace "`replace'"
     }
     else {

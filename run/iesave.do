@@ -263,12 +263,11 @@
 		dtaversion(`stata_ver') ///
         report
 
-    * Use csv and userinfo
-	iesave using "`report_folder'/autocsv_v`stata_ver'.dta", ///
-		idvars(make) ///
+    * Use defaults but with csv and userinfo
+    iesave using "`report_folder'/auto_csv_v`stata_ver'.dta", ///
+		idvars(make) userinfo csv ///
 		dtaversion(`stata_ver') ///
-		userinfo ///
-		reportpath("`report_folder'/autocsv_v`stata_ver'.csv") `debug' 
+        report
 	
     *User location
     local userlocation "`report_folder'/userlocation"

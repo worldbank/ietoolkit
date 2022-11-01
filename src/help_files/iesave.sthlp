@@ -14,7 +14,7 @@ and option to save meta data report about the data saved.
 {phang2}
 {cmdab:iesave} {help using} {it: "/path/to/data.dta"},
 {opth id:vars(varlist)} [{opt replace} {opt dtaversion(version_number)}
-{opt userinfo} {opt report} {opt reportpath("/path/to/report.md", [replace])}
+{opt userinfo} {opt report} {opt csv} {opt reportpath("/path/to/report.md", [replace])}
 {opt noalpha}{p_end}
 
 {marker opts}{...}
@@ -28,9 +28,10 @@ and option to save meta data report about the data saved.
 {synopt :{opt userinfo}} Include userinfo in meta data.{p_end}
 
 {synopthdr:Report options}
-{synopt :{opt report}} Create a report with meta data about the data.{p_end}
-{synopt :{opt reportpath("/path/to/report.md")}} Save the report in another location than the data file.{p_end}
-{synopt :{opt noalpha}} Order variables in the report as in data set and not alphabetically.{p_end}
+{synopt :{opt report}} Creates a report with meta data about the data.{p_end}
+{synopt :{opt csv}} Creates the report in csv format instead of markdown.{p_end}
+{synopt :{opt reportpath("/path/to/report.md")}} Saves the report in another location than the data file.{p_end}
+{synopt :{opt noalpha}} Orders variables in the report as in data set and not alphabetically.{p_end}
 {synoptline}
 
 {title:Description}
@@ -109,6 +110,10 @@ This option includes that information in the meta data saved to {inp:char}
 {phang}{opt report} Create a report with meta data about the data.
 The default is to saved the report in Markdown format in the same location as the data file
 using the same name as the data file but with .md as the file extension.
+
+{phang}{opt csv} Creates the report in csv format instead of markdown.
+This option is superseded and has no effect
+if the option {opt reportpath()} is also used.
 
 {phang}{opt reportpath("/path/to/report.md", [replace])} Allows specifying a different
 file location and file name than the default. The file extension must be .md or .csv.
