@@ -6,7 +6,7 @@ capture program drop iesave
 	syntax using/,           ///
 		/* Required options */ ///
         IDvars(varlist)    ///
-		    dtaversion(string) ///
+		    DTAversion(string) ///
                            ///
 		[                      ///
 		/* optional options */ ///
