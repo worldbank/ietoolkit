@@ -13,12 +13,12 @@ and option to save meta data report about the data saved.
 
 {phang2}
 {cmdab:iesave} {help using} {it: "/path/to/data.dta"},
-{opth id:vars(varlist)} [{opt replace} {opt saveversion(version_number)}
-{opt userinfo} {opt noalpha} {opt report("/path/to/report.md")}
-{p_end}
+{opth id:vars(varlist)} [{opt replace} {opt dtaversion(version_number)}
+{opt userinfo} {opt report} {opt reportpath("/path/to/report.md", [replace])}
+{opt noalpha}{p_end}
 
 {marker opts}{...}
-{synoptset 27}{...}
+{synoptset 31}{...}
 {synopthdr:Options}
 {synoptline}
 {synopthdr:Save options}
@@ -30,11 +30,11 @@ and option to save meta data report about the data saved.
 {synopthdr:Report options}
 {synopt :{opt report}} Create a report with meta data about the data.{p_end}
 {synopt :{opt reportpath("/path/to/report.md")}} Save the report in another location than the data file.{p_end}
-{synopt :{opt reportreplace}} Replace report file if it already exits.{p_end}
 {synopt :{opt noalpha}} Order variables in the report as in data set and not alphabetically.{p_end}
 {synoptline}
 
 {title:Description}
+
 {pstd}The command {cmd:iesave} is an anhanced way of saving data sets to disk,
 and it is intended to be used in stead of the built in command {help save}.
 In addition to saving the data set to disk,
@@ -79,14 +79,15 @@ and this report is suitable to be tracked on Git.{p_end}
 
 {title:Options}
 
-{pstd}{it:{ul:{hi:Save options:}}}{p_end}
+{dlgtab:Save options:}
 
 {phang}{opth id:vars(varlist)} indicated the variable(s) that uniquely identified the data set.
 This command is intended for research data where data should always be properly identified.
 The command will throw an error if, when saving, the variables specified in this command has
 missing values or duplicated values (duplicated combinations of values if more than one variable).{p_end}
 
-{phang}{opt replace}} replace data file if it already exits.{p_end}
+{phang}{opt replace} replace data file if it already exits.
+If applicable, this also applies to the report file unless {opt reportpath()} is used.{p_end}
 
 {phang}{opt dtaversion(number)} Indicate which {inp:.dta} version that will be used when saving the data set.
 This allows a team that works in different version of Stata to always save in the same format no matter
@@ -103,14 +104,20 @@ are not included in the meta data for privacy reasons.
 This option includes that information in the meta data saved to {inp:char}
 (and to the report when applicable).{p_end}
 
-{synopthdr:Report options}
+{dlgtab:Report options}
 
 {phang}{opt report} Create a report with meta data about the data.
-{phang}{opt reportpath("/path/to/report.md")} Save the report in another location than the data file.
-{phang}{opt reportreplace} Replace report file if it already exits.
-{phang}{opt noalpha} Order variables in the report as in data set and not alphabetically.
+The default is to saved the report in Markdown format in the same location as the data file
+using the same name as the data file but with .md as the file extension.
 
-{pstd}{it:{ul:{hi:Report options}}}{p_end}
+{phang}{opt reportpath("/path/to/report.md", [replace])} Allows specifying a different
+file location and file name than the default. The file extension must be .md or .csv.
+If this option is used then the replace option used for the data file does not apply to the report file.
+If a file with the same name already exists in the location specified in this option,
+then the option replace needs to be used in this option as well.
+
+{phang}{opt noalpha} By default, the variables are sorted alphabetically in the report.
+If this option is used, then the variables are sorted in the same order as in the data set.
 
 
 {title:Examples}

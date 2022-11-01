@@ -9,11 +9,10 @@ capture program drop iesave
 		    dtaversion(string) ///
                            ///
 		[                      ///
-		/* options options */  ///
+		/* optional options */ ///
         replace            ///
         userinfo           ///
         report             ///
-        reportreplace      ///
         reportpath(string) ///
         noalpha            ///
                            ///
@@ -41,63 +40,57 @@ qui {
 
 	***************
 	* Dta version test
-		* All valid Stata versions target in ietoolkit (as defined in the command ietoolkit)
-		* is valid input. (Although not all Stata version has a new dta version, see below)
-    if `:list dtaversion in valid_stata_versions' == 0 {
-        noi di ""
-        noi di as error "{phang}In option {input:version(`dtaversion')}, only the following values are allowed [`valid_stata_versions'].{p_end}"
-        error 198
-    }
+	* All valid Stata versions target in ietoolkit (as defined in the command ietoolkit)
+	* is valid input. (Although not all Stata version has a new dta version, see below)
+  if `:list dtaversion in valid_stata_versions' == 0 {
+      noi di ""
+      noi di as error "{phang}In option {input:version(`dtaversion')}, only the following values are allowed [`valid_stata_versions'].{p_end}"
+      error 198
+  }
 
-		* There are only three versions relevant here. Stata 11 can read Stata 12 format,
-    * and Stata 15 and later saves in Stata 14 format anyways. If the version entered
-		* does not correspond to a dta version,
-		if `:list dtaversion in valid_dta_versions' == 0 {
-			foreach valid_dta of local valid_dta_versions {
-				if `dtaversion' >= `valid_dta' local highest_valid_version `valid_dta'
-			}
-			* Output that a different version will be used and use that version
-			noi di as result "{phang}{input:dtaversion(`dtaversion')} was specified but {input:dtaversion(`highest_valid_version')} will be used as not all Stata versions has a corresponding .dta version{p_end}"
-			local dtaversion `highest_valid_version'
+	* There are only three versions relevant here. Stata 11 can read Stata 12 format,
+  * and Stata 15 and later saves in Stata 14 format anyways. If the version entered
+	* does not correspond to a dta version,
+	if `:list dtaversion in valid_dta_versions' == 0 {
+		foreach valid_dta of local valid_dta_versions {
+			if `dtaversion' >= `valid_dta' local highest_valid_version `valid_dta'
 		}
-
-    *Test that you can save in the data format you used.
-    *Stata 12 can only save in Stata 12. Stata 13 can save in Stata 13 and 12
-    *Stata 14, 15 and 15 can save in Stata 14, 13 and 12. There is no new format
-    *for Stata 15 and 16 (Stata 14 has a limit on number of variables that can
-    *be held in memory, but that has nothing to do with the format used.)
-    if (`c(stata_version)' < 13 & `dtaversion' > 12) { // "<13" to include versions like 12.1 etc.
-	    noi di as error "{phang}You are using Stata version `c(stata_version)' and you are therefore only able to save in the Stata 12 .dta-format. The version you indicated in {input:dtaversions(`dtaversion')} is too recent for your version of Stata.{p_end}"
-	    error 198
-    }
-    else if (`c(stata_version)' < 14 & `dtaversion' > 13) {
-	    noi di as error "{phang}You are using Stata version `c(stata_version)' and you are therefore only able to save in the Stata 12 and 13 .dta-format. The version you indicated in {input:dtaversions(`dtaversion')} is too recent for your version of Stata.{p_end}"
-        error 198
-    }
-
-    ***************
-    * Report input tests
-
-    * If reportpath used but not report,
-    * then set the local report as if the option report was used.
-    if missing("`report'") & !missing("`reportpath'") local report "report"
-
-    ***************
-    * save file path options
-
-    * Standardize save file path
-    local using = subinstr(`"`using'"',"\","/",.)
-
-    *Get the save file extension
-    local fileext = substr(`"`using'"',strlen(`"`using'"')-strpos(strreverse(`"`using'"'),".")+1,.)
-
-    * If no save file extension was used, then add .dta to "`using'"
-    if "`fileext'" == "" local using  "`using'.dta"
-	* Check if the save file extension is the correct
-    else if "`fileext'" != ".dta" {
-		noi di as error `"{phang}The data file must include the extension [.dta]. The format [`fileext'] is not allowed.{p_end}"'
-		error 198
+		* Output that a different version will be used and use that version
+		noi di as result "{phang}{input:dtaversion(`dtaversion')} was specified but {input:dtaversion(`highest_valid_version')} will be used as not all Stata versions has a corresponding .dta version{p_end}"
+		local dtaversion `highest_valid_version'
 	}
+
+  *Test that you can save in the data format you used.
+  *Stata 12 can only save in Stata 12. Stata 13 can save in Stata 13 and 12
+  *Stata 14, 15 and 15 can save in Stata 14, 13 and 12. There is no new format
+  *for Stata 15 and 16 (Stata 14 has a limit on number of variables that can
+  *be held in memory, but that has nothing to do with the format used.)
+  if (`c(stata_version)' < 13 & `dtaversion' > 12) { // "<13" to include versions like 12.1 etc.
+    noi di as error "{phang}You are using Stata version `c(stata_version)' and you are therefore only able to save in the Stata 12 .dta-format. The version you indicated in {input:dtaversions(`dtaversion')} is too recent for your version of Stata.{p_end}"
+    error 198
+  }
+  else if (`c(stata_version)' < 14 & `dtaversion' > 13) {
+    noi di as error "{phang}You are using Stata version `c(stata_version)' and you are therefore only able to save in the Stata 12 and 13 .dta-format. The version you indicated in {input:dtaversions(`dtaversion')} is too recent for your version of Stata.{p_end}"
+      error 198
+  }
+
+
+  ***************
+  * save file path input test
+
+  * Standardize save file path
+  local using = subinstr(`"`using'"',"\","/",.)
+
+  *Get the save file extension
+  local fileext = substr(`"`using'"',strlen(`"`using'"')-strpos(strreverse(`"`using'"'),".")+1,.)
+
+  * If no save file extension was used, then add .dta to "`using'"
+  if "`fileext'" == "" local using  "`using'.dta"
+* Check if the save file extension is the correct
+  else if "`fileext'" != ".dta" {
+	  noi di as error `"{phang}The data file must include the extension [.dta]. The format [`fileext'] is not allowed.{p_end}"'
+	  error 198
+  }
 
 	*Confirm the file path is correct
 	cap confirm new file `using'
@@ -107,9 +100,72 @@ qui {
 	}
 	*Test if replace is used if the file already exist
 	else if (_rc == 602) & missing("`replace'") {
-        noi di as error `"{phang}The data file [`using'] already exists. Use the option [replace] if you want to overwrite the data.{p_end}"'
-		error 602
+    noi di as error `"{phang}The data file [`using'] already exists. Use the option [replace] if you want to overwrite the data.{p_end}"'
+    error 602
+  }
+
+
+	***************
+	* Report input tests
+
+	* If reportpath used but not report,
+	* then set the local report as if the option report was used.
+	if missing("`report'") & !missing("`reportpath'") local report "report"
+
+	if !missing("`report'") {
+
+		* Use same location and file name if reportpath not explicitly provided
+		if missing(`"`reportpath'"') {
+      local report_std = subinstr(`"`using'"',".dta",".md",.)
+      local reportreplace "`replace'"
+    }
+    else {
+      * Get options for variable report
+      tokenize "`reportpath'", parse(",")
+      local report_std 	= strtrim("`1'") // file path
+      if strtrim("`3'") == "replace" local reportreplace "replace"
+      else if !missing("`3'") {
+        noi di as error `"{phang}The only option after "," in reportpath(`reportpath') allowed is "replace".{p_end}"'
+        error 601
+      }
+
+      noi di "RSTD `report_std'"
+      noi di "RR `reportreplace'"
+    }
+
+		* Test input
+		local report_std = subinstr(`"`report_std'"',"\","/",.)
+
+		* Get file extension and folder from file path
+		local report_fileext = substr(`"`report_std'"',strlen(`"`report_std'"')-strpos(strreverse(`"`report_std'"'),".")+1,.)
+		local report_folder  = substr(`"`report_std'"',1,strlen(`"`report_std'"')-strpos(strreverse(`"`report_std'"'),"/"))
+
+		*Test that the file extension is csv
+		if !inlist(`"`report_fileext'"', ".csv", ".md") {
+			noi di as error `"{phang}The report file [`reportpath'] must include the file extensions .csv or .md.{p_end}"'
+			error 601
+		}
+
+		*Test that the folder exist
+		mata : st_numscalar("r(dirExist)", direxists("`report_folder'"))
+		if (`r(dirExist)' == 0)  {
+			noi di as error `"{phang}The folder in [`reportpath'] does not exist.{p_end}"'
+			error 601
+		}
+
+		*Test if replace is used if the file already exist
+		cap confirm file "`report_std'"
+		if (_rc == 0 & "`reportreplace'" == "") {
+      if missing("`reportpath'") {
+        noi di as error `"{phang}The report file [`report_std'] already exists, use the option {input:replace} if you want to overwrite this file.{p_end}"'
+      }
+      else {
+        noi di as error `"{phang}The report file [`reportpath'] already exists, use the option {input:replace} inside {input:reportpath()} if you want to overwrite this file.{p_end}"'
+      }
+			error 601
+		}
 	}
+
 
 /*******************************************************************************
 	  ID variables
@@ -247,45 +303,12 @@ qui{
 		Save report
 *******************************************************************************/
 
-	if !missing("`report'") {
-
-		* Use same location and file name if reportpath not explicitly provided
-		if missing("`reportpath'") {
-		  * using already cleaned so replace the file path
-			local reportpath = subinstr("`using'",".dta",".md",.)
-		}
-
-	  * Test input
-	  local report_std = subinstr(`"`reportpath'"',"\","/",.)
-
-		* Get file extension and folder from file path
-		local report_fileext = substr(`"`report_std'"',strlen(`"`report_std'"')-strpos(strreverse(`"`report_std'"'),".")+1,.)
-		local report_folder  = substr(`"`report_std'"',1,strlen(`"`report_std'"')-strpos(strreverse(`"`report_std'"'),"/"))
-
-		*Test that the file extension is csv
-		if !inlist(`"`report_fileext'"', ".csv", ".md") {
-			noi di as error `"{phang}The report file [`reportpath'] must include the file extensions .csv or .md.{p_end}"'
-			error 601
-		}
-
-		*Test that the folder exist
-		mata : st_numscalar("r(dirExist)", direxists("`report_folder'"))
-		if (`r(dirExist)' == 0)  {
-			noi di as error `"{phang}The folder in [`reportpath'] does not exist.{p_end}"'
-			error 601
-		}
-
-		*Test if replace is used if the file already exist
-		cap confirm file "`reportpath'"
-		if (_rc == 0 & "`replace'" == "") {
-			noi di as error `"{phang}The report file [`reportpath'] already exists, use the option {input:replace} if you want to overwrite this file.{p_end}"'
-			error 601
-		}
+  noi di "RR `reportreplace'"
 
 		* Write csv with variable report that can be version controlled
 		* in git to track when variables change
-		noi write_var_report,        ///
-            file(`reportpath')       ///
+	  if !missing("`report'")	noi write_var_report,        ///
+            file(`report_std')       ///
             datasig(`datasig')       ///
             dtaversion(`dtaversion') ///
             idvars(`idvars')         ///
@@ -301,8 +324,6 @@ qui{
             `reportreplace'          ///
             `keepvarorder'           ///
             `debug'
-
-	}
 
 /*******************************************************************************
 		Save data
@@ -360,9 +381,8 @@ cap program drop write_var_report
 		datasig(string) dtaversion(string) idvars(string) n(string) n_vars(string) ///
 		time(string) user(string) ///
 		[date_vars(varlist) str_vars(varlist) cat_vars(varlist) cont_vars(varlist)] ///
-		[reportreplace debug]
+		[replace debug]
 
-		if !missing("`reportreplace`") local reportreplace replace
 qui {
 	if !missing("`debug'") noi di "Entering write_var_report subcommand"
 
@@ -389,8 +409,8 @@ qui {
 	  }
 
 	  *Copy temp file to file location
-	  copy "`logfile'"  "`file'", `reportreplace'
-	  noi di `"{phang}Meta data saved to {browse `"`file'"':`file'}{p_end}"'
+	  copy "`logfile'"  "`file'", `replace'
+	  noi di `"{phang}Meta data saved to {browse "`file'":`file'}{p_end}"'
 }
 end
 
