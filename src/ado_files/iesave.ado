@@ -3,21 +3,22 @@
 capture program drop iesave
 		program      iesave , rclass
 
-	syntax using/,             ///
+	syntax using/,           ///
 		/* Required options */ ///
-        IDvars(varlist)        ///
+        IDvars(varlist)    ///
 		    dtaversion(string) ///
-                               ///
+                           ///
 		[                      ///
 		/* options options */  ///
-		    replace            ///
-            userinfo           ///
-            report             ///
-            reportpath(string) ///
-            noalpha            ///
-		                       ///
+        replace            ///
+        userinfo           ///
+        report             ///
+        reportreplace      ///
+        reportpath(string) ///
+        noalpha            ///
+                           ///
 		/* dev tools*/         ///
-            debug              ///
+        debug              ///
 		]
 
 	  *Save the three possible user settings before setting
@@ -280,7 +281,7 @@ qui{
             date_vars(`date_vars')   ///
             cat_vars(`cat_vars')     ///
             format(`report_fileext') ///
-            `replace'          ///
+            `reportreplace'          ///
             `keepvarorder'           ///
             `debug'
 
@@ -342,7 +343,9 @@ cap program drop write_var_report
 		datasig(string) dtaversion(string) idvars(string) n(string) n_vars(string) ///
 		time(string) user(string) ///
 		[date_vars(varlist) str_vars(varlist) cat_vars(varlist) cont_vars(varlist)] ///
-		[replace debug]
+		[reportreplace debug]
+
+		if !missing("`reportreplace`") local reportreplace replace
 qui {
 	if !missing("`debug'") noi di "Entering write_var_report subcommand"
 
@@ -369,7 +372,7 @@ qui {
 	  }
 
 	  *Copy temp file to file location
-	  copy "`logfile'"  "`file'", `replace'
+	  copy "`logfile'"  "`file'", `reportreplace'
 	  noi di `"{phang}Meta data saved to {browse `"`file'"':`file'}{p_end}"'
 }
 end
