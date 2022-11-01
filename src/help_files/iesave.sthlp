@@ -24,7 +24,7 @@ and option to save meta data report about the data saved.
 {synopthdr:Save options}
 {synopt :{opth id:vars(varlist)}} The variable(s) that uniquely identified the data set.{p_end}
 {synopt :{opt replace}} Replace data file if it already exits.{p_end}
-{synopt :{opt dtaversion(number)}} Indicate with {inp:.dta} version to use when saving.{p_end}
+{synopt :{opt dtaversion(number)}} Indicate witch {inp:.dta} version to use when saving.{p_end}
 {synopt :{opt userinfo}} Include userinfo in meta data.{p_end}
 
 {synopthdr:Report options}
@@ -35,7 +35,7 @@ and option to save meta data report about the data saved.
 {synoptline}
 
 {title:Description}
-The command {cmd:iesave} is an anhanced way of saving data sets to disk,
+{pstd}The command {cmd:iesave} is an anhanced way of saving data sets to disk,
 and it is intended to be used in stead of the built in command {help save}.
 In addition to saving the data set to disk,
 the command applies some best practices steps before saving it
@@ -45,27 +45,27 @@ Both the data set and the variables meta data
 can be exported in a file that can be tracked using Git.
 Any time the data in the variables are changed the meta data on the variables are also changed.
 Therefore, tracking this report in Git allows you to know
-which changes to your code made changes to the data.
+which changes to your code made changes to the data.{p_end}
 
-Before saving the data {cmd:iesave} use {help compress} to
+{pstd}Before saving the data {cmd:iesave} use {help compress} to
 minimize the storage space the files takes when saved to disk,
 and it used {help isid} to make sure that the data set can only be saved if
 the ID variable(s) are uniquely and fully identifying the data.
-This means that the ID variable(s) have no duplicated values and no missing values.
+This means that the ID variable(s) have no duplicated values and no missing values.{p_end}
 
-There is also an option to set the {inp:.dta} version the data set will be saved in.
+{pstd}There is also an option to set the {inp:.dta} version the data set will be saved in.
 This way it can be avoided that team members with a more recent version of Stata
 accidently saves the data in a file format that
-team members with an older version of Stata cannot open.
+team members with an older version of Stata cannot open.{p_end}
 
-The data set meta data contains information on the ID variable(s),
+{pstd}The data set meta data contains information on the ID variable(s),
 the number of observations, the number of variables, the datasignature,
 the time and date the file was saved and
 the .dta version the data set was last saved in using {cmd:iesave}.
 If the option {opt userinfo} is used then the data set meta data also
-includes the username and the computer ID of the user that saved the data.
+includes the username and the computer ID of the user that saved the data.{p_end}
 
-The data set meta data is also saved to the report that is generated
+{pstd}The data set meta data is also saved to the report that is generated
 if the option {opt report} is used. Additionally, in this report,
 meta data on all variables are also included.
 This meta data is descriptive statistics on the data in each variable.
@@ -75,7 +75,42 @@ It is often not feasible or desirable to track a .dta file on GitHub
 so changes to the data set cannot be tracked.
 This is solved by this report as the variable meta data will change
 if the data changes (corner cases when this is not true exists)
-and this report is suitable to be tracked on Git.
+and this report is suitable to be tracked on Git.{p_end}
+
+{title:Options}
+
+{pstd}{it:{ul:{hi:Save options:}}}{p_end}
+
+{phang}{opth id:vars(varlist)} indicated the variable(s) that uniquely identified the data set.
+This command is intended for research data where data should always be properly identified.
+The command will throw an error if, when saving, the variables specified in this command has
+missing values or duplicated values (duplicated combinations of values if more than one variable).{p_end}
+
+{phang}{opt replace}} replace data file if it already exits.{p_end}
+
+{phang}{opt dtaversion(number)} Indicate which {inp:.dta} version that will be used when saving the data set.
+This allows a team that works in different version of Stata to always save in the same format no matter
+which Stata version any team member have installed on their computer.
+This avoids the issue of a team member saving the data in a format another team member with an older version cannot read.
+The recommendation is to set the highest version number allowed in the oldest version of Stata any team member has installed.
+Not every Stata version comes with a new {inp:.dta} version so only the version numbers 12, 13 and 14.
+If a Stata version higher than those versions or a version in-between is specified,
+then the {inp:.dta} version lower then the specified version is used.{p_end}
+
+{phang}{opt userinfo} By default, user information -
+user name {inp:c(username)} and computer name {inp:c(hostname)} -
+are not included in the meta data for privacy reasons.
+This option includes that information in the meta data saved to {inp:char}
+(and to the report when applicable).{p_end}
+
+{synopthdr:Report options}
+
+{phang}{opt report} Create a report with meta data about the data.
+{phang}{opt reportpath("/path/to/report.md")} Save the report in another location than the data file.
+{phang}{opt reportreplace} Replace report file if it already exits.
+{phang}{opt noalpha} Order variables in the report as in data set and not alphabetically.
+
+{pstd}{it:{ul:{hi:Report options}}}{p_end}
 
 
 {title:Examples}
