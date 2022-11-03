@@ -138,11 +138,11 @@ iebaltab `vars', grpvar(tmt) ///
 
 **# Stat display options -------------------------------------------------------		
 
-/*	iebaltab `vars', grpvar(foreign) ///
+	iebaltab `vars', grpvar(foreign) ///
 		format("%9.2f") ///
 		savetex("`out'/2g-fmt.tex") ///
 		replace
-*/		
+	
 	iebaltab `vars', grpvar(foreign) ///
 		starsnoadd ///
 		savetex("`out'/2g-nostars.tex") ///

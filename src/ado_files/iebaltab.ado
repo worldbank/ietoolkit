@@ -377,7 +377,7 @@ qui {
 		** If the format option is specified, then test if there is a valid format specified
 		if !missing("`format'") {
 			test_parse_format, format("`format'")
-			local diformat = "`r(diformat')"
+			local diformat = "`r(diformat)'"
 		}
 		*Use default value if format not specified
 		else local diformat = "%9.3f"
