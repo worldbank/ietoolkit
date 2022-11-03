@@ -6,7 +6,7 @@
 	* Add the path to your local clone of the [ietoolkit] repo
   global iekit_fldr ""
 
-	if c(username) == "WB462869" {
+	if c(username) == "wb462869" {
 		global 	iekit_fldr "C:\Users/wb462869/GitHub/ietoolkit"
 	}
 
