@@ -15,7 +15,7 @@ with option to save meta data report about the data saved.
 {cmdab:iesave} {help using} {it: "/path/to/data.dta"},
 {opth id:vars(varlist)} [{opt dta:version(version_number)} {opt replace}
 {opt userinfo} {opt report} {opt csv} {opt reportpath("/path/to/report.md", [replace])}
-{opt noalpha}{p_end}
+{opt noalpha}]{p_end}
 
 {marker opts}{...}
 {synoptset 31}{...}
@@ -24,20 +24,21 @@ with option to save meta data report about the data saved.
 {synopthdr:Save options}
 {synopt :{opth id:vars(varlist)}} The variable(s) that should identify the data set{p_end}
 {synopt :{opt dta:version(stata_version)}} Specify which {inp:.dta} version to use when saving{p_end}
-{synopt :{opt replace}} Replaces the data file if it already exits{p_end}
+{synopt :{opt replace}} Replace the data file if it already exits{p_end}
 {synopt :{opt userinfo}} Include user info in meta data{p_end}
 
 {synopthdr:Report options}
-{synopt :{opt report}} Saves a report with meta data about the data to disk{p_end}
-{synopt :{opt csv}} Creates the report in csv format instead of markdown{p_end}
-{synopt :{opt reportpath("/path/to/report.md")}} Saves the report in another location than the data file{p_end}
-{synopt :{opt noalpha}} Orders the variables in the report same as in the data set and not alphabetically{p_end}
+{synopt :{opt report}} Save a report with meta data about the data to disk{p_end}
+{synopt :{opt csv}} Create the report in csv format instead of markdown{p_end}
+{synopt :{opt reportpath("/path/to/report.md")}} Save the report using another name and location than the data file{p_end}
+{synopt :{opt noalpha}} Order the variables in the report as in the data set and not alphabetically{p_end}
 {synoptline}
 
 {title:Description}
 
 {pstd}The command {cmd:iesave} is an enhanced way of saving data sets to disk,
-intended to be used instead of the built in command {help save}.
+intended to be used instead of the built in command {help save}
+when working with research data.
 In addition to saving the data set to disk,
 the command applies some best practices steps before saving it
 and it compiles meta data about the data set and about each variable.
@@ -56,8 +57,8 @@ and it throws and error if {help isid} fails to confirm that the
 ID variable(s) are uniquely and fully identifying the data.
 This means testing that the ID variable(s) have no duplicated values and no missing values.{p_end}
 
-{pstd}The command requires that the {inp:.dta} version the data set
-will be saved in is specified.
+{pstd}The command requires the user to explicitly set the {inp:.dta} version
+that should be used when saving the data set.
 This prevents that a team members with a more recent version of Stata
 accidently saves the data in a file format that
 team members with an older version of Stata cannot open.{p_end}
@@ -71,7 +72,7 @@ includes the username and the computer ID of the user that
 most recently used {cmd:iesave} to save the data.{p_end}
 
 {pstd}If the option {opt report} is used, then the same data set meta data
-is also saved to a report in a separe file.
+is also saved to a report in a separate file.
 In addition to the meta data about the data set, in this report,
 meta data on all variables are also included.
 This meta data is descriptive statistics on the data in each variable.
@@ -100,14 +101,14 @@ missing values or duplicated values
 {phang}{opt dta:version(stata_version)} is used to specify which
 {inp:.dta} version should be used when saving the data set.
 This allows a team that works in different versions of Stata
-to always save in the same .dta format no matter
+to always save in the same {inp:.dta} format no matter
 which Stata version any team member have installed on their computer.
 This avoids the issue of a team member saving the data in a format that
 another team member with an older version cannot read.
 The recommendation is to set the highest version number allowed
 in the oldest version of Stata any team member has installed.
 Not every Stata version include a new {inp:.dta} version.
-The only the .dta versions used in this command is 12, 13 and 14.
+The only the {inp:.dta} versions used in this command is 12, 13 and 14.
 If a Stata version higher than those versions
 or a version in-between is specified,
 then the highest {inp:.dta} version lower than
@@ -130,16 +131,16 @@ when applicable, meta data saved in the report.{p_end}
 {phang}{opt report} is used to create a report with meta data.
 The default is to save the report in markdown format
 in the same location as the data file
-using the same name as the data file but with .md as the file extension.
+using the same name as the data file but with {inp:.md} as the file extension.
 
 {phang}{opt csv} is used to specify that the report should be
-created in csv format instead of markdown.
+created in CSV format instead of markdown.
 This option is superseded and has no effect
 if the option {opt reportpath()} is also used.
 
 {phang}{opt reportpath("/path/to/report.md", [replace])} is used to
 specify a different file location and file name than the default.
-The file extension must be .md or .csv.
+The file extension must be {inp:.md} or {inp:.csv}.
 If this option is used then the replace option used for the data file
 does not apply to the report file.
 If a file with the same name already exists

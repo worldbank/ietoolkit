@@ -10,6 +10,7 @@
 	* currently installed in you instance of Stata, then simply re-start Stata.
 	* Set up the ietoolkit_clone global root path in ietoolkit\run\run_master.do
 	qui do "${ietoolkit_clone}/src/ado_files/iesave.ado"
+    qui do "${ietoolkit_clone}/src/ado_files/ietoolkit.ado"
 
 	*Load utility function that helps clean up folders inbetween test runs
 	qui do "${ietoolkit_clone}/run/ie_recurse_rmdir.do"
@@ -26,6 +27,7 @@
     
     *Remove and re-create the reports folders
     local report_folder "${runoutput}/iesave/reports"
+
     ie_recurse_mkdir, folder("`report_folder'")
  
     * Only include the version your Stata version can run
