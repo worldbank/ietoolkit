@@ -1160,8 +1160,8 @@ qui {
 		starlevels(string)]
 
 	* If total is used, add t to locals used when looping over desc stats
-	if !missing("`total'") local order_grp_codes "`order_grp_codes' t"
-	if !missing("`total'") local col_lbls `"`col_lbls' "`tot_lbl'""'
+	if !missing("`total'") local order_grp_codes "t `order_grp_codes'"
+	if !missing("`total'") local col_lbls `""`tot_lbl'" `col_lbls'"'
 
 	* Count groups and number of balance vars
 	local grp_count : list sizeof order_grp_codes
@@ -1500,8 +1500,8 @@ qui {
 	replace texnotefile(string) userinput(string)]
 
 	* If total is used, add t to locals used when looping over desc stats
-	if !missing("`total'") local order_grp_codes "`order_grp_codes' t"
-	if !missing("`total'") local col_lbls `"`col_lbls' "`tot_lbl'""'
+	if !missing("`total'") local order_grp_codes "t `order_grp_codes'"
+	if !missing("`total'") local col_lbls `""`tot_lbl'" `col_lbls'"'
 
 	* Count groups and number of balance vars
 	local grp_count  : list sizeof order_grp_codes
@@ -1614,7 +1614,6 @@ qui {
 
   *****************************
 	*Titles for descriptive stats
-	* TODO: Make sure this includes total
 	forvalues grp_num = 1/`grp_count' {
 
 		*Get the code and label corresponding to the group
