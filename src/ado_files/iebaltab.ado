@@ -148,7 +148,7 @@ qui {
 				local str_invalid_opt ""
 				if !missing("`control'")   local str_invalid_opt "`str_invalid_opt' control()"
 				if !missing("`order'")     local str_invalid_opt "`str_invalid_opt' order()"
-				if !missing("`grplabels'") local str_invalid_opt "`str_invalid_opt' grplabels()"
+				if !missing(`"`grplabels'"') local str_invalid_opt "`str_invalid_opt' grplabels()"
 				local str_invalid_options_used = itrim(trim("`str_invalid_opt' `grpcodes'"))
 				di as error "{pstd}The option(s) [`str_invalid_options_used'] can only be used when variable {input:`grpvar'} is a numeric variable. Use {help encode} to generate a numeric version of variable {input:`grpvar'}.{p_end}"
 				error 198
@@ -199,23 +199,23 @@ qui {
 			error 197
 		}
 
-		*****************************
-		** Test and parse column label inputs
-		if !missing("`grplabels'") {
-			test_parse_label_input, labelinput("`grplabels'") itemlist("`GRP_CODES'") ///
-			column grpvar(`grpvar')
-			local grpLabelCodes  "`r(items)'"
-			local grpLabelLables "`r(labels)'"
-		}
+    *****************************
+    ** Test and parse column label inputs
+    if !missing(`"`grplabels'"') {
+      noi test_parse_label_input, labelinput(`"`grplabels'"') ///
+      itemlist("`GRP_CODES'") column grpvar(`grpvar')
+      local grpLabelCodes  "`r(items)'"
+      local grpLabelLables `"`r(labels)'"'
+    }
 
-		*****************************
-		** Test and parse row label inputs
-		if  !missing("`rowlabels'") {
-			test_parse_label_input, labelinput("`rowlabels'") itemlist("`balancevars'") ///
-			row
-			local rowLabelNames  "`r(items)'"
-			local rowLabelLabels "`r(labels)'"
-		}
+    *****************************
+    ** Test and parse row label inputs
+    if  !missing("`rowlabels'") {
+      noi test_parse_label_input, labelinput(`"`rowlabels'"') ///
+      itemlist("`balancevars'") row
+      local rowLabelNames  "`r(items)'"
+      local rowLabelLabels `"`r(labels)'"'
+    }
 
 		*****************************
 		* Warning if totallabel is used without total. Only warning as there is
@@ -580,7 +580,7 @@ qui {
 		mat `fmat'  = r(emptyFRow)
 
 		local desc_stats   `r(desc_stats)'
-	  	local pair_stats   `r(pair_stats)'
+    local pair_stats   `r(pair_stats)'
 		local feq_stats    `r(feq_stats)'
 		local ftest_stats  `r(ftest_stats)'
 
@@ -610,8 +610,8 @@ qui {
 			*If index is not zero then manual label is defined, use it
 			if `grpLabelPos' != 0 {
 				*Getting the manually defined label and add it to local GROUP_LABELS
-				local 	group_label : word `grpLabelPos' of `grpLabelLables'
-				local	COLUMN_LABELS `" `COLUMN_LABELS' "`group_label'" "'
+				local group_label : word `grpLabelPos' of `grpLabelLables'
+				local	COLUMN_LABELS `"`COLUMN_LABELS' `"`group_label'"'"'
 			}
 
 			************
@@ -621,7 +621,7 @@ qui {
 			* must be used as column labels
 			else if !missing("`grpcodes'") | !`GRPVAR_HAS_VALUE_LABEL' {
 				*Not using value labels, simply using the group code as the label in the final table
-				local	COLUMN_LABELS `" `COLUMN_LABELS' "`groupCode'" "'
+				local	COLUMN_LABELS `"`COLUMN_LABELS' `"`groupCode'"'"'
 			}
 
 			************
@@ -632,7 +632,7 @@ qui {
 			else {
 				*Get the value label corresponding to this code and use as label
 				local gprVar_valueLabel : label `GRPVAR_VALUE_LABEL' `groupCode'
-				local COLUMN_LABELS `" `COLUMN_LABELS' "`gprVar_valueLabel'" "'
+				local COLUMN_LABELS `"`COLUMN_LABELS' `"`gprVar_valueLabel'"'"'
 			}
 		}
 
@@ -652,7 +652,7 @@ qui {
 			if `rowLabPos' != 0 {
 				*Get the manually defined label for this balance variable
 				local 	row_label : word `rowLabPos' of `rowLabelLabels'
-				local ROW_LABELS `" `ROW_LABELS' "`row_label'" "'
+				local ROW_LABELS `"`ROW_LABELS' `"`row_label'"'"'
 			}
 
 			************
@@ -664,15 +664,15 @@ qui {
 				local var_label : variable label `balancevar'
 				local var_label = trim("`var_label'")
 				* If varaible label exists, use it, oterwise use the variable name
-				if "`var_label'" != "" local ROW_LABELS `" `ROW_LABELS' "`var_label'" "'
-				else local ROW_LABELS `" `ROW_LABELS' "`balancevar'" "'
+				if "`var_label'" != "" local ROW_LABELS `"`ROW_LABELS' `"`var_label'"'"'
+				else local ROW_LABELS `" `ROW_LABELS' `"`balancevar'"' "'
 			}
 
 			************
 			* Use variable name as row label
 			* If no manually row labels are defined, and option rowvarlabels is
 			* not used, then use balance var name
-			else local ROW_LABELS `" `ROW_LABELS' "`balancevar'" "'
+			else local ROW_LABELS `" `ROW_LABELS' `"`balancevar'"' "'
 		}
 
 		************************************************
@@ -1087,7 +1087,7 @@ qui {
 					order_grp_codes(`ORDER_OF_GROUP_CODES') pairs(`TEST_PAIR_CODES') ///
 					row_lbls(`"`ROW_LABELS'"') col_lbls(`"`COLUMN_LABELS'"')  ///
 					stats_string("`stats_string'") ///
-					tot_lbl("`tot_lbl'") `total' `onerow' `feqtest' `ftest'  ///
+					tot_lbl(`"`tot_lbl'"') `total' `onerow' `feqtest' `ftest'  ///
 					ntitle("`ntitle'") note(`"`note_to_use'"') cl_used("`CLUSTER_USED'") ///
 					diformat("`diformat'") starlevels("`starlevels'")
 
@@ -1161,7 +1161,7 @@ qui {
 
 	* If total is used, add t to locals used when looping over desc stats
 	if !missing("`total'") local order_grp_codes "t `order_grp_codes'"
-	if !missing("`total'") local col_lbls `""`tot_lbl'" `col_lbls'"'
+	if !missing("`total'") local col_lbls `"`"`tot_lbl'"' `col_lbls'"'
 
 	* Count groups and number of balance vars
 	local grp_count : list sizeof order_grp_codes
@@ -1173,9 +1173,9 @@ qui {
 	if missing("`onerow'") local desc_cols "`desc_cols' `desc_cols'"
 
   * Get stats and label for descreptive stats, pairs and f-test
-    get_stat_label_stats_string, stats_string("`stats_string'") testname("desc")
-    local dout_val "`r(stat)'"
-    local dout_lbl "`r(stat_label)'"
+  get_stat_label_stats_string, stats_string("`stats_string'") testname("desc")
+  local dout_val "`r(stat)'"
+  local dout_lbl "`r(stat_label)'"
 	get_stat_label_stats_string, stats_string("`stats_string'") testname("pair")
 	local pout_val "`r(stat)'"
 	local pout_lbl "`r(stat_label)'"
@@ -1214,7 +1214,7 @@ qui {
 
 		*Add titles for summary row stats
 		local titlerow1 `"`titlerow1' _tab " (`grp_colnum') " "'
-		local titlerow2 `"`titlerow2' _tab "`grp_lbl'"        "'
+		local titlerow2 `"`titlerow2' _tab `"`grp_lbl'"'        "'
 		local titlerow3 `"`titlerow3' _tab "Mean/`dout_lbl'"  "'
 	}
 
@@ -1276,7 +1276,7 @@ qui {
 		********* Initiate row locals and write row label **************************
 
 		*locals for each row
-		local row_up   `""`row_lbl'""'
+		local row_up   `"`"`row_lbl'"'"'
 		local row_down `""'
 
 		********* Write group descriptive stats ************************************
@@ -1619,11 +1619,11 @@ qui {
 		*Get the code and label corresponding to the group
 		local grp_lbl : word `grp_num' of `col_lbls'
 
-		* Make sure special characters are displayed correctly
-		local grp_lbl : subinstr local grp_lbl "%" "\%" , all
-		local grp_lbl : subinstr local grp_lbl "_" "\_" , all
-		local grp_lbl : subinstr local grp_lbl "&" "\&" , all
-		local grp_lbl : subinstr local grp_lbl "\$" "\\\\\\\$" , all
+    * Make sure special characters are displayed correctly
+    local grp_lbl : subinstr local grp_lbl "%" "\%" , all
+    local grp_lbl : subinstr local grp_lbl "_" "\_" , all
+    local grp_lbl : subinstr local grp_lbl "&" "\&" , all
+    local grp_lbl : subinstr local grp_lbl "\$" "\\\$" , all
 
 		*Create one more column for N if N is displayesd in column instead of row
 		local texrow1 	`"`texrow1' & \multicolumn{`numcols'}{c}{(`grp_num')} "'
@@ -1670,10 +1670,13 @@ qui {
 	*****************************
 	*Write title rows
 
+  * Escape potential $ in group labels one more time.
+  local texrow2 : subinstr local texrow2 "\$" "\\\$" , all
+
 	*Write the title rows defined above
 	file open  `texhandle' using "`textmpfile'", text write append
-	file write `texhandle' "`texrow1' \\" _n "`texrow2' \\" _n ///
-	                     "`texrow3' \\ \hline \\[-1.8ex] " _n
+	file write `texhandle' `"`texrow1' \\"' _n `"`texrow2' \\"' _n ///
+	                     `"`texrow3' \\ \hline \\[-1.8ex] "' _n
 	file close `texhandle'
 
 	******************************************************************************
@@ -1689,7 +1692,7 @@ qui {
 		local row_lbl : subinstr local row_lbl "%" "\%" , all
 		local row_lbl : subinstr local row_lbl "_" "\_" , all
 		local row_lbl : subinstr local row_lbl "&" "\&" , all
-		local row_lbl : subinstr local row_lbl "\$" "\\\\\\\$" , all
+		local row_lbl : subinstr local row_lbl "\$" "\\\$" , all
 
 		********* Initiate row locals and write row label **************************
 
@@ -1772,6 +1775,9 @@ qui {
 			local row_up   `"`row_up'   & `test_value'`r(stars)' "'
 			local row_down `"`row_down' & "'
 		}
+
+    * Escape potential $ in row labels one more time.
+    local row_up : subinstr local row_up "\$" "\\\$" , all
 
 		*Write the title rows defined above
 		file open  `texhandle' using "`textmpfile'", text write append
@@ -1896,7 +1902,7 @@ qui {
 		local note : subinstr local note "%" "\%" , all
 		local note : subinstr local note "_" "\_" , all
 		local note : subinstr local note "&" "\&" , all
-		local note : subinstr local note "\$" "\\\\\\\$" , all
+		local note : subinstr local note "\$" "\\\$" , all
 
 
 		*If tex file option is not used, write in main file
@@ -2216,7 +2222,7 @@ cap program drop   get_stat_label_stats_string
 end
 
 /*******************************************************************************
-  test_parse_label_input: pars and test item/label lists
+  test_parse_file_input: pars and test item/label lists
 	* Test that lists are on format "item1 label1 @ item2 label2"
 	* Test that each item listed is used in itemlist (groupcode or balance var)
 	* Test hat no label is missing for items included
@@ -2274,15 +2280,15 @@ cap program drop 	test_parse_label_input
 	}
 	else noi di as error "{phang}test_parse_label_inpu: either [row] or [column] must be used.
 
-	local labelinput_tokenize "`labelinput'"
+	local labelinput_tokenize `"`labelinput'"'
 
 	* Loop over each item/label pair
-	while "`labelinput_tokenize'" != "" {
+	while `"`labelinput_tokenize'"' != "" {
 
 		*Parsing item/label pairs and then split to item and label
 		gettoken item_label labelinput_tokenize : labelinput_tokenize, parse("@")
 		gettoken item label : item_label
-		local label = trim("`label'") //Removing leadning or trailing spaces
+		local label = trim(`"`label'"') //Removing leadning or trailing spaces
 
 		*Test that item is part of item list
 		if `: list item in itemlist' == 0 {
@@ -2291,17 +2297,17 @@ cap program drop 	test_parse_label_input
 		}
 
 		*Testing that no label is missing
-		if "`label'" == "" {
+		if `"`label'"' == "" {
 			noi display as error `"{phang}For item [`item'] listed in `optionname'("`labelinput'") there is no label specified. Not all `itemname's need to be listed, but those listed must have a label. Omitted `itemname's get the deafult label. See {help iebaltab:help file} for more details.{p_end}"'
 			error 198
 		}
 
 		*Storing the code in local to be used later
 		local items "`items' `item'"
-		local labels `"`labels' "`label'""'
+		local labels `"`labels' `"`label'"'"'
 
 		*Parse char is not removed by gettoken
-		local labelinput_tokenize = subinstr("`labelinput_tokenize'" ,"@","",1)
+		local labelinput_tokenize = subinstr(`"`labelinput_tokenize'"' ,"@","",1)
 	}
 
 	return local items  "`items'"

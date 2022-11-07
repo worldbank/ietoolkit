@@ -34,11 +34,11 @@
 
 	* String treatment variable
 	tostring tmt, gen(tmt_str)
-	
+
 	* Tmt labels
 	lab define tmtlbl 4 "control/unobserved" 2 "Oi in %" 6 "taco & salsa"
 	lab val tmt tmtlbl
-	
+
 	*Cluster variable
 	gen test_cluster_var = tmt
 	qui sum test_cluster_var, d
@@ -63,7 +63,7 @@ qui {
 		noi iebaltab weight price , `allsave' ///
             grpvar(tmt_cl) replace        ///
 			ftest feqtest control(1)      ///
-			cov(mpg) fixed(foreign) 
+			cov(mpg) fixed(foreign)
 
 		* Test no regaular missing values in matrices
 		mat mat1 = r(iebtab_rmat)
@@ -215,14 +215,17 @@ qui {
 		local texfile "iebt-tex`tnum'"
 		local txnfile "iebt-tex`tnum'-note"
         local allsave `"savecsv("${out_fldr}/`csvfile'") savexlsx("${out_fldr}/`exlfile'") savetex("${out_fldr}/`texfile'") texnotefile("${out_fldr}/`txnfile'") "'
+        
+        label var weight "Weight (USD$)"
+        // Percent sign in value label
 
-		noi iebaltab weight price , `allsave'                                      ///
-            grpvar(tmt) replace                                                ///
-			total control(6)  rowvarlabels                                     ///
-			grplabels("4 Pizza and Pineapple (m) @ 6 Control (m)")             ///
-			totallabel("Total manual label (m)") rowlabels("price Priset (m)") ///
-			cov(mpg) fixed(foreign)                                            ///
-			tbladdnote("Row and column manual lables.")
+		noi iebaltab weight price headroom , `allsave'                        ///
+            grpvar(tmt) replace                                               ///
+			total control(6)  rowvarlabels                                    ///
+			grplabels(`"6 Quotes, and comma "," @ 4 Pizza & Pineapple (USD$) "')     ///
+			totallabel("Total single ' quote") cov(mpg) fixed(foreign)           ///
+            rowlabels(`"price St*r and sub _script @ headroom Headroom "Height" quote "')    ///
+			tbladdnote("Row column manual ($) lables.")
 
 		* Test no regaular missing values in matrices
 		mat mat1 = r(iebtab_rmat)
@@ -235,14 +238,14 @@ qui {
 	***************************************************************************/
 
 	preserve
-		
+
 		* Replace one value in three different obs for balance var, covariate
 		* and fixed effect
         sort tmt_cl make
 		by tmt_cl : replace weight  = . if _n == 1 & tmt_cl == 1
 		by tmt_cl : replace mpg     = . if _n == 2 & tmt_cl == 1
 		by tmt_cl : replace foreign = . if _n == 3 & tmt_cl == 1
-		
+
 		local tnum 9
 		local csvfile "iebt-csv`tnum'"
 		local exlfile "iebt-xlsx`tnum'"
@@ -255,8 +258,8 @@ qui {
 			ftest feqtest                 ///
 			cov(mpg) fixed(foreign)       ///
 			tbladdnote("Warning for missing value in fixedeffect(foreign) and in covariates(mpg)")
-			
-		* Expected outcome: Warning for missing value in 
+
+		* Expected outcome: Warning for missing value in
 		* fixedeffect(foreign) and in covariates(mpg), but no warning for weight
 
 		* Test no regaular missing values in matrices
@@ -270,7 +273,7 @@ qui {
 	***************************************************************************/
 
 	preserve
-		
+
 		local tnum 10
 		local csvfile "iebt-csv`tnum'"
 		local exlfile "iebt-xlsx`tnum'"
@@ -296,7 +299,7 @@ qui {
 	***************************************************************************/
 
 	preserve
-		
+
 		local tnum 11
 		local csvfile "iebt-csv`tnum'"
 		local exlfile "iebt-xlsx`tnum'"
@@ -315,14 +318,14 @@ qui {
 		mat mat2 = r(iebtab_fmat)
 		noi ie_test_mat_nomiss, mat1(mat1) mat2(mat2)
 	restore
-	
-	
+
+
 	/***************************************************************************
 	  Table 12 - onerow - all stats that change cols and cluster var
 	***************************************************************************/
 
 	preserve
-		
+
 		local tnum 12
 		local csvfile "iebt-csv`tnum'"
 		local exlfile "iebt-xlsx`tnum'"
@@ -335,7 +338,7 @@ qui {
 			onerow vce(cluster test_cluster_var) ///
 			ftest feqtest total                  ///
 			cov(mpg) fixed(foreign)              ///
-			tbladdnote("added onerow and cluster")
+			tbladdnote("added onerow and cluster") browse
 
 		* Test no regaular missing values in matrices
 		mat mat1 = r(iebtab_rmat)
@@ -343,7 +346,7 @@ qui {
 		noi ie_test_mat_nomiss, mat1(mat1) mat2(mat2)
 	restore
 
-	
+
 	/***************************************************************************
 	  Table 13 - test pair and f stats preferences
 	***************************************************************************/
@@ -367,7 +370,7 @@ qui {
 		mat mat2 = r(iebtab_fmat)
 		noi ie_test_mat_nomiss, mat1(mat1) mat2(mat2)
 	restore
-	
+
 	/***************************************************************************
 	  Table 14 - test showing no pair tests
 	***************************************************************************/
@@ -391,7 +394,7 @@ qui {
 		mat mat2 = r(iebtab_fmat)
 		noi ie_test_mat_nomiss, mat1(mat1) mat2(mat2)
 	restore
-	
+
 	/***************************************************************************
 	  Table 15 - more test pair stats preferences
 	***************************************************************************/
@@ -409,19 +412,19 @@ qui {
 			ftest control(1)              ///
 			stats(pair(se))               ///
 			cov(mpg) fixed(foreign)
-           
+
 
 		* Test no regaular missing values in matrices
 		mat mat1 = r(iebtab_rmat)
 		mat mat2 = r(iebtab_fmat)
 		noi ie_test_mat_nomiss, mat1(mat1) mat2(mat2)
-	restore	
-   
+	restore
+
     /***************************************************************************
 	  Table 16 - test normalized difference
 	***************************************************************************/
 	preserve
-   
+
 		local tnum 16
 		local csvfile "iebt-csv`tnum'"
 		local exlfile "iebt-xlsx`tnum'"
@@ -439,12 +442,12 @@ qui {
 		mat mat2 = r(iebtab_fmat)
 		noi ie_test_mat_nomiss, mat1(mat1) mat2(mat2)
 	restore
-	
+
 	/***************************************************************************
 	  Table 17 - test normalized adjusted difference
 	***************************************************************************/
 	preserve
-   
+
 		local tnum 17
 		local csvfile "iebt-csv`tnum'"
 		local exlfile "iebt-xlsx`tnum'"
@@ -461,14 +464,14 @@ qui {
 		mat mat1 = r(iebtab_rmat)
 		mat mat2 = r(iebtab_fmat)
 		noi ie_test_mat_nomiss, mat1(mat1) mat2(mat2)
-	restore	
-   
-    
+	restore
+
+
     /***************************************************************************
 	  Table 18 - test normalized difference
 	***************************************************************************/
 	preserve
-    
+
 		local tnum 18
 		local csvfile "iebt-csv`tnum'"
 		local exlfile "iebt-xlsx`tnum'"
@@ -486,12 +489,12 @@ qui {
 		mat mat2 = r(iebtab_fmat)
 		noi ie_test_mat_nomiss, mat1(mat1) mat2(mat2)
 	restore
-	
+
 	/***************************************************************************
 	  Table 19 - test normalized adjusted difference
 	***************************************************************************/
 	preserve
-    
+
 		local tnum 19
 		local csvfile "iebt-csv`tnum'"
 		local exlfile "iebt-xlsx`tnum'"
@@ -507,14 +510,14 @@ qui {
 		mat mat1 = r(iebtab_rmat)
 		mat mat2 = r(iebtab_fmat)
 		noi ie_test_mat_nomiss, mat1(mat1) mat2(mat2)
-	restore	
-    
-    
+	restore
+
+
         /***************************************************************************
 	  Table 20 - test desc stats and vce bootstrap
 	***************************************************************************/
 	preserve
-    
+
 		local tnum 20
 		local csvfile "iebt-csv`tnum'"
 		local exlfile "iebt-xlsx`tnum'"
@@ -532,12 +535,12 @@ qui {
 		mat mat2 = r(iebtab_fmat)
 		noi ie_test_mat_nomiss, mat1(mat1) mat2(mat2)
 	restore
-	
+
 	/***************************************************************************
 	  Table 21 - test desc stats and vce robus
 	***************************************************************************/
 	preserve
-    
+
 		local tnum 21
 		local csvfile "iebt-csv`tnum'"
 		local exlfile "iebt-xlsx`tnum'"
@@ -548,12 +551,12 @@ qui {
 		noi iebaltab weight price , `allsave' ///
             grpvar(tmt_cl) replace        ///
 			stats(desc(sd) pair(p)) vce(bootstrap)
-            
+
 		* Test no regaular missing values in matrices
 		mat mat1 = r(iebtab_rmat)
 		mat mat2 = r(iebtab_fmat)
 		noi ie_test_mat_nomiss, mat1(mat1) mat2(mat2)
-        
+
 	restore	
     
 }
