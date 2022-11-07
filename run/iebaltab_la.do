@@ -39,13 +39,6 @@ iebaltab `vars', grpvar(foreign) ///
 iebaltab `vars', grpvar(tmt) ///
 		savetex("`out'/3g.tex") ///
 		replace
-
-
-/*	
-    texnotefile(filename)   Save table note in a separate LaTeX file on disk
-    replace                 Replace file on disk if the file already exists
-	*/
-		
 		
 **# Column and row options -----------------------------------------------------
 
@@ -58,10 +51,9 @@ iebaltab `vars', grpvar(tmt) ///
 	
 * control	
 	iebaltab `vars', grpvar(foreign) ///
-		control(1) ///
+		control(0) ///
 		savetex("`out'/2g-control.tex") ///
 		replace
-		
 
 * Three groups
 	iebaltab `vars', grpvar(tmt) ///
@@ -84,7 +76,7 @@ iebaltab `vars', grpvar(tmt) ///
 		savetex("`out'/3g-control-order.tex") ///
 		replace
 	
-* total                   Include descriptive stats on all observations included in the table
+* total
 	iebaltab `vars', grpvar(tmt) ///
 		total ///
 		savetex("`out'/3g-total.tex") ///
@@ -95,7 +87,7 @@ iebaltab `vars', grpvar(tmt) ///
 		savetex("`out'/2g-total.tex") ///
 		replace
 
-* onerow                  Write number of observations (and number of clusters if applicable) in one row at the bottom of the table
+* onerow
 	iebaltab `vars', grpvar(foreign) ///
 		onerow ///
 		savetex("`out'/2g-onerow.tex") ///
@@ -121,7 +113,7 @@ iebaltab `vars', grpvar(tmt) ///
 		
 	iebaltab `vars', grpvar(foreign) ///
 		fixedeffect(stratum) ///
-		ftest ///
+		feqtest ///
 		savetex("`out'/2g-feqtest.tex") ///
 		replace
 		
