@@ -44,6 +44,7 @@ _config.yml
 !/**/*.ado
 !/**/*.sthlp
 !/**/output/iesave/reports/*.csv
+!/**/*.stpr
 
 # R
 !/**/*.R
