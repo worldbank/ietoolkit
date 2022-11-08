@@ -1123,7 +1123,8 @@ qui {
 		*Export to tex format
 		if !missing("`savetex'") {
 			noi export_tex ,  texfile("`savetex'") ///
-				rmat(`rmat') fmat(`fmat') pairs(`TEST_PAIR_CODES') `texdocument' texcaption("`texcaption'") ///
+				rmat(`rmat') fmat(`fmat') pairs(`TEST_PAIR_CODES') `texdocument' ///
+				texcaption("`texcaption'") starlevels("`starlevels'") ///
 				texlabel("`texlabel'") texcolwidth("`texcolwidth'") texnotewidth("`texnotewidth'") ///
 				texnotefile("`texnotefile'") custom_row_space("`texvspace'") ///
 				stats_string("`stats_string'") userinput(`"`full_user_input'"') ///
@@ -1492,7 +1493,7 @@ cap program drop 	export_tex
 qui {
 	syntax , rmat(name) fmat(name) texfile(string) [note(string) pairs(string) ///
 	ntitle(string) cl_used(string) ///
-	stats_string(string) ///
+	stats_string(string) starlevels(string) ///
 	texdocument texcaption(string) texnotewidth(string) ///
 	texlabel(string) texcolwidth(string) custom_row_space(string) onerow total feqtest ftest ///
 	order_grp_codes(numlist) diformat(string) ///
