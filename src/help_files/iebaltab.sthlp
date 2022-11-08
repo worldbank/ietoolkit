@@ -85,7 +85,6 @@ will test for differences across the categories in {opt grpvar(varname)}.
 {synopt :{opt texc:aption(string)}}Specify LaTeX table caption{p_end}
 {synopt :{opt texl:abel(string)}}Specify LaTeX label{p_end}
 {synopt :{opt texdoc:ument}}Create a stand-alone LaTeX document{p_end}
-{synopt :{opt texvspace(string)}}Manually set size of the line space between two rows on LaTeX output{p_end}
 {synopt :{opt texcolwidth(string)}}Limit width of the first column on LaTeX output{p_end}
 
 {synoptline}
@@ -331,14 +330,6 @@ Can only be used with option {opt texdocument}.{p_end}
 {phang}{opt texl:abel(string)} specifies table's label,
 used for meta-reference across LaTeX file.
 Can only be used with option {opt texdocument}.{p_end}
-
-{phang}{opt texvspace(string)} sets the size of the line space between table rows.
-{it:string} must consist of a numeric value with one of the following units:
-"cm", "mm", "pt", "in", "ex" or "em".
-Note that the resulting line space displayed will be equal to the
-specified value minus the height of one line of text.
-Default is "3ex". For more information on these units,
-{browse "https://en.wikibooks.org/wiki/LaTeX/Lengths":check LaTeX lengths manual}.{p_end}
 
 {phang}{cmd:texcolwidth(}{it:string}{cmd:)} limits the width of table's first column
 so that a line break is added when a variable's name or label is too long.
