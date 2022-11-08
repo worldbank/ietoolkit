@@ -13,7 +13,7 @@ with option to save meta data report about the data saved.
 
 {phang2}
 {cmdab:iesave} {help using} {it: "/path/to/data.dta"},
-{opth id:vars(varlist)} [{opt dta:version(version_number)} {opt replace}
+{opth id:vars(varlist)} {opt dta:version(version_number)} [{opt replace}
 {opt userinfo} {opt report} {opt csv} {opt reportpath("/path/to/report.md", [replace])}
 {opt noalpha}]{p_end}
 

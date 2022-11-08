@@ -6,7 +6,7 @@ capture program drop iesave
 	syntax using/,           ///
 		/* Required options */ ///
         IDvars(varlist)    ///
-		    DTAversion(string) ///
+		DTAversion(string) ///
                            ///
 		[                      ///
 		/* optional options */ ///
@@ -34,7 +34,7 @@ capture program drop iesave
 qui {
 
 
-	* Get target versionss from ietoolkit command
+	* Get target versions from ietoolkit command
 	ietoolkit
 	local valid_stata_versions "`r(stata_target_versions)'"
 	local valid_dta_versions   "`r(dta_target_versions)'"
