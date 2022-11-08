@@ -60,3 +60,7 @@ _config.yml
 
 # Markdown
 !/**/*.md
+
+###########
+# Outputs
+!/**/output/**/*.csv
