@@ -104,8 +104,8 @@ qui {
 			ftest feqtest control(1)         ///
 			savetex("${out_fldr}/`texfile'") ///
 			cov(mpg) fixed(foreign)          ///
-			texvspace(1cm) texcolwidth(4cm)  ///
-			tbladdnote("Options used: texvspace(1cm) - tall rows, texcolwidth(3cm) short first column ")
+			texcolwidth(4cm)  ///
+			tbladdnote("Options used: texcolwidth(3cm) short first column ")
 
 		* Test no regaular missing values in matrices
 		mat mat1 = r(iebtab_rmat)
@@ -146,7 +146,7 @@ qui {
 			ftest feqtest control(1)                          ///
 			savetex("${out_fldr}/`texfile'")                  ///
 			cov(mpg) fixed(foreign) texdocument               ///
-			texnotewidth(1.5) texvspace(1cm) texcolwidth(2cm) ///
+			texnotewidth(1.5) texcolwidth(2cm) ///
 			texcaption("Table 5") texlabel("T5")
 
 		* Test no regaular missing values in matrices

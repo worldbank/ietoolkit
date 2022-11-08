@@ -18,28 +18,28 @@
                                                                                 ///
 				/*Stat display options*/                                        ///
 				stats(string)                                                   ///
-				STARlevels(numlist descending min=3 max=3 >0 <1)			    ///
+				STARlevels(numlist descending min=3 max=3 >0 <1)			          ///
 				STARSNOadd FORMat(string)                                       ///
 				                                                                ///
 				/*Label/notes options*/                                         ///
 				GRPCodes GRPLabels(string) TOTALLabel(string) ROWVarlabels      ///
 				ROWLabels(string) TBLNote(string) TBLADDNote(string) TBLNONote  ///
-			                                                                    ///
+			                                                                  ///
 				/*Export and restore*/                                          ///
 				BRowse SAVEXlsx(string) SAVECsv(string) SAVETex(string)         ///
 				texnotefile(string) REPLACE                                     ///
 				                                                                ///
-				/*LaTeX options*/     				                            ///
+				/*LaTeX options*/     				                                  ///
 				TEXNotewidth(numlist min=1 max=1)                               ///
 				TEXCaption(string) TEXLabel(string) TEXDOCument	                ///
-				texvspace(string) texcolwidth(string)                           ///
+				texcolwidth(string)                                             ///
 				                                                                ///
 				/* Deprecated options - still included to throw                 ///
 				helpful error if ever used */                                   ///
 				SAVEBRowse SAVE(string) BALMISS(string) BALMISSReg(string)      ///
 				COVMISS(string) COVMISSReg(string) MISSMINmean(string)          ///
 				COVARMISSOK FMissok NOTtest	fnoobs NORMDiff STDev PTtest        ///
-				PFtest PBoth NOTECombine                                        ///
+				PFtest PBoth NOTECombine texvspace(string)                     ///
 				]
 
   local full_user_input = "iebaltab " + trim(itrim(`"`0'"'))
@@ -113,6 +113,10 @@ qui {
 			di as error `"{pstd}The option {input:notecombine} and {input:fnoobs} has been deprecated as of version 7 of iebaltab. See the {help iebaltab} help file for more information. `old_version_guide'{p_end}"'
 			error 198
 		}
+    if !missing("`texvspace'") {
+      di as error `"{pstd}The option {input:texvspace} has been deprecated as of version 7 of iebaltab. See the {help iebaltab} help file for more information. `old_version_guide'{p_end}"'
+      error 198
+    }
 
 /*******************************************************************************
 
@@ -458,29 +462,11 @@ qui {
 					error 198
 				}
 			}
-
-			if !missing("`texvspace'") {
-
-				* Test if width unit is correctly specified
-				local 	vspace_unit = substr("`texvspace'",-2,2)
-				if 	!inlist("`vspace_unit'","cm","mm","pt","in","ex","em") {
-					noi display as error `"{phang}Option texvspace() is incorrectly specified. Vertical space unit must be one of "cm", "mm", "pt", "in", "ex" or "em". For more information, {browse "https://en.wikibooks.org/wiki/LaTeX/Lengths":check LaTeX lengths manual}.{p_end}"'
-					error 198
-				}
-
-				* Test if width value is correctly specified
-				local 	vspace_value = subinstr("`texvspace'","`vspace_unit'","",.)
-				capture confirm number `vspace_value'
-				if _rc & inlist("`vspace_unit'","cm","mm","pt","in","ex","em") {
-					noi display as error "{phang}Option texvspace() is incorrectly specified. Vertical space value must be numeric. See {help iebaltab:iebaltab help}. {p_end}"
-					error 198
-				}
-			}
 		}
 
 		* Error for incorrectly using tex options
-		else if !missing("`texnotewidth'`texlabel'`texcaption'`texdocument'`texvspace'`texcolwidth'") {
-			noi display as error "{phang}Options texnotewidth(), texdocument, texlabel(), texcaption(), texvspace() and texcolwidth() may only be used in combination with option savetex(){p_end}"
+		else if !missing("`texnotewidth'`texlabel'`texcaption'`texdocument'`texcolwidth'") {
+			noi display as error "{phang}Options texnotewidth(), texdocument, texlabel(), texcaption() and texcolwidth() may only be used in combination with option savetex(){p_end}"
 			error 198
 		}
 
@@ -1125,8 +1111,8 @@ qui {
 			noi export_tex ,  texfile("`savetex'") ///
 				rmat(`rmat') fmat(`fmat') pairs(`TEST_PAIR_CODES') `texdocument' ///
 				texcaption("`texcaption'") starlevels("`starlevels'") ///
-				texlabel("`texlabel'") texcolwidth("`texcolwidth'") texnotewidth("`texnotewidth'") ///
-				texnotefile("`texnotefile'") custom_row_space("`texvspace'") ///
+				texlabel("`texlabel'") texcolwidth("`texcolwidth'") ///
+        texnotewidth("`texnotewidth'") texnotefile("`texnotefile'")  ///
 				stats_string("`stats_string'") userinput(`"`full_user_input'"') ///
 				`total' `onerow' `feqtest' `ftest' note(`"`note_to_use'"')  ///
 				ntitle("`ntitle'") diformat("`diformat'") ///
@@ -1495,7 +1481,7 @@ qui {
 	ntitle(string) cl_used(string) ///
 	stats_string(string) starlevels(string) ///
 	texdocument texcaption(string) texnotewidth(string) ///
-	texlabel(string) texcolwidth(string) custom_row_space(string) onerow total feqtest ftest ///
+	texlabel(string) texcolwidth(string)  onerow total feqtest ftest ///
 	order_grp_codes(numlist) diformat(string) ///
 	row_lbls(string) col_lbls(string) tot_lbl(string) ///
 	replace texnotefile(string) userinput(string)]
@@ -1567,8 +1553,7 @@ qui {
 	******************************************************************************
 
 	* Set custom row height if applicable
-  if missing("`custom_row_space'") local custom_row_space_code ""
-	else local custom_row_space_code "\rule{0pt}{`custom_row_space'}"
+  local row_space "[1ex]"
 
 	*Count number of columns in table
 	if missing("`texcolwidth'")	local colstring	"l"
@@ -1782,8 +1767,8 @@ qui {
 
 		*Write the title rows defined above
 		file open  `texhandle' using "`textmpfile'", text write append
-		file write `texhandle' `"`row_up' `custom_row_space_code' \\"' _n ///
-		                       `"`row_down' `custom_row_space_code' \\"' _n
+		file write `texhandle' `"`row_up'  \\"' _n ///
+		                       `"`row_down' \\ `row_space'"' _n
 		file close `texhandle'
 
 	}
@@ -1833,9 +1818,9 @@ qui {
 		*Write the fstats rows
 		cap file close `texhandle'
 		file open  		 `texhandle' using "`textmpfile'", text write append
-																						file write  `texhandle' "`frow_up' `custom_row_space_code' \\" _n
-		if missing("`onerow'")                  file write  `texhandle' "`frow_down' `custom_row_space_code' \\" _n
-		if missing("`onerow'") & `cl_used' == 1 file write  `texhandle' "`frow_cl' `custom_row_space_code' \\" _n
+    file write  `texhandle' "`frow_up' \\" _n
+		if missing("`onerow'") file write  `texhandle' "`frow_down' \\" _n
+		if missing("`onerow'") & `cl_used' == 1 file write `texhandle' "`frow_cl' \\" _n
 		file close 		`texhandle'
 	}
 
@@ -1882,8 +1867,8 @@ qui {
 		*Write the N row to file
 		cap file close `texhandle'
 		file open      `texhandle' using "`textmpfile'", text write append
-    file write     `texhandle' "`n_row' `custom_row_space_code' \\" _n
-		if `cl_used' == 1 file write `texhandle' "`cl_row' `custom_row_space_code' \\" _n
+    file write     `texhandle' "`n_row' \\" _n
+		if `cl_used' == 1 file write `texhandle' "`cl_row' \\" _n
 		file close 		 `texhandle'
 	}
 
