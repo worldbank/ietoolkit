@@ -1795,7 +1795,7 @@ qui {
 
 	if !missing("`ftest'") {
 
-		*Write a line after the last balance row
+		*Write a line before ftest
 		file open  `texhandle' using "`textmpfile'", text write append
 		file write `texhandle' "\hline \\[-1.8ex]" _n
 		file close `texhandle'
@@ -1845,6 +1845,11 @@ qui {
 
 	if !missing("`onerow'") {
 
+    *Write a line before onerow observations
+		file open  `texhandle' using "`textmpfile'", text write append
+		file write `texhandle' "\hline \\[-1.8ex]" _n
+		file close `texhandle'
+
 		*Initiate the row local for the N row if onerow is not missing
 		local n_row  "Number of observations"
 		local cl_row "Number of clusters"
@@ -1876,8 +1881,8 @@ qui {
 
 		*Write the N row to file
 		cap file close `texhandle'
-		file open  		 `texhandle' using "`textmpfile'", text write append
-		                  file write `texhandle' "`n_row' `custom_row_space_code' \\" _n
+		file open      `texhandle' using "`textmpfile'", text write append
+    file write     `texhandle' "`n_row' `custom_row_space_code' \\" _n
 		if `cl_used' == 1 file write `texhandle' "`cl_row' `custom_row_space_code' \\" _n
 		file close 		 `texhandle'
 	}
@@ -1889,7 +1894,7 @@ qui {
 	*Write the table note if one is defined
 	cap file close 	`texhandle'
 	file open  		`texhandle' using "`textmpfile'", text write append
-	file write `texhandle' "\hline \\[-1.8ex]" _n
+	file write `texhandle' "\hline \hline \\[-1.8ex]" _n
 	file close 		`texhandle'
 
 	******************************************************************************
