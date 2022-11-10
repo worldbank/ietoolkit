@@ -73,11 +73,11 @@ qui {
   *for Stata 15 and 16 (Stata 14 has a limit on number of variables that can
   *be held in memory, but that has nothing to do with the format used.)
   if (`c(stata_version)' < 13 & `dtaversion' > 12) { // "<13" to include versions like 12.1 etc.
-    noi di as error "{phang}You are using Stata version `c(stata_version)' and you are therefore only able to save in the Stata 12 .dta-format. The version you indicated in {input:dtaversions(`dtaversion')} is too recent for your version of Stata.{p_end}"
+    noi di as error "{phang}You are using Stata version `c(stata_version)' and you are therefore only able to save in the Stata 12 .dta-format. The version you indicated in {input:version(`version')} is too recent for your version of Stata.{p_end}"
     error 198
   }
   else if (`c(stata_version)' < 14 & `dtaversion' > 13) {
-    noi di as error "{phang}You are using Stata version `c(stata_version)' and you are therefore only able to save in the Stata 12 and 13 .dta-format. The version you indicated in {input:dtaversions(`dtaversion')} is too recent for your version of Stata.{p_end}"
+    noi di as error "{phang}You are using Stata version `c(stata_version)' and you are therefore only able to save in the Stata 12 and 13 .dta-format. The version you indicated in {input:version(`version')} is too recent for your version of Stata.{p_end}"
       error 198
   }
 
