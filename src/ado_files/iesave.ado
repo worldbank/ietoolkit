@@ -6,7 +6,7 @@ capture program drop iesave
 	syntax using/,           ///
 		/* Required options */ ///
         IDvars(varlist)    ///
-		DTAversion(string) ///
+        Version(string)    ///
                            ///
 		[                      ///
 		/* optional options */ ///
@@ -43,22 +43,28 @@ qui {
 	* Dta version test
 	* All valid Stata versions target in ietoolkit (as defined in the command ietoolkit)
 	* is valid input. (Although not all Stata version has a new dta version, see below)
-  if `:list dtaversion in valid_stata_versions' == 0 {
+  if `:list version in valid_stata_versions' == 0 {
       noi di ""
-      noi di as error "{phang}In option {input:version(`dtaversion')}, only the following values are allowed [`valid_stata_versions'].{p_end}"
+      noi di as error "{phang}In option {input:version(`version')}, only the following values are allowed [`valid_stata_versions'].{p_end}"
       error 198
   }
 
-	* There are only three versions relevant here. Stata 11 can read Stata 12 format,
-  * and Stata 15 and later saves in Stata 14 format anyways. If the version entered
-	* does not correspond to a dta version,
-	if `:list dtaversion in valid_dta_versions' == 0 {
+	* Among the Staa versions this command target only three has a dta version.
+  * Stata 11 can read Stata 12 format, Stata 13 saves in 14
+  * and Stata 15 and later use Stata 14 format.
+  * Test if version entered also is a dta version,
+  * otherwise use highest dta version that stata version allows
+	if `:list version in valid_dta_versions' == 1 {
+    * The stata version used has a dta version. So just use it
+    local dtaversion `version'
+  }
+  else {
+    * Stata version used does not have a dta version. Find highest possible
 		foreach valid_dta of local valid_dta_versions {
-			if `dtaversion' >= `valid_dta' local highest_valid_version `valid_dta'
+			if `version' >= `valid_dta' local dtaversion `valid_dta'
 		}
 		* Output that a different version will be used and use that version
-		noi di as result "{phang}{input:dtaversion(`dtaversion')} was specified but {input:dtaversion(`highest_valid_version')} will be used as not all Stata versions has a corresponding .dta version and .dta version `highest_valid_version' is the highest version that can be read in Stata `dtaversion'.{p_end}"
-		local dtaversion `highest_valid_version'
+		noi di as result "{phang}{input:version(`version')} was specified but {input:version(`dtaversion')} will be used as not all Stata versions has a corresponding .dta version and .dta version `dtaversion' is the highest version that can be read in Stata `version'.{p_end}"
 	}
 
   *Test that you can save in the data format you used.
