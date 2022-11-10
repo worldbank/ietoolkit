@@ -13,13 +13,24 @@ capture program drop iesave
         replace            ///
         userinfo           ///
         report             ///
-        csv                ///
-        reportpath(string) ///
-        noalpha            ///
+        report(string)     ///
                            ///
 		/* dev tools*/         ///
         debug              ///
 		]
+
+    * "report(string)"" overwrites "report" - but we want to allow the user to
+    * specify report should be generated with all default settings by passing "report" or "report()". This code does that
+    local lsyntx `"`0'"'
+    if missing(`"`report'"') {
+        gettoken lusing loptions : lsyntx , parse(",")
+        tokenize `"`loptions'"'
+        local token_num = 1
+        while `"``token_num''"' !=  "" {
+          if inlist(`"``token_num''"',"report","report()") local report "report"
+          local ++token_num
+        }
+    }
 
 	  *Save the three possible user settings before setting
 	  * is standardized for this command
@@ -95,7 +106,7 @@ qui {
   if "`fileext'" == "" local using  "`using'.dta"
 * Check if the save file extension is the correct
   else if "`fileext'" != ".dta" {
-	  noi di as error `"{phang}The data file must include the extension [.dta]. The format [`fileext'] is not allowed.{p_end}"'
+	  noi di as error `"{phang}The data file must include the extension [.dta]. The file extension [`fileext'] is not allowed.{p_end}"'
 	  error 198
   }
 
@@ -115,67 +126,23 @@ qui {
 	***************
 	* Report input tests
 
-	* If reportpath used but not report,
-	* then set the local report as if the option report was used.
-	if missing("`report'") & !missing("`reportpath'") local report "report"
+  parse_report_option using `using' , `report'
+  local report `r(r_report)'
+  local r_path `r(r_path)'
+  local r_ext `r(r_ext)'
+  local r_alpha `r(r_alpha)'
+  local r_replace `r(r_replace)'
+  if  "`r_replace'" == "use_dta_replace" local r_replace `replace'
 
 	if !missing("`report'") {
 
-		* Use same location and file name if reportpath not explicitly provided
-		if missing(`"`reportpath'"') {
-
-      * Default extension or csv option
-      local report_default_ext ".md"
-      if missing("`csv'") local report_default_ext ".md"
-      else                local report_default_ext ".csv"
-
-      local report_std = subinstr(`"`using'"',".dta","`report_default_ext'",1)
-      local reportreplace "`replace'"
-    }
-    else {
-      * Get options for variable report
-      tokenize "`reportpath'", parse(",")
-      local report_std 	= strtrim("`1'") // file path
-      if strtrim("`3'") == "replace" local reportreplace "replace"
-      else if !missing("`3'") {
-        noi di as error `"{phang}The only option after "," in reportpath(`reportpath') allowed is "replace".{p_end}"'
-        error 601
-      }
-    }
-
-		* Test input
-		local report_std = subinstr(`"`report_std'"',"\","/",.)
-
-		* Get file extension and folder from file path
-		local report_fileext = substr(`"`report_std'"',strlen(`"`report_std'"')-strpos(strreverse(`"`report_std'"'),".")+1,.)
-		local report_folder  = substr(`"`report_std'"',1,strlen(`"`report_std'"')-strpos(strreverse(`"`report_std'"'),"/"))
-
-		*Test that the file extension is csv
-		if !inlist(`"`report_fileext'"', ".csv", ".md") {
-			noi di as error `"{phang}The report file [`reportpath'] must include the file extensions .csv or .md.{p_end}"'
-			error 601
-		}
-
-		*Test that the folder exist
-		mata : st_numscalar("r(dirExist)", direxists("`report_folder'"))
-		if (`r(dirExist)' == 0)  {
-			noi di as error `"{phang}The folder in [`reportpath'] does not exist.{p_end}"'
-			error 601
-		}
-
 		*Test if replace is used if the file already exist
-		cap confirm file "`report_std'"
-		if (_rc == 0 & "`reportreplace'" == "") {
-      if missing("`reportpath'") {
-        noi di as error `"{phang}The report file [`report_std'] already exists, use the option {input:replace} if you want to overwrite this file.{p_end}"'
-      }
-      else {
-        noi di as error `"{phang}The report file [`reportpath'] already exists, use the option {input:replace} inside {input:reportpath()} if you want to overwrite this file.{p_end}"'
-      }
+		cap confirm file "`r_path'"
+		if (_rc == 0 & missing("`r_replace'")) {
+      noi di as error `"{phang}The report file [`r_path'] already exists, use the option {input:replace} (or {input:report(replace)} if option {input:report(path())} was used) if you want to overwrite this file.{p_end}"'
 			error 601
 		}
 	}
-
 
 /*******************************************************************************
 	  ID variables
@@ -218,46 +185,6 @@ qui {
 	*Optimize storage on disk
 	compress
 
-/*******************************************************************************
-	Creating lists for data types
-*******************************************************************************/
-qui{
-
-	* String -------------------------------------------------------------------
-
-	if missing("`noalpha'") local alpha alpha
-
-	ds,   has(type string) `alpha'
-	local str_vars `r(varlist)'
-
-	* Numeric ------------------------------------------------------------------
-
-	* All numeric
-	ds,   has(type numeric) `alpha'
-	local num_vars `r(varlist)'
-
-	* Date (anything with date display format)
-	ds,   has(format %t*) `alpha'
-	local date_vars `r(varlist)'
-
-	* All unlabeled
-	ds,   not(vallabel) `alpha'
-	local novallab_vars `r(varlist)'
-
-	* Categorical variables (labeled numeric variables that are not dates)
-	local cat_vars : list num_vars - novallab_vars
-	local cat_vars : list cat_vars - date_vars
-
-	* Continuous (all numeric variables that are not date or categorical)
-	local noncont_num_vars : list date_vars | cat_vars
-	local cont_vars        : list num_vars - noncont_num_vars
-
-	if !missing("`debug'") {
-		noi di "date_vars: `date_vars'"
-		noi di "cat_vars: `cat_vars'"
-		noi di "cont_vars: `cont_vars'"
-		noi di "str_vars: `str_vars'"
-	}
 
 /*******************************************************************************
 		Prepare output
@@ -293,7 +220,6 @@ qui{
 	if !missing("`debug'") noi di "Number of obs: `N'"
 	local numVars = c(k)
 
-}
 /*******************************************************************************
 		Save to char
 *******************************************************************************/
@@ -316,7 +242,8 @@ qui{
 		* Write csv with variable report that can be version controlled
 		* in git to track when variables change
 	  if !missing("`report'")	noi write_var_report,        ///
-            file(`report_std')       ///
+            file(`r_path')           ///
+            r_ext(`r_ext')           ///
             datasig(`datasig')       ///
             dtaversion(`dtaversion') ///
             idvars(`idvars')         ///
@@ -324,13 +251,8 @@ qui{
             n_vars(`numVars')        ///
             user(`reportuser')       ///
             time(`timesave')         ///
-            str_vars(`str_vars')     ///
-            cont_vars(`cont_vars')   ///
-            date_vars(`date_vars')   ///
-            cat_vars(`cat_vars')     ///
-            format(`report_fileext') ///
-            `reportreplace'          ///
-            `keepvarorder'           ///
+            alpha(`r_alpha')         ///
+            `r_replace'              ///
             `debug'
 
 /*******************************************************************************
@@ -380,45 +302,154 @@ end
 ********************************************************************************
 *******************************************************************************/
 
+
+cap program drop parse_report_option
+    program      parse_report_option , rclass
+
+    syntax using , [report path(string) csv replace noalpha]
+
+    *Is report used in any shape or form report, report(), report()
+    if !missing(`"`report'`path'`csv'`alpha'"') {
+
+        *Return a standardized report locla
+        return local r_report  "report"
+
+        * Standardize alhpa input
+        if "`alpha'" == "noalpha" return local r_alpha "noalpha"
+        else                      return local r_alpha "alpha"
+
+        * Path is not used, use defaults from .dta
+        if missing(`"`path'"') {
+
+            * Which extension to when using default path
+            if !missing("`csv'") local ext ".csv"
+            else                 local ext ".md"
+
+            * Use same path as for dta file, but with report extension
+            local dta_path = subinstr(`"`using'"',"using ","",1)
+            return local r_path = subinstr(`"`dta_path'"',".dta","`ext'",1)
+            * If replace not used, then use whatever is used for dta file
+            if missing("`replace'") return local r_replace "use_dta_replace"
+            else                    return local r_replace "`replace'"
+
+            *Return file extension
+            return local r_ext "`ext'"
+        }
+
+        * Path is specified
+        else {
+            * Output warning that csv option is ignored when using path
+            if !missing("`csv'")  noi di as text "{pstd}Option {inp:report(csv)} is ignored when {inp:report(path())} is used.{p_end}"
+
+             * Standardize slashes in file path
+            local pathstd = subinstr(`"`path'"',"\","/",.)
+
+            * Get file extension and folder from file path
+            local pathext = substr(`"`pathstd'"',strlen(`"`pathstd'"')-strpos(strreverse(`"`pathstd'"'),".")+1,.)
+            local pathfolder  = substr(`"`pathstd'"',1,strlen(`"`pathstd'"')-strpos(strreverse(`"`pathstd'"'),"/"))
+
+            *Test that the file extension is csv
+            if !inlist(`"`pathext'"', ".csv", ".md") {
+                noi di as error `"{phang}The report file in [report(path(`path'))] must include one of the file extensions .csv or .md.{p_end}"'
+                error 601
+            }
+
+            *Test that the folder exist
+            mata : st_numscalar("r(dirExist)", direxists("`pathfolder'"))
+            if (`r(dirExist)' == 0)  {
+                noi di as error `"{phang}The folder in [report(path(`path'))] does not exist.{p_end}"'
+                error 601
+            }
+
+            * Path is tested and ok
+            return local r_path = `"`path'"'
+            return local r_replace "`replace'"
+            *Return file extension
+            return local r_ext "`pathext'"
+       }
+   }
+end
+
 // Write variable report -------------------------------------------------------
 
 cap program drop write_var_report
 	program 	 write_var_report
 
-	syntax , file(string) format(string) ///
-		datasig(string) dtaversion(string) idvars(string) n(string) n_vars(string) ///
-		time(string) user(string) ///
-		[date_vars(varlist) str_vars(varlist) cat_vars(varlist) cont_vars(varlist)] ///
-		[replace debug]
-
+	syntax , file(string) r_ext(string) idvars(string) ///
+		datasig(string) dtaversion(string) n(string) n_vars(string) ///
+		time(string) user(string) alpha(string) [replace debug]
 qui {
+  if "`alpha'" == "noalpha" local alpha ""
+
+
 	if !missing("`debug'") noi di "Entering write_var_report subcommand"
 
-	  *Set up tempfile locals
-	  tempname 	logname
-	  tempfile	logfile
-	  capture file close `logfile'
+  /*****************************************************************************
+  	Creating lists for data types
+  *****************************************************************************/
 
-	  write_header, ///
-		   n(`n') n_vars(`n_vars') idvars(`idvars') ///
-		   datasig(`datasig') dtaversion(`dtaversion') ///
-		   user(`user') time(`time') ///
-		   format(`format') ///
-		   logname("`logname'") logfile("`logfile'") `debug'
 
-	  foreach vartype in str cont date cat {
-	  	if !missing("``vartype'_vars'") {
-			if !missing("`debug'") noi di "vartype: `vartype'"
+  * String -------------------------------------------------------------------
 
-			write_`vartype'_report  ``vartype'_vars', ///
-				format(`format') ///
-				logname("`logname'") logfile("`logfile'") `debug'
-		}
-	  }
+  ds,   has(type string) `alpha'
+  local str_vars `r(varlist)'
 
-	  *Copy temp file to file location
-	  copy "`logfile'"  "`file'", `replace'
-	  noi di `"{phang}Meta data saved to {browse "`file'":`file'}{p_end}"'
+  * Numeric ------------------------------------------------------------------
+
+  * All numeric
+  ds,   has(type numeric) `alpha'
+  local num_vars `r(varlist)'
+
+  * Date (anything with date display format)
+  ds,   has(format %t*) `alpha'
+  local date_vars `r(varlist)'
+
+  * All unlabeled
+  ds,   not(vallabel) `alpha'
+  local novallab_vars `r(varlist)'
+
+  * Categorical variables (labeled numeric variables that are not dates)
+  local cat_vars : list num_vars - novallab_vars
+  local cat_vars : list cat_vars - date_vars
+
+  * Continuous (all numeric variables that are not date or categorical)
+  local noncont_num_vars : list date_vars | cat_vars
+  local cont_vars        : list num_vars - noncont_num_vars
+
+  if !missing("`debug'") {
+    noi di "num_vars: `num_vars'"
+    noi di "date_vars: `date_vars'"
+  	noi di "cat_vars: `cat_vars'"
+  	noi di "cont_vars: `cont_vars'"
+  	noi di "str_vars: `str_vars'"
+  }
+
+
+  *Set up tempfile locals
+  tempname 	logname
+  tempfile	logfile
+  capture file close `logfile'
+
+  write_header, ///
+     n(`n') n_vars(`n_vars') idvars(`idvars') ///
+     datasig(`datasig') dtaversion(`dtaversion') ///
+     user(`user') time(`time') ///
+     r_ext(`r_ext') ///
+     logname("`logname'") logfile("`logfile'") `debug'
+
+  foreach vartype in str cont date cat {
+  	if !missing("``vartype'_vars'") {
+  	if !missing("`debug'") noi di "vartype: `vartype'"
+
+  	write_`vartype'_report  ``vartype'_vars', ///
+  		r_ext(`r_ext') ///
+  		logname("`logname'") logfile("`logfile'") `debug'
+  }
+  }
+
+  *Copy temp file to file location
+  copy "`logfile'"  "`file'", `replace'
+  noi di `"{phang}Meta data saved to {browse "`file'":`file'}{p_end}"'
 }
 end
 
@@ -427,15 +458,15 @@ cap program drop write_header
 
 	syntax, ///
 		n(string) n_vars(string) idvars(string) datasig(string) time(string) user(string) ///
-		logfile(string) logname(string) format(string) dtaversion(string) ///
+		logfile(string) logname(string) r_ext(string) dtaversion(string) ///
 		[debug ]
 
 	if !missing("`debug'") noi di "Entering write_header subcommand"
 
-	if ("`format'" == ".csv") {
+	if ("`r_ext'" == ".csv") {
 		local sep ","
 	}
-	if ("`format'" == ".md")  {
+	if ("`r_ext'" == ".md")  {
 		local item   "- "
 		local bf 	 "**"
 		local sep	 " "
@@ -464,14 +495,15 @@ end
 cap program drop write_line
 	program 	 write_line
 
-	syntax anything, logfile(string) logname(string) format(string) [debug]
+	syntax anything, logfile(string) logname(string) r_ext(string) [debug]
 
 	if !missing("`debug'") noi di "Entering write_line subcommand"
 
-	if 		("`format'" == ".csv") local sep ","
-	else if ("`format'" == ".md")  local sep " | "
-								   local line = subinstr(`anything', "~", "`sep'", .)
-	if		("`format'" == ".md")  local line   | `line' |
+	if      ("`r_ext'" == ".csv") local sep ","
+	else if ("`r_ext'" == ".md")  local sep " | "
+
+  local line = subinstr(`anything', "~", "`sep'", .)
+	if		("`r_ext'" == ".md")  local line   | `line' |
 
 	*Remove excessive spaces in the line before writing it to file
 	local line = trim(itrim(`"`line'"'))
@@ -485,29 +517,29 @@ end
 cap program drop write_title
 	program 	 write_title
 
-	syntax anything, logfile(string) logname(string) format(string) [debug]
+	syntax anything, logfile(string) logname(string) r_ext(string) [debug]
 
 	if !missing("`debug'") noi di "Entering write_title subcommand"
 
-	if ("`format'" == ".md") local marker 	"## "
-							 local line 	`marker'`anything'
+	if ("`r_ext'" == ".md") local marker 	"## "
+	local line 	`marker'`anything'
 
-							 file open  `logname' using "`logfile'", text write append
-							 file write `logname' `"`line'"' _n
-	if ("`format'" == ".md") file write `logname' _n
-							 file close `logname'
+	file open  `logname' using "`logfile'", text write append
+	file write `logname' `"`line'"' _n
+	if ("`r_ext'" == ".md") file write `logname' _n
+	file close `logname'
 
 end
 
 cap program drop write_table_header
 	program 	 write_table_header
 
-	syntax anything, logfile(string) logname(string) format(string) [debug]
+	syntax anything, logfile(string) logname(string) r_ext(string) [debug]
 
 	if !missing("`debug'") noi di "Entering write_table_header subcommand"
 
 	* Prepare options
-	if ("`format'" == ".md") {
+	if ("`r_ext'" == ".md") {
 		local line  = subinstr(`anything', ",", " | ", .)
 		local line    | `line' |
 		local n_col = length(`"`line'"') - length(subinstr(`"`line'"', "|", "", .)) -1
@@ -521,7 +553,7 @@ cap program drop write_table_header
 			file open  `logname' using "`logfile'", text write append
 			file write `logname' 	  `"`line'"' _n
 
-	if ("`format'" == ".md") {
+	if ("`r_ext'" == ".md") {
 
 			file write `logname' 	  `"|"'
 
@@ -540,16 +572,16 @@ end
 cap program drop write_str_report
 	program 	 write_str_report
 
-	syntax varlist, logfile(string) logname(string) format(string) [debug]
+	syntax varlist, logfile(string) logname(string) r_ext(string) [debug]
 
 	if !missing("`debug'") noi di "Entering write_str_report subcommand"
 
 	* Open the file and write headear
 	write_title Variable type: String, ///
-			logfile("`logfile'") logname("`logname'") format("`format'") `debug'
+			logfile("`logfile'") logname("`logname'") r_ext("`r_ext'") `debug'
 
 	write_table_header "Name,Label,Type,Complete obs,Number of levels", ///
-			logfile("`logfile'") logname("`logname'") format("`format'") `debug'
+			logfile("`logfile'") logname("`logname'") r_ext("`r_ext'") `debug'
 
 	* Calculate column values
 	foreach var of local varlist {
@@ -565,7 +597,7 @@ cap program drop write_str_report
 
 		*Write variable row to file
 		write_line `"`var'~"`varlabel'"~`vartype'~`varcomplete'~`varlevels'"', ///
-			logfile("`logfile'") logname("`logname'") format("`format'") `debug'
+			logfile("`logfile'") logname("`logname'") r_ext("`r_ext'") `debug'
 
 	}
 
@@ -580,17 +612,17 @@ end
 cap program drop write_cont_report
 	program 	 write_cont_report
 
-	syntax varlist, logfile(string) logname(string) format(string) [debug]
+	syntax varlist, logfile(string) logname(string) r_ext(string) [debug]
 
 	if !missing("`debug'") noi di "Entering write_cont_report subcommand"
 
 	* Section title
 	write_title Variable type: Continuous, ///
-			logfile("`logfile'") logname("`logname'") format("`format'") `debug'
+			logfile("`logfile'") logname("`logname'") r_ext("`r_ext'") `debug'
 
 	* Column header
 	write_table_header "Name,Label,Type,Complete obs,Mean,Std Dev,p0,p25,p50,p75,p100", ///
-			logfile("`logfile'") logname("`logname'") format("`format'") `debug'
+			logfile("`logfile'") logname("`logname'") r_ext("`r_ext'") `debug'
 
 	* Calculate column values
 	foreach var of local varlist {
@@ -616,7 +648,7 @@ cap program drop write_cont_report
 
 		*Write variable row to file
 		write_line `"`var'~"`varlabel'"~`vartype'~`varcomplete'~`mean'~`sd'~`p0'~`p25'~`p50'~`p75'~`p100'"', ///
-			logfile("`logfile'") logname("`logname'") format("`format'") `debug'
+			logfile("`logfile'") logname("`logname'") r_ext("`r_ext'") `debug'
 	}
 
 	file open  		`logname' using "`logfile'", text write append
@@ -630,16 +662,16 @@ end
 cap program drop write_date_report
 	program 	 write_date_report
 
-	syntax varlist, logfile(string) logname(string) format(string) [debug]
+	syntax varlist, logfile(string) logname(string) r_ext(string) [debug]
 
 	if !missing("`debug'") noi di "Entering write_date_report subcommand"
 
 	* Open the file and write headear
 	write_title Variable type: Date or date-time, ///
-			logfile("`logfile'") logname("`logname'") format("`format'") `debug'
+			logfile("`logfile'") logname("`logname'") r_ext("`r_ext'") `debug'
 
 	write_table_header "Name,Label,Format,Complete obs,Unique values,Mean,Std Dev,Min,Median,Max", ///
-			logfile("`logfile'") logname("`logname'") format("`format'") `debug'
+			logfile("`logfile'") logname("`logname'") r_ext("`r_ext'") `debug'
 
 	* Calculate column values
 	foreach var of local varlist {
@@ -670,7 +702,7 @@ cap program drop write_date_report
 
 		*Write variable row to file
 		write_line `"`var'~"`varlabel'"~`varformat'~`varcomplete'~`varlevels'~`mean'~`sd'~`min'~`median'~`max'"', ///
-			logfile("`logfile'") logname("`logname'") format("`format'") `debug'
+			logfile("`logfile'") logname("`logname'") r_ext("`r_ext'") `debug'
 	}
 
 	file open  		`logname' using "`logfile'", text write append
@@ -684,17 +716,17 @@ end
 cap program drop write_cat_report
 	program 	 write_cat_report
 
-	syntax varlist, logfile(string) logname(string) format(string) [debug]
+	syntax varlist, logfile(string) logname(string) r_ext(string) [debug]
 
 	if !missing("`debug'") noi di "Entering write_cat_report subcommand"
 
 	* Section title
 	write_title Variable type: Categorical, ///
-			logfile("`logfile'") logname("`logname'") format("`format'") `debug'
+			logfile("`logfile'") logname("`logname'") r_ext("`r_ext'") `debug'
 
 	* Table header
 	write_table_header "Name,Label,Value label,Complete obs,Number of levels,Number of unlabeled levels,Top count", ///
-			logfile("`logfile'") logname("`logname'") format("`format'") `debug'
+			logfile("`logfile'") logname("`logname'") r_ext("`r_ext'") `debug'
 
 	* Calculate column values
 	foreach var of local varlist {
@@ -718,7 +750,7 @@ cap program drop write_cat_report
 
 		*Write variable row to file
 		write_line `"`var'~"`varlabel'"~`vallabel'~`varcomplete'~`varlevels'~`nunlabeled'~`topcount'"', ///
-			logfile("`logfile'") logname("`logname'") format("`format'") `debug'
+			logfile("`logfile'") logname("`logname'") r_ext("`r_ext'") `debug'
 	}
 
 	file open  		`logname' using "`logfile'", text write append

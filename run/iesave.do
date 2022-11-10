@@ -274,9 +274,9 @@
 
     * Use defaults but with csv and userinfo
     iesave using "`report_folder'/auto_csv_v`stata_ver'.dta", ///
-		idvars(make) userinfo csv ///
+		idvars(make) userinfo  ///
 		version(`stata_ver') ///
-        report
+        report(csv)
 	
     *User location
     local userlocation "`report_folder'/userlocation"
@@ -286,7 +286,7 @@
 		idvars(make) ///
 		version(`stata_ver') ///
 		userinfo ///
-		reportpath("`userlocation'/auto_location_v`stata_ver'.md") `debug' 
+		report(path("`userlocation'/auto_location_v`stata_ver'.md")) `debug' 
 
 }
 
@@ -302,7 +302,7 @@
 	sysuse auto, clear
 	iesave using "`report_folder'/report_replace.dta", ///
 		idvars(make) ///
-		version(13) ///
+		version(13.1) ///
 		replace ///
 		report `debug' 
 
@@ -312,14 +312,14 @@
 	iesave using "`report_folder'/reportpath_replace.dta", ///
 		idvars(make) ///
 		version(13) ///
-        reportpath("`report_folder'/reportpath_replace.csv") ///
+        report(path("`report_folder'/reportpath_replace.csv")) ///
 		`debug' 
 
 	sysuse auto, clear
 	iesave using "`report_folder'/reportpath_replace.dta", ///
 		idvars(make) ///
 		version(13) ///
-        reportpath("`report_folder'/reportpath_replace.csv", replace) ///
+        report(path("`report_folder'/reportpath_replace.csv") replace) ///
 		replace  ///
 		`debug' 
 			
