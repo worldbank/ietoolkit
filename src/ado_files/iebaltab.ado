@@ -3,15 +3,16 @@
 	capture program drop   iebaltab,
 	        program define iebaltab, rclass
 
-		syntax varlist(numeric) [if] [in] [aw fw pw iw],                        ///
-                                                                                ///
-				/*Required options*/                                            ///
-				GRPVar(varname)                                                 ///
-				[                                                               ///
+		syntax varlist(numeric) [if] [in] [aw fw pw iw],                    ///
+                                                                        ///
+        [                                                               ///
+        /*Required options - GRPVar deprecated name still allowed */    ///
+				 GROUPVar(varname) GRPVar(varname)                              ///
+				                                                                ///
 				/*Column and row options*/                                      ///
 				COntrol(numlist int max=1) ORder(numlist int min=1)             ///
 				TOTal onerow                                                    ///
-                                                                                ///
+                                                                        ///
 				/*Estimation options*/                                          ///
 				vce(string) FIXedeffect(varname) COVariates(varlist ts fv) 	    ///
 				FTest FEQTest WEIGHTold(string)                                 ///
@@ -19,11 +20,12 @@
 				/*Stat display options*/                                        ///
 				stats(string)                                                   ///
 				STARlevels(numlist descending min=3 max=3 >0 <1)			          ///
-				STARSNOadd FORMat(string)                                       ///
+				NOSTARs FORMat(string)                                          ///
 				                                                                ///
 				/*Label/notes options*/                                         ///
-				GRPCodes GRPLabels(string) TOTALLabel(string) ROWVarlabels      ///
-				ROWLabels(string) TBLNote(string) TBLADDNote(string) TBLNONote  ///
+				GROUPCodes GROUPLabels(string) TOTALLabel(string)               ///
+        ROWVarlabels ROWLabels(string)                                  ///
+        TABLENote(string) TABLEADDNote(string) TABLENONote              ///
 			                                                                  ///
 				/*Export and restore*/                                          ///
 				BRowse SAVEXlsx(string) SAVECsv(string) SAVETex(string)         ///
@@ -34,6 +36,10 @@
 				TEXCaption(string) TEXLabel(string) TEXDOCument	                ///
 				texcolwidth(string)                                             ///
 				                                                                ///
+        /*Deprecated names: still allowed for backward compatibility*/  ///
+        GRPCodes GRPLabels(string) STARSNOadd                           ///
+        TBLNONote TBLNote(string) TBLADDNote(string)                    ///
+                                                                        ///
 				/* Deprecated options - still included to throw                 ///
 				helpful error if ever used */                                   ///
 				SAVEBRowse SAVE(string) BALMISS(string) BALMISSReg(string)      ///
@@ -91,6 +97,42 @@ qui {
 		if missing("`fixedeffect'") local FIX_EFFECT_USED = 0
 		else                        local FIX_EFFECT_USED = 1
 
+    /***********************************************
+			Deprecated names
+		************************************************/
+
+    * GRPVar is now called groupVar
+    if missing("`groupvar'") & !missing("`grpvar'") ///
+      local groupvar "`grpvar'"
+    if missing("`groupvar'") {
+      di as error `"{pstd}The option {input:groupvar()} is required.{p_end}"'
+      error 198
+    }
+
+    * grpcodes is now called groupcodes
+    if missing("`groupcodes'") & !missing("`grpcodes'") ///
+      local groupcodes "groupcodes"
+    * grplabels is now called grouplabels
+    if missing("`grouplabels'") & !missing("`grplabels'") ///
+      local grouplabels "`grplabels'"
+
+    * tblnote is now called tablenote
+    if missing("`tablenote'") & !missing("`tblnote'") ///
+      local tablenote "`tblnote'"
+    * tbladdnote is now called tableaddnote
+    if missing("`tableaddnote'") & !missing("`tbladdnote'") ///
+      local tableaddnote "`tbladdnote'"
+    * tblnonote is now called nonote
+    if "`note'" != "nonote" & !missing("`tblnonote'") ///
+        local note "nonote"
+    if "`note'" != "nonote" local note "note"
+
+    * starsnoadd is now called nostars
+    if "`stars'" != "nostars" & !missing("`starsnoadd'") ///
+        local stars "nostars"
+    if "`stars'" != "nostars" local stars "stars"
+
+
 		/***********************************************
 			Deprecated options
 		************************************************/
@@ -125,21 +167,20 @@ qui {
 *******************************************************************************/
 
 		* Test that the groupvar is not one of the balancevars
-		if `: list grpvar in balancevars' {
-			noi display as error  "{phang}The variable [`grpvar'] may not be in both grpvar(`grpvar') and the varlist used as balance variables [`balancevars'].{p_end}"
+		if `: list groupvar in balancevars' {
+			noi display as error  "{phang}The variable [`groupvar'] may not be in both groupvar(`groupvar') and the varlist used as balance variables [`balancevars'].{p_end}"
 			error 198
 		}
 
-		cap confirm numeric variable `grpvar'
-
-		* Tests if groupvar is numeric type
+    * Tests if groupvar is numeric type
+		cap confirm numeric variable `groupvar'
 		if _rc == 0 {
 
-			* Test that grpvar only consists if integers
-			cap assert (int(`grpvar') == `grpvar')
+			* Test that groupvar only consists if integers
+			cap assert (int(`groupvar') == `groupvar')
 			if _rc == 9 {
-				noi display as error  "{phang}The variable in grpvar(`grpvar') is not a categorical variable. The variable may only include integers. See tabulation of `grpvar' below:{p_end}"
-				noi tab `grpvar', nol
+				noi display as error  "{phang}The variable in groupvar(`groupvar') is not a categorical variable. The variable may only include integers. See tabulation of `groupvar' below:{p_end}"
+				noi tab `groupvar', nol
 				error 109
 			}
 		}
@@ -147,35 +188,35 @@ qui {
 		* Tests if groupvar is string type
 		else {
 
-			*Test for options not allowed if grpvar is a string variable
-			if !missing("`control'`order'`grpcodes'`grplabels'") {
+			*Test for options not allowed if groupvar is a string variable
+			if !missing("`control'`order'`groupcodes'`grouplabels'") {
 				local str_invalid_opt ""
 				if !missing("`control'")   local str_invalid_opt "`str_invalid_opt' control()"
 				if !missing("`order'")     local str_invalid_opt "`str_invalid_opt' order()"
-				if !missing(`"`grplabels'"') local str_invalid_opt "`str_invalid_opt' grplabels()"
-				local str_invalid_options_used = itrim(trim("`str_invalid_opt' `grpcodes'"))
-				di as error "{pstd}The option(s) [`str_invalid_options_used'] can only be used when variable {input:`grpvar'} is a numeric variable. Use {help encode} to generate a numeric version of variable {input:`grpvar'}.{p_end}"
+				if !missing(`"`grouplabels'"') local str_invalid_opt "`str_invalid_opt' grouplabels()"
+				local str_invalid_options_used = itrim(trim("`str_invalid_opt' `groupcodes'"))
+				di as error "{pstd}The option(s) [`str_invalid_options_used'] can only be used when variable {input:groupvar(`groupvar')} is a numeric variable. Use {help encode} to generate a numeric version of the variable {input:`groupvar'}.{p_end}"
 				error 198
 			}
 
-			*Generate a encoded numeric tempvar variable from string grpvar
-			tempvar grpvar_code
-			encode `grpvar' , gen(`grpvar_code')
+			*Generate a encoded numeric tempvar variable from string groupvar
+			tempvar groupvar_code
+			encode `groupvar' , gen(`groupvar_code')
 
-			*replace the grpvar local so that it uses the tempvar instead
-			local grpvar `grpvar_code'
+			*replace the groupvar local so that it uses the tempvar instead
+			local groupvar `groupvar_code'
 		}
 
-		*Remove observations with a missing value in grpvar()
-		drop if missing(`grpvar')
+		*Remove observations with a missing value in groupvar()
+		drop if missing(`groupvar')
 
 		*Create a local of all codes in group variable
-		levelsof `grpvar', local(GRP_CODES)
+		levelsof `groupvar', local(GRP_CODES)
 
-		*Saving the name of the value label of the grpvar()
-		local GRPVAR_VALUE_LABEL 	: value label `grpvar'
+		*Saving the name of the value label of the groupvar()
+		local GRPVAR_VALUE_LABEL 	: value label `groupvar'
 
-		*Static dummy for grpvar() has no label
+		*Static dummy for groupvar() has no label
 		if "`GRPVAR_VALUE_LABEL'" == "" local GRPVAR_HAS_VALUE_LABEL = 0
 		if "`GRPVAR_VALUE_LABEL'" != "" local GRPVAR_HAS_VALUE_LABEL = 1
 
@@ -189,25 +230,25 @@ qui {
 	*****************************
 	** Test column order inputs
 
-		** Test if any value used in control is a code used in grpvar
+		** Test if any value used in control is a code used in groupvar
 		if `: list control in GRP_CODES' == 0 {
-			noi display as error "{phang}The code listed in control(`control') is not used in grpvar(`grpvar'). See tabulation of `grpvar' below:{p_end}"
-			noi tab `grpvar', nol
+			noi display as error "{phang}The code listed in control(`control') is not used in groupvar(`groupvar'). See tabulation of `groupvar' below:{p_end}"
+			noi tab `groupvar', nol
 			error 197
 		}
 
-		** Test if any value used in order is a code used in grpvar
+		** Test if any value used in order is a code used in groupvar
 		if `: list order in GRP_CODES' == 0 {
-			noi display as error  "{phang}One or more codes listed in order(`order') are not used in grpvar(`grpvar'). See tabulation of `grpvar' below:{p_end}"
-			noi tab `grpvar', nol
+			noi display as error  "{phang}One or more codes listed in order(`order') are not used in groupvar(`groupvar'). See tabulation of `groupvar' below:{p_end}"
+			noi tab `groupvar', nol
 			error 197
 		}
 
     *****************************
     ** Test and parse column label inputs
-    if !missing(`"`grplabels'"') {
-      noi test_parse_label_input, labelinput(`"`grplabels'"') ///
-      itemlist("`GRP_CODES'") column grpvar(`grpvar')
+    if !missing(`"`grouplabels'"') {
+      noi test_parse_label_input, labelinput(`"`grouplabels'"') ///
+      itemlist("`GRP_CODES'") column groupvar(`groupvar')
       local grpLabelCodes  "`r(items)'"
       local grpLabelLables `"`r(labels)'"'
     }
@@ -308,8 +349,8 @@ qui {
 		****************************************************************************
 		** Star level input handling
 
-		* Surpress stars if starsnoadd is used
-		if !missing("`starsnoadd'") local starlevels ""
+		* Surpress stars if nostars is used
+		if "`stars'" == "nostars" local starlevels ""
 		*If nostar not used and starlevels not specified, use defaults
 		else if missing("`starlevels'") local starlevels ".1 .05 .01"
 
@@ -504,13 +545,13 @@ qui {
 		*Feq-test equation
 
 		* Loop from the second element in the list of group codes to the last and
-		* create a list on the format 2.tmt=3.tmt=0 where tmt is the grpvar and the
+		* create a list on the format 2.tmt=3.tmt=0 where tmt is the groupvar and the
 		* first value is dropped as the regression that test for joint orthogonality
-		* for across all groups for each balance var will drop the lowest value in grpvar.
+		* for across all groups for each balance var will drop the lowest value in groupvar.
 		local FEQTEST_INPUT ""
 		forvalues grp_code_count = 2/`: word count `GRP_CODES'' {
 			local this_code : word `grp_code_count' of `GRP_CODES'
-			local FEQTEST_INPUT "`FEQTEST_INPUT'`this_code'.`grpvar'="
+			local FEQTEST_INPUT "`FEQTEST_INPUT'`this_code'.`groupvar'="
 		}
 		local FEQTEST_INPUT "`FEQTEST_INPUT'0"
 
@@ -555,8 +596,8 @@ qui {
 			*Tempvar dummy for the codes in the test pair and missing for other obs
 			tempvar  dummy_pair_`ttest_pair'
 			gen     `dummy_pair_`ttest_pair'' = .
-			replace `dummy_pair_`ttest_pair'' = 1 if `grpvar' == `code1'
-			replace `dummy_pair_`ttest_pair'' = 0 if `grpvar' == `code2'
+			replace `dummy_pair_`ttest_pair'' = 1 if `groupvar' == `code1'
+			replace `dummy_pair_`ttest_pair'' = 0 if `groupvar' == `code2'
 		}
 
 		* Set up the matrix for all stats and estimates
@@ -603,18 +644,18 @@ qui {
 			************
 			* Use code as column label
 
-			* If option grpcodes was used or grpvar has no value label, then the codes
-			* must be used as column labels
-			else if !missing("`grpcodes'") | !`GRPVAR_HAS_VALUE_LABEL' {
+			* If option groupcodes was used or groupvar has no value label,
+      * then the codes must be used as column labels
+			else if !missing("`groupcodes'") | !`GRPVAR_HAS_VALUE_LABEL' {
 				*Not using value labels, simply using the group code as the label in the final table
 				local	COLUMN_LABELS `"`COLUMN_LABELS' `"`groupCode'"'"'
 			}
 
 			************
-			* Use value label in grpvar as column label
+			* Use value label in groupvar as column label
 
-			* Grpvar has value labels and grpcodes was not used, then use value labels
-			* as code labels
+			* Grpvar has value labels and groupcodes was not used,
+      * then use value labels as code labels
 			else {
 				*Get the value label corresponding to this code and use as label
 				local gprVar_valueLabel : label `GRPVAR_VALUE_LABEL' `groupCode'
@@ -719,7 +760,7 @@ qui {
 			foreach group_code of local ORDER_OF_GROUP_CODES {
 
 				//noi di "Desc stats. Var [`balancevar'], group code [`group_code']"
-				reg `balancevar' if `grpvar' == `group_code' `weight_option', `error_estm'
+				reg `balancevar' if `groupvar' == `group_code' `weight_option', `error_estm'
 
 				*Number of observation for this balancevar for this group
 				mat row[1,`++colindex'] = e(N)
@@ -799,14 +840,14 @@ qui {
 					*If any of the tests
 					if (e(r2) == .) {
 						* R2 is undefined
-						noi display as text "{phang}Warning: The R2 was not possible to calculate in the regression for the pair-wise test of variable [`balancevar'] for observations with values [`code1'] and [`code2'] in the groupvar [`grpvar'].{p_end}."
+						noi display as text "{phang}Warning: The R2 was not possible to calculate in the regression for the pair-wise test of variable [`balancevar'] for observations with values [`code1'] and [`code2'] in the groupvar [`groupvar'].{p_end}."
 						foreach stat of local pair_stats {
 								mat row[1,`++colindex'] = .n
 						}
 					}
 					else if (e(r2) == 1) {
 						* R2 = 100
-						noi display as text "{phang}Warning: All variance was explained by one or several variables in the regression for the pair-wise test of variable [`balancevar'] for observations with values [`code1'] and [`code2'] in the groupvar [`grpvar'].{p_end}."
+						noi display as text "{phang}Warning: All variance was explained by one or several variables in the regression for the pair-wise test of variable [`balancevar'] for observations with values [`code1'] and [`code2'] in the groupvar [`groupvar'].{p_end}."
 						foreach stat of local pair_stats {
 								mat row[1,`++colindex'] = .v
 						}
@@ -869,19 +910,19 @@ qui {
 
 		    	* Run regression
 				//noi di "FEQ regression. Var [`balancevar']"
-				reg `balancevar' i.`grpvar' `covariates' i.`fixedeffect' `weight_option', `error_estm'
+				reg `balancevar' i.`groupvar' `covariates' i.`fixedeffect' `weight_option', `error_estm'
 
 				*If any of the tests
 				if (e(r2) == .) {
 					* R2 undefined
-					noi display as text "{phang}Warning: The R2 value could not be calculated in the regression for the feq-test over all values in the group variable [`grpvar'] for balance variable [`balancevar'].{p_end}"
+					noi display as text "{phang}Warning: The R2 value could not be calculated in the regression for the feq-test over all values in the group variable [`groupvar'] for balance variable [`balancevar'].{p_end}"
 					foreach stat of local feq_stats {
 							mat row[1,`++colindex'] = .n
 					}
 				}
 				else if  (e(r2) == 1) {
 					* R2 = 1
-					noi display as text "{phang}Warning: All variance was explained by one or several variables in the regression for the feq-test over all values in the group variable [`grpvar'] for balance variable [`balancevar'].{p_end}"
+					noi display as text "{phang}Warning: All variance was explained by one or several variables in the regression for the feq-test over all values in the group variable [`groupvar'] for balance variable [`balancevar'].{p_end}"
 					foreach stat of local feq_stats {
 							mat row[1,`++colindex'] = .v
 					}
@@ -990,9 +1031,10 @@ qui {
 
 *******************************************************************************/
 
-	*Test if options tblnonote or tblnote are used - if not generate default note
-	if missing("`tblnonote'") {
-		if missing("`tblnote'") {
+	*Test if options nonote or tablenote are used
+  * - if not generate default note
+	if "`note'" != "nonote" {
+		if missing("`tablenote'") {
 			generate_note, full_user_input(`"`full_user_input'"') stats_string("`stats_string'") fix("`fixedeffect'") ///
 			fix_used("`FIX_EFFECT_USED'") covars("`covariates'") `ftest' `feqtest' ///
 			starlevels("`starlevels'") vce("`vce'") vce_type("`vce_type'") ///
@@ -1002,10 +1044,10 @@ qui {
 			 local note_to_use `"`r(table_note)'"'
 		}
 		* Use user specified note
-		else local note_to_use `"`tblnote'"'
+		else local note_to_use `"`tablenote'"'
 
-		* Add note from tbladdnote command to default note if applicable
-		if !missing("`tbladdnote'") local note_to_use `"`note_to_use' `tbladdnote'"'
+		* Add note from tableaddnote command to default note if applicable
+		if !missing("`tableaddnote'") local note_to_use `"`note_to_use' `tableaddnote'"'
 	}
 	*Use no note
 	else local note_to_use ""
@@ -2257,7 +2299,7 @@ end
 cap program drop 	test_parse_label_input
 	program define	test_parse_label_input, rclass
 
-	syntax, labelinput(string) itemlist(string) [row column grpvar(string)]
+	syntax, labelinput(string) itemlist(string) [row column groupvar(string)]
 
 	if !missing("`row'") {
 		local optionname "rowlabels"
@@ -2265,8 +2307,8 @@ cap program drop 	test_parse_label_input
 		local itemname "balance variable"
 	}
 	else if !missing("`column'") {
-		local optionname "grplabels"
-		local listoutput "a value used in grpvar(`grpvar')"
+		local optionname "grouplabels"
+		local listoutput "a value used in groupvar(`groupvar')"
 		local itemname "group code"
 	}
 	else noi di as error "{phang}test_parse_label_inpu: either [row] or [column] must be used.
@@ -2485,7 +2527,7 @@ end
 /*******************************************************************************
   count_stars: count number of stars given p-value and star levels
 	* Returns a string with the number of stars given a p-value and the list of
-	* starlevels. If starlevels is empty (i.e. option starsnoadd is used)
+	* starlevels. If starlevels is empty (i.e. option nostars is used)
 	* then it will always return the empty string "".
 *******************************************************************************/
 cap program drop 	count_stars

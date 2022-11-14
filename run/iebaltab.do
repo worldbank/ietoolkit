@@ -215,7 +215,7 @@ qui {
 		local texfile "iebt-tex`tnum'"
 		local txnfile "iebt-tex`tnum'-note"
         local allsave `"savecsv("${out_fldr}/`csvfile'") savexlsx("${out_fldr}/`exlfile'") savetex("${out_fldr}/`texfile'") texnotefile("${out_fldr}/`txnfile'") "'
-        
+       
         label var weight "Weight (USD$)"
         // Percent sign in value label
 
@@ -558,7 +558,7 @@ qui {
 		noi ie_test_mat_nomiss, mat1(mat1) mat2(mat2)
 
 	restore	
- 
+
 
 	/***************************************************************************
 	  Table 22 - test adding stars and star user inputs
@@ -571,7 +571,7 @@ qui {
 		local texfile "iebt-tex`tnum'"
 		local txnfile "iebt-tex`tnum'-note"
         local allsave `"savecsv("${out_fldr}/`csvfile'") savexlsx("${out_fldr}/`exlfile'") savetex("${out_fldr}/`texfile'") texnotefile("${out_fldr}/`txnfile'") "'
-        
+       
         set seed 542783
 
         local balvars  mpg headroom trunk weight length turn price
@@ -589,6 +589,55 @@ qui {
 		noi ie_test_mat_nomiss, mat1(mat1) mat2(mat2)
 
 	restore	
+   
     
+    /***************************************************************************
+	  Table 23 - use all deprecated still allowed names
+	***************************************************************************/
+	preserve
+
+		local tnum 23a
+		local csvfile "iebt-csv`tnum'"
+		local exlfile "iebt-xlsx`tnum'"
+		local texfile "iebt-tex`tnum'"
+		local txnfile "iebt-tex`tnum'-note"
+        local allsave `"savecsv("${out_fldr}/`csvfile'") savexlsx("${out_fldr}/`exlfile'") savetex("${out_fldr}/`texfile'") texnotefile("${out_fldr}/`txnfile'") "'
+
+        set seed 542783
+
+        local balvars  mpg trunk weight turn price
+        foreach balvar of local balvars {
+            replace `balvar' = `balvar' * (1 - (.2 * runiform())) if tmt_cl == 1
+        }        
+        
+		noi iebaltab `balvars' , `allsave'   ///
+            grpvar(tmt_cl) grpcodes replace  ///
+            starsnoadd stats(pair(p))        ///
+			tbladdnote("Added note.") 
+
+		* Test no regaular missing values in matrices
+		mat mat1 = r(iebtab_rmat)
+		mat mat2 = r(iebtab_fmat)
+		noi ie_test_mat_nomiss, mat1(mat1) mat2(mat2)
+	restore
+
+	preserve
+
+		local tnum 23b
+		local csvfile "iebt-csv`tnum'"
+		local exlfile "iebt-xlsx`tnum'"
+		local texfile "iebt-tex`tnum'"
+        local allsave `"savecsv("${out_fldr}/`csvfile'") savexlsx("${out_fldr}/`exlfile'") savetex("${out_fldr}/`texfile'") "'
+   
+        
+		noi iebaltab `balvars' , `allsave'   ///
+            grpvar(tmt_cl) replace       ///
+            tblnonote grplabels("0 Control @ 1 Treatment")
+
+		* Test no regaular missing values in matrices
+		mat mat1 = r(iebtab_rmat)
+		mat mat2 = r(iebtab_fmat)
+		noi ie_test_mat_nomiss, mat1(mat1) mat2(mat2)
+	restore
    
 }
