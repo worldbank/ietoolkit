@@ -443,6 +443,13 @@ qui {
 			local savetex "`r(filepath)'"
 		}
 		if !missing("`texnotefile'") {
+
+      * texnotefile cannot be used if nonote is also used
+      if "`note'" == "nonote" {
+        noi display as error `"{phang}The option {inp:texnotefile()} cannot be used if the option {inp:nonote} is also used.{p_end}"'
+        error 198
+      }
+
 			test_parse_file_input, filepath(`texnotefile') allowedformats(".tex") defaultformat(".tex") option("texnotefile")
 			local texnotefile "`r(filepath)'"
 		}
