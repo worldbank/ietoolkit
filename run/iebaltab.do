@@ -61,7 +61,7 @@ qui {
         local allsave `"savecsv("${out_fldr}/`csvfile'") savexlsx("${out_fldr}/`exlfile'") savetex("${out_fldr}/`texfile'") texnotefile("${out_fldr}/`txnfile'") "'
 
 		noi iebaltab weight price , `allsave' ///
-            grpvar(tmt_cl) replace        ///
+      groupvar(tmt_cl) replace        ///
 			ftest feqtest control(1)      ///
 			cov(mpg) fixed(foreign)
 
@@ -80,7 +80,7 @@ qui {
 		local texfile "iebt-tex`tnum'"
 
 		noi iebaltab weight price ,              ///
-            grpvar(tmt_cl) replace           ///
+      groupvar(tmt_cl) replace           ///
 			ftest feqtest control(1)         ///
 			savetex("${out_fldr}/`texfile'") ///
 			cov(mpg) fixed(foreign)
@@ -100,12 +100,12 @@ qui {
 		local texfile "iebt-tex`tnum'"
 
 		iebaltab weight price ,              ///
-            grpvar(tmt_cl) replace           ///
+      groupvar(tmt_cl) replace           ///
 			ftest feqtest control(1)         ///
 			savetex("${out_fldr}/`texfile'") ///
 			cov(mpg) fixed(foreign)          ///
 			texcolwidth(4cm)  ///
-			tbladdnote("Options used: texcolwidth(3cm) short first column ")
+			tableaddnote("Options used: texcolwidth(3cm) short first column ")
 
 		* Test no regaular missing values in matrices
 		mat mat1 = r(iebtab_rmat)
@@ -122,7 +122,7 @@ qui {
 		local texfile "iebt-texdoc`tnum'"
 
 		noi iebaltab weight price ,                 ///
-            grpvar(tmt_cl) replace              ///
+            groupvar(tmt_cl) replace              ///
 			ftest feqtest control(1)            ///
 			savetex("${out_fldr}/`texfile'")    ///
 			cov(mpg) fixed(foreign) texdocument
@@ -142,7 +142,7 @@ qui {
 		local texfile "iebt-texdoc`tnum'"
 
 		noi iebaltab weight price ,                               ///
-            grpvar(tmt_cl) replace                            ///
+      groupvar(tmt_cl) replace                            ///
 			ftest feqtest control(1)                          ///
 			savetex("${out_fldr}/`texfile'")                  ///
 			cov(mpg) fixed(foreign) texdocument               ///
@@ -169,10 +169,10 @@ qui {
         local allsave `"savecsv("${out_fldr}/`csvfile'") savexlsx("${out_fldr}/`exlfile'") savetex("${out_fldr}/`texfile'") texnotefile("${out_fldr}/`txnfile'") "'
 
 		noi iebaltab weight price , `allsave'           ///
-            grpvar(tmt) replace                     ///
+      groupvar(tmt) replace                     ///
 			ftest feqtest total rowvarlabels        ///
 			cov(mpg) fixed(foreign)                 ///
-			tbladdnote("Many groups, rowvarlabels")
+			tableaddnote("Many groups, rowvarlabels")
 
 		* Test no regaular missing values in matrices
 		mat mat1 = r(iebtab_rmat)
@@ -193,10 +193,10 @@ qui {
         local allsave `"savecsv("${out_fldr}/`csvfile'") savexlsx("${out_fldr}/`exlfile'") savetex("${out_fldr}/`texfile'") texnotefile("${out_fldr}/`txnfile'") "'
 
 		noi iebaltab weight price , `allsave'             ///
-            grpvar(tmt) replace                       ///
-			total order(4 10231) control(6) grpcodes  ///
+      groupvar(tmt) replace                       ///
+			total order(4 10231) control(6) groupcodes  ///
 			cov(mpg) fixed(foreign)                   ///
-			tbladdnote("column order should be 4 10231 6 2, and 6 is control so pair test only with this group")
+			tableaddnote("column order should be 4 10231 6 2, and 6 is control so pair test only with this group")
 
 		* Test no regaular missing values in matrices
 		mat mat1 = r(iebtab_rmat)
@@ -215,17 +215,17 @@ qui {
 		local texfile "iebt-tex`tnum'"
 		local txnfile "iebt-tex`tnum'-note"
         local allsave `"savecsv("${out_fldr}/`csvfile'") savexlsx("${out_fldr}/`exlfile'") savetex("${out_fldr}/`texfile'") texnotefile("${out_fldr}/`txnfile'") "'
-       
+
         label var weight "Weight (USD$)"
         // Percent sign in value label
 
-		noi iebaltab weight price headroom , `allsave'                        ///
-            grpvar(tmt) replace                                               ///
-			total control(6)  rowvarlabels                                    ///
-			grplabels(`"6 Quotes, and comma "," @ 4 Pizza & Pineapple (USD$) "')     ///
+		noi iebaltab weight price headroom , `allsave'                           ///
+      groupvar(tmt) replace                                                  ///
+			total control(6)  rowvarlabels                                         ///
+			grouplabels(`"6 Quotes, and comma "," @ 4 Pizza & Pineapple (USD$) "') ///
 			totallabel("Total single ' quote") cov(mpg) fixed(foreign)           ///
-            rowlabels(`"price St*r and sub _script @ headroom Headroom "Height" quote "')    ///
-			tbladdnote("Row column manual ($) lables.")
+      rowlabels(`"price St*r and sub _script @ headroom Headroom "Height" quote "') ///
+			tableaddnote("Row column manual ($) lables.")
 
 		* Test no regaular missing values in matrices
 		mat mat1 = r(iebtab_rmat)
@@ -254,10 +254,10 @@ qui {
         local allsave `"savecsv("${out_fldr}/`csvfile'") savexlsx("${out_fldr}/`exlfile'") savetex("${out_fldr}/`texfile'") texnotefile("${out_fldr}/`txnfile'") "'
 
 		noi iebaltab weight price , `allsave' ///
-            grpvar(tmt_cl) replace        ///
+      groupvar(tmt_cl) replace        ///
 			ftest feqtest                 ///
 			cov(mpg) fixed(foreign)       ///
-			tbladdnote("Warning for missing value in fixedeffect(foreign) and in covariates(mpg)")
+			tableaddnote("Warning for missing value in fixedeffect(foreign) and in covariates(mpg)")
 
 		* Expected outcome: Warning for missing value in
 		* fixedeffect(foreign) and in covariates(mpg), but no warning for weight
@@ -282,11 +282,11 @@ qui {
         local allsave `"savecsv("${out_fldr}/`csvfile'") savexlsx("${out_fldr}/`exlfile'") savetex("${out_fldr}/`texfile'") texnotefile("${out_fldr}/`txnfile'") "'
 
 		noi iebaltab weight price , `allsave' ///
-            grpvar(tmt_cl) replace        ///
+      groupvar(tmt_cl) replace        ///
 			vce(cluster test_cluster_var) ///
 			ftest feqtest total           ///
 			cov(mpg) fixed(foreign)       ///
-			tbladdnote("added cluster")
+			tableaddnote("added cluster")
 
 		* Test no regaular missing values in matrices
 		mat mat1 = r(iebtab_rmat)
@@ -308,10 +308,10 @@ qui {
         local allsave `"savecsv("${out_fldr}/`csvfile'") savexlsx("${out_fldr}/`exlfile'") savetex("${out_fldr}/`texfile'") texnotefile("${out_fldr}/`txnfile'") "'
 
 		noi iebaltab weight price , `allsave' ///
-            grpvar(tmt_cl) replace        ///
+      groupvar(tmt_cl) replace        ///
 			onerow                        ///
 			cov(mpg) fixed(foreign)       ///
-			tbladdnote("added onerow")
+			tableaddnote("added onerow")
 
 		* Test no regaular missing values in matrices
 		mat mat1 = r(iebtab_rmat)
@@ -334,11 +334,11 @@ qui {
         local allsave `"savecsv("${out_fldr}/`csvfile'") savexlsx("${out_fldr}/`exlfile'") savetex("${out_fldr}/`texfile'") texnotefile("${out_fldr}/`txnfile'") "'
 
 		noi iebaltab weight price , `allsave'        ///
-            grpvar(tmt_cl) replace               ///
+      groupvar(tmt_cl) replace               ///
 			onerow vce(cluster test_cluster_var) ///
 			ftest feqtest total                  ///
 			cov(mpg) fixed(foreign)              ///
-			tbladdnote("added onerow and cluster") browse
+			tableaddnote("added onerow and cluster") browse
 
 		* Test no regaular missing values in matrices
 		mat mat1 = r(iebtab_rmat)
@@ -360,7 +360,7 @@ qui {
         local allsave `"savecsv("${out_fldr}/`csvfile'") savexlsx("${out_fldr}/`exlfile'") savetex("${out_fldr}/`texfile'") texnotefile("${out_fldr}/`txnfile'") "'
 
 		noi iebaltab weight price , `allsave' ///
-            grpvar(tmt_cl) replace        ///
+      groupvar(tmt_cl) replace        ///
 			ftest control(1)              ///
 			stats(f(p) pair(nrmd))        ///
 			cov(mpg) fixed(foreign)
@@ -384,7 +384,7 @@ qui {
         local allsave `"savecsv("${out_fldr}/`csvfile'") savexlsx("${out_fldr}/`exlfile'") savetex("${out_fldr}/`texfile'") texnotefile("${out_fldr}/`txnfile'") "'
 
 		noi iebaltab weight price , `allsave' ///
-            grpvar(tmt_cl) replace        ///
+      groupvar(tmt_cl) replace        ///
 			ftest feqtest control(1)      ///
 			stats(pair(none))             ///
 			cov(mpg) fixed(foreign)
@@ -408,7 +408,7 @@ qui {
         local allsave `"savecsv("${out_fldr}/`csvfile'") savexlsx("${out_fldr}/`exlfile'") savetex("${out_fldr}/`texfile'") texnotefile("${out_fldr}/`txnfile'") "'
 
 		noi iebaltab weight price , `allsave' ///
-            grpvar(tmt_cl) replace        ///
+      groupvar(tmt_cl) replace        ///
 			ftest control(1)              ///
 			stats(pair(se))               ///
 			cov(mpg) fixed(foreign)
@@ -433,7 +433,7 @@ qui {
         local allsave `"savecsv("${out_fldr}/`csvfile'") savexlsx("${out_fldr}/`exlfile'") savetex("${out_fldr}/`texfile'") texnotefile("${out_fldr}/`txnfile'") "'
 
 		noi iebaltab weight price , `allsave' ///
-            grpvar(tmt_cl) replace        ///
+      groupvar(tmt_cl) replace        ///
 			stats(pair(nrmd))             ///
 			cov(mpg) fixed(foreign)
 
@@ -456,7 +456,7 @@ qui {
         local allsave `"savecsv("${out_fldr}/`csvfile'") savexlsx("${out_fldr}/`exlfile'") savetex("${out_fldr}/`texfile'") texnotefile("${out_fldr}/`txnfile'") "'
 
 		noi iebaltab weight price , `allsave' ///
-            grpvar(tmt_cl) replace        ///
+      groupvar(tmt_cl) replace        ///
 			stats(pair(nrmb))             ///
 			cov(mpg) fixed(foreign)
 
@@ -480,7 +480,7 @@ qui {
         local allsave `"savecsv("${out_fldr}/`csvfile'") savexlsx("${out_fldr}/`exlfile'") savetex("${out_fldr}/`texfile'") texnotefile("${out_fldr}/`txnfile'") "'
 
 		noi iebaltab weight price , `allsave' ///
-            grpvar(tmt_cl) replace        ///
+      groupvar(tmt_cl) replace        ///
 			stats(pair(diff))
 
 
@@ -503,7 +503,7 @@ qui {
         local allsave `"savecsv("${out_fldr}/`csvfile'") savexlsx("${out_fldr}/`exlfile'") savetex("${out_fldr}/`texfile'") texnotefile("${out_fldr}/`txnfile'") "'
 
 		noi iebaltab weight price , `allsave' ///
-            grpvar(tmt_cl) replace        ///
+      groupvar(tmt_cl) replace        ///
 			stats(pair(beta))
 
 		* Test no regaular missing values in matrices
@@ -526,7 +526,7 @@ qui {
         local allsave `"savecsv("${out_fldr}/`csvfile'") savexlsx("${out_fldr}/`exlfile'") savetex("${out_fldr}/`texfile'") texnotefile("${out_fldr}/`txnfile'") "'
 
 		noi iebaltab weight price , `allsave' ///
-            grpvar(tmt_cl) replace        ///
+      groupvar(tmt_cl) replace        ///
 			stats(desc(var) pair(t)) vce(robust)
 
 
@@ -549,7 +549,7 @@ qui {
         local allsave `"savecsv("${out_fldr}/`csvfile'") savexlsx("${out_fldr}/`exlfile'") savetex("${out_fldr}/`texfile'") texnotefile("${out_fldr}/`txnfile'") "'
 
 		noi iebaltab weight price , `allsave' ///
-            grpvar(tmt_cl) replace        ///
+      groupvar(tmt_cl) replace        ///
 			stats(desc(sd) pair(p)) vce(bootstrap)
 
 		* Test no regaular missing values in matrices
@@ -557,7 +557,7 @@ qui {
 		mat mat2 = r(iebtab_fmat)
 		noi ie_test_mat_nomiss, mat1(mat1) mat2(mat2)
 
-	restore	
+	restore
 
 
 	/***************************************************************************
@@ -571,7 +571,7 @@ qui {
 		local texfile "iebt-tex`tnum'"
 		local txnfile "iebt-tex`tnum'-note"
         local allsave `"savecsv("${out_fldr}/`csvfile'") savexlsx("${out_fldr}/`exlfile'") savetex("${out_fldr}/`texfile'") texnotefile("${out_fldr}/`txnfile'") "'
-       
+
         set seed 542783
 
         local balvars  mpg headroom trunk weight length turn price
@@ -580,17 +580,17 @@ qui {
         }
 
 		noi iebaltab `balvars' , `allsave' ///
-            grpvar(tmt_cl) replace onerow  ///
-			stats(pair(p)) starlevels(.4 .2 .001) 
+      groupvar(tmt_cl) replace onerow  ///
+			stats(pair(p)) starlevels(.4 .2 .001)
 
 		* Test no regaular missing values in matrices
 		mat mat1 = r(iebtab_rmat)
 		mat mat2 = r(iebtab_fmat)
 		noi ie_test_mat_nomiss, mat1(mat1) mat2(mat2)
 
-	restore	
-   
-    
+	restore
+
+
     /***************************************************************************
 	  Table 23 - use all deprecated still allowed names
 	***************************************************************************/
@@ -608,12 +608,12 @@ qui {
         local balvars  mpg trunk weight turn price
         foreach balvar of local balvars {
             replace `balvar' = `balvar' * (1 - (.2 * runiform())) if tmt_cl == 1
-        }        
-        
+        }
+
 		noi iebaltab `balvars' , `allsave'   ///
-            grpvar(tmt_cl) grpcodes replace  ///
-            starsnoadd stats(pair(p))        ///
-			tbladdnote("Added note.") 
+      grpvar(tmt_cl) grpcodes replace  ///
+      starsnoadd stats(pair(p))        ///
+			tableaddnote("Added note.")
 
 		* Test no regaular missing values in matrices
 		mat mat1 = r(iebtab_rmat)
@@ -628,16 +628,16 @@ qui {
 		local exlfile "iebt-xlsx`tnum'"
 		local texfile "iebt-tex`tnum'"
         local allsave `"savecsv("${out_fldr}/`csvfile'") savexlsx("${out_fldr}/`exlfile'") savetex("${out_fldr}/`texfile'") "'
-   
-        
+
+
 		noi iebaltab `balvars' , `allsave'   ///
-            grpvar(tmt_cl) replace       ///
-            tblnonote grplabels("0 Control @ 1 Treatment")
+      grpvar(tmt_cl) replace       ///
+      tblnonote grplabels("0 Control @ 1 Treatment")
 
 		* Test no regaular missing values in matrices
 		mat mat1 = r(iebtab_rmat)
 		mat mat2 = r(iebtab_fmat)
 		noi ie_test_mat_nomiss, mat1(mat1) mat2(mat2)
 	restore
-   
+
 }
