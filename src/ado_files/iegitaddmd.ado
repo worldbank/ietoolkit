@@ -294,7 +294,7 @@ qui {
 		noi rmkdir, folder(`"`folder'"')
 
 		*Copy custom file if custom file is used
-		if !missing(`"`customfile'"') copy "`customfile'" `"`folder'/`newfilename'"', replace
+		if !missing(`"`customfiletocopy'"') copy "`customfiletocopy'" `"`folder'/`newfilename'"', replace
 		*Custom file is not used, so cretae defeault file
 		else {
 			*Create file
