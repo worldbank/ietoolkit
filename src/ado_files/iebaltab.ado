@@ -25,7 +25,7 @@
 				/*Label/notes options*/                                         ///
 				GROUPCodes GROUPLabels(string) TOTALLabel(string)               ///
         ROWVarlabels ROWLabels(string)                                  ///
-        TABLENote(string) TABLEADDNote(string) TABLENONote              ///
+        NOTEReplace(string) NOTEAppend(string) nonote                   ///
 			                                                                  ///
 				/*Export and restore*/                                          ///
 				BRowse SAVEXlsx(string) SAVECsv(string) SAVETex(string)         ///
@@ -116,12 +116,12 @@ qui {
     if missing("`grouplabels'") & !missing("`grplabels'") ///
       local grouplabels "`grplabels'"
 
-    * tblnote is now called tablenote
-    if missing("`tablenote'") & !missing("`tblnote'") ///
-      local tablenote "`tblnote'"
-    * tbladdnote is now called tableaddnote
-    if missing("`tableaddnote'") & !missing("`tbladdnote'") ///
-      local tableaddnote "`tbladdnote'"
+    * tblnote is now called notereplace
+    if missing("`notereplace'") & !missing("`tblnote'") ///
+      local notereplace "`tblnote'"
+    * tbladdnote is now called noteappend
+    if missing("`noteappend'") & !missing("`tbladdnote'") ///
+      local noteappend "`tbladdnote'"
     * tblnonote is now called nonote
     if "`note'" != "nonote" & !missing("`tblnonote'") ///
         local note "nonote"
@@ -1038,10 +1038,10 @@ qui {
 
 *******************************************************************************/
 
-	*Test if options nonote or tablenote are used
+	*Test if options nonote or notereplace are used
   * - if not generate default note
 	if "`note'" != "nonote" {
-		if missing("`tablenote'") {
+		if missing("`notereplace'") {
 			generate_note, full_user_input(`"`full_user_input'"') stats_string("`stats_string'") fix("`fixedeffect'") ///
 			fix_used("`FIX_EFFECT_USED'") covars("`covariates'") `ftest' `feqtest' ///
 			starlevels("`starlevels'") vce("`vce'") vce_type("`vce_type'") ///
@@ -1051,10 +1051,10 @@ qui {
 			 local note_to_use `"`r(table_note)'"'
 		}
 		* Use user specified note
-		else local note_to_use `"`tablenote'"'
+		else local note_to_use `"`notereplace'"'
 
-		* Add note from tableaddnote command to default note if applicable
-		if !missing("`tableaddnote'") local note_to_use `"`note_to_use' `tableaddnote'"'
+		* Add note from noteappend command to default note if applicable
+		if !missing("`noteappend'") local note_to_use `"`note_to_use' `noteappend'"'
 	}
 	*Use no note
 	else local note_to_use ""

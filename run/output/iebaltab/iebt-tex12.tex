@@ -2,7 +2,7 @@
 %%% (https://github.com/worldbank/ietoolkit)
 %%% (https://dimewiki.worldbank.org/iebaltab)
 %%% The command was specified exactly like this: 
-%%% iebaltab weight price , savecsv("C:/Users/wb462869/GitHub/ietoolkit/run/output/iebaltab/iebt-csv12") savexlsx("C:/Users/wb462869/GitHub/ietoolkit/run/output/iebaltab/iebt-xlsx12") savetex("C:/Users/wb462869/GitHub/ietoolkit/run/output/iebaltab/iebt-tex12") texnotefile("C:/Users/wb462869/GitHub/ietoolkit/run/output/iebaltab/iebt-tex12-note") groupvar(tmt_cl) replace onerow vce(cluster test_cluster_var) ftest feqtest total cov(mpg) fixed(foreign) tableaddnote("added onerow and cluster") browse
+%%% iebaltab weight price , savecsv("C:/Users/wb462869/GitHub/ietoolkit/run/output/iebaltab/iebt-csv12") savexlsx("C:/Users/wb462869/GitHub/ietoolkit/run/output/iebaltab/iebt-xlsx12") savetex("C:/Users/wb462869/GitHub/ietoolkit/run/output/iebaltab/iebt-tex12") texnotefile("C:/Users/wb462869/GitHub/ietoolkit/run/output/iebaltab/iebt-tex12-note") groupvar(tmt_cl) replace onerow vce(cluster test_cluster_var) ftest feqtest total cov(mpg) fixed(foreign) noteappend("added onerow and cluster") browse
 
 \begin{tabular}{@{\extracolsep{5pt}}lccccc}
 \\[-1.8ex]\hline \hline \\[-1.8ex]
