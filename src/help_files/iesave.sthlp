@@ -14,11 +14,10 @@ with option to save meta data report about the data saved.
 {phang2}
 {cmdab:iesave} {help using} {it: "/path/to/data.dta"},
 {opth id:vars(varlist)} {opt dta:version(version_number)} [{opt replace}
-{opt userinfo} {opt report} {opt csv} {opt reportpath("/path/to/report.md", [replace])}
-{opt noalpha}]{p_end}
+{opt userinfo} {opt report(report_options)}]{p_end}
 
 {marker opts}{...}
-{synoptset 31}{...}
+{synoptset 25}{...}
 {synopthdr:Options}
 {synoptline}
 {synopthdr:Save options}
@@ -26,12 +25,15 @@ with option to save meta data report about the data saved.
 {synopt :{opt dta:version(stata_version)}} Specify which {inp:.dta} version to use when saving{p_end}
 {synopt :{opt replace}} Replace the data file if it already exits{p_end}
 {synopt :{opt userinfo}} Include user info in meta data{p_end}
+{synopt :{opt report(report_options)}} Save a report with meta data about the data to disk. See below for opt{p_end}
 
 {synopthdr:Report options}
-{synopt :{opt report}} Save a report with meta data about the data to disk{p_end}
+{pstd}These options are only to be used inside {inp:report()}{p_end}
+{synopt :{opt path("/path/to/report.md")}} Save the report using another name and location than the data file{p_end}
+{synopt :{opt replace}} Replace report file if it already exists{p_end}
 {synopt :{opt csv}} Create the report in csv format instead of markdown{p_end}
-{synopt :{opt reportpath("/path/to/report.md")}} Save the report using another name and location than the data file{p_end}
 {synopt :{opt noalpha}} Order the variables in the report as in the data set and not alphabetically{p_end}
+
 {synoptline}
 
 {title:Description}
@@ -126,27 +128,34 @@ By default, this information is omitted for privacy reasons.
 This applies both to meta data saved to {inp:char} values and,
 when applicable, meta data saved in the report.{p_end}
 
-{dlgtab:Report options}
-
-{phang}{opt report} is used to create a report with meta data.
+{phang}{opt report(report_options)} is used to create a report with meta data.
 The default is to save the report in markdown format
 in the same location as the data file
 using the same name as the data file but with {inp:.md} as the file extension.
+See below for {it:report_options} that can be used to
+change any of the default behavior.
+Either {opt report()} or {opt report} can be used
+when keeping all default behavior.
 
-{phang}{opt csv} is used to specify that the report should be
-created in CSV format instead of markdown.
-This option is superseded and has no effect
-if the option {opt reportpath()} is also used.
+{dlgtab:Report options}
 
-{phang}{opt reportpath("/path/to/report.md", [replace])} is used to
+{pstd}These options are only to be used inside {opt report()}{p_end}
+
+{phang}{opt path("/path/to/report.md")} is used to
 specify a different file location and file name than the default.
 The file extension must be {inp:.md} or {inp:.csv}.
 If this option is used then the replace option used for the data file
 does not apply to the report file.
-If a file with the same name already exists
-in the location specified in this option,
-then the option replace needs to be used in this option as well
-(see example 3 below).
+
+{phang}{opt replace} is used to replace the report file if it already exists.
+This option only applies of the report option {opt path()} is used,
+as otherwise the replace option for the {inp:.dta} file
+also applies to the report file.
+
+{phang}{opt csv} is used to specify that the report should be
+created in CSV format instead of markdown.
+This option is superseded and has no effect
+if the option {opt path()} is also used.
 
 {phang}{opt noalpha} is used to list the variables in the tables in the report
 in the same order as the sort order of the data set.
@@ -164,7 +173,7 @@ have used {help compress} to make sure the data points are stored
 in the most memory efficient format.{p_end}
 
 {pstd}{inp:sysuse auto, clear}{break}
-{inp:local myfolder {it:"/path/to/file/"}}{break}
+{inp:local myfolder {it:"/path/to/folder"}}{break}
 {inp:iesave using {it:"`myfolder'/data1.dta"}, replace ///}{break}
 {space 2}{inp:idvars(make) dtaversion(15)}{p_end}
 
@@ -175,7 +184,7 @@ with the meta data about the data set and the variables
 to {it:"`myfolder'/data2.md"}.{p_end}
 
 {pstd}{inp:sysuse auto, clear}{break}
-{inp:local myfolder {it:"/path/to/file/"}}{break}
+{inp:local myfolder {it:"/path/to/folder"}}{break}
 {inp:iesave using {it:"`myfolder'/data2.dta"}, replace  ///}{break}
 {space 2}{inp:idvars(make) dtaversion(15) report}{p_end}
 
@@ -185,10 +194,10 @@ to {it:"`myfolder'/data2.md"}.{p_end}
 and saves it in the custom location {it:"`myfolder'/reports/data-report.csv"}.{p_end}
 
 {pstd}{inp:sysuse auto, clear}{break}
-{inp:local myfolder {it:"/path/to/file/"}}{break}
+{inp:local myfolder {it:"/path/to/folder"}}{break}
 {inp:iesave using {it:"`myfolder'/data2.dta"}, replace  ///}{break}
-{space 2}{inp:idvars(make) dtaversion(15) report{space 9}///}{break}
-{space 2}{inp:reportpath({it:"`myfolder'/reports/data-report.csv", replace})}{p_end}
+{space 2}{inp:idvars(make) dtaversion(15) {space 15}///}{break}
+{space 2}{inp:report(path({it:"`myfolder'/reports/data-report.csv")  replace})}{p_end}
 
 {title:Author}
 
