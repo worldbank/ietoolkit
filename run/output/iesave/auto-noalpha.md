@@ -18,16 +18,16 @@ This report was created by the Stata command iesave (version 6.3). Read more abo
 
 | Name | Label | Type | Complete obs | Mean | Std Dev | p0 | p25 | p50 | p75 | p100 |
 |---|---|---|---|---|---|---|---|---|---|---|
+| price | "Price" | int | 74 | 6165 | 2949 | 3291 | 4195 | 5007 | 6342 | 15906 |
+| mpg | "Mileage (mpg)" | byte | 74 | 21.3 | 5.786 | 12 | 18 | 20 | 25 | 41 |
+| rep78 | "Repair record 1978" | byte | 69 | 3.406 | .9899 | 1 | 3 | 3 | 4 | 5 |
+| headroom | "Headroom (in.)" | float | 74 | 2.993 | .846 | 1.5 | 2.5 | 3 | 3.5 | 5 |
+| trunk | "Trunk space (cu. ft.)" | byte | 74 | 13.76 | 4.277 | 5 | 10 | 14 | 17 | 23 |
+| weight | "Weight (lbs.)" | int | 74 | 3019 | 777.2 | 1760 | 2240 | 3190 | 3600 | 4840 |
+| length | "Length (in.)" | int | 74 | 187.9 | 22.27 | 142 | 170 | 192.5 | 204 | 233 |
+| turn | "Turn circle (ft.)" | byte | 74 | 39.65 | 4.399 | 31 | 36 | 40 | 43 | 51 |
 | displacement | "Displacement (cu. in.)" | int | 74 | 197.3 | 91.84 | 79 | 119 | 196 | 250 | 425 |
 | gear_ratio | "Gear ratio" | float | 74 | 3.015 | .4563 | 2.19 | 2.73 | 2.955 | 3.37 | 3.89 |
-| headroom | "Headroom (in.)" | float | 74 | 2.993 | .846 | 1.5 | 2.5 | 3 | 3.5 | 5 |
-| length | "Length (in.)" | int | 74 | 187.9 | 22.27 | 142 | 170 | 192.5 | 204 | 233 |
-| mpg | "Mileage (mpg)" | byte | 74 | 21.3 | 5.786 | 12 | 18 | 20 | 25 | 41 |
-| price | "Price" | int | 74 | 6165 | 2949 | 3291 | 4195 | 5007 | 6342 | 15906 |
-| rep78 | "Repair record 1978" | byte | 69 | 3.406 | .9899 | 1 | 3 | 3 | 4 | 5 |
-| trunk | "Trunk space (cu. ft.)" | byte | 74 | 13.76 | 4.277 | 5 | 10 | 14 | 17 | 23 |
-| turn | "Turn circle (ft.)" | byte | 74 | 39.65 | 4.399 | 31 | 36 | 40 | 43 | 51 |
-| weight | "Weight (lbs.)" | int | 74 | 3019 | 777.2 | 1760 | 2240 | 3190 | 3600 | 4840 |
 
 ## Variable type: Categorical
 

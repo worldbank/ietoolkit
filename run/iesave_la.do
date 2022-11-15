@@ -1,36 +1,55 @@
 
-do "src/ado_files/ietoolkit.ado"
-do "src/ado_files/iesave.ado"
+	do "src/ado_files/ietoolkit.ado"
+	do "src/ado_files/iesave.ado"
 
-sysuse auto, clear
+	sysuse auto, clear
 
-cap iesave "run/output/iesave/auto.dta", id(make)
-assert _rc == 101
+// Errors ----------------------------------------------------------------------
 
-iesave using "run/output/iesave/auto.dta", id(make) dtaversion(17.0) replace
-cap confirm file "run/output/iesave/auto.dta"
-assert !_rc
+	* File already exists
+	cap iesave "run/output/iesave/auto.dta", id(make) version(17.0)
+	assert _rc == 602
 
-cap iesave using "run/output/iesave/auto.dta", id(make) dtaversion(17.0)
-assert _rc == 602
+// Simple save -----------------------------------------------------------------
 
-iesave using "run/output/iesave/auto.dta", id(make) dtaversion(17.0) replace
-use "run/output/iesave/auto.dta", clear
-char list _dta[]
-assert "`r(computerid)'" == "Computer ID withheld, see option userinfo in command iesave."
-assert "`r(username)'" == "Username withheld, see option userinfo in command iesave."
+	* Save file
+	iesave "run/output/iesave/auto.dta", id(make) version(17.0) replace
+	
+	* Check data chars
+	use "run/output/iesave/auto.dta", clear
+	char list _dta[]
+	assert "`r(computerid)'" == "Computer ID withheld, see option userinfo in command iesave."
+	assert "`r(username)'" == "Username withheld, see option userinfo in command iesave."
 
-iesave using "run/output/iesave/auto-userinfo.dta", id(make) dtaversion(17.0) userinfo replace
-use "run/output/iesave/auto-userinfo.dta", clear
-assert "`r(computerid)'" != "Computer ID withheld, see option userinfo in command iesave."
-assert "`r(username)'" != "Username withheld, see option userinfo in command iesave."
+// Save + user info ------------------------------------------------------------
 
-iesave using "run/output/iesave/auto.dta", id(make) dtaversion(17.0) report replace
-iesave using "run/output/iesave/auto-userinfo.dta", id(make) dtaversion(17.0) report userinfo replace
-iesave using "run/output/iesave/auto-noalpha.dta", id(make) dtaversion(17.0) report noalpha userinfo replace
-iesave using "run/output/iesave/auto-path.dta", id(make) dtaversion(17.0) reportpath("run/output/iesave/my-path.md", replace) userinfo replace
-iesave using "run/output/iesave/auto-path-csv.dta", id(make) dtaversion(17.0) reportpath("run/output/iesave/my-path.csv", replace) userinfo replace
-iesave using "run/output/iesave/auto-paths.dta", id(make) dtaversion(17.0) reportpath("run/output/iesave/my-paths.csv", replace) userinfo replace
+	* Save
+	iesave "run/output/iesave/auto-userinfo.dta", id(make) version(17.0) userinfo replace
+	
+	* Check data chars
+	use "run/output/iesave/auto-userinfo.dta", clear
+	assert "`r(computerid)'" != "Computer ID withheld, see option userinfo in command iesave."
+	assert "`r(username)'" 	 != "Username withheld, see option userinfo in command iesave."
 
+// Report ----------------------------------------------------------------------
 
-iesave using "run/output/iesave/auto-csv.dta", id(make) dtaversion(17.0) csv report replace
+	* Simple report
+	iesave "run/output/iesave/auto.dta", id(make) version(17.0) report replace
+	iesave "run/output/iesave/auto.dta", id(make) version(17.0) report() replace
+	
+	* Report with user info
+	iesave "run/output/iesave/auto-userinfo.dta", id(make) version(17.0) report userinfo replace
+	
+	* Report with user info and data order
+	iesave "run/output/iesave/auto-noalpha.dta", id(make) version(17.0) report(noalpha) userinfo replace
+	
+	* Report with user info and path
+	iesave "run/output/iesave/auto-path.dta", id(make) version(17.0) report(path("run/output/iesave/my-path.md")) userinfo replace
+	
+	* Report with csv path
+	iesave "run/output/iesave/auto-path-csv.dta", id(make) version(17.0) report(path("run/output/iesave/my-path.csv")) userinfo replace
+	
+	* Report with csv without path
+	iesave "run/output/iesave/auto-csv.dta", id(make) version(17.0) report(csv) replace
+
+************************************************************************ The end.
