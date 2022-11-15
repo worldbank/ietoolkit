@@ -25,7 +25,7 @@
 				/*Label/notes options*/                                         ///
 				GROUPCodes GROUPLabels(string) TOTALLabel(string)               ///
         ROWVarlabels ROWLabels(string)                                  ///
-        NOTEReplace(string) NOTEAppend(string) nonote                   ///
+        addnote(string) nonote                                          ///
 			                                                                  ///
 				/*Export and restore*/                                          ///
 				BRowse SAVEXlsx(string) SAVECsv(string) SAVETex(string)         ///
@@ -37,15 +37,14 @@
 				texcolwidth(string)                                             ///
 				                                                                ///
         /*Deprecated names: still allowed for backward compatibility*/  ///
-        GRPCodes GRPLabels(string) STARSNOadd                           ///
-        TBLNONote TBLNote(string) TBLADDNote(string)                    ///
+        GRPCodes GRPLabels(string) STARSNOadd TBLNONote                 ///
                                                                         ///
 				/* Deprecated options - still included to throw                 ///
 				helpful error if ever used */                                   ///
 				SAVEBRowse SAVE(string) BALMISS(string) BALMISSReg(string)      ///
 				COVMISS(string) COVMISSReg(string) MISSMINmean(string)          ///
 				COVARMISSOK FMissok NOTtest	fnoobs NORMDiff STDev PTtest        ///
-				PFtest PBoth NOTECombine texvspace(string)                     ///
+				PFtest PBoth NOTECombine texvspace(string) TBLNote(string)      ///
 				]
 
   local full_user_input = "iebaltab " + trim(itrim(`"`0'"'))
@@ -116,12 +115,6 @@ qui {
     if missing("`grouplabels'") & !missing("`grplabels'") ///
       local grouplabels "`grplabels'"
 
-    * tblnote is now called notereplace
-    if missing("`notereplace'") & !missing("`tblnote'") ///
-      local notereplace "`tblnote'"
-    * tbladdnote is now called noteappend
-    if missing("`noteappend'") & !missing("`tbladdnote'") ///
-      local noteappend "`tbladdnote'"
     * tblnonote is now called nonote
     if "`note'" != "nonote" & !missing("`tblnonote'") ///
         local note "nonote"
@@ -151,12 +144,16 @@ qui {
 			di as error `"{pstd}The options {input:nottest}, {input:normdiff}, {input:pttest}, {input:pftest}, {input:pboth} and {input:stdev} have been deprecated as of version 7 of iebaltab. See if the option {input:stats()} has the functionality you need. `old_version_guide'{p_end}"'
 			error 198
 		}
-		if !missing("`notecombine'`fnoobs'") {
-			di as error `"{pstd}The option {input:notecombine} and {input:fnoobs} has been deprecated as of version 7 of iebaltab. See the {help iebaltab} help file for more information. `old_version_guide'{p_end}"'
+		if !missing("`fnoobs'") {
+			di as error `"{pstd}The option {input:fnoobs} has been deprecated as of version 7 of iebaltab. See the {help iebaltab} help file for more information. `old_version_guide'{p_end}"'
 			error 198
 		}
     if !missing("`texvspace'") {
       di as error `"{pstd}The option {input:texvspace} has been deprecated as of version 7 of iebaltab. See the {help iebaltab} help file for more information. `old_version_guide'{p_end}"'
+      error 198
+    }
+    if !missing("`notecombine'`tblnote'") {
+      di as error `"{pstd}The options {input:tblnote} and {input:notecombine} have been deprecated as of version 7 of iebaltab. See the {help iebaltab} for the options {opt addnote()} and {opt nonote} that has replaced this option. `old_version_guide'{p_end}"'
       error 198
     }
 
@@ -445,8 +442,8 @@ qui {
 		if !missing("`texnotefile'") {
 
       * texnotefile cannot be used if nonote is also used
-      if "`note'" == "nonote" {
-        noi display as error `"{phang}The option {inp:texnotefile()} cannot be used if the option {inp:nonote} is also used.{p_end}"'
+      if "`note'" == "nonote" & missing(`"`addnote'"') {
+        noi display as error `"{phang}The option {inp:texnotefile()} cannot be used if the option {inp:nonote} is used without the option {opt addnote()}.{p_end}"'
         error 198
       }
 
@@ -1041,24 +1038,20 @@ qui {
 	*Test if options nonote or notereplace are used
   * - if not generate default note
 	if "`note'" != "nonote" {
-		if missing("`notereplace'") {
-			generate_note, full_user_input(`"`full_user_input'"') stats_string("`stats_string'") fix("`fixedeffect'") ///
+
+	  generate_note, full_user_input(`"`full_user_input'"')   ///
+      stats_string("`stats_string'") fix("`fixedeffect'")  ///
 			fix_used("`FIX_EFFECT_USED'") covars("`covariates'") `ftest' `feqtest' ///
 			starlevels("`starlevels'") vce("`vce'") vce_type("`vce_type'") ///
 			clustervar("`cluster_var'")             ///
 			weight_type("`weight_type'") weight_var("`weight_var'")
-
-			 local note_to_use `"`r(table_note)'"'
-		}
-		* Use user specified note
-		else local note_to_use `"`notereplace'"'
-
-		* Add note from noteappend command to default note if applicable
-		if !missing("`noteappend'") local note_to_use `"`note_to_use' `noteappend'"'
+		local note_to_use `"`r(table_note)' "'
 	}
 	*Use no note
 	else local note_to_use ""
 
+  * Add note from noteappend command to default note if applicable
+  if !missing(`"`addnote'"') local note_to_use `"`note_to_use'`addnote'"'
 
 
 /*******************************************************************************

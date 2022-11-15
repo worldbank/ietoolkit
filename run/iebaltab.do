@@ -105,7 +105,7 @@ qui {
 			savetex("${out_fldr}/`texfile'") ///
 			cov(mpg) fixed(foreign)          ///
 			texcolwidth(4cm)  ///
-			noteappend("Options used: texcolwidth(3cm) short first column ")
+			addnote("Options used: texcolwidth(3cm) short first column ")
 
 		* Test no regaular missing values in matrices
 		mat mat1 = r(iebtab_rmat)
@@ -172,7 +172,7 @@ qui {
       groupvar(tmt) replace                     ///
 			ftest feqtest total rowvarlabels        ///
 			cov(mpg) fixed(foreign)                 ///
-			noteappend("Many groups, rowvarlabels")
+			addnote("Many groups, rowvarlabels")
 
 		* Test no regaular missing values in matrices
 		mat mat1 = r(iebtab_rmat)
@@ -196,7 +196,7 @@ qui {
       groupvar(tmt) replace                       ///
 			total order(4 10231) control(6) groupcodes  ///
 			cov(mpg) fixed(foreign)                   ///
-			noteappend("column order should be 4 10231 6 2, and 6 is control so pair test only with this group")
+			addnote("column order should be 4 10231 6 2, and 6 is control so pair test only with this group")
 
 		* Test no regaular missing values in matrices
 		mat mat1 = r(iebtab_rmat)
@@ -225,7 +225,7 @@ qui {
 			grouplabels(`"6 Quotes, and comma "," @ 4 Pizza & Pineapple (USD$) "') ///
 			totallabel("Total single ' quote") cov(mpg) fixed(foreign)           ///
       rowlabels(`"price St*r and sub _script @ headroom Headroom "Height" quote "') ///
-			noteappend("Row column manual ($) lables.")
+			addnote("Row column manual ($) lables.")
 
 		* Test no regaular missing values in matrices
 		mat mat1 = r(iebtab_rmat)
@@ -257,7 +257,7 @@ qui {
       groupvar(tmt_cl) replace        ///
 			ftest feqtest                 ///
 			cov(mpg) fixed(foreign)       ///
-			noteappend("Warning for missing value in fixedeffect(foreign) and in covariates(mpg)")
+			addnote("Warning for missing value in fixedeffect(foreign) and in covariates(mpg)")
 
 		* Expected outcome: Warning for missing value in
 		* fixedeffect(foreign) and in covariates(mpg), but no warning for weight
@@ -286,7 +286,7 @@ qui {
 			vce(cluster test_cluster_var) ///
 			ftest feqtest total           ///
 			cov(mpg) fixed(foreign)       ///
-			noteappend("added cluster")
+			addnote("added cluster")
 
 		* Test no regaular missing values in matrices
 		mat mat1 = r(iebtab_rmat)
@@ -311,7 +311,7 @@ qui {
       groupvar(tmt_cl) replace        ///
 			onerow                        ///
 			cov(mpg) fixed(foreign)       ///
-			noteappend("added onerow")
+			addnote("added onerow")
 
 		* Test no regaular missing values in matrices
 		mat mat1 = r(iebtab_rmat)
@@ -338,7 +338,7 @@ qui {
 			onerow vce(cluster test_cluster_var) ///
 			ftest feqtest total                  ///
 			cov(mpg) fixed(foreign)              ///
-			noteappend("added onerow and cluster") browse
+			addnote("added onerow and cluster") browse
 
 		* Test no regaular missing values in matrices
 		mat mat1 = r(iebtab_rmat)
@@ -596,12 +596,11 @@ qui {
 	***************************************************************************/
 	preserve
 
-		local tnum 23a
+		local tnum 23
 		local csvfile "iebt-csv`tnum'"
 		local exlfile "iebt-xlsx`tnum'"
 		local texfile "iebt-tex`tnum'"
-		local txnfile "iebt-tex`tnum'-note"
-        local allsave `"savecsv("${out_fldr}/`csvfile'") savexlsx("${out_fldr}/`exlfile'") savetex("${out_fldr}/`texfile'") texnotefile("${out_fldr}/`txnfile'") "'
+        local allsave `"savecsv("${out_fldr}/`csvfile'") savexlsx("${out_fldr}/`exlfile'") savetex("${out_fldr}/`texfile'")"'
 
         set seed 542783
 
@@ -610,69 +609,48 @@ qui {
             replace `balvar' = `balvar' * (1 - (.2 * runiform())) if tmt_cl == 1
         }
 
-		noi iebaltab `balvars' , `allsave'   ///
+		noi iebaltab `balvars' , `allsave' ///
           grpvar(tmt_cl) grpcodes replace  ///
           starsnoadd stats(pair(p))        ///
-          tbladdnote("Added note.")
+          tblnonote grplabels("0 Control @ 1 Treatment")
 
 		* Test no regaular missing values in matrices
 		mat mat1 = r(iebtab_rmat)
 		mat mat2 = r(iebtab_fmat)
 		noi ie_test_mat_nomiss, mat1(mat1) mat2(mat2)
 	restore
-
-	preserve
-
-		local tnum 23b
-		local csvfile "iebt-csv`tnum'"
-		local exlfile "iebt-xlsx`tnum'"
-		local texfile "iebt-tex`tnum'"
-        local allsave `"savecsv("${out_fldr}/`csvfile'") savexlsx("${out_fldr}/`exlfile'") savetex("${out_fldr}/`texfile'") "'
-
-
-		noi iebaltab `balvars' , `allsave' replace  ///
-          grpvar(tmt_cl) tblnonote grplabels("0 Control @ 1 Treatment")
-
-		* Test no regaular missing values in matrices
-		mat mat1 = r(iebtab_rmat)
-		mat mat2 = r(iebtab_fmat)
-		noi ie_test_mat_nomiss, mat1(mat1) mat2(mat2)
-	restore
-
-    
     
      /***************************************************************************
-	  Table 24 - noteoptions
+	  Table 24 - testing nonote beahvior
 	***************************************************************************/
-	preserve
+
+    preserve
 
 		local tnum 24a
-		local csvfile "iebt-csv`tnum'"
-		local exlfile "iebt-xlsx`tnum'"
-		local texfile "iebt-tex`tnum'"
-		local txnfile "iebt-tex`tnum'-note"
-        local allsave `"savecsv("${out_fldr}/`csvfile'") savexlsx("${out_fldr}/`exlfile'") savetex("${out_fldr}/`texfile'") texnotefile("${out_fldr}/`txnfile'") "'
-
-		noi iebaltab weight , `allsave' replace groupvar(tmt_cl)   ///
-           notereplace("replaced note")
-
-		* Test no regaular missing values in matrices
-		mat mat1 = r(iebtab_rmat)
-		mat mat2 = r(iebtab_fmat)
-		noi ie_test_mat_nomiss, mat1(mat1) mat2(mat2)
-	restore
-
-	preserve
-
-		local tnum 24b
 		local csvfile "iebt-csv`tnum'"
 		local exlfile "iebt-xlsx`tnum'"
 		local texfile "iebt-tex`tnum'"
         local txnfile "iebt-tex`tnum'-note"
         local allsave `"savecsv("${out_fldr}/`csvfile'") savexlsx("${out_fldr}/`exlfile'") texnotefile("${out_fldr}/`txnfile'")  savetex("${out_fldr}/`texfile'") "'
 
-		noi iebaltab weight , `allsave' replace groupvar(tmt_cl)   ///
-          nonote
+		noi iebaltab weight , `allsave' replace groupvar(tmt_cl) ///
+          nonote addnote(`"added a "tricky" note"')
+
+		* Test no regaular missing values in matrices
+		mat mat1 = r(iebtab_rmat)
+		mat mat2 = r(iebtab_fmat)
+		noi ie_test_mat_nomiss, mat1(mat1) mat2(mat2)
+	restore
+    
+	preserve
+
+		local tnum 24b
+		local csvfile "iebt-csv`tnum'"
+		local exlfile "iebt-xlsx`tnum'"
+		local texfile "iebt-tex`tnum'"
+        local allsave `"savecsv("${out_fldr}/`csvfile'") savexlsx("${out_fldr}/`exlfile'") savetex("${out_fldr}/`texfile'") "'
+
+		noi iebaltab weight , `allsave' replace groupvar(tmt_cl) nonote
 
 		* Test no regaular missing values in matrices
 		mat mat1 = r(iebtab_rmat)
