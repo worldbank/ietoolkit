@@ -31,15 +31,18 @@
     ie_recurse_mkdir, folder("`report_folder'")
  
     * Only include the version your Stata version can run
-	if 			`c(stata_version)' < 13 local stata_versions 12
+	if 		`c(stata_version)' < 13 local stata_versions 12
 	else if `c(stata_version)' < 14 local stata_versions 12 13
 	else                            local stata_versions 12 13 14
 
 
-    * most basic case for quick testing
+    * most basic case for quick testing - with and without path in ""
     sysuse auto, clear
-    iesave using "${runoutput}/iesave/basic.dta", 	///
+    iesave ${runoutput}/iesave/basic, 	///
         idvars(make) version(13.1)
+    sysuse auto, clear
+    iesave "${runoutput}/iesave/basic.dta", 	///
+        idvars(make) version(13.1) replace
     
  
 	foreach stata_ver of local stata_versions {
@@ -62,7 +65,7 @@
 
 		* single id
 		sysuse auto, clear
-		iesave using "`version_folder'/id_1.dta", 	///
+		iesave "`version_folder'/id_1.dta", 	///
 			idvars(make) version(`stata_ver') 						///
 			                    ///
 			replace
@@ -79,7 +82,7 @@
 		* idvars list
 		sysuse auto, clear
 	    gen id = make
-		iesave using "`version_folder'/id_2.dta", 	///
+		iesave "`version_folder'/id_2.dta", 	///
 			idvars(make id) 											///
 			version(`stata_ver') 							///
 			replace
@@ -91,7 +94,7 @@
 		sysuse auto, clear
 		gen id = _n if _n != 74
 
-		cap iesave using "`version_folder'/err_id_1.dta", 	///
+		cap iesave "`version_folder'/err_id_1.dta", 	///
 			idvars(id) replace 														///
 			version(`stata_ver')
 		assert _rc == 459
@@ -103,7 +106,7 @@
 		replace id = 8 in 11
 		replace id = 8 in 21
 
-		cap iesave using "`version_folder'/err_id_2.dta", 	///
+		cap iesave "`version_folder'/err_id_2.dta", 	///
 			idvars(id) replace												///
 			version(`stata_ver')
 		assert _rc == 459
@@ -113,7 +116,7 @@
 		*********************/
 
 		sysuse auto, clear
-		iesave using "`version_folder'/user_1.dta",	///
+		iesave "`version_folder'/user_1.dta",	///
 			idvars(make) replace										///
 			version(`stata_ver')
 
@@ -138,26 +141,26 @@
 		*****************
 		* idvars and version required options
 		sysuse auto, clear
-		cap iesave using "`version_folder'/err_syntax_1.dta"
+		cap iesave "`version_folder'/err_syntax_1.dta"
 		assert _rc == 198
 
 		sysuse auto, clear
-		cap iesave using "`version_folder'/err_syntax_2.dta", version(`stata_ver')
+		cap iesave "`version_folder'/err_syntax_2.dta", version(`stata_ver')
 		assert _rc == 198
 
 		sysuse auto, clear
-		cap iesave using "`version_folder'/err_syntax_3.dta", idvars(make)
+		cap iesave "`version_folder'/err_syntax_3.dta", idvars(make)
 		assert _rc == 198
 
 
 	  *****************
 		* incorrect .dta version value
-		cap iesave using "`version_folder'/err_syntax_4.dta", idvars(make) version(18)
+		cap iesave "`version_folder'/err_syntax_4.dta", idvars(make) version(18)
 		assert _rc == 198
 
 		*****************
 		* reportreplace may only be used with varreport
-		cap iesave using "`version_folder'/err_syntax_5.dta", ///
+		cap iesave "`version_folder'/err_syntax_5.dta", ///
 			idvars(make) version(`stata_ver') 		///
 			reportreplace
 		assert _rc == 198
@@ -173,7 +176,7 @@
 		sysuse auto, clear
 
 		*1. Run iesave
-		iesave using "`version_folder'/char_1.dta", ///
+		iesave "`version_folder'/char_1.dta", ///
 			idvars(make) version(`stata_ver') replace userinfo
 
 		*Add these files to list of expected files
@@ -215,7 +218,7 @@
 		sysuse auto, clear
 		drop if trunk > 22
 		drop displacement
-		iesave using "`version_folder'/char_2.dta", ///
+		iesave "`version_folder'/char_2.dta", ///
 			idvars(make) version(`stata_ver') replace userinfo
 
 		*Add these files to list of expected files
@@ -267,13 +270,13 @@
     lab var mpg "Milage , mpg"
 	
     * Use defaults
-    iesave using "`report_folder'/auto_defualt_v`stata_ver'.dta", ///
+    iesave "`report_folder'/auto_defualt_v`stata_ver'.dta", ///
 		idvars(make) ///
 		version(`stata_ver') ///
         report
 
     * Use defaults but with csv and userinfo
-    iesave using "`report_folder'/auto_csv_v`stata_ver'.dta", ///
+    iesave "`report_folder'/auto_csv_v`stata_ver'.dta", ///
 		idvars(make) userinfo  ///
 		version(`stata_ver') ///
         report(csv)
@@ -282,7 +285,7 @@
     local userlocation "`report_folder'/userlocation"
     ie_recurse_mkdir, folder("`userlocation'")
 	
-	iesave using "`report_folder'/auto_location_v`stata_ver'.dta", ///
+	iesave "`report_folder'/auto_location_v`stata_ver'.dta", ///
 		idvars(make) ///
 		version(`stata_ver') ///
 		userinfo ///
@@ -294,13 +297,13 @@
     
     * Default location
 	sysuse auto, clear
-	iesave using "`report_folder'/report_replace.dta", ///
+	iesave "`report_folder'/report_replace.dta", ///
 		idvars(make) ///
 		version(13) ///
 		report `debug' 
 
 	sysuse auto, clear
-	iesave using "`report_folder'/report_replace.dta", ///
+	iesave "`report_folder'/report_replace.dta", ///
 		idvars(make) ///
 		version(13.1) ///
 		replace ///
@@ -309,14 +312,14 @@
 
     * User specified location
 	sysuse auto, clear
-	iesave using "`report_folder'/reportpath_replace.dta", ///
+	iesave "`report_folder'/reportpath_replace.dta", ///
 		idvars(make) ///
 		version(13) ///
         report(path("`report_folder'/reportpath_replace.csv")) ///
 		`debug' 
 
 	sysuse auto, clear
-	iesave using "`report_folder'/reportpath_replace.dta", ///
+	iesave "`report_folder'/reportpath_replace.dta", ///
 		idvars(make) ///
 		version(13) ///
         report(path("`report_folder'/reportpath_replace.csv") replace) ///

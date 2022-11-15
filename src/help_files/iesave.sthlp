@@ -12,7 +12,7 @@ with option to save meta data report about the data saved.
 {title:Syntax}
 
 {phang2}
-{cmdab:iesave} {help using} {it: "/path/to/data.dta"},
+{cmdab:iesave} {help filename},
 {opth id:vars(varlist)} {opt dta:version(version_number)} [{opt replace}
 {opt userinfo} {opt report(report_options)}]{p_end}
 
@@ -166,15 +166,15 @@ The default is to sort the variables alphabetically.
 {pstd}{bf:{ul:Example 1}}{p_end}
 
 {pstd}This is the most basic usage of {cmd:iesave}.
-Specified like this, it saves the data set to the path in
-{it:using} after it has checked that the variable {inp:make} is
+Specified like this, it saves the data set
+after it has checked that the variable {inp:make} is
 uniquely and fully identifying the data and
 have used {help compress} to make sure the data points are stored
 in the most memory efficient format.{p_end}
 
 {pstd}{inp:sysuse auto, clear}{break}
 {inp:local myfolder {it:"/path/to/folder"}}{break}
-{inp:iesave using {it:"`myfolder'/data1.dta"}, replace ///}{break}
+{inp:iesave {it:"`myfolder'/data1.dta"}, replace ///}{break}
 {space 2}{inp:idvars(make) dtaversion(15)}{p_end}
 
 {pstd}{bf:{ul:Example 2}}{p_end}
@@ -185,7 +185,7 @@ to {it:"`myfolder'/data2.md"}.{p_end}
 
 {pstd}{inp:sysuse auto, clear}{break}
 {inp:local myfolder {it:"/path/to/folder"}}{break}
-{inp:iesave using {it:"`myfolder'/data2.dta"}, replace  ///}{break}
+{inp:iesave {it:"`myfolder'/data2.dta"}, replace  ///}{break}
 {space 2}{inp:idvars(make) dtaversion(15) report}{p_end}
 
 {pstd}{bf:{ul:Example 3}}{p_end}
@@ -195,7 +195,7 @@ and saves it in the custom location {it:"`myfolder'/reports/data-report.csv"}.{p
 
 {pstd}{inp:sysuse auto, clear}{break}
 {inp:local myfolder {it:"/path/to/folder"}}{break}
-{inp:iesave using {it:"`myfolder'/data2.dta"}, replace  ///}{break}
+{inp:iesave {it:"`myfolder'/data2.dta"}, replace  ///}{break}
 {space 2}{inp:idvars(make) dtaversion(15) {space 15}///}{break}
 {space 2}{inp:report(path({it:"`myfolder'/reports/data-report.csv")  replace})}{p_end}
 

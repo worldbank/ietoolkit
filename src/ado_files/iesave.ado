@@ -3,7 +3,7 @@
 capture program drop iesave
 		program      iesave , rclass
 
-	syntax using/,           ///
+	syntax anything,           ///
 		/* Required options */ ///
         IDvars(varlist)    ///
         Version(string)    ///
@@ -19,25 +19,31 @@ capture program drop iesave
         debug              ///
 		]
 
-    * "report(string)"" overwrites "report" - but we want to allow the user to
-    * specify report should be generated with all default settings by passing "report" or "report()". This code does that
-    local lsyntx `"`0'"'
-    if missing(`"`report'"') {
-        gettoken lusing loptions : lsyntx , parse(",")
-        tokenize `"`loptions'"'
-        local token_num = 1
-        while `"``token_num''"' !=  "" {
-          if inlist(`"``token_num''"',"report","report()") local report "report"
-          local ++token_num
-        }
+  noi di `"`anything'"'
+
+  * Standardize usage of double quotes
+	if substr(`"`anything'"', 1, 1) == `"""' local dta_path_raw `anything'
+	else local dta_path_raw "`anything'"
+
+  * "report(string)"" overwrites "report" - but we want to allow the user to
+  * specify report should be generated with all default settings
+  * by passing "report" or "report()". This code does that
+  local lsyntx `"`0'"'
+  if missing(`"`report'"') {
+    gettoken lpath loptions : lsyntx , parse(",")
+    tokenize `"`loptions'"'
+    local token_num = 1
+    while `"``token_num''"' !=  "" {
+      if inlist(`"``token_num''"',"report","report()") local report "report"
+      local ++token_num
     }
+  }
 
-	  *Save the three possible user settings before setting
-	  * is standardized for this command
-	  local version_char "c(stata_version):`c(stata_version)' c(version):`c(version)' c(userversion):`c(userversion)'"
+	*Save the three possible user settings before setting
+	* is standardized for this command
+	local version_char "c(stata_version):`c(stata_version)' c(version):`c(version)' c(userversion):`c(userversion)'"
 
-	  version 12
-
+	version 12
 
 /*******************************************************************************
 	Test input
@@ -97,28 +103,29 @@ qui {
   * save file path input test
 
   * Standardize save file path
-  local using = subinstr(`"`using'"',"\","/",.)
+  local dta_path = subinstr("`dta_path_raw'","\","/",.)
 
   *Get the save file extension
-  local fileext = substr(`"`using'"',strlen(`"`using'"')-strpos(strreverse(`"`using'"'),".")+1,.)
+  local fileext = substr("`dta_path'",strlen("`dta_path'") - ///
+    strpos(strreverse("`dta_path'"),".")+1,.)
 
-  * If no save file extension was used, then add .dta to "`using'"
-  if "`fileext'" == "" local using  "`using'.dta"
+  * If no save file extension was used, then add .dta to "`dta_path'"
+  if "`fileext'" == "" local dta_path  "`dta_path'.dta"
 * Check if the save file extension is the correct
   else if "`fileext'" != ".dta" {
-	  noi di as error `"{phang}The data file must include the extension [.dta]. The file extension [`fileext'] is not allowed.{p_end}"'
+	  noi di as error `"{phang}The data file used in [`dta_path_raw'] may only use the file extension [.dta]. The file extension [`fileext'] is not allowed.{p_end}"'
 	  error 198
   }
 
 	*Confirm the file path is correct
-	cap confirm new file `using'
+	cap confirm new file `dta_path'
 	if (_rc == 603) {
-        noi di as error `"{phang}The data file path used in [`using'] does not exist.{p_end}"'
+        noi di as error `"{phang}The data file path used in [`dta_path_raw'] does not exist.{p_end}"'
         error 601
 	}
 	*Test if replace is used if the file already exist
 	else if (_rc == 602) & missing("`replace'") {
-    noi di as error `"{phang}The data file [`using'] already exists. Use the option [replace] if you want to overwrite the data.{p_end}"'
+    noi di as error `"{phang}The data file [`dta_path_raw'] already exists. Use the option [replace] if you want to overwrite the data.{p_end}"'
     error 602
   }
 
@@ -126,7 +133,7 @@ qui {
 	***************
 	* Report input tests
 
-  parse_report_option using `using' , `report'
+  parse_report_option , dta_path("`dta_path'") `report'
   local report `r(r_report)'
   local r_path `r(r_path)'
   local r_ext `r(r_ext)'
@@ -260,19 +267,19 @@ qui {
 *******************************************************************************/
 
 	*Stata 12.X just save as normal - "< 13" to cover both 12.0 and 12.1
-	if `c(stata_version)' < 13 save "`using'" , `replace'
+	if `c(stata_version)' < 13 save "`dta_path'" , `replace'
 
 	*Stata 13, 12.1 just save as normal
 	else if `c(stata_version)' < 14 { // "< 14" to cover both 13.0 and 13.1
 		*if version() is 12 then use save old otherwise use regular old
-		if `dtaversion' == 12 saveold "`using'" , `replace'
-		else                   save    "`using'" , `replace'
+		if `dtaversion' == 12 saveold "`dta_path'" , `replace'
+		else                   save   "`dta_path'" , `replace'
 	}
 	*For all Stata newver than 13.X use saveold for all versions as it
 	*handles the cases when saving in the same version makes saveold redundant
-	else saveold "`using'" , `replace' v(`dtaversion')
+	else saveold "`dta_path'" , `replace' v(`dtaversion')
 
-	noi di `"{phang}Data saved in .dta version `dtaversion' at {browse `"`using'"':`using'}{p_end}"'
+	noi di `"{phang}Data saved in .dta version `dtaversion' at {browse "`dta_path'":`dta_path'}{p_end}"'
 
 /*******************************************************************************
 		returned values
@@ -306,7 +313,7 @@ end
 cap program drop parse_report_option
     program      parse_report_option , rclass
 
-    syntax using , [report path(string) csv replace noalpha]
+    syntax , dta_path(string) [report path(string) csv replace noalpha]
 
     *Is report used in any shape or form report, report(), report()
     if !missing(`"`report'`path'`csv'`alpha'"') {
@@ -326,8 +333,7 @@ cap program drop parse_report_option
             else                 local ext ".md"
 
             * Use same path as for dta file, but with report extension
-            local dta_path = subinstr(`"`using'"',"using ","",1)
-            return local r_path = subinstr(`"`dta_path'"',".dta","`ext'",1)
+            return local r_path = subinstr("`dta_path'",".dta","`ext'",1)
             * If replace not used, then use whatever is used for dta file
             if missing("`replace'") return local r_replace "use_dta_replace"
             else                    return local r_replace "`replace'"
@@ -362,7 +368,7 @@ cap program drop parse_report_option
             }
 
             * Path is tested and ok
-            return local r_path = `"`path'"'
+            return local r_path = `"`pathstd'"'
             return local r_replace "`replace'"
             *Return file extension
             return local r_ext "`pathext'"
