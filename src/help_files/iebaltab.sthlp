@@ -15,7 +15,7 @@ command please see the {browse "https://dimewiki.worldbank.org/wiki/Iebaltab":DI
 
 {phang2}
 {cmd:iebaltab} {it:balancevarlist} [{help if:if}] [{help in:in}] [{help weight}]
-, {opt grpv:ar(varname)} [
+, {opt group:var(varname)} [
 {it:{help iebaltab##columnrowoptions:columnrow_options}}
 {it:{help iebaltab##estimateoptions:estimation_options}}
 {it:{help iebaltab##statoptions:stat_display_options}}
@@ -25,7 +25,7 @@ command please see the {browse "https://dimewiki.worldbank.org/wiki/Iebaltab":DI
 ]
 
 {phang2}where {it:balancevarlist} is one or several continuous or binary variables (from here on called balance variables) for which the command
-will test for differences across the categories in {opt grpvar(varname)}.
+will test for differences across the categories in {opt groupvar(varname)}.
 
 {marker opts}{...}
 {synoptset 22}{...}
@@ -33,7 +33,7 @@ will test for differences across the categories in {opt grpvar(varname)}.
 {synoptline}
 {pstd}{it:    {ul:{hi:Required options:}}}{p_end}
 
-{synopt :{opth grpv:ar(varname)}}Variable indicating the groups (ex. treatment arms) to test across{p_end}
+{synopt :{opth group:var(varname)}}Variable indicating the groups (ex. treatment arms) to test across{p_end}
 
 {pstd}{it:    {ul:{hi:Optional options}}}{p_end}
 
@@ -56,19 +56,18 @@ will test for differences across the categories in {opt grpvar(varname)}.
 {synopthdr:Stat display options}
 {synopt :{cmd:stats(}{it:{help iebaltab##statstr:stats_string}}{cmd:)}}Specify which statistics to display in the tables. See options for {it:stats_string} below{p_end}
 {synopt :{opth star:levels(numlist)}}Manually set the three significance levels used for significance stars{p_end}
-{synopt :{opt starsno:add}}Do not add any stars to the table{p_end}
+{synopt :{opt nostar:s}}Do not add any stars to the table{p_end}
 {synopt :{opth form:at(format:%fmt)}}Apply Stata formats to the non-integer values outputted in the table{p_end}
 
 {marker labeloptions}{...}
 {synopthdr:Label/notes options}
-{synopt :{opt grpc:odes}}Use the values in the {opt grpvar()} variable as column titles. Default is to use value labels if any{p_end}
-{synopt :{opt grpl:abels(codetitles)}}Manually set the group column titles. See details on {it:codetitles} below{p_end}
+{synopt :{opt groupc:odes}}Use the values in the {opt groupvar()} variable as column titles. Default is to use value labels if any{p_end}
+{synopt :{opt groupl:abels(codetitles)}}Manually set the group column titles. See details on {it:codetitles} below{p_end}
 {synopt :{opt totall:abel(string)}}Manually set the title of the total column{p_end}
 {synopt :{opt rowv:arlabels}}Use the variable labels instead of variable name as row titles{p_end}
 {synopt :{opt rowl:abels(nametitles)}}Manually set the row titles. See details on {it:nametitles} below{p_end}
-{synopt :{opt tbln:ote(string)}}Replace the default note at the bottom of the table{p_end}
-{synopt :{opt tbladdn:ote(string)}}Add note to the default note at the bottom of the table{p_end}
-{synopt :{opt tblnon:ote}}Suppresses any note at the bottom of the table{p_end}
+{synopt :{opt nonote}}Suppress the default not at the bottom of the table{p_end}
+{synopt :{opt addnotes(string)}}Add a manual note to the bottom of the table{p_end}
 
 {marker exportoptions}{...}
 {synopthdr:Export options}
@@ -93,7 +92,7 @@ will test for differences across the categories in {opt grpvar(varname)}.
 
 {pstd}{cmd:iebaltab} is a command that generates balance tables (difference-in-means tables).
 The command tests for statistically significant difference in the balance variables between
-the categories defined in the {opt grpvar(varname)}. The command can either test one control group
+the categories defined in the {opt groupvar(varname)}. The command can either test one control group
 against all other groups, using the {opt control(groupcode)} option,
 or test all groups against each other (the default). The command also allows for
 fixed effects, covariates and different types of variance estimators.{p_end}
@@ -104,19 +103,22 @@ generate an error but will be treated like a continuous variable
 which is most likely statistically invalid.
 Consider converting each category to binary variables.{p_end}
 
-{pstd}The command also attaches notes to the bottom of the table that
-documents how the command was specified when the table was generated.
-This automatic note is meant to be used during explorative analysis only and eventually
-be replaced with a manual note suitable for publication using {opt tblnote(string)}.{p_end}
+{pstd}The command can also add a note to the bottom of the table.
+The default note is not meant to be included in the final publication.
+It includes technical information about how the command was specified.
+This is helpful in the early stage of research where several specifications
+are often explored, but should be replace with a more human readable note
+in the final version.{p_end}
 
-{pstd}How all statistics has bee generated has carefully been documented in the
-{help iebaltab##est_defs:estimation/statistics definitions} section below.
+{pstd}See the {help iebaltab##est_defs:estimation/statistics definitions}
+section below for a detailed documentation of what statistics this command
+calculates and how they are calculated.{p_end}
 
 {title:Options (detailed descriptions)}
 
 {pstd}{it:{ul:{hi:Required options:}}}{p_end}
 
-{phang}{opth grpv:ar(varname)} specifies the variable indicating groups
+{phang}{opth group:var(varname)} specifies the variable indicating groups
 (for example treatment arms) across which the command will
 test for difference in mean of the balance variable.
 The group variable can only be one variable and
@@ -131,7 +133,7 @@ Observations with missing values in this variable will be excluded when running 
 
 {phang}{opt co:ntrol(groupcode)} specifies one group that is the control group
 that all other groups are tested against for difference in means and
-where {it:groupcode} is an integer used in {opt grpvar()}.
+where {it:groupcode} is an integer used in {opt groupvar()}.
 The default is that all groups are tested against each other.
 The control group will be listed first (leftmost) in the table
 unless another order is specified in {opt order()}.
@@ -140,13 +142,13 @@ so that a positive statistic (in for example {it:diff} or {it:beta}) indicates t
 the mean for the non-control is larger than for the control.{p_end}
 
 {phang}{opt or:der(groupcodelist)} manually sets the column order of the groups in the table. {it:groupcodelist} may
-be any or all of the values in the group variable specified in {opt grpvar()}.
+be any or all of the values in the group variable specified in {opt groupvar()}.
 The default order if this option is omitted is ascending order of the values in the group variable.
-If any values in {opt grpvar()} are omitted when using this option,
+If any values in {opt groupvar()} are omitted when using this option,
 they will be sorted in ascending order after the values included.{p_end}
 
 {phang}{opt tot:al} includes a column with descriptive statistics on the full sample.
-This column still exclude observations with missing values in {opt grpvar()}.{p_end}
+This column still exclude observations with missing values in {opt groupvar()}.{p_end}
 
 {phang}{opt onerow} displays the number of observations in an additional row
 at the bottom of the table. If the number of observations are not identical
@@ -179,12 +181,12 @@ F-tests if applicable) as covariate variables (control variables). See the descr
 are included in the estimation regressions. The covariate variables must be numeric variables.
 See the {help iebaltab##est_defs:estimation definition} section for exact definitions on how the covariates are included in the regressions.{p_end}
 
-{phang}{opt ft:est} add a single row at the bottom fo the the table with
+{phang}{opt ft:est} adds a single row at the bottom fo the the table with
 one F-test for each test pair, testing for joint significance across all balance variables.
 See the {help iebaltab##est_defs:estimation definition} section for exact definitions on how these tests are estimated.{p_end}
 
 {phang}{opt feqt:est} adds a single column in the table with an F-test for each balance variable,
-testing for joint significance across all groups in {opt grpvar()}.
+testing for joint significance across all groups in {opt groupvar()}.
 See the {help iebaltab##est_defs:estimation definition} section for exact definitions on how these tests are estimated.{p_end}
 
 {pstd}{it:Statistics display options:}{p_end}
@@ -214,7 +216,8 @@ Expected input is decimals (between the value 0 and 1) in descending order.
 The default is (.1 .05 .01) where .1 corresponds
 to one star, .05 to two stars and .01 to three stars.{p_end}
 
-{phang}{opt starsno:add} makes the command not add any stars to the table{p_end}
+{phang}{opt nostar:s} makes the command not add any stars to the table
+regardless of significance levels.{p_end}
 
 {phang}{opth form:at(format:%fmt)} applies the Stata formats specified to all values outputted
 in the table apart from values that always are integers.
@@ -224,24 +227,24 @@ The default for all other values when this option is not used is %9.3f.{p_end}
 
 {pstd}{it:Label and notes options:}{p_end}
 
-{phang}{opt grpc:odes} makes the integer values used for the group codes in
-{opt grpvar()} the group column titles.
-The default is to use the value labels used in {opt grpvar()}.
-If no value labels are used for the variable in {opt grpvar()},
+{phang}{opt groupc:odes} makes the integer values used for the group codes in
+{opt groupvar()} the group column titles.
+The default is to use the value labels used in {opt groupvar()}.
+If no value labels are used for the variable in {opt groupvar()},
 then this option does not make a difference.{p_end}
 
-{phang}{opt grpl:abels(codetitles)} manually sets the group column titles.
+{phang}{opt groupl:abels(codetitles)} manually sets the group column titles.
 {it:codetitles} is a string on the following format:{p_end}
 
-{pmore}{opt grplabels("code1 title1 @ code2 title2 @ code3 title3")}{p_end}
+{pmore}{opt grouplabels("code1 title1 @ code2 title2 @ code3 title3")}{p_end}
 
 {pmore}Where code1, code2 etc. must correspond to the integer values used for each
-group used in the variable {opt grpvar()},
+group used in the variable {opt groupvar()},
 and title1, title2 etc. are the titles to be used for the corresponding integer value.
 The character "@" may not be used in any title.
 Codes omitted from this option will be assigned a column title
 as if this option was not used.
-This option takes precedence over {cmd:grpcodes} when used together,
+This option takes precedence over {cmd:groupcodes} when used together,
 meaning that group codes are only used for groups
 that are not included in the {it:codetitlestring}.
 The title can consist of several words.
@@ -271,22 +274,22 @@ The title can consist of several words.
 Everything that follows the variable name until
 the end of a string or a "@" will be included in the title.{p_end}
 
-{phang}{opt tbln:ote(string)} replaces the default note at the bottom
-of the table with this manually entered string.
-The default note is a very informative string that will help you
-remember exactly how you specified the command when generating the table.
-But the default note is most likely not suitable
-for the final publication of the table.
-If exporting to LaTeX, the exact specification of the table is
-written in a comment at the top of the LaTeX file.{p_end}
+{phang}{opt nonote} suppresses the default note that the command adds to
+the bottom of the table with technical information
+on how the command was specified.
+This note is great during explorative analysis as it documents how
+{opt iebaltab} was specified to generate exactly that table.
+Eventually however, this note should probably be replaced with
+a note more suitable for publication.{p_end}
 
-{phang}{opt tbladdn:ote(string)} adds the manually entered string to the default note at the bottom of the table.{p_end}
-
-{phang}{opt tblnon:ote} makes this command not add any automatically generated or manually specified notes to the table.{p_end}
+{phang}{opt addnote(string)} adds the string provided in this option
+to the note at the bottom of table.
+If {opt nonote} is not used, then this manually provided note
+is added to the end of the default note.
 
 {pstd}{it:Export options:}{p_end}
 
-{phang}{opt  browse} replaces the data in memory with the table
+{phang}{opt browse} replaces the data in memory with the table
 so it can be viewed using the command {h browse} instead of saving it to disk.
 This is only meant to be used during explorative analysis
 when figuring out how to specify the command.
@@ -349,7 +352,7 @@ Here is a glossary for the terms used in this section:{p_end}
 
 {p2colset 5 23 23 0}{...}
 {p2col:{it:balance variable}}The variables listed as {it:balancevarlist}{p_end}
-{p2col:{it:groupvar}}The variable specified in {opt grpvar(varname)}{p_end}
+{p2col:{it:groupvar}}The variable specified in {opt groupvar(varname)}{p_end}
 {p2col:{it:groupcode}}Each value in {it:groupvar}{p_end}
 {p2col:{it:test pair}}Combination of {it:group codes} to be used in pair wise tests{p_end}
 {p2col:{it:tp_dummy}}A dummy variable where the first {it:group code} in a {it:test pair}
@@ -563,7 +566,7 @@ Here is an example:{p_end}
 
 {pstd}{inp:sysuse census}{break}
 {inp:gen constant = 1}{break}
-{inp:iebaltab medage constant, grpvar(region) browse}{p_end}
+{inp:iebaltab medage constant, groupvar(region) browse}{p_end}
 
 {pstd}In this example the variable {inp:constant} has no variance.
 This variable has the mean 1 and 0 variance in the descriptive statistics
@@ -581,7 +584,7 @@ Here is an example:{p_end}
 
 {pstd}{inp:sysuse census}{break}
 {inp:replace pop = 0 if (region == 1) | (region == 2)}{break}
-{inp:iebaltab medage pop, grpvar(region) ftest browse}{p_end}
+{inp:iebaltab medage pop, groupvar(region) ftest browse}{p_end}
 
 {pstd}In this example the variable {inp:pop} has no variance in test pair 1_2,
 and that variable will be omitted from the F-test regression and
@@ -602,7 +605,7 @@ Here are a few examples:{p_end}
 {inp:gen region2 = region}{break}
 {inp:gen pop_neg = 0}{break}
 {inp:replace pop_neg = pop * -1 if (region == 1) | (region == 2)}{break}
-{inp:iebaltab medage pop region2, grpvar(region) covar(pop_neg) browse}{p_end}
+{inp:iebaltab medage pop region2, groupvar(region) covar(pop_neg) browse}{p_end}
 
 {pstd}The variance in variable {inp:region2} is perfectly explained
 by the group variable {inp:region} for each test pair
@@ -617,7 +620,7 @@ The R-sqaured is 1 in the regression for pair 1_2 and no pair-wise statistics ar
 
 {pmore}{inp:sysuse census}{break}
 {inp:gen group = runiform() < .5}{break}
-{inp:iebaltab pop medage, grpvar(group) browse}{break}
+{inp:iebaltab pop medage, groupvar(group) browse}{break}
 {inp:browse}{p_end}
 
 {pmore}In the example above, Stata's built in census data is used.
@@ -633,7 +636,7 @@ See examples on how to save the table to a file on disk below.{p_end}
 {pstd}{hi:Example 2.}
 
 {pmore}{inp:sysuse census}{break}
-{inp:iebaltab pop medage, grpvar(region) browse}{break}
+{inp:iebaltab pop medage, groupvar(region) browse}{break}
 {inp:browse}{p_end}
 
 {pmore}In this example we use the variable region as group variable that has four categories.
@@ -642,7 +645,7 @@ All groups are tested against each other.{p_end}
 {pstd}{hi:Example 3.}
 
 {pmore}{inp:sysuse census}{break}
-{inp:iebaltab pop medage, grpvar(region) browse control(4)}{break}
+{inp:iebaltab pop medage, groupvar(region) browse control(4)}{break}
 {inp:browse}{p_end}
 
 {pmore}Comparing all groups against each other becomes unfeasible when the number of
@@ -658,7 +661,7 @@ mean in the balance variable.{p_end}
 {pstd}{hi:Example 4.}
 
 {pmore}{inp:sysuse census}{break}
-{inp:iebaltab pop medage, grpvar(region) browse control(4) stats(desc(var) pair(p))}{break}
+{inp:iebaltab pop medage, groupvar(region) browse control(4) stats(desc(var) pair(p))}{break}
 {inp:browse}{p_end}
 
 {pmore}You can control which statistics to output in using the {inp:stats()} option.
@@ -674,7 +677,7 @@ See above in this help file for full details on the sub-options you may use.{p_e
 
 {pmore}{inp:sysuse census}{break}
 {inp:local outfld {it:"path/to/folder"}}{break}
-{inp:iebaltab pop medage, grpvar(region) control(4) ///}{break}
+{inp:iebaltab pop medage, groupvar(region) control(4) ///}{break}
 {space 2}{inp:stats(desc(var) pair(p)) replace ///}{break}
 {space 2}{inp:savecsv("`outfld'/iebtb.csv") savexlsx("`outfld'/iebtb.xlsx") ///}{break}
 {space 2}{inp:savetex("`outfld'/iebtb.tex") texnotefile("`outfld'/iebtb_note.tex")}{p_end}
@@ -708,7 +711,7 @@ of the table to fit a page.
 {pstd}{hi:Example 6.}
 
 {pmore}{inp:sysuse census}{break}
-{inp:iebaltab pop medage, grpvar(region)}{break}
+{inp:iebaltab pop medage, groupvar(region)}{break}
 {inp:local rnum = rownumb(r(iebtab_rmat),"medage")}{break}
 {inp:local cnum = colnumb(r(iebtab_rmat),"p_2_4")}{break}
 {inp:local p_medage_2_4 = el(r(iebtab_rmat),`rnum',`cnum')}{break}

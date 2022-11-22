@@ -7,7 +7,7 @@
                                                                         ///
         [                                                               ///
         /*Required options - GRPVar deprecated name still allowed */    ///
-				 GROUPVar(varname) GRPVar(varname)                              ///
+				GROUPvar(varname) GRPVar(varname)                              ///
 				                                                                ///
 				/*Column and row options*/                                      ///
 				COntrol(numlist int max=1) ORder(numlist int min=1)             ///
