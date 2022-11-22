@@ -47,8 +47,9 @@ _config.yml
 # R
 !/**/*.R
 
-# LaTeX
+# Outputs
 !/**/*.tex
+!/**/*.csv
 
 # Python
 !/**/*.py
@@ -63,4 +64,5 @@ _config.yml
 test/
 
 #Outputs in the run/outputs folder
-run/output
+run/output/**/.xlsx
+run/output/iegitaddmd/
