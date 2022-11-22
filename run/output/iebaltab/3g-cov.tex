@@ -1,0 +1,34 @@
+%%% Table created in Stata by command iebaltab
+%%% (https://github.com/worldbank/ietoolkit)
+%%% (https://dimewiki.worldbank.org/iebaltab)
+%%% The command was specified exactly like this: 
+%%% iebaltab price mpg trunk headroom weight length turn displacement gear_ratio, grpvar(tmt) covariates(foreign) stats(pair(p)) savetex("C:/Users/luizaandrade/Documents/GitHub/ietoolkit/run/output/iebaltab/3g-cov.tex") replace
+
+\begin{tabular}{@{\extracolsep{5pt}}lcccccccccccc}
+\\[-1.8ex]\hline \hline \\[-1.8ex]
+ & \multicolumn{2}{c}{(1)}  & \multicolumn{2}{c}{(2)}  & \multicolumn{2}{c}{(3)}  & \multicolumn{2}{c}{(1)-(2)} & \multicolumn{2}{c}{(1)-(3)} & \multicolumn{2}{c}{(2)-(3)} \\
+ & \multicolumn{2}{c}{0}  & \multicolumn{2}{c}{1}  & \multicolumn{2}{c}{2}  & \multicolumn{6}{c}{Pairwise t-test}  \\
+Variable & N & Mean/(SE) & N & Mean/(SE) & N & Mean/(SE) & N & P-value & N & P-value & N & P-value \\ \hline \\[-1.8ex] 
+price   & 23    &  7094.522    & 32    &  5458.594    & 19    &  6230.526    & 55    &     0.042    & 42    &     0.418    & 51    &     0.363   \\
+ &   &   710.673  &   &   397.356  &   &   739.361  &   &  &   &  &   &   \\
+mpg   & 23    &    21.783    & 32    &    21.344    & 19    &    20.632    & 55    &     0.971    & 42    &     0.327    & 51    &     0.178   \\
+ &   &     1.509  &   &     0.882  &   &     1.217  &   &  &   &  &   &   \\
+trunk   & 23    &    13.913    & 32    &    13.625    & 19    &    13.789    & 55    &     0.642    & 42    &     0.727    & 51    &     0.540   \\
+ &   &     0.964  &   &     0.792  &   &     0.843  &   &  &   &  &   &   \\
+headroom   & 23    &     2.891    & 32    &     2.938    & 19    &     3.211    & 55    &     0.992    & 42    &     0.090    & 51    &     0.109   \\
+ &   &     0.183  &   &     0.157  &   &     0.168  &   &  &   &  &   &   \\
+weight   & 23    &  3142.609    & 32    &  2958.438    & 19    &  2973.158    & 55    &     0.131    & 42    &     0.829    & 51    &     0.175   \\
+ &   &   176.998  &   &   122.770  &   &   193.321  &   &  &   &  &   &   \\
+length   & 23    &   192.652    & 32    &   186.594    & 19    &   184.474    & 55    &     0.101    & 42    &     0.418    & 51    &     0.503   \\
+ &   &     4.768  &   &     3.717  &   &     5.458  &   &  &   &  &   &   \\
+turn   & 23    &    40.391    & 32    &    39.156    & 19    &    39.579    & 55    &     0.073    & 42    &     0.959    & 51    &     0.113   \\
+ &   &     0.932  &   &     0.690  &   &     1.185  &   &  &   &  &   &   \\
+displacement   & 23    &   197.565    & 32    &   197.031    & 19    &   197.421    & 55    &     0.616    & 42    &     0.530    & 51    &     0.185   \\
+ &   &    20.415  &   &    14.662  &   &    23.666  &   &  &   &  &   &   \\
+gear\_ratio   & 23    &     3.054    & 32    &     2.970    & 19    &     3.043    & 55    &     0.782    & 42    &     0.319    & 51    &     0.515   \\
+ &   &     0.106  &   &     0.071  &   &     0.113  &   &  &   &  &   &   \\
+\hline \\[-1.8ex]
+%%% This is the note. If it does not have the correct margins, use texnotewidth() option or change the number before '\textwidth' in line below to fit it to table size.
+\multicolumn{10}{@{} p{\textwidth}}{If the table includes missing values (.n, .o, .v etc.) see the Missing values section in the help file for the Stata command iebaltab for definitions of these values. Covariate(s) used in pairwise regressions: [foreign]. Significance: ***=.01, **=.05, *=.1. Full user input as written by user: [iebaltab price mpg trunk headroom weight length turn displacement gear\_ratio, grpvar(tmt) covariates(foreign) stats(pair(p)) savetex("C:/Users/luizaandrade/Documents/GitHub/ietoolkit/run/output/iebaltab/3g-cov.tex") replace]}
+
+\end{tabular}
