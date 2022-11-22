@@ -56,6 +56,9 @@
   preserve
 qui {
 
+	*Set minimum version for this command
+	version 12
+    
 	/***********************************************
 	************************************************
 
@@ -63,9 +66,6 @@ qui {
 
 	*************************************************
 	************************************************/
-
-		*Set minimum version for this command
-		version 12
 
 		* Backwards compatibility for weight option
 		if "`weightold'" != "" & "`exp'" == "" {
