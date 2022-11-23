@@ -19,7 +19,7 @@ command please see the {browse "https://dimewiki.worldbank.org/wiki/iedorep":DIM
 {marker desc}
 {title:Description}
 
-{phang}{cmdab:iedorep} provides a replicability assessment of a do-file or project.
+{phang}{cmdab:iedorep} provides a reproduciblity assessment of a do-file or project.
   It should be used when a do-file or project is complete to detect any
   instabilities or likely sources of replication errors.
   {break}
@@ -63,8 +63,8 @@ command please see the {browse "https://dimewiki.worldbank.org/wiki/iedorep":DIM
 {phang}The {cmdab:alldata}, {cmdab:allseed} , and {cmdab:allsort} options will
   report any time the data is changed, the RNG state changes, or the sort order of the data changed,
   even if the result is consistent between the two do-file runs.
-  This is only recommended for advanced diagnostics;
-  for example, if replicability problems persist despite no errors appearing.
+  This is only recommended for advanced diagnostics; 
+  for example, if reproducibility problems persist despite no errors appearing.
   There are known cases where inconsistencies occur with very low
   frequency and might not be detected in every given pair of runs.
 
@@ -109,7 +109,7 @@ command please see the {browse "https://dimewiki.worldbank.org/wiki/iedorep":DIM
 
   {phang}We recommend resolving issues from the top down, since later issues
   may be resolved by fixing earlier ones.
-  This is because many replicability issues will "cascade":
+  This is because many reproducibility issues will "cascade": 
   An inconsistent RNG state early in the do-file will cause many types of
   later data creation (such as randomization assignment) to fail to reproduce.
   Both issues will be fixed by resolving the first one.
