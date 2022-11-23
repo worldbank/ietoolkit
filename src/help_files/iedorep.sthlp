@@ -23,28 +23,28 @@ command please see the {browse "https://dimewiki.worldbank.org/wiki/iedorep":DIM
   It should be used when a do-file or project is complete to detect any
   instabilities or likely sources of replication errors.
   {break}
-  
+
+{phang}{cmdab:iedorep} will run the do-file twice and flag three types of possible
+  errors between the first and the second run of the do-file.
+  (1) Changes to data which leave the data at a different state
+  in the same line of the do-file. (Changes in the datasignature)
+  (2) Changes to the random number generator state
+  which result in a different state at the same line in the do-file. (Changes in the RNG state)
+  (3) Changes to the sort order of the data which leave the data
+  in a different sort order at the same line of the do-file. (Changes in the sortseed)
+  {break}
+
 {phang}{cmdab:iedorep} will first report a warning if the delimiter is changed in the do-file.
   It is not designed to work with delimiters other than Stata's default (a newline).
   It will also report a warning if you use {cmdab:clear all} or {cmdab:ieboilstart};
   specifically, it will re-write these commands to avoid calling {cmdab:discard},
   as this command makes it impossible for {cmdab:iedorep} to store the necessary data for its diagnostics.
-  If you experience unusual issues with {cmdab:iedorep}, they are often memory issues; 
+  If you experience unusual issues with {cmdab:iedorep}, they are often memory issues;
   in particular, the error "post posty not found" often indicates a memory management conflict.
   Contact the maintainer to resolve these types of issues,
   as they are typically hard-to-find bugs in memory management commands that are not often used.
   {break}
-  
-{phang}{cmdab:iedorep} will run the do-file twice and flag three types of possible
-  errors between the first and the second run of the do-file.
-  (1) Changes to data which leave the data at a different state 
-  in the same line of the do-file. (Changes in the datasignature)
-  (2) Changes to the random number generator state 
-  which result in a different state at the same line in the do-file. (Changes in the RNG state)
-  (3) Changes to the sort order of the data which leave the data
-  in a different sort order at the same line of the do-file. (Changes in the sortseed)
-  {break}
-  
+
 {phang} {cmdab:iedorep} is designed to be used targeting a master do-file (it will work on any file).
   When done this way with the {cmdab:recursive} option, it will recursively
   run on do-files that are run by other do-files if errors are detected there.
@@ -59,11 +59,11 @@ command please see the {browse "https://dimewiki.worldbank.org/wiki/iedorep":DIM
   to execute "sub" do-files. If such errors are detected (ie, if the sub-do-file
   leaves the data, RNG state, or sort order different in the second run),
   {cmdab:iedorep} will execute again targeting that filepath.
-  
+
 {phang}The {cmdab:alldata}, {cmdab:allseed} , and {cmdab:allsort} options will
   report any time the data is changed, the RNG state changes, or the sort order of the data changed,
   even if the result is consistent between the two do-file runs.
-  This is only recommended for advanced diagnostics; 
+  This is only recommended for advanced diagnostics;
   for example, if replicability problems persist despite no errors appearing.
   There are known cases where inconsistencies occur with very low
   frequency and might not be detected in every given pair of runs.
@@ -88,7 +88,7 @@ command please see the {browse "https://dimewiki.worldbank.org/wiki/iedorep":DIM
   |   24 | ERROR! Changed |             | ERROR! Sorted |         |
   |   26 | ERROR! Changed |             | ERROR! Sorted |     Yes |
   +---------------------------------------------------------------+
- 
+
   Errors detected in the following sub do-files; starting recursion.
 
   +----------------------------------------------------------------------------+
@@ -96,7 +96,7 @@ command please see the {browse "https://dimewiki.worldbank.org/wiki/iedorep":DIM
   |------+---------------------------------------------------------------------|
   |   26 | "/Users/bbdaniels/GitHub/ietoolkit/run/iedorep/iedorep-target-2.do" |
   +----------------------------------------------------------------------------+
-  
+
   ...
 
 {title:Notes}
@@ -106,10 +106,10 @@ command please see the {browse "https://dimewiki.worldbank.org/wiki/iedorep":DIM
   if the recursion option were not specified, the second message would not appear
   and execution would stop here. Since it was specified,
   a similar report will be created for the next file.
-  
+
   {phang}We recommend resolving issues from the top down, since later issues
   may be resolved by fixing earlier ones.
-  This is because many replicability issues will "cascade": 
+  This is because many replicability issues will "cascade":
   An inconsistent RNG state early in the do-file will cause many types of
   later data creation (such as randomization assignment) to fail to reproduce.
   Both issues will be fixed by resolving the first one.
