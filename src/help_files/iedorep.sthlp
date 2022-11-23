@@ -64,7 +64,7 @@ command please see the {browse "https://dimewiki.worldbank.org/wiki/iedorep":DIM
   report any time the data is changed, the RNG state changes, or the sort order of the data changed,
   even if the result is consistent between the two do-file runs.
   This is only recommended for advanced diagnostics; 
-  for example, if replicability problems persist despite no errors appearing.
+  for example, if reproducibility problems persist despite no errors appearing.
   There are known cases where inconsistencies occur with very low
   frequency and might not be detected in every given pair of runs.
 
