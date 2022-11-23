@@ -109,7 +109,7 @@ command please see the {browse "https://dimewiki.worldbank.org/wiki/iedorep":DIM
   
   {phang}We recommend resolving issues from the top down, since later issues
   may be resolved by fixing earlier ones.
-  This is because many replicability issues will "cascade": 
+  This is because many reproducibility issues will "cascade": 
   An inconsistent RNG state early in the do-file will cause many types of
   later data creation (such as randomization assignment) to fail to reproduce.
   Both issues will be fixed by resolving the first one.
