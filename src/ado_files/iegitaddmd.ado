@@ -6,6 +6,10 @@ cap program drop   iegitaddmd
 qui {
 	syntax , folder(string) [comparefolder(string) customfile(string) all skip replace AUTOmatic DRYrun skipfolders(string)]
 
+
+	*Set version
+	version 12
+
 	/******************************
 	*******************************
 		Test user input

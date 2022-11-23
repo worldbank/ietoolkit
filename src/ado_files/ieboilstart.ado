@@ -7,7 +7,7 @@
 
 		syntax ,  Versionnumber(string) [noclear maxvar(numlist) matsize(numlist) Quietly veryquietly Custom(string) setmem(string) nopermanently ]
 
-		version 11.0
+		version 12
 
 		/*********************************
 			Check user specifed version

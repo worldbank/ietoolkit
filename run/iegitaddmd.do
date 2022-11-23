@@ -110,6 +110,7 @@
 	cap iegitaddmd , folder("`output'/gitfilter2") auto skipfolders(skipmein2 skipalsomein2 folderthatnotexist asdfasd/ado)
 	assert _rc == 198
     
+    
     * Test customfile
     iegitaddmd, folder("`customfolder'") customfile("`customfile'") auto
     
