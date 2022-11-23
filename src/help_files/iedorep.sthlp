@@ -19,7 +19,7 @@ command please see the {browse "https://dimewiki.worldbank.org/wiki/iedorep":DIM
 {marker desc}
 {title:Description}
 
-{phang}{cmdab:iedorep} provides a replicability assessment of a do-file or project.
+{phang}{cmdab:iedorep} provides a reproduciblity assessment of a do-file or project.
   It should be used when a do-file or project is complete to detect any
   instabilities or likely sources of replication errors.
   {break}
