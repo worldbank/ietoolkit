@@ -59,11 +59,14 @@ command please see the {browse "https://dimewiki.worldbank.org/wiki/iedorep":DIM
   to execute "sub" do-files. If such errors are detected (ie, if the sub-do-file
   leaves the data, RNG state, or sort order different in the second run),
   {cmdab:iedorep} will execute again targeting that filepath.
+  If {cmdab:recursive} is not used,
+  {cmdab:iedorep} will still run sub do-files 
+  as part of the lines where {cmdab:do} or {cmdab:run} are used.
 
 {phang}The {cmdab:alldata}, {cmdab:allseed} , and {cmdab:allsort} options will
   report any time the data is changed, the RNG state changes, or the sort order of the data changed,
   even if the result is consistent between the two do-file runs.
-  This is only recommended for advanced diagnostics; 
+  This is only recommended for advanced diagnostics;
   for example, if reproducibility problems persist despite no errors appearing.
   There are known cases where inconsistencies occur with very low
   frequency and might not be detected in every given pair of runs.
@@ -109,7 +112,7 @@ command please see the {browse "https://dimewiki.worldbank.org/wiki/iedorep":DIM
 
   {phang}We recommend resolving issues from the top down, since later issues
   may be resolved by fixing earlier ones.
-  This is because many reproducibility issues will "cascade": 
+  This is because many reproducibility issues will "cascade":
   An inconsistent RNG state early in the do-file will cause many types of
   later data creation (such as randomization assignment) to fail to reproduce.
   Both issues will be fixed by resolving the first one.
