@@ -14,11 +14,12 @@
 			and apply it is valid
 		*********************************/
 
-		* Based on versions listed here: https://www.stata.com/support/faqs/resources/history-of-stata/
-		local stata_versions "11 11.0 11.1 11.2 12 12.0 12.1 13 13.0 13.1 14 14.0 14.1 14.2 15 15.0 15.1 16.0 16.1 17.0"
+    * Get target versions from ietoolkit command
+  	ietoolkit
+  	local valid_stata_versions "`r(stata_target_versions)'"
 
-		if `:list versionnumber in stata_versions' == 0 {
-			di as error "{phang}Only recent major releases are allowed. The releases currently allowed are:{break}`stata_versions'{p_end}"
+		if `:list versionnumber in valid_stata_versions' == 0 {
+			di as error "{phang}Only recent major releases are allowed. The releases currently allowed are:{break}`valid_stata_versions'{p_end}"
 			di ""
 			error 198
 			exit
