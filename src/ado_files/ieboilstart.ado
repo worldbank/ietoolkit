@@ -56,6 +56,48 @@
 
     ****************************************************************************
 		***************************************************************************/
+
+    if !missing(`"`adopath'"') {
+
+      * split out path and ado sub option
+      gettoken apath aoption : adopath , parse(",")
+      local apath   = trim("`apath'")
+      local aoption = trim(subinstr("`aoption'",",","",1))
+
+      if !missing("`aoption'") & "`aoption'" != "strict" {
+        noi di as error `"{phang}The suboption [`aoption'] in the option [`adopath'] is not a valid suboption. See help file for more details.{p_end}"'
+        error 198
+      }
+
+      * Test if folder exists
+      mata : st_numscalar("r(dirExist)", direxists("`apath'"))
+      if (`r(dirExist)' == 0) {
+        noi di as error `"{phang}The folder path [`apath'] in option [`adopath'] does not exist.{p_end}"'
+        error 198
+      }
+
+      * Set adopath depending on if strict was used
+      if "`aoption'" == "strict" {
+        * If strict is used, the replace plus
+        sysdir set  PLUS `"`apath'"'
+        adopath ++  PLUS
+        adopath ++  BASE
+
+        * Remove all adopaths other than
+        local morepaths 1
+        while (`morepaths' == 1) {
+          capture adopath - 3
+          if _rc local morepaths 0
+        }
+      }
+      else {
+        * Set PERSONAL path to ado path
+        sysdir set  PERSONAL `"`apath'"'
+        adopath ++  PERSONAL
+        adopath ++  BASE
+      }
+    }
+
     /***************************************************************************
     ****************************************************************************
 
