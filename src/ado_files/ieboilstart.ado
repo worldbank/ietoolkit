@@ -76,6 +76,8 @@
         error 198
       }
 
+      local aoutput "{phang}{err:ADOPATH:} "
+
       * Set adopath depending on if strict was used
       if "`aoption'" == "strict" {
         * If strict is used, the replace plus
@@ -89,13 +91,19 @@
           capture adopath - 3
           if _rc local morepaths 0
         }
+
+        local aoutput `"`aoutput'PLUS adopath was set to [`apath']. All other adopaths (apart from BASE) were removed so only programs and ado-files in this PLUS folder is accessible to your code."'
       }
       else {
         * Set PERSONAL path to ado path
         sysdir set  PERSONAL `"`apath'"'
         adopath ++  PERSONAL
         adopath ++  BASE
+
+        local aoutput `"`aoutput'PERSONAL adopath was set to [`apath']. Any other adopath is still availible."'
       }
+
+      local aoutput `"`aoutput' Run {stata adopath} to see your current setting. These settings are restores next time you restart Stata.{p_end}"'
     }
 
     /***************************************************************************
@@ -326,16 +334,28 @@
 
 		*********************************/
 
-		if "`quietly'" == "" & "`veryquietly'" == "" {
-			noi di ""
-			noi di "{phang}{err:DISCLAIMER:} Due to how settings work in Stata, this command can only attempt to harmonize settings as much as possible across users, but no guarantee can be given that all commands will always behave identically unless the exact same version and type of Stata is used, with the same releases of user-contributed commands installed.{p_end}"
-			noi di ""
-			noi di `"`setDispLocal'"'
-		}
+    * if very quietly is used then supress this info
+    if "`veryquietly'" == "" {
 
-		if  "`veryquietly'" == "" {
+
+      if "`quietly'" == "" {
+  			noi di ""
+  			noi di as result "{phang}{err:DISCLAIMER:} Due to how settings work in Stata, this command can only attempt to harmonize settings as much as possible across users, but no guarantee can be given that all commands will always behave identically unless the exact same version and type of Stata is used, with the same releases of user-contributed commands installed.{p_end}"
+  			noi di ""
+  			noi di `"`setDispLocal'"'
+
+        * If adopath is used output what was done
+        if !missing(`"`adopath'"') {
+          noi di ""
+          noi di as result "`aoutput'"
+        }
+      }
+
 			noi di ""
-			noi di "{phang}{err:IMPORTANT:} The most important setting of this command – the version – cannot be set inside the command due to technical reasons. The setting has been prepared by this command, and you only need to write \`r(version)' after this command (include the apostrophes).{p_end}"
-		}
+			noi di as result "{phang}{err:IMPORTANT:} One important setting of this command – the Stata version – cannot be set inside the command due to how this setting works. The setting has been prepared by this command, and you only need to write \`r(version)' after this command (include the apostrophes) for the version setting to be applied.{p_end}"
+
+    }
+
+
 	}
 	end
