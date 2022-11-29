@@ -5,21 +5,39 @@
 
 	qui {
 
-		syntax ,  Versionnumber(string) [noclear maxvar(numlist) matsize(numlist) Quietly veryquietly Custom(string) setmem(string) nopermanently ]
+		syntax ,                      ///
+      /* Required options */      ///
+      Versionnumber(string)       ///
+      [                           ///
+      /* ADO path options */      ///
+      ADOpath(string)             ///
+      /* Workflow options */      ///
+      noclear Quietly veryquietly ///
+      /* Settings options */      ///
+      maxvar(numlist)             ///
+      matsize(numlist)            ///
+      Custom(string)              ///
+      setmem(string)              ///
+      nopermanently               ///
+      ]
 
 		version 12
 
-		/*********************************
-			Check user specifed version
-			and apply it is valid
-		*********************************/
+		/***************************************************************************
+    ****************************************************************************
+
+			STATA VERSION SECTION
+
+    ****************************************************************************
+		***************************************************************************/
 
     * Get target versions from ietoolkit command
   	ietoolkit
   	local valid_stata_versions "`r(stata_target_versions)'"
 
+    * Test that the version passed in the options versionnumber() is valid
 		if `:list versionnumber in valid_stata_versions' == 0 {
-			di as error "{phang}Only recent major releases are allowed. The releases currently allowed are:{break}`valid_stata_versions'{p_end}"
+			di as error "{phang}The Stata version number provided in {opt versionumber(`versionnumber')} is not valid or not allowed. The Stata versions currently allowed in this command are:{break}`valid_stata_versions'{p_end}"
 			di ""
 			error 198
 			exit
@@ -31,9 +49,24 @@
 		*Set the version specfied in the command
 		version `versionnumber'
 
+    /***************************************************************************
+    ****************************************************************************
+
+			ADO PATH SECTION
+
+    ****************************************************************************
+		***************************************************************************/
+    /***************************************************************************
+    ****************************************************************************
+
+			HARMONIZE SETTINGS OPTION
+
+    ****************************************************************************
+		***************************************************************************/
+
+
 		/*********************************
-			Check settings related to older
-			versions and Stata IC
+			Check settings related to older versions and Stata IC
 		*********************************/
 
 		*Test that maxvar is not set in combination when using Stata IC
@@ -72,11 +105,8 @@
 		else local setmem "50M"
 
 		/*********************************
-
-			Check input for maxvar and matsize
-			if specified, other wise set
+			Check input for maxvar and matsize if specified, otherwise set
 			maximum value allowed.
-
 		*********************************/
 
 		*Setting maxvar requires a cleared memory. Therefore
@@ -89,14 +119,12 @@
 		}
 
 		foreach maxlocal in maxvar matsize {
-
 			*Set locals with the max and min values fox maxvar and matsize
 			if "`maxlocal'" == "maxvar" {
 				*Stata 15 MP has a higher maximum number of maxvar
 				if c(stata_version) >= 15 & c(MP) == 1 local max 120000
 				*For Stata 15 SE and MP and SE for all lower versions
 				else local max 32767
-
 				local min 2048
 			}
 			if "`maxlocal'" == "matsize" {
@@ -104,13 +132,10 @@
 				local min 10
 			}
 
-
 			*Test if user set a value for this value
 			if "``maxlocal''" != "" {
-
 				*If user specified a value, test that it is between the min and the max
 				if !(``maxlocal'' >= `min' & ``maxlocal'' <= `max') {
-
 					di as error "{phang}`maxlocal' must be between `min' and `max' (inclusive) if you are using Stata SE or Stata MP. You entered ``maxlocal''.{p_end}"
 					di ""
 					*Throw appropriate error if below or above error
@@ -130,9 +155,7 @@
 		}
 
 		/*********************************
-
-			Check other input
-
+			Handle general settings options
 		*********************************/
 
 		**Default is that these values are set as default values so that
@@ -147,20 +170,16 @@
 		}
 
 		/*********************************
-
-			Set the settings
-
+			Harmonize settings
 		*********************************/
 
 		local setDispLocal "{col 5}{ul:Settings set by this command:}"
 
 		*Set basic memory limits
 		if "`clear'" == "" {
-
 			*Setting
 			clear all
 			local setDispLocal "`setDispLocal'{break}{col 5}clear all"
-
 			**Setting maxvar not allowed in Stata IC.
 			if 	(c(MP) == 1 | c(SE) == 1) {
 				*Setting
@@ -172,7 +191,6 @@
 		*Setting
 		set matsize `matsize' `permanently'
 		local setDispLocal "`setDispLocal'{break}{col 5}set matsize {col 22}`matsize'`permanently_col'"
-
 
 		****************
 		*Memory	settings
@@ -231,34 +249,34 @@
 		local setDispLocal "`setDispLocal'{break}{col 5}set type {col 22}float`permanently_col'"
 
 		/*********************************
-
-			Add custom lines of code
-
+			Add custom lines of code if provided
 		*********************************/
 
 		if `"`custom'"' != "" {
-
 			local setDispLocal `"`setDispLocal'{break} {break}{col 5}{ul:User specified settings:}"'
-
 			*Create a local with the rowlabel input to be tokenized
 			local custom_code_lines `custom'
-
 			while `"`custom_code_lines'"' != "" {
-
 				*Parsing name and label pair
 				gettoken code_line custom_code_lines : custom_code_lines, parse("@")
-
 				*Removing leadning or trailing spaces
 				local code_line = trim(`"`code_line'"')
-
 				*Set custom setting
 				local setDispLocal `"`setDispLocal'{break}{col 5}`code_line'"'
 				`code_line'
-
 				*Parse char is not removed by gettoken
 				local custom_code_lines = subinstr(`"`custom_code_lines'"' ,"@","",1)
 			}
 		}
+
+    /***************************************************************************
+    ****************************************************************************
+
+			Outputs
+
+    ****************************************************************************
+		***************************************************************************/
+
 
 		/*********************************
 
