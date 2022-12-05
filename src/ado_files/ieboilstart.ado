@@ -16,12 +16,26 @@
       /* Settings options */      ///
       maxvar(numlist)             ///
       matsize(numlist)            ///
-      Custom(string)              ///
-      setmem(string)              ///
       nopermanently               ///
+      /* Deprecated options */    ///
+      setmem(string)              ///
+      Custom(string)              ///
       ]
 
 		version 12
+
+    /***************************************************************************
+      Handle deprecated options
+    ***************************************************************************/
+
+    if !missing("`setmem'") {
+      noi di as error "Option {opt setmem(string)} is deprecated as this command no longer supports Stata version 11. This option therefore no longer allowed."
+      error 198
+    }
+    if !missing("`custom'") {
+      noi di as error "Option {opt custom(string)} is deprecated. This option therefore no longer allowed.""
+      error 198
+    }
 
 		/***************************************************************************
     ****************************************************************************
@@ -126,34 +140,6 @@
 		}
 
 
-		if 	"`setmem'" != ""	{
-			if `versionnumber' >= 12  {
-				di as error "{phang}Option setmem() is only allowed when setting the version number to 11. Setmem() is only applicable in Stata 11 or earlier, but those versions wont be able to run this file as the version number is set to 12 or higher.{p_end}"
-				error 198
-			}
-
-			*Split the memory setting string into value and byte unit
-			local mem_strlen 	= strlen("`setmem'") -1
-			local mem_number	= substr("`setmem'",  1 , `mem_strlen')
-			local mem_bytetype	= substr("`setmem'", -1 , 1)
-
-			*Test that the number part is a number and a integer
-			cap confirm integer number `mem_number'
-			if _rc {
-				di as error "{phang}The value in setmem(`setmem') must be a number (followed by either b, k, m or g). See {help memory} for details.{p_end}"
-				error _rc
-			}
-
-			*Test that the byte type is not anything else than b, k, m or g
-			if !`=inlist(lower("`mem_bytetype'"), "b", "k", "m", "g")' {
-				di as error "{phang}The last character in setmem(`setmem') must be either b, k, m or g. See {help memory} for details.{p_end}""
-				error 7
-			}
-		}
-		*Default value is 50M. This is probably too little, but
-		*it will safely work. And users can manually increase this
-		else local setmem "50M"
-
 		/*********************************
 			Check input for maxvar and matsize if specified, otherwise set
 			maximum value allowed.
@@ -245,43 +231,29 @@
 		****************
 		*Memory	settings
 
-		*For compatibility with Stata 11 the do file includes and if/else
-		*condition testing version number. The memoroy settings introduced
-		*in Stata 12 will be applied to Stata version more recent than
-		*Stata 11, and set memory will be applied to Stata 11.
-		if c(stata_version) >= 12 {
+		*Setting
+		set niceness 5  `permanently'
+		local setDispLocal "`setDispLocal'{break}{col 5}set niceness{col 22}5`permanently_col'"
 
-			*Setting
-			set niceness 5  `permanently'
-			local setDispLocal "`setDispLocal'{break}{col 5}set niceness{col 22}5`permanently_col'"
+		*These settings cannot be modified with data in memory
+		if "`clear'" == "" {
 
-			*These settings cannot be modified with data in memory
-			if "`clear'" == "" {
+			*Settings
+			set min_memory 0  `permanently'
+			set max_memory .  `permanently'
+			local setDispLocal "`setDispLocal'{break}{col 5}set min_memory {col 22}0`permanently_col'{break}{col 5}set max_memory {col 22}.`permanently_col'"
 
-				*Settings
-				set min_memory 0  `permanently'
-				set max_memory .  `permanently'
-				local setDispLocal "`setDispLocal'{break}{col 5}set min_memory {col 22}0`permanently_col'{break}{col 5}set max_memory {col 22}.`permanently_col'"
-
-				*Set segment size to the largest value allowed by the operative system
-				if c(bit) == 64 {
-					set segmentsize	32m  `permanently'
-					local setDispLocal "`setDispLocal'{break}{col 5}set segmentsize	{col 22}32m`permanently_col'"
-				}
-				else {
-					set segmentsize	16m  `permanently'
-					local setDispLocal "`setDispLocal'{break}{col 5}set segmentsize	{col 22}16m`permanently_col'"
-				}
+			*Set segment size to the largest value allowed by the operative system
+			if c(bit) == 64 {
+				set segmentsize	32m  `permanently'
+				local setDispLocal "`setDispLocal'{break}{col 5}set segmentsize	{col 22}32m`permanently_col'"
+			}
+			else {
+				set segmentsize	16m  `permanently'
+				local setDispLocal "`setDispLocal'{break}{col 5}set segmentsize	{col 22}16m`permanently_col'"
 			}
 		}
-		*If this dofile is generated in Stata 11 then only the old
-		*way of setting memory is included. This will be ignored by
-		*more recent versios of Stata
-		else {
-			*Setting
-			set memory `setmem'
-			local setDispLocal "`setDispLocal'{break}{col 5}set memory {col 22}`setmem'"
-		}
+
 
 		*********************
 		*Set simple settings
@@ -355,7 +327,5 @@
 			noi di as result "{phang}{err:IMPORTANT:} One important setting of this command – the Stata version – cannot be set inside the command due to how this setting works. The setting has been prepared by this command, and you only need to write \`r(version)' after this command (include the apostrophes) for the version setting to be applied.{p_end}"
 
     }
-
-
 	}
 	end
