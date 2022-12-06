@@ -270,27 +270,6 @@
 		set type float `permanently'
 		local setDispLocal "`setDispLocal'{break}{col 5}set type {col 22}float`permanently_col'"
 
-		/*********************************
-			Add custom lines of code if provided
-		*********************************/
-
-		if `"`custom'"' != "" {
-			local setDispLocal `"`setDispLocal'{break} {break}{col 5}{ul:User specified settings:}"'
-			*Create a local with the rowlabel input to be tokenized
-			local custom_code_lines `custom'
-			while `"`custom_code_lines'"' != "" {
-				*Parsing name and label pair
-				gettoken code_line custom_code_lines : custom_code_lines, parse("@")
-				*Removing leadning or trailing spaces
-				local code_line = trim(`"`code_line'"')
-				*Set custom setting
-				local setDispLocal `"`setDispLocal'{break}{col 5}`code_line'"'
-				`code_line'
-				*Parse char is not removed by gettoken
-				local custom_code_lines = subinstr(`"`custom_code_lines'"' ,"@","",1)
-			}
-		}
-
     /***************************************************************************
     ****************************************************************************
 
