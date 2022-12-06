@@ -63,7 +63,7 @@ To permanently install an odler version, use the code below.
 Replace `tag_name` with the tag used for the version you want to install. 
 See availible tags [here](https://github.com/worldbank/ietoolkit/tags).
 
-```net install ietoolkit, from("https://raw.githubusercontent.com/worldbank/stata-linter/<tag_name>") replace```
+```net install ietoolkit, from("https://raw.githubusercontent.com/worldbank/ietoolkit/<tag_name>") replace```
 
 You can now use the commands as usual in your Stata code. 
 This permanently installs this version of `ietollkit`
