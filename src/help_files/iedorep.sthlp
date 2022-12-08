@@ -14,7 +14,7 @@ command please see the {browse "https://dimewiki.worldbank.org/wiki/iedorep":DIM
 
 {title:Syntax}
 
-{phang2} {cmdab:iedorep} "{it:/path/to/do-file.do}" , [ {cmdab:r:ecursive} {cmdab:alldata allseed allsort} ]
+{phang2} {cmdab:iedorep} "{it:/path/do/do-file.do}" , [ {cmdab:alldata allseed allsort} ]
 
 {marker desc}
 {title:Description}
@@ -46,22 +46,11 @@ command please see the {browse "https://dimewiki.worldbank.org/wiki/iedorep":DIM
   {break}
 
 {phang} {cmdab:iedorep} is designed to be used targeting a master do-file (it will work on any file).
-  When done this way with the {cmdab:recursive} option, it will recursively
-  run on do-files that are run by other do-files if errors are detected there.
-  Finally, its verbosity options allow the user to see all changes to data, RNG state,
+  Its verbosity options allow the user to see all changes to data, RNG state,
   and sort seed state, regardless of whether they are flagged as errors.
 
 {marker optslong}
 {title:Options}
-
-{phang}The {cmdab:recursive} option requests that {cmdab:iedorep} detect when errors
-  are flagged following a line that uses {cmdab:do} or {cmdab:run}
-  to execute "sub" do-files. If such errors are detected (ie, if the sub-do-file
-  leaves the data, RNG state, or sort order different in the second run),
-  {cmdab:iedorep} will execute again targeting that filepath.
-  If {cmdab:recursive} is not used,
-  {cmdab:iedorep} will still run sub do-files 
-  as part of the lines where {cmdab:do} or {cmdab:run} are used.
 
 {phang}The {cmdab:alldata}, {cmdab:allseed} , and {cmdab:allsort} options will
   report any time the data is changed, the RNG state changes, or the sort order of the data changed,
@@ -75,7 +64,7 @@ command please see the {browse "https://dimewiki.worldbank.org/wiki/iedorep":DIM
 {title:Example verbose output}
 
   iedorep "${ietoolkit}/run/iedorep/iedorep-target-1.do" ///
-    , alldata allsort allseed recursive
+    , alldata allsort allseed
 
   +---------------------------------------------------------------+
   | Line |           Data |        Seed |          Sort | Subfile |
@@ -92,23 +81,11 @@ command please see the {browse "https://dimewiki.worldbank.org/wiki/iedorep":DIM
   |   26 | ERROR! Changed |             | ERROR! Sorted |     Yes |
   +---------------------------------------------------------------+
 
-  Errors detected in the following sub do-files; starting recursion.
-
-  +----------------------------------------------------------------------------+
-  | Line |                                                                Path |
-  |------+---------------------------------------------------------------------|
-  |   26 | "/Users/bbdaniels/GitHub/ietoolkit/run/iedorep/iedorep-target-2.do" |
-  +----------------------------------------------------------------------------+
-
-  ...
 
 {title:Notes}
 
   {phang}In the example above, the rows without "ERROR!" flags would not appear
-  if the verbosity options were not specified. Similarly,
-  if the recursion option were not specified, the second message would not appear
-  and execution would stop here. Since it was specified,
-  a similar report will be created for the next file.
+  if the verbosity options were not specified.
 
   {phang}We recommend resolving issues from the top down, since later issues
   may be resolved by fixing earlier ones.
