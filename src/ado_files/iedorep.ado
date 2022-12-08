@@ -410,7 +410,7 @@ Pseudo-recursion
     qui keep if !(Err_1 == "" & Err_2 == "" & Err_3 == "") & (Path != "")
     if `c(N)' == 0 {
       di as err " "
-      di as err "No errors detected in sub do-files; recursion halted."
+      di as err "No errors detected in sub do-files; recursion completed."
       di as err " "
     }
     else {
