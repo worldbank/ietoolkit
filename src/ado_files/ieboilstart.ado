@@ -106,7 +106,7 @@
           if _rc local morepaths 0
         }
 
-        local aoutput `"`aoutput'PLUS adopath was set to [`apath']. All other adopaths (apart from BASE) were removed so only programs and ado-files in this PLUS folder is accessible to your code."'
+        local aoutput `"`aoutput'PLUS adopath was set to [`apath']. All adopaths other than this and BASE have been removed. Only programs and ado-files in this PLUS folder are accessible to Stata until the end of this session."'
       }
       else {
         * Set PERSONAL path to ado path
@@ -114,10 +114,10 @@
         adopath ++  PERSONAL
         adopath ++  BASE
 
-        local aoutput `"`aoutput'PERSONAL adopath was set to [`apath']. Any other adopath is still availible."'
+        local aoutput `"`aoutput'PERSONAL adopath was set to [`apath']. All other prior adopath locations remain available."'
       }
 
-      local aoutput `"`aoutput' Run {stata adopath} to see your current setting. These settings are restores next time you restart Stata.{p_end}"'
+      local aoutput `"`aoutput' Do {stata adopath} to see your current setting. These settings will be restored next time you restart Stata.{p_end}"'
     }
 
     /***************************************************************************
@@ -146,7 +146,7 @@
     *Setting maxvar requires a cleared memory. Therefore
     *maxvar() and noclear cannot be used at the same time.
     if "`maxvar'" != "" & "`clear'" != "" {
-      di as error "{phang}It is not possible to set allowed maximum numbers of variables without clearing the data. noclear and maxvar() can therefore not be specified at the same time{p_end}"
+      di as error "{phang}It is not possible to set the maximum numbers of variables without clearing the data. Therefore noclear and maxvar() cannot be specified at the same time.{p_end}"
       di ""
       error 198
       exit

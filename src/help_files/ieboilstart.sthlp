@@ -16,7 +16,7 @@ command please see the {browse "https://dimewiki.worldbank.org/wiki/Ieboilstart"
 is to harmonize settings across users.
 However, it is impossible to guarantee that different types of Stata
 (version number, Small/IC/SE/MP or PC/Mac/Linux)
-work exactly the same in every possible context.
+will work exactly the same in every possible context.
 This command does not guarantee against any version discrepancies in Stata
 or in user-contributed commands.
 This command is solely a collection of common practices to reduce the risk
@@ -28,7 +28,9 @@ See more details {help ieboilstart##desc:below}.
 {title:Syntax}
 
 {phang}Note that one important feature of this command requires that
-{inp: `r(version)'} is included on the first line after {cmd: ieboilstart}, as this setting cannot be done inside a user-command.
+{inp: `r(version)'} is written on the first do-file line after {cmd: ieboilstart}, 
+as this setting cannot be done inside a user-command. 
+This will set the Stata version to the correct setting.
 
 {phang}{cmdab:ieboilstart} , {opt v:ersionnumber(Stata_version)}
 [{opt ado:path("path/to/folder" [, strict])}
@@ -40,9 +42,9 @@ See more details {help ieboilstart##desc:below}.
 {synopthdr:options}
 {synoptline}
 {synopt :{opt v:ersionnumber(Stata_version)}}Sets the Stata version
-the project's code targets{p_end}
+for all subsequent code execution (required){p_end}
 {synopt :{opt ado:path("path" [, strict])}}Sets the folder where this
-project's ado-files are stored{p_end}
+project's ado-files or user-written commands are stored (required for standalone reproducibility packages){p_end}
 {synopt :{opt noclear}}Makes the command not start by clearing all data{p_end}
 {synopt :{opt q:uietly}}Suppresses most of the command's output{p_end}
 {synopt :{opt veryquietly}}Suppresses all of the command's output{p_end}
@@ -64,11 +66,11 @@ permanently set some best practice memory settings{p_end}
 collaboration and reproducibility within a research project.
 Making the same Stata code consistently generate the same results when
 run on other people's computers is harder than what it first might seem.
-Especially if you want the code to run identically also in the future when
-new versions of Stata and new versions of user-written commands
+This is especially true in order to ensure that Stata code will function identically in the future,
+even if new versions of Stata and user-written commands (such as those on SSC)
 have been released.
 The objective of this command is to reduce the risk
-that a research project's code does not generate the same results
+that a research project's code changes its results
 when running the same code on different computers
 or in different points in the future.
 However, note that it is not technically possible
@@ -76,26 +78,27 @@ to fully eliminate this risk.{p_end}
 
 {pstd}The best practice settings this command applies
 can be categorized into the following types:
-{it:Stata version}, {it:ado-paths}, and {it:other} settings.{p_end}
+{it:Stata version}, {it:adopath} management, and {it:other} settings.{p_end}
 
 {dlgtab:Stata version settings}
 
 {pstd}Research projects often span over several years,
-or is required to be reproducible for anyone in the future
+and are required to be reproducible for anyone in the future
 reviewing the results.
-After several years have past, it is likely that
+After several years have passed, it is likely that
 a new version of Stata has been released.
 This can change how the Stata code runs, so for reproducibility,
-it is important to indicate which Stata version this code targets.{p_end}
+it is important to indicate which Stata version this code was written in.{p_end}
 
 {pstd}This command uses Stata's built-in command {cmd:version} to
-target a script to a specific versions of Stata.
-Different versions of Stata might run the same code slightly differently.
+execute a script using a specific version of Stata (and its syntax).
+Different versions of Stata might run the same code slightly differently,
+or they may have changed syntax or functionality for built-in commands entirely.
 See many more details {help version:here}.
 Setting the Stata version makes them run the same code more similarly.
 Note that there is no guarantee that two different versions of Stata
 run the same code identically in every single aspects
-even after targeting the same version.
+even after selecting the same version.
 However, the risk that they do run differently is
 significantly reduced when setting the version.{p_end}
 
@@ -103,17 +106,19 @@ significantly reduced when setting the version.{p_end}
 containing randomization that is intended to be reproducible.
 Stata occasionally updates the randomization algorithm used between versions.
 The improvement when updating the randomization algorithm
-is unlikely to make any difference to the vast majority of research projects.
+is unlikely to make any difference to the vast majority of research projects,
+but any change to {it: any} command might cause the same Stata code to obtain different random numbers
+when used in the future.
 What's important is that to make code with a random process reproducible,
 it must use the exact same algorithm,
-and that is achieved by targeting an exact version.{p_end}
+and that is achieved by selecting an exact Stata version.{p_end}
 
 {pstd}For good reasons, it is not possible to set the Stata version
 for the rest of the code from inside a user-written command.
 Therefore, in order for the version best practice
 to be applied across the project code,
 any user of this command must add {inp:`r(version)'}
-on the immediate subsequent line after {cmdab:ieboilstart}. See below.{p_end}
+on the immediate subsequent do-file line after {cmdab:ieboilstart}. See below.{p_end}
 
 {phang}{cmdab:ieboilstart} , {it:options}{p_end}{phang}`r(version)'{p_end}
 
@@ -125,16 +130,21 @@ are used, then the version should be set in the main file,
 and only results generated when running all code from the main file
 should be considered reproducible.{p_end}
 
-{dlgtab:Ado-path settings}
+{dlgtab:Adopath settings}
 
 {pstd}Many research projects use user-written commands in the code.
 These commands are commonly installed from {help ssc:SSC},
 but can also be installed from other sources
 or be custom written for the specific project.
-Code using user-written commands is only reproducible to the highest standard
-if they are using the same versions of these commands.
+Code using user-written commands is only permanently reproducible
+if future users have {it: exactly} the same versions of all commands.
 This is rarely the case, unless the functionality made easily accessible
 in the option {opt adopath()} in this command is used.{p_end}
+This functionality requires that all user-written commands for a single project
+be stored in a single unique location.
+This ensures that the corresponding code can be maintained, packaged, and archived
+with the precise outputs those versions of code create.
+User-written commands never guarantee backwards compatibility or random-output stability when they are updated.
 
 {pstd}Coordinating that all users in a project team, as well as
 anyone reproducing the results at the same time or in the future,
@@ -142,8 +152,8 @@ have exactly the same version of user-written commands
 installed in their installation of Stata is probably impossible.
 The best practice solution is to set up a project specific folder
 where the commands needed for this project are installed.
-This folder can be shared using a syncing service (ex. DropBox)
-or in version control tools (ex. GitHub).
+This folder can be shared using a syncing service (for example, Dropbox)
+or in version control tools such as Github, where the rest of the project code is stored.
 Just make sure that if this folder is shared publicly,
 the project is allowed to do so
 for commands not written by anyone in the project.{p_end}
