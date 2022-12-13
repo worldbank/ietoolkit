@@ -9,9 +9,6 @@ help for {hi:iedorep}
 
 {phang}{cmdab:iedorep} {hline 2} detects reproducibility errors in do-files automatically by running them multiple times and comparing the Stata state on a line-by-line basis between executions. 
 
-{phang}For a more descriptive discussion on the intended usage and work flow of this
-command please see the {browse "https://dimewiki.worldbank.org/wiki/iedorep":DIME Wiki}.
-
 {title:Syntax}
 
 {phang2} {cmdab:iedorep} "{it:/path/do/do-file.do}" , [ {cmdab:alldata allseed allsort} ]
