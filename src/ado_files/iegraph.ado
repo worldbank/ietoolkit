@@ -26,7 +26,7 @@ cap	program drop	iegraph
 
 	qui {
 
-	version 11
+	version 12
 
 /*******************************************************************************
 
@@ -444,7 +444,7 @@ cap	program drop	iegraph
 		local confIntGraph = ""
 	}
 		else if `CONFINT_BAR' == 1 {
-		local confIntGraph = `"(rcap conf_int_max conf_int_min position, lc(gs)) (scatter mean position,  msym(none)  mlabsize(`mlabsize') mlabposition(`mlabposition') mlabcolor(`mlabcolor'))"'
+		local confIntGraph = `"(rcap conf_int_max conf_int_min position, lc(gs)) (scatter mean position, msymbol(none) mlabsize(`mlabsize') mlabposition(`mlabposition') mlabcolor(`mlabcolor'))"'
 	}
 
 	*Create the bar label
@@ -462,7 +462,7 @@ cap	program drop	iegraph
 			format label %9.1f
 		}
 
-		local barLabel = `"(scatter mean position,  msym(none)  mlab(label) mlabposition(`mlabposition') mlabcolor(`mlabcolor'))"'
+		local barLabel = `"(scatter mean position, msymbol(none) mlab(label) mlabsize(`mlabsize') mlabposition(`mlabposition') mlabcolor(`mlabcolor'))"'
 	}
 
 	local titleOption `" , xtitle("") ytitle("`e(depvar)'") "'

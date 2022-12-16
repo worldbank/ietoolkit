@@ -1,0 +1,146 @@
+\documentclass{article}
+\usepackage[utf8]{inputenc}
+\usepackage{adjustbox}
+
+\title{iebaltab \\ v6.4}
+
+\begin{document}
+
+\maketitle
+\begin{table}[]
+    \centering
+    \caption{Default with 2 treatment arms}
+    \adjustbox{max width = \linewidth}{
+        \input{2g.tex}
+    }
+\end{table}
+
+\begin{table}[]
+    \centering
+    \caption{2 treatment arms, control = 0}
+    \adjustbox{max width = \linewidth}{
+        \input{2g-control.tex}
+    }
+\end{table}
+
+\begin{table}[]
+    \centering
+    \caption{2 treatment arms with total column}
+    \adjustbox{max width = \linewidth}{
+        \input{2g-total.tex}
+    }
+\end{table}
+
+\begin{table}[]
+    \centering
+    \caption{2 treatment arms with onerow option}
+    \adjustbox{max width = \linewidth}{
+        \input{2g-onerow.tex}
+    }
+\end{table}
+
+\begin{table}[]
+    \centering
+    \caption{2 treatment arms with fixed effects}
+    \adjustbox{max width = \linewidth}{
+        \input{2g-fe.tex}
+    }
+\end{table}
+
+\begin{table}[]
+    \centering
+    \caption{2 treatment arms with joint F-test}
+    \adjustbox{max width = \linewidth}{
+        \input{2g-ftest.tex}
+    }
+\end{table}
+
+\begin{table}[]
+    \centering
+    \caption{2 treatment arms with F-test}
+    \adjustbox{max width = \linewidth}{
+        \input{2g-feqtest.tex}
+    }
+\end{table}
+
+\begin{table}[]
+    \centering
+    \caption{2 treatment arms with clustered SEs}
+    \adjustbox{max width = \linewidth}{
+        \input{2g-cluster.tex}
+    }
+\end{table}
+
+\begin{table}[]
+    \centering
+    \caption{2 treatment arms with fmt option}
+    \adjustbox{max width = \linewidth}{
+        \input{2g-fmt.tex}
+    }
+\end{table}
+
+\begin{table}[]
+    \centering
+    \caption{2 treatment arms without stars}
+    \adjustbox{max width = \linewidth}{
+        \input{2g-nostars.tex}
+    }
+\end{table}
+
+\begin{table}[]
+    \centering
+    \caption{2 treatment arms with stars}
+    \adjustbox{max width = \linewidth}{
+        \input{2g-stars.tex}
+    }
+\end{table}
+
+\begin{table}[]
+    \centering
+    \caption{Default with 3 treatment arms}
+    \adjustbox{max width = \linewidth}{
+        \input{3g.tex}
+    }
+\end{table}
+
+\begin{table}[]
+    \centering
+    \caption{3 treatment arms control = 0}
+    \adjustbox{max width = \linewidth}{
+        \input{3g-control.tex}
+    }
+\end{table}
+
+\begin{table}[]
+    \centering
+    \caption{3 treatment with custom order}
+    \adjustbox{max width = \linewidth}{
+        \input{3g-order.tex}
+    }
+\end{table}
+
+\begin{table}[]
+    \centering
+    \caption{3 treatment arms control = 0 and custom order}
+    \adjustbox{max width = \linewidth}{
+        \input{3g-control-order.tex}
+    }
+\end{table}
+
+\begin{table}[]
+    \centering
+    \caption{3 treatment arms with total}
+    \adjustbox{max width = \linewidth}{
+        \input{3g-total.tex}
+    }
+\end{table}
+
+\begin{table}[]
+    \centering
+    \caption{3 treatment arms with covariates}
+    \adjustbox{max width = \linewidth}{
+        \input{3g-cov.tex}
+    }
+\end{table}
+
+\end{document}

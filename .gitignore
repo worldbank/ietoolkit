@@ -43,12 +43,15 @@ _config.yml
 !/**/*.do
 !/**/*.ado
 !/**/*.sthlp
+!/**/output/iesave/reports/*.csv
+!/**/*.stpr
 
 # R
 !/**/*.R
 
-# LaTeX
+# Outputs
 !/**/*.tex
+!/**/*.csv
 
 # Python
 !/**/*.py
@@ -62,5 +65,8 @@ _config.yml
 #the folder test/ is used for peoples individual testing, this is different from test_scripts/
 test/
 
-#Outputs in the run/outputs folder
-run/output
+###########
+# Outputs in the run/outputs folder
+!/**/output/**/*.csv
+
+

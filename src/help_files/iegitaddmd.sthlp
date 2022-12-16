@@ -52,7 +52,7 @@ command please see the {browse "https://dimewiki.worldbank.org/wiki/Iegitaddmd":
 
 {phang}{opt comparefolder(file_path)} is used to compare a file tree in a different location and create the folders with placeholder files in all folders that exist in {opt comparefolder()} but not in {opt folder()}. If a folder that does no exist in {opt folder()} has a subfolder, then both the folder and the subfolder will be created and the placeholder file is only crated in the sub-folder. This is enough to share both folder and the subfolder in GitHub. If the {opt comparefolder()} and {opt folder()} ends with folders with different names, for example {opt folder(${project}/datawork/baseline)} and {opt comparefolder(${project}/datawork)}, then the command will throw an error as it is likely that the paths do not point to corresponding folders in the two folder trees. See option {opt manual} for a way to manually confirm each folder before a placeholder file is created in it.{p_end}
 
-{phang}{cmd:file(}{it:{help filename}}{cmd:)} allows the user to specify a file saved on
+{phang}{cmd:customfile(}{it:{help filename}}{cmd:)} allows the user to specify a file saved on
 	the computer to be used as the placeholder file	instead of the default README.md file. This
 	allows people and organizations to write their own template placeholder files according to their own
 	preferences. We recommend that a file of type .md (markdown) and name README.md is used as
