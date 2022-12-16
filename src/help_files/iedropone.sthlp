@@ -120,7 +120,7 @@ command please see the {browse "https://dimewiki.worldbank.org/wiki/Iedropone":D
 
 {pstd} {hi:Example 4.}
 
-{pmore}{inp:iedropone if village == 100, mvar(household_head) mvar(`" "Bob Smith" "Ann Davitt" "Blessing Johnson" "')}
+{pmore}{inp:iedropone if village == 100, mvar(household_head) mval(`" "Bob Smith" "Ann Davitt" "Blessing Johnson" "')}
 
 {pmore}If the values in {cmd:mvar()} are strings with empty spaces then then each
 	value have to be enclosed in double quotes and the full list needs to start
