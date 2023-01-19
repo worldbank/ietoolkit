@@ -58,7 +58,7 @@ qui {
 
 	*Set minimum version for this command
 	version 12
-    
+
 	/***********************************************
 	************************************************
 
@@ -872,7 +872,7 @@ qui {
 						else mat row[1,`colindex'] = .c
 
 						*The diff between the groups after controling for fixed effects and covariates
-						mat row[1,`++colindex'] = e(b)[1,1]
+						mat row[1,`++colindex'] = _b[`dummy_pair_`ttest_pair'']
 
 						*Get the standard error for this pair dummy and calculate st dev
 						local se_this_pair = _se[`dummy_pair_`ttest_pair'']
