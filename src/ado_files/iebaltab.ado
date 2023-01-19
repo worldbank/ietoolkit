@@ -872,9 +872,7 @@ qui {
 						else mat row[1,`colindex'] = .c
 
 						*The diff between the groups after controling for fixed effects and covariates
-            tempname compatmat
-              mat `compatmat' = e(b)
-						mat row[1,`++colindex'] = `compatmat'[1,1]
+						mat row[1,`++colindex'] = _b[`dummy_pair_`ttest_pair'']
 
 						*Get the standard error for this pair dummy and calculate st dev
 						local se_this_pair = _se[`dummy_pair_`ttest_pair'']
