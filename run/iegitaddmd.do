@@ -1,78 +1,107 @@
-	
-	* Set this local to a folder where folders can be creaetd for this experiment
-	global ietoolkit_clone "C:\Users\wb462869\Documents\GitHub\ietoolkit"
-	global test_folder "${ietoolkit_clone}\run\output\iegitaddmd"
-	
-	qui do "${ietoolkit_clone}/run/ie_recurse_rmdir.do" 
-	
-	* Make sure this folder is created
-	cap mkdir "${ietoolkit_clone}\run\output\iegitaddmd"
-	
-	
-	* Create a folder clone and a folder dropbox (see use case 2 in help file for why both these folders are needed)
-	local highlevel_folders clone dropbox gitfilter1 gitfilter2
-	foreach folder of local highlevel_folders {
-		ie_recurse_rmdir, folder("${test_folder}/`folder'") okifnotexist
-		mkdir "${test_folder}/`folder'"
-	}
 
-	* USe iefolder to create identical project folders 
-	iefolder new project , projectfolder("${test_folder}/clone")
-	iefolder new project , projectfolder("${test_folder}/dropbox")
-	iefolder new round Baseline , projectfolder("${test_folder}/clone")
-	iefolder new round Baseline , projectfolder("${test_folder}/dropbox")
-	
-	iefolder new unitofobs students, projectfolder("${test_folder}/clone")
-	iefolder new unitofobs teachers, projectfolder("${test_folder}/clone")
-	iefolder new unitofobs schools, projectfolder("${test_folder}/clone")
-	
+	**********************************************
+    * Set root macro to clone folder wide path macros
+
+    ***
+    * Macro to run folder
+    local run    "${ietoolkit_clone}/run"
+    local output "`run'/output/iegitaddmd"
+
+    local cl     "`output'/clone"
+    local db     "`output'/dropbox"
+
+    local cl_dw  "`cl'/DataWork"
+    local db_dw  "`db'/DataWork"
+
+    local customfolder   "`output'/customfolder"
+    local customfilename "iegitaddmd_custom_file.md"
+    local customfile     "`run'/`customfilename'"
+
+    **********************************************
+    * Load commands
+
+    *Load version of iegitaddmd in clone
+    qui do "${ietoolkit_clone}/src/ado_files/iegitaddmd.ado"
+
+    *Load utility command
+	  qui do "`run'/ie_recurse_rmdir.do"
+    ie_recurse_rmdir, folder("`output'") okifnotexist
+
+    **********************************************
+    * Set up folders to test on
+
+	  * Simple create folders
+	  cap mkdir "`output'"
+    cap mkdir "`customfolder'"
+    cap mkdir "`cl'"
+    cap mkdir "`db'"
+
+	* USe iefolder to create identical project folders
+	iefolder new project           , projectfolder("`cl'")
+	iefolder new project           , projectfolder("`db'")
+	iefolder new round Baseline    , projectfolder("`cl'")
+	iefolder new round Baseline    , projectfolder("`db'")
+
+	iefolder new unitofobs students, projectfolder("`cl'")
+	iefolder new unitofobs teachers, projectfolder("`cl'")
+	iefolder new unitofobs schools , projectfolder("`cl'")
+
 	* Remove some folders from the clone to simulate use case 2 (see helpfile for description of use cases)
-	rmdir "${test_folder}/clone/DataWork/Baseline/DataSets/Deidentified"
-	rmdir "${test_folder}/clone/DataWork/Baseline/DataSets/Final"
-	rmdir "${test_folder}/clone/DataWork/Baseline/DataSets/Intermediate"
-	rmdir "${test_folder}/clone/DataWork/Baseline/DataSets"
-	rmdir "${test_folder}/clone/DataWork/Baseline/Questionnaire/Questionnaire Documentation"
-	
+	rmdir "`cl_dw'/Baseline/DataSets/Deidentified"
+	rmdir "`cl_dw'/Baseline/DataSets/Final"
+	rmdir "`cl_dw'/Baseline/DataSets/Intermediate"
+	rmdir "`cl_dw'/Baseline/DataSets"
+	rmdir "`cl_dw'/Baseline/Questionnaire/Questionnaire Documentation"
+
 	* Create the git folder
 	local gitfolders gitfilter1 gitfilter2
 	foreach gitfolder of local gitfolders {
-		mkdir "${test_folder}/`gitfolder'/.git"
-		mkdir "${test_folder}/`gitfolder'/includeme"
-		mkdir "${test_folder}/`gitfolder'/skipmein2"
-		mkdir "${test_folder}/`gitfolder'/skipalsomein2"
-		mkdir "${test_folder}/`gitfolder'/sub"
-		mkdir "${test_folder}/`gitfolder'/sub/.git"
-		mkdir "${test_folder}/`gitfolder'/sub/includealsome"
-		
-		mkdir "${test_folder}/`gitfolder'/ado"
-		mkdir "${test_folder}/`gitfolder'/asdfasd"
-		mkdir "${test_folder}/`gitfolder'/asdfasd/ado"
+    mkdir "`output'/`gitfolder'"
+    mkdir "`output'/`gitfolder'/.git"
+		mkdir "`output'/`gitfolder'/includeme"
+		mkdir "`output'/`gitfolder'/skipmein2"
+		mkdir "`output'/`gitfolder'/skipalsomein2"
+		mkdir "`output'/`gitfolder'/sub"
+		mkdir "`output'/`gitfolder'/sub/.git"
+		mkdir "`output'/`gitfolder'/sub/includealsome"
+		mkdir "`output'/`gitfolder'/ado"
+		mkdir "`output'/`gitfolder'/asdfasd"
+		mkdir "`output'/`gitfolder'/asdfasd/ado"
 	}
-	
-	
-	*Set global to ietoolkit clone
-	qui do "${ietoolkit_clone}/src/ado_files/iegitaddmd.ado"
-	
+
+  **********************************************
+  * Test the command
+
 	*Use case 1 - see helpfile for description of use cases
-	iegitaddmd , folder("${test_folder}/clone/DataWork") auto dryrun
-	iegitaddmd , folder("${test_folder}/clone/DataWork") auto 
-	
+	iegitaddmd , folder("`cl_dw'") auto dryrun
+	iegitaddmd , folder("`cl_dw'") auto
+
 	*Use case 2 - see helpfile for description of use cases
-	iegitaddmd , folder("${test_folder}/clone\DataWork") comparefolder("${test_folder}/dropbox\DataWork") auto dryrun
-	iegitaddmd , folder("${test_folder}/clone\DataWork") comparefolder("${test_folder}/dropbox\DataWork") auto
-	
+	iegitaddmd , folder("`cl_dw'") comparefolder("`db_dw'") auto dryrun
+	iegitaddmd , folder("`cl_dw'") comparefolder("`db_dw'") auto
+
 	*Test prompt
-	mkdir "${test_folder}/clone/DataWork/Baseline/DataSets/Final/Publishable"
-	*iegitaddmd , folder("${test_folder}/clone/DataWork") 
-	
+	mkdir "`cl_dw'/Baseline/DataSets/Final/Publishable"
+	*iegitaddmd , folder("`cl_dw'")
+
 	*Test skip git folders
-	iegitaddmd , folder("${test_folder}/gitfilter1") auto 
-	
+	iegitaddmd , folder("`output'/gitfilter1") auto
+
+  * Test that the regular file was copied correctly
+  checksum "`output'/gitfilter1/ado/README.md"
+  assert `r(checksum)' == 4290144044
+
 	*Test skip custom
-	iegitaddmd , folder("${test_folder}/gitfilter2") auto dry skipfolders(skipmein2 skipalsomein2 folderthatnotexist ado)
-	iegitaddmd , folder("${test_folder}/gitfilter2") auto skipfolders(skipmein2 skipalsomein2 folderthatnotexist ado)
-	
+	iegitaddmd , folder("`output'/gitfilter2") auto dry skipfolders(skipmein2 skipalsomein2 folderthatnotexist ado)
+	iegitaddmd , folder("`output'/gitfilter2") auto skipfolders(skipmein2 skipalsomein2 folderthatnotexist ado)
+
 	* Test that folders are not used
-	cap iegitaddmd , folder("${test_folder}/gitfilter2") auto skipfolders(skipmein2 skipalsomein2 folderthatnotexist asdfasd/ado)
+	cap iegitaddmd , folder("`output'/gitfilter2") auto skipfolders(skipmein2 skipalsomein2 folderthatnotexist asdfasd/ado)
 	assert _rc == 198
-	
+
+  * Test customfile
+  iegitaddmd, folder("`customfolder'") customfile("`customfile'") auto
+
+  * Test that the custom file was actaully used
+  checksum "`customfolder'/`customfilename'"
+  assert `r(checksum)' == 1932786186

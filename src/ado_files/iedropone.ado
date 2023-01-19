@@ -1,4 +1,4 @@
-*! version 6.4 11JAN2022 DIME Analytics dimeanalytics@worldbank.org
+*! version 7.0 16DEC2022 DIME Analytics dimeanalytics@worldbank.org
 
 	capture program drop 	iedropone
 			program define 	iedropone ,
@@ -8,7 +8,7 @@
 		syntax [if] ,  [Numobs(numlist int min=1 max=1 >0) mvar(varname) mval(string) zerook]
 
 
-		version 11.0
+		version 12
 
 		/***********************************
 

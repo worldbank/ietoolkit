@@ -1,4 +1,4 @@
-*! version 6.4 11JAN2022 DIME Analytics dimeanalytics@worldbank.org
+*! version 7.0 16DEC2022 DIME Analytics dimeanalytics@worldbank.org
 
 cap program drop 	ieddtab
 	program define	ieddtab, rclass
@@ -34,7 +34,7 @@ cap program drop 	ieddtab
 		]
 
 		*Set minimum version for this command
-		version 11
+		version 12
 
 	/*************
 
