@@ -7,11 +7,11 @@ help for {hi:iedorep}
 
 {title:Title}
 
-{phang}{cmdab:iedorep} {hline 2} detects reproducibility errors in do-files automatically by running them multiple times and comparing the Stata state on a line-by-line basis between executions. 
+{phang}{cmdab:iedorep} {hline 2} detects reproducibility errors in do-files automatically by running them multiple times and comparing the Stata state on a line-by-line basis between executions.
 
 {title:Syntax}
 
-{phang2} {cmdab:iedorep} "{it:/path/do/do-file.do}" , [ {cmdab:alldata allseed allsort} ]
+{phang2} {cmdab:iedorep} "{it:/path/do/do-file.do}" , [{opt v:erbose} {cmdab:alldata allseed allsort}]
 
 {marker desc}
 {title:Description}
@@ -49,13 +49,16 @@ help for {hi:iedorep}
 {marker optslong}
 {title:Options}
 
-{phang}The {cmdab:alldata}, {cmdab:allseed} , and {cmdab:allsort} options will
-  report any time the data is changed, the RNG state changes, or the sort order of the data changed,
+{phang}The {opt v:erbose} options are either called together using {opt v:erbose}
+  or independently as {cmdab:alldata}, {cmdab:allseed}, and {cmdab:allsort}.
+  These options will report any time the data is changed,
+  the RNG state changes, or the sort order of the data changed,
   even if the result is consistent between the two do-file runs.
   This is only recommended for advanced diagnostics;
   for example, if reproducibility problems persist despite no errors appearing.
-  There are known cases where inconsistencies occur with very low
-  frequency and might not be detected in every given pair of runs.
+  There are, for example, known cases where inconsistencies occur with very low
+  frequency and might not be detected in every given pair of runs,
+  so identifying every possible error location for manual inspection may help.
 
 {marker example}
 {title:Example verbose output}

@@ -5,12 +5,19 @@ cap  program drop  iedorep
 
   syntax anything , ///
   [Recursive] ///
-  [alldata] [allsort] [allseed] /// Verbose reporting of non-errors
+  [Verbose] [alldata] [allsort] [allseed] /// Verbose reporting of non-errors
   [debug] [qui] // Programming option to view exact temp do-file
 
 /*****************************************************************************
 Options
 *****************************************************************************/
+
+  // Optionally enable all verbosity options
+  if "`verbose'" != "" {
+    local alldata "alldata"
+    local allsort "allsort"
+    local allseed "allseed"
+  }
 
   // Optionally request all data changes to be flagged
   if "`alldata'" != "" {
