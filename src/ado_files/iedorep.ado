@@ -5,6 +5,7 @@ cap  program drop  iedorep
 
   syntax anything , ///
   [Recursive] ///
+  [Output(string asis)] ///
   [Verbose] [alldata] [allsort] [allseed] /// Verbose reporting of non-errors
   [debug] [qui] // Programming option to view exact temp do-file
 
@@ -408,6 +409,19 @@ Output flags and errors
   qui gen Subfile = "Yes" if Path != ""
   qui keep if !(Data == "" & Seed == "" & Sort == "")
   li Line Data Seed Sort Subfile, noobs divider
+
+  if `"`output'"' != `""' {
+
+    lab var Data "Data"
+    lab var Seed "Seed"
+    lab var Sort "Sort"
+
+    qui export delimited ///
+      Line Data Seed Sort Subfile ///
+    using `output' , replace
+
+    noi di `"Output report created at {browse `output':`output'}
+  }
 
 /*****************************************************************************
 Pseudo-recursion
