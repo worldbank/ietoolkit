@@ -10,28 +10,65 @@ If you are not updating this meta information when updating the files in the `sc
 ***
 
 ### Title
-'IETOOLKIT': module providing commands specially developed for Impact Evaluations
+'IETOOLKIT': module providing commands for reproducible research
 
 ### Description
 
-ietoolkit provides a set of commands that address different aspects of data management and data analysis in relation to Impact Evaluations. The list of commands will be extended continuously, and suggestions on new commands are highly appreciated. The commands were developed to standardize and simplify best practices across the World Bank's unit for Impact Evaluations (DIME). They are developed to be applicable to different contexts, but some might not apply to practices adopted at other institutions. For these commands, the corresponding help files provide justifications for the standardized practices applied. See https://github.com/worldbank/ietoolkit and https://dimewiki.worldbank.org/wiki/Stata_Coding_Practices for more details.
-
+ietoolkit provides a set of commands that
+automates common tasks in reproducible research.
+This package is developed at the World Bank's
+department for impact evaluations (DIME)
+and some features are therefore specific to impact evaluation,
+but the vast majority of the features are general to any reproducible research.
+The practices in these commands are based on experiences in
+the 200+ projects within DIME.
+Some commands, like iebaltab and ieddtab, simplifies and standardizes analysis
+making it less error prone.
+Other commands, like ieboilstart and iesave, applies best practices
+gathered from across all of DIME's portfolio.
+See https://github.com/worldbank/ietoolkit and
+https://dimewiki.worldbank.org/wiki/Stata_Coding_Practices for more details.
 
 ### Keywords
-* impact evaluations
+* reproducible research
 * data management
-* survey data
 * data analysis
 * balance tables
 * difference-in-differences
 * matching
+* impact evaluations
 
 ### Required Stata Version      
-Stata 11
+Stata 12
 
-### Author and Email
-* Author: DIME Analytics, The World Bank, DECIE
-* Support: email  dimeanalytics@worldbank.org
+### AUTHOR:
+"DIME Analytics, DIME, The World Bank Group", dimeanalytics@worldbank.org
+
+### FILES REQUIRED TO BE IN PACKAGE:
+- iebaltab.ado
+- ieboilstart.ado
+- ieddtab.ado
+- iedorep.ado
+- iedropone.ado
+- iefolder.ado
+- iegitaddmd.ado
+- iegraph.ado
+- iekdensity.ado
+- iematch.ado
+- iesave.ado
+- ietoolkit.ado
+- iebaltab.sthlp
+- ieboilstart.sthlp
+- ieddtab.sthlp
+- iedorep.sthlp
+- iedropone.sthlp
+- iefolder.sthlp
+- iegitaddmd.sthlp
+- iegraph.sthlp
+- iekdensity.sthlp
+- iematch.sthlp
+- iesave.sthlp
+- ietoolkit.sthlp
 
 
 ***
