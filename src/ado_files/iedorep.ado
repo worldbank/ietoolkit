@@ -6,8 +6,9 @@ cap  program drop  iedorep
   syntax anything , ///
   [Recursive] ///
   [Output(string asis)] ///
+  [MAXIter(integer 1)] [MAXDepth(integer 0)] /// Restrict reporting
   [Verbose] [alldata] [allsort] [allseed] /// Verbose reporting of non-errors
-  [debug] [looplogic] [qui] // Programming options to view exact temp do-file
+  [debug] [qui] // Programming options to view exact temp do-file
 
 /*****************************************************************************
 Options
@@ -22,32 +23,32 @@ Options
 
   // Optionally request all data changes to be flagged
   if "`alldata'" != "" {
-    local alldata1 = `" ("Changed") ("") ("") ("") ("") ("") ("") ("") "'
-    local alldata2 = `" ("") ("ERROR! ") ("") ("") ("") ("") ("") ("") "'
+    local alldata1 = `" ("Changed") ("") ("") ("") ("") ("") ("") (.) "'
+    local alldata2 = `" ("") ("ERROR! ") ("") ("") ("") ("") ("") (.) "'
   }
   else {
-    local alldata1 = `" ("") ("") ("") ("") ("") ("") ("") ("") "'
-    local alldata2 = `" ("Changed") ("ERROR! ") ("") ("") ("") ("") ("") ("") "'
+    local alldata1 = `" ("") ("") ("") ("") ("") ("") ("") (.) "'
+    local alldata2 = `" ("Changed") ("ERROR! ") ("") ("") ("") ("") ("") (.) "'
   }
 
   // Optionally request all sorts to be flagged
   if "`allsort'" != "" {
-    local allsort1 = `" ("") ("") ("") ("") ("Sorted") ("") ("") ("") "'
-    local allsort2 = `" ("") ("") ("") ("") ("") ("ERROR! ") ("") ("") "'
+    local allsort1 = `" ("") ("") ("") ("") ("Sorted") ("") ("") (.) "'
+    local allsort2 = `" ("") ("") ("") ("") ("") ("ERROR! ") ("") (.) "'
   }
   else {
-    local allsort1 = `" ("") ("") ("") ("") ("") ("") ("") ("") "'
-    local allsort2 = `" ("") ("") ("") ("") ("Sorted") ("ERROR! ") ("") ("") "'
+    local allsort1 = `" ("") ("") ("") ("") ("") ("") ("") (.) "'
+    local allsort2 = `" ("") ("") ("") ("") ("Sorted") ("ERROR! ") ("") (.) "'
   }
 
   // Optionally request all seeds to be flagged
   if "`allseed'" != "" {
-    local allseed1 = `" ("") ("") ("Used") ("") ("") ("") ("") ("") "'
-    local allseed2 = `" ("") ("") ("") ("ERROR! ") ("") ("") ("") ("") "'
+    local allseed1 = `" ("") ("") ("Used") ("") ("") ("") ("") (.) "'
+    local allseed2 = `" ("") ("") ("") ("ERROR! ") ("") ("") ("") (.) "'
   }
   else {
-    local allseed1 = `" ("") ("") ("") ("") ("") ("") ("") ("") "'
-    local allseed2 = `" ("") ("") ("Used") ("ERROR! ") ("") ("") ("") ("") "'
+    local allseed1 = `" ("") ("") ("") ("") ("") ("") ("") (.) "'
+    local allseed2 = `" ("") ("") ("Used") ("ERROR! ") ("") ("") ("") (.) "'
   }
 
 /*****************************************************************************
@@ -98,7 +99,7 @@ preserve
     "  cap java clear  " _n
   file write edited "tempname theSORT theRNG allRNGS whichRNG theDATA" _n
   file write edited "tempfile posty allDATA" _n "postfile posty Line " ///
-    "str15(Data Err_1 Seed Err_2 Sort Err_3) str2000(Path) str3(Depth) using \`posty' , replace" _n
+    "str15(Data Err_1 Seed Err_2 Sort Err_3) str2000(Path) int(Depth) using \`posty' , replace" _n
 
   file write edited `"local \`theRNG' = "\`c(rngstate)'" "' _n
   file write checkr `"local \`theRNG' = "\`c(rngstate)'" "' _n
@@ -120,6 +121,9 @@ while r(eof)==0 {
 
   // Increment line
   local linenum = `linenum' + 1
+  file write edited `"// Line `linenum_real' ---------------------------- // "' _n
+  file write checkr `"// Line `linenum_real' ---------------------------- // "' _n
+
 
   // Reproduce file contents
     // Catch any [clear all] or [ieboilstart] commands
@@ -242,99 +246,106 @@ while r(eof)==0 {
   /*****************************************************************************
   Implement logic checks in file copy
   *****************************************************************************/
-  // if (`comment' == 0) & !strpos("`loopstate'","loop") {
-    local depth : word count `loopstate'
-    file write edited `" post posty (`linenum_real')  ("") ("") ("") ("") ("") ("") ("") ("`depth'") "' _n
-    // Add checkers if line end
-    if !strpos(`"`macval(line)'"',"///") {
-      local logic = 0 // If we are here with logic flagged, it was a subset
+  local depth : word count `loopstate'
+  file write edited `" "' _n
+  file write edited `"// Line `linenum_real' Checks ------------------------ // "' _n
+  file write edited `"post posty (`linenum_real')  ("") ("") ("") ("") ("") ("") ("") (`depth') "' _n
+  // Add checkers if line end
+  if !strpos(`"`macval(line)'"',"///") {
+    local logic = 0 // If we are here with logic flagged, it was a subset
 
-      // Catch any [do] or [run] commands
-      if  strpos(`"`macval(line)'"',"do ") {
-        local theRECURSION = substr(`"`macval(line)'"',strpos(`"`macval(line)'"',"do ")+3,.)
-        file write edited `" post posty (`linenum_real')  ("") ("") ("") ("") ("") ("") (`"`theRECURSION'"') ("") "' _n
-      }
-      else if  strpos(`"`macval(line)'"',"ru ") {
-        local theRECURSION = substr(`"`macval(line)'"',strpos(`"`macval(line)'"',"ru ")+3,.)
-        file write edited `" post posty (`linenum_real')  ("") ("") ("") ("") ("") ("") (`"`theRECURSION'"') ("") "' _n
-      }
-      if  strpos(`"`macval(line)'"',"run ") {
-        local theRECURSION = substr(`"`macval(line)'"',strpos(`"`macval(line)'"',"run ")+4,.)
-        file write edited `" post posty (`linenum_real')  ("") ("") ("") ("") ("") ("") (`"`theRECURSION'"') ("") "' _n
-      }
-
-      // Flag changes to RNG state
-      file write edited ///
-      `"if ("\`c(rngstate)'" != "\`\`theRNG''") {"' _n ///
-        `"post posty (`linenum_real') `allseed1'   "' _n ///
-        `"local \`theRNG' = "\`c(rngstate)'" "' _n ///
-        `"local \`allRNGS' = "\`\`allRNGS'' \`c(rngstate)'" "' _n ///
-      `"}"'_n
-
-      // Error changes to RNG state
-      file write checkr ///
-      `"if ("\`c(rngstate)'" != "\`\`theRNG''") {"' _n ///
-        `"local \`whichRNG' = \`\`whichRNG'' + 1"' _n ///
-        `"local \`theRNG' = "\`c(rngstate)'" "' _n ///
-        `"if ("\`c(rngstate)'" != "\`: word \`\`whichRNG'' of \`\`allRNGS'''") {"' _n ///
-          `"post posty (`linenum_real') `allseed2'  "' _n ///
-        `"}"'_n ///
-      `"}"'_n
-
-      // Flag changes to Sort RNG state
-      file write edited ///
-      `"if ("\`c(sortrngstate)'" != "\`\`theSORT''") {"' _n ///
-        `"post posty (`linenum_real') `allsort1' "' _n ///
-        `"local \`theSORT' = "\`c(sortrngstate)'" "' _n ///
-        `"tempfile `linenum_real'_x"' _n ///
-        `"save \``linenum_real'_x' , emptyok"' _n ///
-        `"local theLOCALS "\`theLOCALS' `linenum_real'_x" "' _n ///
-      `"}"'_n
-
-      // Flag Errors to Sort RNG state
-      file write checkr ///
-      `"if ("\`c(sortrngstate)'" != "\`\`theSORT''") {"' _n ///
-        `"local \`theSORT' = "\`c(sortrngstate)'" "' _n ///
-        `"cap cf _all using \``linenum_real'_x'"' _n ///
-        `"if _rc != 0 {"'_n ///
-            `"post posty (`linenum_real') `allsort2' "' _n ///
-        `"}"'_n ///
-      `"}"'_n
-
-      // Flag changes to DATA state
-      file write edited ///
-      "datasignature" _n ///
-      `"if ("\`r(datasignature)'" != "\`\`theDATA''") {"' _n ///
-        `"post posty (`linenum_real') `alldata1' "' _n ///
-        `"local \`theDATA' = "\`r(datasignature)'" "' _n ///
-        `"local theLOCALS "\`theLOCALS' `linenum_real'" "' _n ///
-        `"local `linenum_real' = "\`r(datasignature)'" "' _n ///
-      `"}"'_n
-
-      // Error changes to DATA state
-      file write checkr ///
-      "datasignature" _n ///
-      `"if ("\`r(datasignature)'" != "\`\`theDATA''") {"' _n ///
-        `"local \`theDATA' = "\`r(datasignature)'" "' _n ///
-        `"if ("\`r(datasignature)'" != "\``linenum_real''") {"'_n ///
-            `"post posty (`linenum_real') `alldata2' "' _n ///
-        `"}"'_n ///
-      `"}"'_n
-
-      // Advance line number
-      local linenum_real = `linenum'
+    // Catch any [do] or [run] commands
+    if  strpos(`"`macval(line)'"',"do ") {
+      local theRECURSION = substr(`"`macval(line)'"',strpos(`"`macval(line)'"',"do ")+3,.)
+      file write edited `" post posty (`linenum_real')  ("") ("") ("") ("") ("") ("") (`"`theRECURSION'"') (.) "' _n
+    }
+    else if  strpos(`"`macval(line)'"',"ru ") {
+      local theRECURSION = substr(`"`macval(line)'"',strpos(`"`macval(line)'"',"ru ")+3,.)
+      file write edited `" post posty (`linenum_real')  ("") ("") ("") ("") ("") ("") (`"`theRECURSION'"') (.) "' _n
+    }
+    if  strpos(`"`macval(line)'"',"run ") {
+      local theRECURSION = substr(`"`macval(line)'"',strpos(`"`macval(line)'"',"run ")+4,.)
+      file write edited `" post posty (`linenum_real')  ("") ("") ("") ("") ("") ("") (`"`theRECURSION'"') (.) "' _n
     }
 
-    // Error if delimiter
-    if strpos(`"`macval(line)'"',"#d") {
-      di as err "      Note: The delimiter may have been changed in this file (#d)."
-      di as err " "
-    }
+    // Flag changes to RNG state
+    file write edited `"// RNG Check --------------------------- // "' _n
+    file write edited ///
+    `" if ("\`c(rngstate)'" != "\`\`theRNG''") {"' _n ///
+      `"  post posty (`linenum_real') `allseed1'   "' _n ///
+      `"  local \`theRNG' = "\`c(rngstate)'" "' _n ///
+      `"  local \`allRNGS' = "\`\`allRNGS'' \`c(rngstate)'" "' _n ///
+    `" }"'_n
 
-  // } // Comments and loops logic
+    // Error changes to RNG state
+    file write checkr `"// RNG Check -------------------------- // "' _n
+    file write checkr ///
+    `" if ("\`c(rngstate)'" != "\`\`theRNG''") {"' _n ///
+      `"  local \`whichRNG' = \`\`whichRNG'' + 1"' _n ///
+      `"  local \`theRNG' = "\`c(rngstate)'" "' _n ///
+      `"  if ("\`c(rngstate)'" != "\`: word \`\`whichRNG'' of \`\`allRNGS'''") {"' _n ///
+        `"   post posty (`linenum_real') `allseed2'  "' _n ///
+      `"  }"'_n ///
+    `" }"'_n
 
-  // Advance through file
-  file read original line
+    // Flag changes to Sort RNG state
+    file write edited `"// Sort Check -------------------------- // "' _n
+    file write edited ///
+    `" if ("\`c(sortrngstate)'" != "\`\`theSORT''") {"' _n ///
+      `"  post posty (`linenum_real') `allsort1' "' _n ///
+      `"  local \`theSORT' = "\`c(sortrngstate)'" "' _n ///
+      `"  tempfile `linenum_real'_x"' _n ///
+      `"  save \``linenum_real'_x' , emptyok"' _n ///
+      `"  local theLOCALS "\`theLOCALS' `linenum_real'_x" "' _n ///
+    `" }"'_n
+
+    // Flag Errors to Sort RNG state
+    file write checkr `"// Sort Check ------------------------- // "' _n
+    file write checkr ///
+    `" if ("\`c(sortrngstate)'" != "\`\`theSORT''") {"' _n ///
+      `"  local \`theSORT' = "\`c(sortrngstate)'" "' _n ///
+      `"  cap cf _all using \``linenum_real'_x'"' _n ///
+      `"  if _rc != 0 {"'_n ///
+          `"   post posty (`linenum_real') `allsort2' "' _n ///
+      `"  }"'_n ///
+    `" }"'_n
+
+    // Flag changes to DATA state
+    file write edited `"// Data Check -------------------------- // "' _n
+    file write edited ///
+    " datasignature" _n ///
+    `" if ("\`r(datasignature)'" != "\`\`theDATA''") {"' _n ///
+      `"  post posty (`linenum_real') `alldata1' "' _n ///
+      `"  local \`theDATA' = "\`r(datasignature)'" "' _n ///
+      `"  local theLOCALS "\`theLOCALS' `linenum_real'" "' _n ///
+      `"  local `linenum_real' = "\`r(datasignature)'" "' _n ///
+    `" }"'_n
+    file write edited `" "' _n _n
+
+    // Error changes to DATA state
+    file write checkr `"// Data Check -------------------------- // "' _n
+    file write checkr ///
+    " datasignature" _n ///
+    `" if ("\`r(datasignature)'" != "\`\`theDATA''") {"' _n ///
+      `"  local \`theDATA' = "\`r(datasignature)'" "' _n ///
+      `"  if ("\`r(datasignature)'" != "\``linenum_real''") {"'_n ///
+          `"   post posty (`linenum_real') `alldata2' "' _n ///
+      `"  }"'_n ///
+    `" }"'_n _n
+
+    // Advance line number
+    local linenum_real = `linenum'
+  }
+
+  // Error if delimiter
+  if strpos(`"`macval(line)'"',"#d") {
+    di as err "      Note: The delimiter may have been changed in this file (#d)."
+    di as err " "
+  }
+
+
+// Advance through file
+file read original line
 
 }
 
@@ -383,7 +394,7 @@ file open checkr using `"`newfile2'"' , read
   }
   file write edited `"postclose posty"' _n
   file write edited `"use \`posty' , clear"' _n
-  file write edited `"collapse (firstnm) Data Err_1 Seed Err_2 Sort Err_3 Path Depth, by(Line)"' _n
+  file write edited `"collapse (firstnm) Data Err_1 Seed Err_2 Sort Err_3 Path Depth (count) Iter = Depth, by(Line)"' _n
   file write edited `"compress"' _n
 
 /*****************************************************************************
@@ -410,7 +421,7 @@ Output flags and errors
   qui replace Sort = Err_3 + Sort
   qui gen Subfile = "Yes" if Path != ""
   qui keep if !(Data == "" & Seed == "" & Sort == "")
-  li Line Data Seed Sort Subfile Depth, noobs divider
+  li Line Depth Iter Data Seed Sort Subfile, noobs divider
 
   if `"`output'"' != `""' {
 
@@ -419,7 +430,7 @@ Output flags and errors
     lab var Sort "Sort"
 
     qui export delimited ///
-      Line Data Seed Sort Subfile ///
+      Line Data Iter Seed Sort Subfile ///
     using `output' , replace
 
     noi di `"Output report created at {browse `output':`output'}
