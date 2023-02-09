@@ -7,7 +7,7 @@ cap  program drop  iedorep
   [Recursive] ///
   [Output(string asis)] ///
   [Verbose] [alldata] [allsort] [allseed] /// Verbose reporting of non-errors
-  [debug] [qui] // Programming option to view exact temp do-file
+  [debug] [looplogic] [qui] // Programming options to view exact temp do-file
 
 /*****************************************************************************
 Options
@@ -22,32 +22,32 @@ Options
 
   // Optionally request all data changes to be flagged
   if "`alldata'" != "" {
-    local alldata1 = `" ("Changed") ("") ("") ("") ("") ("") ("") "'
-    local alldata2 = `" ("") ("ERROR! ") ("") ("") ("") ("") ("") "'
+    local alldata1 = `" ("Changed") ("") ("") ("") ("") ("") ("") ("") "'
+    local alldata2 = `" ("") ("ERROR! ") ("") ("") ("") ("") ("") ("") "'
   }
   else {
-    local alldata1 = `" ("") ("") ("") ("") ("") ("") ("") "'
-    local alldata2 = `" ("Changed") ("ERROR! ") ("") ("") ("") ("") ("") "'
+    local alldata1 = `" ("") ("") ("") ("") ("") ("") ("") ("") "'
+    local alldata2 = `" ("Changed") ("ERROR! ") ("") ("") ("") ("") ("") ("") "'
   }
 
   // Optionally request all sorts to be flagged
   if "`allsort'" != "" {
-    local allsort1 = `" ("") ("") ("") ("") ("Sorted") ("") ("") "'
-    local allsort2 = `" ("") ("") ("") ("") ("") ("ERROR! ") ("") "'
+    local allsort1 = `" ("") ("") ("") ("") ("Sorted") ("") ("") ("") "'
+    local allsort2 = `" ("") ("") ("") ("") ("") ("ERROR! ") ("") ("") "'
   }
   else {
-    local allsort1 = `" ("") ("") ("") ("") ("") ("") ("") "'
-    local allsort2 = `" ("") ("") ("") ("") ("Sorted") ("ERROR! ") ("") "'
+    local allsort1 = `" ("") ("") ("") ("") ("") ("") ("") ("") "'
+    local allsort2 = `" ("") ("") ("") ("") ("Sorted") ("ERROR! ") ("") ("") "'
   }
 
   // Optionally request all seeds to be flagged
   if "`allseed'" != "" {
-    local allseed1 = `" ("") ("") ("Used") ("") ("") ("") ("") "'
-    local allseed2 = `" ("") ("") ("") ("ERROR! ") ("") ("") ("") "'
+    local allseed1 = `" ("") ("") ("Used") ("") ("") ("") ("") ("") "'
+    local allseed2 = `" ("") ("") ("") ("ERROR! ") ("") ("") ("") ("") "'
   }
   else {
-    local allseed1 = `" ("") ("") ("") ("") ("") ("") ("") "'
-    local allseed2 = `" ("") ("") ("Used") ("ERROR! ") ("") ("") ("") "'
+    local allseed1 = `" ("") ("") ("") ("") ("") ("") ("") ("") "'
+    local allseed2 = `" ("") ("") ("Used") ("ERROR! ") ("") ("") ("") ("") "'
   }
 
 /*****************************************************************************
@@ -98,7 +98,7 @@ preserve
     "  cap java clear  " _n
   file write edited "tempname theSORT theRNG allRNGS whichRNG theDATA" _n
   file write edited "tempfile posty allDATA" _n "postfile posty Line " ///
-    "str15(Data Err_1 Seed Err_2 Sort Err_3) str2000(Path) using \`posty' , replace" _n
+    "str15(Data Err_1 Seed Err_2 Sort Err_3) str2000(Path) str3(Depth) using \`posty' , replace" _n
 
   file write edited `"local \`theRNG' = "\`c(rngstate)'" "' _n
   file write checkr `"local \`theRNG' = "\`c(rngstate)'" "' _n
@@ -210,39 +210,41 @@ while r(eof)==0 {
       file write checkr `"`macval(line)'"' _n
     }
 
-  // Catch comments
-  if strpos(`"`macval(line)'"',"/*") local comment = 1
-  if strpos(`"`macval(line)'"',"*/") local comment = 0
+    // Catch comments
+    if strpos(`"`macval(line)'"',"/*") local comment = 1
+    if strpos(`"`macval(line)'"',"*/") local comment = 0
 
-  // Monitor loop state and do not evaluate within loops
+    // Monitor loop state and do not evaluate within loops
 
-    // Set flag whenever looping word or logic word
-    if strpos(`"`macval(line)'"',"if ")     local logic = 1
-    if strpos(`"`macval(line)'"',"else ")   local logic = 1
-    if strpos(`"`macval(line)'"',"forv")    local  loop = 1
-    if strpos(`"`macval(line)'"',"foreach") local  loop = 1
-    if strpos(`"`macval(line)'"',"while")   local  loop = 1
+      // Set flag whenever looping word or logic word
+      if strpos(`"`macval(line)'"',"if ")     local logic = 1
+      if strpos(`"`macval(line)'"',"else ")   local logic = 1
+      if strpos(`"`macval(line)'"',"forv")    local  loop = 1
+      if strpos(`"`macval(line)'"',"foreach") local  loop = 1
+      if strpos(`"`macval(line)'"',"while")   local  loop = 1
 
-    // Track state when logic entered (unless ALSO loop)
-    if `logic' == 1 & `loop' == 0 & strpos(`"`macval(line)'"',"{") ///
-      local loopstate "logi `loopstate'"
-    if `logic' == 1 & strpos(`"`macval(line)'"',"{") ///
-      local logic = 0
+      // Track state when logic entered (unless ALSO loop)
+      if `logic' == 1 & `loop' == 0 & strpos(`"`macval(line)'"',"{") ///
+        local loopstate "logi `loopstate'"
+      if `logic' == 1 & strpos(`"`macval(line)'"',"{") ///
+        local logic = 0
 
-    // Track state when loop entered
-    if `loop' == 1 & strpos(`"`macval(line)'"',"{") {
-      local loopstate "loop `loopstate'"
-      local loop = 0
-    }
+      // Track state when loop entered
+      if `loop' == 1 & strpos(`"`macval(line)'"',"{") {
+        local loopstate "loop `loopstate'"
+        local loop = 0
+      }
 
-    // Track state whenever logic or loop exited
-    if strpos(`"`macval(line)'"',"}") ///
-      local loopstate = substr("`loopstate'",6,.)
+      // Track state whenever logic or loop exited
+      if strpos(`"`macval(line)'"',"}") ///
+        local loopstate = substr("`loopstate'",6,.)
 
   /*****************************************************************************
   Implement logic checks in file copy
   *****************************************************************************/
-  if (`comment' == 0) & !strpos("`loopstate'","loop") {
+  // if (`comment' == 0) & !strpos("`loopstate'","loop") {
+    local depth : word count `loopstate'
+    file write edited `" post posty (`linenum_real')  ("") ("") ("") ("") ("") ("") ("") ("`depth'") "' _n
     // Add checkers if line end
     if !strpos(`"`macval(line)'"',"///") {
       local logic = 0 // If we are here with logic flagged, it was a subset
@@ -250,15 +252,15 @@ while r(eof)==0 {
       // Catch any [do] or [run] commands
       if  strpos(`"`macval(line)'"',"do ") {
         local theRECURSION = substr(`"`macval(line)'"',strpos(`"`macval(line)'"',"do ")+3,.)
-        file write edited `" post posty (`linenum_real')  ("") ("") ("") ("") ("") ("") (`"`theRECURSION'"') "' _n
+        file write edited `" post posty (`linenum_real')  ("") ("") ("") ("") ("") ("") (`"`theRECURSION'"') ("") "' _n
       }
       else if  strpos(`"`macval(line)'"',"ru ") {
         local theRECURSION = substr(`"`macval(line)'"',strpos(`"`macval(line)'"',"ru ")+3,.)
-        file write edited `" post posty (`linenum_real')  ("") ("") ("") ("") ("") ("") (`"`theRECURSION'"') "' _n
+        file write edited `" post posty (`linenum_real')  ("") ("") ("") ("") ("") ("") (`"`theRECURSION'"') ("") "' _n
       }
       if  strpos(`"`macval(line)'"',"run ") {
         local theRECURSION = substr(`"`macval(line)'"',strpos(`"`macval(line)'"',"run ")+4,.)
-        file write edited `" post posty (`linenum_real')  ("") ("") ("") ("") ("") ("") (`"`theRECURSION'"') "' _n
+        file write edited `" post posty (`linenum_real')  ("") ("") ("") ("") ("") ("") (`"`theRECURSION'"') ("") "' _n
       }
 
       // Flag changes to RNG state
@@ -329,7 +331,7 @@ while r(eof)==0 {
       di as err " "
     }
 
-  } // Comments and loops logic
+  // } // Comments and loops logic
 
   // Advance through file
   file read original line
@@ -381,7 +383,7 @@ file open checkr using `"`newfile2'"' , read
   }
   file write edited `"postclose posty"' _n
   file write edited `"use \`posty' , clear"' _n
-  file write edited `"collapse (firstnm) Data Err_1 Seed Err_2 Sort Err_3 Path , by(Line)"' _n
+  file write edited `"collapse (firstnm) Data Err_1 Seed Err_2 Sort Err_3 Path Depth, by(Line)"' _n
   file write edited `"compress"' _n
 
 /*****************************************************************************
@@ -408,7 +410,7 @@ Output flags and errors
   qui replace Sort = Err_3 + Sort
   qui gen Subfile = "Yes" if Path != ""
   qui keep if !(Data == "" & Seed == "" & Sort == "")
-  li Line Data Seed Sort Subfile, noobs divider
+  li Line Data Seed Sort Subfile Depth, noobs divider
 
   if `"`output'"' != `""' {
 
