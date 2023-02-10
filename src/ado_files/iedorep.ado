@@ -252,6 +252,7 @@ while r(eof)==0 {
   file write edited `" "' _n
   file write edited `"// Line `linenum_real' Checks ------------------------ // "' _n
   file write edited `"post posty (`linenum_real')  ("") ("") ("") ("") ("") ("") ("") (`depth') "' _n
+  file write checkr `"post posty (`linenum_real')  ("") ("") ("") ("") ("") ("") ("") (.z) "' _n
   // Add checkers if line end
   if !strpos(`"`macval(line)'"',"///") {
     local logic = 0 // If we are here with logic flagged, it was a subset
@@ -400,10 +401,8 @@ file open checkr using `"`newfile2'"' , read
   }
   file write edited `"postclose posty"' _n
   file write edited `"use \`posty' , clear"' _n
-  file write edited `"pause"' _n
-  file write edited `"bys Line Depth: gen Iter = _n"' _n
-  file write edited `"collapse (firstnm) Data Err_1 Seed Err_2 Sort Err_3 Path , by(Line Iter)"' _n
   file write edited `"compress"' _n
+  file write edited `"order Path, last"' _n
 
 /*****************************************************************************
 Cleanup and then run the combined temp dofile
@@ -423,13 +422,27 @@ Cleanup and then run the combined temp dofile
 /*****************************************************************************
 Output flags and errors
 *****************************************************************************/
+qui{
+  gen n = _n
+  gen x = .
+  forv i = 1/`c(N)' {
+    if Line[`i'] == 1 local x = 0
+    if Line[`i'] != Line[`i'-1] local ++x
+    replace x = `x' in `i'
+  }
+  order Path, last
+  collapse (firstnm) Line Depth Data Err_1 Seed Err_2 Sort Err_3 Path , by(x)
+    bys Line: gen Loop = _n
 
-  qui replace Data = Err_1 + Data
-  qui replace Seed = Err_2 + Seed
-  qui replace Sort = Err_3 + Sort
-  qui gen Subfile = "Yes" if Path != ""
-  qui keep if !(Data == "" & Seed == "" & Sort == "")
-  li Line Depth Iter Data Seed Sort Subfile, noobs divider
+  replace Data = Err_1 + Data
+  replace Seed = Err_2 + Seed
+  replace Sort = Err_3 + Sort
+  gen Subfile = "Yes" if Path != ""
+}
+
+  li Line Depth Loop Data Seed Sort Subfile ///
+    if !(Data == "" & Seed == "" & Sort == "") ///
+, noobs divider
 
   if `"`output'"' != `""' {
 
