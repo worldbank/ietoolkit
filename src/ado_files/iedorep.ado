@@ -97,13 +97,14 @@ preserve
     "  cap mata: mata clear     " _n  /// (see [M-3] mata clear)
     "  cap python clear         " _n  /// (see [P] PyStata integration)
     "  cap java clear  " _n
-  file write edited "tempname theSORT whichSORT theRNG allRNGS whichRNG theDATA" _n
-  file write edited "tempfile posty allDATA" _n "postfile posty Line " ///
+  file write edited "tempname theSORT whichSORT theRNG allRNGS whichRNG theDATA whichDATA allDATA" _n
+  file write edited "tempfile posty" _n "postfile posty Line " ///
     "str15(Data Err_1 Seed Err_2 Sort Err_3) str2000(Path) int(Depth) using \`posty' , replace" _n
 
   file write edited `"local \`theRNG' = "\`c(rngstate)'" "' _n
   file write checkr `"local \`theRNG' = "\`c(rngstate)'" "' _n
   file write edited  "local \`whichSORT' = 0  " _n
+  file write edited  "local \`whichDATA' = 0  " _n
 
   file write edited `"local \`theSORT' = "\`c(sortrngstate)'" "' _n
   file write checkr `"local \`theSORT' = "\`c(sortrngstate)'" "' _n
@@ -320,8 +321,7 @@ while r(eof)==0 {
     `" if ("\`r(datasignature)'" != "\`\`theDATA''") {"' _n ///
       `"  post posty (`linenum_real') `alldata1' "' _n ///
       `"  local \`theDATA' = "\`r(datasignature)'" "' _n ///
-      `"  local theLOCALS "\`theLOCALS' `linenum_real'" "' _n ///
-      `"  local `linenum_real' = "\`r(datasignature)'" "' _n ///
+      `"  local \`allDATA' = "\`\`allDATA'' \`theDATA'" "' _n ///
     `" }"'_n
     file write edited `" "' _n _n
 
@@ -330,8 +330,9 @@ while r(eof)==0 {
     file write checkr ///
     " datasignature" _n ///
     `" if ("\`r(datasignature)'" != "\`\`theDATA''") {"' _n ///
+    `"  local \`whichDATA' = \`\`whichDATA'' + 1"' _n ///
       `"  local \`theDATA' = "\`r(datasignature)'" "' _n ///
-      `"  if ("\`r(datasignature)'" != "\``linenum_real''") {"'_n ///
+      `"  if ("\`theDATA'" != "\`: word \`\`whichDATA'' of \`\`allDATA'''") {"' _n ///
           `"   post posty (`linenum_real') `alldata2' "' _n ///
       `"  }"'_n ///
     `" }"'_n _n
@@ -362,8 +363,8 @@ file open checkr using `"`newfile2'"' , read
   file read checkr line // Need initial read
   file write edited _n ///
   "// CLEANUP LOCALS BETWEEN FILES -------------------------------------------" _n ///
-    "local theLOCALS posty theSORT whichSORT theRNG allRNGS whichRNG allDATA theDATA theLOCALS " ///
-      "\`posty' \`theSORT' \`whichSORT' \`theRNG' \`allRNGS' \`whichRNG' \`allDATA' \`theDATA' \`theLOCALS'" _n ///
+    "local theLOCALS posty theSORT whichSORT theRNG allRNGS whichRNG allDATA whichDATA theDATA theLOCALS " ///
+      "\`posty' \`theSORT' \`whichSORT' \`theRNG' \`allRNGS' \`whichRNG' \`allDATA' \`whichDATA' \`theDATA' \`theLOCALS'" _n ///
     `"mata : st_local("all_locals", invtokens(st_dir("local", "macro", "*")'))"' _n ///
     "local toDROP : list all_locals - theLOCALS" _n ///
     "cap macro drop \`toDROP' " _n  ///
@@ -390,6 +391,7 @@ file open checkr using `"`newfile2'"' , read
     "  cap python clear         " _n  /// (see [P] PyStata integration)
     "  cap java clear  " _n ///
     "local \`whichSORT' = 0  " _n ///
+    "local \`whichDATA' = 0  " _n ///
   "// SECOND RUN STARTS HERE ------------------------------------------------" _n _n
 
   while r(eof)==0 {
