@@ -6,7 +6,6 @@ cap  program drop  iedorep
   syntax anything , ///
   [Recursive] ///
   [Output(string asis)] ///
-  [MAXIter(integer 1)] [MAXDepth(integer 0)] /// Restrict reporting
   [Verbose] [alldata] [allsort] [allseed] /// Verbose reporting of non-errors
   [debug] [qui] // Programming options to view exact temp do-file
 
@@ -420,9 +419,9 @@ Cleanup and then run the combined temp dofile
   di as err `"Done with `anything'!"'
 
 /*****************************************************************************
-Output flags and errors
+Output flags and errors to Stata window
 *****************************************************************************/
-qui{
+qui {
   gen n = _n
   gen x = .
   forv i = 1/`c(N)' {
@@ -441,20 +440,43 @@ qui{
 }
 
   li Line Depth Loop Data Seed Sort Subfile ///
-    if !(Data == "" & Seed == "" & Sort == "") ///
+    if !(Data == "" & Seed == "" & Sort == "" & Subfile == "") ///
 , noobs divider
 
+/*****************************************************************************
+Output flags and errors to External file
+*****************************************************************************/
+
   if `"`output'"' != `""' {
+    file open report using `output' , w t replace
+    file write report ///
+      `"| \`iedorep\` Reproducibility Report         |      |"' _n ///
+      `"|--------------|-----------|"' _n ///
+      `"| Last Checked by      | User "`c(username)'"  at `c(current_date)' (`c(current_time)') |"' _n ///
+      `"| Operating System   | `c(machine_type)' `c(os)' `c(osdtl)' |"' _n ///
+      `"| Stata `c(edition_real)'  | Version `c(stata_version)' running as Version `c(version)' |"' _n _n
+    file close report
+  }
 
-    lab var Data "Data"
-    lab var Seed "Seed"
-    lab var Sort "Sort"
+  if `"`output'"' != `""' {
+    file open report using `output' , w t append
+    egen output = concat(Line Depth Loop Data Seed Sort Subfile Path) , p(" | ")
+      qui replace output = "| " + output + " |"
 
-    qui export delimited ///
-      Line Data Iter Seed Sort Subfile ///
-    using `output' , replace
+      local file = subinstr(`anything',`"""',"",.)
 
-    noi di `"Output report created at {browse `output':`output'}
+    file write report ///
+      `"Report for: `file'"' _n _n ///
+      `"| Line | Depth | Loop | Data | Seed | Sort | Subfile | Path |"' _n ///
+      `"|------|-------|------|------|------|------|---------|------|"' _n
+
+    forv i = 1/`c(N)' {
+      local o = output[`i']
+      if !(Data[`i'] == "" & Seed[`i'] == "" & Sort[`i'] == "" & Subfile[`i'] == "") ///
+        file write report `"`o'"' _n
+    }
+
+    file close report
   }
 
 /*****************************************************************************
