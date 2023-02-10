@@ -4,9 +4,9 @@ cap  program drop  iedorep
   program define   iedorep, rclass
 
   syntax anything , ///
-  [Recursive] ///
+  [Recursive] [recurring] ///
   [Output(string asis)] ///
-  [Verbose] [alldata] [allsort] [allseed] /// Verbose reporting of non-errors
+  [Verbose] [alldata] [allsort] [allseed] [allpath] /// Verbose reporting of non-errors
   [debug] [qui] // Programming options to view exact temp do-file
 
 /*****************************************************************************
@@ -18,6 +18,7 @@ Options
     local alldata "alldata"
     local allsort "allsort"
     local allseed "allseed"
+    local pathopt "Path"
   }
 
   // Optionally request all data changes to be flagged
@@ -439,7 +440,7 @@ qui {
   gen Subfile = "Yes" if Path != ""
 }
 
-  li Line Depth Loop Data Seed Sort Subfile ///
+  li Line Depth Loop Data Seed Sort Subfile `pathopt' ///
     if !(Data == "" & Seed == "" & Sort == "" & Subfile == "") ///
 , noobs divider
 
@@ -447,7 +448,7 @@ qui {
 Output flags and errors to External file
 *****************************************************************************/
 
-  if `"`output'"' != `""' {
+  if (`"`output'"' != `""') & ("`recurring'" == "") {
     file open report using `output' , w t replace
     file write report ///
       `"| \`iedorep\` Reproducibility Report         |      |"' _n ///
@@ -476,6 +477,7 @@ Output flags and errors to External file
         file write report `"`o'"' _n
     }
 
+    file write report _n
     file close report
   }
 
@@ -497,8 +499,11 @@ Pseudo-recursion
       qui duplicates drop Path, force
       sort Line
       forvalues i = 1/`c(N)' {
+        if `"`output'"' != "" local outputopt output(`output')
         local file = Path[`i']
-        iedorep `file' , `debug' `qui' `recursive' `alldata' `allsort' `allseed'
+        iedorep `file' ///
+          , recurring  `debug' `qui' `recursive' `outputopt' ///
+            `verbose' `alldata' `allsort' `allseed' `allpath'
         if `r(errors)' ==  0 {
           di as err "!!------ WARNING ------!!"
           di as err "An error was expected in this sub do-file but none was found."
