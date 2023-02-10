@@ -97,12 +97,13 @@ preserve
     "  cap mata: mata clear     " _n  /// (see [M-3] mata clear)
     "  cap python clear         " _n  /// (see [P] PyStata integration)
     "  cap java clear  " _n
-  file write edited "tempname theSORT theRNG allRNGS whichRNG theDATA" _n
+  file write edited "tempname theSORT whichSORT theRNG allRNGS whichRNG theDATA" _n
   file write edited "tempfile posty allDATA" _n "postfile posty Line " ///
     "str15(Data Err_1 Seed Err_2 Sort Err_3) str2000(Path) int(Depth) using \`posty' , replace" _n
 
   file write edited `"local \`theRNG' = "\`c(rngstate)'" "' _n
   file write checkr `"local \`theRNG' = "\`c(rngstate)'" "' _n
+  file write edited  "local \`whichSORT' = 0  " _n
 
   file write edited `"local \`theSORT' = "\`c(sortrngstate)'" "' _n
   file write checkr `"local \`theSORT' = "\`c(sortrngstate)'" "' _n
@@ -293,18 +294,20 @@ while r(eof)==0 {
     file write edited ///
     `" if ("\`c(sortrngstate)'" != "\`\`theSORT''") {"' _n ///
       `"  post posty (`linenum_real') `allsort1' "' _n ///
+      `"  local \`whichSORT' = \`\`whichSORT'' + 1"' _n ///
       `"  local \`theSORT' = "\`c(sortrngstate)'" "' _n ///
-      `"  tempfile `linenum_real'_x"' _n ///
-      `"  save \``linenum_real'_x' , emptyok"' _n ///
-      `"  local theLOCALS "\`theLOCALS' `linenum_real'_x" "' _n ///
+      `"  tempfile sort_\`\`whichSORT''"' _n ///
+      `"  save \`sort_\`\`whichSORT''' , emptyok"' _n ///
+      `"  local theLOCALS "\`theLOCALS' sort_\`\`whichSORT''" "' _n ///
     `" }"'_n
 
     // Flag Errors to Sort RNG state
     file write checkr `"// Sort Check ------------------------- // "' _n
     file write checkr ///
     `" if ("\`c(sortrngstate)'" != "\`\`theSORT''") {"' _n ///
+      `"  local \`whichSORT' = \`\`whichSORT'' + 1"' _n ///
       `"  local \`theSORT' = "\`c(sortrngstate)'" "' _n ///
-      `"  cap cf _all using \``linenum_real'_x'"' _n ///
+      `"  cap cf _all using \`sort_\`\`whichSORT'''"' _n ///
       `"  if _rc != 0 {"'_n ///
           `"   post posty (`linenum_real') `allsort2' "' _n ///
       `"  }"'_n ///
@@ -359,8 +362,8 @@ file open checkr using `"`newfile2'"' , read
   file read checkr line // Need initial read
   file write edited _n ///
   "// CLEANUP LOCALS BETWEEN FILES -------------------------------------------" _n ///
-    "local theLOCALS posty theSORT theRNG allRNGS whichRNG allDATA theDATA theLOCALS " ///
-      "\`posty' \`theSORT' \`theRNG' \`allRNGS' \`whichRNG' \`allDATA' \`theDATA' \`theLOCALS'" _n ///
+    "local theLOCALS posty theSORT whichSORT theRNG allRNGS whichRNG allDATA theDATA theLOCALS " ///
+      "\`posty' \`theSORT' \`whichSORT' \`theRNG' \`allRNGS' \`whichRNG' \`allDATA' \`theDATA' \`theLOCALS'" _n ///
     `"mata : st_local("all_locals", invtokens(st_dir("local", "macro", "*")'))"' _n ///
     "local toDROP : list all_locals - theLOCALS" _n ///
     "cap macro drop \`toDROP' " _n  ///
@@ -386,6 +389,7 @@ file open checkr using `"`newfile2'"' , read
     "  cap putpdf clear         " _n  /// (see [RPT] putpdf begin)
     "  cap python clear         " _n  /// (see [P] PyStata integration)
     "  cap java clear  " _n ///
+    "local \`whichSORT' = 0  " _n ///
   "// SECOND RUN STARTS HERE ------------------------------------------------" _n _n
 
   while r(eof)==0 {
@@ -394,7 +398,9 @@ file open checkr using `"`newfile2'"' , read
   }
   file write edited `"postclose posty"' _n
   file write edited `"use \`posty' , clear"' _n
-  file write edited `"collapse (firstnm) Data Err_1 Seed Err_2 Sort Err_3 Path Depth (count) Iter = Depth, by(Line)"' _n
+  file write edited `"pause"' _n
+  file write edited `"bys Line Depth: gen Iter = _n"' _n
+  file write edited `"collapse (firstnm) Data Err_1 Seed Err_2 Sort Err_3 Path , by(Line Iter)"' _n
   file write edited `"compress"' _n
 
 /*****************************************************************************
