@@ -220,7 +220,7 @@ while r(eof)==0 {
     if strpos(`"`macval(line)'"',"/*") local comment = 1
     if strpos(`"`macval(line)'"',"*/") local comment = 0
 
-    // Monitor loop state and do not evaluate within loops
+    // Monitor loop state to evaluate within loops
 
       // Set flag whenever looping word or logic word
       if strpos(`"`macval(line)'"',"if ")     local logic = 1
@@ -249,15 +249,16 @@ while r(eof)==0 {
   Implement logic checks in file copy
   *****************************************************************************/
   local depth : word count `loopstate'
-  file write edited `" "' _n
-  file write edited `"// Line `linenum_real' Checks ------------------------ // "' _n
-  file write edited `"post posty (`linenum_real')  ("") ("") ("") ("") ("") ("") ("") (`depth') "' _n
-  file write checkr `"post posty (`linenum_real')  ("") ("") ("") ("") ("") ("") ("") (.z) "' _n
+    file write edited `" "' _n
+    file write edited `"// Line `linenum_real' Checks ------------------------ // "' _n
+    file write edited `"post posty (`linenum_real')  ("") ("") ("") ("") ("") ("") ("") (`depth') "' _n
+    file write checkr `"post posty (`linenum_real')  ("") ("") ("") ("") ("") ("") ("") (.z) "' _n
+
   // Add checkers if line end
   if !strpos(`"`macval(line)'"',"///") {
-    local logic = 0 // If we are here with logic flagged, it was a subset
+    local logic = 0 // If we are here with logic flagged, it was a subsetting [if]
 
-    // Catch any [do] or [run] commands
+    // Catch any [do] or [run] commands for recursion
     if  strpos(`"`macval(line)'"',"do ") {
       local theRECURSION = substr(`"`macval(line)'"',strpos(`"`macval(line)'"',"do ")+3,.)
       file write edited `" post posty (`linenum_real')  ("") ("") ("") ("") ("") ("") (`"`theRECURSION'"') (.) "' _n
@@ -347,7 +348,6 @@ while r(eof)==0 {
     di as err "      Note: The delimiter may have been changed in this file (#d)."
     di as err " "
   }
-
 
 // Advance through file
 file read original line
