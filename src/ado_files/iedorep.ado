@@ -4,7 +4,8 @@ cap  program drop  iedorep
   program define   iedorep, rclass
 
   syntax anything , ///
-  [Recursive] [recurring] ///
+  [Recursive] ///
+    [recurring(string asis)] [recurringlines(string asis)] /// Background
   [Output(string asis)] ///
   [Verbose] [alldata] [allsort] [allseed] [allpath] /// Verbose reporting of non-errors
   [debug] [qui] // Programming options to view exact temp do-file
@@ -77,6 +78,7 @@ preserve
   qui file open edited using `newfile1' , write replace
   qui file open checkr using `newfile2' , write replace
 
+
 // Initialize locals in new file
   file write edited ///
     "  cap drop _all            " _n  /// (see [D] drop)
@@ -100,6 +102,55 @@ preserve
   file write edited "tempname theSORT whichSORT theRNG allRNGS whichRNG theDATA whichDATA allDATA" _n
   file write edited "tempfile posty" _n "postfile posty Line " ///
     "str15(Data Err_1 Seed Err_2 Sort Err_3) str2000(Path) int(Depth) using \`posty' , replace" _n
+
+    /*****************************************************************************
+    Recursive options: Get to Stata state by running nesting do-files
+    *****************************************************************************/
+
+      qui if `"`recurring'"' != "" {
+
+        local fileindex = 0
+        foreach file in `"`recurring'"' {
+          local ++fileindex
+          local targetLine : word `fileindex' of `recurringlines'
+
+          file write edited _n ///
+            `"// Running `file' through line `targetLine' // "' _n ///
+            `"  file open base_`fileindex' using `file' , read"' _n ///
+            "  tempfile temp_`fileindex'" _n ///
+            "  file open upto_`fileindex' using \`temp_`fileindex'' , write replace" _n ///
+            ///
+            "  file read base_`fileindex' line" _n ///
+            "  local thisLine = 0" _n ///
+            "  while \`thisLine' < `targetLine' {" _n ///
+              "    local ++thisLine" _n ///
+              `"    file write upto_`fileindex' `"\`macval(line)'"' _n"' _n ///
+              "    file read base_`fileindex' line" _n ///
+            "  }" _n ///
+            "  file close upto_`fileindex'"  _n ///
+            "  file close base_`fileindex'"  _n _n ///
+            "  qui do \`temp_`fileindex'' " _n _n
+
+          file write checkr _n ///
+            `"// Running `file' through line `targetLine' // "' _n ///
+            "  qui do \`temp_`fileindex'' " _n _n
+
+          if `"`debug'"' != "" {
+            file write edited ///
+             _n _n ///
+             "  // Make debugging copy //" _n ///
+            `"    local debugpath = subinstr(`file',".do","_`targetLine'_temp.do",.)"'  _n ///
+            `"    copy \`temp_`fileindex'' \`debugpath' , replace"'  _n _n
+          }
+        }
+      }
+
+
+/*****************************************************************************
+Initializing check state
+*****************************************************************************/
+  file write edited `"// Initializing check state //"' _n
+  file write checkr `"// Initializing check state //"' _n
 
   file write edited `"local \`theRNG' = "\`c(rngstate)'" "' _n
   file write checkr `"local \`theRNG' = "\`c(rngstate)'" "' _n
@@ -364,8 +415,8 @@ file open checkr using `"`newfile2'"' , read
   file read checkr line // Need initial read
   file write edited _n ///
   "// CLEANUP LOCALS BETWEEN FILES -------------------------------------------" _n ///
-    "local theLOCALS posty theSORT whichSORT theRNG allRNGS whichRNG allDATA whichDATA theDATA theLOCALS " ///
-      "\`posty' \`theSORT' \`whichSORT' \`theRNG' \`allRNGS' \`whichRNG' \`allDATA' \`whichDATA' \`theDATA' \`theLOCALS'" _n ///
+    "local theLOCALS posty theSORT whichSORT theRNG allRNGS whichRNG allDATA whichDATA theDATA theLOCALS temp_`fileindex' " ///
+      "\`posty' \`theSORT' \`whichSORT' \`theRNG' \`allRNGS' \`whichRNG' \`allDATA' \`whichDATA' \`theDATA' \`theLOCALS' \`temp_`fileindex''" _n ///
     `"mata : st_local("all_locals", invtokens(st_dir("local", "macro", "*")'))"' _n ///
     "local toDROP : list all_locals - theLOCALS" _n ///
     "cap macro drop \`toDROP' " _n  ///
@@ -411,6 +462,8 @@ Cleanup and then run the combined temp dofile
 
   file close _all
   di as err `"Entering `anything' run...."'
+
+  // Run the current file
   clear
   if `"`debug'"' != "" {
     local debugpath = subinstr(`"`anything'"',".do","_temp.do",.)
@@ -449,7 +502,7 @@ qui {
 Output flags and errors to External file
 *****************************************************************************/
 
-  if (`"`output'"' != `""') & ("`recurring'" == "") {
+  if (`"`output'"' != `""') & (`"`recurring'"' == "") {
     file open report using `output' , w t replace
     file write report ///
       `"| \`iedorep\` Reproducibility Report         |      |"' _n ///
@@ -502,8 +555,10 @@ Pseudo-recursion
       forvalues i = 1/`c(N)' {
         if `"`output'"' != "" local outputopt output(`output')
         local file = Path[`i']
+        local line = Line[`i']
         iedorep `file' ///
-          , recurring  `debug' `qui' `recursive' `outputopt' ///
+          , recurring(`recurring' `anything') recurringlines(`recurringlines' `line')  ///
+            `debug' `qui' `recursive' `outputopt' ///
             `verbose' `alldata' `allsort' `allseed' `allpath'
         if `r(errors)' ==  0 {
           di as err "!!------ WARNING ------!!"
