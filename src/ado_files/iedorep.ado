@@ -343,7 +343,7 @@ while r(eof)==0 {
     local linenum_real = `linenum'
   }
 
-  // Error if delimiter
+  // Error if delimiter                                                         TODO: Improve checking/erroring here
   if strpos(`"`macval(line)'"',"#d") {
     di as err "      Note: The delimiter may have been changed in this file (#d)."
     di as err " "
@@ -393,7 +393,8 @@ file open checkr using `"`newfile2'"' , read
     "  cap java clear  " _n ///
     "local \`whichSORT' = 0  " _n ///
     "local \`whichDATA' = 0  " _n ///
-  "// SECOND RUN STARTS HERE ------------------------------------------------" _n _n
+  "// SECOND RUN STARTS HERE ------------------------------------------------" ///
+    _n _n
 
   while r(eof)==0 {
     file write edited `"`macval(line)'"' _n
@@ -440,7 +441,7 @@ qui {
   gen Subfile = "Yes" if Path != ""
 }
 
-  li Line Depth Loop Data Seed Sort Subfile `pathopt' ///
+  li Line Depth Loop Data Seed Sort Subfile `pathopt' ///                       TODO: Re-write display?
     if !(Data == "" & Seed == "" & Sort == "" & Subfile == "") ///
 , noobs divider
 
