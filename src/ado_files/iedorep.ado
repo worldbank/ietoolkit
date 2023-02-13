@@ -415,8 +415,16 @@ file open checkr using `"`newfile2'"' , read
   file read checkr line // Need initial read
   file write edited _n ///
   "// CLEANUP LOCALS BETWEEN FILES -------------------------------------------" _n ///
-    "local theLOCALS posty theSORT whichSORT theRNG allRNGS whichRNG allDATA whichDATA theDATA theLOCALS temp_`fileindex' " ///
-      "\`posty' \`theSORT' \`whichSORT' \`theRNG' \`allRNGS' \`whichRNG' \`allDATA' \`whichDATA' \`theDATA' \`theLOCALS' \`temp_`fileindex''" _n ///
+    "local theLOCALS posty theSORT whichSORT theRNG allRNGS whichRNG allDATA whichDATA theDATA theLOCALS  " ///
+      "\`posty' \`theSORT' \`whichSORT' \`theRNG' \`allRNGS' \`whichRNG' \`allDATA' \`whichDATA' \`theDATA' \`theLOCALS' "
+
+      local fileindex = 0
+      foreach file in `"`recurring'"' {
+        local ++fileindex
+        file write edited  "temp_`fileindex' \`temp_`fileindex''"
+      }
+
+    file write edited _n ///
     `"mata : st_local("all_locals", invtokens(st_dir("local", "macro", "*")'))"' _n ///
     "local toDROP : list all_locals - theLOCALS" _n ///
     "cap macro drop \`toDROP' " _n  ///
