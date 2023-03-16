@@ -10,7 +10,7 @@
     qui do "${ietoolkit_clone}/src/ado_files/ietoolkit.ado"
 	   
 	* Set PERSONAL path
-	ieboilstart , version(13.1) adopath("${rieboil}/ado1")
+	ieboilstart , version(13.1) adopath("${rieboil}/ado1, asdsa")
 	`r(version)'
     
     *Test mock command in this ado path

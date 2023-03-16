@@ -78,8 +78,13 @@
       local apath   = trim("`apath'")
       local aoption = trim(subinstr("`aoption'",",","",1))
 
-      if !missing("`aoption'") & "`aoption'" != "strict" {
-        noi di as error `"{phang}The suboption [`aoption'] in the option [`adopath'] is not a valid suboption. See help file for more details.{p_end}"'
+      if missing("`aoption'") | !inlist("`aoption'", "strict", "nostrict") {
+        if missing("`aoption'") {
+          local aopterr `"You did not provide any sub-option."'
+        else {
+          local aopterr `"You provided the sub-option [`aoption']."'
+        }
+        noi di as error `"{phang}The option [`adopath'] requires one of the sub-options [strict] or [nostrict]. `aopterr' See help file for more details.{p_end}"'
         error 198
       }
 
