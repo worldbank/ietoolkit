@@ -2,20 +2,28 @@
 
     global rieboil "${runoutput}/ieboilstart"
     
-    //cap which iefieldkit
-    //if _rc == 111 ssc install iefieldkit
-    
      * Load the command from file and utils
 	qui	do "${ietoolkit_clone}/src/ado_files/ieboilstart.ado"
     qui do "${ietoolkit_clone}/src/ado_files/ietoolkit.ado"
 	   
+    
+    * Testing old "default" syntax
+    cap ieboilstart , version(13.1) adopath("${rieboil}/ado1")
+    assert _rc == 198
+    
+    * Load the command from file and utils
+	qui	do "${ietoolkit_clone}/src/ado_files/ieboilstart.ado"
+    qui do "${ietoolkit_clone}/src/ado_files/ietoolkit.ado"  
+       
 	* Set PERSONAL path
-	ieboilstart , version(13.1) adopath("${rieboil}/ado1, asdsa")
+	ieboilstart , version(13.1) adopath("${rieboil}/ado1", nostrict)
 	`r(version)'
     
     *Test mock command in this ado path
     ado1
     
+    * NOTE THAT THIS LINE WILL CAUSE AN ERROR IF THIS RUN FILE IS RAN TWICE
+    * WITHOUT RESTARTING STATA INBETWEEN
     iefieldkit
     
 
