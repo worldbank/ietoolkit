@@ -81,6 +81,7 @@
       if missing("`aoption'") | !inlist("`aoption'", "strict", "nostrict") {
         if missing("`aoption'") {
           local aopterr `"You did not provide any sub-option."'
+        }
         else {
           local aopterr `"You provided the sub-option [`aoption']."'
         }
