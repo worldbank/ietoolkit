@@ -28,22 +28,22 @@ See more details {help ieboilstart##desc:below}.
 {title:Syntax}
 
 {phang}Note that one important feature of this command requires that
-{inp: `r(version)'} is written on the first do-file line after {cmd: ieboilstart}, 
-as this setting cannot be done inside a user-command. 
+{inp: `r(version)'} is written on the first do-file line after {cmd: ieboilstart},
+as this setting cannot be done inside a user-command.
 This will set the Stata version to the correct setting.
 
 {phang}{cmdab:ieboilstart} , {opt v:ersionnumber(Stata_version)}
-[{opt ado:path("path/to/folder" [, strict])}
+[{opt ado:path("path/to/folder", {strict|nostrict})}
 {opt noclear} {opt q:uietly} {opt veryquietly}
 {it:{help ieboilstart##mset:memory_options}}]{p_end}{phang}`r(version)'{p_end}
 
 {marker opts}{...}
-{synoptset 28}{...}
-{synopthdr:options}
+{synoptset 34}{...}
+{synopthdr:Options}
 {synoptline}
 {synopt :{opt v:ersionnumber(Stata_version)}}Sets the Stata version
 for all subsequent code execution (required){p_end}
-{synopt :{opt ado:path("path" [, strict])}}Sets the folder where this
+{synopt :{opt ado:path("path", {strict|nostrict})}}Sets the folder where this
 project's ado-files or user-written commands are stored (required for standalone reproducibility packages){p_end}
 {synopt :{opt noclear}}Makes the command not start by clearing all data{p_end}
 {synopt :{opt q:uietly}}Suppresses most of the command's output{p_end}
@@ -132,48 +132,95 @@ should be considered reproducible.{p_end}
 
 {dlgtab:Adopath settings}
 
-{pstd}Many research projects use user-written commands in the code.
-These commands are commonly installed from {help ssc:SSC},
-but can also be installed from other sources
-or be custom written for the specific project.
-Code using user-written commands is only permanently reproducible
-if future users have {it: exactly} the same versions of all commands.
-This is rarely the case, unless the functionality made easily accessible
-in the option {opt adopath()} in this command is used.{p_end}
-This functionality requires that all user-written commands for a single project
-be stored in a single unique location.
-This ensures that the corresponding code can be maintained, packaged, and archived
-with the precise outputs those versions of code create.
-User-written commands never guarantee backwards compatibility or random-output stability when they are updated.
+{pstd}The option {opt adopath()} makes one key
+reproducibility component easy to use in Stata.
+Many projects in Stata relies on user-written commands,
+such as commands installed from {help ssc:SSC}.
+With user-written commands there is always a risk that the project code
+does not reproduce correctly if a different
+version of any user-written command is used.
+This applies when team members collaborate in real team on a project,
+but it is especially a risk if
+someone would try to reproduce the project results in the future.
+User-written commands updates frequently,
+and depending on when a user installed a command or when it was last updated,
+the version of a command that user use
+will inevitable eventually be different.
+The option {opt adopath()} provides an easy to use tool
+to completely eliminate this risk.{p_end}
 
-{pstd}Coordinating that all users in a project team, as well as
-anyone reproducing the results at the same time or in the future,
-have exactly the same version of user-written commands
-installed in their installation of Stata is probably impossible.
-The best practice solution is to set up a project specific folder
-where the commands needed for this project are installed.
-This folder can be shared using a syncing service (for example, Dropbox)
-or in version control tools such as Github, where the rest of the project code is stored.
-Just make sure that if this folder is shared publicly,
-the project is allowed to do so
-for commands not written by anyone in the project.{p_end}
+{pstd}When a project use the {opt adopath()} option
+with the sub-option {opt strict},
+as in {opt adopath("path", strict)},
+it is guaranteed that no one running that project's code will ever use any
+other version of user-written commands than
+what was intended for that project.
+When using the sub-option {opt strict}
+it is referred to as using {opt adopath()} in {it:strict mode}.
+The intention is that this option should
+almost always be used in strict mode.{p_end}
 
-{pstd}In this command, the {opt adopath("path/to/folder")} option specifies
-a folder as the project specific folder for user-written commands.
-This allows any commands in that folder to be available to the code
-in addition to the commands already installed in the user's Stata installation.
-If the sub-option {it:strict} is used,
-as in {opt adopath("path/to/folder", strict)},
-then {ul:only} commands in this folder is available to the code.
-(Stata's built-in commands are always available.)
-This allows a project to make sure that everyone is only using
-the exact version of the user-written command installed in that folder.
-After {it:strict} is used, you can use {inp:ssc install} or {inp:net install}
-to install commands into the project specific folder.{p_end}
+{pstd}The folder that {it:path} in {opt adopath("path", strict)} points to
+is referred to as the project's {it:ado-folder}.
+To make the project's code reproducible as promised above,
+then this folder needs to be shared with the rest of the project's code.
+Therefore it is recommended that each project has its own {it:ado-folder}
+and that it is stored together with the rest of that project code.
+This makes it easy to include the {it:ado-folder}
+when sharing the project code,
+no matter if it is shared over Git/GitHub, sync-software like DropBox,
+over a network drive, in a reproducibility archive etc.
+This folder should include all user-written commands this project uses.{p_end}
 
-{pstd}The scope of adopath setting is the same as for globals.
-This means that the adopath settings done by this command
-are restored to the defaults next time Stata is restarted.{p_end}
+{pstd}When using strict mode, the command {opt net install}
+(including commands that builds on it such as {opt ssc install})
+will install the commands in the project's {it:ado-folder}.
+Therefore, the intended workflow is that whenever a project needs
+another user-written command, then in strict mode,
+the user simply installs the command using {opt ssc install} as usual
+but the command will be installed in the project {it:ado-folder}
+instead of in that user's individual Stata installation.
+After this, then all users will be guaranteed to use that exact version
+of that command as long as strict mode is still used.{p_end}
+
+{pstd}In order to guarantee that no user use any command other than
+the commands in the project's {it:ado-folder},
+the option {opt adopath()} in strict mode,
+makes all commands the user have installed
+in their Stata installation unavailable.
+This setting is restored when the user restarts Stata
+so nothing is uninstalled or made permanently unavailable.
+The purpose of this functionality is to make sure that
+no-one forgets to include any user-written command that
+the project needs in the {it:ado-folder}.}{p_end}
+
+{pstd}The {opt nostrict} sub-option,
+as in {opt adopath("path", nostrict)},
+exists to temporarily disable the functionality in strict mode.
+For example, if someone wants to test using a command
+installed in their Stata installation
+before installing it in the project {it:ado-folder}
+then this option can be used.
+When {opt nostrict} is used,
+then the commands installed in the user's Stata installation,
+are available in addition to the commands in the project's {it:ado-folder}.
+If a user has a command installed in their Stata installation with
+the same name as a command installed in the {it:ado-folder},
+then the version installed in the {it:ado-folder} will always be used.
+While using the {opt nostrict} option can perhaps be seen as more convenient,
+it would defy the purpose of {opt adopath()} to use
+{it:nostrict} as a projects standard mode.{p_end}
+
+{pstd}A in-depth technical presentation on how this feature works
+can be found in a recording found {browse "https://osf.io/6tg3b":here}.
+The slides used in that presentation can be found
+{browse "https://osf.io/wa3tr":here}.
+Note that in this presentation {opt nostrict} was called {it:default mode}.
+While the option {opt adopath()} makes one component needed
+for a gold-standard level reproducibility easy to use,
+it is not the only thing needed for reproducibility.
+Other practices such as setting the seed
+if using randomization is still as important.{p_end}
 
 {dlgtab:Other settings}
 
