@@ -112,6 +112,9 @@
           if _rc local morepaths 0
         }
 
+        * Update the paths where mata search for commands to mirror adopath
+        mata: mata mlib index
+
         local aoutput `"`aoutput'PLUS adopath was set to [`apath']. All adopaths other than this and BASE have been removed. Only programs and ado-files in this PLUS folder are accessible to Stata until the end of this session."'
       }
       else {
