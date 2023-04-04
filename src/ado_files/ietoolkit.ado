@@ -4,8 +4,8 @@ capture program drop ietoolkit
 program ietoolkit, rclass
 
 	* UPDATE THESE LOCALS FOR EACH NEW VERSION PUBLISHED
-	local version "7.1"
-	local versionDate "19JAN2023"
+	local version "7.2"
+	local versionDate "04APR2023"
 
 	syntax [anything]
 
