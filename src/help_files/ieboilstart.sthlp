@@ -78,59 +78,70 @@ to fully eliminate this risk.{p_end}
 
 {pstd}The best practice settings this command applies
 can be categorized into the following types:
-{it:Stata version}, {it:adopath} management, and {it:other} settings.{p_end}
+version control of built-in commands,
+version control of user-written commands,
+and {it:other} settings.{p_end}
 
-{dlgtab:Stata version settings}
+{dlgtab:Version control: Stata and built-in commands}
 
 {pstd}Research projects often span over several years,
 and are required to be reproducible for anyone in the future
 reviewing the results.
 After several years have passed, it is likely that
 a new version of Stata has been released.
-This can change how the Stata code runs, so for reproducibility,
-it is important to indicate which Stata version this code was written in.{p_end}
+When Stata releases a new version they add new built-in commands,
+but they might also make changes to already published commands.{p_end}
 
-{pstd}This command uses Stata's built-in command {cmd:version} to
-execute a script using a specific version of Stata (and its syntax).
-Different versions of Stata might run the same code slightly differently,
-or they may have changed syntax or functionality for built-in commands entirely.
-See many more details {help version:here}.
-Setting the Stata version makes them run the same code more similarly.
-Note that there is no guarantee that two different versions of Stata
-run the same code identically in every single aspects
-even after selecting the same version.
-However, the risk that they do run differently is
-significantly reduced when setting the version.{p_end}
+{pstd}For you to make sure that old code in your project behaves the same way
+even after you update your Stata installation
+you need to version control the built-in commands in Stata.
+You also need to version control the built-in commands in Stata
+when you are collaborating as you cannot be sure what version of Stata
+everyone else are using at all points in time.
+Finally, this becomes particularly important when preparing a
+reproducibility package that should stand the test of time,
+as you definitely do not know
+what version of Stata someone in the future will use.{p_end}
 
-{pstd}Setting the Stata version is particularly important for any Stata code
-containing randomization that is intended to be reproducible.
-Stata occasionally updates the randomization algorithm used between versions.
-The improvement when updating the randomization algorithm
-is unlikely to make any difference to the vast majority of research projects,
-but any change to {it: any} command might cause the same Stata code to obtain different random numbers
-when used in the future.
-What's important is that to make code with a random process reproducible,
-it must use the exact same algorithm,
-and that is achieved by selecting an exact Stata version.{p_end}
+{pstd}One example where this becomes important is reproducible randomization.
+Sometimes Stata updates the random number generator between versions.
+Unless the built-in commands that use randomization are version controlled,
+then the results of the randomization can vary between versions of Stata.
+This is true even if other requirements for reproducible randomization is used,
+such as setting the {help seed:seed}.
+Each time Stata updates the random number generator it gets marginally better.
+However, for the vast majority of research projects,
+this improvement is so marginal it is most definitely negligible.{p_end}
 
-{pstd}For good reasons, it is not possible to set the Stata version
-for the rest of the code from inside a user-written command.
-Therefore, in order for the version best practice
-to be applied across the project code,
-any user of this command must add {inp:`r(version)'}
-on the immediate subsequent do-file line after {cmdab:ieboilstart}. See below.{p_end}
+{pstd}This command uses the Stata command {help version:version} to
+version control all built-in commands.
+For some good technical reasons, it is not possible for {cmd:ieboilstart}
+to set the version for the rest of the project's code from inside the command.
+This means that all {cmd:ieboilstart} start is preparing the line of code
+you need to run to version control all built-in commands.
+You need to run this line of code on the
+immediate subsequent line after {cmd:ieboilstart}.
+Like this:{p_end}
 
 {phang}{cmdab:ieboilstart} , {it:options}{p_end}{phang}`r(version)'{p_end}
 
 {pstd}The version setting has the scope of a local,
-meaning that it expires when a dofile
-and all sub-dofiles it is calling are completed. If
+meaning that it expires when a do-file
+and all sub-dofiles it is calling are completed.
+If
 {browse "https://dimewiki.worldbank.org/Master_Do-files":main/master do-files}
-are used, then the version should be set in the main file,
+are used,
+then the version should be set in the main file,
 and only results generated when running all code from the main file
 should be considered reproducible.{p_end}
 
-{dlgtab:Adopath settings}
+{pstd}It is just as important, if not more important,
+to version control the user-written commands as well.
+See next section for how to version control user-written commands,
+such as commands installed from {help ssc:scc install}.
+{p_end}
+
+{dlgtab:Version control: User-written commands}
 
 {pstd}The option {opt adopath()} makes one key
 reproducibility component easy to use in Stata.
