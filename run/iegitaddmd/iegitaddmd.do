@@ -4,8 +4,8 @@
 
     ***
     * Macro to run folder
-    local run    "${ietoolkit_clone}/run"
-    local output "`run'/output/iegitaddmd"
+    local iegam  "run/iegitaddmd"
+    local output "`iegam'/output"
 
     local cl     "`output'/clone"
     local db     "`output'/dropbox"
@@ -14,29 +14,28 @@
     local db_dw  "`db'/DataWork"
 
     local customfolder   "`output'/customfolder"
-    local customfilename "iegitaddmd_custom_file.md"
-    local customfile     "`run'/`customfilename'"
+    local customfile     "iegitaddmd_custom_file.md"
 
     **********************************************
     * Load commands
 
     *Load version of iegitaddmd in clone
-    qui do "${ietoolkit_clone}/src/ado_files/iegitaddmd.ado"
+    qui do "src/ado_files/iegitaddmd.ado"
 
     *Load utility command
-	  qui do "`run'/ie_recurse_rmdir.do"
+	  qui do "run/run_utils.do"
     ie_recurse_rmdir, folder("`output'") okifnotexist
 
     **********************************************
     * Set up folders to test on
 
 	  * Simple create folders
-	  cap mkdir "`output'"
-    cap mkdir "`customfolder'"
-    cap mkdir "`cl'"
-    cap mkdir "`db'"
+	  ie_recurse_mkdir, folder("`output'")
+    ie_recurse_mkdir, folder("`customfolder'")
+    ie_recurse_mkdir, folder("`cl'")
+    ie_recurse_mkdir, folder("`db'")
 
-	* USe iefolder to create identical project folders
+	* Use iefolder to create identical project folders
 	iefolder new project           , projectfolder("`cl'")
 	iefolder new project           , projectfolder("`db'")
 	iefolder new round Baseline    , projectfolder("`cl'")
@@ -100,8 +99,8 @@
 	assert _rc == 198
 
   * Test customfile
-  iegitaddmd, folder("`customfolder'") customfile("`customfile'") auto
+  iegitaddmd, folder("`customfolder'") customfile("`iegam'/`customfile'") auto
 
   * Test that the custom file was actaully used
-  checksum "`customfolder'/`customfilename'"
+  checksum "`customfolder'/`customfile'"
   assert `r(checksum)' == 1932786186
