@@ -1,4 +1,4 @@
-*! version 7.1 19JAN2023 DIME Analytics dimeanalytics@worldbank.org
+*! version 7.2 04APR2023 DIME Analytics dimeanalytics@worldbank.org
 
   capture program drop ieboilstart
   program ieboilstart , rclass
@@ -78,8 +78,14 @@
       local apath   = trim("`apath'")
       local aoption = trim(subinstr("`aoption'",",","",1))
 
-      if !missing("`aoption'") & "`aoption'" != "strict" {
-        noi di as error `"{phang}The suboption [`aoption'] in the option [`adopath'] is not a valid suboption. See help file for more details.{p_end}"'
+      if missing("`aoption'") | !inlist("`aoption'", "strict", "nostrict") {
+        if missing("`aoption'") {
+          local aopterr `"You did not provide any sub-option."'
+        }
+        else {
+          local aopterr `"You provided the sub-option [`aoption']."'
+        }
+        noi di as error `"{phang}The option [`adopath'] requires one of the sub-options [strict] or [nostrict]. `aopterr' See help file for more details.{p_end}"'
         error 198
       }
 
@@ -105,6 +111,9 @@
           capture adopath - 3
           if _rc local morepaths 0
         }
+
+        * Update the paths where mata search for commands to mirror adopath
+        mata: mata mlib index
 
         local aoutput `"`aoutput'PLUS adopath was set to [`apath']. All adopaths other than this and BASE have been removed. Only programs and ado-files in this PLUS folder are accessible to Stata until the end of this session."'
       }
