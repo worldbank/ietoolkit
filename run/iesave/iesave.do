@@ -1,53 +1,49 @@
 
-	/*******************************************************************************
+	/*****************************************************************************
 	  Set up
-	*******************************************************************************/
-    
-    * Comment out to run without debug mode
-    local debug debug
+	*****************************************************************************/
+
+  * Comment out to run without debug mode
+  local debug debug
+
+  local iesave_folder  "run/iesave"
+  local outputs_folder "`iesave_folder'/output"
+  local reports_folder "`outputs_folder'/reports"
 
 	* Load the version in this clone into memory. If you need to use the version
 	* currently installed in you instance of Stata, then simply re-start Stata.
 	* Set up the ietoolkit_clone global root path in ietoolkit\run\run_master.do
-	qui do "${ietoolkit_clone}/src/ado_files/iesave.ado"
-    qui do "${ietoolkit_clone}/src/ado_files/ietoolkit.ado"
+	qui do "src/ado_files/iesave.ado"
+  qui do "src/ado_files/ietoolkit.ado"
 
-	*Load utility function that helps clean up folders inbetween test runs
-	qui do "${ietoolkit_clone}/run/ie_recurse_rmdir.do"
+	*Load utility functions that create and resets folders across runs
+	qui do "run/run_utils.do"
 
-	*Load utility function that helps create folders inbetween test runs
-	qui do "${ietoolkit_clone}/run/ie_recurse_mkdir.do"
-
-	/*******************************************************************************
+	/*****************************************************************************
 		Run this run file once for each save file version
-	*******************************************************************************/
+	*****************************************************************************/
 
     *Remove all previously generated output (if any)
-    ie_recurse_rmdir, folder("${runoutput}/iesave") okifnotexist
-    
-    *Remove and re-create the reports folders
-    local report_folder "${runoutput}/iesave/reports"
+    ie_recurse_rmdir, folder("`outputs_folder'") okifnotexist
 
-    ie_recurse_mkdir, folder("`report_folder'")
- 
+    *Re-create the reports folders
+    ie_recurse_mkdir, folder("`reports_folder'")
+
     * Only include the version your Stata version can run
-	if 		`c(stata_version)' < 13 local stata_versions 12
-	else if `c(stata_version)' < 14 local stata_versions 12 13
-	else                            local stata_versions 12 13 14
-
+  	if 		`c(stata_version)'   < 13 local stata_versions 12
+  	else if `c(stata_version)' < 14 local stata_versions 12 13
+  	else                            local stata_versions 12 13 14
 
     * most basic case for quick testing - with and without path in ""
     sysuse auto, clear
-    iesave ${runoutput}/iesave/basic, 	///
-        idvars(make) version(13.1)
+    iesave `outputs_folder'/basic, idvars(make) version(13.1)
     sysuse auto, clear
-    iesave "${runoutput}/iesave/basic.dta", 	///
-        idvars(make) version(13.1) replace
-    
- 
+    iesave "`outputs_folder'/basic.dta", idvars(make) version(13.1) replace
+
+
 	foreach stata_ver of local stata_versions {
-        
-        local version_folder "${runoutput}/iesave/v`stata_ver'"
+
+    local version_folder "`outputs_folder'/v`stata_ver'"
 
 		* Create the output folder (and all its parents is needed)
 		ie_recurse_mkdir, folder("`version_folder'")
@@ -55,9 +51,9 @@
 		*Lsit of all files this run file is expected to create
 		local expected_files ""
 
-	/*******************************************************************************
+	/*****************************************************************************
 		Options: No error
-	*******************************************************************************/
+	*****************************************************************************/
 
 		/*********************
 		      IDvars
@@ -69,7 +65,7 @@
 			idvars(make) version(`stata_ver') 						///
 			                    ///
 			replace
-        
+
         * Test that command truly save in correct format
         dtaversion "`version_folder'/id_1.dta"
         if `stata_ver' == 12 assert `r(version)' == 115
@@ -259,71 +255,71 @@
 // Test meta data report -------------------------------------------------------
 
 	set seed 1989
-	
+
 	sysuse auto, clear
 	gen day 	= runiform(1, 30)
 	gen month 	= runiform(1, 12)
 	gen year 	= runiform(1990, 2020)
 	gen date 	= mdy(month, day, year)
 	format date %td
-    
+
     lab var mpg "Milage , mpg"
-	
+
     * Use defaults
-    iesave "`report_folder'/auto_defualt_v`stata_ver'.dta", ///
+    iesave "`reports_folder'/auto_defualt_v`stata_ver'.dta", ///
 		idvars(make) ///
 		version(`stata_ver') ///
         report
 
     * Use defaults but with csv and userinfo
-    iesave "`report_folder'/auto_csv_v`stata_ver'.dta", ///
+    iesave "`reports_folder'/auto_csv_v`stata_ver'.dta", ///
 		idvars(make) userinfo  ///
 		version(`stata_ver') ///
         report(csv)
-	
+
     *User location
-    local userlocation "`report_folder'/userlocation"
+    local userlocation "`reports_folder'/userlocation"
     ie_recurse_mkdir, folder("`userlocation'")
-	
-	iesave "`report_folder'/auto_location_v`stata_ver'.dta", ///
+
+	iesave "`reports_folder'/auto_location_v`stata_ver'.dta", ///
 		idvars(make) ///
 		version(`stata_ver') ///
 		userinfo ///
-		report(path("`userlocation'/auto_location_v`stata_ver'.md")) `debug' 
+		report(path("`userlocation'/auto_location_v`stata_ver'.md")) `debug'
 
 }
 
     // Test replace options for meta data report -------------------------------
-    
+
     * Default location
 	sysuse auto, clear
-	iesave "`report_folder'/report_replace.dta", ///
+	iesave "`reports_folder'/report_replace.dta", ///
 		idvars(make) ///
 		version(13) ///
-		report `debug' 
+		report `debug'
 
 	sysuse auto, clear
-	iesave "`report_folder'/report_replace.dta", ///
+	iesave "`reports_folder'/report_replace.dta", ///
 		idvars(make) ///
 		version(13.1) ///
 		replace ///
-		report `debug' 
+		report `debug'
 
 
     * User specified location
 	sysuse auto, clear
-	iesave "`report_folder'/reportpath_replace.dta", ///
+	iesave "`reports_folder'/reportpath_replace.dta", ///
 		idvars(make) ///
 		version(13) ///
-        report(path("`report_folder'/reportpath_replace.csv")) ///
-		`debug' 
+        report(path("`reports_folder'/reportpath_replace.csv")) ///
+		`debug'
 
 	sysuse auto, clear
-	iesave "`report_folder'/reportpath_replace.dta", ///
+	iesave "`reports_folder'/reportpath_replace.dta", ///
 		idvars(make) ///
 		version(13) ///
-        report(path("`report_folder'/reportpath_replace.csv") replace) ///
+        report(path("`reports_folder'/reportpath_replace.csv") replace) ///
 		replace  ///
-		`debug' 
-			
+		`debug'
+
 ***************************** End of do-file ***********************************
