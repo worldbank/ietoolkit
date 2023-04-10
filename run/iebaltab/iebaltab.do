@@ -3,25 +3,16 @@
 	ieboilstart , version(13.1)
 	`r(version)'
 
-	* Add the path to your local clone of the [ietoolkit] repo
-  global iekit_fldr ""
-
-	if c(username) == "wb462869" {
-		global 	iekit_fldr "C:\Users/wb462869/GitHub/ietoolkit"
-	}
-
-	* Sub-folder globals
-	global run_fldr "${iekit_fldr}/run"
-	global out_fldr "${iekit_fldr}/run/output/iebaltab"
-
-
   * Load the command from file and utils
-	qui	do "${iekit_fldr}/src/ado_files/iebaltab.ado"
-	qui	do "${run_fldr}/run_utils/iebaltab_run_utils.do"
+	qui	do "src/ado_files/iebaltab.ado"
+	qui do "run/iebaltab/iebaltab_run_utils.do"
+  qui do "run/run_utils.do"
 
+  * Folder local and make sure it is created
+	local out "run/iebaltab/outputs"
+  ie_recurse_mkdir, folder("`out'")
 
 ************* Regular
-	*  L
 	sysuse auto
 
 	set seed 34543673
@@ -54,11 +45,11 @@ qui {
 	preserve
 
 		local tnum 1
-		local csvfile "iebt-csv`tnum'"
-		local exlfile "iebt-xlsx`tnum'"
-		local texfile "iebt-tex`tnum'"
-		local txnfile "iebt-tex`tnum'-note"
-        local allsave `"savecsv("${out_fldr}/`csvfile'") savexlsx("${out_fldr}/`exlfile'") savetex("${out_fldr}/`texfile'") texnotefile("${out_fldr}/`txnfile'") "'
+		local csv "`out'/iebt-csv`tnum'"
+		local exl "`out'/iebt-xlsx`tnum'"
+		local tex "`out'/iebt-tex`tnum'"
+		local txn "`out'/iebt-tex`tnum'-note"
+    local allsave `"savecsv("`csv'") savexlsx("`exl'") savetex("`tex'") texnotefile("`txn'") "'
 
 		noi iebaltab weight price , `allsave' ///
       groupvar(tmt_cl) replace        ///
@@ -77,12 +68,12 @@ qui {
 	preserve
 
 		local tnum 2
-		local texfile "iebt-tex`tnum'"
+		local tex "`out'/iebt-tex`tnum'"
 
 		noi iebaltab weight price ,              ///
       groupvar(tmt_cl) replace           ///
 			ftest feqtest control(1)         ///
-			savetex("${out_fldr}/`texfile'") ///
+			savetex("`tex'") ///
 			cov(mpg) fixed(foreign)
 
 		* Test no regaular missing values in matrices
@@ -97,12 +88,12 @@ qui {
 	preserve
 
 		local tnum 3
-		local texfile "iebt-tex`tnum'"
+		local tex "`out'/iebt-tex`tnum'"
 
 		iebaltab weight price ,              ///
       groupvar(tmt_cl) replace           ///
 			ftest feqtest control(1)         ///
-			savetex("${out_fldr}/`texfile'") ///
+			savetex("`tex'") ///
 			cov(mpg) fixed(foreign)          ///
 			texcolwidth(4cm)  ///
 			addnote("Options used: texcolwidth(3cm) short first column ")
@@ -119,13 +110,13 @@ qui {
 	preserve
 
 		local tnum 4
-		local texfile "iebt-texdoc`tnum'"
+		local texfile "`out'/iebt-texdoc`tnum'"
 
 		noi iebaltab weight price ,                 ///
             groupvar(tmt_cl) replace              ///
 			ftest feqtest control(1)            ///
-			savetex("${out_fldr}/`texfile'")    ///
-			cov(mpg) fixed(foreign) texdocument 
+			savetex("`tex'")    ///
+			cov(mpg) fixed(foreign) texdocument
 
 		* Test no regaular missing values in matrices
 		mat mat1 = r(iebtab_rmat)
@@ -144,7 +135,7 @@ qui {
 		noi iebaltab weight price ,                               ///
       groupvar(tmt_cl) replace                            ///
 			ftest feqtest control(1)                          ///
-			savetex("${out_fldr}/`texfile'")                  ///
+			savetex("`tex'")                  ///
 			cov(mpg) fixed(foreign) texdocument               ///
 			texnotewidth(1.5) texcolwidth(2cm) ///
 			texcaption("Table 5") texlabel("T5")
@@ -162,11 +153,11 @@ qui {
 	preserve
 
 		local tnum 6
-		local csvfile "iebt-csv`tnum'"
-		local exlfile "iebt-xlsx`tnum'"
-		local texfile "iebt-tex`tnum'"
-		local txnfile "iebt-tex`tnum'-note"
-        local allsave `"savecsv("${out_fldr}/`csvfile'") savexlsx("${out_fldr}/`exlfile'") savetex("${out_fldr}/`texfile'") texnotefile("${out_fldr}/`txnfile'") "'
+		local csv "`out'/iebt-csv`tnum'"
+		local exl "`out'/iebt-xlsx`tnum'"
+		local tex "`out'/iebt-tex`tnum'"
+		local txn "`out'/iebt-tex`tnum'-note"
+    local allsave `"savecsv("`csv'") savexlsx("`exl'") savetex("`tex'") texnotefile("`txn'") "'
 
 		noi iebaltab weight price , `allsave'           ///
       groupvar(tmt) replace                     ///
@@ -186,11 +177,11 @@ qui {
 	preserve
 
 		local tnum 7
-		local csvfile "iebt-csv`tnum'"
-		local exlfile "iebt-xlsx`tnum'"
-		local texfile "iebt-tex`tnum'"
-		local txnfile "iebt-tex`tnum'-note"
-        local allsave `"savecsv("${out_fldr}/`csvfile'") savexlsx("${out_fldr}/`exlfile'") savetex("${out_fldr}/`texfile'") texnotefile("${out_fldr}/`txnfile'") "'
+		local csv "`out'/iebt-csv`tnum'"
+		local exl "`out'/iebt-xlsx`tnum'"
+		local tex "`out'/iebt-tex`tnum'"
+		local txn "`out'/iebt-tex`tnum'-note"
+    local allsave `"savecsv("`csv'") savexlsx("`exl'") savetex("`tex'") texnotefile("`txn'") "'
 
 		noi iebaltab weight price , `allsave'             ///
       groupvar(tmt) replace                       ///
@@ -210,11 +201,11 @@ qui {
 	preserve
 
 		local tnum 8
-		local csvfile "iebt-csv`tnum'"
-		local exlfile "iebt-xlsx`tnum'"
-		local texfile "iebt-tex`tnum'"
-		local txnfile "iebt-tex`tnum'-note"
-        local allsave `"savecsv("${out_fldr}/`csvfile'") savexlsx("${out_fldr}/`exlfile'") savetex("${out_fldr}/`texfile'") texnotefile("${out_fldr}/`txnfile'") "'
+		local csv "`out'/iebt-csv`tnum'"
+		local exl "`out'/iebt-xlsx`tnum'"
+		local tex "`out'/iebt-tex`tnum'"
+		local txn "`out'/iebt-tex`tnum'-note"
+    local allsave `"savecsv("`csv'") savexlsx("`exl'") savetex("`tex'") texnotefile("`txn'") "'
 
         label var weight "Weight (USD$)"
         // Percent sign in value label
@@ -247,11 +238,11 @@ qui {
 		by tmt_cl : replace foreign = . if _n == 3 & tmt_cl == 1
 
 		local tnum 9
-		local csvfile "iebt-csv`tnum'"
-		local exlfile "iebt-xlsx`tnum'"
-		local texfile "iebt-tex`tnum'"
-		local txnfile "iebt-tex`tnum'-note"
-        local allsave `"savecsv("${out_fldr}/`csvfile'") savexlsx("${out_fldr}/`exlfile'") savetex("${out_fldr}/`texfile'") texnotefile("${out_fldr}/`txnfile'") "'
+		local csv "`out'/iebt-csv`tnum'"
+		local exl "`out'/iebt-xlsx`tnum'"
+		local tex "`out'/iebt-tex`tnum'"
+		local txn "`out'/iebt-tex`tnum'-note"
+    local allsave `"savecsv("`csv'") savexlsx("`exl'") savetex("`tex'") texnotefile("`txn'") "'
 
 		noi iebaltab weight price , `allsave' ///
       groupvar(tmt_cl) replace        ///
@@ -275,11 +266,11 @@ qui {
 	preserve
 
 		local tnum 10
-		local csvfile "iebt-csv`tnum'"
-		local exlfile "iebt-xlsx`tnum'"
-		local texfile "iebt-tex`tnum'"
-		local txnfile "iebt-tex`tnum'-note"
-        local allsave `"savecsv("${out_fldr}/`csvfile'") savexlsx("${out_fldr}/`exlfile'") savetex("${out_fldr}/`texfile'") texnotefile("${out_fldr}/`txnfile'") "'
+		local csv "`out'/iebt-csv`tnum'"
+		local exl "`out'/iebt-xlsx`tnum'"
+		local tex "`out'/iebt-tex`tnum'"
+		local txn "`out'/iebt-tex`tnum'-note"
+    local allsave `"savecsv("`csv'") savexlsx("`exl'") savetex("`tex'") texnotefile("`txn'") "'
 
 		noi iebaltab weight price , `allsave' ///
       groupvar(tmt_cl) replace        ///
@@ -301,11 +292,11 @@ qui {
 	preserve
 
 		local tnum 11
-		local csvfile "iebt-csv`tnum'"
-		local exlfile "iebt-xlsx`tnum'"
-		local texfile "iebt-tex`tnum'"
-		local txnfile "iebt-tex`tnum'-note"
-        local allsave `"savecsv("${out_fldr}/`csvfile'") savexlsx("${out_fldr}/`exlfile'") savetex("${out_fldr}/`texfile'") texnotefile("${out_fldr}/`txnfile'") "'
+		local csv "`out'/iebt-csv`tnum'"
+		local exl "`out'/iebt-xlsx`tnum'"
+		local tex "`out'/iebt-tex`tnum'"
+		local txn "`out'/iebt-tex`tnum'-note"
+    local allsave `"savecsv("`csv'") savexlsx("`exl'") savetex("`tex'") texnotefile("`txn'") "'
 
 		noi iebaltab weight price , `allsave' ///
       groupvar(tmt_cl) replace        ///
@@ -327,11 +318,11 @@ qui {
 	preserve
 
 		local tnum 12
-		local csvfile "iebt-csv`tnum'"
-		local exlfile "iebt-xlsx`tnum'"
-		local texfile "iebt-tex`tnum'"
-		local txnfile "iebt-tex`tnum'-note"
-        local allsave `"savecsv("${out_fldr}/`csvfile'") savexlsx("${out_fldr}/`exlfile'") savetex("${out_fldr}/`texfile'") texnotefile("${out_fldr}/`txnfile'") "'
+		local csv "`out'/iebt-csv`tnum'"
+		local exl "`out'/iebt-xlsx`tnum'"
+		local tex "`out'/iebt-tex`tnum'"
+		local txn "`out'/iebt-tex`tnum'-note"
+    local allsave `"savecsv("`csv'") savexlsx("`exl'") savetex("`tex'") texnotefile("`txn'") "'
 
 		noi iebaltab weight price , `allsave'        ///
       groupvar(tmt_cl) replace               ///
@@ -353,11 +344,11 @@ qui {
 	preserve
 
 		local tnum 13
-		local csvfile "iebt-csv`tnum'"
-		local exlfile "iebt-xlsx`tnum'"
-		local texfile "iebt-tex`tnum'"
-		local txnfile "iebt-tex`tnum'-note"
-        local allsave `"savecsv("${out_fldr}/`csvfile'") savexlsx("${out_fldr}/`exlfile'") savetex("${out_fldr}/`texfile'") texnotefile("${out_fldr}/`txnfile'") "'
+		local csv "`out'/iebt-csv`tnum'"
+		local exl "`out'/iebt-xlsx`tnum'"
+		local tex "`out'/iebt-tex`tnum'"
+		local txn "`out'/iebt-tex`tnum'-note"
+    local allsave `"savecsv("`csv'") savexlsx("`exl'") savetex("`tex'") texnotefile("`txn'") "'
 
 		noi iebaltab weight price , `allsave' ///
       groupvar(tmt_cl) replace        ///
@@ -377,11 +368,11 @@ qui {
 	preserve
 
 		local tnum 14
-		local csvfile "iebt-csv`tnum'"
-		local exlfile "iebt-xlsx`tnum'"
-		local texfile "iebt-tex`tnum'"
-		local txnfile "iebt-tex`tnum'-note"
-        local allsave `"savecsv("${out_fldr}/`csvfile'") savexlsx("${out_fldr}/`exlfile'") savetex("${out_fldr}/`texfile'") texnotefile("${out_fldr}/`txnfile'") "'
+		local csv "`out'/iebt-csv`tnum'"
+		local exl "`out'/iebt-xlsx`tnum'"
+		local tex "`out'/iebt-tex`tnum'"
+		local txn "`out'/iebt-tex`tnum'-note"
+    local allsave `"savecsv("`csv'") savexlsx("`exl'") savetex("`tex'") texnotefile("`txn'") "'
 
 		noi iebaltab weight price , `allsave' ///
       groupvar(tmt_cl) replace        ///
@@ -401,11 +392,11 @@ qui {
 	preserve
 
 		local tnum 15
-		local csvfile "iebt-csv`tnum'"
-		local exlfile "iebt-xlsx`tnum'"
-		local texfile "iebt-tex`tnum'"
-		local txnfile "iebt-tex`tnum'-note"
-        local allsave `"savecsv("${out_fldr}/`csvfile'") savexlsx("${out_fldr}/`exlfile'") savetex("${out_fldr}/`texfile'") texnotefile("${out_fldr}/`txnfile'") "'
+		local csv "`out'/iebt-csv`tnum'"
+		local exl "`out'/iebt-xlsx`tnum'"
+		local tex "`out'/iebt-tex`tnum'"
+		local txn "`out'/iebt-tex`tnum'-note"
+    local allsave `"savecsv("`csv'") savexlsx("`exl'") savetex("`tex'") texnotefile("`txn'") "'
 
 		noi iebaltab weight price , `allsave' ///
       groupvar(tmt_cl) replace        ///
@@ -426,11 +417,11 @@ qui {
 	preserve
 
 		local tnum 16
-		local csvfile "iebt-csv`tnum'"
-		local exlfile "iebt-xlsx`tnum'"
-		local texfile "iebt-tex`tnum'"
-		local txnfile "iebt-tex`tnum'-note"
-        local allsave `"savecsv("${out_fldr}/`csvfile'") savexlsx("${out_fldr}/`exlfile'") savetex("${out_fldr}/`texfile'") texnotefile("${out_fldr}/`txnfile'") "'
+		local csv "`out'/iebt-csv`tnum'"
+		local exl "`out'/iebt-xlsx`tnum'"
+		local tex "`out'/iebt-tex`tnum'"
+		local txn "`out'/iebt-tex`tnum'-note"
+    local allsave `"savecsv("`csv'") savexlsx("`exl'") savetex("`tex'") texnotefile("`txn'") "'
 
 		noi iebaltab weight price , `allsave' ///
       groupvar(tmt_cl) replace        ///
@@ -449,11 +440,11 @@ qui {
 	preserve
 
 		local tnum 17
-		local csvfile "iebt-csv`tnum'"
-		local exlfile "iebt-xlsx`tnum'"
-		local texfile "iebt-tex`tnum'"
-		local txnfile "iebt-tex`tnum'-note"
-        local allsave `"savecsv("${out_fldr}/`csvfile'") savexlsx("${out_fldr}/`exlfile'") savetex("${out_fldr}/`texfile'") texnotefile("${out_fldr}/`txnfile'") "'
+		local csv "`out'/iebt-csv`tnum'"
+		local exl "`out'/iebt-xlsx`tnum'"
+		local tex "`out'/iebt-tex`tnum'"
+		local txn "`out'/iebt-tex`tnum'-note"
+    local allsave `"savecsv("`csv'") savexlsx("`exl'") savetex("`tex'") texnotefile("`txn'") "'
 
 		noi iebaltab weight price , `allsave' ///
       groupvar(tmt_cl) replace        ///
@@ -473,11 +464,11 @@ qui {
 	preserve
 
 		local tnum 18
-		local csvfile "iebt-csv`tnum'"
-		local exlfile "iebt-xlsx`tnum'"
-		local texfile "iebt-tex`tnum'"
-		local txnfile "iebt-tex`tnum'-note"
-        local allsave `"savecsv("${out_fldr}/`csvfile'") savexlsx("${out_fldr}/`exlfile'") savetex("${out_fldr}/`texfile'") texnotefile("${out_fldr}/`txnfile'") "'
+		local csv "`out'/iebt-csv`tnum'"
+		local exl "`out'/iebt-xlsx`tnum'"
+		local tex "`out'/iebt-tex`tnum'"
+		local txn "`out'/iebt-tex`tnum'-note"
+    local allsave `"savecsv("`csv'") savexlsx("`exl'") savetex("`tex'") texnotefile("`txn'") "'
 
 		noi iebaltab weight price , `allsave' ///
       groupvar(tmt_cl) replace        ///
@@ -496,11 +487,11 @@ qui {
 	preserve
 
 		local tnum 19
-		local csvfile "iebt-csv`tnum'"
-		local exlfile "iebt-xlsx`tnum'"
-		local texfile "iebt-tex`tnum'"
-		local txnfile "iebt-tex`tnum'-note"
-        local allsave `"savecsv("${out_fldr}/`csvfile'") savexlsx("${out_fldr}/`exlfile'") savetex("${out_fldr}/`texfile'") texnotefile("${out_fldr}/`txnfile'") "'
+		local csv "`out'/iebt-csv`tnum'"
+		local exl "`out'/iebt-xlsx`tnum'"
+		local tex "`out'/iebt-tex`tnum'"
+		local txn "`out'/iebt-tex`tnum'-note"
+    local allsave `"savecsv("`csv'") savexlsx("`exl'") savetex("`tex'") texnotefile("`txn'") "'
 
 		noi iebaltab weight price , `allsave' ///
       groupvar(tmt_cl) replace        ///
@@ -519,11 +510,11 @@ qui {
 	preserve
 
 		local tnum 20
-		local csvfile "iebt-csv`tnum'"
-		local exlfile "iebt-xlsx`tnum'"
-		local texfile "iebt-tex`tnum'"
-		local txnfile "iebt-tex`tnum'-note"
-        local allsave `"savecsv("${out_fldr}/`csvfile'") savexlsx("${out_fldr}/`exlfile'") savetex("${out_fldr}/`texfile'") texnotefile("${out_fldr}/`txnfile'") "'
+		local csv "`out'/iebt-csv`tnum'"
+		local exl "`out'/iebt-xlsx`tnum'"
+		local tex "`out'/iebt-tex`tnum'"
+		local txn "`out'/iebt-tex`tnum'-note"
+    local allsave `"savecsv("`csv'") savexlsx("`exl'") savetex("`tex'") texnotefile("`txn'") "'
 
 		noi iebaltab weight price , `allsave' ///
       groupvar(tmt_cl) replace        ///
@@ -542,11 +533,11 @@ qui {
 	preserve
 
 		local tnum 21
-		local csvfile "iebt-csv`tnum'"
-		local exlfile "iebt-xlsx`tnum'"
-		local texfile "iebt-tex`tnum'"
-		local txnfile "iebt-tex`tnum'-note"
-        local allsave `"savecsv("${out_fldr}/`csvfile'") savexlsx("${out_fldr}/`exlfile'") savetex("${out_fldr}/`texfile'") texnotefile("${out_fldr}/`txnfile'") "'
+		local csv "`out'/iebt-csv`tnum'"
+		local exl "`out'/iebt-xlsx`tnum'"
+		local tex "`out'/iebt-tex`tnum'"
+		local txn "`out'/iebt-tex`tnum'-note"
+    local allsave `"savecsv("`csv'") savexlsx("`exl'") savetex("`tex'") texnotefile("`txn'") "'
 
 		noi iebaltab weight price , `allsave' ///
       groupvar(tmt_cl) replace        ///
@@ -566,11 +557,11 @@ qui {
 	preserve
 
 		local tnum 22
-		local csvfile "iebt-csv`tnum'"
-		local exlfile "iebt-xlsx`tnum'"
-		local texfile "iebt-tex`tnum'"
-		local txnfile "iebt-tex`tnum'-note"
-        local allsave `"savecsv("${out_fldr}/`csvfile'") savexlsx("${out_fldr}/`exlfile'") savetex("${out_fldr}/`texfile'") texnotefile("${out_fldr}/`txnfile'") "'
+		local csv "`out'/iebt-csv`tnum'"
+		local exl "`out'/iebt-xlsx`tnum'"
+		local tex "`out'/iebt-tex`tnum'"
+		local txn "`out'/iebt-tex`tnum'-note"
+    local allsave `"savecsv("`csv'") savexlsx("`exl'") savetex("`tex'") texnotefile("`txn'") "'
 
         set seed 542783
 
@@ -597,10 +588,10 @@ qui {
 	preserve
 
 		local tnum 23
-		local csvfile "iebt-csv`tnum'"
-		local exlfile "iebt-xlsx`tnum'"
-		local texfile "iebt-tex`tnum'"
-        local allsave `"savecsv("${out_fldr}/`csvfile'") savexlsx("${out_fldr}/`exlfile'") savetex("${out_fldr}/`texfile'")"'
+		local csv "`out'/iebt-csv`tnum'"
+		local exl "`out'/iebt-xlsx`tnum'"
+		local tex "`out'/iebt-tex`tnum'"
+    local allsave `"savecsv("`csv'") savexlsx("`exl'") savetex("`tex'")"'
 
         set seed 542783
 
@@ -619,7 +610,7 @@ qui {
 		mat mat2 = r(iebtab_fmat)
 		noi ie_test_mat_nomiss, mat1(mat1) mat2(mat2)
 	restore
-    
+
      /***************************************************************************
 	  Table 24 - testing nonote beahvior
 	***************************************************************************/
@@ -627,11 +618,11 @@ qui {
     preserve
 
 		local tnum 24a
-		local csvfile "iebt-csv`tnum'"
-		local exlfile "iebt-xlsx`tnum'"
-		local texfile "iebt-tex`tnum'"
-        local txnfile "iebt-tex`tnum'-note"
-        local allsave `"savecsv("${out_fldr}/`csvfile'") savexlsx("${out_fldr}/`exlfile'") texnotefile("${out_fldr}/`txnfile'")  savetex("${out_fldr}/`texfile'") "'
+		local csv "`out'/iebt-csv`tnum'"
+		local exl "`out'/iebt-xlsx`tnum'"
+		local tex "`out'/iebt-tex`tnum'"
+    local txn "`out'/iebt-tex`tnum'-note"
+    local allsave `"savecsv("`csv'") savexlsx("`exl'") texnotefile("`txn'")  savetex("`tex'") "'
 
 		noi iebaltab weight , `allsave' replace groupvar(tmt_cl) ///
           nonote addnote(`"added a "tricky" note"')
@@ -641,14 +632,14 @@ qui {
 		mat mat2 = r(iebtab_fmat)
 		noi ie_test_mat_nomiss, mat1(mat1) mat2(mat2)
 	restore
-    
+
 	preserve
 
 		local tnum 24b
-		local csvfile "iebt-csv`tnum'"
-		local exlfile "iebt-xlsx`tnum'"
-		local texfile "iebt-tex`tnum'"
-        local allsave `"savecsv("${out_fldr}/`csvfile'") savexlsx("${out_fldr}/`exlfile'") savetex("${out_fldr}/`texfile'") "'
+		local csv "`out'/iebt-csv`tnum'"
+		local exl "`out'/iebt-xlsx`tnum'"
+		local tex "`out'/iebt-tex`tnum'"
+    local allsave `"savecsv("`csv'") savexlsx("`exl'") savetex("`tex'") "'
 
 		noi iebaltab weight , `allsave' replace groupvar(tmt_cl) nonote
 
