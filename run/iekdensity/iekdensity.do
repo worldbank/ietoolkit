@@ -6,20 +6,19 @@
 	* Load the version in this clone into memory. If you need to use the version
 	* currently installed in you instance of Stata, then simply re-start Stata.
 	* Set up the ietoolkit_clone global root path in ietoolkit\run\run_master.do
-	qui	do "${ietoolkit_clone}/src/ado_files/iekdensity.ado"
+	qui	do "src/ado_files/iekdensity.ado"
 
 	* Load data
 	sysuse	auto, clear
 
 	* Generate treatment variables
-	gen		random 		 	  = runiform()
-	sort  	random
-	gen     treatment_binary  = random > 0.5
-	tab	    treatment_binary
+	gen		random 		 	      = runiform()
+	sort  random
+	gen   treatment_binary  = random > 0.5
+	tab	  treatment_binary
 
 	* Generate factor variables
 	forv    factorCap = 3/6 {
-
 		gen treatment_factor`factorCap' = ceil(`factorCap' * _n/_N)
 		tab treatment_factor`factorCap'
 	}
