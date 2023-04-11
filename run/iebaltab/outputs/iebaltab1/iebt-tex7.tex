@@ -1,0 +1,18 @@
+%%% Table created in Stata by command iebaltab
+%%% (https://github.com/worldbank/ietoolkit)
+%%% (https://dimewiki.worldbank.org/iebaltab)
+%%% The command was specified exactly like this: 
+%%% iebaltab weight price , savecsv("run/iebaltab/outputs/iebaltab1/iebt-csv7") savexlsx("run/iebaltab/outputs/iebaltab1/iebt-xlsx7") savetex("run/iebaltab/outputs/iebaltab1/iebt-tex7") texnotefile("run/iebaltab/outputs/iebaltab1/iebt-tex7-note") groupvar(tmt) replace total order(4 10231) control(6) groupcodes cov(mpg) fixed(foreign) addnote("column order should be 4 10231 6 2, and 6 is control so pair test only with this group")
+
+\begin{tabular}{@{\extracolsep{5pt}}lcccccccccccccccc}
+\\[-1.8ex]\hline \hline \\[-1.8ex]
+ & \multicolumn{2}{c}{(1)}  & \multicolumn{2}{c}{(2)}  & \multicolumn{2}{c}{(3)}  & \multicolumn{2}{c}{(4)}  & \multicolumn{2}{c}{(5)}  & \multicolumn{2}{c}{(2)-(4)} & \multicolumn{2}{c}{(3)-(4)} & \multicolumn{2}{c}{(5)-(4)} \\
+ & \multicolumn{2}{c}{Total}  & \multicolumn{2}{c}{4}  & \multicolumn{2}{c}{10231}  & \multicolumn{2}{c}{6}  & \multicolumn{2}{c}{2}  & \multicolumn{6}{c}{Pairwise t-test}  \\
+Variable & N & Mean/(SE) & N & Mean/(SE) & N & Mean/(SE) & N & Mean/(SE) & N & Mean/(SE) & N & Mean difference & N & Mean difference & N & Mean difference \\ \hline \\[-1.8ex] 
+weight   & 74    & 3019.459    & 21    & 2758.571    & 12    & 3211.667    & 19    & 3004.211    & 22    & 3176.818    & 40    & -245.639    & 31    & 207.456    & 41    & 172.608**   \\
+ &   & (90.347)  &   & (191.277)  &   & (177.127)  &   & (157.068)  &   & (172.374)  &   &  &   &  &   &  \\ [1ex]
+price   & 74    & 6165.257    & 21    & 5373.048    & 12    & 6123.417    & 19    & 5858.526    & 22    & 7209.182    & 40    & -485.479    & 31    & 264.890    & 41    & 1350.656   \\
+ &   & (342.872)  &   & (516.864)  &   & (777.763)  &   & (605.744)  &   & (776.498)  &   &  &   &  &   &  \\ [1ex]
+\hline \hline \\[-1.8ex]
+
+\end{tabular}

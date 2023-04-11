@@ -20,7 +20,7 @@ local vars price mpg trunk headroom weight length turn displacement gear_ratio
 qui do "src/ado_files/iebaltab.ado"
 qui do "run/run_utils.do"
 
-local out "run/iebaltab/outputs"
+local out "run/iebaltab/outputs/iebaltab2"
 ie_recurse_mkdir, folder("`out'")
 
 **# Export options ---------------------------------------------------------------

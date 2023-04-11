@@ -1,0 +1,23 @@
+%%% Table created in Stata by command iebaltab
+%%% (https://github.com/worldbank/ietoolkit)
+%%% (https://dimewiki.worldbank.org/iebaltab)
+%%% The command was specified exactly like this: 
+%%% iebaltab weight price , groupvar(tmt_cl) replace ftest feqtest control(1) savetex("run/iebaltab/outputs/iebaltab1/iebt-tex2") cov(mpg) fixed(foreign)
+
+\begin{tabular}{@{\extracolsep{5pt}}lcccccccc}
+\\[-1.8ex]\hline \hline \\[-1.8ex]
+ & \multicolumn{2}{c}{(1)}  & \multicolumn{2}{c}{(2)}  & \multicolumn{2}{c}{F-test for balance} & \multicolumn{2}{c}{(2)-(1)} \\
+ & \multicolumn{2}{c}{1}  & \multicolumn{2}{c}{0}  & \multicolumn{2}{c}{across all groups} & \multicolumn{2}{c}{Pairwise t-test}  \\
+Variable & N & Mean/(SE) & N & Mean/(SE) & N & F-stat/P-value & N & Mean difference \\ \hline \\[-1.8ex] 
+weight   & 43    & 2972.558    & 31    & 3084.516    & 74    & 2.679    & 74    & 111.958   \\
+ &   & (130.959)  &   & (117.753)  &   & 0.106  &   &  \\ [1ex]
+price   & 43    & 6312.465    & 31    & 5961.065    & 74    & 0.928    & 74    & -351.401   \\
+ &   & (486.238)  &   & (470.476)  &   & 0.339  &   &  \\ [1ex]
+\hline \\[-1.8ex]
+F-test of joint significance (F-stat) & &   & &   & &     & &  1.325  \\
+F-test, number of observations & &   & &   & &   & &  74  \\
+\hline \hline \\[-1.8ex]
+%%% This is the note. If it does not have the correct margins, use texnotewidth() option or change the number before '\textwidth' in line below to fit it to table size.
+\multicolumn{8}{@{} p{\textwidth}}{If the table includes missing values (.n, .o, .v etc.) see the Missing values section in the help file for the Stata command iebaltab for definitions of these values. Covariate(s) used in pairwise and f-test regressions: [mpg]. Fixed effect used in pairwise and f-test regressions: [foreign]. Significance: ***=.01, **=.05, *=.1. Full user input as written by user: [iebaltab weight price , groupvar(tmt\_cl) replace ftest feqtest control(1) savetex("run/iebaltab/outputs/iebaltab1/iebt-tex2") cov(mpg) fixed(foreign)] }
+
+\end{tabular}

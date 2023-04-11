@@ -1,0 +1,34 @@
+%%% Table created in Stata by command iebaltab
+%%% (https://github.com/worldbank/ietoolkit)
+%%% (https://dimewiki.worldbank.org/iebaltab)
+%%% The command was specified exactly like this: 
+%%% iebaltab price mpg trunk headroom weight length turn displacement gear_ratio, grpvar(foreign) format("%9.2f") savetex("run/iebaltab/outputs/iebaltab2/2g-fmt.tex") replace
+
+\begin{tabular}{@{\extracolsep{5pt}}lcccccc}
+\\[-1.8ex]\hline \hline \\[-1.8ex]
+ & \multicolumn{2}{c}{(1)}  & \multicolumn{2}{c}{(2)}  & \multicolumn{2}{c}{(1)-(2)} \\
+ & \multicolumn{2}{c}{Domestic}  & \multicolumn{2}{c}{Foreign}  & \multicolumn{2}{c}{Pairwise t-test}  \\
+Variable & N & Mean/(SE) & N & Mean/(SE) & N & Mean difference \\ \hline \\[-1.8ex] 
+price   & 52    & 6072.42    & 22    & 6384.68    & 74    & -312.26   \\
+ &   & (429.49)  &   & (558.99)  &   &  \\ [1ex]
+mpg   & 52    & 19.83    & 22    & 24.77    & 74    & -4.95***   \\
+ &   & (0.66)  &   & (1.41)  &   &  \\ [1ex]
+trunk   & 52    & 14.75    & 22    & 11.41    & 74    & 3.34***   \\
+ &   & (0.60)  &   & (0.69)  &   &  \\ [1ex]
+headroom   & 52    & 3.15    & 22    & 2.61    & 74    & 0.54**   \\
+ &   & (0.13)  &   & (0.10)  &   &  \\ [1ex]
+weight   & 52    & 3317.12    & 22    & 2315.91    & 74    & 1001.21***   \\
+ &   & (96.43)  &   & (92.32)  &   &  \\ [1ex]
+length   & 52    & 196.13    & 22    & 168.55    & 74    & 27.59***   \\
+ &   & (2.78)  &   & (2.92)  &   &  \\ [1ex]
+turn   & 52    & 41.44    & 22    & 35.41    & 74    & 6.03***   \\
+ &   & (0.55)  &   & (0.32)  &   &  \\ [1ex]
+displacement   & 52    & 233.71    & 22    & 111.23    & 74    & 122.48***   \\
+ &   & (11.82)  &   & (5.30)  &   &  \\ [1ex]
+gear\_ratio   & 52    & 2.81    & 22    & 3.51    & 74    & -0.70***   \\
+ &   & (0.05)  &   & (0.06)  &   &  \\ [1ex]
+\hline \hline \\[-1.8ex]
+%%% This is the note. If it does not have the correct margins, use texnotewidth() option or change the number before '\textwidth' in line below to fit it to table size.
+\multicolumn{6}{@{} p{\textwidth}}{If the table includes missing values (.n, .o, .v etc.) see the Missing values section in the help file for the Stata command iebaltab for definitions of these values. Significance: ***=.01, **=.05, *=.1. Full user input as written by user: [iebaltab price mpg trunk headroom weight length turn displacement gear\_ratio, grpvar(foreign) format("\%9.2f") savetex("run/iebaltab/outputs/iebaltab2/2g-fmt.tex") replace] }
+
+\end{tabular}

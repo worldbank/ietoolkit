@@ -1,0 +1,34 @@
+%%% Table created in Stata by command iebaltab
+%%% (https://github.com/worldbank/ietoolkit)
+%%% (https://dimewiki.worldbank.org/iebaltab)
+%%% The command was specified exactly like this: 
+%%% iebaltab price mpg trunk headroom weight length turn displacement gear_ratio, grpvar(tmt) order(2) savetex("run/iebaltab/outputs/iebaltab2/3g-order.tex") replace
+
+\begin{tabular}{@{\extracolsep{5pt}}lcccccccccccc}
+\\[-1.8ex]\hline \hline \\[-1.8ex]
+ & \multicolumn{2}{c}{(1)}  & \multicolumn{2}{c}{(2)}  & \multicolumn{2}{c}{(3)}  & \multicolumn{2}{c}{(1)-(2)} & \multicolumn{2}{c}{(1)-(3)} & \multicolumn{2}{c}{(2)-(3)} \\
+ & \multicolumn{2}{c}{2}  & \multicolumn{2}{c}{0}  & \multicolumn{2}{c}{1}  & \multicolumn{6}{c}{Pairwise t-test}  \\
+Variable & N & Mean/(SE) & N & Mean/(SE) & N & Mean/(SE) & N & Mean difference & N & Mean difference & N & Mean difference \\ \hline \\[-1.8ex] 
+price   & 19    & 6230.526    & 23    & 7094.522    & 32    & 5458.594    & 42    & -863.995    & 51    & 771.933    & 55    & 1635.928**   \\
+ &   & (739.361)  &   & (710.673)  &   & (397.356)  &   &  &   &  &   &  \\ [1ex]
+mpg   & 19    & 20.632    & 23    & 21.783    & 32    & 21.344    & 42    & -1.151    & 51    & -0.712    & 55    & 0.439   \\
+ &   & (1.217)  &   & (1.509)  &   & (0.882)  &   &  &   &  &   &  \\ [1ex]
+trunk   & 19    & 13.789    & 23    & 13.913    & 32    & 13.625    & 42    & -0.124    & 51    & 0.164    & 55    & 0.288   \\
+ &   & (0.843)  &   & (0.964)  &   & (0.792)  &   &  &   &  &   &  \\ [1ex]
+headroom   & 19    & 3.211    & 23    & 2.891    & 32    & 2.938    & 42    & 0.319    & 51    & 0.273    & 55    & -0.046   \\
+ &   & (0.168)  &   & (0.183)  &   & (0.157)  &   &  &   &  &   &  \\ [1ex]
+weight   & 19    & 2973.158    & 23    & 3142.609    & 32    & 2958.438    & 42    & -169.451    & 51    & 14.720    & 55    & 184.171   \\
+ &   & (193.321)  &   & (176.998)  &   & (122.770)  &   &  &   &  &   &  \\ [1ex]
+length   & 19    & 184.474    & 23    & 192.652    & 32    & 186.594    & 42    & -8.178    & 51    & -2.120    & 55    & 6.058   \\
+ &   & (5.458)  &   & (4.768)  &   & (3.717)  &   &  &   &  &   &  \\ [1ex]
+turn   & 19    & 39.579    & 23    & 40.391    & 32    & 39.156    & 42    & -0.812    & 51    & 0.423    & 55    & 1.235   \\
+ &   & (1.185)  &   & (0.932)  &   & (0.690)  &   &  &   &  &   &  \\ [1ex]
+displacement   & 19    & 197.421    & 23    & 197.565    & 32    & 197.031    & 42    & -0.144    & 51    & 0.390    & 55    & 0.534   \\
+ &   & (23.666)  &   & (20.415)  &   & (14.662)  &   &  &   &  &   &  \\ [1ex]
+gear\_ratio   & 19    & 3.043    & 23    & 3.054    & 32    & 2.970    & 42    & -0.012    & 51    & 0.073    & 55    & 0.084   \\
+ &   & (0.113)  &   & (0.106)  &   & (0.071)  &   &  &   &  &   &  \\ [1ex]
+\hline \hline \\[-1.8ex]
+%%% This is the note. If it does not have the correct margins, use texnotewidth() option or change the number before '\textwidth' in line below to fit it to table size.
+\multicolumn{10}{@{} p{\textwidth}}{If the table includes missing values (.n, .o, .v etc.) see the Missing values section in the help file for the Stata command iebaltab for definitions of these values. Significance: ***=.01, **=.05, *=.1. Full user input as written by user: [iebaltab price mpg trunk headroom weight length turn displacement gear\_ratio, grpvar(tmt) order(2) savetex("run/iebaltab/outputs/iebaltab2/3g-order.tex") replace] }
+
+\end{tabular}

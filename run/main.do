@@ -25,10 +25,11 @@
     do "run/iekdensity/iekdensity.do"
    
     * iesave
-    do "run/iesave/iesave.do"
+    do "run/iesave/iesave1.do"
+    do "run/iesave/iesave2.do"
 
     * iebaltab
-    do "run/iebaltab/iebaltab.do"
+    do "run/iebaltab/iebaltab1.do"
     do "run/iebaltab/iebaltab2.do"
 
     * ieddtab

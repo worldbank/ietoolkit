@@ -1,0 +1,20 @@
+%%% Table created in Stata by command iebaltab
+%%% (https://github.com/worldbank/ietoolkit)
+%%% (https://dimewiki.worldbank.org/iebaltab)
+%%% The command was specified exactly like this: 
+%%% iebaltab weight price headroom , savecsv("run/iebaltab/outputs/iebaltab1/iebt-csv8") savexlsx("run/iebaltab/outputs/iebaltab1/iebt-xlsx8") savetex("run/iebaltab/outputs/iebaltab1/iebt-tex8") texnotefile("run/iebaltab/outputs/iebaltab1/iebt-tex8-note") groupvar(tmt) replace total control(6) rowvarlabels grouplabels(`"6 Quotes, and comma "," @ 4 Pizza & Pineapple (USD$) "') totallabel("Total single ' quote") cov(mpg) fixed(foreign) rowlabels(`"price St*r and sub _script @ headroom Headroom "Height" quote "') addnote("Row column manual ($) lables.")
+
+\begin{tabular}{@{\extracolsep{5pt}}lcccccccccccccccc}
+\\[-1.8ex]\hline \hline \\[-1.8ex]
+ & \multicolumn{2}{c}{(1)}  & \multicolumn{2}{c}{(2)}  & \multicolumn{2}{c}{(3)}  & \multicolumn{2}{c}{(4)}  & \multicolumn{2}{c}{(5)}  & \multicolumn{2}{c}{(3)-(2)} & \multicolumn{2}{c}{(4)-(2)} & \multicolumn{2}{c}{(5)-(2)} \\
+ & \multicolumn{2}{c}{Total single ' quote}  & \multicolumn{2}{c}{Quotes, and comma ","}  & \multicolumn{2}{c}{Oi in \%}  & \multicolumn{2}{c}{Pizza \& Pineapple (USD\$)}  & \multicolumn{2}{c}{10231}  & \multicolumn{6}{c}{Pairwise t-test}  \\
+Variable & N & Mean/(SE) & N & Mean/(SE) & N & Mean/(SE) & N & Mean/(SE) & N & Mean/(SE) & N & Mean difference & N & Mean difference & N & Mean difference \\ \hline \\[-1.8ex] 
+Weight (USD\$)   & 74    & 3019.459    & 19    & 3004.211    & 22    & 3176.818    & 21    & 2758.571    & 12    & 3211.667    & 41    & 172.608**    & 40    & -245.639    & 31    & 207.456   \\
+ &   & (90.347)  &   & (157.068)  &   & (172.374)  &   & (191.277)  &   & (177.127)  &   &  &   &  &   &  \\ [1ex]
+St*r and sub \_script   & 74    & 6165.257    & 19    & 5858.526    & 22    & 7209.182    & 21    & 5373.048    & 12    & 6123.417    & 41    & 1350.656    & 40    & -485.479    & 31    & 264.890   \\
+ &   & (342.872)  &   & (605.744)  &   & (776.498)  &   & (516.864)  &   & (777.763)  &   &  &   &  &   &  \\ [1ex]
+Headroom "Height" quote   & 74    & 2.993    & 19    & 2.895    & 22    & 3.114    & 21    & 2.952    & 12    & 3.000    & 41    & 0.219    & 40    & 0.058    & 31    & 0.105   \\
+ &   & (0.098)  &   & (0.190)  &   & (0.189)  &   & (0.176)  &   & (0.275)  &   &  &   &  &   &  \\ [1ex]
+\hline \hline \\[-1.8ex]
+
+\end{tabular}

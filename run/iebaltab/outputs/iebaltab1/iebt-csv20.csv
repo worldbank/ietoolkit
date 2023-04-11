@@ -1,0 +1,8 @@
+"",""," (1) ",""," (2) ","","(1)-(2)"
+"","","0","","1","","Pairwise t-test"
+"Variable","N","Mean/(Var)","N","Mean/(Var)","N","t-statistics"
+"weight","31","3084.516","43","2972.558","74","0.636"
+"","","(4.30e+05)","","(7.37e+05)","",""
+"price","31","5961.065","43","6312.465","74","-0.520"
+"","","(6.86e+06)","","(1.02e+07)","",""
+"If the table includes missing values (.n, .o, .v etc.) see the Missing values section in the help file for the Stata command iebaltab for definitions of these values. Significance: ***=.01, **=.05, *=.1. Errors are robust. Full user input as written by user: [iebaltab weight price , savecsv(""run/iebaltab/outputs/iebaltab1/iebt-csv20"") savexlsx(""run/iebaltab/outputs/iebaltab1/iebt-xlsx20"") savetex(""run/iebaltab/outputs/iebaltab1/iebt-tex20"") texnotefile(""run/iebaltab/outputs/iebaltab1/iebt-tex20-note"") groupvar(tmt_cl) replace stats(desc(var) pair(t)) vce(robust)] ","","","","","",""

@@ -5,7 +5,7 @@
     ***
     * Macro to run folder
     local iegam  "run/iegitaddmd"
-    local output "`iegam'/output"
+    local output "`iegam'/outputs"
 
     local cl     "`output'/clone"
     local db     "`output'/dropbox"
