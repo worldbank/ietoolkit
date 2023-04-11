@@ -110,7 +110,7 @@ qui {
 	preserve
 
 		local tnum 4
-		local texfile "`out'/iebt-texdoc`tnum'"
+		local tex "`out'/iebt-texdoc`tnum'"
 
 		noi iebaltab weight price ,                 ///
             groupvar(tmt_cl) replace              ///
@@ -130,7 +130,7 @@ qui {
 	preserve
 
 		local tnum 5
-		local texfile "iebt-texdoc`tnum'"
+		local tex "`out'/iebt-texdoc`tnum'"
 
 		noi iebaltab weight price ,                               ///
       groupvar(tmt_cl) replace                            ///
