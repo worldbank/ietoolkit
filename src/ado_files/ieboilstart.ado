@@ -310,7 +310,7 @@
       }
 
       noi di ""
-      noi di as result "{phang}{err:IMPORTANT:} One important setting of this command – the Stata version – cannot be set inside the command due to how this setting works. The setting has been prepared by this command, and you only need to write \`r(version)' after this command (include the apostrophes) for the version setting to be applied.{p_end}"
+      noi di as result "{phang}{err:IMPORTANT:} One setting of this command requires that \`r(version)' is run on the immediate line after this command. Include the qoutes \` and ' in \`r(version)'. This sets the Stata version which cannot be done for this purpose inside the command. This message will show regardless if this is already done. Read more on this requirment in the {help ieboilstart :help file}.{p_end}"
 
     }
   }
