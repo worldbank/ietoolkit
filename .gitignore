@@ -68,5 +68,5 @@ test/
 ###########
 # Outputs in the run/outputs folder
 !/**/output/**/*.csv
-
-
+/**/iedorep-output/**/*.do
+/**/iedorep-output/**/*.txt

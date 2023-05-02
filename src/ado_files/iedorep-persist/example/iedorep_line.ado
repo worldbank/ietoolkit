@@ -1,5 +1,5 @@
 cap program drop iedorep_line
-program define   iedorep_line, rclass
+program define   iedorep_line
 
   syntax , lnum(string) datatmp(string) mode(string)
 
@@ -48,9 +48,7 @@ program define   iedorep_line, rclass
     }
   }
 
-
   file close data_store
-
 end
 
 cap program drop parse_line
@@ -70,7 +68,6 @@ program define   parse_line, rclass
         local eof = `r(eof)'
         * Split line into line number and line data
         gettoken this_lnum data : line, parse("&")
-        local data = substr("`data'",2,.) // remove parse char
         * Update this_lnum to this line number
         local this_lnum = substr("`this_lnum'",2,.)
     }
@@ -79,6 +76,9 @@ program define   parse_line, rclass
     if `eof' != 0 noi di as error "Line not found in tempfile - should never happen"
     * Parse data for line found
     else {
+        * Remove parse char from first gettoken
+        local data = substr("`data'",2,.)
+
         * Loop over all data key value pairs
         while !missing("`data'") {
             * Parse next key:value pair of data
