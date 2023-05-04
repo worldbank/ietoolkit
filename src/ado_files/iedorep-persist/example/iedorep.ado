@@ -78,9 +78,16 @@ program define   iedorep_recurse, rclass
   *Read orginal file and
   *create write file and check file
 
+  * Line write locals
   local lnum = 1
   local leof = 0
   local subf_n = 0
+
+  * Line parse locals
+  local block_stack  ""
+  local loopblock    0
+  local commentblock 0
+  local last_line    ""
 
   file open `handle_o' using "`dofile'", read
 
@@ -90,55 +97,80 @@ program define   iedorep_recurse, rclass
       file read `handle_o' line
       local leof = `r(eof)'
 
-      * Locals used to analyze line
-      local fw : word 1 of `line'
+      /* If last line was "///" append to line to write as one line */
+      local line = `"`macval(last_line)' `macval(line)'"'
 
-      noi di "lnum(`lnum') - fw(`fw')"
+      * Parse line
+      org_line_parse, line(`"`macval(line)'"') ///
+                      block_stack(`block_stack')  ///
+                      loopblock(string)    ///
+                      commentblock(string)
+      noi di ""
+      noi di "*****************************"
+      noi di `"`macval(line)'"'
+      noi return list
+      local write_adoline = `r(write_adoline)'
+      local firstw        = "`r(firstw)'"
+      local secondw       = "`r(secondw)'"
+      local thirdw        = "`r(thirdw)'"
+      local line_wrap     = `r(line_wrap)'
+      local block_stack   = "`r(block_stack)'"
 
-      if (inlist("`fw'","do","run","ru")) {
-
-        * Get the file path from the
-        local file : word 2 of `macval(line)'
-
-        iedorep_recurse, dofile("`file'") ///
-                         output("`output'") ///
-                         stub("m_`++subf_n'")
-        local sub_fw "`r(filewrite)'"
-        local sub_fc "`r(filecheck)'"
-
-        * Substitute the original sub-dofile with the check/write ones
-        local fwrite_line = subinstr(`"`macval(line)'"',`"`macval(file)'"',`""`sub_fw'""',1)
-        local fcheck_line = subinstr(`"`macval(line)'"',`"`macval(file)'"',`""`sub_fc'""',1)
-
-        *Correct potential ""path"" to "path"
-        local fcheck_line = subinstr(`"`fcheck_line'"',`""""',`"""',.)
-        local fwrite_line = subinstr(`"`fwrite_line'"',`""""',`"""',.)
-
-      }
-      else if (inlist("`fw'","local")) {
-
-        * Execute line with local to be able to
-        * assemble file paths in recursive calls
-        `line'
-
-        * Write local line as normal
-        local fwrite_line `"`macval(line)'"'
-        local fcheck_line `"`macval(line)'"'
-
+      * Add this line to last line and read next line
+      * This is to break up lines split onto multiple lines to one line
+      if (`line_wrap' == 1) {
+        local break_pos = strpos(`"`macval(line)'"',"///")
+        local last_line = substr(`"`macval(line)'"',1,`break_pos'-1)
       }
       else {
-        * No special row, just write the lines as is
-        local fwrite_line `"`macval(line)'"'
-        local fcheck_line `"`macval(line)'"'
+        *Reset the last line local if needed
+        local last_line = ""
+
+        if (inlist("`firstw'","do","run","ru")) {
+
+          * Get the file path from the second word
+          local file = `"`macval(secondw)'"'
+
+          iedorep_recurse, dofile("`file'") ///
+                           output("`output'") ///
+                           stub("m_`++subf_n'")
+          local sub_fw "`r(filewrite)'"
+          local sub_fc "`r(filecheck)'"
+
+          * Substitute the original sub-dofile with the check/write ones
+          local fwrite_line = subinstr(`"`line'"',`"`file'"',`""`sub_fw'""',1)
+          local fcheck_line = subinstr(`"`line'"',`"`file'"',`""`sub_fc'""',1)
+
+          *Correct potential ""path"" to "path"
+          local fcheck_line = subinstr(`"`fcheck_line'"',`""""',`"""',.)
+          local fwrite_line = subinstr(`"`fwrite_line'"',`""""',`"""',.)
+        }
+
+        * No special thing with row needing alteration, write row as is
+        else {
+
+          * Copy the lines as is
+          local fwrite_line `"`macval(line)'"'
+          local fcheck_line `"`macval(line)'"'
+
+          * Load the local in memory - important to
+          * build file paths in recursive calls
+          if (inlist("`firstw'","local")) {
+            `line'
+          }
+        }
+
+        * Write the line copied from original file
+        file write `handle_w' `"`macval(fwrite_line)'"' _n
+        file write `handle_c' `"`macval(fcheck_line)'"' _n
+
+        if (`write_adoline' == 1) {
+          file write `handle_w' `"iedorep_line, lnum(`lnum') datatmp("`file_d'") mode(write)"' _n
+          file write `handle_c' `"iedorep_line, lnum(`lnum') datatmp("`file_d'") mode(check)"' _n
+        }
       }
 
-      file write `handle_w' `"`macval(fwrite_line)'"' _n
-      file write `handle_w' `"iedorep_line, lnum(`lnum') datatmp("`file_d'") mode(write)"' _n
-
-      file write `handle_c' `"`macval(fcheck_line)'"' _n
-      file write `handle_c' `"iedorep_line, lnum(`lnum') datatmp("`file_d'") mode(check)"' _n
-
-      local lnum = `lnum' + 1
+      local ++lnum
   }
 
   /*****************************************************************************
@@ -157,9 +189,66 @@ program define   iedorep_recurse, rclass
 
 end
 
+cap program drop org_line_parse
+	program define org_line_parse , rclass
 
-* This file can delete all your folders on your computer if used incorrectly.
+  syntax, line(string) ///
+          [block_stack(string) loopblock(string) commentblock(string)]
 
+  *Define defaults to be returned
+  local write_adoline 1
+  local firstw        ""
+  local secondw       ""
+  local thirdw        ""
+  local line_wrap     0
+  local block_stack  `block_stack'
+
+  * Get the first words
+  tokenize `macval(line)'
+
+  * Handle quietly and noisily
+  if (substr(`"`1'"',1,3)=="qui") | (substr(`"`1'"',1,1)=="n") {
+    * Test if beginning of a noi/qui block
+    if strpos(`"`macval(line)'"',"{") {
+      local block_stack trim("`=subinstr("`1'",":","",1)' `block_stack'")
+    }
+    * Retokenize without the noi/qui syntax (including the ":")
+    local nline = subinstr(`"`macval(line)'"',"`1'","",1)
+    if (`"`2'"' == ":") ///
+      local nline = subinstr(`"`macval(nline)'"',"`2'","",1)
+    if (substr(`"`1'"',1,1)==":") ///
+      local nline = subinstr(`"`macval(nline)'"',":","",1)
+    tokenize `macval(nline)'
+  }
+
+  // TODO: do the same to remove the if-
+
+  *
+  local firstw  `"`macval(1)'"'
+  local secondw `"`macval(2)'"'
+  local thirdw  `"`macval(3)'"'
+
+  * Closed curly bracket - End of block
+  if (substr(`"`firstw'"',1,1)=="}") {
+    local write_adoline 0
+    local block_end : word 1 of `block_stack'
+    local block_stack = subinstr("`block_stack'","`block_end'","",1)
+  }
+
+  /* /// line wrap  */
+  if (strpos(`"`macval(line)'"',"///")) local line_wrap 1
+
+  * Return all info
+  return local write_adoline `write_adoline'
+  return local firstw        `"`macval(firstw)'"'
+  return local secondw       `"`macval(secondw)'"'
+  return local thirdw        `"`macval(thirdw)'"'
+  return local line_wrap     `line_wrap'
+  return local block_stack   "`block_stack'"
+
+end
+
+* This program can delete all your folders on your computer if used incorrectly.
 cap program drop r_rmdir
 	program define r_rmdir
 
