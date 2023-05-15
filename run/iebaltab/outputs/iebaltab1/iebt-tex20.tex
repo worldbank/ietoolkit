@@ -1,0 +1,18 @@
+%%% Table created in Stata by command iebaltab
+%%% (https://github.com/worldbank/ietoolkit)
+%%% (https://dimewiki.worldbank.org/iebaltab)
+%%% The command was specified exactly like this: 
+%%% iebaltab weight price , savecsv("run/iebaltab/outputs/iebaltab1/iebt-csv20") savexlsx("run/iebaltab/outputs/iebaltab1/iebt-xlsx20") savetex("run/iebaltab/outputs/iebaltab1/iebt-tex20") texnotefile("run/iebaltab/outputs/iebaltab1/iebt-tex20-note") groupvar(tmt_cl) replace stats(desc(var) pair(t)) vce(robust)
+
+\begin{tabular}{@{\extracolsep{5pt}}lcccccc}
+\\[-1.8ex]\hline \hline \\[-1.8ex]
+ & \multicolumn{2}{c}{(1)}  & \multicolumn{2}{c}{(2)}  & \multicolumn{2}{c}{(1)-(2)} \\
+ & \multicolumn{2}{c}{0}  & \multicolumn{2}{c}{1}  & \multicolumn{2}{c}{Pairwise t-test}  \\
+Variable & N & Mean/(Var) & N & Mean/(Var) & N & t-statistics \\ \hline \\[-1.8ex] 
+weight   & 31    & 3084.516    & 43    & 2972.558    & 74    & 0.636   \\
+ &   & (4.30e+05)  &   & (7.37e+05)  &   &  \\ [1ex]
+price   & 31    & 5961.065    & 43    & 6312.465    & 74    & -0.520   \\
+ &   & (6.86e+06)  &   & (1.02e+07)  &   &  \\ [1ex]
+\hline \hline \\[-1.8ex]
+
+\end{tabular}

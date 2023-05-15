@@ -1,0 +1,34 @@
+%%% Table created in Stata by command iebaltab
+%%% (https://github.com/worldbank/ietoolkit)
+%%% (https://dimewiki.worldbank.org/iebaltab)
+%%% The command was specified exactly like this: 
+%%% iebaltab price mpg trunk headroom weight length turn displacement gear_ratio, grpvar(foreign) vce(cluster stratum) stats(pair(p)) savetex("run/iebaltab/outputs/iebaltab2/2g-cluster.tex") replace
+
+\begin{tabular}{@{\extracolsep{5pt}}lcccccc}
+\\[-1.8ex]\hline \hline \\[-1.8ex]
+ & \multicolumn{2}{c}{(1)}  & \multicolumn{2}{c}{(2)}  & \multicolumn{2}{c}{(1)-(2)} \\
+ & \multicolumn{2}{c}{Domestic}  & \multicolumn{2}{c}{Foreign}  & \multicolumn{2}{c}{Pairwise t-test}  \\
+Variable & N/Clusters & Mean/(SE) & N/Clusters & Mean/(SE) & N/Clusters & P-value \\ \hline \\[-1.8ex] 
+price   & 52    & 6072.423    & 22    & 6384.682    & 74    & 0.733   \\
+ & 11  & (719.524)  & 12  & (570.687)  & 23  &  \\ [1ex]
+mpg   & 52    & 19.827    & 22    & 24.773    & 74    & 0.004***   \\
+ & 11  & (0.933)  & 12  & (1.272)  & 23  &  \\ [1ex]
+trunk   & 52    & 14.750    & 22    & 11.409    & 74    & 0.011**   \\
+ & 11  & (0.587)  & 12  & (1.068)  & 23  &  \\ [1ex]
+headroom   & 52    & 3.154    & 22    & 2.614    & 74    & 0.003***   \\
+ & 11  & (0.118)  & 12  & (0.115)  & 23  &  \\ [1ex]
+weight   & 52    & 3317.115    & 22    & 2315.909    & 74    & 0.000***   \\
+ & 11  & (129.622)  & 12  & (99.904)  & 23  &  \\ [1ex]
+length   & 52    & 196.135    & 22    & 168.545    & 74    & 0.000***   \\
+ & 11  & (3.677)  & 12  & (3.269)  & 23  &  \\ [1ex]
+turn   & 52    & 41.442    & 22    & 35.409    & 74    & 0.000***   \\
+ & 11  & (0.693)  & 12  & (0.272)  & 23  &  \\ [1ex]
+displacement   & 52    & 233.712    & 22    & 111.227    & 74    & 0.000***   \\
+ & 11  & (17.077)  & 12  & (5.763)  & 23  &  \\ [1ex]
+gear\_ratio   & 52    & 2.807    & 22    & 3.507    & 74    & 0.000***   \\
+ & 11  & (0.067)  & 12  & (0.094)  & 23  &  \\ [1ex]
+\hline \hline \\[-1.8ex]
+%%% This is the note. If it does not have the correct margins, use texnotewidth() option or change the number before '\textwidth' in line below to fit it to table size.
+\multicolumn{6}{@{} p{\textwidth}}{If the table includes missing values (.n, .o, .v etc.) see the Missing values section in the help file for the Stata command iebaltab for definitions of these values. Significance: ***=.01, **=.05, *=.1. Errors are clustered at variable: [stratum]. Full user input as written by user: [iebaltab price mpg trunk headroom weight length turn displacement gear\_ratio, grpvar(foreign) vce(cluster stratum) stats(pair(p)) savetex("run/iebaltab/outputs/iebaltab2/2g-cluster.tex") replace] }
+
+\end{tabular}

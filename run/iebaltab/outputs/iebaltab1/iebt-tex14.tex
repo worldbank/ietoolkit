@@ -1,0 +1,18 @@
+%%% Table created in Stata by command iebaltab
+%%% (https://github.com/worldbank/ietoolkit)
+%%% (https://dimewiki.worldbank.org/iebaltab)
+%%% The command was specified exactly like this: 
+%%% iebaltab weight price , savecsv("run/iebaltab/outputs/iebaltab1/iebt-csv14") savexlsx("run/iebaltab/outputs/iebaltab1/iebt-xlsx14") savetex("run/iebaltab/outputs/iebaltab1/iebt-tex14") texnotefile("run/iebaltab/outputs/iebaltab1/iebt-tex14-note") groupvar(tmt_cl) replace ftest feqtest control(1) stats(pair(none)) cov(mpg) fixed(foreign)
+
+\begin{tabular}{@{\extracolsep{5pt}}lcccccc}
+\\[-1.8ex]\hline \hline \\[-1.8ex]
+ & \multicolumn{2}{c}{(1)}  & \multicolumn{2}{c}{(2)}  & \multicolumn{2}{c}{F-test for balance} \\
+ & \multicolumn{2}{c}{1}  & \multicolumn{2}{c}{0}  & \multicolumn{2}{c}{across all groups} \\
+Variable & N & Mean/(SE) & N & Mean/(SE) & N & F-stat/P-value \\ \hline \\[-1.8ex] 
+weight   & 43    & 2972.558    & 31    & 3084.516    & 74    & 2.679   \\
+ &   & (130.959)  &   & (117.753)  &   & 0.106  \\ [1ex]
+price   & 43    & 6312.465    & 31    & 5961.065    & 74    & 0.928   \\
+ &   & (486.238)  &   & (470.476)  &   & 0.339  \\ [1ex]
+\hline \hline \\[-1.8ex]
+
+\end{tabular}

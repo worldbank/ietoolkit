@@ -1,0 +1,36 @@
+%%% Table created in Stata by command iebaltab
+%%% (https://github.com/worldbank/ietoolkit)
+%%% (https://dimewiki.worldbank.org/iebaltab)
+%%% The command was specified exactly like this: 
+%%% iebaltab price mpg trunk headroom weight length turn displacement gear_ratio, grpvar(foreign) onerow savetex("run/iebaltab/outputs/iebaltab2/2g-onerow.tex") replace
+
+\begin{tabular}{@{\extracolsep{5pt}}lccc}
+\\[-1.8ex]\hline \hline \\[-1.8ex]
+ & \multicolumn{1}{c}{(1)}  & \multicolumn{1}{c}{(2)}  & \multicolumn{1}{c}{(1)-(2)} \\
+ & \multicolumn{1}{c}{Domestic}  & \multicolumn{1}{c}{Foreign}  & \multicolumn{1}{c}{Pairwise t-test}  \\
+Variable & Mean/(SE) & Mean/(SE) & Mean difference \\ \hline \\[-1.8ex] 
+price   & 6072.423    & 6384.682    & -312.259   \\
+ & (429.491)  & (558.994)  &  \\ [1ex]
+mpg   & 19.827    & 24.773    & -4.946***   \\
+ & (0.658)  & (1.410)  &  \\ [1ex]
+trunk   & 14.750    & 11.409    & 3.341***   \\
+ & (0.597)  & (0.686)  &  \\ [1ex]
+headroom   & 3.154    & 2.614    & 0.540**   \\
+ & (0.127)  & (0.104)  &  \\ [1ex]
+weight   & 3317.115    & 2315.909    & 1001.206***   \\
+ & (96.430)  & (92.317)  &  \\ [1ex]
+length   & 196.135    & 168.545    & 27.589***   \\
+ & (2.780)  & (2.917)  &  \\ [1ex]
+turn   & 41.442    & 35.409    & 6.033***   \\
+ & (0.550)  & (0.320)  &  \\ [1ex]
+displacement   & 233.712    & 111.227    & 122.484***   \\
+ & (11.824)  & (5.305)  &  \\ [1ex]
+gear\_ratio   & 2.807    & 3.507    & -0.701***   \\
+ & (0.047)  & (0.063)  &  \\ [1ex]
+\hline \\[-1.8ex]
+Number of observations  & 52   & 22  & 74  \\
+\hline \hline \\[-1.8ex]
+%%% This is the note. If it does not have the correct margins, use texnotewidth() option or change the number before '\textwidth' in line below to fit it to table size.
+\multicolumn{4}{@{} p{\textwidth}}{If the table includes missing values (.n, .o, .v etc.) see the Missing values section in the help file for the Stata command iebaltab for definitions of these values. Significance: ***=.01, **=.05, *=.1. Full user input as written by user: [iebaltab price mpg trunk headroom weight length turn displacement gear\_ratio, grpvar(foreign) onerow savetex("run/iebaltab/outputs/iebaltab2/2g-onerow.tex") replace] }
+
+\end{tabular}
