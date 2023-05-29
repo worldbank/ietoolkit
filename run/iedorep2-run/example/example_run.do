@@ -21,8 +21,13 @@
     
     file close _all 
     
+    //ieboilstart, v(16.0) ado("${ex}", strict)
+    
     * Example A - single file
     iedorep , dofile("${ex1}/main.do") output("${ex1}/output")
     
     * Example B - multiple file
     iedorep , dofile("${ex2}/main.do") output("${ex2}/output")
+    
+    * Example B - multiple file
+    iedorep , dofile("${ex2}/main.do") output("${ex2}/output_verbose") verbose
