@@ -40,7 +40,7 @@ qui {
 
   noi di as res ""
   noi di as res "{phang}Starting idorep. Creating the do-files for run 1 and run 2.{p_end}"
-  iedorep_recurse, dofile("`dofile'") output("`dirout'") stub("m")
+  noi iedorep_recurse, dofile("`dofile'") output("`dirout'") stub("m")
   local code_file_run1 "`r(code_file_run1)'"
   local code_file_run2 "`r(code_file_run2)'"
   noi di as res "{phang}Done creating the do-files for run 1 and run 2.{p_end}"
@@ -118,7 +118,7 @@ end
 * Go over the do-file to create run 1 and run 2 do-files. Run 1 and 2 are identical with each other and the orginal file with two exceptions. Run 1 and run 2 writes after each line of code the states to a data file each.
 cap program drop iedorep_recurse
 program define   iedorep_recurse, rclass
-
+qui {
   syntax, dofile(string) output(string) stub(string)
 
   /*****************************************************************************
@@ -155,6 +155,7 @@ program define   iedorep_recurse, rclass
   local loopblock    0
   local commentblock 0
   local last_line    ""
+  local loop_stack ""
 
   * Open the orginal file
   tempname handle_o
@@ -172,16 +173,33 @@ program define   iedorep_recurse, rclass
       local line = `"`macval(last_line)' `macval(line)'"'
 
       * Analyze line in parser to see if this line needs and special handling
-      org_line_parse, line(`"`macval(line)'"') ///
-                      block_stack(`block_stack')  ///
-                      loopblock(string)    ///
-                      commentblock(string)
-      local write_adoline = `r(write_adoline)'
+      org_line_parse, line(`"`macval(line)'"')
+      local write_dataline = `r(write_dataline)'
       local firstw        = "`r(firstw)'"
       local secondw       = "`r(secondw)'"
       local thirdw        = "`r(thirdw)'"
       local line_wrap     = `r(line_wrap)'
-      local block_stack   = "`r(block_stack)'"
+      local block_end     = `r(block_end)'
+      local block_add     = "`r(block_add)'"
+
+      * If this row is closed curly bracket then
+      * remove most recent word from stack
+      if (`r(block_end)' == 1) {
+        local block_pop : word 1 of `block_stack'
+        local block_stack = subinstr("`block_stack'","`block_pop'","",1)
+
+        if inlist("`block_pop'","foreach","forvalues","while") {
+          local loop_stack = strreverse("`loop_stack'")
+          local loop_pop : word 1 of `loop_stack'
+          local loop_stack = strreverse( ///
+            subinstr("`loop_stack'","`loop_pop'","",1))
+        }
+      }
+
+      * Add if/else/noi/qui to block stack
+      if (!missing("`r(block_add)'")) {
+        local block_stack   "`r(block_add)' `block_stack' "
+      }
 
       * Reset default locals for this line
       local write_recline = 0
@@ -212,9 +230,9 @@ program define   iedorep_recurse, rclass
           * Get the file path from the second word
           local file = `"`macval(secondw)'"'
 
-          iedorep_recurse, dofile("`file'")     ///
-                           output("`output'")   ///
-                           stub("`recursestub'")
+          noi iedorep_recurse, dofile("`file'")     ///
+                               output("`output'")   ///
+                               stub("`recursestub'")
           local sub_f1 "`r(code_file_run1)'"
           local sub_f2 "`r(code_file_run2)'"
 
@@ -236,26 +254,53 @@ program define   iedorep_recurse, rclass
 
           * Load the local in memory - important to
           * build file paths in recursive calls
-          if (inlist("`lcmd'","local","global")) {
+          if inlist("`lcmd'","local","global") {
             `line'
+          }
+
+          * Write foreach/forvalues to block stack and
+          * it's macro name to loop stack
+          if inlist("`lcmd'","foreach","forvalues") {
+            local block_stack   "`lcmd' `block_stack' "
+            local loop_stack = trim("`loop_stack' `secondw'")
+          }
+
+          * Write while to block stack and
+          * also "while" to loop stack as it does not have a macro name
+          if inlist("`lcmd'","while") {
+            local block_stack   "`lcmd' `block_stack' "
+            local loop_stack = trim("`loop_stack' `lcmd'")
           }
         }
 
         if (`write_recline' == 1) {
-          file write `handle_c1' `"iedorep_line, lnum(`lnum') datatmp("`file_d1'") recursestub(`recursestub') orgsubfile(`file')"' _n
-          file write `handle_c2' `"iedorep_line, lnum(`lnum') datatmp("`file_d2'") recursestub(`recursestub') orgsubfile(`file')"' _n
+          file write `handle_c1' `"iedorep_dataline, lnum(`lnum') datatmp("`file_d1'") recursestub(`recursestub') orgsubfile(`file')"' _n
+          file write `handle_c2' `"iedorep_dataline, lnum(`lnum') datatmp("`file_d2'") recursestub(`recursestub') orgsubfile(`file')"' _n
         }
 
         * Write the line copied from original file
         file write `handle_c1' `"`macval(fwrite_line)'"' _n
         file write `handle_c2' `"`macval(fcheck_line)'"' _n
 
-        if (`write_adoline' == 1) {
-          file write `handle_c1' `"iedorep_line, lnum(`lnum') datatmp("`file_d1'") `'"' _n
-          file write `handle_c2' `"iedorep_line, lnum(`lnum') datatmp("`file_d2'")"' _n
+        if (`write_dataline' == 1) {
+
+          * prepare loop_string with macros
+          local loop_str = ""
+          foreach loop_macname of local loop_stack {
+            if ("`loop_macname'"=="while") {
+              local loop_str = "`macval(loop_str)' while"
+            }
+            else {
+              local loop_str = ///
+                "`macval(loop_str)' `loop_macname':\``loop_macname''"
+            }
+          }
+
+          * Write lines to run file 1 and 2
+          file write `handle_c1' `"iedorep_dataline, lnum(`lnum') datatmp("`file_d1'") looptracker("`macval(loop_str)'")"' _n
+          file write `handle_c2' `"iedorep_dataline, lnum(`lnum') datatmp("`file_d2'") looptracker("`macval(loop_str)'")"' _n
         }
       }
-
       local ++lnum
   }
 
@@ -272,22 +317,22 @@ program define   iedorep_recurse, rclass
   *****************************************************************************/
   return local code_file_run1 "`file_c1'"
   return local code_file_run2 "`file_c2'"
-
+}
 end
 
 cap program drop org_line_parse
 	program define org_line_parse , rclass
 
-  syntax, line(string) ///
-          [block_stack(string) loopblock(string) commentblock(string)]
+  syntax, line(string)
 
   *Define defaults to be returned
-  local write_adoline 1
+  local write_dataline 1
   local firstw        ""
   local secondw       ""
   local thirdw        ""
   local line_wrap     0
-  local block_stack  `block_stack'
+  local block_add     ""
+  local block_end     0
 
   * Get the first words
   tokenize `macval(line)'
@@ -296,10 +341,13 @@ cap program drop org_line_parse
   * Handle quietly and noisily
   ***********************************
 
-  if (substr(`"`1'"',1,3)=="qui") | (substr(`"`1'"',1,1)=="n") {
+  get_command , word(`"`1'"')
+  local lcmd = "`r(command)'"
+
+  if inlist("`lcmd'","quietly","noisily") {
     * Test if beginning of a noi/qui block
     if strpos(`"`macval(line)'"',"{") {
-      local block_stack trim("`=subinstr("`1'",":","",1)' `block_stack'")
+      local block_add "`lcmd'"
     }
     * Retokenize without the noi/qui syntax (including the ":")
     local nline = subinstr(`"`macval(line)'"',"`1'","",1)
@@ -314,7 +362,11 @@ cap program drop org_line_parse
   * Handle if-else
   ***********************************
 
-  // TODO: do the same to remove the if-
+  if inlist("`lcmd'","if","else") {
+    if strpos(`"`macval(line)'"',"{") {
+      local block_add "`lcmd'"
+    }
+  }
 
   ***********************************
   * Parse the line
@@ -324,27 +376,29 @@ cap program drop org_line_parse
   local secondw `"`macval(2)'"'
   local thirdw  `"`macval(3)'"'
 
-  * Closed curly bracket - End of block
+  * Empty line - skip writing to data file
   if (itrim(trim(`"`macval(line)'"')) == "") {
-    local write_adoline 0
+    local write_dataline 0
   }
 
+  * Closed curly bracket - End of block
   else if (substr(`"`firstw'"',1,1)=="}") {
-    local write_adoline 0
-    local block_end : word 1 of `block_stack'
-    local block_stack = subinstr("`block_stack'","`block_end'","",1)
+    local write_dataline 0
+    local block_end = 1
   }
 
   /* /// line wrap  */
   if (strpos(`"`macval(line)'"',"///")) local line_wrap 1
 
   * Return all info
-  return local write_adoline `write_adoline'
-  return local firstw        `"`macval(firstw)'"'
-  return local secondw       `"`macval(secondw)'"'
-  return local thirdw        `"`macval(thirdw)'"'
-  return local line_wrap     `line_wrap'
-  return local block_stack   "`block_stack'"
+  return local write_dataline `write_dataline'
+  return local firstw         `"`macval(firstw)'"'
+  return local secondw        `"`macval(secondw)'"'
+  return local thirdw         `"`macval(thirdw)'"'
+  return local line_wrap      `line_wrap'
+  return local block_end      `block_end'
+  return local block_add      "`block_add'"
+
 
 end
 
@@ -358,7 +412,12 @@ cap program drop get_command
 
     local wlen = strlen("`word'")
 
-    local commands "do ru:n foreach forv:alues while if else loc:al gl:obal"
+    local commands ""
+    local commands "`commands' do ru:n"                    // File execution
+    local commands "`commands' foreach forv:alues while"   // Iterations
+    local commands "`commands' if else"                    // Logic
+    local commands "`commands' loc:al gl:obal"             // Macros
+    local commands "`commands' qui:etly n:oisily"          // Qui/noi
     local match = 0
 
     foreach command of local commands {
@@ -520,7 +579,7 @@ qui {
             rng1("`r(rng_c1)'")   rng2("`r(rng_c2)'")   rngm("`r(rng_m)'")   ///
             srng1("`r(srng_c1)'") srng2("`r(srng_c2)'") srngm("`r(srng_m)'") ///
             dsig1("`r(dsig_c1)'") dsig2("`r(dsig_c2)'") dsigm("`r(dsig_m)'") ///
-            loopiteration(" ")
+            loopiteration("`r(loopt)'")
           noi write_and_print_output, h_smcl(`h_smcl') l1("`r(outputline)'")
         }
 
@@ -564,6 +623,12 @@ program define   compare_data_lines, rclass
         error 198
     }
     return local lnum "`l1_l'"
+
+    if ("`l1_loopt'" != "`l1_loopt'") {
+        noi di as error "Internal error: The looptracker should always be the same in data line from run 1 and run 2. But in this case looptracker in run 1 it is `l1_loopt', and in run 2 it is `l2_loopt'"
+        error 198
+    }
+    return local loopt "`l1_loopt'"
 
     * Comparing all states since previous line and between runs
     foreach state in rng srng dsig {
