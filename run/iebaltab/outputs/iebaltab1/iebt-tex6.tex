@@ -1,0 +1,21 @@
+%%% Table created in Stata by command iebaltab
+%%% (https://github.com/worldbank/ietoolkit)
+%%% (https://dimewiki.worldbank.org/iebaltab)
+%%% The command was specified exactly like this: 
+%%% iebaltab weight price , savecsv("run/iebaltab/outputs/iebaltab1/iebt-csv6") savexlsx("run/iebaltab/outputs/iebaltab1/iebt-xlsx6") savetex("run/iebaltab/outputs/iebaltab1/iebt-tex6") texnotefile("run/iebaltab/outputs/iebaltab1/iebt-tex6-note") groupvar(tmt) replace ftest feqtest total rowvarlabels cov(mpg) fixed(foreign) addnote("Many groups, rowvarlabels")
+
+\begin{tabular}{@{\extracolsep{5pt}}lcccccccccccccccccccccccc}
+\\[-1.8ex]\hline \hline \\[-1.8ex]
+ & \multicolumn{2}{c}{(1)}  & \multicolumn{2}{c}{(2)}  & \multicolumn{2}{c}{(3)}  & \multicolumn{2}{c}{(4)}  & \multicolumn{2}{c}{(5)}  & \multicolumn{2}{c}{F-test for balance} & \multicolumn{2}{c}{(2)-(3)} & \multicolumn{2}{c}{(2)-(4)} & \multicolumn{2}{c}{(2)-(5)} & \multicolumn{2}{c}{(3)-(4)} & \multicolumn{2}{c}{(3)-(5)} & \multicolumn{2}{c}{(4)-(5)} \\
+ & \multicolumn{2}{c}{Total}  & \multicolumn{2}{c}{Oi in \%}  & \multicolumn{2}{c}{control/unobserved}  & \multicolumn{2}{c}{taco \& salsa}  & \multicolumn{2}{c}{10231}  & \multicolumn{2}{c}{across all groups} & \multicolumn{12}{c}{Pairwise t-test}  \\
+Variable & N & Mean/(SE) & N & Mean/(SE) & N & Mean/(SE) & N & Mean/(SE) & N & Mean/(SE) & N & F-stat/P-value & N & Mean difference & N & Mean difference & N & Mean difference & N & Mean difference & N & Mean difference & N & Mean difference \\ \hline \\[-1.8ex] 
+Weight (lbs.)   & 74    & 3019.459    & 22    & 3176.818    & 21    & 2758.571    & 19    & 3004.211    & 12    & 3211.667    & 74    & 1.936    & 43    & 418.247    & 41    & 172.608**    & 34    & -34.848    & 40    & -245.639    & 33    & -453.095    & 31    & -207.456   \\
+ &   & (90.347)  &   & (172.374)  &   & (191.277)  &   & (157.068)  &   & (177.127)  &   & 0.132  &   &  &   &  &   &  &   &  &   &  &   &  \\ [1ex]
+Price   & 74    & 6165.257    & 22    & 7209.182    & 21    & 5373.048    & 19    & 5858.526    & 12    & 6123.417    & 74    & 1.101    & 43    & 1836.134    & 41    & 1350.656    & 34    & 1085.765    & 40    & -485.479    & 33    & -750.369    & 31    & -264.890   \\
+ &   & (342.872)  &   & (776.498)  &   & (516.864)  &   & (605.744)  &   & (777.763)  &   & 0.355  &   &  &   &  &   &  &   &  &   &  &   &  \\ [1ex]
+\hline \\[-1.8ex]
+F-test of joint significance (F-stat) & &   & &   & &   & &   & &   & &     & &  1.388    & &  2.807*    & &  0.828    & &  0.605    & &  0.012    & &  0.182  \\
+F-test, number of observations & &   & &   & &   & &   & &   & &   & &  43  & &  41  & &  34  & &  40  & &  33  & &  31  \\
+\hline \hline \\[-1.8ex]
+
+\end{tabular}

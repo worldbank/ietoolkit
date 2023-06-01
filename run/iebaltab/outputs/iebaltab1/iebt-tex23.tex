@@ -1,0 +1,24 @@
+%%% Table created in Stata by command iebaltab
+%%% (https://github.com/worldbank/ietoolkit)
+%%% (https://dimewiki.worldbank.org/iebaltab)
+%%% The command was specified exactly like this: 
+%%% iebaltab mpg trunk weight turn price , savecsv("run/iebaltab/outputs/iebaltab1/iebt-csv23") savexlsx("run/iebaltab/outputs/iebaltab1/iebt-xlsx23") savetex("run/iebaltab/outputs/iebaltab1/iebt-tex23") grpvar(tmt_cl) grpcodes replace starsnoadd stats(pair(p)) tblnonote grplabels("0 Control @ 1 Treatment")
+
+\begin{tabular}{@{\extracolsep{5pt}}lcccccc}
+\\[-1.8ex]\hline \hline \\[-1.8ex]
+ & \multicolumn{2}{c}{(1)}  & \multicolumn{2}{c}{(2)}  & \multicolumn{2}{c}{(1)-(2)} \\
+ & \multicolumn{2}{c}{Control}  & \multicolumn{2}{c}{Treatment}  & \multicolumn{2}{c}{Pairwise t-test}  \\
+Variable & N & Mean/(SE) & N & Mean/(SE) & N & P-value \\ \hline \\[-1.8ex] 
+mpg   & 31    & 20.258    & 43    & 20.092    & 74    & 0.895   \\
+ &   & (0.759)  &   & (0.910)  &   &  \\ [1ex]
+trunk   & 31    & 14.097    & 43    & 12.150    & 74    & 0.051   \\
+ &   & (0.793)  &   & (0.606)  &   &  \\ [1ex]
+weight   & 31    & 3084.516    & 43    & 2671.920    & 74    & 0.016   \\
+ &   & (117.753)  &   & (113.337)  &   &  \\ [1ex]
+turn   & 31    & 40.226    & 43    & 34.994    & 74    & 0.000   \\
+ &   & (0.664)  &   & (0.731)  &   &  \\ [1ex]
+price   & 31    & 5961.065    & 43    & 5604.701    & 74    & 0.595   \\
+ &   & (470.476)  &   & (453.973)  &   &  \\ [1ex]
+\hline \hline \\[-1.8ex]
+
+\end{tabular}

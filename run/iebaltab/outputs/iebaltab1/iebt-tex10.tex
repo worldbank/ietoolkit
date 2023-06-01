@@ -1,0 +1,22 @@
+%%% Table created in Stata by command iebaltab
+%%% (https://github.com/worldbank/ietoolkit)
+%%% (https://dimewiki.worldbank.org/iebaltab)
+%%% The command was specified exactly like this: 
+%%% iebaltab weight price , savecsv("run/iebaltab/outputs/iebaltab1/iebt-csv10") savexlsx("run/iebaltab/outputs/iebaltab1/iebt-xlsx10") savetex("run/iebaltab/outputs/iebaltab1/iebt-tex10") texnotefile("run/iebaltab/outputs/iebaltab1/iebt-tex10-note") groupvar(tmt_cl) replace vce(cluster test_cluster_var) ftest feqtest total cov(mpg) fixed(foreign) addnote("added cluster")
+
+\begin{tabular}{@{\extracolsep{5pt}}lcccccccccc}
+\\[-1.8ex]\hline \hline \\[-1.8ex]
+ & \multicolumn{2}{c}{(1)}  & \multicolumn{2}{c}{(2)}  & \multicolumn{2}{c}{(3)}  & \multicolumn{2}{c}{F-test for balance} & \multicolumn{2}{c}{(2)-(3)} \\
+ & \multicolumn{2}{c}{Total}  & \multicolumn{2}{c}{0}  & \multicolumn{2}{c}{1}  & \multicolumn{2}{c}{across all groups} & \multicolumn{2}{c}{Pairwise t-test}  \\
+Variable & N/Clusters & Mean/(SE) & N/Clusters & Mean/(SE) & N/Clusters & Mean/(SE) & N/Clusters & F-stat/P-value & N/Clusters & Mean difference \\ \hline \\[-1.8ex] 
+weight   & 74    & 3019.459    & 31    & 3084.516    & 43    & 2972.558    & 74    & 3.353    & 74    & 111.958   \\
+ & 4  & (107.435)  & 2  & (98.439)  & 2  & (209.010)  & 4  & 0.164  & 4  &  \\ [1ex]
+price   & 74    & 6165.257    & 31    & 5961.065    & 43    & 6312.465    & 74    & 1.695    & 74    & -351.401   \\
+ & 4  & (451.828)  & 2  & (125.692)  & 2  & (917.571)  & 4  & 0.284  & 4  &  \\ [1ex]
+\hline \\[-1.8ex]
+F-test of joint significance (F-stat) & &   & &   & &   & &     & &  1.128  \\
+F-test, number of observations & &   & &   & &   & &   & &  74  \\
+F-test, number of clusters & &   & &   & &   & &     & &  4  \\
+\hline \hline \\[-1.8ex]
+
+\end{tabular}

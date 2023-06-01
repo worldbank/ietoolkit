@@ -1,0 +1,8 @@
+"",""," (1) ",""," (2) ",""," (3) ",""," (4) ",""," (5) ","","(2)-(4)","","(3)-(4)","","(5)-(4)"
+"","","Total","","4","","10231","","6","","2","","Pairwise t-test","","Pairwise t-test","","Pairwise t-test"
+"Variable","N","Mean/(SE)","N","Mean/(SE)","N","Mean/(SE)","N","Mean/(SE)","N","Mean/(SE)","N","Mean difference","N","Mean difference","N","Mean difference"
+"weight","74","3019.459","21","2758.571","12","3211.667","19","3004.211","22","3176.818","40","-245.639","31","207.456","41","172.608**"
+"","","(90.347)","","(191.277)","","(177.127)","","(157.068)","","(172.374)","","","","","",""
+"price","74","6165.257","21","5373.048","12","6123.417","19","5858.526","22","7209.182","40","-485.479","31","264.890","41","1350.656"
+"","","(342.872)","","(516.864)","","(777.763)","","(605.744)","","(776.498)","","","","","",""
+"If the table includes missing values (.n, .o, .v etc.) see the Missing values section in the help file for the Stata command iebaltab for definitions of these values. Covariate(s) used in pairwise regressions: [mpg]. Fixed effect used in pairwise regressions: [foreign]. Significance: ***=.01, **=.05, *=.1. Full user input as written by user: [iebaltab weight price , savecsv(""run/iebaltab/outputs/iebaltab1/iebt-csv7"") savexlsx(""run/iebaltab/outputs/iebaltab1/iebt-xlsx7"") savetex(""run/iebaltab/outputs/iebaltab1/iebt-tex7"") texnotefile(""run/iebaltab/outputs/iebaltab1/iebt-tex7-note"") groupvar(tmt) replace total order(4 10231) control(6) groupcodes cov(mpg) fixed(foreign) addnote(""column order should be 4 10231 6 2, and 6 is control so pair test only with this group"")] column order should be 4 10231 6 2, and 6 is control so pair test only with this group","","","","","","","","","","","","","","","",""

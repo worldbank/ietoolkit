@@ -1,0 +1,30 @@
+%%% Table created in Stata by command iebaltab
+%%% (https://github.com/worldbank/ietoolkit)
+%%% (https://dimewiki.worldbank.org/iebaltab)
+%%% The command was specified exactly like this: 
+%%% iebaltab mpg headroom trunk weight length turn price , savecsv("run/iebaltab/outputs/iebaltab1/iebt-csv22") savexlsx("run/iebaltab/outputs/iebaltab1/iebt-xlsx22") savetex("run/iebaltab/outputs/iebaltab1/iebt-tex22") texnotefile("run/iebaltab/outputs/iebaltab1/iebt-tex22-note") groupvar(tmt_cl) replace onerow stats(pair(p)) starlevels(.4 .2 .001)
+
+\begin{tabular}{@{\extracolsep{5pt}}lccc}
+\\[-1.8ex]\hline \hline \\[-1.8ex]
+ & \multicolumn{1}{c}{(1)}  & \multicolumn{1}{c}{(2)}  & \multicolumn{1}{c}{(1)-(2)} \\
+ & \multicolumn{1}{c}{0}  & \multicolumn{1}{c}{1}  & \multicolumn{1}{c}{Pairwise t-test}  \\
+Variable & Mean/(SE) & Mean/(SE) & P-value \\ \hline \\[-1.8ex] 
+mpg   & 20.258    & 20.092    & 0.895   \\
+ & (0.759)  & (0.910)  &  \\ [1ex]
+headroom   & 2.935    & 2.723    & 0.273*   \\
+ & (0.155)  & (0.119)  &  \\ [1ex]
+trunk   & 14.097    & 12.127    & 0.039**   \\
+ & (0.793)  & (0.555)  &  \\ [1ex]
+weight   & 3084.516    & 2650.042    & 0.014**   \\
+ & (117.753)  & (118.860)  &  \\ [1ex]
+length   & 190.323    & 164.671    & 0.000***   \\
+ & (3.472)  & (3.795)  &  \\ [1ex]
+turn   & 40.226    & 34.692    & 0.000***   \\
+ & (0.664)  & (0.739)  &  \\ [1ex]
+price   & 5961.065    & 5702.614    & 0.695   \\
+ & (470.476)  & (442.505)  &  \\ [1ex]
+\hline \\[-1.8ex]
+Number of observations  & 31   & 43  & 74  \\
+\hline \hline \\[-1.8ex]
+
+\end{tabular}

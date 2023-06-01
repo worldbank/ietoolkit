@@ -1,0 +1,23 @@
+%%% Table created in Stata by command iebaltab
+%%% (https://github.com/worldbank/ietoolkit)
+%%% (https://dimewiki.worldbank.org/iebaltab)
+%%% The command was specified exactly like this: 
+%%% iebaltab weight price , savecsv("run/iebaltab/outputs/iebaltab1/iebt-csv12") savexlsx("run/iebaltab/outputs/iebaltab1/iebt-xlsx12") savetex("run/iebaltab/outputs/iebaltab1/iebt-tex12") texnotefile("run/iebaltab/outputs/iebaltab1/iebt-tex12-note") groupvar(tmt_cl) replace onerow vce(cluster test_cluster_var) ftest feqtest total cov(mpg) fixed(foreign) addnote("added onerow and cluster") browse
+
+\begin{tabular}{@{\extracolsep{5pt}}lccccc}
+\\[-1.8ex]\hline \hline \\[-1.8ex]
+ & \multicolumn{1}{c}{(1)}  & \multicolumn{1}{c}{(2)}  & \multicolumn{1}{c}{(3)}  & \multicolumn{1}{c}{F-test for balance} & \multicolumn{1}{c}{(2)-(3)} \\
+ & \multicolumn{1}{c}{Total}  & \multicolumn{1}{c}{0}  & \multicolumn{1}{c}{1}  & \multicolumn{1}{c}{across all groups} & \multicolumn{1}{c}{Pairwise t-test}  \\
+Variable & Mean/(SE) & Mean/(SE) & Mean/(SE) & F-stat/P-value & Mean difference \\ \hline \\[-1.8ex] 
+weight   & 3019.459    & 3084.516    & 2972.558    & 3.353    & 111.958   \\
+ & (107.435)  & (98.439)  & (209.010)  & 0.164  &  \\ [1ex]
+price   & 6165.257    & 5961.065    & 6312.465    & 1.695    & -351.401   \\
+ & (451.828)  & (125.692)  & (917.571)  & 0.284  &  \\ [1ex]
+\hline \\[-1.8ex]
+F-test of joint significance (F-stat) &   &   &   &     &  1.128  \\
+\hline \\[-1.8ex]
+Number of observations  & 74   & 31   & 43  & 74 & 74  \\
+Number of clusters & 4  & 2  & 2  & 4 & 4  \\
+\hline \hline \\[-1.8ex]
+
+\end{tabular}
