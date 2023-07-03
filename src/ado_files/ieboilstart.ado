@@ -85,7 +85,7 @@
         else {
           local aopterr `"You provided the sub-option [`aoption']."'
         }
-        noi di as error `"{phang}The option [`adopath'] requires one of the sub-options [strict] or [nostrict]. `aopterr' See help file for more details.{p_end}"'
+        noi di as error `"{phang}The option {inp:adopath(}{it:{res:`apath'}}{inp:)} requires one of the sub-options [strict] or [nostrict]. `aopterr' See help file for more details.{p_end}"'
         error 198
       }
 
