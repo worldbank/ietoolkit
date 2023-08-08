@@ -165,7 +165,7 @@ command please see the {browse "https://dimewiki.worldbank.org/wiki/Iegraph":DIM
 	you de-bug how to apply Stata's built in graph options to an iegraph graph.
 	Note that this option deletes any unsaved changes made to your data.{p_end}
 
-{phang}{cmdab:baropt:ions(}{it:string}{cmd:)}} Allows you to add formatting
+{phang}{cmdab:baropt:ions(}{it:string}{cmd:)} Allows you to add formatting
 	option that are applied to each bar and not the graph itself. Example of
 	such option are {help twoway_bar} options and {help axis_options} options.
 
