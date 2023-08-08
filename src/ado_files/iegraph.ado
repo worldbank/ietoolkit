@@ -418,7 +418,7 @@ cap	program drop	iegraph
 			grayPicker `tmtGroupCount' `graphCount'
 		}
 
-		local tmtGroupBars `"`tmtGroupBars' (bar mean position if position == `tmtGroupCount', `baroptions' color("`r(color)'") lcolor(black) ) "'
+		local tmtGroupBars `"`tmtGroupBars' (bar mean position if position == `tmtGroupCount', color("`r(color)'") lcolor(black) `baroptions' ) "'
 
 		************
 		*Create labels etc. for this group
