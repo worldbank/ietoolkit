@@ -178,7 +178,9 @@ Default if %9.1f. See {help format} for more information. {p_end}
 	option that are applied to each bar and not the graph itself. Example of
 	such option are {help twoway_bar} options and {help axis_options} options.
   It is not possible to use this option to add formatting to individual bars.
-  Everything added in this option is added to all bars.{p_end}
+  Everything added in this option is added to all bars.
+  Formatting added in this option takes precedence over
+  any default formatting or formatting set in any other option.{p_end}
 
 {phang}{cmd:ignoredummytest} Ignores the tests that test if the dummies fits one
 	of the two models this command is intended for. The two models are described
