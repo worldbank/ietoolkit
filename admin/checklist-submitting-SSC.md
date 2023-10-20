@@ -76,6 +76,8 @@
 
 - [ ] 15. **Send announce email** - If it is a major release (new commands or significant updates to existing commands), send an email to DIME Team to announce the new version.
 
+---
+
 ### Version number and dates in ado-files and help files.
 
 The version number is on the format `X.Y` where the first number is incremented if it is a major release. If the first number is incremented the second number is reset to 0. If it is not a major release, then the first number is left unchanged and the second number is incremented.
