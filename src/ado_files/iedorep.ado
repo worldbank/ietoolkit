@@ -337,7 +337,7 @@ cap program drop org_line_parse
   local block_end     0
 
   * Get the first words
-  tokenize `macval(line)'
+  tokenize `" `macval(line)' "'
 
   ***********************************
   * Handle quietly and noisily
@@ -357,7 +357,7 @@ cap program drop org_line_parse
       local nline = subinstr(`"`macval(nline)'"',"`2'","",1)
     if (substr(`"`1'"',1,1)==":") ///
       local nline = subinstr(`"`macval(nline)'"',":","",1)
-    tokenize `macval(nline)'
+    tokenize `" `macval(nline)' "'
   }
 
   ***********************************
@@ -567,7 +567,7 @@ qui {
         * Test if any line is "Change"
         local any_change = ///
           strpos("`r(rng_c1)'`r(rng_c2)'`r(srng_c1)'`r(srng_c2)'`r(dsig_c1)'`r(dsig_c2)'","Change")
-        if (`any_change' > 0 & !missing("`verbose'")) ///
+        if (`any_change' > 0 & !missing(`"`verbose'"')) ///
           local write_outputline 1
         * Test if any line is "Missmatch"
         local any_mismatch = ///
@@ -609,7 +609,7 @@ program define   compare_data_lines, rclass
     * Parse all lines and put then into locals to be compared
     foreach line in l1 l2 pl1 pl2 {
       local data "``line''"
-      while !missing("`data'") {
+      while !missing(`"`data'"') {
           * Parse next key:value pair of data
           gettoken keyvaluepair data : data, parse("&")
           local data = substr("`data'",2,.) // remove parse char
@@ -677,9 +677,9 @@ program define   write_and_print_output, rclass
 
   * Output and write the lines
   forvalues line = 1/6 {
-    if !missing("`l`line''") {
+    if !missing(`"`l`line''"') {
       noi di as res `"`l`line''"'
-      file write `h_smcl' "`l`line''" _n
+      file write `h_smcl' `"`l`line''"' _n
     }
   }
 end

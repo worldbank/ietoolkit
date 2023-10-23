@@ -1,52 +1,61 @@
  
 {hline}
-{phang}iedorep output created by user wb462869 at  1 Jun 2023 09:23:28{p_end}
-{phang}Operating System PC (64-bit x86-64) Windows 64-bit{p_end}
-{phang}Stata MP - Version 17 running as version 17{p_end}
+{phang}iedorep output created by user bbdaniels at 23 Oct 2023 15:12:44{p_end}
+{phang}Operating System Mac (Apple Silicon) MacOSX 13.5.1{p_end}
+{phang}Stata SE - Version 18 running as version 18{p_end}
 {hline}
  
 {phang}Checking file:{p_end}
-{pstd}{c BLC}{hline 1}> C:\Users\wb462869\github\ietoolkit/run/iedorep2-run/multi-file/main.do{p_end}
+{pstd}{c BLC}{hline 1}> /Users/bbdaniels/GitHub/ietoolkit/run/iedorep2-run/multi-file/main.do{p_end}
 {c TLC}{hline 8}{c TT}{hline 26}{c TT}{hline 26}{c TT}{hline 26}{c TT}{hline 18}
 {c |}{col 10}{c |}{dup 8: }RNG-state{col 37}{c |}{dup 6: }Sort RNG-state{col 64}{c |}{dup 6: }Data signature{col 91}{c |}
 {c |} Line # {col 10}{c |} Run 1  {c |} Run 2  {c |} Match  {col 37}{c |} Run 1  {c |} Run 2  {c |} Match  {col 64}{c |} Run 1  {c |} Run 2  {c |} Match  {col 91}{c |} Loop iteration:
 {c LT}{hline 8}{c +}{hline 8}{c +}{hline 8}{c +}{hline 8}{c +}{hline 8}{c +}{hline 8}{c +}{hline 8}{c +}{hline 8}{c +}{hline 8}{c +}{hline 8}{c +}{hline 18}
+{c |} 1 {col 10}{c |} Change{col 19}{c |} Change{col 28}{c |} Yes{col 37}{c |} Change{col 46}{c |} Change{col 55}{c |} Yes{col 64}{c |} Change{col 73}{c |} Change{col 82}{c |} Yes{col 91}{c |}
+{c |} 6 {col 10}{c |}  {col 19}{c |}  {col 28}{c |} Yes{col 37}{c |}  {col 46}{c |}  {col 55}{c |} Yes{col 64}{c |} Change{col 73}{c |} Change{col 82}{c |} Yes{col 91}{c |}
 {c BLC}{hline 8}{c BT}{hline 8}{c BT}{hline 8}{c BT}{hline 8}{c BT}{hline 8}{c BT}{hline 8}{c BT}{hline 8}{c BT}{hline 8}{c BT}{hline 8}{c BT}{hline 8}{c BT}{hline 18}
  
 {pstd} Stepping into sub-file:{p_end}
-{pstd}{c BLC}{hline 1}> C:\Users\wb462869\github\ietoolkit/run/iedorep2-run/multi-file/main.do{p_end}
-{pstd}{c BLC}{hline 2}> C:\Users\wb462869\github\ietoolkit/run/iedorep2-run/multi-file/B sub1.do{p_end}
+{pstd}{c BLC}{hline 1}> /Users/bbdaniels/GitHub/ietoolkit/run/iedorep2-run/multi-file/main.do{p_end}
+{pstd}{c BLC}{hline 2}> /Users/bbdaniels/GitHub/ietoolkit/run/iedorep2-run/multi-file/B sub1.do{p_end}
 {c TLC}{hline 8}{c TT}{hline 26}{c TT}{hline 26}{c TT}{hline 26}{c TT}{hline 18}
 {c |}{col 10}{c |}{dup 8: }RNG-state{col 37}{c |}{dup 6: }Sort RNG-state{col 64}{c |}{dup 6: }Data signature{col 91}{c |}
 {c |} Line # {col 10}{c |} Run 1  {c |} Run 2  {c |} Match  {col 37}{c |} Run 1  {c |} Run 2  {c |} Match  {col 64}{c |} Run 1  {c |} Run 2  {c |} Match  {col 91}{c |} Loop iteration:
 {c LT}{hline 8}{c +}{hline 8}{c +}{hline 8}{c +}{hline 8}{c +}{hline 8}{c +}{hline 8}{c +}{hline 8}{c +}{hline 8}{c +}{hline 8}{c +}{hline 8}{c +}{hline 18}
+{c |} 1 {col 10}{c |} Change{col 19}{c |} Change{col 28}{c |} Yes{col 37}{c |} Change{col 46}{c |} Change{col 55}{c |} Yes{col 64}{c |} Change{col 73}{c |} Change{col 82}{c |} Yes{col 91}{c |}
+{c |} 4 {col 10}{c |}  {col 19}{c |}  {col 28}{c |} Yes{col 37}{c |}  {col 46}{c |}  {col 55}{c |} Yes{col 64}{c |} Change{col 73}{c |} Change{col 82}{c |} Yes{col 91}{c |}
+{c |} 5 {col 10}{c |}  {col 19}{c |}  {col 28}{c |} Yes{col 37}{c |}  {col 46}{c |}  {col 55}{c |} Yes{col 64}{c |} Change{col 73}{c |} Change{col 82}{c |} Yes{col 91}{c |}
 {c BLC}{hline 8}{c BT}{hline 8}{c BT}{hline 8}{c BT}{hline 8}{c BT}{hline 8}{c BT}{hline 8}{c BT}{hline 8}{c BT}{hline 8}{c BT}{hline 8}{c BT}{hline 8}{c BT}{hline 18}
  
 {phang} Stepping back into file:{p_end}
-{pstd}{c BLC}{hline 1}> C:\Users\wb462869\github\ietoolkit/run/iedorep2-run/multi-file/main.do{p_end}
+{pstd}{c BLC}{hline 1}> /Users/bbdaniels/GitHub/ietoolkit/run/iedorep2-run/multi-file/main.do{p_end}
 {c TLC}{hline 8}{c TT}{hline 26}{c TT}{hline 26}{c TT}{hline 26}{c TT}{hline 18}
 {c |}{col 10}{c |}{dup 8: }RNG-state{col 37}{c |}{dup 6: }Sort RNG-state{col 64}{c |}{dup 6: }Data signature{col 91}{c |}
 {c |} Line # {col 10}{c |} Run 1  {c |} Run 2  {c |} Match  {col 37}{c |} Run 1  {c |} Run 2  {c |} Match  {col 64}{c |} Run 1  {c |} Run 2  {c |} Match  {col 91}{c |} Loop iteration:
 {c LT}{hline 8}{c +}{hline 8}{c +}{hline 8}{c +}{hline 8}{c +}{hline 8}{c +}{hline 8}{c +}{hline 8}{c +}{hline 8}{c +}{hline 8}{c +}{hline 8}{c +}{hline 18}
+{c |} 7 {col 10}{c |}  {col 19}{c |}  {col 28}{c |} Yes{col 37}{c |}  {col 46}{c |}  {col 55}{c |} Yes{col 64}{c |} Change{col 73}{c |} Change{col 82}{c |} Yes{col 91}{c |}
 {c BLC}{hline 8}{c BT}{hline 8}{c BT}{hline 8}{c BT}{hline 8}{c BT}{hline 8}{c BT}{hline 8}{c BT}{hline 8}{c BT}{hline 8}{c BT}{hline 8}{c BT}{hline 8}{c BT}{hline 18}
  
 {pstd} Stepping into sub-file:{p_end}
-{pstd}{c BLC}{hline 1}> C:\Users\wb462869\github\ietoolkit/run/iedorep2-run/multi-file/main.do{p_end}
-{pstd}{c BLC}{hline 2}> C:\Users\wb462869\github\ietoolkit/run/iedorep2-run/multi-file/B-sub2.do{p_end}
+{pstd}{c BLC}{hline 1}> /Users/bbdaniels/GitHub/ietoolkit/run/iedorep2-run/multi-file/main.do{p_end}
+{pstd}{c BLC}{hline 2}> /Users/bbdaniels/GitHub/ietoolkit/run/iedorep2-run/multi-file/B-sub2.do{p_end}
 {c TLC}{hline 8}{c TT}{hline 26}{c TT}{hline 26}{c TT}{hline 26}{c TT}{hline 18}
 {c |}{col 10}{c |}{dup 8: }RNG-state{col 37}{c |}{dup 6: }Sort RNG-state{col 64}{c |}{dup 6: }Data signature{col 91}{c |}
 {c |} Line # {col 10}{c |} Run 1  {c |} Run 2  {c |} Match  {col 37}{c |} Run 1  {c |} Run 2  {c |} Match  {col 64}{c |} Run 1  {c |} Run 2  {c |} Match  {col 91}{c |} Loop iteration:
 {c LT}{hline 8}{c +}{hline 8}{c +}{hline 8}{c +}{hline 8}{c +}{hline 8}{c +}{hline 8}{c +}{hline 8}{c +}{hline 8}{c +}{hline 8}{c +}{hline 8}{c +}{hline 18}
+{c |} 1 {col 10}{c |} Change{col 19}{c |} Change{col 28}{c |} Yes{col 37}{c |} Change{col 46}{c |} Change{col 55}{c |} Yes{col 64}{c |} Change{col 73}{c |} Change{col 82}{c |} Yes{col 91}{c |}
+{c |} 4 {col 10}{c |}  {col 19}{c |}  {col 28}{c |} Yes{col 37}{c |}  {col 46}{c |}  {col 55}{c |} Yes{col 64}{c |} Change{col 73}{c |} Change{col 82}{c |} Yes{col 91}{c |}
 {c BLC}{hline 8}{c BT}{hline 8}{c BT}{hline 8}{c BT}{hline 8}{c BT}{hline 8}{c BT}{hline 8}{c BT}{hline 8}{c BT}{hline 8}{c BT}{hline 8}{c BT}{hline 8}{c BT}{hline 18}
  
 {phang} Stepping back into file:{p_end}
-{pstd}{c BLC}{hline 1}> C:\Users\wb462869\github\ietoolkit/run/iedorep2-run/multi-file/main.do{p_end}
+{pstd}{c BLC}{hline 1}> /Users/bbdaniels/GitHub/ietoolkit/run/iedorep2-run/multi-file/main.do{p_end}
 {c TLC}{hline 8}{c TT}{hline 26}{c TT}{hline 26}{c TT}{hline 26}{c TT}{hline 18}
 {c |}{col 10}{c |}{dup 8: }RNG-state{col 37}{c |}{dup 6: }Sort RNG-state{col 64}{c |}{dup 6: }Data signature{col 91}{c |}
 {c |} Line # {col 10}{c |} Run 1  {c |} Run 2  {c |} Match  {col 37}{c |} Run 1  {c |} Run 2  {c |} Match  {col 64}{c |} Run 1  {c |} Run 2  {c |} Match  {col 91}{c |} Loop iteration:
 {c LT}{hline 8}{c +}{hline 8}{c +}{hline 8}{c +}{hline 8}{c +}{hline 8}{c +}{hline 8}{c +}{hline 8}{c +}{hline 8}{c +}{hline 8}{c +}{hline 8}{c +}{hline 18}
+{c |} 8 {col 10}{c |}  {col 19}{c |}  {col 28}{c |} Yes{col 37}{c |}  {col 46}{c |}  {col 55}{c |} Yes{col 64}{c |} Change{col 73}{c |} Change{col 82}{c |} Yes{col 91}{c |}
 {c BLC}{hline 8}{c BT}{hline 8}{c BT}{hline 8}{c BT}{hline 8}{c BT}{hline 8}{c BT}{hline 8}{c BT}{hline 8}{c BT}{hline 8}{c BT}{hline 8}{c BT}{hline 8}{c BT}{hline 18}
  
 {phang}Done checking file:{p_end}
-{pstd}{c BLC}{hline 1}> C:\Users\wb462869\github\ietoolkit/run/iedorep2-run/multi-file/main.do{p_end}
+{pstd}{c BLC}{hline 1}> /Users/bbdaniels/GitHub/ietoolkit/run/iedorep2-run/multi-file/main.do{p_end}
 {hline}

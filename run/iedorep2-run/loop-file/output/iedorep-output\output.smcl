@@ -1,12 +1,12 @@
  
 {hline}
-{phang}iedorep output created by user wb462869 at  1 Jun 2023 09:23:31{p_end}
-{phang}Operating System PC (64-bit x86-64) Windows 64-bit{p_end}
-{phang}Stata MP - Version 17 running as version 17{p_end}
+{phang}iedorep output created by user bbdaniels at 23 Oct 2023 15:12:44{p_end}
+{phang}Operating System Mac (Apple Silicon) MacOSX 13.5.1{p_end}
+{phang}Stata SE - Version 18 running as version 18{p_end}
 {hline}
  
 {phang}Checking file:{p_end}
-{pstd}{c BLC}{hline 1}> C:\Users\wb462869\github\ietoolkit/run/iedorep2-run/loop-file/main.do{p_end}
+{pstd}{c BLC}{hline 1}> /Users/bbdaniels/GitHub/ietoolkit/run/iedorep2-run/loop-file/main.do{p_end}
 {c TLC}{hline 8}{c TT}{hline 26}{c TT}{hline 26}{c TT}{hline 26}{c TT}{hline 18}
 {c |}{col 10}{c |}{dup 8: }RNG-state{col 37}{c |}{dup 6: }Sort RNG-state{col 64}{c |}{dup 6: }Data signature{col 91}{c |}
 {c |} Line # {col 10}{c |} Run 1  {c |} Run 2  {c |} Match  {col 37}{c |} Run 1  {c |} Run 2  {c |} Match  {col 64}{c |} Run 1  {c |} Run 2  {c |} Match  {col 91}{c |} Loop iteration:
@@ -63,5 +63,5 @@
 {c BLC}{hline 8}{c BT}{hline 8}{c BT}{hline 8}{c BT}{hline 8}{c BT}{hline 8}{c BT}{hline 8}{c BT}{hline 8}{c BT}{hline 8}{c BT}{hline 8}{c BT}{hline 8}{c BT}{hline 18}
  
 {phang}Done checking file:{p_end}
-{pstd}{c BLC}{hline 1}> C:\Users\wb462869\github\ietoolkit/run/iedorep2-run/loop-file/main.do{p_end}
+{pstd}{c BLC}{hline 1}> /Users/bbdaniels/GitHub/ietoolkit/run/iedorep2-run/loop-file/main.do{p_end}
 {hline}
