@@ -769,9 +769,9 @@ cap program drop output_writetitle
 
   * State titel line
   local sl "{c |}{col `c1'}"
-  local sl "`sl'{c |}{dup 8: }RNG-state{col `c2'}"
-  local sl "`sl'{c |}{dup 6: }Sort RNG-state{col `c3'}"
-  local sl "`sl'{c |}{dup 6: }Data signature{col `c4'}"
+  local sl "`sl'{c |}{dup 6: }Seed RNG State{col `c2'}"
+  local sl "`sl'{c |}{dup 6: }Sort Order RNG{col `c3'}"
+  local sl "`sl'{c |}{dup 6: }Data Signature{col `c4'}"
   return local state_titles "`sl'{c |}"
 
   * Column title line
