@@ -17,13 +17,10 @@ sort foreign
 di as err "SAME FROM THE SUBROUTINE: `MYFAKELOCAL'"
 
 forv run = 1/5 {
-  gen var`run' = rnormal()
-  if `run' == 3 set seed 847
-}
-
-foreach type in A B "C" {
-  if "`type'" == "A" set seed 8475
-  gen var`type' = rnormal()
+  foreach type in A B "C" {
+    if "`type'" == "A" set seed 8475
+    gen var`type'`run' = rnormal()
+  }
 }
 
 gen x = _n
