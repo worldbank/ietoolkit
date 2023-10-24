@@ -567,17 +567,21 @@ qui {
         * Only display line if there is a mismatch, or if option verbose
         * is used, also output if there is a change from previous line
         local write_outputline 0
-        * Test if any line is "Change"
-        local any_change = ///
-          strpos("`r(rng_c1)'`r(rng_c2)'`r(srng_c1)'`r(srng_c2)'`r(dsig_c1)'`r(dsig_c2)'","Change")
-        if (`any_change' > 0 & !missing(`"`verbose'"')) ///
-          local write_outputline 1
-        * Test if any line is "Missmatch"
-        local any_mismatch = ///
-        strpos("`r(rng_m)'`r(srng_m)'`r(dsig_m)'","No")
-        if (`any_mismatch' > 0) & missing(`"`compact'"') local write_outputline 1
-        * Compact display
-        if (`any_mismatch' > 0) & (`any_change' > 0) local write_outputline 1
+
+          * Check each value individually for changes and mismatches
+          foreach matchtype in rng srng dsig {
+            * Test if any line is "Change"
+            local any_change = ///
+              strpos("`r(`matchtype'_c1)'`r(`matchtype'_c2)'","Change")
+            if (`any_change' > 0 & !missing(`"`verbose'"')) ///
+              local write_outputline 1
+            * Test if any line is "Missmatch"
+            local any_mismatch = ///
+            strpos("`r(`matchtype'_m)'","No")
+            if (`any_mismatch' > 0) & missing(`"`compact'"') local write_outputline 1
+            * Compact display
+            if (`any_mismatch' > 0) & (`any_change' > 0) local write_outputline 1
+          }
 
         * If line is supposed to be outputted, write line
         if (`write_outputline' == 1 ) {
