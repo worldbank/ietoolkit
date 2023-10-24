@@ -1,6 +1,6 @@
  
 {hline}
-{phang}iedorep output created by user bbdaniels at 24 Oct 2023 16:29:58{p_end}
+{phang}iedorep output created by user bbdaniels at 24 Oct 2023 16:32:25{p_end}
 {phang}Operating System Mac (Apple Silicon) MacOSX 13.5.1{p_end}
 {phang}Stata SE - Version 18 running as version 18{p_end}
 {hline}
@@ -18,28 +18,28 @@
 {c |} 9 {col 10}{c |}  {col 19}{c |}  {col 28}{c |} {err:|}{col 37}{c |}  {col 46}{c |}  {col 55}{c |} {err:|}{col 64}{c |}  {col 73}{c |}  {col 82}{c |} .{col 91}{c |}
 {c |} 11 {col 10}{c |}  {col 19}{c |}  {col 28}{c |} {err:|}{col 37}{c |}  {col 46}{c |}  {col 55}{c |} {err:|}{col 64}{c |}  {col 73}{c |}  {col 82}{c |} .{col 91}{c |}
 {c |} 13 {col 10}{c |}  {col 19}{c |}  {col 28}{c |} {err:|}{col 37}{c |}  {col 46}{c |}  {col 55}{c |} {err:|}{col 64}{c |}  {col 73}{c |}  {col 82}{c |} .{col 91}{c |}
-{c |} 15 {col 10}{c |}  {col 19}{c |}  {col 28}{c |} {err:|}{col 37}{c |}  {col 46}{c |}  {col 55}{c |} {err:|}{col 64}{c |} Change{col 73}{c |} Change{col 82}{c |} Yes{col 91}{c |}
-{c |} 17 {col 10}{c |}  {col 19}{c |}  {col 28}{c |} {err:|}{col 37}{c |} Change{col 46}{c |} Change{col 55}{c |} {err:No}{col 64}{c |}  {col 73}{c |}  {col 82}{c |} .{col 91}{c |}
-{c |} 19 {col 10}{c |}  {col 19}{c |}  {col 28}{c |} {err:|}{col 37}{c |} Change{col 46}{c |} Change{col 55}{c |} {err:No}{col 64}{c |}  {col 73}{c |}  {col 82}{c |} .{col 91}{c |}
-{c |} 21 {col 10}{c |}  {col 19}{c |}  {col 28}{c |} {err:|}{col 37}{c |}  {col 46}{c |}  {col 55}{c |} {err:|}{col 64}{c |}  {col 73}{c |}  {col 82}{c |} .{col 91}{c |}
-{c |} 23 {col 10}{c |}  {col 19}{c |}  {col 28}{c |} {err:|}{col 37}{c |}  {col 46}{c |}  {col 55}{c |} {err:|}{col 64}{c |} Change{col 73}{c |} Change{col 82}{c |} Yes{col 91}{c |}
-{c |} 24 {col 10}{c |} Change{col 19}{c |} Change{col 28}{c |} {err:No}{col 37}{c |}  {col 46}{c |}  {col 55}{c |} {err:|}{col 64}{c |} Change{col 73}{c |} Change{col 82}{c |} {err:No}{col 91}{c |}
-{c |} 26 {col 10}{c |}  {col 19}{c |}  {col 28}{c |} {err:|}{col 37}{c |}  {col 46}{c |}  {col 55}{c |} {err:|}{col 64}{c |}  {col 73}{c |}  {col 82}{c |} {err:|}{col 91}{c |} run:1
-{c |} 27 {col 10}{c |} Change{col 19}{c |} Change{col 28}{c |} {err:No}{col 37}{c |}  {col 46}{c |}  {col 55}{c |} {err:|}{col 64}{c |} Change{col 73}{c |} Change{col 82}{c |} {err:No}{col 91}{c |} run:1
-{c |} 28 {col 10}{c |}  {col 19}{c |}  {col 28}{c |} {err:|}{col 37}{c |}  {col 46}{c |}  {col 55}{c |} {err:|}{col 64}{c |}  {col 73}{c |}  {col 82}{c |} {err:|}{col 91}{c |} run:1
-{c |} 26 {col 10}{c |}  {col 19}{c |}  {col 28}{c |} {err:|}{col 37}{c |}  {col 46}{c |}  {col 55}{c |} {err:|}{col 64}{c |}  {col 73}{c |}  {col 82}{c |} {err:|}{col 91}{c |} run:2
-{c |} 27 {col 10}{c |} Change{col 19}{c |} Change{col 28}{c |} {err:No}{col 37}{c |}  {col 46}{c |}  {col 55}{c |} {err:|}{col 64}{c |} Change{col 73}{c |} Change{col 82}{c |} {err:No}{col 91}{c |} run:2
-{c |} 28 {col 10}{c |}  {col 19}{c |}  {col 28}{c |} {err:|}{col 37}{c |}  {col 46}{c |}  {col 55}{c |} {err:|}{col 64}{c |}  {col 73}{c |}  {col 82}{c |} {err:|}{col 91}{c |} run:2
-{c |} 26 {col 10}{c |}  {col 19}{c |}  {col 28}{c |} {err:|}{col 37}{c |}  {col 46}{c |}  {col 55}{c |} {err:|}{col 64}{c |}  {col 73}{c |}  {col 82}{c |} {err:|}{col 91}{c |} run:3
-{c |} 27 {col 10}{c |} Change{col 19}{c |} Change{col 28}{c |} {err:No}{col 37}{c |}  {col 46}{c |}  {col 55}{c |} {err:|}{col 64}{c |} Change{col 73}{c |} Change{col 82}{c |} {err:No}{col 91}{c |} run:3
-{c |} 28 {col 10}{c |} Change{col 19}{c |} Change{col 28}{c |} Yes{col 37}{c |}  {col 46}{c |}  {col 55}{c |} {err:|}{col 64}{c |}  {col 73}{c |}  {col 82}{c |} {err:|}{col 91}{c |} run:3
-{c |} 26 {col 10}{c |}  {col 19}{c |}  {col 28}{c |} .{col 37}{c |}  {col 46}{c |}  {col 55}{c |} {err:|}{col 64}{c |}  {col 73}{c |}  {col 82}{c |} {err:|}{col 91}{c |} run:4
-{c |} 27 {col 10}{c |} Change{col 19}{c |} Change{col 28}{c |} Yes{col 37}{c |}  {col 46}{c |}  {col 55}{c |} {err:|}{col 64}{c |} Change{col 73}{c |} Change{col 82}{c |} {err:No}{col 91}{c |} run:4
-{c |} 28 {col 10}{c |}  {col 19}{c |}  {col 28}{c |} .{col 37}{c |}  {col 46}{c |}  {col 55}{c |} {err:|}{col 64}{c |}  {col 73}{c |}  {col 82}{c |} {err:|}{col 91}{c |} run:4
-{c |} 26 {col 10}{c |}  {col 19}{c |}  {col 28}{c |} .{col 37}{c |}  {col 46}{c |}  {col 55}{c |} {err:|}{col 64}{c |}  {col 73}{c |}  {col 82}{c |} {err:|}{col 91}{c |} run:5
-{c |} 27 {col 10}{c |} Change{col 19}{c |} Change{col 28}{c |} Yes{col 37}{c |}  {col 46}{c |}  {col 55}{c |} {err:|}{col 64}{c |} Change{col 73}{c |} Change{col 82}{c |} {err:No}{col 91}{c |} run:5
-{c |} 28 {col 10}{c |}  {col 19}{c |}  {col 28}{c |} .{col 37}{c |}  {col 46}{c |}  {col 55}{c |} {err:|}{col 64}{c |}  {col 73}{c |}  {col 82}{c |} {err:|}{col 91}{c |} run:5
-{c |} 31 {col 10}{c |}  {col 19}{c |}  {col 28}{c |} .{col 37}{c |} Change{col 46}{c |} Change{col 55}{c |} {err:No}{col 64}{c |} Change{col 73}{c |} Change{col 82}{c |} {err:No}{col 91}{c |}
+{c |} 15 {col 10}{c |}  {col 19}{c |}  {col 28}{c |} {err:|}{col 37}{c |}  {col 46}{c |}  {col 55}{c |} {err:|}{col 64}{c |}  {col 73}{c |}  {col 82}{c |} .{col 91}{c |} run:1
+{c |} 16 {col 10}{c |} Change{col 19}{c |} Change{col 28}{c |} {err:No}{col 37}{c |}  {col 46}{c |}  {col 55}{c |} {err:|}{col 64}{c |} Change{col 73}{c |} Change{col 82}{c |} {err:No}{col 91}{c |} run:1
+{c |} 17 {col 10}{c |}  {col 19}{c |}  {col 28}{c |} {err:|}{col 37}{c |}  {col 46}{c |}  {col 55}{c |} {err:|}{col 64}{c |}  {col 73}{c |}  {col 82}{c |} {err:|}{col 91}{c |} run:1
+{c |} 15 {col 10}{c |}  {col 19}{c |}  {col 28}{c |} {err:|}{col 37}{c |}  {col 46}{c |}  {col 55}{c |} {err:|}{col 64}{c |}  {col 73}{c |}  {col 82}{c |} {err:|}{col 91}{c |} run:2
+{c |} 16 {col 10}{c |} Change{col 19}{c |} Change{col 28}{c |} {err:No}{col 37}{c |}  {col 46}{c |}  {col 55}{c |} {err:|}{col 64}{c |} Change{col 73}{c |} Change{col 82}{c |} {err:No}{col 91}{c |} run:2
+{c |} 17 {col 10}{c |}  {col 19}{c |}  {col 28}{c |} {err:|}{col 37}{c |}  {col 46}{c |}  {col 55}{c |} {err:|}{col 64}{c |}  {col 73}{c |}  {col 82}{c |} {err:|}{col 91}{c |} run:2
+{c |} 15 {col 10}{c |}  {col 19}{c |}  {col 28}{c |} {err:|}{col 37}{c |}  {col 46}{c |}  {col 55}{c |} {err:|}{col 64}{c |}  {col 73}{c |}  {col 82}{c |} {err:|}{col 91}{c |} run:3
+{c |} 16 {col 10}{c |} Change{col 19}{c |} Change{col 28}{c |} {err:No}{col 37}{c |}  {col 46}{c |}  {col 55}{c |} {err:|}{col 64}{c |} Change{col 73}{c |} Change{col 82}{c |} {err:No}{col 91}{c |} run:3
+{c |} 17 {col 10}{c |} Change{col 19}{c |} Change{col 28}{c |} Yes{col 37}{c |}  {col 46}{c |}  {col 55}{c |} {err:|}{col 64}{c |}  {col 73}{c |}  {col 82}{c |} {err:|}{col 91}{c |} run:3
+{c |} 15 {col 10}{c |}  {col 19}{c |}  {col 28}{c |} .{col 37}{c |}  {col 46}{c |}  {col 55}{c |} {err:|}{col 64}{c |}  {col 73}{c |}  {col 82}{c |} {err:|}{col 91}{c |} run:4
+{c |} 16 {col 10}{c |} Change{col 19}{c |} Change{col 28}{c |} Yes{col 37}{c |}  {col 46}{c |}  {col 55}{c |} {err:|}{col 64}{c |} Change{col 73}{c |} Change{col 82}{c |} {err:No}{col 91}{c |} run:4
+{c |} 17 {col 10}{c |}  {col 19}{c |}  {col 28}{c |} .{col 37}{c |}  {col 46}{c |}  {col 55}{c |} {err:|}{col 64}{c |}  {col 73}{c |}  {col 82}{c |} {err:|}{col 91}{c |} run:4
+{c |} 15 {col 10}{c |}  {col 19}{c |}  {col 28}{c |} .{col 37}{c |}  {col 46}{c |}  {col 55}{c |} {err:|}{col 64}{c |}  {col 73}{c |}  {col 82}{c |} {err:|}{col 91}{c |} run:5
+{c |} 16 {col 10}{c |} Change{col 19}{c |} Change{col 28}{c |} Yes{col 37}{c |}  {col 46}{c |}  {col 55}{c |} {err:|}{col 64}{c |} Change{col 73}{c |} Change{col 82}{c |} {err:No}{col 91}{c |} run:5
+{c |} 17 {col 10}{c |}  {col 19}{c |}  {col 28}{c |} .{col 37}{c |}  {col 46}{c |}  {col 55}{c |} {err:|}{col 64}{c |}  {col 73}{c |}  {col 82}{c |} {err:|}{col 91}{c |} run:5
+{c |} 20 {col 10}{c |}  {col 19}{c |}  {col 28}{c |} .{col 37}{c |}  {col 46}{c |}  {col 55}{c |} {err:|}{col 64}{c |} Change{col 73}{c |} Change{col 82}{c |} {err:No}{col 91}{c |}
+{c |} 22 {col 10}{c |}  {col 19}{c |}  {col 28}{c |} .{col 37}{c |} Change{col 46}{c |} Change{col 55}{c |} {err:No}{col 64}{c |}  {col 73}{c |}  {col 82}{c |} {err:|}{col 91}{c |}
+{c |} 24 {col 10}{c |}  {col 19}{c |}  {col 28}{c |} .{col 37}{c |} Change{col 46}{c |} Change{col 55}{c |} {err:No}{col 64}{c |}  {col 73}{c |}  {col 82}{c |} {err:|}{col 91}{c |}
+{c |} 26 {col 10}{c |}  {col 19}{c |}  {col 28}{c |} .{col 37}{c |}  {col 46}{c |}  {col 55}{c |} {err:|}{col 64}{c |}  {col 73}{c |}  {col 82}{c |} {err:|}{col 91}{c |}
+{c |} 28 {col 10}{c |}  {col 19}{c |}  {col 28}{c |} .{col 37}{c |}  {col 46}{c |}  {col 55}{c |} {err:|}{col 64}{c |} Change{col 73}{c |} Change{col 82}{c |} {err:No}{col 91}{c |}
+{c |} 29 {col 10}{c |} Change{col 19}{c |} Change{col 28}{c |} Yes{col 37}{c |}  {col 46}{c |}  {col 55}{c |} {err:|}{col 64}{c |} Change{col 73}{c |} Change{col 82}{c |} {err:No}{col 91}{c |}
+{c |} 33 {col 10}{c |}  {col 19}{c |}  {col 28}{c |} .{col 37}{c |} Change{col 46}{c |} Change{col 55}{c |} {err:No}{col 64}{c |} Change{col 73}{c |} Change{col 82}{c |} {err:No}{col 91}{c |}
 {c BLC}{hline 8}{c BT}{hline 8}{c BT}{hline 8}{c BT}{hline 8}{c BT}{hline 8}{c BT}{hline 8}{c BT}{hline 8}{c BT}{hline 8}{c BT}{hline 8}{c BT}{hline 8}{c BT}{hline 18}
  
 {pstd} Stepping into sub-file:{p_end}
@@ -130,8 +130,8 @@
 {c |}{col 10}{c |}{dup 8: }RNG-state{col 37}{c |}{dup 6: }Sort RNG-state{col 64}{c |}{dup 6: }Data signature{col 91}{c |}
 {c |} Line # {col 10}{c |} Run 1  {c |} Run 2  {c |} Match  {col 37}{c |} Run 1  {c |} Run 2  {c |} Match  {col 64}{c |} Run 1  {c |} Run 2  {c |} Match  {col 91}{c |} Loop iteration:
 {c LT}{hline 8}{c +}{hline 8}{c +}{hline 8}{c +}{hline 8}{c +}{hline 8}{c +}{hline 8}{c +}{hline 8}{c +}{hline 8}{c +}{hline 8}{c +}{hline 8}{c +}{hline 18}
-{c |} 34 {col 10}{c |} Change{col 19}{c |} Change{col 28}{c |} Yes{col 37}{c |} Change{col 46}{c |} Change{col 55}{c |} {err:No}{col 64}{c |} Change{col 73}{c |} Change{col 82}{c |} {err:No}{col 91}{c |}
-{c |} 37 {col 10}{c |}  {col 19}{c |}  {col 28}{c |} .{col 37}{c |}  {col 46}{c |}  {col 55}{c |} {err:|}{col 64}{c |}  {col 73}{c |}  {col 82}{c |} {err:|}{col 91}{c |}
+{c |} 36 {col 10}{c |} Change{col 19}{c |} Change{col 28}{c |} Yes{col 37}{c |} Change{col 46}{c |} Change{col 55}{c |} {err:No}{col 64}{c |} Change{col 73}{c |} Change{col 82}{c |} {err:No}{col 91}{c |}
+{c |} 39 {col 10}{c |}  {col 19}{c |}  {col 28}{c |} .{col 37}{c |}  {col 46}{c |}  {col 55}{c |} {err:|}{col 64}{c |}  {col 73}{c |}  {col 82}{c |} {err:|}{col 91}{c |}
 {c BLC}{hline 8}{c BT}{hline 8}{c BT}{hline 8}{c BT}{hline 8}{c BT}{hline 8}{c BT}{hline 8}{c BT}{hline 8}{c BT}{hline 8}{c BT}{hline 8}{c BT}{hline 8}{c BT}{hline 18}
  
 {phang}Done checking file:{p_end}

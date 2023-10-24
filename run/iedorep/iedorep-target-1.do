@@ -12,6 +12,11 @@ local MYFAKELOCAL = `MYFAKELOCAL' + 1
 
 global do "nothing"
 
+forv run = 1/5 {
+  gen varx`run' = rnormal()
+  if `run' == 3 set seed 847
+}
+
 expand 2 , gen(check)
 
 isid make check, sort
@@ -23,10 +28,7 @@ di as err "RUNFILE: THIS VALUE SHOULD ALWAYS BE THE NUMBER ONE: `MYFAKELOCAL'"
 gen x = _n
 gen y = rnormal()
 
-forv run = 1/5 {
-  gen varx`run' = rnormal()
-  if `run' == 3 set seed 847
-}
+
 
 duplicates drop make , force
 
