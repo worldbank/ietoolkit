@@ -4,7 +4,7 @@ cap program drop iedorep
 program define   iedorep, rclass
 
 qui {
-  syntax , dofile(string) output(string) [verbose]
+  syntax , dofile(string) output(string) [verbose] [compact]
 
   /*****************************************************************************
     Test input
@@ -17,6 +17,9 @@ qui {
     error 693
     exit
   }
+
+  * Cannot choose verbose and compact
+  if !missing(`"`verbose'"') local compact ""
 
   /*****************************************************************************
     Set up output structure
@@ -79,7 +82,7 @@ qui {
   noi write_and_print_output, h_smcl(`h_smcl') l1(" ") ///
     l2(`"{phang}Checking file:{p_end}"')
   noi print_filetree_and_verbose_title, ///
-    files(`" "`dofile'" "') h_smcl(`h_smcl') `verbose'
+    files(`" "`dofile'" "') h_smcl(`h_smcl') `verbose' `compact'
   output_writetitle , outputcolumns("`outputcolumns'")
   noi write_and_print_output, h_smcl(`h_smcl') ///
     l1("`r(topline)'") l2("`r(state_titles)'") ///
@@ -88,7 +91,7 @@ qui {
   * Start the recursive call
   noi recurse_comp_lines , dirout("`dirout'") stub("m") ///
     orgfile(`"`dofile'"') outputcolumns("`outputcolumns'") ///
-    `verbose' h_smcl(`h_smcl')
+    `verbose' `compact' h_smcl(`h_smcl')
 
   * Write line that close table
   output_writetitle , outputcolumns("`outputcolumns'")
@@ -458,7 +461,7 @@ cap program drop recurse_comp_lines
 program define   recurse_comp_lines, rclass
 qui {
   syntax, dirout(string) stub(string) orgfile(string) ///
-  outputcolumns(string) h_smcl(string) [verbose]
+  outputcolumns(string) h_smcl(string) [verbose] [compact]
 
 
   local df1 "`dirout'/run1/`stub'.txt"
@@ -530,7 +533,7 @@ qui {
           l1("`r(botline)'") l2(" ") ///
           l3(`"{pstd} Stepping into sub-file:{p_end}"')
         noi print_filetree_and_verbose_title, ///
-          files(`" `orgfile' "`new_orgfile'" "') h_smcl(`h_smcl') `verbose'
+          files(`" `orgfile' "`new_orgfile'" "') h_smcl(`h_smcl') `verbose' `compact'
         output_writetitle , outputcolumns("`outputcolumns'")
         noi write_and_print_output, h_smcl(`h_smcl') ///
           l1("`r(topline)'") l2("`r(state_titles)'") ///
@@ -539,7 +542,7 @@ qui {
         * Make the recurisive call for next file
         noi recurse_comp_lines , dirout("`dirout'") stub("`new_stub'") ///
           orgfile(`"`orgfile' "`new_orgfile'" "') ///
-          outputcolumns("`outputcolumns'") h_smcl(`h_smcl') `verbose'
+          outputcolumns("`outputcolumns'") h_smcl(`h_smcl') `verbose' `compact'
 
         * Step back into this data file after the recursive call and:
         * Write file tree, and write the titles to the continuation for
@@ -547,7 +550,7 @@ qui {
         noi write_and_print_output, h_smcl(`h_smcl') ///
           l1(`"{phang} Stepping back into file:{p_end}"')
         noi print_filetree_and_verbose_title, ///
-          files(`" "`orgfile'" "') h_smcl(`h_smcl') `verbose'
+          files(`" "`orgfile'" "') h_smcl(`h_smcl') `verbose' `compact'
         output_writetitle , outputcolumns("`outputcolumns'")
         noi write_and_print_output, h_smcl(`h_smcl') ///
             l1("`r(topline)'") l2("`r(state_titles)'") ///
@@ -572,7 +575,9 @@ qui {
         * Test if any line is "Missmatch"
         local any_mismatch = ///
         strpos("`r(rng_m)'`r(srng_m)'`r(dsig_m)'","No")
-        if (`any_mismatch' > 0) local write_outputline 1
+        if (`any_mismatch' > 0) & missing(`"`compact'"') local write_outputline 1
+        * Compact display
+        if (`any_mismatch' > 0) & (`any_change' > 0) local write_outputline 1
 
         * If line is supposed to be outputted, write line
         if (`write_outputline' == 1 ) {
@@ -785,7 +790,7 @@ end
 * Print file tree
 cap program drop print_filetree_and_verbose_title
 program define   print_filetree_and_verbose_title, rclass
-  syntax , files(string) h_smcl(string) [verbose]
+  syntax , files(string) h_smcl(string) [verbose] [compact]
   local file_count = 0
   foreach file of local files {
     noi write_and_print_output, h_smcl(`h_smcl') ///
@@ -793,11 +798,16 @@ program define   print_filetree_and_verbose_title, rclass
   }
 
   noi di ""
-  if missing("`verbose'") {
-    noi di as res "{phang}Showing only lines where any of the values do not match across run 1 and 2 for any of the values.{p_end}"
+  if missing("`verbose'") & missing("`compact'") {
+    noi di as res "{phang}Lines where Run 1 and Run 2 mismatch for any value:{p_end}"
   }
-  else {
-    noi di as res "{phang}Showing only lines where any of the values changed within a run from the previous line, {ul:or} any of the values do not match between the run 1 and 2.{p_end}"
+
+  if !missing("`verbose'") {
+    noi di as res "{phang}Lines where Run 1 and Run 2 mismatch {ul:or} change for any value:{p_end}"
+  }
+
+  if !missing("`compact'") {
+    noi di as res "{phang}Lines where Run 1 and Run 2 mismatch {ul:and} change for any value:{p_end}"
   }
 
 end
