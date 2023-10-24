@@ -23,7 +23,10 @@ di as err "RUNFILE: THIS VALUE SHOULD ALWAYS BE THE NUMBER ONE: `MYFAKELOCAL'"
 gen x = _n
 gen y = rnormal()
 
-set seed 123455
+forv run = 1/5 {
+  gen varx`run' = rnormal()
+  if `run' == 3 set seed 847
+}
 
 duplicates drop make , force
 

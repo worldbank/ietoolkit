@@ -4,7 +4,12 @@ cap program drop iedorep
 program define   iedorep, rclass
 
 qui {
-  syntax , dofile(string) output(string) [verbose] [compact]
+  syntax , dofile(string) output(string) [verbose] [compact] [noClear]
+
+  if missing(`"`clear'"') {
+    clear          // Data matches, zeroed out by default
+    set seed 12345 // Use Stata default setting when starting routine
+  }
 
   /*****************************************************************************
     Test input
@@ -577,7 +582,7 @@ qui {
               local write_outputline 1
             * Test if any line is "Missmatch"
             local any_mismatch = ///
-            strpos("`r(`matchtype'_m)'","No")
+              max(strpos("`r(`matchtype'_m)'","No"),strpos("`r(`matchtype'_m)'","|"))
             if (`any_mismatch' > 0) & missing(`"`compact'"') local write_outputline 1
             * Compact display
             if (`any_mismatch' > 0) & (`any_change' > 0) local write_outputline 1
@@ -652,8 +657,10 @@ program define   compare_data_lines, rclass
           return local `state'_c`run' "``state'_c`run''"
         }
         * Compare state between runs
-        if ("`l1_`state''" == "`l2_`state''") return local `state'_m "Yes"
-        else return local `state'_m "{err:No}"
+        if ("`l1_`state''" == "`l2_`state''") & (("``state'_c1'" == "Change") | ("``state'_c2'" == "Change")) return local `state'_m "Yes"
+        if ("`l1_`state''" == "`l2_`state''") & (("``state'_c1'" != "Change") & ("``state'_c2'" != "Change")) return local `state'_m "."
+        if ("`l1_`state''" != "`l2_`state''") & (("``state'_c1'" == "Change") | ("``state'_c2'" == "Change")) return local `state'_m "{err:No}"
+        if ("`l1_`state''" != "`l2_`state''") & (("``state'_c1'" != "Change") & ("``state'_c2'" != "Change")) return local `state'_m "{err:|}"
     }
 end
 

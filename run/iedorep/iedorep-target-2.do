@@ -17,8 +17,8 @@ sort foreign
 di as err "SAME FROM THE SUBROUTINE: `MYFAKELOCAL'"
 
 forv run = 1/5 {
-  if `run' == 3 set seed 847
   gen var`run' = rnormal()
+  if `run' == 3 set seed 847
 }
 
 foreach type in A B "C" {
