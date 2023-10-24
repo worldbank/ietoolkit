@@ -101,9 +101,9 @@ qui {
       Write smcl file to disk
 *****************************************************************************/
 
-  copy `f_smcl' "`dirout'\output.smcl" , replace
+  copy `f_smcl' "`dirout'/output.smcl" , replace
   noi di as res ""
-  noi di as res `"{phang}SMCL-file with report written to: {view "`dirout'\output.smcl"}{p_end}"'
+  noi di as res `"{phang}SMCL-file with report written to: {view "`dirout'/output.smcl"}{p_end}"'
 
 }
 
