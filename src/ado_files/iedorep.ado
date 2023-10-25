@@ -4,9 +4,12 @@ cap program drop iedorep
 program define   iedorep, rclass
 
 qui {
-  syntax anything using/ , [verbose] [compact] [noClear]
+  syntax anything [using/] , [verbose] [compact] [noClear]
   local dofile `anything'
   local output `using'
+    if `"`output'"' == `""' {
+      local output = substr(`"`dofile'"',1,strrpos(`"`dofile'"',"/"))
+    }
 
   di `"`dofile' || `output'"'
 
