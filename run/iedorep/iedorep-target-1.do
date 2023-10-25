@@ -4,6 +4,9 @@ clear
 
 sysuse auto.dta
 
+isid make, sort
+sort foreign
+
 local MYFAKELOCAL = `MYFAKELOCAL' + 1
 
 #d cr
@@ -33,7 +36,7 @@ gen y = rnormal()
 duplicates drop make , force
 
 
-do "${ietoolkit}/run/iedorep/iedorep-target-2.do"
+do "${clone}/run/iedorep/iedorep-target-2.do"
 
 
 //
