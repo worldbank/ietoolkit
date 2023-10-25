@@ -31,7 +31,7 @@ program define   iedorep_dataline
     if `run' == 1 {
       cap mkdir "`output'/dta/"
       save "`output'/dta/`data'.dta" , replace emptyok
-      local srngcheck = 0
+      local srngcheck = _rc
     }
     if `run' == 2 {
       local output = subinstr(`"`output'"',"run2","run1",.)
@@ -40,7 +40,7 @@ program define   iedorep_dataline
     }
 
     *Build data line
-    local line "l:`lnum'&rng:`rng'&srng:`srng'&dsig:`dsig'&loopt:`loopt'&srngcheck:`srngcheck'"
+    local line "l:`lnum'&rng:`rng'&srngstate:`srng'&dsig:`dsig'&loopt:`loopt'&srngcheck:`srngcheck'"
   }
 
   * Recurse line

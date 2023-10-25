@@ -4,6 +4,9 @@ clear
 
 sysuse auto.dta
 
+isid make, sort
+sort foreign
+
 local MYFAKELOCAL = `MYFAKELOCAL' + 1
 
 #d cr

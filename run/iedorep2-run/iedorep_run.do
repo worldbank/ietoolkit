@@ -22,7 +22,7 @@
 
     * Example 0 - Ben's files
     // iedorep "${clone}/run/iedorep/iedorep-target-1.do" using "${clone}/run/iedorep/" ,  compact
-    iedorep "${clone}/run/iedorep/iedorep-target-1.do"  ,  compact debug
+    iedorep "${clone}/run/iedorep/iedorep-target-1.do"  ,  verbose debug
 -
     * Example A - single file
     iedorep "${sf}/main.do" using "${sf}/output" , verbose

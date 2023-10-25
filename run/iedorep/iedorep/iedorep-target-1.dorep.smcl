@@ -1,6 +1,6 @@
  
 {hline}
-{phang}iedorep output created by user bbdaniels at 25 Oct 2023 16:09:35{p_end}
+{phang}iedorep output created by user bbdaniels at 25 Oct 2023 17:06:40{p_end}
 {phang}Operating System Mac (Apple Silicon) MacOSX 13.5.1{p_end}
 {phang}Stata SE - Version 18 running as version 18{p_end}
 {hline}
@@ -11,18 +11,37 @@
 {c |}{col 10}{c |}{dup 6: }Seed RNG State{col 37}{c |}{dup 6: }Sort Order RNG{col 64}{c |}{dup 6: }Data Signature{col 91}{c |}
 {c |} Line # {col 10}{c |} Run 1  {c |} Run 2  {c |} Match  {col 37}{c |} Run 1  {c |} Run 2  {c |} Match  {col 64}{c |} Run 1  {c |} Run 2  {c |} Match  {col 91}{c |} Loop iteration:
 {c LT}{hline 8}{c +}{hline 8}{c +}{hline 8}{c +}{hline 8}{c +}{hline 8}{c +}{hline 8}{c +}{hline 8}{c +}{hline 8}{c +}{hline 8}{c +}{hline 8}{c +}{hline 18}
-{c |} 1 {col 10}{c |} {err:Change}{col 19}  {err:{c -}{c -}{c -}{c -}{c -}>}{col 28}  {err:NO}{col 37}{c |} {err:Change}{col 46}  {err:{c -}{c -}{c -}{c -}{c -}>}{col 55}  {err:NO}{col 64}{c |} Change{col 73}  {c -}{c -}{c -}{c -}{c -}>{col 82}     OK!{col 91}{c |}
-{c |} 16 {col 10}{c |} {err:Change}{col 19}  {err:{c -}{c -}{c -}{c -}{c -}>}{col 28}  {err:NO}{col 37}{c |}  {col 46}   {col 55}  {err:|}{col 64}{c |} {err:Change}{col 73}  {err:{c -}{c -}{c -}{c -}{c -}>}{col 82}  {err:NO}{col 91}{c |} run:1
-{c |} 16 {col 10}{c |} {err:Change}{col 19}  {err:{c -}{c -}{c -}{c -}{c -}>}{col 28}  {err:NO}{col 37}{c |}  {col 46}   {col 55}  {err:|}{col 64}{c |} {err:Change}{col 73}  {err:{c -}{c -}{c -}{c -}{c -}>}{col 82}  {err:NO}{col 91}{c |} run:2
-{c |} 16 {col 10}{c |} {err:Change}{col 19}  {err:{c -}{c -}{c -}{c -}{c -}>}{col 28}  {err:NO}{col 37}{c |}  {col 46}   {col 55}  {err:|}{col 64}{c |} {err:Change}{col 73}  {err:{c -}{c -}{c -}{c -}{c -}>}{col 82}  {err:NO}{col 91}{c |} run:3
-{c |} 16 {col 10}{c |} Change{col 19}  {c -}{c -}{c -}{c -}{c -}>{col 28}     OK!{col 37}{c |}  {col 46}   {col 55}  {err:|}{col 64}{c |} {err:Change}{col 73}  {err:{c -}{c -}{c -}{c -}{c -}>}{col 82}  {err:NO}{col 91}{c |} run:4
-{c |} 16 {col 10}{c |} Change{col 19}  {c -}{c -}{c -}{c -}{c -}>{col 28}     OK!{col 37}{c |}  {col 46}   {col 55}  {err:|}{col 64}{c |} {err:Change}{col 73}  {err:{c -}{c -}{c -}{c -}{c -}>}{col 82}  {err:NO}{col 91}{c |} run:5
-{c |} 20 {col 10}{c |}  {col 19}   {col 28}        {col 37}{c |}  {col 46}   {col 55}  {err:|}{col 64}{c |} {err:Change}{col 73}  {err:{c -}{c -}{c -}{c -}{c -}>}{col 82}  {err:NO}{col 91}{c |}
-{c |} 22 {col 10}{c |}  {col 19}   {col 28}        {col 37}{c |} {err:Change}{col 46}  {err:{c -}{c -}{c -}{c -}{c -}>}{col 55}  {err:NO}{col 64}{c |}  {col 73}   {col 82}  {err:|}{col 91}{c |}
-{c |} 24 {col 10}{c |}  {col 19}   {col 28}        {col 37}{c |} {err:Change}{col 46}  {err:{c -}{c -}{c -}{c -}{c -}>}{col 55}  {err:NO}{col 64}{c |}  {col 73}   {col 82}  {err:|}{col 91}{c |}
-{c |} 28 {col 10}{c |}  {col 19}   {col 28}        {col 37}{c |}  {col 46}   {col 55}  {err:|}{col 64}{c |} {err:Change}{col 73}  {err:{c -}{c -}{c -}{c -}{c -}>}{col 82}  {err:NO}{col 91}{c |}
-{c |} 29 {col 10}{c |} Change{col 19}  {c -}{c -}{c -}{c -}{c -}>{col 28}     OK!{col 37}{c |}  {col 46}   {col 55}  {err:|}{col 64}{c |} {err:Change}{col 73}  {err:{c -}{c -}{c -}{c -}{c -}>}{col 82}  {err:NO}{col 91}{c |}
-{c |} 33 {col 10}{c |}  {col 19}   {col 28}        {col 37}{c |} {err:Change}{col 46}  {err:{c -}{c -}{c -}{c -}{c -}>}{col 55}  {err:NO}{col 64}{c |} {err:Change}{col 73}  {err:{c -}{c -}{c -}{c -}{c -}>}{col 82}  {err:NO}{col 91}{c |}
+{c |} 1 {col 10}{c |} {err:Change}{col 19}  {err:{c -}{c -}{c -}{c -}{c -}>}{col 28}  {err:NO}{col 37}{c |} Change{col 46}  {c -}{c -}{c -}{c -}{c -}>{col 55}     OK!{col 64}{c |} Change{col 73}  {c -}{c -}{c -}{c -}{c -}>{col 82}     OK!{col 91}{c |}
+{c |} 3 {col 10}{c |}  {col 19}   {col 28}  {err:|}{col 37}{c |} Change{col 46}  {c -}{c -}{c -}{c -}{c -}>{col 55}     OK!{col 64}{c |}  {col 73}   {col 82}        {col 91}{c |}
+{c |} 5 {col 10}{c |}  {col 19}   {col 28}  {err:|}{col 37}{c |} Change{col 46}  {c -}{c -}{c -}{c -}{c -}>{col 55}     OK!{col 64}{c |} Change{col 73}  {c -}{c -}{c -}{c -}{c -}>{col 82}     OK!{col 91}{c |}
+{c |} 7 {col 10}{c |}  {col 19}   {col 28}  {err:|}{col 37}{c |} Change{col 46}  {c -}{c -}{c -}{c -}{c -}>{col 55}     OK!{col 64}{c |}  {col 73}   {col 82}        {col 91}{c |}
+{c |} 8 {col 10}{c |}  {col 19}   {col 28}  {err:|}{col 37}{c |} {err:Change}{col 46}  {err:{c -}{c -}{c -}{c -}{c -}>}{col 55}  {err:NO}{col 64}{c |}  {col 73}   {col 82}        {col 91}{c |}
+{c |} 10 {col 10}{c |}  {col 19}   {col 28}  {err:|}{col 37}{c |} Change{col 46}  {c -}{c -}{c -}{c -}{c -}>{col 55}     OK!{col 64}{c |}  {col 73}   {col 82}        {col 91}{c |}
+{c |} 12 {col 10}{c |}  {col 19}   {col 28}  {err:|}{col 37}{c |} Change{col 46}  {c -}{c -}{c -}{c -}{c -}>{col 55}     OK!{col 64}{c |}  {col 73}   {col 82}        {col 91}{c |}
+{c |} 14 {col 10}{c |}  {col 19}   {col 28}  {err:|}{col 37}{c |} Change{col 46}  {c -}{c -}{c -}{c -}{c -}>{col 55}     OK!{col 64}{c |}  {col 73}   {col 82}        {col 91}{c |}
+{c |} 16 {col 10}{c |}  {col 19}   {col 28}  {err:|}{col 37}{c |} Change{col 46}  {c -}{c -}{c -}{c -}{c -}>{col 55}     OK!{col 64}{c |}  {col 73}   {col 82}        {col 91}{c |}
+{c |} 18 {col 10}{c |}  {col 19}   {col 28}  {err:|}{col 37}{c |} Change{col 46}  {c -}{c -}{c -}{c -}{c -}>{col 55}     OK!{col 64}{c |}  {col 73}   {col 82}        {col 91}{c |} run:1
+{c |} 19 {col 10}{c |} {err:Change}{col 19}  {err:{c -}{c -}{c -}{c -}{c -}>}{col 28}  {err:NO}{col 37}{c |} Change{col 46}  {c -}{c -}{c -}{c -}{c -}>{col 55}     OK!{col 64}{c |} {err:Change}{col 73}  {err:{c -}{c -}{c -}{c -}{c -}>}{col 82}  {err:NO}{col 91}{c |} run:1
+{c |} 20 {col 10}{c |}  {col 19}   {col 28}  {err:|}{col 37}{c |} Change{col 46}  {c -}{c -}{c -}{c -}{c -}>{col 55}     OK!{col 64}{c |}  {col 73}   {col 82}  {err:|}{col 91}{c |} run:1
+{c |} 18 {col 10}{c |}  {col 19}   {col 28}  {err:|}{col 37}{c |} Change{col 46}  {c -}{c -}{c -}{c -}{c -}>{col 55}     OK!{col 64}{c |}  {col 73}   {col 82}  {err:|}{col 91}{c |} run:2
+{c |} 19 {col 10}{c |} {err:Change}{col 19}  {err:{c -}{c -}{c -}{c -}{c -}>}{col 28}  {err:NO}{col 37}{c |} Change{col 46}  {c -}{c -}{c -}{c -}{c -}>{col 55}     OK!{col 64}{c |} {err:Change}{col 73}  {err:{c -}{c -}{c -}{c -}{c -}>}{col 82}  {err:NO}{col 91}{c |} run:2
+{c |} 20 {col 10}{c |}  {col 19}   {col 28}  {err:|}{col 37}{c |} Change{col 46}  {c -}{c -}{c -}{c -}{c -}>{col 55}     OK!{col 64}{c |}  {col 73}   {col 82}  {err:|}{col 91}{c |} run:2
+{c |} 18 {col 10}{c |}  {col 19}   {col 28}  {err:|}{col 37}{c |} Change{col 46}  {c -}{c -}{c -}{c -}{c -}>{col 55}     OK!{col 64}{c |}  {col 73}   {col 82}  {err:|}{col 91}{c |} run:3
+{c |} 19 {col 10}{c |} {err:Change}{col 19}  {err:{c -}{c -}{c -}{c -}{c -}>}{col 28}  {err:NO}{col 37}{c |} Change{col 46}  {c -}{c -}{c -}{c -}{c -}>{col 55}     OK!{col 64}{c |} {err:Change}{col 73}  {err:{c -}{c -}{c -}{c -}{c -}>}{col 82}  {err:NO}{col 91}{c |} run:3
+{c |} 20 {col 10}{c |} Change{col 19}  {c -}{c -}{c -}{c -}{c -}>{col 28}     OK!{col 37}{c |} Change{col 46}  {c -}{c -}{c -}{c -}{c -}>{col 55}     OK!{col 64}{c |}  {col 73}   {col 82}  {err:|}{col 91}{c |} run:3
+{c |} 18 {col 10}{c |}  {col 19}   {col 28}        {col 37}{c |} Change{col 46}  {c -}{c -}{c -}{c -}{c -}>{col 55}     OK!{col 64}{c |}  {col 73}   {col 82}  {err:|}{col 91}{c |} run:4
+{c |} 19 {col 10}{c |} Change{col 19}  {c -}{c -}{c -}{c -}{c -}>{col 28}     OK!{col 37}{c |} Change{col 46}  {c -}{c -}{c -}{c -}{c -}>{col 55}     OK!{col 64}{c |} {err:Change}{col 73}  {err:{c -}{c -}{c -}{c -}{c -}>}{col 82}  {err:NO}{col 91}{c |} run:4
+{c |} 20 {col 10}{c |}  {col 19}   {col 28}        {col 37}{c |} Change{col 46}  {c -}{c -}{c -}{c -}{c -}>{col 55}     OK!{col 64}{c |}  {col 73}   {col 82}  {err:|}{col 91}{c |} run:4
+{c |} 18 {col 10}{c |}  {col 19}   {col 28}        {col 37}{c |} Change{col 46}  {c -}{c -}{c -}{c -}{c -}>{col 55}     OK!{col 64}{c |}  {col 73}   {col 82}  {err:|}{col 91}{c |} run:5
+{c |} 19 {col 10}{c |} Change{col 19}  {c -}{c -}{c -}{c -}{c -}>{col 28}     OK!{col 37}{c |} Change{col 46}  {c -}{c -}{c -}{c -}{c -}>{col 55}     OK!{col 64}{c |} {err:Change}{col 73}  {err:{c -}{c -}{c -}{c -}{c -}>}{col 82}  {err:NO}{col 91}{c |} run:5
+{c |} 20 {col 10}{c |}  {col 19}   {col 28}        {col 37}{c |} Change{col 46}  {c -}{c -}{c -}{c -}{c -}>{col 55}     OK!{col 64}{c |}  {col 73}   {col 82}  {err:|}{col 91}{c |} run:5
+{c |} 23 {col 10}{c |}  {col 19}   {col 28}        {col 37}{c |} Change{col 46}  {c -}{c -}{c -}{c -}{c -}>{col 55}     OK!{col 64}{c |} {err:Change}{col 73}  {err:{c -}{c -}{c -}{c -}{c -}>}{col 82}  {err:NO}{col 91}{c |}
+{c |} 25 {col 10}{c |}  {col 19}   {col 28}        {col 37}{c |} {err:Change}{col 46}  {err:{c -}{c -}{c -}{c -}{c -}>}{col 55}  {err:NO}{col 64}{c |}  {col 73}   {col 82}  {err:|}{col 91}{c |}
+{c |} 27 {col 10}{c |}  {col 19}   {col 28}        {col 37}{c |} {err:Change}{col 46}  {err:{c -}{c -}{c -}{c -}{c -}>}{col 55}  {err:NO}{col 64}{c |}  {col 73}   {col 82}  {err:|}{col 91}{c |}
+{c |} 29 {col 10}{c |}  {col 19}   {col 28}        {col 37}{c |} Change{col 46}  {c -}{c -}{c -}{c -}{c -}>{col 55}     OK!{col 64}{c |}  {col 73}   {col 82}  {err:|}{col 91}{c |}
+{c |} 31 {col 10}{c |}  {col 19}   {col 28}        {col 37}{c |} Change{col 46}  {c -}{c -}{c -}{c -}{c -}>{col 55}     OK!{col 64}{c |} {err:Change}{col 73}  {err:{c -}{c -}{c -}{c -}{c -}>}{col 82}  {err:NO}{col 91}{c |}
+{c |} 32 {col 10}{c |} Change{col 19}  {c -}{c -}{c -}{c -}{c -}>{col 28}     OK!{col 37}{c |} Change{col 46}  {c -}{c -}{c -}{c -}{c -}>{col 55}     OK!{col 64}{c |} {err:Change}{col 73}  {err:{c -}{c -}{c -}{c -}{c -}>}{col 82}  {err:NO}{col 91}{c |}
+{c |} 36 {col 10}{c |}  {col 19}   {col 28}        {col 37}{c |} {err:Change}{col 46}  {err:{c -}{c -}{c -}{c -}{c -}>}{col 55}  {err:NO}{col 64}{c |} {err:Change}{col 73}  {err:{c -}{c -}{c -}{c -}{c -}>}{col 82}  {err:NO}{col 91}{c |}
 {c BLC}{hline 8}{c BT}{hline 8}{c BT}{hline 8}{c BT}{hline 8}{c BT}{hline 8}{c BT}{hline 8}{c BT}{hline 8}{c BT}{hline 8}{c BT}{hline 8}{c BT}{hline 8}{c BT}{hline 18}
  
 {pstd} Stepping into sub-file:{p_end}
@@ -33,8 +52,67 @@
 {c |} Line # {col 10}{c |} Run 1  {c |} Run 2  {c |} Match  {col 37}{c |} Run 1  {c |} Run 2  {c |} Match  {col 64}{c |} Run 1  {c |} Run 2  {c |} Match  {col 91}{c |} Loop iteration:
 {c LT}{hline 8}{c +}{hline 8}{c +}{hline 8}{c +}{hline 8}{c +}{hline 8}{c +}{hline 8}{c +}{hline 8}{c +}{hline 8}{c +}{hline 8}{c +}{hline 8}{c +}{hline 18}
 {c |} 1 {col 10}{c |} Change{col 19}  {c -}{c -}{c -}{c -}{c -}>{col 28}     OK!{col 37}{c |} {err:Change}{col 46}  {err:{c -}{c -}{c -}{c -}{c -}>}{col 55}  {err:NO}{col 64}{c |} {err:Change}{col 73}  {err:{c -}{c -}{c -}{c -}{c -}>}{col 82}  {err:NO}{col 91}{c |}
-{c |} 13 {col 10}{c |}  {col 19}   {col 28}        {col 37}{c |} {err:Change}{col 46}  {err:{c -}{c -}{c -}{c -}{c -}>}{col 55}  {err:NO}{col 64}{c |}  {col 73}   {col 82}        {col 91}{c |}
+{c |} 3 {col 10}{c |}  {col 19}   {col 28}        {col 37}{c |} Change{col 46}  {c -}{c -}{c -}{c -}{c -}>{col 55}     OK!{col 64}{c |} Change{col 73}  {c -}{c -}{c -}{c -}{c -}>{col 82}     OK!{col 91}{c |}
+{c |} 5 {col 10}{c |}  {col 19}   {col 28}        {col 37}{c |} Change{col 46}  {c -}{c -}{c -}{c -}{c -}>{col 55}     OK!{col 64}{c |} Change{col 73}  {c -}{c -}{c -}{c -}{c -}>{col 82}     OK!{col 91}{c |}
+{c |} 7 {col 10}{c |}  {col 19}   {col 28}        {col 37}{c |} Change{col 46}  {c -}{c -}{c -}{c -}{c -}>{col 55}     OK!{col 64}{c |}  {col 73}   {col 82}        {col 91}{c |}
+{c |} 9 {col 10}{c |}  {col 19}   {col 28}        {col 37}{c |} Change{col 46}  {c -}{c -}{c -}{c -}{c -}>{col 55}     OK!{col 64}{c |}  {col 73}   {col 82}        {col 91}{c |}
+{c |} 11 {col 10}{c |}  {col 19}   {col 28}        {col 37}{c |} Change{col 46}  {c -}{c -}{c -}{c -}{c -}>{col 55}     OK!{col 64}{c |} Change{col 73}  {c -}{c -}{c -}{c -}{c -}>{col 82}     OK!{col 91}{c |}
+{c |} 13 {col 10}{c |}  {col 19}   {col 28}        {col 37}{c |} Change{col 46}  {c -}{c -}{c -}{c -}{c -}>{col 55}     OK!{col 64}{c |}  {col 73}   {col 82}        {col 91}{c |}
 {c |} 15 {col 10}{c |}  {col 19}   {col 28}        {col 37}{c |} {err:Change}{col 46}  {err:{c -}{c -}{c -}{c -}{c -}>}{col 55}  {err:NO}{col 64}{c |}  {col 73}   {col 82}        {col 91}{c |}
+{c |} 17 {col 10}{c |}  {col 19}   {col 28}        {col 37}{c |} Change{col 46}  {c -}{c -}{c -}{c -}{c -}>{col 55}     OK!{col 64}{c |}  {col 73}   {col 82}        {col 91}{c |}
+{c |} 19 {col 10}{c |}  {col 19}   {col 28}        {col 37}{c |} Change{col 46}  {c -}{c -}{c -}{c -}{c -}>{col 55}     OK!{col 64}{c |}  {col 73}   {col 82}        {col 91}{c |} run:1
+{c |} 20 {col 10}{c |}  {col 19}   {col 28}        {col 37}{c |} Change{col 46}  {c -}{c -}{c -}{c -}{c -}>{col 55}     OK!{col 64}{c |}  {col 73}   {col 82}        {col 91}{c |} run:1 type:A
+{c |} 21 {col 10}{c |} Change{col 19}  {c -}{c -}{c -}{c -}{c -}>{col 28}     OK!{col 37}{c |} Change{col 46}  {c -}{c -}{c -}{c -}{c -}>{col 55}     OK!{col 64}{c |}  {col 73}   {col 82}        {col 91}{c |} run:1 type:A
+{c |} 22 {col 10}{c |} Change{col 19}  {c -}{c -}{c -}{c -}{c -}>{col 28}     OK!{col 37}{c |} Change{col 46}  {c -}{c -}{c -}{c -}{c -}>{col 55}     OK!{col 64}{c |} Change{col 73}  {c -}{c -}{c -}{c -}{c -}>{col 82}     OK!{col 91}{c |} run:1 type:A
+{c |} 20 {col 10}{c |}  {col 19}   {col 28}        {col 37}{c |} Change{col 46}  {c -}{c -}{c -}{c -}{c -}>{col 55}     OK!{col 64}{c |}  {col 73}   {col 82}        {col 91}{c |} run:1 type:B
+{c |} 21 {col 10}{c |}  {col 19}   {col 28}        {col 37}{c |} Change{col 46}  {c -}{c -}{c -}{c -}{c -}>{col 55}     OK!{col 64}{c |}  {col 73}   {col 82}        {col 91}{c |} run:1 type:B
+{c |} 22 {col 10}{c |} Change{col 19}  {c -}{c -}{c -}{c -}{c -}>{col 28}     OK!{col 37}{c |} Change{col 46}  {c -}{c -}{c -}{c -}{c -}>{col 55}     OK!{col 64}{c |} Change{col 73}  {c -}{c -}{c -}{c -}{c -}>{col 82}     OK!{col 91}{c |} run:1 type:B
+{c |} 20 {col 10}{c |}  {col 19}   {col 28}        {col 37}{c |} Change{col 46}  {c -}{c -}{c -}{c -}{c -}>{col 55}     OK!{col 64}{c |}  {col 73}   {col 82}        {col 91}{c |} run:1 type:C
+{c |} 21 {col 10}{c |}  {col 19}   {col 28}        {col 37}{c |} Change{col 46}  {c -}{c -}{c -}{c -}{c -}>{col 55}     OK!{col 64}{c |}  {col 73}   {col 82}        {col 91}{c |} run:1 type:C
+{c |} 22 {col 10}{c |} Change{col 19}  {c -}{c -}{c -}{c -}{c -}>{col 28}     OK!{col 37}{c |} Change{col 46}  {c -}{c -}{c -}{c -}{c -}>{col 55}     OK!{col 64}{c |} Change{col 73}  {c -}{c -}{c -}{c -}{c -}>{col 82}     OK!{col 91}{c |} run:1 type:C
+{c |} 19 {col 10}{c |}  {col 19}   {col 28}        {col 37}{c |} Change{col 46}  {c -}{c -}{c -}{c -}{c -}>{col 55}     OK!{col 64}{c |}  {col 73}   {col 82}        {col 91}{c |} run:2
+{c |} 20 {col 10}{c |}  {col 19}   {col 28}        {col 37}{c |} Change{col 46}  {c -}{c -}{c -}{c -}{c -}>{col 55}     OK!{col 64}{c |}  {col 73}   {col 82}        {col 91}{c |} run:2 type:A
+{c |} 21 {col 10}{c |} Change{col 19}  {c -}{c -}{c -}{c -}{c -}>{col 28}     OK!{col 37}{c |} Change{col 46}  {c -}{c -}{c -}{c -}{c -}>{col 55}     OK!{col 64}{c |}  {col 73}   {col 82}        {col 91}{c |} run:2 type:A
+{c |} 22 {col 10}{c |} Change{col 19}  {c -}{c -}{c -}{c -}{c -}>{col 28}     OK!{col 37}{c |} Change{col 46}  {c -}{c -}{c -}{c -}{c -}>{col 55}     OK!{col 64}{c |} Change{col 73}  {c -}{c -}{c -}{c -}{c -}>{col 82}     OK!{col 91}{c |} run:2 type:A
+{c |} 20 {col 10}{c |}  {col 19}   {col 28}        {col 37}{c |} Change{col 46}  {c -}{c -}{c -}{c -}{c -}>{col 55}     OK!{col 64}{c |}  {col 73}   {col 82}        {col 91}{c |} run:2 type:B
+{c |} 21 {col 10}{c |}  {col 19}   {col 28}        {col 37}{c |} Change{col 46}  {c -}{c -}{c -}{c -}{c -}>{col 55}     OK!{col 64}{c |}  {col 73}   {col 82}        {col 91}{c |} run:2 type:B
+{c |} 22 {col 10}{c |} Change{col 19}  {c -}{c -}{c -}{c -}{c -}>{col 28}     OK!{col 37}{c |} Change{col 46}  {c -}{c -}{c -}{c -}{c -}>{col 55}     OK!{col 64}{c |} Change{col 73}  {c -}{c -}{c -}{c -}{c -}>{col 82}     OK!{col 91}{c |} run:2 type:B
+{c |} 20 {col 10}{c |}  {col 19}   {col 28}        {col 37}{c |} Change{col 46}  {c -}{c -}{c -}{c -}{c -}>{col 55}     OK!{col 64}{c |}  {col 73}   {col 82}        {col 91}{c |} run:2 type:C
+{c |} 21 {col 10}{c |}  {col 19}   {col 28}        {col 37}{c |} Change{col 46}  {c -}{c -}{c -}{c -}{c -}>{col 55}     OK!{col 64}{c |}  {col 73}   {col 82}        {col 91}{c |} run:2 type:C
+{c |} 22 {col 10}{c |} Change{col 19}  {c -}{c -}{c -}{c -}{c -}>{col 28}     OK!{col 37}{c |} Change{col 46}  {c -}{c -}{c -}{c -}{c -}>{col 55}     OK!{col 64}{c |} Change{col 73}  {c -}{c -}{c -}{c -}{c -}>{col 82}     OK!{col 91}{c |} run:2 type:C
+{c |} 19 {col 10}{c |}  {col 19}   {col 28}        {col 37}{c |} Change{col 46}  {c -}{c -}{c -}{c -}{c -}>{col 55}     OK!{col 64}{c |}  {col 73}   {col 82}        {col 91}{c |} run:3
+{c |} 20 {col 10}{c |}  {col 19}   {col 28}        {col 37}{c |} Change{col 46}  {c -}{c -}{c -}{c -}{c -}>{col 55}     OK!{col 64}{c |}  {col 73}   {col 82}        {col 91}{c |} run:3 type:A
+{c |} 21 {col 10}{c |} Change{col 19}  {c -}{c -}{c -}{c -}{c -}>{col 28}     OK!{col 37}{c |} Change{col 46}  {c -}{c -}{c -}{c -}{c -}>{col 55}     OK!{col 64}{c |}  {col 73}   {col 82}        {col 91}{c |} run:3 type:A
+{c |} 22 {col 10}{c |} Change{col 19}  {c -}{c -}{c -}{c -}{c -}>{col 28}     OK!{col 37}{c |} Change{col 46}  {c -}{c -}{c -}{c -}{c -}>{col 55}     OK!{col 64}{c |} Change{col 73}  {c -}{c -}{c -}{c -}{c -}>{col 82}     OK!{col 91}{c |} run:3 type:A
+{c |} 20 {col 10}{c |}  {col 19}   {col 28}        {col 37}{c |} Change{col 46}  {c -}{c -}{c -}{c -}{c -}>{col 55}     OK!{col 64}{c |}  {col 73}   {col 82}        {col 91}{c |} run:3 type:B
+{c |} 21 {col 10}{c |}  {col 19}   {col 28}        {col 37}{c |} Change{col 46}  {c -}{c -}{c -}{c -}{c -}>{col 55}     OK!{col 64}{c |}  {col 73}   {col 82}        {col 91}{c |} run:3 type:B
+{c |} 22 {col 10}{c |} Change{col 19}  {c -}{c -}{c -}{c -}{c -}>{col 28}     OK!{col 37}{c |} Change{col 46}  {c -}{c -}{c -}{c -}{c -}>{col 55}     OK!{col 64}{c |} Change{col 73}  {c -}{c -}{c -}{c -}{c -}>{col 82}     OK!{col 91}{c |} run:3 type:B
+{c |} 20 {col 10}{c |}  {col 19}   {col 28}        {col 37}{c |} Change{col 46}  {c -}{c -}{c -}{c -}{c -}>{col 55}     OK!{col 64}{c |}  {col 73}   {col 82}        {col 91}{c |} run:3 type:C
+{c |} 21 {col 10}{c |}  {col 19}   {col 28}        {col 37}{c |} Change{col 46}  {c -}{c -}{c -}{c -}{c -}>{col 55}     OK!{col 64}{c |}  {col 73}   {col 82}        {col 91}{c |} run:3 type:C
+{c |} 22 {col 10}{c |} Change{col 19}  {c -}{c -}{c -}{c -}{c -}>{col 28}     OK!{col 37}{c |} Change{col 46}  {c -}{c -}{c -}{c -}{c -}>{col 55}     OK!{col 64}{c |} Change{col 73}  {c -}{c -}{c -}{c -}{c -}>{col 82}     OK!{col 91}{c |} run:3 type:C
+{c |} 19 {col 10}{c |}  {col 19}   {col 28}        {col 37}{c |} Change{col 46}  {c -}{c -}{c -}{c -}{c -}>{col 55}     OK!{col 64}{c |}  {col 73}   {col 82}        {col 91}{c |} run:4
+{c |} 20 {col 10}{c |}  {col 19}   {col 28}        {col 37}{c |} Change{col 46}  {c -}{c -}{c -}{c -}{c -}>{col 55}     OK!{col 64}{c |}  {col 73}   {col 82}        {col 91}{c |} run:4 type:A
+{c |} 21 {col 10}{c |} Change{col 19}  {c -}{c -}{c -}{c -}{c -}>{col 28}     OK!{col 37}{c |} Change{col 46}  {c -}{c -}{c -}{c -}{c -}>{col 55}     OK!{col 64}{c |}  {col 73}   {col 82}        {col 91}{c |} run:4 type:A
+{c |} 22 {col 10}{c |} Change{col 19}  {c -}{c -}{c -}{c -}{c -}>{col 28}     OK!{col 37}{c |} Change{col 46}  {c -}{c -}{c -}{c -}{c -}>{col 55}     OK!{col 64}{c |} Change{col 73}  {c -}{c -}{c -}{c -}{c -}>{col 82}     OK!{col 91}{c |} run:4 type:A
+{c |} 20 {col 10}{c |}  {col 19}   {col 28}        {col 37}{c |} Change{col 46}  {c -}{c -}{c -}{c -}{c -}>{col 55}     OK!{col 64}{c |}  {col 73}   {col 82}        {col 91}{c |} run:4 type:B
+{c |} 21 {col 10}{c |}  {col 19}   {col 28}        {col 37}{c |} Change{col 46}  {c -}{c -}{c -}{c -}{c -}>{col 55}     OK!{col 64}{c |}  {col 73}   {col 82}        {col 91}{c |} run:4 type:B
+{c |} 22 {col 10}{c |} Change{col 19}  {c -}{c -}{c -}{c -}{c -}>{col 28}     OK!{col 37}{c |} Change{col 46}  {c -}{c -}{c -}{c -}{c -}>{col 55}     OK!{col 64}{c |} Change{col 73}  {c -}{c -}{c -}{c -}{c -}>{col 82}     OK!{col 91}{c |} run:4 type:B
+{c |} 20 {col 10}{c |}  {col 19}   {col 28}        {col 37}{c |} Change{col 46}  {c -}{c -}{c -}{c -}{c -}>{col 55}     OK!{col 64}{c |}  {col 73}   {col 82}        {col 91}{c |} run:4 type:C
+{c |} 21 {col 10}{c |}  {col 19}   {col 28}        {col 37}{c |} Change{col 46}  {c -}{c -}{c -}{c -}{c -}>{col 55}     OK!{col 64}{c |}  {col 73}   {col 82}        {col 91}{c |} run:4 type:C
+{c |} 22 {col 10}{c |} Change{col 19}  {c -}{c -}{c -}{c -}{c -}>{col 28}     OK!{col 37}{c |} Change{col 46}  {c -}{c -}{c -}{c -}{c -}>{col 55}     OK!{col 64}{c |} Change{col 73}  {c -}{c -}{c -}{c -}{c -}>{col 82}     OK!{col 91}{c |} run:4 type:C
+{c |} 19 {col 10}{c |}  {col 19}   {col 28}        {col 37}{c |} Change{col 46}  {c -}{c -}{c -}{c -}{c -}>{col 55}     OK!{col 64}{c |}  {col 73}   {col 82}        {col 91}{c |} run:5
+{c |} 20 {col 10}{c |}  {col 19}   {col 28}        {col 37}{c |} Change{col 46}  {c -}{c -}{c -}{c -}{c -}>{col 55}     OK!{col 64}{c |}  {col 73}   {col 82}        {col 91}{c |} run:5 type:A
+{c |} 21 {col 10}{c |} Change{col 19}  {c -}{c -}{c -}{c -}{c -}>{col 28}     OK!{col 37}{c |} Change{col 46}  {c -}{c -}{c -}{c -}{c -}>{col 55}     OK!{col 64}{c |}  {col 73}   {col 82}        {col 91}{c |} run:5 type:A
+{c |} 22 {col 10}{c |} Change{col 19}  {c -}{c -}{c -}{c -}{c -}>{col 28}     OK!{col 37}{c |} Change{col 46}  {c -}{c -}{c -}{c -}{c -}>{col 55}     OK!{col 64}{c |} Change{col 73}  {c -}{c -}{c -}{c -}{c -}>{col 82}     OK!{col 91}{c |} run:5 type:A
+{c |} 20 {col 10}{c |}  {col 19}   {col 28}        {col 37}{c |} Change{col 46}  {c -}{c -}{c -}{c -}{c -}>{col 55}     OK!{col 64}{c |}  {col 73}   {col 82}        {col 91}{c |} run:5 type:B
+{c |} 21 {col 10}{c |}  {col 19}   {col 28}        {col 37}{c |} Change{col 46}  {c -}{c -}{c -}{c -}{c -}>{col 55}     OK!{col 64}{c |}  {col 73}   {col 82}        {col 91}{c |} run:5 type:B
+{c |} 22 {col 10}{c |} Change{col 19}  {c -}{c -}{c -}{c -}{c -}>{col 28}     OK!{col 37}{c |} Change{col 46}  {c -}{c -}{c -}{c -}{c -}>{col 55}     OK!{col 64}{c |} Change{col 73}  {c -}{c -}{c -}{c -}{c -}>{col 82}     OK!{col 91}{c |} run:5 type:B
+{c |} 20 {col 10}{c |}  {col 19}   {col 28}        {col 37}{c |} Change{col 46}  {c -}{c -}{c -}{c -}{c -}>{col 55}     OK!{col 64}{c |}  {col 73}   {col 82}        {col 91}{c |} run:5 type:C
+{c |} 21 {col 10}{c |}  {col 19}   {col 28}        {col 37}{c |} Change{col 46}  {c -}{c -}{c -}{c -}{c -}>{col 55}     OK!{col 64}{c |}  {col 73}   {col 82}        {col 91}{c |} run:5 type:C
+{c |} 22 {col 10}{c |} Change{col 19}  {c -}{c -}{c -}{c -}{c -}>{col 28}     OK!{col 37}{c |} Change{col 46}  {c -}{c -}{c -}{c -}{c -}>{col 55}     OK!{col 64}{c |} Change{col 73}  {c -}{c -}{c -}{c -}{c -}>{col 82}     OK!{col 91}{c |} run:5 type:C
+{c |} 26 {col 10}{c |}  {col 19}   {col 28}        {col 37}{c |} Change{col 46}  {c -}{c -}{c -}{c -}{c -}>{col 55}     OK!{col 64}{c |} Change{col 73}  {c -}{c -}{c -}{c -}{c -}>{col 82}     OK!{col 91}{c |}
+{c |} 27 {col 10}{c |} Change{col 19}  {c -}{c -}{c -}{c -}{c -}>{col 28}     OK!{col 37}{c |} Change{col 46}  {c -}{c -}{c -}{c -}{c -}>{col 55}     OK!{col 64}{c |} Change{col 73}  {c -}{c -}{c -}{c -}{c -}>{col 82}     OK!{col 91}{c |}
+{c |} 29 {col 10}{c |} Change{col 19}  {c -}{c -}{c -}{c -}{c -}>{col 28}     OK!{col 37}{c |} Change{col 46}  {c -}{c -}{c -}{c -}{c -}>{col 55}     OK!{col 64}{c |}  {col 73}   {col 82}        {col 91}{c |}
 {c |} 31 {col 10}{c |}  {col 19}   {col 28}        {col 37}{c |} {err:Change}{col 46}  {err:{c -}{c -}{c -}{c -}{c -}>}{col 55}  {err:NO}{col 64}{c |} {err:Change}{col 73}  {err:{c -}{c -}{c -}{c -}{c -}>}{col 82}  {err:NO}{col 91}{c |}
 {c BLC}{hline 8}{c BT}{hline 8}{c BT}{hline 8}{c BT}{hline 8}{c BT}{hline 8}{c BT}{hline 8}{c BT}{hline 8}{c BT}{hline 8}{c BT}{hline 8}{c BT}{hline 8}{c BT}{hline 18}
  
@@ -47,9 +125,19 @@
 {c |} Line # {col 10}{c |} Run 1  {c |} Run 2  {c |} Match  {col 37}{c |} Run 1  {c |} Run 2  {c |} Match  {col 64}{c |} Run 1  {c |} Run 2  {c |} Match  {col 91}{c |} Loop iteration:
 {c LT}{hline 8}{c +}{hline 8}{c +}{hline 8}{c +}{hline 8}{c +}{hline 8}{c +}{hline 8}{c +}{hline 8}{c +}{hline 8}{c +}{hline 8}{c +}{hline 8}{c +}{hline 18}
 {c |} 1 {col 10}{c |} Change{col 19}  {c -}{c -}{c -}{c -}{c -}>{col 28}     OK!{col 37}{c |} {err:Change}{col 46}  {err:{c -}{c -}{c -}{c -}{c -}>}{col 55}  {err:NO}{col 64}{c |} {err:Change}{col 73}  {err:{c -}{c -}{c -}{c -}{c -}>}{col 82}  {err:NO}{col 91}{c |}
-{c |} 13 {col 10}{c |}  {col 19}   {col 28}        {col 37}{c |} {err:Change}{col 46}  {err:{c -}{c -}{c -}{c -}{c -}>}{col 55}  {err:NO}{col 64}{c |}  {col 73}   {col 82}        {col 91}{c |}
+{c |} 3 {col 10}{c |}  {col 19}   {col 28}        {col 37}{c |} Change{col 46}  {c -}{c -}{c -}{c -}{c -}>{col 55}     OK!{col 64}{c |} Change{col 73}  {c -}{c -}{c -}{c -}{c -}>{col 82}     OK!{col 91}{c |}
+{c |} 5 {col 10}{c |}  {col 19}   {col 28}        {col 37}{c |} Change{col 46}  {c -}{c -}{c -}{c -}{c -}>{col 55}     OK!{col 64}{c |} Change{col 73}  {c -}{c -}{c -}{c -}{c -}>{col 82}     OK!{col 91}{c |}
+{c |} 7 {col 10}{c |}  {col 19}   {col 28}        {col 37}{c |} Change{col 46}  {c -}{c -}{c -}{c -}{c -}>{col 55}     OK!{col 64}{c |}  {col 73}   {col 82}        {col 91}{c |}
+{c |} 9 {col 10}{c |}  {col 19}   {col 28}        {col 37}{c |} Change{col 46}  {c -}{c -}{c -}{c -}{c -}>{col 55}     OK!{col 64}{c |}  {col 73}   {col 82}        {col 91}{c |}
+{c |} 11 {col 10}{c |}  {col 19}   {col 28}        {col 37}{c |} Change{col 46}  {c -}{c -}{c -}{c -}{c -}>{col 55}     OK!{col 64}{c |} Change{col 73}  {c -}{c -}{c -}{c -}{c -}>{col 82}     OK!{col 91}{c |}
+{c |} 13 {col 10}{c |}  {col 19}   {col 28}        {col 37}{c |} Change{col 46}  {c -}{c -}{c -}{c -}{c -}>{col 55}     OK!{col 64}{c |}  {col 73}   {col 82}        {col 91}{c |}
 {c |} 15 {col 10}{c |}  {col 19}   {col 28}        {col 37}{c |} {err:Change}{col 46}  {err:{c -}{c -}{c -}{c -}{c -}>}{col 55}  {err:NO}{col 64}{c |}  {col 73}   {col 82}        {col 91}{c |}
+{c |} 17 {col 10}{c |}  {col 19}   {col 28}        {col 37}{c |} Change{col 46}  {c -}{c -}{c -}{c -}{c -}>{col 55}     OK!{col 64}{c |}  {col 73}   {col 82}        {col 91}{c |}
+{c |} 19 {col 10}{c |}  {col 19}   {col 28}        {col 37}{c |} Change{col 46}  {c -}{c -}{c -}{c -}{c -}>{col 55}     OK!{col 64}{c |} Change{col 73}  {c -}{c -}{c -}{c -}{c -}>{col 82}     OK!{col 91}{c |}
+{c |} 20 {col 10}{c |} Change{col 19}  {c -}{c -}{c -}{c -}{c -}>{col 28}     OK!{col 37}{c |} Change{col 46}  {c -}{c -}{c -}{c -}{c -}>{col 55}     OK!{col 64}{c |} Change{col 73}  {c -}{c -}{c -}{c -}{c -}>{col 82}     OK!{col 91}{c |}
+{c |} 22 {col 10}{c |} Change{col 19}  {c -}{c -}{c -}{c -}{c -}>{col 28}     OK!{col 37}{c |} Change{col 46}  {c -}{c -}{c -}{c -}{c -}>{col 55}     OK!{col 64}{c |}  {col 73}   {col 82}        {col 91}{c |}
 {c |} 24 {col 10}{c |}  {col 19}   {col 28}        {col 37}{c |} {err:Change}{col 46}  {err:{c -}{c -}{c -}{c -}{c -}>}{col 55}  {err:NO}{col 64}{c |} {err:Change}{col 73}  {err:{c -}{c -}{c -}{c -}{c -}>}{col 82}  {err:NO}{col 91}{c |}
+{c |} 27 {col 10}{c |}  {col 19}   {col 28}        {col 37}{c |} Change{col 46}  {c -}{c -}{c -}{c -}{c -}>{col 55}     OK!{col 64}{c |}  {col 73}   {col 82}  {err:|}{col 91}{c |}
 {c BLC}{hline 8}{c BT}{hline 8}{c BT}{hline 8}{c BT}{hline 8}{c BT}{hline 8}{c BT}{hline 8}{c BT}{hline 8}{c BT}{hline 8}{c BT}{hline 8}{c BT}{hline 8}{c BT}{hline 18}
  
 {phang} Stepping back into file:{p_end}
@@ -61,6 +149,7 @@
 {c |} Line # {col 10}{c |} Run 1  {c |} Run 2  {c |} Match  {col 37}{c |} Run 1  {c |} Run 2  {c |} Match  {col 64}{c |} Run 1  {c |} Run 2  {c |} Match  {col 91}{c |} Loop iteration:
 {c LT}{hline 8}{c +}{hline 8}{c +}{hline 8}{c +}{hline 8}{c +}{hline 8}{c +}{hline 8}{c +}{hline 8}{c +}{hline 8}{c +}{hline 8}{c +}{hline 8}{c +}{hline 18}
 {c |} 33 {col 10}{c |}  {col 19}   {col 28}        {col 37}{c |} {err:Change}{col 46}  {err:{c -}{c -}{c -}{c -}{c -}>}{col 55}  {err:NO}{col 64}{c |} {err:Change}{col 73}  {err:{c -}{c -}{c -}{c -}{c -}>}{col 82}  {err:NO}{col 91}{c |}
+{c |} 36 {col 10}{c |}  {col 19}   {col 28}        {col 37}{c |} Change{col 46}  {c -}{c -}{c -}{c -}{c -}>{col 55}     OK!{col 64}{c |}  {col 73}   {col 82}  {err:|}{col 91}{c |}
 {c BLC}{hline 8}{c BT}{hline 8}{c BT}{hline 8}{c BT}{hline 8}{c BT}{hline 8}{c BT}{hline 8}{c BT}{hline 8}{c BT}{hline 8}{c BT}{hline 8}{c BT}{hline 8}{c BT}{hline 18}
  
 {phang} Stepping back into file:{p_end}
@@ -69,7 +158,8 @@
 {c |}{col 10}{c |}{dup 6: }Seed RNG State{col 37}{c |}{dup 6: }Sort Order RNG{col 64}{c |}{dup 6: }Data Signature{col 91}{c |}
 {c |} Line # {col 10}{c |} Run 1  {c |} Run 2  {c |} Match  {col 37}{c |} Run 1  {c |} Run 2  {c |} Match  {col 64}{c |} Run 1  {c |} Run 2  {c |} Match  {col 91}{c |} Loop iteration:
 {c LT}{hline 8}{c +}{hline 8}{c +}{hline 8}{c +}{hline 8}{c +}{hline 8}{c +}{hline 8}{c +}{hline 8}{c +}{hline 8}{c +}{hline 8}{c +}{hline 8}{c +}{hline 18}
-{c |} 36 {col 10}{c |} Change{col 19}  {c -}{c -}{c -}{c -}{c -}>{col 28}     OK!{col 37}{c |} {err:Change}{col 46}  {err:{c -}{c -}{c -}{c -}{c -}>}{col 55}  {err:NO}{col 64}{c |} {err:Change}{col 73}  {err:{c -}{c -}{c -}{c -}{c -}>}{col 82}  {err:NO}{col 91}{c |}
+{c |} 39 {col 10}{c |} Change{col 19}  {c -}{c -}{c -}{c -}{c -}>{col 28}     OK!{col 37}{c |} {err:Change}{col 46}  {err:{c -}{c -}{c -}{c -}{c -}>}{col 55}  {err:NO}{col 64}{c |} {err:Change}{col 73}  {err:{c -}{c -}{c -}{c -}{c -}>}{col 82}  {err:NO}{col 91}{c |}
+{c |} 42 {col 10}{c |}  {col 19}   {col 28}        {col 37}{c |} Change{col 46}  {c -}{c -}{c -}{c -}{c -}>{col 55}     OK!{col 64}{c |}  {col 73}   {col 82}  {err:|}{col 91}{c |}
 {c BLC}{hline 8}{c BT}{hline 8}{c BT}{hline 8}{c BT}{hline 8}{c BT}{hline 8}{c BT}{hline 8}{c BT}{hline 8}{c BT}{hline 8}{c BT}{hline 8}{c BT}{hline 8}{c BT}{hline 18}
  
 {phang}Done checking file:{p_end}

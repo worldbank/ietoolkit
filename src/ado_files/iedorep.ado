@@ -305,6 +305,7 @@ qui {
         local datahandle : di %12.0f abs(10000000000*rnormal())
 
         if (`write_recline' == 1) {
+
           file write `handle_c1' `"iedorep_dataline, run(1) data(`datahandle') lnum(`lnum') datatmp("`file_d1'") recursestub(`recursestub') orgsubfile(`file')"' _n
           file write `handle_c2' `"iedorep_dataline, run(2) data(`datahandle') lnum(`lnum') datatmp("`file_d2'") recursestub(`recursestub') orgsubfile(`file')"' _n
         }
@@ -668,32 +669,42 @@ program define   compare_data_lines, rclass
     }
     return local loopt "`l1_loopt'"
 
+    * Logic for minimal SRNG checker (still oversensitive)
+    local l1_srng = "0"
+    local l2_srng = "0"
+
+      if ("`l1_srngstate'" != "`pl1_srngstate'") & ("`l2_srngcheck'" != "0") ///
+        local l2_srng = "`l2_srngstate'"
+
     * Comparing all states since previous line and between runs
     foreach state in rng srng dsig {
-        * Comapre state in each run compared to previous line
-        foreach run in 1 {
-          local `state'_c`run' = " "
-          if ("`l`run'_`state''" != "`pl`run'_`state''") {
-            local `state'_c`run' = "Change"
-          }
-        }
-        foreach run in 2 {
-          local `state'_c`run' = " "
-          if ("`l`run'_`state''" != "`pl`run'_`state''") {
-            if "``state'_c1'" == "Change" local `state'_c`run' = "{c -}{c -}{c -}{c -}{c -}>"
-            else local `state'_c`run' = "{err:Error!}"
-          }
-        }
-        * Compare state between runs
-        if ("`l1_`state''" == "`l2_`state''") & (("``state'_c1'" == "Change") | ("``state'_c2'" == "{c -}{c -}{c -}{c -}{c -}>")) return local `state'_m "   OK!"
-        if ("`l1_`state''" == "`l2_`state''") & (("``state'_c1'" != "Change") & ("``state'_c2'" != "{c -}{c -}{c -}{c -}{c -}>")) return local `state'_m "      "
-        if ("`l1_`state''" != "`l2_`state''") & (("``state'_c1'" == "Change") | ("``state'_c2'" == "{c -}{c -}{c -}{c -}{c -}>")) return local `state'_m "{err:NO}"
-        if ("`l1_`state''" != "`l2_`state''") & (("``state'_c1'" != "Change") & ("``state'_c2'" != "{c -}{c -}{c -}{c -}{c -}>")) return local `state'_m "{err:|}"
 
-        if ("`l1_`state''" != "`l2_`state''") & (("``state'_c1'" == "Change") | ("``state'_c2'" == "{c -}{c -}{c -}{c -}{c -}>"))  local `state'_c1 "{err:``state'_c1'}"
-        if ("`l1_`state''" != "`l2_`state''") & (("``state'_c1'" == "Change") | ("``state'_c2'" == "{c -}{c -}{c -}{c -}{c -}>"))  local `state'_c2 "{err:``state'_c2'}"
-        return local `state'_c1 "``state'_c1'"
-        return local `state'_c2 "``state'_c2'"
+      * Compare state in each run compared to previous line
+        local `state'_c1 = " "
+        if ("`l1_`state''" != "`pl1_`state''") {
+          local `state'_c1 = "Change"
+        }
+
+        local `state'_c2 = " "
+        if ("`l2_`state''" != "`pl2_`state''") {
+          if "``state'_c1'" == "Change" local `state'_c2 = "{c -}{c -}{c -}{c -}{c -}>"
+          else local `state'_c2 = "{err:Error!}"
+        }
+
+    }
+
+    foreach state in rng srng dsig {
+
+      * Compare state between runs
+      if ("`l1_`state''" == "`l2_`state''") & (("``state'_c1'" == "Change") | ("``state'_c2'" == "{c -}{c -}{c -}{c -}{c -}>")) return local `state'_m "   OK!"
+      if ("`l1_`state''" == "`l2_`state''") & (("``state'_c1'" != "Change") & ("``state'_c2'" != "{c -}{c -}{c -}{c -}{c -}>")) return local `state'_m "      "
+      if ("`l1_`state''" != "`l2_`state''") & (("``state'_c1'" == "Change") | ("``state'_c2'" == "{c -}{c -}{c -}{c -}{c -}>")) return local `state'_m "{err:NO}"
+      if ("`l1_`state''" != "`l2_`state''") & (("``state'_c1'" != "Change") & ("``state'_c2'" != "{c -}{c -}{c -}{c -}{c -}>")) return local `state'_m "{err:|}"
+
+      if ("`l1_`state''" != "`l2_`state''") & (("``state'_c1'" == "Change") | ("``state'_c2'" == "{c -}{c -}{c -}{c -}{c -}>"))  local `state'_c1 "{err:``state'_c1'}"
+      if ("`l1_`state''" != "`l2_`state''") & (("``state'_c1'" == "Change") | ("``state'_c2'" == "{c -}{c -}{c -}{c -}{c -}>"))  local `state'_c2 "{err:``state'_c2'}"
+      return local `state'_c1 "``state'_c1'"
+      return local `state'_c2 "``state'_c2'"
 
     }
 end
