@@ -25,8 +25,14 @@ program define   iedorep_dataline
     * Trim data
     local loopt = trim("`looptracker'")
 
+    * Hash data line
+    tempname x
+    mata: st_numscalar("`x'", hash1("I want to convert this text to an ID using Jenkins's one-at-a-time hash function"))
+    local hash : di %12.0f `x'
+    local hash = trim("`hash'")
+
     *Build data line
-    local line "l:`lnum'&rng:`rng'&srng:`srng'&dsig:`dsig'&loopt:`loopt'"
+    local line "l:`lnum'&rng:`rng'&srng:`srng'&dsig:`dsig'&loopt:`loopt'&hash:`hash'"
   }
 
   * Recurse line

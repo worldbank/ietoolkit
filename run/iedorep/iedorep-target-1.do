@@ -33,7 +33,7 @@ gen y = rnormal()
 duplicates drop make , force
 
 
-do "${ietoolkit}/run/iedorep/iedorep-target-2.do"
+do "${clone}/run/iedorep/iedorep-target-2.do"
 
 
 //
