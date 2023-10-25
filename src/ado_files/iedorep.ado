@@ -5,7 +5,14 @@ program define   iedorep, rclass
 
 qui {
   syntax anything [using/] , [verbose] [compact] [noClear]
+
+  /*****************************************************************************
+    Syntax parsing and setup
+  *****************************************************************************/
+
   local dofile `anything'
+    local ofname = substr(`"`dofile'"',strrpos(`"`dofile'"',"/")+1,.)
+
   local output `using'
     if `"`output'"' == `""' {
       local output = substr(`"`dofile'"',1,strrpos(`"`dofile'"',"/"))
@@ -38,11 +45,11 @@ qui {
   *****************************************************************************/
 
   * Remove existing output if it exists
-  mata : st_numscalar("r(dirExist)", direxists("`output'/iedorep-output"))
-  if (`r(dirExist)' == 1) rm_output_dir, folder("`output'/iedorep-output")
+  mata : st_numscalar("r(dirExist)", direxists("`output'/iedorep"))
+  if (`r(dirExist)' == 1) rm_output_dir, folder("`output'/iedorep")
 
   * Create the new output folder structure
-  local dirout "`output'/iedorep-output"
+  local dirout "`output'/iedorep"
   mkdir "`dirout'"
 
   * Create the subfolders in the output folder structure
@@ -116,9 +123,9 @@ qui {
       Write smcl file to disk
 *****************************************************************************/
 
-  copy `f_smcl' "`dirout'/output.smcl" , replace
+  copy `f_smcl' "`dirout'/`ofname'rep.smcl" , replace
   noi di as res ""
-  noi di as res `"{phang}SMCL-file with report written to: {view "`dirout'/output.smcl"}{p_end}"'
+  noi di as res `"{phang}SMCL-file with report written to: {view "`dirout'/`ofname'rep.smcl"}{p_end}"'
 
 }
 
