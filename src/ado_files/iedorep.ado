@@ -649,18 +649,26 @@ program define   compare_data_lines, rclass
     * Comparing all states since previous line and between runs
     foreach state in rng srng dsig {
         * Comapre state in each run compared to previous line
-        foreach run in 1 2 {
+        foreach run in 1 {
           local `state'_c`run' = " "
           if ("`l`run'_`state''" != "`pl`run'_`state''") {
             local `state'_c`run' = "Change"
           }
           return local `state'_c`run' "``state'_c`run''"
         }
+        foreach run in 2 {
+          local `state'_c`run' = " "
+          if ("`l`run'_`state''" != "`pl`run'_`state''") {
+            if "``state'_c1'" == "Change" local `state'_c`run' = "----->"
+            else local `state'_c`run' = "{err:Error!}"
+          }
+          return local `state'_c`run' "``state'_c`run''"
+        }
         * Compare state between runs
-        if ("`l1_`state''" == "`l2_`state''") & (("``state'_c1'" == "Change") | ("``state'_c2'" == "Change")) return local `state'_m "   Yes"
-        if ("`l1_`state''" == "`l2_`state''") & (("``state'_c1'" != "Change") & ("``state'_c2'" != "Change")) return local `state'_m "     ."
-        if ("`l1_`state''" != "`l2_`state''") & (("``state'_c1'" == "Change") | ("``state'_c2'" == "Change")) return local `state'_m "{err:No}"
-        if ("`l1_`state''" != "`l2_`state''") & (("``state'_c1'" != "Change") & ("``state'_c2'" != "Change")) return local `state'_m "{err:|}"
+        if ("`l1_`state''" == "`l2_`state''") & (("``state'_c1'" == "Change") | ("``state'_c2'" == "----->")) return local `state'_m "   Yes"
+        if ("`l1_`state''" == "`l2_`state''") & (("``state'_c1'" != "Change") & ("``state'_c2'" != "----->")) return local `state'_m "     ."
+        if ("`l1_`state''" != "`l2_`state''") & (("``state'_c1'" == "Change") | ("``state'_c2'" == "----->")) return local `state'_m "{err:No}"
+        if ("`l1_`state''" != "`l2_`state''") & (("``state'_c1'" != "Change") & ("``state'_c2'" != "----->")) return local `state'_m "{err:|}"
     }
 end
 
@@ -722,22 +730,22 @@ cap program drop output_writerow
   local c1 = (`c1' + 9)
   local out_line "`out_line'{c |} `rng1'{col `c1'}"
   local c1 = (`c1' + 9)
-  local out_line "`out_line'{c |} `rng2'{col `c1'}"
-  local out_line "`out_line'{c |} `rngm'{col `c2'}"
+  local out_line "`out_line'  `rng2'{col `c1'}"
+  local out_line "`out_line'  `rngm'{col `c2'}"
 
   * Sort rng state
   local c2 = (`c2' + 9)
   local out_line "`out_line'{c |} `srng1'{col `c2'}"
   local c2 = (`c2' + 9)
-  local out_line "`out_line'{c |} `srng2'{col `c2'}"
-  local out_line "`out_line'{c |} `srngm'{col `c3'}"
+  local out_line "`out_line'  `srng2'{col `c2'}"
+  local out_line "`out_line'  `srngm'{col `c3'}"
 
   * Datasignature
   local c3 = (`c3' + 9)
   local out_line "`out_line'{c |} `dsig1'{col `c3'}"
   local c3 = (`c3' + 9)
-  local out_line "`out_line'{c |} `dsig2'{col `c3'}"
-  local out_line "`out_line'{c |} `dsigm'{col `c4'}"
+  local out_line "`out_line'  `dsig2'{col `c3'}"
+  local out_line "`out_line'  `dsigm'{col `c4'}"
 
 
   local out_line "`out_line'{c |} `loopiteration'"
