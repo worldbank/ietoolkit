@@ -4,7 +4,11 @@ cap program drop iedorep
 program define   iedorep, rclass
 
 qui {
-  syntax , dofile(string) output(string) [verbose] [compact] [noClear]
+  syntax anything using/ , [verbose] [compact] [noClear]
+  local dofile `anything'
+  local output `using'
+
+  di `"`dofile' || `output'"'
 
   if missing(`"`clear'"') {
     clear          // Data matches, zeroed out by default
@@ -582,7 +586,7 @@ qui {
               local write_outputline 1
             * Test if any line is "Missmatch"
             local any_mismatch = ///
-              max(strpos("`r(`matchtype'_m)'","No"),strpos("`r(`matchtype'_m)'","|"))
+              max(strpos("`r(`matchtype'_m)'","NO"),strpos("`r(`matchtype'_m)'","|"))
             if (`any_mismatch' > 0) & missing(`"`compact'"') local write_outputline 1
             * Compact display
             if (`any_mismatch' > 0) & (`any_change' > 0) local write_outputline 1
@@ -663,9 +667,9 @@ program define   compare_data_lines, rclass
           }
         }
         * Compare state between runs
-        if ("`l1_`state''" == "`l2_`state''") & (("``state'_c1'" == "Change") | ("``state'_c2'" == "{c -}{c -}{c -}{c -}{c -}>")) return local `state'_m "   Yes"
+        if ("`l1_`state''" == "`l2_`state''") & (("``state'_c1'" == "Change") | ("``state'_c2'" == "{c -}{c -}{c -}{c -}{c -}>")) return local `state'_m "   OK!"
         if ("`l1_`state''" == "`l2_`state''") & (("``state'_c1'" != "Change") & ("``state'_c2'" != "{c -}{c -}{c -}{c -}{c -}>")) return local `state'_m "      "
-        if ("`l1_`state''" != "`l2_`state''") & (("``state'_c1'" == "Change") | ("``state'_c2'" == "{c -}{c -}{c -}{c -}{c -}>")) return local `state'_m "{err:No}"
+        if ("`l1_`state''" != "`l2_`state''") & (("``state'_c1'" == "Change") | ("``state'_c2'" == "{c -}{c -}{c -}{c -}{c -}>")) return local `state'_m "{err:NO}"
         if ("`l1_`state''" != "`l2_`state''") & (("``state'_c1'" != "Change") & ("``state'_c2'" != "{c -}{c -}{c -}{c -}{c -}>")) return local `state'_m "{err:|}"
 
         if ("`l1_`state''" != "`l2_`state''") & (("``state'_c1'" == "Change") | ("``state'_c2'" == "{c -}{c -}{c -}{c -}{c -}>"))  local `state'_c1 "{err:``state'_c1'}"

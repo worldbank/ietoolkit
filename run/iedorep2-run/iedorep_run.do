@@ -21,16 +21,16 @@
     file close _all
 
     * Example 0 - Ben's files
-    iedorep , dofile("${clone}/run/iedorep/iedorep-target-1.do") output("${sf}/output")  verbose
--
+    iedorep "${clone}/run/iedorep/iedorep-target-1.do" using "${sf}/output" ,  compact
+
     * Example A - single file
-    iedorep , dofile("${sf}/main.do") output("${sf}/output")
+    iedorep "${sf}/main.do" using "${sf}/output" , verbose
 
     * Example B - multiple file
-    iedorep , dofile("${mf}/main.do") output("${mf}/output")
+    iedorep "${mf}/main.do" using "${mf}/output"
 
     * Example C - multiple file
-    iedorep , dofile("${mf}/main.do") output("${mf}/output_verbose") verbose
+    iedorep "${mf}/main.do" using "${mf}/output_verbose"
 
     * Example D - multiple file
-    iedorep , dofile("${lf}/main.do") output("${lf}/output") verbose
+    iedorep "${lf}/main.do" using "${lf}/output" , verbose
