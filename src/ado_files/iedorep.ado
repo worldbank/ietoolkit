@@ -654,21 +654,25 @@ program define   compare_data_lines, rclass
           if ("`l`run'_`state''" != "`pl`run'_`state''") {
             local `state'_c`run' = "Change"
           }
-          return local `state'_c`run' "``state'_c`run''"
         }
         foreach run in 2 {
           local `state'_c`run' = " "
           if ("`l`run'_`state''" != "`pl`run'_`state''") {
-            if "``state'_c1'" == "Change" local `state'_c`run' = "----->"
+            if "``state'_c1'" == "Change" local `state'_c`run' = "{c -}{c -}{c -}{c -}{c -}>"
             else local `state'_c`run' = "{err:Error!}"
           }
-          return local `state'_c`run' "``state'_c`run''"
         }
         * Compare state between runs
-        if ("`l1_`state''" == "`l2_`state''") & (("``state'_c1'" == "Change") | ("``state'_c2'" == "----->")) return local `state'_m "   Yes"
-        if ("`l1_`state''" == "`l2_`state''") & (("``state'_c1'" != "Change") & ("``state'_c2'" != "----->")) return local `state'_m "     ."
-        if ("`l1_`state''" != "`l2_`state''") & (("``state'_c1'" == "Change") | ("``state'_c2'" == "----->")) return local `state'_m "{err:No}"
-        if ("`l1_`state''" != "`l2_`state''") & (("``state'_c1'" != "Change") & ("``state'_c2'" != "----->")) return local `state'_m "{err:|}"
+        if ("`l1_`state''" == "`l2_`state''") & (("``state'_c1'" == "Change") | ("``state'_c2'" == "{c -}{c -}{c -}{c -}{c -}>")) return local `state'_m "   Yes"
+        if ("`l1_`state''" == "`l2_`state''") & (("``state'_c1'" != "Change") & ("``state'_c2'" != "{c -}{c -}{c -}{c -}{c -}>")) return local `state'_m "      "
+        if ("`l1_`state''" != "`l2_`state''") & (("``state'_c1'" == "Change") | ("``state'_c2'" == "{c -}{c -}{c -}{c -}{c -}>")) return local `state'_m "{err:No}"
+        if ("`l1_`state''" != "`l2_`state''") & (("``state'_c1'" != "Change") & ("``state'_c2'" != "{c -}{c -}{c -}{c -}{c -}>")) return local `state'_m "{err:|}"
+
+        if ("`l1_`state''" != "`l2_`state''") & (("``state'_c1'" == "Change") | ("``state'_c2'" == "{c -}{c -}{c -}{c -}{c -}>"))  local `state'_c1 "{err:``state'_c1'}"
+        if ("`l1_`state''" != "`l2_`state''") & (("``state'_c1'" == "Change") | ("``state'_c2'" == "{c -}{c -}{c -}{c -}{c -}>"))  local `state'_c2 "{err:``state'_c2'}"
+        return local `state'_c1 "``state'_c1'"
+        return local `state'_c2 "``state'_c2'"
+
     }
 end
 
