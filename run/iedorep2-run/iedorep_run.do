@@ -21,7 +21,9 @@
     file close _all
 
     * Example 0 - Ben's files
-    // iedorep "${clone}/run/iedorep/iedorep-target-1.do" using "${clone}/run/iedorep/" ,  compact
+    iedorep "${clone}/run/iedorep/iedorep-target-1.do" using "${clone}/run/iedorep/"
+    iedorep "${clone}/run/iedorep/iedorep-target-1.do" using "${clone}/run/iedorep/" , s(srng)
+    iedorep "${clone}/run/iedorep/iedorep-target-1.do" using "${clone}/run/iedorep/" , compact  s(srng)
     iedorep "${clone}/run/iedorep/iedorep-target-1.do"  ,  verbose debug
 -
     * Example A - single file

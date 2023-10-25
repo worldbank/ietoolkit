@@ -4,7 +4,7 @@ cap program drop iedorep
 program define   iedorep, rclass
 
 qui {
-  syntax anything [using/] , [verbose] [compact] [noClear] [debug]
+  syntax anything [using/] , [verbose] [compact] [noClear] [debug] [Suppress(passthru)]
 
   /*****************************************************************************
     Syntax parsing and setup
@@ -110,7 +110,7 @@ qui {
   * Start the recursive call
   noi recurse_comp_lines , dirout("`dirout'") stub("m") ///
     orgfile(`"`dofile'"') outputcolumns("`outputcolumns'") ///
-    `verbose' `compact' h_smcl(`h_smcl')
+    `verbose' `compact' h_smcl(`h_smcl') `suppress'
 
   * Write line that close table
   output_writetitle , outputcolumns("`outputcolumns'")
@@ -489,7 +489,7 @@ cap program drop recurse_comp_lines
 program define   recurse_comp_lines, rclass
 qui {
   syntax, dirout(string) stub(string) orgfile(string) ///
-  outputcolumns(string) h_smcl(string) [verbose] [compact]
+  outputcolumns(string) h_smcl(string) [verbose] [compact] [suppress(passthru)]
 
 
   local df1 "`dirout'/run1/`stub'.txt"
@@ -570,7 +570,7 @@ qui {
         * Make the recurisive call for next file
         noi recurse_comp_lines , dirout("`dirout'") stub("`new_stub'") ///
           orgfile(`"`orgfile' "`new_orgfile'" "') ///
-          outputcolumns("`outputcolumns'") h_smcl(`h_smcl') `verbose' `compact'
+          outputcolumns("`outputcolumns'") h_smcl(`h_smcl') `verbose' `compact' `suppress'
 
         * Step back into this data file after the recursive call and:
         * Write file tree, and write the titles to the continuation for
@@ -590,7 +590,8 @@ qui {
         * Compare if lines are different across runs, but also if lines has changed since last line
         compare_data_lines, ///
           l1("`line1'") pl1("`prev_line1'") ///
-          l2("`line2'") pl2("`prev_line2'")
+          l2("`line2'") pl2("`prev_line2'") ///
+          `suppress'
 
         * Only display line if there is a mismatch, or if option verbose
         * is used, also output if there is a change from previous line
@@ -641,7 +642,7 @@ end
 cap program drop compare_data_lines
 program define   compare_data_lines, rclass
 
-    syntax, l1(string) l2(string) [pl1(string) pl2(string)]
+    syntax, l1(string) l2(string) [pl1(string) pl2(string) suppress(string)]
 
     * Parse all lines and put then into locals to be compared
     foreach line in l1 l2 pl1 pl2 {
@@ -696,8 +697,17 @@ program define   compare_data_lines, rclass
     foreach state in rng srng dsig {
 
       * Compare state between runs
-      if ("`l1_`state''" == "`l2_`state''") & (("``state'_c1'" == "Change") | ("``state'_c2'" == "{c -}{c -}{c -}{c -}{c -}>")) return local `state'_m "   OK!"
-      if ("`l1_`state''" == "`l2_`state''") & (("``state'_c1'" != "Change") & ("``state'_c2'" != "{c -}{c -}{c -}{c -}{c -}>")) return local `state'_m "      "
+      if !strpos(" `suppress' " , " `state' ") {
+        if ("`l1_`state''" == "`l2_`state''") & (("``state'_c1'" == "Change") | ("``state'_c2'" == "{c -}{c -}{c -}{c -}{c -}>")) return local `state'_m "   OK!"
+        if ("`l1_`state''" == "`l2_`state''") & (("``state'_c1'" != "Change") & ("``state'_c2'" != "{c -}{c -}{c -}{c -}{c -}>")) return local `state'_m "      "
+      }
+      if strpos(" `suppress' " , " `state' ") {
+        if ("`l1_`state''" == "`l2_`state''") & (("``state'_c1'" == "Change") | ("``state'_c2'" == "{c -}{c -}{c -}{c -}{c -}>")) local `state'_c2 = ""
+        if ("`l1_`state''" == "`l2_`state''") & (("``state'_c1'" != "Change") & ("``state'_c2'" != "{c -}{c -}{c -}{c -}{c -}>")) local `state'_c2 = ""
+        if ("`l1_`state''" == "`l2_`state''") & (("``state'_c1'" == "Change") | ("``state'_c2'" == "{c -}{c -}{c -}{c -}{c -}>")) local `state'_c1 = ""
+        if ("`l1_`state''" == "`l2_`state''") & (("``state'_c1'" != "Change") & ("``state'_c2'" != "{c -}{c -}{c -}{c -}{c -}>")) local `state'_c1 = ""
+      }
+
       if ("`l1_`state''" != "`l2_`state''") & (("``state'_c1'" == "Change") | ("``state'_c2'" == "{c -}{c -}{c -}{c -}{c -}>")) return local `state'_m "{err:NO}"
       if ("`l1_`state''" != "`l2_`state''") & (("``state'_c1'" != "Change") & ("``state'_c2'" != "{c -}{c -}{c -}{c -}{c -}>")) return local `state'_m "{err:|}"
 
