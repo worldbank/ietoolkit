@@ -4,7 +4,7 @@ cap program drop iedorep
 program define   iedorep, rclass
 
 qui {
-  syntax anything [using/] , [verbose] [compact] [noClear]
+  syntax anything [using/] , [verbose] [compact] [noClear] [debug]
 
   /*****************************************************************************
     Syntax parsing and setup
@@ -120,12 +120,17 @@ qui {
   file close `h_smcl'
 
 /*****************************************************************************
-      Write smcl file to disk
+      Write smcl file to disk and clean up intermediate files unless debugging
 *****************************************************************************/
 
   copy `f_smcl' "`dirout'/`ofname'rep.smcl" , replace
   noi di as res ""
   noi di as res `"{phang}SMCL-file with report written to: {view "`dirout'/`ofname'rep.smcl"}{p_end}"'
+
+  if missing("`debug'") {
+    rm_output_dir , folder("`dirout'/run1/")
+    rm_output_dir , folder("`dirout'/run2/")
+  }
 
 }
 
