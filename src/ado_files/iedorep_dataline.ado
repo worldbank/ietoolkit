@@ -5,7 +5,8 @@
 cap program drop iedorep_dataline
 program define   iedorep_dataline
 
-  syntax , lnum(string) datatmp(string)    [ ///
+  syntax , data(string) run(string)    ///
+    lnum(string) datatmp(string)           [ ///
     recursestub(string) orgsubfile(string)   ///
     looptracker(string) ]
 
@@ -25,14 +26,21 @@ program define   iedorep_dataline
     * Trim data
     local loopt = trim("`looptracker'")
 
-    * Hash data line
-    tempname x
-    mata: st_numscalar("`x'", hash1("I want to convert this text to an ID using Jenkins's one-at-a-time hash function"))
-    local hash : di %12.0f `x'
-    local hash = trim("`hash'")
+    * Handle data line
+    local output = substr(`"`datatmp'"',1,strrpos(`"`datatmp'"',"/"))
+    if `run' == 1 {
+      cap mkdir "`output'/dta/"
+      save "`output'/dta/`data'.dta" , replace emptyok
+      local srngcheck = 0
+    }
+    if `run' == 2 {
+      local output = subinstr(`"`output'"',"run2","run1",.)
+      cap cf _all using "`output'/dta/`data'.dta"
+      local srngcheck = _rc
+    }
 
     *Build data line
-    local line "l:`lnum'&rng:`rng'&srng:`srng'&dsig:`dsig'&loopt:`loopt'&hash:`hash'"
+    local line "l:`lnum'&rng:`rng'&srng:`srng'&dsig:`dsig'&loopt:`loopt'&srngcheck:`srngcheck'"
   }
 
   * Recurse line

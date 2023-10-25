@@ -302,9 +302,11 @@ qui {
           }
         }
 
+        local datahandle : di %12.0f abs(10000000000*rnormal())
+
         if (`write_recline' == 1) {
-          file write `handle_c1' `"iedorep_dataline, lnum(`lnum') datatmp("`file_d1'") recursestub(`recursestub') orgsubfile(`file')"' _n
-          file write `handle_c2' `"iedorep_dataline, lnum(`lnum') datatmp("`file_d2'") recursestub(`recursestub') orgsubfile(`file')"' _n
+          file write `handle_c1' `"iedorep_dataline, run(1) data(`datahandle') lnum(`lnum') datatmp("`file_d1'") recursestub(`recursestub') orgsubfile(`file')"' _n
+          file write `handle_c2' `"iedorep_dataline, run(2) data(`datahandle') lnum(`lnum') datatmp("`file_d2'") recursestub(`recursestub') orgsubfile(`file')"' _n
         }
 
         * Write the line copied from original file
@@ -326,8 +328,9 @@ qui {
           }
 
           * Write lines to run file 1 and 2
-          file write `handle_c1' `"iedorep_dataline, lnum(`lnum') datatmp("`file_d1'") looptracker("`macval(loop_str)'")"' _n
-          file write `handle_c2' `"iedorep_dataline, lnum(`lnum') datatmp("`file_d2'") looptracker("`macval(loop_str)'")"' _n
+
+          file write `handle_c1' `"iedorep_dataline, run(1) data(`datahandle') lnum(`lnum') datatmp("`file_d1'") looptracker("`macval(loop_str)'")"' _n
+          file write `handle_c2' `"iedorep_dataline, run(2) data(`datahandle') lnum(`lnum') datatmp("`file_d2'") looptracker("`macval(loop_str)'")"' _n
         }
       }
       local ++lnum
