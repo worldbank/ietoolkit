@@ -21,7 +21,7 @@
     file close _all
 
     * Example 0 - Ben's files
-    iedorep , dofile("${clone}/run/iedorep/iedorep-target-1.do") output("${sf}/output")  verbose
+    iedorep , dofile("${clone}/run/iedorep/iedorep-target-1.do") output("${sf}/output")  compact
 -
     * Example A - single file
     iedorep , dofile("${sf}/main.do") output("${sf}/output")

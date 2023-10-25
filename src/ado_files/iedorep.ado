@@ -657,8 +657,8 @@ program define   compare_data_lines, rclass
           return local `state'_c`run' "``state'_c`run''"
         }
         * Compare state between runs
-        if ("`l1_`state''" == "`l2_`state''") & (("``state'_c1'" == "Change") | ("``state'_c2'" == "Change")) return local `state'_m "Yes"
-        if ("`l1_`state''" == "`l2_`state''") & (("``state'_c1'" != "Change") & ("``state'_c2'" != "Change")) return local `state'_m "."
+        if ("`l1_`state''" == "`l2_`state''") & (("``state'_c1'" == "Change") | ("``state'_c2'" == "Change")) return local `state'_m "   Yes"
+        if ("`l1_`state''" == "`l2_`state''") & (("``state'_c1'" != "Change") & ("``state'_c2'" != "Change")) return local `state'_m "     ."
         if ("`l1_`state''" != "`l2_`state''") & (("``state'_c1'" == "Change") | ("``state'_c2'" == "Change")) return local `state'_m "{err:No}"
         if ("`l1_`state''" != "`l2_`state''") & (("``state'_c1'" != "Change") & ("``state'_c2'" != "Change")) return local `state'_m "{err:|}"
     }
