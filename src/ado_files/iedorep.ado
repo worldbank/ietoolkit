@@ -671,11 +671,17 @@ program define   compare_data_lines, rclass
     return local loopt "`l1_loopt'"
 
     * Logic for minimal SRNG checker (still oversensitive)
-    local l1_srng = "0"
-    local l2_srng = "0"
+      local l1_srng = "`l1_srngstate'"
+      local pl1_srng = "`pl1_srngstate'"
 
-      if ("`l1_srngstate'" != "`pl1_srngstate'") & ("`l2_srngcheck'" != "0") ///
+      if ("`l1_srngstate'" != "`pl1_srngstate'") & ("`l2_srngcheck'" != "0") {
         local l2_srng = "`l2_srngstate'"
+        local pl2_srng = "`pl2_srngstate'"
+      }
+      else {
+        local l2_srng = "`l1_srngstate'"
+        local pl2_srng = "`pl1_srngstate'"
+      }
 
     * Comparing all states since previous line and between runs
     foreach state in rng srng dsig {
