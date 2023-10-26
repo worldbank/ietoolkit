@@ -714,8 +714,8 @@ program define   compare_data_lines, rclass
         if ("`l1_`state''" == "`l2_`state''") & (("``state'_c1'" != "Change") & ("``state'_c2'" != "{c -}{c -}{c -}{c -}{c -}>")) local `state'_c1 = ""
       }
 
-      if ("`l1_`state''" != "`l2_`state''") & (("``state'_c1'" == "Change") | ("``state'_c2'" == "{c -}{c -}{c -}{c -}{c -}>")) return local `state'_m "{err:NO}"
-      if ("`l1_`state''" != "`l2_`state''") & (("``state'_c1'" != "Change") & ("``state'_c2'" != "{c -}{c -}{c -}{c -}{c -}>")) return local `state'_m "{err:|}"
+      if ("`l1_`state''" != "`l2_`state''") & (("``state'_c1'" == "Change") | ("``state'_c2'" == "{c -}{c -}{c -}{c -}{c -}>")) return local `state'_m "{err:{c TRC}NO}"
+      if ("`l1_`state''" != "`l2_`state''") & (("``state'_c1'" != "Change") & ("``state'_c2'" != "{c -}{c -}{c -}{c -}{c -}>")) return local `state'_m "{err:{c |}}"
 
       if ("`l1_`state''" != "`l2_`state''") & (("``state'_c1'" == "Change") | ("``state'_c2'" == "{c -}{c -}{c -}{c -}{c -}>"))  local `state'_c1 "{err:``state'_c1'}"
       if ("`l1_`state''" != "`l2_`state''") & (("``state'_c1'" == "Change") | ("``state'_c2'" == "{c -}{c -}{c -}{c -}{c -}>"))  local `state'_c2 "{err:``state'_c2'}"
