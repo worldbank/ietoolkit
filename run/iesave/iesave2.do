@@ -62,5 +62,15 @@
 
 	* Report with csv without path
 	iesave "`out'/auto-csv.dta", id(make) version(17.0) report(csv) replace
+	
+// Two ID vars -----------------------------------------------------------------
 
+	iesave "`out'/auto-2id.dta", id(make foreign) version(17.0) report replace
+	
+	replace foreign = . in 1
+	
+	cap	iesave "`out'/auto-2id.dta", id(make foreign) version(17.0) report replace
+	assert _rc == 459
+	
+	
 ************************************************************************ The end.

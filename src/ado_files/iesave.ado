@@ -159,14 +159,16 @@ qui {
 	capture isid `idvars'
 	if _rc {
 
-		*Test if there is missing values in the idvars
-		capture assert !missing(`idvars')
-		if _rc {
-			count if missing(`idvars')
-			noi di as error "{phang}The ID variable(s) `idvars' have missing values in `r(N)' observation(s). The ID variable(s) need to be fully identifying, meaning that missing values (., .a, .b ... .z) or the empty string are not allowed.{p_end}"
-			noi list `idvars' if missing(`idvars')
-			noi di ""
-		}
+    foreach idvar of local idvars {
+      *Test if there is missing values in the idvars
+      capture assert !missing(`idvar')
+      if _rc {
+        count if missing(`idvar')
+        noi di as error "{phang}The ID variable(s) `idvar' have missing values in `r(N)' observation(s). The ID variable(s) need to be fully identifying, meaning that missing values (., .a, .b ... .z) or the empty string are not allowed.{p_end}"
+        noi list `idvars' if missing(`idvar')
+        noi di ""
+      }
+    }
 
 		*Test if there are duplciates in the idvars
 		tempvar iedup
