@@ -5,7 +5,7 @@
 cap program drop iedorep_dataline
 program define   iedorep_dataline
 
-  syntax , data(string) run(string)    ///
+  syntax , run(string)    ///
     lnum(string) datatmp(string)           [ ///
     recursestub(string) orgsubfile(string)   ///
     looptracker(string) ]
@@ -28,6 +28,7 @@ program define   iedorep_dataline
 
     * Handle data line
     local output = substr(`"`datatmp'"',1,strrpos(`"`datatmp'"',"/"))
+    local data = "`lnum'_`looptracker'"
     if `run' == 1 {
       cap mkdir "`output'/dta/"
       save "`output'/dta/`data'.dta" , replace emptyok
