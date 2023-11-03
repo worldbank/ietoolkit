@@ -3,12 +3,15 @@
 * that the command iedorep is generating
 
 cap program drop iedorep_dataline
-program define   iedorep_dataline
+program define   iedorep_dataline , rclass
 
   syntax , run(string)    ///
     lnum(string) datatmp(string)           [ ///
     recursestub(string) orgsubfile(string)   ///
     looptracker(string) ]
+
+  * Save everything that is sitting in r() now and give it back after
+  return add
 
   * Open data_store file
   file open data_store using "`datatmp'", write append

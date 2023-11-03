@@ -9,6 +9,10 @@ sort foreign
 
 local MYFAKELOCAL = `MYFAKELOCAL' + 1
 
+su price
+
+di as err "Should be 6165... `r(mean)'"
+
 #d cr
 
 // TEST COMMENT
