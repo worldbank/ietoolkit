@@ -204,12 +204,12 @@ qui {
       * Analyze line in parser to see if this line needs and special handling
       org_line_parse, line(`"`macval(line)'"')
       local write_dataline = `r(write_dataline)'
-      local firstw        = "`r(firstw)'"
-      local secondw       = "`r(secondw)'"
-      local thirdw        = "`r(thirdw)'"
+      local firstw        = `"`r(firstw)'"'
+      local secondw       = `"`r(secondw)'"'
+      local thirdw        = `"`r(thirdw)'"'
       local line_wrap     = `r(line_wrap)'
       local block_end     = `r(block_end)'
-      local block_add     = "`r(block_add)'"
+      local block_add     = `"`r(block_add)'"'
 
       * If this row is closed curly bracket then
       * remove most recent word from stack
@@ -441,7 +441,7 @@ cap program drop get_command
 
     syntax, [word(string)]
 
-    local wlen = strlen("`word'")
+    local wlen = strlen(`"`word'"')
 
     local commands ""
     local commands "`commands' do ru:n"                    // File execution
@@ -458,10 +458,10 @@ cap program drop get_command
         local labbr = strlen("`abbr'")
 
         *Test if minimum abbreviation is the same
-        if (substr("`word'",1,`labbr')=="`abbr'") {
+        if (substr(`"`word'"',1,`labbr')=="`abbr'") {
           *Test if remaining part of the word match the rest of the command
-          if (substr("`word'",`labbr'+1,.)==substr("`rest'",1,`wlen'-`labbr')) {
-             return local command "`abbr'`rest'"
+          if (substr(`"`word'"',`labbr'+1,.)==substr("`rest'",1,`wlen'-`labbr')) {
+             return local command `"`abbr'`rest'"'
              local match = 1
           }
         }
