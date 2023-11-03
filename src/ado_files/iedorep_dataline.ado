@@ -28,7 +28,7 @@ program define   iedorep_dataline
 
     * Handle data line
     local output = substr(`"`datatmp'"',1,strrpos(`"`datatmp'"',"/"))
-    local data = "`lnum'_`looptracker'"
+    local data = "`lnum'`looptracker'"
     local data = subinstr("`data'"," ","_",.)
     local data = subinstr("`data'",":","-",.)
     if `run' == 1 {
