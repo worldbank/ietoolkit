@@ -2,11 +2,11 @@ This report was created by the Stata command iesave (version 7.2). Read more abo
 
 - **Number of observations:** 74
 - **Number of variables:** 12
-- **ID variable(s):** make
+- **ID variable(s):** make foreign
 - **.dta version used:** 14
 - **Data signature:** 74:12(71728):2155345365:1865188037
-- **Last saved by:** luizaandrade - BFI-33299
-- **Last saved at:** 17:01:38 28 Oct 2023
+- **Last saved by:** User info withheld, see option userinfo in command iesave.
+- **Last saved at:** 17:01:39 28 Oct 2023
 
 ## Variable type: String
 
