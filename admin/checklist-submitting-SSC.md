@@ -29,7 +29,12 @@
 
 - [ ] 6. **Merge `develop` to the version branch**
   - Solve all the conflicts in the `vX.Y` branch and then make sure that the sub-steps in this step are done in the `vX.Y` branch and nowhere else.
-	- [ ] 6.1 **Test in different operative systems** - This step is not necessary every time, but testing the commands in Stata on each of the PC, Mac and Linux operative systems should be done from time to time. A particularly good time to do this is after writing or editing code that depends on file paths, the console, special settings etc. If small updates are needed, then do them in the _version_ branch, otherwise do them in branches of the `develop` branch, merge those to `develop` and then re-merge `develop` to the version branch and test again.
+	- [ ] 6.1 **Test in different operative systems** - This step is not necessary every time, but testing the commands in Stata on each of the PC, Mac and Linux operative systems should be done from time to time. A particularly good time to do this is after writing or editing code that depends on file paths, the console, special settings etc. If testing fails, do one of the following:
+		- If a smaller update is required, then make the update in the _version_ branch
+		- If a larger update is required, or if the scale of the required update is not clear, then:
+  			- Create an issue describing the failed test
+			- Create a new branch from the `develop` branch and make the required update there
+   			- Once the issue is fixed, merge the new branch to `develop` and then merge `develop` again to the _version_ branch 
 	- [ ] 6.2 **Update version and date** - In the `vX.Y` branch, update the version number and date in all ado-files and all dates in all help files. See section below for details.
 	- [ ] 6.3 **Update version locals in ietoolkit** - In the _ietoolkit.ado_ file in the `vX.Y` branch, update the _version_ and _versionDate_ locals at the top of the file.
 	- [ ] 6.4 **Update version in .pkg and .toc** - This has nothing to do with SSC but should be kept up to date to. This is for when people install directly through GitHub using `net install`. If any new command has been added, remember to add the files for that command to the `.pkg` file.
