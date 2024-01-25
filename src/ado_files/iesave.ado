@@ -19,8 +19,6 @@ capture program drop iesave
         debug              ///
 		]
 
-  noi di `"`anything'"'
-
   * Standardize usage of double quotes
 	if substr(`"`anything'"', 1, 1) == `"""' local dta_path_raw `anything'
 	else local dta_path_raw "`anything'"
