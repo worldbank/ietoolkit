@@ -131,7 +131,7 @@
         replace village_hhid = . in 65
         
         * Run iesave and test for expected error
-        cap iesave "~/delete-out/err_id_3.dta", ///
+        cap iesave "`version_folder'/err_id_3.dta", ///
             idvars(village village_hhid) version(15) replace
         assert _rc == 459
         
