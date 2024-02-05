@@ -41,7 +41,7 @@
 
 
 - [ ] 7 **Create a .zip file**
-  - Create a .zip file with all ado-files and help files only. These files are not allowed to be in a sub-folder in this .zip file. No other files should be in this folder. Make a copy of this file in the archive folder of this package.
+  - Create a .zip file with all ado-files and help files only. These files are not allowed to be in a sub-folder in this .zip file. No other files should be in this folder.
 
 
 - [ ] 8. **Email Prof. Baum**
