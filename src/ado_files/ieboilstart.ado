@@ -1,4 +1,4 @@
-*! version 7.2 04APR2023 DIME Analytics dimeanalytics@worldbank.org
+*! version 7.3 01FEB2024 DIME Analytics dimeanalytics@worldbank.org
 
   capture program drop ieboilstart
   program ieboilstart , rclass
@@ -85,7 +85,7 @@
         else {
           local aopterr `"You provided the sub-option [`aoption']."'
         }
-        noi di as error `"{phang}The option [`adopath'] requires one of the sub-options [strict] or [nostrict]. `aopterr' See help file for more details.{p_end}"'
+        noi di as error `"{phang}The option {inp:adopath(}{it:{res:`apath'}}{inp:)} requires one of the sub-options [strict] or [nostrict]. `aopterr' See help file for more details.{p_end}"'
         error 198
       }
 
@@ -310,7 +310,7 @@
       }
 
       noi di ""
-      noi di as result "{phang}{err:IMPORTANT:} One important setting of this command – the Stata version – cannot be set inside the command due to how this setting works. The setting has been prepared by this command, and you only need to write \`r(version)' after this command (include the apostrophes) for the version setting to be applied.{p_end}"
+      noi di as result "{phang}{err:IMPORTANT:} One setting of this command requires that \`r(version)' is run on the immediate line after this command. Include the quotes \` and ' in \`r(version)'. This sets the Stata version which cannot be done for this purpose inside the command. This message will show regardless if this is already done. Read more on this requirement in the {help ieboilstart :help file}.{p_end}"
 
     }
   }

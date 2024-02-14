@@ -1,4 +1,4 @@
-*! version 7.2 04APR2023 DIME Analytics dimeanalytics@worldbank.org
+*! version 7.3 01FEB2024 DIME Analytics dimeanalytics@worldbank.org
 
 cap	program drop	iegraph
 	program define 	iegraph, rclass
@@ -8,7 +8,8 @@ cap	program drop	iegraph
  		confbarsnone(varlist) 					///
  		confintval(numlist min=1 max=1 >0 <1) 	///
  		BARLabel								///
- 		MLABColor(string)						///
+    BARColors(string)      ///
+    MLABColor(string)						///
  		MLABPosition(numlist)					///
  		MLABSize(string)						///
  		BAROPTions(string)						///
@@ -163,8 +164,7 @@ cap	program drop	iegraph
 		}
 		if `LABEL_COL' {
 			if !inlist("`mlabcolor'", "background", "bg", "foreground", "fg") {
-				noi 	colorname `mlabcolor'
-				local 	LABEL_COL = r(LABEL_COL)
+				noi test_color, color(`mlabcolor') option("mlabcolor")
 			}
 		}
 	}
@@ -412,13 +412,14 @@ cap	program drop	iegraph
 		*Create the bar for this group
 
 		if "`grayscale'" == "" {
-			colorPicker `tmtGroupCount' `graphCount'
+			colorPicker, gnum(`tmtGroupCount') tnum(`graphCount') ///
+        colors(`"`barcolors'"')
 		}
 		else {
 			grayPicker `tmtGroupCount' `graphCount'
 		}
 
-		local tmtGroupBars `"`tmtGroupBars' (bar mean position if position == `tmtGroupCount', `baroptions' color("`r(color)'") lcolor(black) ) "'
+		local tmtGroupBars `"`tmtGroupBars' (bar mean position if position == `tmtGroupCount', color("`r(color)'") lcolor(black) `baroptions' ) "'
 
 		************
 		*Create labels etc. for this group
@@ -604,43 +605,36 @@ end
 		******* on the number of vars *******
 	*******************************************
 	*******************************************
-	cap	program drop	colorPicker
-		program define 	colorPicker , rclass
+  cap	program drop	 colorPicker
+      program define colorPicker , rclass
 
-		args groupCount totalNumGroups
+    * gnum - number of this group
+    * tnum - total number of groups
+    * customc - custom list of colors
+  	syntax, gnum(numlist >0) [tnum(numlist >0) colors(string)]
 
-		if `totalNumGroups' == 2 {
+    * Define default colors if no colors are provided
+    if missing("`colors'") {
+    if (`tnum' == 2) local colors      `" "215 25 28" "43 123 182" "'
+    else if (`tnum' == 3) local colors `" "215 25 28" "255 255 191" "43 123 182" "'
+    else if (`tnum' == 4) local colors `" "215 25 28" "255 255 191" "171 217 233" "43 123 182" "'
+    else local colors `" "215 25 28" "253 174 93" "255 255 191" "171 217 233" "43 123 182" "'
+    }
 
-			if `groupCount' == 1 return local color "215 25 28"
-			if `groupCount' == 2 return local color "43 123 182"
-		}
-		else if `totalNumGroups' == 3 {
+    * Count number of colors
+    local color_count : word count `colors'
 
-			if `groupCount' == 1 return local color "215 25 28"
-			if `groupCount' == 2 return local color "255 255 191"
-			if `groupCount' == 3 return local color "43 123 182"
-		}
-		else if `totalNumGroups' == 4 {
+    * Modular devision of group numb with total number.
+    * This repeats colors if group num is higher than total number of colors
+    local color_num = mod(`gnum', `color_count')
+    if (`color_num' == 0) local color_num = `color_count'
 
-			if `groupCount' == 1 return local color "215 25 28"
-			if `groupCount' == 2 return local color "255 255 191"
-			if `groupCount' == 3 return local color "171 217 233"
-			if `groupCount' == 4 return local color "43 123 182"
-		}
-		else {
+    * Pick, test and return color in list
+    local color : word `color_num' of `colors'
+    test_color , color("`color'") option("barcolors")
+    return local color "`color'"
 
-			*For five or more colors we repeat the same pattern
-
-			local colorNum = mod(`groupCount', 5)
-			if `colorNum' == 1 return local color "215 25 28"
-			if `colorNum' == 2 return local color "253 174 93"
-			if `colorNum' == 3 return local color "255 255 191"
-			if `colorNum' == 4 return local color "171 217 233"
-			if `colorNum' == 0 return local color "43 123 182"
-
-		}
-
-	end
+  end
 
 	*******************************************
 	*******************************************
@@ -654,19 +648,10 @@ end
 
 		args groupCount totalNumGroups
 
-		if `groupCount' == 1 {
-
-			return local color "black"
-		}
-
-		else if `groupCount' == 2 & `totalNumGroups' <= 3 {
-
-			return local color "gs14"
-		}
+		if      (`groupCount' == 1) return local color "black"
+		else if (`groupCount'==2) & (`totalNumGroups'<=3) return local color "gs14"
 		else {
-
-			local grayscale =  round( (`groupCount'-1) * (100 / (`totalNumGroups'-1) ))
-
+			local grayscale = round((`groupCount'-1)*(100/(`totalNumGroups'-1)))
 			return local color "`grayscale' `grayscale' `grayscale' `grayscale'"
 		}
 
@@ -799,19 +784,17 @@ end
 
 	end
 
-	cap prog drop colorname
-		prog def colorname, rclass
+  cap prog drop test_color
+		prog def test_color, rclass
 
-		args name
+		syntax, color(string) option(string)
 
-		capture findfile color-`name'.style
-
+		capture findfile color-`color'.style
 		if ( _rc == 601 ) {
-
-			noi di "{phang} WARNING: Option mlabcolor() was incorrectly specified. Only named colors in {help colorstyle} are accepted. Default color used.{p_end}"
-			return local 	LABEL_COL 	0
+			noi di as error "{pstd} The color {inp:`color'} used in option {inp:`option'()} was incorrectly specified. Only colors listed in {help colorstyle} are accepted.{p_end}"
+			error 99
+      exit
 		}
-
 	end
 
 

@@ -1,5 +1,5 @@
 {smcl}
-{* 04 Apr 2023}{...}
+{* 01 Feb 2024}{...}
 {hline}
 help for {hi:iegraph}
 {hline}
@@ -45,6 +45,7 @@ command please see the {browse "https://dimewiki.worldbank.org/wiki/Iegraph":DIM
 {synopt :{cmdab:gray:scale}} Uses grayscales for the bars instead of colors.{p_end}
 {synopt :{cmdab:yzero}} Forces y-axis on the graph to start at 0.{p_end}
 {synopt :{cmdab:barl:abel}} Adds a label on top of the bars with their respective values.{p_end}
+{synopt :{opth barc:olors(colornames)}} Manually set the colors of the bars.{p_end}
 {synopt :{cmdab:mlabc:olor:(}{it:{help colorstyle:colorname}}{cmd:)}} Set color of bar label.{p_end}
 {synopt :{cmdab:mlabp:osition:(}{it:{help clockposstyle:clockpos}}{cmd:)}} Set position of bar label.{p_end}
 {synopt :{cmdab:mlabs:ize:(}{it:{help textsizestyle:size}}{cmd:)}} Set font size of bar label.{p_end}
@@ -132,18 +133,26 @@ command please see the {browse "https://dimewiki.worldbank.org/wiki/Iegraph":DIM
 	to specifying option {help help blabel_option:blabel(bar)} in a
 	{help graph_bar: bar graph}. {p_end}
 
-{phang}{cmdab:mlabc:olor:(}{it:{help colorstyle:colorname}}{cmd:)} Set color of bar label.
-	Must be used with {it:barlabel}.{p_end}
+{phang}{opt barc:olors(string)} manually sets the colors of the bars.
+All color names listed in {help colorstyle} are allowed.
+If there are more groups than colors listed,
+then the list of colors will be repeated.
+If color codes such as {it:"255 255 191"} is used,
+then the string must use compounded quotes {inp: `""'}.
+For example: {opt barcolors(`" red  "215 25 28" gs14 "')}.{p_end}
 
-{phang}{cmdab:mlabp:osition:(}{it:{help clockposstyle:clockpos}}{cmd:)} Set position of bar label.
-	Must be used with {it:barlabel}.{p_end}
+{phang}{cmdab:mlabc:olor:(}{it:{help colorstyle:colorname}}{cmd:)}
+Set color of bar label. May only be used with {it:barlabel}.{p_end}
 
-{phang}{cmdab:mlabs:ize:(}{it:{help textsizestyle:size}}{cmd:)} Set font size of bar label.
-	Must be used with {it:barlabel}.{p_end}
+{phang}{cmdab:mlabp:osition:(}{it:{help clockposstyle:clockpos}}{cmd:)}
+Set position of bar label. May only be used with {it:barlabel}.{p_end}
 
-{phang}{cmd:barlabelformat} Customize barlabel format. Must be used with {it:barlabel}. Options
-	allowed have the formats %#.#f or %#.#e. Default if %9.1f. See {help format} for
-	more information. {p_end}
+{phang}{cmdab:mlabs:ize:(}{it:{help textsizestyle:size}}{cmd:)}
+Set font size of bar label. May only be used with {it:barlabel}.{p_end}
+
+{phang}{cmd:barlabelformat} Customize barlabel format. Must be used with {it:barlabel}.
+Options allowed have the formats %#.#f or %#.#e.
+Default if %9.1f. See {help format} for more information. {p_end}
 
 {phang}{cmd:noconfbars} Removes the confidence interval bars from graphs for all
 	treatments. The default value for the confidence interval bars is 95%. {p_end}
@@ -165,9 +174,13 @@ command please see the {browse "https://dimewiki.worldbank.org/wiki/Iegraph":DIM
 	you de-bug how to apply Stata's built in graph options to an iegraph graph.
 	Note that this option deletes any unsaved changes made to your data.{p_end}
 
-{phang}{cmdab:baropt:ions(}{it:string}{cmd:)}} Allows you to add formatting
+{phang}{cmdab:baropt:ions(}{it:string}{cmd:)} Allows you to add formatting
 	option that are applied to each bar and not the graph itself. Example of
 	such option are {help twoway_bar} options and {help axis_options} options.
+  It is not possible to use this option to add formatting to individual bars.
+  Everything added in this option is added to all bars.
+  Formatting added in this option takes precedence over
+  any default formatting or formatting set in any other option.{p_end}
 
 {phang}{cmd:ignoredummytest} Ignores the tests that test if the dummies fits one
 	of the two models this command is intended for. The two models are described
@@ -224,7 +237,7 @@ command please see the {browse "https://dimewiki.worldbank.org/wiki/Iegraph":DIM
 {pstd} {hi:Example 4.}
 
 {pmore} {inp:regress} {it:harvest T1 T2 T3 } {break}
-		{inp:iegraph} {it:T1 T2 T3} {inp:, basictitle({it:"Treatment effect on harvest"})
+		{inp:iegraph} {it:T1 T2 T3} {inp:, basictitle({it:"Treatment effect on harvest"})}
 		xlabel(,angle(45)) yzero ylabel(minmax) save({it:"Graph1.gph"})}
 
 {pmore}The example above shows how to save a graph to disk. It also shows that

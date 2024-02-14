@@ -1,11 +1,11 @@
-*! version 7.2 04APR2023 DIME Analytics dimeanalytics@worldbank.org
+*! version 7.3 01FEB2024 DIME Analytics dimeanalytics@worldbank.org
 
 capture program drop ietoolkit
 program ietoolkit, rclass
 
 	* UPDATE THESE LOCALS FOR EACH NEW VERSION PUBLISHED
-	local version "7.2"
-	local versionDate "04APR2023"
+	local version "7.3"
+	local versionDate "01FEB2024"
 
 	syntax [anything]
 
@@ -26,7 +26,7 @@ program ietoolkit, rclass
 	**********************/
 
 	* Stata versions commands in this package allows when applicable
-	return local  stata_target_versions "12 12.0 12.1 13 13.0 13.1 14 14.0 14.1 14.2 15 15.0 15.1 16.0 16.1 17.0"
+	return local  stata_target_versions "12 12.0 12.1 13 13.0 13.1 14 14.0 14.1 14.2 15 15.0 15.1 16.0 16.1 17.0 18.0"
 	return local  dta_target_versions   "12 13 14"
 
 	* Prepare returned locals

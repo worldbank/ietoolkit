@@ -1,5 +1,5 @@
 {smcl}
-{* 04 Apr 2023}{...}
+{* 01 Feb 2024}{...}
 {hline}
 help for {hi:iesave}
 {hline}
@@ -13,7 +13,7 @@ with option to save meta data report about the data saved.
 
 {phang2}
 {cmdab:iesave} {help filename},
-{opth id:vars(varlist)} {opt dta:version(version_number)} [{opt replace}
+{opth id:vars(varlist)} {opt v:ersion(version_number)} [{opt replace}
 {opt userinfo} {opt report(report_options)}]{p_end}
 
 {marker opts}{...}
@@ -22,7 +22,7 @@ with option to save meta data report about the data saved.
 {synoptline}
 {synopthdr:Save options}
 {synopt :{opth id:vars(varlist)}} The variable(s) that should identify the data set{p_end}
-{synopt :{opt dta:version(stata_version)}} Specify which {inp:.dta} version to use when saving{p_end}
+{synopt :{opt v:ersion(stata_version)}} Specify which {inp:.dta} version to use when saving{p_end}
 {synopt :{opt replace}} Replace the data file if it already exits{p_end}
 {synopt :{opt userinfo}} Include user info in meta data{p_end}
 {synopt :{opt report(report_options)}} Save a report with meta data about the data to disk. See below for opt{p_end}
@@ -100,7 +100,7 @@ the variables specified in this option have
 missing values or duplicated values
 (duplicated combinations of values if more than one ID variable).{p_end}
 
-{phang}{opt dta:version(stata_version)} is used to specify which
+{phang}{opt v:ersion(stata_version)} is used to specify which
 {inp:.dta} version should be used when saving the data set.
 This allows a team that works in different versions of Stata
 to always save in the same {inp:.dta} format no matter
@@ -175,7 +175,7 @@ in the most memory efficient format.{p_end}
 {pstd}{inp:sysuse auto, clear}{break}
 {inp:local myfolder {it:"/path/to/folder"}}{break}
 {inp:iesave {it:"`myfolder'/data1.dta"}, replace ///}{break}
-{space 2}{inp:idvars(make) dtaversion(15)}{p_end}
+{space 2}{inp:idvars(make) version(15)}{p_end}
 
 {pstd}{bf:{ul:Example 2}}{p_end}
 
@@ -186,7 +186,7 @@ to {it:"`myfolder'/data2.md"}.{p_end}
 {pstd}{inp:sysuse auto, clear}{break}
 {inp:local myfolder {it:"/path/to/folder"}}{break}
 {inp:iesave {it:"`myfolder'/data2.dta"}, replace  ///}{break}
-{space 2}{inp:idvars(make) dtaversion(15) report}{p_end}
+{space 2}{inp:idvars(make) version(15) report}{p_end}
 
 {pstd}{bf:{ul:Example 3}}{p_end}
 
@@ -196,7 +196,7 @@ and saves it in the custom location {it:"`myfolder'/reports/data-report.csv"}.{p
 {pstd}{inp:sysuse auto, clear}{break}
 {inp:local myfolder {it:"/path/to/folder"}}{break}
 {inp:iesave {it:"`myfolder'/data2.dta"}, replace  ///}{break}
-{space 2}{inp:idvars(make) dtaversion(15) {space 15}///}{break}
+{space 2}{inp:idvars(make) version(15) {space 15}///}{break}
 {space 2}{inp:report(path({it:"`myfolder'/reports/data-report.csv")  replace})}{p_end}
 
 {title:Author}

@@ -1,5 +1,5 @@
 {smcl}
-{* 04 Apr 2023}{...}
+{* 01 Feb 2024}{...}
 {hline}
 help for {hi:iebaltab}
 {hline}
@@ -67,7 +67,7 @@ will test for differences across the categories in {opt groupvar(varname)}.
 {synopt :{opt rowv:arlabels}}Use the variable labels instead of variable name as row titles{p_end}
 {synopt :{opt rowl:abels(nametitles)}}Manually set the row titles. See details on {it:nametitles} below{p_end}
 {synopt :{opt nonote}}Suppress the default not at the bottom of the table{p_end}
-{synopt :{opt addnotes(string)}}Add a manual note to the bottom of the table{p_end}
+{synopt :{opt addnote(string)}}Add a manual note to the bottom of the table{p_end}
 
 {marker exportoptions}{...}
 {synopthdr:Export options}

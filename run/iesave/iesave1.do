@@ -107,6 +107,34 @@
 			version(`stata_ver')
 		assert _rc == 459
 
+        /*********************
+		      Mutliple IDvars with missing values
+		*********************/
+
+ 		* Load auto
+		sysuse auto, clear
+        
+        * Create ids that are only unique in combination
+        gen village = foreign 
+        sort village make
+        by  village : gen village_hhid = _n
+         
+        * First test that it works without missing
+		iesave "`version_folder'/id_3.dta", 	///
+			idvars(village village_hhid) version(15) replace
+ 
+ 		*Add this file to list of expected files
+		local expected_files `"`expected_files' "id_3.dta""'
+        
+        *  Create some missing vars
+        replace village = . in 5
+        replace village_hhid = . in 65
+        
+        * Run iesave and test for expected error
+        cap iesave "`version_folder'/err_id_3.dta", ///
+            idvars(village village_hhid) version(15) replace
+        assert _rc == 459
+        
 		/*********************
 		   absence of userinfo
 		*********************/
