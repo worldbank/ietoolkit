@@ -88,22 +88,22 @@
 	Color options
 ------------------------------------------------------------------------------*/
 {
-			// If no [color] is specified, keep standard Stata color palette.
+			// If no [color] is specified, use palette from 'blindscheme' by Daniel Bischof.
 			// Otherwise, set user-specified colors
 			if	missing("`color'") {
-
-				set scheme s2color
 
 				local 	  treatvar_count = 0
 
 				foreach   treatvar_num of local treatvar_levels {
 
-					if 	 `treatvar_count' == 0 local color_`treatvar_num' "navy"
-					if 	 `treatvar_count' == 1 local color_`treatvar_num' "maroon"
-					if 	 `treatvar_count' == 2 local color_`treatvar_num' "forest_green"
-					if 	 `treatvar_count' == 3 local color_`treatvar_num' "dkorange"
-					if   `treatvar_count' == 4 local color_`treatvar_num' "teal"
-					if	 `treatvar_count' == 5 local color_`treatvar_num' "cranberry"
+					if 	 `treatvar_count' == 0 local color_`treatvar_num' "black"
+					if 	 `treatvar_count' == 1 local color_`treatvar_num' "gs10"
+					if 	 `treatvar_count' == 2 local color_`treatvar_num' "sky"
+					if 	 `treatvar_count' == 3 local color_`treatvar_num' "turquoise"
+					if   `treatvar_count' == 4 local color_`treatvar_num' "reddish"
+					if	 `treatvar_count' == 5 local color_`treatvar_num' "vermillion"
+					if	 `treatvar_count' == 6 local color_`treatvar_num' "sea"
+					if	 `treatvar_count' == 7 local color_`treatvar_num' "ananas"
 
 					local treatvar_count = `treatvar_count' + 1
 				}
@@ -385,7 +385,6 @@
 						// Transfer labels from original variable
 						local    treatvarCount = 0
 						local 	 treatvarLab_`treatvarCount' : label (`by') `treatvar_control'
-						di	   "`treatvarLab_`treatvarCount''"
 						lab def  treatvarLab `treatvarCount' "`treatvarLab_`treatvarCount''", replace
 
 						foreach  treatvarNum of local treatvar_comparison {
@@ -438,14 +437,16 @@
 						forv  estimateNum = 1/`treatvarCount' {
 
 							if	`estimateNum' == 1 {
-								local EFFECTnote 				   "  [`by' == `estimateNum'] `beta`estimateNum'' (`se`estimateNum'')`stars`estimateNum'';"
+								local EFFECTnote 				   "  {&Delta}[`treatvarLab_`estimateNum'' - `treatvarLab_0'] = `beta`estimateNum'' (`se`estimateNum'')`stars`estimateNum'';"
 							}
 							else {
-								local EFFECTnote `" "`EFFECTnote'" "  [`by' == `estimateNum'] `beta`estimateNum'' (`se`estimateNum'')`stars`estimateNum'';" "'
+								local EFFECTnote `" "`EFFECTnote'" "  {&Delta}[`treatvarLab_`estimateNum'' - `treatvarLab_0'] = `beta`estimateNum'' (`se`estimateNum'')`stars`estimateNum'';" "'
 							}
 						}
-
-						local EFFECTnote `" note("{bf:Treatment effects} =" `EFFECTnote' "  N = `obs'.") "'
+						
+						// Fix note when label values are not specified by the user
+						
+						local EFFECTnote `" note("{bf:Treatment effects:}" `EFFECTnote' "  N = `obs'.") "'
 					}
 				}
 			}
@@ -529,7 +530,7 @@
 
 					foreach   varNum of local treatvar_levels {
 
-						local STATxline `" `STATxline' xline( ``varlist'_`varNum'' , lcolor(`color_`varNum''%80) lpattern(dash) ) "'
+						local STATxline `" `STATxline' xline( ``varlist'_`varNum'' , lcolor(`color_`varNum''*.8) lpattern(dash) ) "'
 					}
 				}
 
@@ -553,7 +554,7 @@
 
 						foreach   varNum of local treatvar_levels {
 
-							local STATxline `" `STATxline' xline( ``varlist'_`varNum'' , lcolor(`color_`varNum''%80) `statstyle' ) "'
+							local STATxline `" `STATxline' xline( ``varlist'_`varNum'' , lcolor(`color_`varNum''*.8) `statstyle' ) "'
 						}
 					}
 
@@ -659,8 +660,9 @@
 		`legendString'			///
 		 ytitle(Density) 		///
 		 xtitle(`varLab')		///
+		 graphregion(color(white)) bgcolor(white)
 		`options'
-
+		
 		// Restore original dataset
 		restore
 
