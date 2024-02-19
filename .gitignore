@@ -71,3 +71,6 @@ test/
 
 # ignore all iegitaddmd output, results tested with checksums
 /**/iegitaddmd/outputs/
+
+* Ignore the local dev env set up by repado
+run/dev-env/
