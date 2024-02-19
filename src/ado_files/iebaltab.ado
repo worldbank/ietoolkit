@@ -314,7 +314,6 @@ qui {
 				local cluster_var `2'
 
 				* Test that the variable used as cluster is indeed a variable
-				* and that it is numeric
 				cap confirm variable `cluster_var'
 				if _rc {
 					noi display as error "{phang}The cluster variable in vce(`vce') does not exist or is invalid for any other reason. See {help vce_option :help vce_option} for more information.{p_end}"
