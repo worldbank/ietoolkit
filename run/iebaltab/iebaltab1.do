@@ -2,6 +2,14 @@
 	* Set versson and seed
 	ieboilstart , version(13.1)
 	`r(version)'
+ 
+  * Install the version of this package in
+  * the plus-ado folder in the test folder
+  cap mkdir    "run/dev-env"
+  repado using "run/dev-env"
+
+  cap net uninstall ietoolkit
+  net install ietoolkit, from("C:\Users\wb462869\github\ietoolkit\src") replace
 
   * Load the command from file and utils
 	qui	do "src/ado_files/iebaltab.ado"
