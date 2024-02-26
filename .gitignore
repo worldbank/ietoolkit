@@ -74,3 +74,5 @@ test/
 
 * Ignore the local dev env set up by repado
 run/dev-env/
+
+run/ieboilstart/ado-test/

@@ -18,11 +18,19 @@
   ieboilstart , version(13.1)
   `r(version)'
 
+  * Load utils commands
+  qui do "${runfldr}/run_utils.do"
+
   ************************
   * Run tests
- 
-  local out "${runfldr}/ieboilstart/"
+
+  local out "${runfldr}/ieboilstart/ado-test"
+  ie_recurse_rmdir, folder("`out'") okifnotexist
+  ie_recurse_mkdir, folder("`out'")
 
   * Make sure deprecated but still supported option work
 	ieboilstart , version(13.1) adopath("`out'", strict)
 	`r(version)'
+
+  // make sure repkit is installed in this folder such that other files can use repado to reset this change
+  ssc install repkit, replace
