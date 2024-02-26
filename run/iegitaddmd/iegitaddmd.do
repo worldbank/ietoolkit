@@ -1,10 +1,26 @@
 
-	**********************************************
-    * Set root macro to clone folder wide path macros
 
-    ***
+    ************************
+    * Set up root paths if not already set, and set up dev environment
+
+    reproot, project("ietoolkit") roots("clone") prefix("ietk_")
+    global runfldr "${ietk_clone}/run"
+    global srcfldr "${ietk_clone}/src"
+
+    * Set versson and seed
+    ieboilstart , version(13.1)
+    `r(version)'
+
+    * Install the version of this package in
+    * the plus-ado folder in the test folder
+    cap mkdir    "${runfldr}/dev-env"
+    repado using "${runfldr}/dev-env"
+
+    cap net uninstall ietoolkit
+    net install ietoolkit, from("${ietk_clone}/src") replace
+
     * Macro to run folder
-    local iegam  "run/iegitaddmd"
+    local iegam  "${runfldr}/iegitaddmd"
     local output "`iegam'/outputs"
 
     local cl     "`output'/clone"
@@ -16,15 +32,14 @@
     local customfolder   "`output'/customfolder"
     local customfile     "iegitaddmd_custom_file.md"
 
-    **********************************************
-    * Load commands
-
-    *Load version of iegitaddmd in clone
-    qui do "src/ado_files/iegitaddmd.ado"
-
     *Load utility command
-	  qui do "run/run_utils.do"
+	  qui do "${runfldr}/run_utils.do"
     ie_recurse_rmdir, folder("`output'") okifnotexist
+
+    ************************
+    * Run tests
+
+
 
     **********************************************
     * Set up folders to test on

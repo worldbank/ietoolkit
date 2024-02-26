@@ -1,41 +1,29 @@
 
-  * Load the command from file and utils
-	qui	do "src/ado_files/ieboilstart.ado"
-  qui do "src/ado_files/ietoolkit.ado"
+  ************************
+  * Set up root paths if not already set, and set up dev environment
 
-  local out "run/ieboilstart/outputs"
+  reproot, project("ietoolkit") roots("clone") prefix("ietk_")
+  global runfldr "${ietk_clone}/run"
+  global srcfldr "${ietk_clone}/src"
+
+  * Set versson and seed
+  ieboilstart , version(13.1)
+  `r(version)'
+
+  * Install the version of this package in
+  * the plus-ado folder in the test folder
+  cap mkdir    "${runfldr}/dev-env"
+  repado using "${runfldr}/dev-env"
+
+  cap net uninstall ietoolkit
+  net install ietoolkit, from("${ietk_clone}/src") replace
+
+  ************************
+  * Run tests
 
 
-  * Testing old "default" syntax
-  cap ieboilstart , version(13.1) adopath("`out'/ado1")
-  assert _rc == 198
+  local out "${runfldr}/ieboilstart/"
 
-  * Load the command from file and utils
-	qui	do "src/ado_files/ieboilstart.ado"
-  qui do "src/ado_files/ietoolkit.ado"
-
-	* Set PERSONAL path
-	ieboilstart , version(13.1) adopath("`out'/ado1", nostrict)
-	`r(version)'
-
-  *Test mock command in this ado path
-  ado1
-
-  * NOTE THAT THIS LINE WILL CAUSE AN ERROR IF THIS RUN FILE IS RAN TWICE
-  * WITHOUT RESTARTING STATA INBETWEEN
-  iefieldkit
-
-  * Reload commands
-	qui	do "src/ado_files/ieboilstart.ado"
-  qui do "src/ado_files/ietoolkit.ado"
-
-  * Set PLUS path
+  * Make sure deprecated but still supported option work
 	ieboilstart , version(13.1) adopath("`out'/ado2", strict)
 	`r(version)'
-
-  *Test mock command in this ado path
-  ado2
-
-  * Test that otherwise instaleld commands are not accessible after "strict"
-  cap iefieldkit
-  assert _rc == 199

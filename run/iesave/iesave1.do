@@ -1,33 +1,45 @@
 
-	/*****************************************************************************
-	  Set up
-	*****************************************************************************/
+  ************************
+  * Set up root paths if not already set, and set up dev environment
+
+  reproot, project("ietoolkit") roots("clone") prefix("ietk_")
+  global runfldr "${ietk_clone}/run"
+  global srcfldr "${ietk_clone}/src"
+
+  * Set versson and seed
+  ieboilstart , version(13.1)
+  `r(version)'
+
+  * Install the version of this package in
+  * the plus-ado folder in the test folder
+  cap mkdir    "${runfldr}/dev-env"
+  repado using "${runfldr}/dev-env"
+
+  cap net uninstall ietoolkit
+  net install ietoolkit, from("${ietk_clone}/src") replace
 
   * Comment out to run without debug mode
   local debug debug
 
-  local iesave_folder  "run/iesave"
+  local iesave_folder  "${runfldr}/iesave"
   local out            "`iesave_folder'/outputs/iesave1"
   local reports_folder "`out'/reports"
 
-	* Load the version in this clone into memory. If you need to use the version
-	* currently installed in you instance of Stata, then simply re-start Stata.
-	* Set up the ietoolkit_clone global root path in ietoolkit\run\run_master.do
-	qui do "src/ado_files/iesave.ado"
-  qui do "src/ado_files/ietoolkit.ado"
-
 	*Load utility functions that create and resets folders across runs
-	qui do "run/run_utils.do"
+	qui do "${runfldr}/run_utils.do"
+
+  *Remove all previously generated output (if any)
+  ie_recurse_rmdir, folder("`out'") okifnotexist
+
+  *Re-create the reports folders
+  ie_recurse_mkdir, folder("`reports_folder'")
+
+  ************************
+  * Run tests
 
 	/*****************************************************************************
 		Run this run file once for each save file version
 	*****************************************************************************/
-
-    *Remove all previously generated output (if any)
-    ie_recurse_rmdir, folder("`out'") okifnotexist
-
-    *Re-create the reports folders
-    ie_recurse_mkdir, folder("`reports_folder'")
 
     * Only include the version your Stata version can run
   	if 		`c(stata_version)'   < 13 local stata_versions 12
@@ -113,28 +125,28 @@
 
  		* Load auto
 		sysuse auto, clear
-        
+
         * Create ids that are only unique in combination
-        gen village = foreign 
+        gen village = foreign
         sort village make
         by  village : gen village_hhid = _n
-         
+
         * First test that it works without missing
 		iesave "`version_folder'/id_3.dta", 	///
 			idvars(village village_hhid) version(15) replace
- 
+
  		*Add this file to list of expected files
 		local expected_files `"`expected_files' "id_3.dta""'
-        
+
         *  Create some missing vars
         replace village = . in 5
         replace village_hhid = . in 65
-        
+
         * Run iesave and test for expected error
         cap iesave "`version_folder'/err_id_3.dta", ///
             idvars(village village_hhid) version(15) replace
         assert _rc == 459
-        
+
 		/*********************
 		   absence of userinfo
 		*********************/
