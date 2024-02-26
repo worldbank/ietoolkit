@@ -54,7 +54,7 @@
     do "${runfldr}/iebaltab/iebaltab2.do"
 
     * ieddtab
-    do "${runfldr}/ieddtab/ieddtab.do"
+    *do "${runfldr}/ieddtab/ieddtab.do"
 
     * ieboilstart
     * NOTE: this runfile changes settings such that Stata needs to be re-started
