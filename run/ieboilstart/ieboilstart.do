@@ -20,10 +20,9 @@
 
   ************************
   * Run tests
-
-
+ 
   local out "${runfldr}/ieboilstart/"
 
   * Make sure deprecated but still supported option work
-	ieboilstart , version(13.1) adopath("`out'/ado2", strict)
+	ieboilstart , version(13.1) adopath("`out'", strict)
 	`r(version)'

@@ -18,6 +18,9 @@
   cap net uninstall ietoolkit
   net install ietoolkit, from("${ietk_clone}/src") replace
 
+  * Load utils commands
+  qui do "${runfldr}/run_utils.do"
+
   ************************
   * Run tests
 
