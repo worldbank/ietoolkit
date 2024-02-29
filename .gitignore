@@ -19,6 +19,7 @@
 !.gitattributes
 #.io page
 _config.yml
+!reproot.yaml
 
 # Keep markdown files used for documentation on GitHub
 !README.md
