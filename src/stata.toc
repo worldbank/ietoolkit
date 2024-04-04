@@ -1,3 +1,0 @@
-v 7.3
-d DIME Analytics, World Bank Group, Development Economics Research
-p ietoolkit DIME Analytics
