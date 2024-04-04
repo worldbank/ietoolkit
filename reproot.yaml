@@ -1,2 +1,5 @@
+# This file allows dynamically setting the root-path with the command reproot
+# Read more about this command and how to use this file at:
+# https://worldbank.github.io/repkit/articles/reproot-files.html
 project_name : ietoolkit
 root_name    : clone

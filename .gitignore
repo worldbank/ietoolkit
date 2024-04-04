@@ -1,0 +1,67 @@
+########################################################################
+#
+# Created using adodown https://lsms-worldbank.github.io/adodown/, based on DIME .gitignore template:
+# https://github.com/worldbank/dime-github-trainings/tree/main/GitHub-resources/DIME-GitHub-Templates
+#
+########################################################################
+
+#######################
+# Start by ignoring everything, and below we are explicitly saying
+# what to not ignore
+*
+
+#######################
+# List of files with GitHub functionality anywhere in the repo
+# that we do not want to ignore
+
+# These files include GitHub settings
+!.gitignore
+!.gitattributes
+!.github/**/*.yaml
+
+# Git placeholder file (to commit empty folders)
+!/**/*.gitkeep
+
+# Keep markdown files used for documentation on GitHub
+!README.md
+!CONTRIBUTING.md
+!LICENSE*
+
+* Unignore reproot files
+!reproot*.yaml
+
+#######################
+# For performance reasons, if a folder is already ignored, then
+# GitHub does not check the content for that folder for matches
+# with additional rules. The line below includes folder in the
+# top folder (but not their content), so that anything matching
+# the rules below will still not be ignored.
+!*/
+
+#######################
+# The following file types are code that should always be
+# included no matter where in the repository folder they are
+# located unless you explicitly ignore that folder
+
+# Stata
+!/**/*.do
+!/**/*.ado
+!/**/sthlp/*.sthlp
+!src/stata.toc
+!src/*.pkg
+
+# Markdown and web docs files
+!/**/*.md
+!src/dev/**/*.png
+!src/dev/**/*.css
+
+####################################
+# Ignore ssc outputs
+src/dev/ssc
+
+# Ignore test inputs and outputs
+src/tests/**/inputs/
+src/tests/**/outputs/
+
+* Ignore the local dev env set up by repado
+src/tests/dev-env/

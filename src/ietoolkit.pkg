@@ -1,0 +1,55 @@
+* This package file is generated in the adodown workflow.
+* Do not edit manually - instead, use the command ad_update in the adodown package
+*** version
+v 0.0
+*** title
+d 'IETOOLKIT': 
+*** description
+d module providing commands specially developed for Impact Evaluations
+d
+*** stata
+d Requires: Stata version 0.0
+d
+*** author
+d Author: DIME Analytics
+*** contact
+d Contact: dimeanalytics@worldbank.org
+*** url
+d URL: https://github.com/worldbank/ietoolkit/
+d
+*** date
+d Distribution-Date: 20240404
+*** adofiles
+f ado/iesave.ado
+f ado/iematch.ado
+f ado/iekdensity.ado
+f ado/iegraph.ado
+f ado/iegitaddmd.ado
+f ado/iefolder.ado
+f ado/iedropone.ado
+f ado/iedorep.ado
+f ado/ieddtab.ado
+f ado/ieboilstart.ado
+f ado/ieboilsave.ado
+f ado/iebaltab.ado
+f ado/ietoolkit.ado
+
+*** helpfiles
+f sthlp/iesave.sthlp
+f sthlp/iematch.sthlp
+f sthlp/iekdensity.sthlp
+f sthlp/iegraph.sthlp
+f sthlp/iegitaddmd.sthlp
+f sthlp/iefolder.sthlp
+f sthlp/iedropone.sthlp
+f sthlp/iedorep.sthlp
+f sthlp/ieddtab.sthlp
+f sthlp/ieboilstart.sthlp
+f sthlp/ieboilsave.sthlp
+f sthlp/iebaltab.sthlp
+f sthlp/ietoolkit.sthlp
+
+*** ancillaryfiles
+
+*** end
+e
