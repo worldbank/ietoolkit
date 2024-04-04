@@ -1,12 +1,29 @@
 
-/*******************************************************************************
-	Set up
-*******************************************************************************/
+  ************************
+  * Set up root paths if not already set, and set up dev environment
 
-	* Load the version in this clone into memory. If you need to use the version
-	* currently installed in you instance of Stata, then simply re-start Stata.
-	* Set up the ietoolkit_clone global root path in ietoolkit\run\run_master.do
-	qui	do "src/ado_files/iekdensity.ado"
+  reproot, project("ietoolkit") roots("clone") prefix("ietk_")
+  global runfldr "${ietk_clone}/run"
+  global srcfldr "${ietk_clone}/src"
+
+  * Install the version of this package in
+  * the plus-ado folder in the test folder
+  cap mkdir    "${runfldr}/dev-env"
+  repado using "${runfldr}/dev-env"
+
+  cap net uninstall ietoolkit
+  net install ietoolkit, from("${ietk_clone}/src") replace
+
+  * Set version to target version of ietoolkit
+  ieboilstart , version(13.1)
+  `r(version)'
+
+  ************************
+  * Run tests
+
+/*******************************************************************************
+	Set up test data
+*******************************************************************************/
 
 	* Load data
 	sysuse	auto, clear

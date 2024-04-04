@@ -19,6 +19,7 @@
 !.gitattributes
 #.io page
 _config.yml
+!reproot.yaml
 
 # Keep markdown files used for documentation on GitHub
 !README.md
@@ -74,3 +75,5 @@ test/
 
 * Ignore the local dev env set up by repado
 run/dev-env/
+
+run/ieboilstart/ado-test/

@@ -1,15 +1,29 @@
 
-	* Set versson and seed
-	ieboilstart , version(13.1)
-	`r(version)'
+  ************************
+  * Set up root paths if not already set, and set up dev environment
+
+  reproot, project("ietoolkit") roots("clone") prefix("ietk_")
+  global runfldr "${ietk_clone}/run"
+  global srcfldr "${ietk_clone}/src"
+
+  * Install the version of this package in
+  * the plus-ado folder in the test folder
+  cap mkdir    "${runfldr}/dev-env"
+  repado using "${runfldr}/dev-env"
+
+  cap net uninstall ietoolkit
+  net install ietoolkit, from("${ietk_clone}/src") replace
+
+  * Set version to target version of ietoolkit
+  ieboilstart , version(13.1)
+  `r(version)'
 
   * Load the command from file and utils
-	qui	do "src/ado_files/iebaltab.ado"
-	qui do "run/iebaltab/iebaltab_run_utils.do"
-  qui do "run/run_utils.do"
+	qui do "${runfldr}/iebaltab/iebaltab_run_utils.do"
+  qui do "${runfldr}/run_utils.do"
 
   * Folder local and make sure it is created
-	local out "run/iebaltab/outputs/iebaltab1"
+	local out "${runfldr}/iebaltab/outputs/iebaltab1"
   ie_recurse_mkdir, folder("`out'")
 
 ************* Regular

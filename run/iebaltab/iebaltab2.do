@@ -1,154 +1,173 @@
 
-ieboilstart , version(13.1)
-`r(version)'
+  ************************
+  * Set up root paths if not already set, and set up dev environment
 
-sysuse auto, clear
+  reproot, project("ietoolkit") roots("clone") prefix("ietk_")
+  global runfldr "${ietk_clone}/run"
+  global srcfldr "${ietk_clone}/src"
 
-set seed 232197	// obtained from bit.ly/stata-random on 2022-10-11 22:16:30 UTC
+  * Install the version of this package in
+  * the plus-ado folder in the test folder
+  cap mkdir    "${runfldr}/dev-env"
+  repado using "${runfldr}/dev-env"
 
-gen random = runiform()
+  cap net uninstall ietoolkit
+  net install ietoolkit, from("${ietk_clone}/src") replace
 
-gen tmt = (random > .33)
-replace tmt = 2 if (random > .66)
+  * Set version to target version of ietoolkit
+  ieboilstart , version(13.1)
+  `r(version)'
 
-split make, gen(strata)
-encode strata1, gen(stratum)
-drop strata*
+  * Load utils commands
+  qui do "${runfldr}/run_utils.do"
 
-local vars price mpg trunk headroom weight length turn displacement gear_ratio
+  ************************
+  * Run tests
 
-qui do "src/ado_files/iebaltab.ado"
-qui do "run/run_utils.do"
+  sysuse auto, clear
 
-local out "run/iebaltab/outputs/iebaltab2"
-ie_recurse_mkdir, folder("`out'")
+  set seed 232197	// obtained from bit.ly/stata-random on 2022-10-11 22:16:30 UTC
 
-**# Export options ---------------------------------------------------------------
+  gen random = runiform()
 
-preserve
-	iebaltab `vars', grpvar(foreign) browse
-restore
+  gen tmt = (random > .33)
+  replace tmt = 2 if (random > .66)
 
-iebaltab `vars', grpvar(foreign) ///
-	savexlsx("`out'/2g.xlsx") ///
-	savecsv("`out'/2g-control.csv") ///
-	savetex("`out'/2g.tex") ///
-	replace
+  split make, gen(strata)
+  encode strata1, gen(stratum)
+  drop strata*
 
-iebaltab `vars', grpvar(tmt) ///
-		savetex("`out'/3g.tex") ///
-		replace
+  local vars price mpg trunk headroom weight length turn displacement gear_ratio
 
-**# Column and row options -----------------------------------------------------
+  local out "${runfldr}/iebaltab/outputs/iebaltab2"
+  ie_recurse_mkdir, folder("`out'")
 
-* Should throw error: file exists
-	cap iebaltab `vars', grpvar(foreign) ///
-		control(1) ///
-		savetex("`out'/2g.tex")
+  **# Export options ---------------------------------------------------------------
 
-	assert _rc == 602
+  preserve
+  	iebaltab `vars', grpvar(foreign) browse
+  restore
 
-* control
-	iebaltab `vars', grpvar(foreign) ///
-		control(0) ///
-		savetex("`out'/2g-control.tex") ///
-		replace
+  iebaltab `vars', grpvar(foreign) ///
+  	savexlsx("`out'/2g.xlsx") ///
+  	savecsv("`out'/2g-control.csv") ///
+  	savetex("`out'/2g.tex") ///
+  	replace
 
-* Three groups
-	iebaltab `vars', grpvar(tmt) ///
-		savetex("`out'/3g.tex") ///
-		replace
+  iebaltab `vars', grpvar(tmt) ///
+  		savetex("`out'/3g.tex") ///
+  		replace
 
-	iebaltab `vars', grpvar(tmt) ///
-		control(0) ///
-		savetex("`out'/3g-control.tex") ///
-		replace
+  **# Column and row options -----------------------------------------------------
 
-*  order(groupcodelist)
-	iebaltab `vars', grpvar(tmt) ///
-		order(2) ///
-		savetex("`out'/3g-order.tex") ///
-		replace
+  * Should throw error: file exists
+  	cap iebaltab `vars', grpvar(foreign) ///
+  		control(1) ///
+  		savetex("`out'/2g.tex")
 
-	iebaltab `vars', grpvar(tmt) ///
-		control(0) order(2 1) ///
-		savetex("`out'/3g-control-order.tex") ///
-		replace
+  	assert _rc == 602
 
-* total
-	iebaltab `vars', grpvar(tmt) ///
-		total ///
-		savetex("`out'/3g-total.tex") ///
-		replace
+  * control
+  	iebaltab `vars', grpvar(foreign) ///
+  		control(0) ///
+  		savetex("`out'/2g-control.tex") ///
+  		replace
 
-	iebaltab `vars', grpvar(foreign) ///
-		total ///
-		savetex("`out'/2g-total.tex") ///
-		replace
+  * Three groups
+  	iebaltab `vars', grpvar(tmt) ///
+  		savetex("`out'/3g.tex") ///
+  		replace
 
-* onerow
-	iebaltab `vars', grpvar(foreign) ///
-		onerow ///
-		savetex("`out'/2g-onerow.tex") ///
-		replace
+  	iebaltab `vars', grpvar(tmt) ///
+  		control(0) ///
+  		savetex("`out'/3g-control.tex") ///
+  		replace
 
-**# Estimation options ---------------------------------------------------------
-	iebaltab `vars', grpvar(foreign) ///
-		fixedeffect(stratum) ///
-		savetex("`out'/2g-fe.tex") ///
-		replace
+  *  order(groupcodelist)
+  	iebaltab `vars', grpvar(tmt) ///
+  		order(2) ///
+  		savetex("`out'/3g-order.tex") ///
+  		replace
 
-	iebaltab `vars', grpvar(tmt) ///
-		covariates(foreign) ///
-		stats(pair(p)) ///
-		savetex("`out'/3g-cov.tex") ///
-		replace
+  	iebaltab `vars', grpvar(tmt) ///
+  		control(0) order(2 1) ///
+  		savetex("`out'/3g-control-order.tex") ///
+  		replace
 
-	iebaltab `vars', grpvar(foreign) ///
-		fixedeffect(stratum) ///
-		ftest ///
-		savetex("`out'/2g-ftest.tex") ///
-		replace
+  * total
+  	iebaltab `vars', grpvar(tmt) ///
+  		total ///
+  		savetex("`out'/3g-total.tex") ///
+  		replace
 
-	iebaltab `vars', grpvar(foreign) ///
-		fixedeffect(stratum) ///
-		feqtest ///
-		savetex("`out'/2g-feqtest.tex") ///
-		replace
+  	iebaltab `vars', grpvar(foreign) ///
+  		total ///
+  		savetex("`out'/2g-total.tex") ///
+  		replace
 
-	iebaltab `vars', grpvar(foreign) ///
-		stats(pair(p)) ///
-		savetex("`out'/2g-pair.tex") ///
-		replace
+  * onerow
+  	iebaltab `vars', grpvar(foreign) ///
+  		onerow ///
+  		savetex("`out'/2g-onerow.tex") ///
+  		replace
 
-	iebaltab `vars', grpvar(foreign) ///
-		vce(cluster stratum) ///
-		stats(pair(p)) ///
-		savetex("`out'/2g-cluster.tex") ///
-		replace
+  **# Estimation options ---------------------------------------------------------
+  	iebaltab `vars', grpvar(foreign) ///
+  		fixedeffect(stratum) ///
+  		savetex("`out'/2g-fe.tex") ///
+  		replace
 
-**# Stat display options -------------------------------------------------------
+  	iebaltab `vars', grpvar(tmt) ///
+  		covariates(foreign) ///
+  		stats(pair(p)) ///
+  		savetex("`out'/3g-cov.tex") ///
+  		replace
 
-	iebaltab `vars', grpvar(foreign) ///
-		format("%9.2f") ///
-		savetex("`out'/2g-fmt.tex") ///
-		replace
+  	iebaltab `vars', grpvar(foreign) ///
+  		fixedeffect(stratum) ///
+  		ftest ///
+  		savetex("`out'/2g-ftest.tex") ///
+  		replace
 
-	iebaltab `vars', grpvar(foreign) ///
-		starsnoadd ///
-		savetex("`out'/2g-nostars.tex") ///
-		replace
+  	iebaltab `vars', grpvar(foreign) ///
+  		fixedeffect(stratum) ///
+  		feqtest ///
+  		savetex("`out'/2g-feqtest.tex") ///
+  		replace
 
-	iebaltab `vars', grpvar(foreign) ///
-		starlevels(.05 .01 .001) ///
-		savetex("`out'/2g-stars.tex") ///
-		replace
+  	iebaltab `vars', grpvar(foreign) ///
+  		stats(pair(p)) ///
+  		savetex("`out'/2g-pair.tex") ///
+  		replace
+
+  	iebaltab `vars', grpvar(foreign) ///
+  		vce(cluster stratum) ///
+  		stats(pair(p)) ///
+  		savetex("`out'/2g-cluster.tex") ///
+  		replace
+
+  **# Stat display options -------------------------------------------------------
+
+  	iebaltab `vars', grpvar(foreign) ///
+  		format("%9.2f") ///
+  		savetex("`out'/2g-fmt.tex") ///
+  		replace
+
+  	iebaltab `vars', grpvar(foreign) ///
+  		starsnoadd ///
+  		savetex("`out'/2g-nostars.tex") ///
+  		replace
+
+  	iebaltab `vars', grpvar(foreign) ///
+  		starlevels(.05 .01 .001) ///
+  		savetex("`out'/2g-stars.tex") ///
+  		replace
 
 
-/*	This should work at some point, but is not yet implemented
-	iebaltab `vars', grpvar(foreign) ///
-		stats(pair(diff se)) ///
-		savetex("`out'/2g-diff-se.tex") ///
-		replace
-*/
-exit
+  /*	This should work at some point, but is not yet implemented
+  	iebaltab `vars', grpvar(foreign) ///
+  		stats(pair(diff se)) ///
+  		savetex("`out'/2g-diff-se.tex") ///
+  		replace
+  */
+  exit
