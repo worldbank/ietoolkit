@@ -27,7 +27,6 @@ f ado/iegraph.ado
 f ado/iegitaddmd.ado
 f ado/iefolder.ado
 f ado/iedropone.ado
-f ado/iedorep.ado
 f ado/ieddtab.ado
 f ado/ieboilstart.ado
 f ado/ieboilsave.ado
@@ -42,7 +41,6 @@ f sthlp/iegraph.sthlp
 f sthlp/iegitaddmd.sthlp
 f sthlp/iefolder.sthlp
 f sthlp/iedropone.sthlp
-f sthlp/iedorep.sthlp
 f sthlp/ieddtab.sthlp
 f sthlp/ieboilstart.sthlp
 f sthlp/ieboilsave.sthlp
