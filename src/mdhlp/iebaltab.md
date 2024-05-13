@@ -4,8 +4,7 @@ __iebaltab__ - produces balance tables with multiple groups or treatment arms
 
 # Syntax
 
-__iebaltab__ _balancevarlist_ [if] [in] [weight], __**group**var__(_varname_) [ _columnrow_options_ _estimation_options_ _stat_display_options_ _label_note_options_ _export_options_
-_latex_options_ ]
+__iebaltab__ _balancevarlist_ [if] [in] [weight], __**group**var__(_varname_) [ _column/row-options_ _estimation-options_ _stat-display-options_ _labe/notel-options_ _export-options_ _latex-options_ ]
 
 where _balancevarlist_ is one or several continuous or binary variables (from here on called balance variables) for which the command
 will test for differences across the categories in __groupvar__(_varname_).
@@ -22,14 +21,14 @@ will test for differences across the categories in __groupvar__(_varname_).
 |-----------|-------------|
 | __**co**ntrol__(_groupcode_) | Indicate a single group that all other groups are tested against. Default is all groups are tested against each other |
 | __**or**der__(_groupcodelist_) | Manually set the order the groups appear in the table. Default is ascending. See details on _groupcodelist_ below |
-| __tot:al__ | Include descriptive stats on all observations included in the table |
+| __**tot**al__ | Include descriptive stats on all observations included in the table |
 | __onerow__ | Write number of observations (and number of clusters if applicable) in one row at the bottom of the table |
 
 ## Estimation options
 
 | _options_ | Description |
 |-----------|-------------|
-| __vce__(_vce_types_) | Options for estimating variance. See below and `help vce_options` for supported options |
+| __vce__(_vcetypes_) | Options for estimating variance. See below and `help vce_options` for supported options |
 | __**fix**edeffect__(_varname_) | Include fixed effects in the pair-wise regressions (and for F-tests if applicable) |
 | __**cov**ariates__(_varlist_) | Include covariates (control variables) in the pair-wise regressions (and for F-tests if applicable) |
 | __**ft**est__ | Include a row with the F-test for joint significance across all balance variables for each test pair |
@@ -39,7 +38,7 @@ will test for differences across the categories in __groupvar__(_varname_).
 
 | _options_ | Description |
 |-----------|-------------|
-| __stats__(_stats_string_) | Specify which statistics to display in the tables. See options for _stats_string_ below |
+| __stats__(_statsstring_) | Specify which statistics to display in the tables. See options for _stats_string_ below |
 | __**star**levels__(_numlist_) | Manually set the three significance levels used for significance stars |
 | __**nostar**s__ | Do not add any stars to the table |
 | __**form**at__(_%fmt_) | Apply Stata formats to the non-integer values outputted in the table. See `help format` for format options. |
@@ -99,7 +98,7 @@ This is helpful in the early stage of research where several specifications
 are often explored, but should be replace with a more human readable note
 in the final version.
 
-See the :estimation/statistics definitions
+See the _Estimation/Statistics Definitions_
 section below for a detailed documentation of what statistics this command
 calculates and how they are calculated.
 
@@ -134,7 +133,7 @@ The default order if this option is omitted is ascending order of the values in 
 If any values in `groupvar()` are omitted when using this option,
 they will be sorted in ascending order after the values included.
 
-__tot:al__ includes a column with descriptive statistics on the full sample.
+__**tot**al__ includes a column with descriptive statistics on the full sample.
 This column still exclude observations with missing values in `groupvar()`.
 
 __onerow__ displays the number of observations in an additional row
@@ -147,7 +146,7 @@ next to the descriptive statistics.
 
 ## Estimation options
 
-__vce__(_vce_types_) sets the type of variance estimator
+__vce__(_vcetypes_) sets the type of variance estimator
 to be used in all regressions for this command.
 See `help vce_option` for more details.
 However, the types allowed in this command are only
@@ -178,25 +177,25 @@ See the estimation definition section for exact definitions on how these tests a
 
 ## Statistics display options
 
-__stats__(_stats_string_)
+__stats__(_statsstring_)
 indicates which statistics to be displayed in the table.
-The _stats_string_ is expected to be on this format (where at least one of the sub-arguments `desc`, `pair`, `f` and `feq` are required):
+The _statsstring_ is expected to be on this format (where at least one of the sub-arguments `desc`, `pair`, `f` and `feq` are required):
 
 ```
-stats(desc(desc_stats) pair(pair_stats) f(f_stats) feq(feq_stats))
+stats(desc(descstats) pair(pairstats) f(fstats) feq(feqstats))
 ```
 
 The table below lists the valid values for
-_desc_stats_, _pair_stats_, _f_stats_ and _feq_stats_.
+_descstats_, _pairstats_, _fstats_ and _feqstats_.
 See the estimation definition section
 for exact definitions of these values and how they are estimated/calculated.
 
 | Type | Options
 |-----------|-------------|
-| _desc_stats_ | `se` `var` `sd` |
-| _pair_stats_ | `diff` `beta` `t` `p` `nrmd` `nrmb` `se` `sd` `none` |
-| _f_stats_ | `f` `p` |
-| _feq_stats_ | `f` `p` |
+| _descstats_ | `se` `var` `sd` |
+| _pairstats_ | `diff` `beta` `t` `p` `nrmd` `nrmb` `se` `sd` `none` |
+| _fstats_ | `f` `p` |
+| _feqstats_ | `f` `p` |
 
 __**star**levels__(_numlist_) manually sets the
 three significance levels used for significance stars.
@@ -362,11 +361,13 @@ For each balance variable and for each value group code,
 the descriptive statistics is calculated using the following code:
 
 _basic form:_
+
 ```
 reg balancevar if groupvar = groupcode
 ```
 
 _all options:_
+
 ```
 reg balancevar if groupvar = groupcode weights, vce(vce_option)
 ```
@@ -399,12 +400,14 @@ Since observations not included in the test pair have missing values in the test
 they are excluded from the regression without using an if-statement.
 
 _basic form:_
+
 ```
 reg balancevar tp_dummy
 test tp_dummy
 ```
 
 _all options:_
+
 ```
 reg balancevar tp_dummy covariates i.fixedeffect weights, vce(vce_option)
 test tp_dummy
@@ -438,12 +441,14 @@ Displayed in the balance table if the option `ftest` is used.
 For each test pair the following code is used.
 
 _basic form:_
+
 ```
 reg tp_dummy balancevars
 testparm balancevars
 ```
 
 _all options:_
+
 ```
 reg tp_dummy balancevars covariates i.fixedeffect weights, vce(vce_option)
 testparm balancevars
@@ -472,12 +477,14 @@ and where _x2_, _x3_ ... _xn_,
 represents all group codes apart from the first code.
 
 _basic form:_
+
 ```
 reg balancevar i.groupvar
 test feqtestinput
 ```
 
 _all options:_
+
 ```
 reg balancevar i.groupvar covariates i.fixedeffect weights, vce(vce_option)
 test feqtestinput
@@ -645,7 +652,7 @@ See examples on how to save the table to a file on disk below.
 
 ```
 sysuse census
-{inp:iebaltab pop medage, groupvar(region) browse
+iebaltab pop medage, groupvar(region) browse
 browse
 ```
 
@@ -708,19 +715,20 @@ using the option `texnotefile()` and then import it in LaTeX using the
 package `threeparttable` like the code below.
 It makes it easier to align the note with the table when LaTeX adjust the size
 of the table to fit a page.
+
 ```
-	\begin{table}
-	  \centering
-	  \caption{Balance table}
-	  \begin{adjustbox}{max width=\textwidth}
-	    \begin{threeparttable}[!h]
-		  \input{./balancetable.tex}
-		  \begin{tablenotes}[flushleft]
-		    \item\hspace{-.25em}\input{./balancetable_note.tex}
-		  \end{tablenotes}
-	    \end{threeparttable}
-	  \end{adjustbox}
-	\end{table}
+\begin{table}
+  \centering
+  \caption{Balance table}
+  \begin{adjustbox}{max width=\textwidth}
+    \begin{threeparttable}[!h]
+	  \input{./balancetable.tex}
+	  \begin{tablenotes}[flushleft]
+	    \item\hspace{-.25em}\input{./balancetable_note.tex}
+	  \end{tablenotes}
+    \end{threeparttable}
+  \end{adjustbox}
+\end{table}
 ```
 
 ## Example 6
