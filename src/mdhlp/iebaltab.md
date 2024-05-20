@@ -4,9 +4,9 @@ __iebaltab__ - produces balance tables with multiple groups or treatment arms
 
 # Syntax
 
-__iebaltab__ _balancevarlist_ [if] [in] [weight], __**group**var__(_varname_) [ _column/row-options_ _estimation-options_ _stat-display-options_ _labe/notel-options_ _export-options_ _latex-options_ ]
+__iebaltab__ _balance_varlist_ [if] [in] [weight], __**group**var__(_varname_) [ _column/row_options_ _estimation_options_ _stat_display_options_ _labe/notel_options_ _export_options_ _latex_options_ ]
 
-where _balancevarlist_ is one or several continuous or binary variables (from here on called balance variables) for which the command
+where _balance_varlist_ is one or several continuous or binary variables (from here on called balance variables) for which the command
 will test for differences across the categories in __groupvar__(_varname_).
 
 ## Required options
@@ -19,8 +19,8 @@ will test for differences across the categories in __groupvar__(_varname_).
 
 | _options_ | Description |
 |-----------|-------------|
-| __**co**ntrol__(_groupcode_) | Indicate a single group that all other groups are tested against. Default is all groups are tested against each other |
-| __**or**der__(_groupcodelist_) | Manually set the order the groups appear in the table. Default is ascending. See details on _groupcodelist_ below |
+| __**co**ntrol__(_group_code_) | Indicate a single group that all other groups are tested against. Default is all groups are tested against each other |
+| __**or**der__(_group_code_list_) | Manually set the order the groups appear in the table. Default is ascending. See details on _group_code_list_ below |
 | __**tot**al__ | Include descriptive stats on all observations included in the table |
 | __onerow__ | Write number of observations (and number of clusters if applicable) in one row at the bottom of the table |
 
@@ -28,7 +28,7 @@ will test for differences across the categories in __groupvar__(_varname_).
 
 | _options_ | Description |
 |-----------|-------------|
-| __vce__(_vcetypes_) | Options for estimating variance. See below and `help vce_options` for supported options |
+| __vce__(_vce_types_) | Options for estimating variance. See below and `help vce_options` for supported options |
 | __**fix**edeffect__(_varname_) | Include fixed effects in the pair-wise regressions (and for F-tests if applicable) |
 | __**cov**ariates__(_varlist_) | Include covariates (control variables) in the pair-wise regressions (and for F-tests if applicable) |
 | __**ft**est__ | Include a row with the F-test for joint significance across all balance variables for each test pair |
@@ -38,7 +38,7 @@ will test for differences across the categories in __groupvar__(_varname_).
 
 | _options_ | Description |
 |-----------|-------------|
-| __stats__(_statsstring_) | Specify which statistics to display in the tables. See options for _stats_string_ below |
+| __stats__(_stats_string_) | Specify which statistics to display in the tables. See options for _stats_string_ below |
 | __**star**levels__(_numlist_) | Manually set the three significance levels used for significance stars |
 | __**nostar**s__ | Do not add any stars to the table |
 | __**form**at__(_%fmt_) | Apply Stata formats to the non-integer values outputted in the table. See `help format` for format options. |
@@ -48,10 +48,10 @@ will test for differences across the categories in __groupvar__(_varname_).
 | _options_ | Description |
 |-----------|-------------|
 | __**groupc**odes__ | Use the values in the `groupvar()` variable as column titles. Default is to use value labels if any |
-| __**groupl**abels__(_codetitles_) | Manually set the group column titles. See details on _codetitles_ below |
+| __**groupl**abels__(_code_titles_) | Manually set the group column titles. See details on _code_titles_ below |
 | __**totall**abel__(_string_) | Manually set the title of the total column |
 | __**rowv**arlabels__ | Use the variable labels instead of variable name as row titles |
-| __**rowl**abels__(_nametitles_) | Manually set the row titles. See details on _nametitles_ below |
+| __**rowl**abels__(_name_titles_) | Manually set the row titles. See details on _name_titles_ below |
 | __nonote__ | Suppress the default not at the bottom of the table |
 | __addnote__(_string_) | Add a manual note to the bottom of the table |
 
@@ -117,9 +117,9 @@ Observations with missing values in this variable will be excluded when running 
 
 ## Column and row options
 
-__**co**ntrol__(_groupcode_) specifies one group that is the control group
+__**co**ntrol__(_group_code_) specifies one group that is the control group
 that all other groups are tested against for difference in means and
-where _groupcode_ is an integer used in `groupvar()`.
+where _group_code_ is an integer used in `groupvar()`.
 The default is that all groups are tested against each other.
 The control group will be listed first (leftmost) in the table
 unless another order is specified in `order()`.
@@ -127,7 +127,7 @@ When using `control()` the order of the groups in the pair is (non-control)-(con
 so that a positive statistic (in for example _diff_ or _beta_) indicates that
 the mean for the non-control is larger than for the control.
 
-__**or**der__(_groupcodelist_) manually sets the column order of the groups in the table. _groupcodelist_ may
+__**or**der__(_group_code_list_) manually sets the column order of the groups in the table. _group_code_list_ may
 be any or all of the values in the group variable specified in `groupvar()`.
 The default order if this option is omitted is ascending order of the values in the group variable.
 If any values in `groupvar()` are omitted when using this option,
@@ -146,11 +146,11 @@ next to the descriptive statistics.
 
 ## Estimation options
 
-__vce__(_vcetypes_) sets the type of variance estimator
+__vce__(_vce_types_) sets the type of variance estimator
 to be used in all regressions for this command.
 See `help vce_option` for more details.
 However, the types allowed in this command are only
-`robust`, `cluster clustervar` or `bootstrap`.
+`robust`, `cluster` _cluster_var_ or `bootstrap`.
 See the estimation definition section
 for exact definitions on how these vce types are included in the regressions.
 
@@ -177,25 +177,25 @@ See the estimation definition section for exact definitions on how these tests a
 
 ## Statistics display options
 
-__stats__(_statsstring_)
+__stats__(_stats_string_)
 indicates which statistics to be displayed in the table.
-The _statsstring_ is expected to be on this format (where at least one of the sub-arguments `desc`, `pair`, `f` and `feq` are required):
+The _stats_string_ is expected to be on this format (where at least one of the sub-arguments `desc`, `pair`, `f` and `feq` are required):
 
 ```
-stats(desc(descstats) pair(pairstats) f(fstats) feq(feqstats))
+stats(desc(desc_stats) pair(pair_stats) f(f_stats) feq(feq_stats))
 ```
 
 The table below lists the valid values for
-_descstats_, _pairstats_, _fstats_ and _feqstats_.
+_desc_stats_, _pair_stats_, _f_stats_ and _feq_stats_.
 See the estimation definition section
 for exact definitions of these values and how they are estimated/calculated.
 
 | Type | Options
 |-----------|-------------|
-| _descstats_ | `se` `var` `sd` |
-| _pairstats_ | `diff` `beta` `t` `p` `nrmd` `nrmb` `se` `sd` `none` |
-| _fstats_ | `f` `p` |
-| _feqstats_ | `f` `p` |
+| _desc_stats_ | `se` `var` `sd` |
+| _pair_stats_ | `diff` `beta` `t` `p` `nrmd` `nrmb` `se` `sd` `none` |
+| _f_stats_ | `f` `p` |
+| _feq_stats_ | `f` `p` |
 
 __**star**levels__(_numlist_) manually sets the
 three significance levels used for significance stars.
@@ -221,8 +221,8 @@ The default is to use the value labels used in `groupvar()`.
 If no value labels are used for the variable in `groupvar()`,
 then this option does not make a difference.
 
- __**groupl**abels__(_codetitles_) manually sets the group column titles.
-_codetitles_ is a string on the following format:
+ __**groupl**abels__(_code_titles_) manually sets the group column titles.
+_code_titles_ is a string on the following format:
 
 ```
 grouplabels("code1 title1 @ code2 title2 @ code3 title3")
@@ -234,9 +234,9 @@ and title1, title2 etc. are the titles to be used for the corresponding integer 
 The character `@` may not be used in any title.
 Codes omitted from this option will be assigned a column title
 as if this option was not used.
-This option takes precedence over _groupcodes_ when used together,
+This option takes precedence over _group_codes_ when used together,
 meaning that group codes are only used for groups
-that are not included in the _codetitlestring_.
+that are not included in the _code_title_string_.
 The title can consist of several words.
 Everything that follows the code until the end of a string
 or a `@` will be included in the title.
@@ -247,9 +247,8 @@ __**rowv**arlabels__ use the variable labels instead of variable name as row tit
 The default is to use the variable name. For variables with no variable label defined,
 the variable name is used as row label even when this option is specified.
 
-__**rowl**abels__(_nametitles_) manually sets the row titles for each
-of the balance variables in the table.
-_nametitles_ is a string in the following format:
+__**rowl**abels__(_name_title_string_) manually sets the row titles for each
+of the balance variables in the table. _name_title_string_ is a string in the following format:
 
 ```
 rowlabels("name1 title1 @ name2 title2 @ name3 title3")
@@ -261,7 +260,7 @@ The character `@` may not be used in any of the titles.
 Variables omitted from this option are assigned a row title as if this option was not used.
 This option takes precedence over `rowvarlabels` when used together,
 meaning that default labels are only used for variables
-that are not included in the _nametitlestring_.
+that are not included in the _name_title_string_.
 The title can consist of several words.
 Everything that follows the variable name until
 the end of a string or a `@` will be included in the title.
@@ -342,11 +341,11 @@ Here is a glossary for the terms used in this section:
 
 | Term | Definition |
 |-----------|-------------|
-| _balance variable_ | The variables listed as _balancevarlist_ |
+| _balance variable_ | The variables listed as _balance_varlist_ |
 | _groupvar_ | The variable specified in `groupvar()` |
-| _groupcode_ | Each value in _groupvar_ |
-| _testpair_ | Combination of _group codes_ to be used in pair wise tests |
-| _tp_dummy_ | A dummy variable where the first _group code_ in a _test pair_ has the value 1 and the second _group code_ has the value 0, and all other observations has missing values |
+| _group_code_ | Each value in _groupvar_ |
+| _test_pair_ | Combination of _group codes_ to be used in pair wise tests |
+| _tp_dummy_ | A dummy variable where 1 means that the obs' value in `groupvar()` equals the first value in _test_pair_, 0 means it equals the second value, and missing means is matches neither |
 
 Each section below has a table that shows how the stats are estimated/calculated for each type of statistics. This is what each column means.
 A star (*) in the _Stat_ column indicate that is the optional statistics displayed by default if the `stats()` option is not used.
@@ -360,20 +359,20 @@ If option `total` is used then these statistics are also calculated on the full 
 For each balance variable and for each value group code,
 the descriptive statistics is calculated using the following code:
 
-_basic form:_
+Basic form:
 
 ```
 reg balancevar if groupvar = groupcode
 ```
 
-_all options:_
+All options:
 
 ```
 reg balancevar if groupvar = groupcode weights, vce(vce_option)
 ```
 
 See above for description of each column in this table.
-_gc_ stands for _groupcode_ (see definition of _groupcode_ above).
+_gc_ stands for _group_code_ (see definition of _group_code_ above).
 If the option `total` is used,
 then _gc_ will also include _t_ for stats on the full sample.
 The last column shows how the command obtains the statistic in the Stata code.
@@ -383,12 +382,12 @@ a the result matrix called `r(iebtab_rmat)`.
 
 | Stat | Display option | Mat col | Estimation/calculation |
 | --- | --- | --- | --- |
-| # obs | Always displayed | n_gc | `e(N)` after `reg` |
-| cluster | Displayed if used | cl_gc | `e(N_clust)` after `reg` |
-| mean | Always displayed | mean_gc | `_b[cons]` after `reg` |
-| se * | `stats(desc(se))` | se_gc | `_se[cons]` after `reg` |
-| var | `stats(desc(var))` | var_gc | `e(rss)/e(df_r)` after `reg` |
-| sd | `stats(desc(sd))` | sd_gc | `_se[_cons]*sqrt(e(N))` after `reg` |
+| # obs | Always displayed | `n_gc` | `e(N)` after `reg` |
+| cluster | Displayed if used | `cl_gc` | `e(N_clust)` after `reg` |
+| mean | Always displayed | `mean_gc` | `_b[cons]` after `reg` |
+| se * | `stats(desc(se))` | `se_gc` | `_se[cons]` after `reg` |
+| var | `stats(desc(var))` | `var_gc` | `e(rss)/e(df_r)` after `reg` |
+| sd | `stats(desc(sd))` | `sd_gc` | `_se[_cons]*sqrt(e(N))` after `reg` |
 
 
 ## Pair-wise test statistics
@@ -399,14 +398,14 @@ For each balance variable and for each test pair, this code is used.
 Since observations not included in the test pair have missing values in the test pair dummy,
 they are excluded from the regression without using an if-statement.
 
-_basic form:_
+Basic form:
 
 ```
 reg balancevar tp_dummy
 test tp_dummy
 ```
 
-_all options:_
+All options:
 
 ```
 reg balancevar tp_dummy covariates i.fixedeffect weights, vce(vce_option)
@@ -414,7 +413,7 @@ test tp_dummy
 ```
 
 See above for description of each column in this table.
-_tp_ stands for _test pair_, see definition above.
+_tp_ stands for _test_pair_, see definition above.
 The last column shows how the command obtains the stat in the Stata code.
 See the group descriptive statistics above for definitions on
 _mean_1_, _mean_2_, _var_1_ and _var_2_
@@ -424,14 +423,14 @@ a the result matrix called `r(iebtab_rmat)`.
 
 | Stat | Display option | Mat col | Estimation/calculation |
 | --- | --- | --- | --- |
-| diff * | `stats(pair(diff))` | diff_tp | If pair 1_2: `mean_1`-`mean_2` |
-| beta | `stats(pair(beta))` | beta_tp | `e(b)[1,1]` after `reg` |
-| t | `stats(pair(t))` | t_tp | `_b[tp_dummy]/_se[tp_dummy]` after `reg` |
-| p | `stats(pair(p))` | p_tp | `e(p)` after `test` |
-| nrmd | `stats(pair(nrmd))` | nrmd_tp | If pair 1_2: `diff_tp/sqrt(.5*(var_1+var_2))` |
-| nrmb | `stats(pair(nrmb))` | nrmb_tp | If pair 1_2: `beta_tp/sqrt(.5*(var_1+var_2))` |
-| se | `stats(pair(se))` | se_tp | `_se[tp_dummy]` after `reg` |
-| sd | `stats(pair(sd))` | sd_tp | `_se[tp_dummy] * sqrt(e(N))` after `reg` |
+| diff * | `stats(pair(diff))` | `diff_tp` | If pair _1_2_: `mean_1`-`mean_2` |
+| beta | `stats(pair(beta))` | `beta_tp` | `e(b)[1,1]` after `reg` |
+| t | `stats(pair(t))` | `t_tp` | `_b[tp_dummy]/_se[tp_dummy]` after `reg` |
+| p | `stats(pair(p))` | `p_tp` | `e(p)` after `test` |
+| nrmd | `stats(pair(nrmd))` | `nrmd_tp` | If pair _1_2_: `diff_tp/sqrt(.5*(var_1+var_2))` |
+| nrmb | `stats(pair(nrmb))` | `nrmb_tp` | If pair _1_2_: `beta_tp/sqrt(.5*(var_1+var_2))` |
+| se | `stats(pair(se))` | `se_tp` | `_se[tp_dummy]` after `reg` |
+| sd | `stats(pair(sd))` | `sd_tp` | `_se[tp_dummy] * sqrt(e(N))` after `reg` |
 
 
 
@@ -440,14 +439,14 @@ a the result matrix called `r(iebtab_rmat)`.
 Displayed in the balance table if the option `ftest` is used.
 For each test pair the following code is used.
 
-_basic form:_
+Basic form:
 
 ```
 reg tp_dummy balancevars
 testparm balancevars
 ```
 
-_all options:_
+All options:
 
 ```
 reg tp_dummy balancevars covariates i.fixedeffect weights, vce(vce_option)
@@ -455,16 +454,16 @@ testparm balancevars
 ```
 
 See above for description of each column in this table.
-_tp_ stands for _test pair_, see definition above.
+_tp_ stands for _test_pair_, see definition above.
 These statistics are stored in
 a the result matrix called `r(iebtab_fmat)`.
 
 | Stat | Display option | Mat col | Estimation/calculation |
 | --- | --- | --- | --- |
-| # obs | Always displayed | fn_tp | `e(N)` after `reg` |
-| cluster | Displayed if used | fcl_tp | `e(N_clust)` after `reg` |
-| f * | `stats(f(f))` | ff_tp | `r(F)` after `testparm` |
-| p | `stats(f(p))` | fp_tp | `r(p)` after `testparm` |
+| # obs | Always displayed | `fn_tp` | `e(N)` after `reg` |
+| cluster | Displayed if used | `fcl_tp` | `e(N_clust)` after `reg` |
+| f * | `stats(f(f))` | `ff_tp` | `r(F)` after `testparm` |
+| p | `stats(f(p))` | `fp_tp` | `r(p)` after `testparm` |
 
 
 ## F-test statistics for balance across all groups
@@ -476,14 +475,14 @@ For each balance variable the below code is used where
 and where _x2_, _x3_ ... _xn_,
 represents all group codes apart from the first code.
 
-_basic form:_
+Basic form:
 
 ```
 reg balancevar i.groupvar
 test feqtestinput
 ```
 
-_all options:_
+All options:
 
 ```
 reg balancevar i.groupvar covariates i.fixedeffect weights, vce(vce_option)
@@ -496,10 +495,10 @@ a the result matrix called `r(iebtab_fmat)`.
 
 | Stat | Display option | Mat col | Estimation/calculation |
 | --- | --- | --- | --- |
-| # obs | Always displayed | feqn | `e(N)` after `reg` |
-| cluster | Displayed if used | feqcl | `e(N_clust)` after `reg` |
-| f * | `stats(feq(f))` | feqf | `r(F)` after `test` |
-| p | `stats(feq(p))` | feqp | `r(p)` after `test` |
+| # obs | Always displayed | `feq_n` | `e(N)` after `reg` |
+| cluster | Displayed if used | `feq_cl` | `e(N_clust)` after `reg` |
+| f * | `stats(feq(f))` | `feq_f` | `r(F)` after `test` |
+| p | `stats(feq(p))` | `feq_p` | `r(p)` after `test` |
 
 # Result matrices
 
