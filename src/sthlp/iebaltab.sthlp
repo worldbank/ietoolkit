@@ -11,10 +11,10 @@
 
 {title:Syntax}
 
-{phang}{bf:iebaltab} {it:balancevarlist} [if] [in] [weight], {bf:{ul:group}var}({it:varname}) [ {it:column/row-options} {it:estimation-options} {it:stat-display-options} {it:labe/notel-options} {it:export-options} {it:latex-options} ]
+{phang}{bf:iebaltab} {it:balance_varlist} [if] [in] [weight], {bf:{ul:group}var}({it:varname}) [ {it:column/row_options} {it:estimation_options} {it:stat_display_options} {it:labe/notel_options} {it:export_options} {it:latex_options} ]
 {p_end}
 
-{phang}where {it:balancevarlist} is one or several continuous or binary variables (from here on called balance variables) for which the command
+{phang}where {it:balance_varlist} is one or several continuous or binary variables (from here on called balance variables) for which the command
 will test for differences across the categories in {bf:groupvar}({it:varname}).
 {p_end}
 
@@ -28,11 +28,11 @@ will test for differences across the categories in {bf:groupvar}({it:varname}).
 
 {dlgtab:Column and row option}
 
-{synoptset 20}{...}
+{synoptset 22}{...}
 {synopthdr:options}
 {synoptline}
-{synopt: {bf:{ul:co}ntrol}({it:groupcode})}Indicate a single group that all other groups are tested against. Default is all groups are tested against each other{p_end}
-{synopt: {bf:{ul:or}der}({it:groupcodelist})}Manually set the order the groups appear in the table. Default is ascending. See details on {it:groupcodelist} below{p_end}
+{synopt: {bf:{ul:co}ntrol}({it:group_code})}Indicate a single group that all other groups are tested against. Default is all groups are tested against each other{p_end}
+{synopt: {bf:{ul:or}der}({it:group_code_list})}Manually set the order the groups appear in the table. Default is ascending. See details on {it:group_code_list} below{p_end}
 {synopt: {bf:{ul:tot}al}}Include descriptive stats on all observations included in the table{p_end}
 {synopt: {bf:onerow}}Write number of observations (and number of clusters if applicable) in one row at the bottom of the table{p_end}
 {synoptline}
@@ -42,7 +42,7 @@ will test for differences across the categories in {bf:groupvar}({it:varname}).
 {synoptset 20}{...}
 {synopthdr:options}
 {synoptline}
-{synopt: {bf:vce}({it:vcetypes})}Options for estimating variance. See below and {inp:help vce_options} for supported options{p_end}
+{synopt: {bf:vce}({it:vce_types})}Options for estimating variance. See below and {inp:help vce_options} for supported options{p_end}
 {synopt: {bf:{ul:fix}edeffect}({it:varname})}Include fixed effects in the pair-wise regressions (and for F-tests if applicable){p_end}
 {synopt: {bf:{ul:cov}ariates}({it:varlist})}Include covariates (control variables) in the pair-wise regressions (and for F-tests if applicable){p_end}
 {synopt: {bf:{ul:ft}est}}Include a row with the F-test for joint significance across all balance variables for each test pair{p_end}
@@ -54,7 +54,7 @@ will test for differences across the categories in {bf:groupvar}({it:varname}).
 {synoptset 19}{...}
 {synopthdr:options}
 {synoptline}
-{synopt: {bf:stats}({it:statsstring})}Specify which statistics to display in the tables. See options for {it:stats}string{it: below{p_end}
+{synopt: {bf:stats}({it:stats_string})}Specify which statistics to display in the tables. See options for {it:stats_string} below{p_end}
 {synopt: {bf:{ul:star}levels}({it:numlist})}Manually set the three significance levels used for significance stars{p_end}
 {synopt: {bf:{ul:nostar}s}}Do not add any stars to the table{p_end}
 {synopt: {bf:{ul:form}at}({it:%fmt})}Apply Stata formats to the non-integer values outputted in the table. See {inp:help format} for format options.{p_end}
@@ -62,14 +62,14 @@ will test for differences across the categories in {bf:groupvar}({it:varname}).
 
 {dlgtab:Label/notes option}
 
-{synoptset 23}{...}
+{synoptset 24}{...}
 {synopthdr:options}
 {synoptline}
 {synopt: {bf:{ul:groupc}odes}}Use the values in the {inp:groupvar()} variable as column titles. Default is to use value labels if any{p_end}
-{synopt: {bf:{ul:groupl}abels}({it:codetitles})}Manually set the group column titles. See details on {it:codetitles} below{p_end}
+{synopt: {bf:{ul:groupl}abels}({it:code_titles})}Manually set the group column titles. See details on {it:code_titles} below{p_end}
 {synopt: {bf:{ul:totall}abel}({it:string})}Manually set the title of the total column{p_end}
 {synopt: {bf:{ul:rowv}arlabels}}Use the variable labels instead of variable name as row titles{p_end}
-{synopt: {bf:{ul:rowl}abels}({it:nametitles})}Manually set the row titles. See details on {it:nametitles} below{p_end}
+{synopt: {bf:{ul:rowl}abels}({it:name_titles})}Manually set the row titles. See details on {it:name_titles} below{p_end}
 {synopt: {bf:nonote}}Suppress the default not at the bottom of the table{p_end}
 {synopt: {bf:addnote}({it:string})}Add a manual note to the bottom of the table{p_end}
 {synoptline}
@@ -124,7 +124,7 @@ are often explored, but should be replace with a more human readable note
 in the final version.
 {p_end}
 
-{pstd}See the {it:Estimation/Statistics Definitions}
+{pstd}See the {it:Estimation/Statistics Definitions_
 section below for a detailed documentation of what statistics this command
 calculates and how they are calculated.
 {p_end}
@@ -145,9 +145,9 @@ Observations with missing values in this variable will be excluded when running 
 
 {dlgtab:Column and row options}
 
-{pstd}{bf:{ul:co}ntrol}({it:groupcode}) specifies one group that is the control group
+{pstd}{bf:{ul:co}ntrol}({it:group_code}) specifies one group that is the control group
 that all other groups are tested against for difference in means and
-where {it:groupcode} is an integer used in {inp:groupvar()}. 
+where {it:group_code} is an integer used in {inp:groupvar()}. 
 The default is that all groups are tested against each other.
 The control group will be listed first (leftmost) in the table
 unless another order is specified in {inp:order()}. 
@@ -156,7 +156,7 @@ so that a positive statistic (in for example {it:diff} or {it:beta}) indicates t
 the mean for the non-control is larger than for the control.
 {p_end}
 
-{pstd}{bf:{ul:or}der}({it:groupcodelist}) manually sets the column order of the groups in the table. {it:groupcodelist} may
+{pstd}{bf:{ul:or}der}({it:group_code_list}) manually sets the column order of the groups in the table. {it:group_code_list} may
 be any or all of the values in the group variable specified in {inp:groupvar()}. 
 The default order if this option is omitted is ascending order of the values in the group variable.
 If any values in {inp:groupvar()} are omitted when using this option, 
@@ -178,11 +178,11 @@ next to the descriptive statistics.
 
 {dlgtab:Estimation options}
 
-{pstd}{bf:vce}({it:vcetypes}) sets the type of variance estimator
+{pstd}{bf:vce}({it:vce_types}) sets the type of variance estimator
 to be used in all regressions for this command.
 See {inp:help vce_option} for more details. 
 However, the types allowed in this command are only
-{inp:robust}, {inp:cluster clustervar} or {inp:bootstrap}. 
+{inp:robust}, {inp:cluster} {it:cluster_var} or {inp:bootstrap}. 
 See the estimation definition section
 for exact definitions on how these vce types are included in the regressions.
 {p_end}
@@ -214,18 +214,27 @@ See the estimation definition section for exact definitions on how these tests a
 
 {dlgtab:Statistics display options}
 
-{pstd}{bf:stats}({it:statsstring})
+{pstd}{bf:stats}({it:stats_string})
 indicates which statistics to be displayed in the table.
-The {it:statsstring} is expected to be on this format (where at least one of the sub-arguments {inp:desc}, {inp:pair}, {inp:f} and {inp:feq} are required): 
+The {it:stats_string} is expected to be on this format (where at least one of the sub-arguments {inp:desc}, {inp:pair}, {inp:f} and {inp:feq} are required): 
 {p_end}
 
-{input}{space 8}stats(desc(descstats) pair(pairstats) f(fstats) feq(feqstats))
+{input}{space 8}stats(desc(desc_stats) pair(pair_stats) f(f_stats) feq(feq_stats))
 {text}
 {pstd}The table below lists the valid values for
-{it:descstats}, {it:pairstats}, {it:fstats} and {it:feqstats}.
+{it:desc_stats}, {it:pair_stats}, {it:f_stats} and {it:feq_stats}.
 See the estimation definition section
 for exact definitions of these values and how they are estimated/calculated.
 {p_end}
+
+{col 4}{c TLC}{hline 13}{c TT}{hline 36}{c TRC}
+{col 4}{c |} Type{col 18}{c |} Options{col 55}{c |}
+{col 4}{c LT}{hline 13}{c +}{hline 36}{c RT}
+{col 4}{c |} {it:desc_stats}{col 18}{c |} {inp:se} {inp:var} {inp:sd}{col 55}{c |}
+{col 4}{c |} {it:pair_stats}{col 18}{c |} {inp:diff} {inp:beta} {inp:t} {inp:p} {inp:nrmd} {inp:nrmb} {inp:se} {inp:sd} {inp:none}{col 55}{c |}
+{col 4}{c |} {it:f_stats}{col 18}{c |} {inp:f} {inp:p}{col 55}{c |}
+{col 4}{c |} {it:feq_stats}{col 18}{c |} {inp:f} {inp:p}{col 55}{c |}
+{col 4}{c BLC}{hline 13}{c BT}{hline 36}{c BRC}
 
 {pstd}{bf:{ul:star}levels}({it:numlist}) manually sets the
 three significance levels used for significance stars.
@@ -255,8 +264,8 @@ If no value labels are used for the variable in {inp:groupvar()},
 then this option does not make a difference.
 {p_end}
 
-{pstd} {bf:{ul:groupl}abels}({it:codetitles}) manually sets the group column titles.
-{it:codetitles} is a string on the following format:
+{pstd} {bf:{ul:groupl}abels}({it:code_titles}) manually sets the group column titles.
+{it:code_titles} is a string on the following format:
 {p_end}
 
 {input}{space 8}grouplabels("code1 title1 @ code2 title2 @ code3 title3")
@@ -267,9 +276,9 @@ and title1, title2 etc. are the titles to be used for the corresponding integer 
 The character {inp:@} may not be used in any title. 
 Codes omitted from this option will be assigned a column title
 as if this option was not used.
-This option takes precedence over {it:groupcodes} when used together,
+This option takes precedence over {it:group_codes} when used together,
 meaning that group codes are only used for groups
-that are not included in the {it:codetitlestring}.
+that are not included in the {it:code_title_string}.
 The title can consist of several words.
 Everything that follows the code until the end of a string
 or a {inp:@} will be included in the title. 
@@ -283,9 +292,8 @@ The default is to use the variable name. For variables with no variable label de
 the variable name is used as row label even when this option is specified.
 {p_end}
 
-{pstd}{bf:{ul:rowl}abels}({it:nametitles}) manually sets the row titles for each
-of the balance variables in the table.
-{it:nametitles} is a string in the following format:
+{pstd}{bf:{ul:rowl}abels}({it:name_title_string}) manually sets the row titles for each
+of the balance variables in the table. {it:name_title_string} is a string in the following format:
 {p_end}
 
 {input}{space 8}rowlabels("name1 title1 @ name2 title2 @ name3 title3")
@@ -296,7 +304,7 @@ The character {inp:@} may not be used in any of the titles.
 Variables omitted from this option are assigned a row title as if this option was not used.
 This option takes precedence over {inp:rowvarlabels} when used together, 
 meaning that default labels are only used for variables
-that are not included in the {it:nametitlestring}.
+that are not included in the {it:name_title_string}.
 The title can consist of several words.
 Everything that follows the variable name until
 the end of a string or a {inp:@} will be included in the title. 
@@ -390,6 +398,16 @@ and an {c 34}all options{c 34} example that shows exactly how all options are ap
 Here is a glossary for the terms used in this section:
 {p_end}
 
+{col 4}{c TLC}{hline 18}{c TT}{hline 181}{c TRC}
+{col 4}{c |} Term{col 23}{c |} Definition{col 205}{c |}
+{col 4}{c LT}{hline 18}{c +}{hline 181}{c RT}
+{col 4}{c |} {it:balance variable}{col 23}{c |} The variables listed as {it:balance_varlist}{col 205}{c |}
+{col 4}{c |} {it:groupvar}{col 23}{c |} The variable specified in {inp:groupvar()}{col 205}{c |}
+{col 4}{c |} {it:group_code}{col 23}{c |} Each value in {it:groupvar}{col 205}{c |}
+{col 4}{c |} {it:test_pair}{col 23}{c |} Combination of {it:group codes} to be used in pair wise tests{col 205}{c |}
+{col 4}{c |} {it:tp_dummy}{col 23}{c |} A dummy variable where 1 means that the obs{c 39} value in {inp:groupvar()} equals the first value in {it:test_pair}, 0 means it equals the second value, and missing means is matches neither{col 205}{c |}
+{col 4}{c BLC}{hline 18}{c BT}{hline 181}{c BRC}
+
 {pstd}Each section below has a table that shows how the stats are estimated/calculated for each type of statistics. This is what each column means.
 A star (*) in the {it:Stat} column indicate that is the optional statistics displayed by default if the {inp:stats()} option is not used. 
 The {it:Display option} column shows what sub-option to use in {inp:stats()} to display this statistic. 
@@ -404,24 +422,35 @@ For each balance variable and for each value group code,
 the descriptive statistics is calculated using the following code:
 {p_end}
 
-{pstd}{it:basic form:}
+{pstd}Basic form:
 {p_end}
 
 {input}{space 8}reg balancevar if groupvar = groupcode
 {text}
-{pstd}{it:all options:}
+{pstd}All options:
 {p_end}
 
 {input}{space 8}reg balancevar if groupvar = groupcode weights, vce(vce_option)
 {text}
 {pstd}See above for description of each column in this table.
-{it:gc} stands for {it:groupcode} (see definition of {it:groupcode} above).
+{it:gc} stands for {it:group_code} (see definition of {it:group_code} above).
 If the option {inp:total} is used, 
 then {it:gc} will also include {it:t} for stats on the full sample.
 The last column shows how the command obtains the statistic in the Stata code.
 These statistics are stored in
 a the result matrix called {inp:r(iebtab_rmat)}. 
 {p_end}
+
+{col 4}{c TLC}{hline 9}{c TT}{hline 19}{c TT}{hline 9}{c TT}{hline 33}{c TRC}
+{col 4}{c |} Stat{col 14}{c |} Display option{col 34}{c |} Mat col{col 44}{c |} Estimation/calculation{col 78}{c |}
+{col 4}{c LT}{hline 9}{c +}{hline 19}{c +}{hline 9}{c +}{hline 33}{c RT}
+{col 4}{c |} # obs{col 14}{c |} Always displayed{col 34}{c |} {inp:n_gc}{col 44}{c |} {inp:e(N)} after {inp:reg}{col 78}{c |}
+{col 4}{c |} cluster{col 14}{c |} Displayed if used{col 34}{c |} {inp:cl_gc}{col 44}{c |} {inp:e(N_clust)} after {inp:reg}{col 78}{c |}
+{col 4}{c |} mean{col 14}{c |} Always displayed{col 34}{c |} {inp:mean_gc}{col 44}{c |} {inp:_b[cons]} after {inp:reg}{col 78}{c |}
+{col 4}{c |} se *{col 14}{c |} {inp:stats(desc(se))}{col 34}{c |} {inp:se_gc}{col 44}{c |} {inp:_se[cons]} after {inp:reg}{col 78}{c |}
+{col 4}{c |} var{col 14}{c |} {inp:stats(desc(var))}{col 34}{c |} {inp:var_gc}{col 44}{c |} {inp:e(rss)/e(df_r)} after {inp:reg}{col 78}{c |}
+{col 4}{c |} sd{col 14}{c |} {inp:stats(desc(sd))}{col 34}{c |} {inp:sd_gc}{col 44}{c |} {inp:_se[_cons]*sqrt(e(N))} after {inp:reg}{col 78}{c |}
+{col 4}{c BLC}{hline 9}{c BT}{hline 19}{c BT}{hline 9}{c BT}{hline 33}{c BRC}
 
 {dlgtab:Pair-wise test statistics}
 
@@ -432,27 +461,40 @@ Since observations not included in the test pair have missing values in the test
 they are excluded from the regression without using an if-statement.
 {p_end}
 
-{pstd}{it:basic form:}
+{pstd}Basic form:
 {p_end}
 
 {input}{space 8}reg balancevar tp_dummy
 {space 8}test tp_dummy
 {text}
-{pstd}{it:all options:}
+{pstd}All options:
 {p_end}
 
 {input}{space 8}reg balancevar tp_dummy covariates i.fixedeffect weights, vce(vce_option)
 {space 8}test tp_dummy
 {text}
 {pstd}See above for description of each column in this table.
-{it:tp} stands for {it:test pair}, see definition above.
+{it:tp} stands for {it:test_pair}, see definition above.
 The last column shows how the command obtains the stat in the Stata code.
 See the group descriptive statistics above for definitions on
-{it:mean}1{it:, }mean{it:2}, {it:var}1{it: and }var{it:2}
+{it:mean_1}, {it:mean_2}, {it:var_1} and {it:var_2_
 also used in the table below.
 These statistics are stored in
 a the result matrix called {inp:r(iebtab_rmat)}. 
 {p_end}
+
+{col 4}{c TLC}{hline 8}{c TT}{hline 19}{c TT}{hline 9}{c TT}{hline 45}{c TRC}
+{col 4}{c |} Stat{col 13}{c |} Display option{col 33}{c |} Mat col{col 43}{c |} Estimation/calculation{col 89}{c |}
+{col 4}{c LT}{hline 8}{c +}{hline 19}{c +}{hline 9}{c +}{hline 45}{c RT}
+{col 4}{c |} diff *{col 13}{c |} {inp:stats(pair(diff))}{col 33}{c |} {inp:diff_tp}{col 43}{c |} If pair {it:1_2}: {inp:mean_1}-{inp:mean_2}{col 89}{c |}
+{col 4}{c |} beta{col 13}{c |} {inp:stats(pair(beta))}{col 33}{c |} {inp:beta_tp}{col 43}{c |} {inp:e(b)[1,1]} after {inp:reg}{col 89}{c |}
+{col 4}{c |} t{col 13}{c |} {inp:stats(pair(t))}{col 33}{c |} {inp:t_tp}{col 43}{c |} {inp:_b[tp_dummy]/_se[tp_dummy]} after {inp:reg}{col 89}{c |}
+{col 4}{c |} p{col 13}{c |} {inp:stats(pair(p))}{col 33}{c |} {inp:p_tp}{col 43}{c |} {inp:e(p)} after {inp:test}{col 89}{c |}
+{col 4}{c |} nrmd{col 13}{c |} {inp:stats(pair(nrmd))}{col 33}{c |} {inp:nrmd_tp}{col 43}{c |} If pair {it:1_2}: {inp:diff_tp/sqrt(.5*(var_1+var_2))}{col 89}{c |}
+{col 4}{c |} nrmb{col 13}{c |} {inp:stats(pair(nrmb))}{col 33}{c |} {inp:nrmb_tp}{col 43}{c |} If pair {it:1_2}: {inp:beta_tp/sqrt(.5*(var_1+var_2))}{col 89}{c |}
+{col 4}{c |} se{col 13}{c |} {inp:stats(pair(se))}{col 33}{c |} {inp:se_tp}{col 43}{c |} {inp:_se[tp_dummy]} after {inp:reg}{col 89}{c |}
+{col 4}{c |} sd{col 13}{c |} {inp:stats(pair(sd))}{col 33}{c |} {inp:sd_tp}{col 43}{c |} {inp:_se[tp_dummy] * sqrt(e(N))} after {inp:reg}{col 89}{c |}
+{col 4}{c BLC}{hline 8}{c BT}{hline 19}{c BT}{hline 9}{c BT}{hline 45}{c BRC}
 
 {dlgtab:F-test statistics for balance across all balance variables}
 
@@ -460,23 +502,32 @@ a the result matrix called {inp:r(iebtab_rmat)}.
 For each test pair the following code is used.
 {p_end}
 
-{pstd}{it:basic form:}
+{pstd}Basic form:
 {p_end}
 
 {input}{space 8}reg tp_dummy balancevars
 {space 8}testparm balancevars
 {text}
-{pstd}{it:all options:}
+{pstd}All options:
 {p_end}
 
 {input}{space 8}reg tp_dummy balancevars covariates i.fixedeffect weights, vce(vce_option)
 {space 8}testparm balancevars
 {text}
 {pstd}See above for description of each column in this table.
-{it:tp} stands for {it:test pair}, see definition above.
+{it:tp} stands for {it:test_pair}, see definition above.
 These statistics are stored in
 a the result matrix called {inp:r(iebtab_fmat)}. 
 {p_end}
+
+{col 4}{c TLC}{hline 9}{c TT}{hline 19}{c TT}{hline 9}{c TT}{hline 24}{c TRC}
+{col 4}{c |} Stat{col 14}{c |} Display option{col 34}{c |} Mat col{col 44}{c |} Estimation/calculation{col 69}{c |}
+{col 4}{c LT}{hline 9}{c +}{hline 19}{c +}{hline 9}{c +}{hline 24}{c RT}
+{col 4}{c |} # obs{col 14}{c |} Always displayed{col 34}{c |} {inp:fn_tp}{col 44}{c |} {inp:e(N)} after {inp:reg}{col 69}{c |}
+{col 4}{c |} cluster{col 14}{c |} Displayed if used{col 34}{c |} {inp:fcl_tp}{col 44}{c |} {inp:e(N_clust)} after {inp:reg}{col 69}{c |}
+{col 4}{c |} f *{col 14}{c |} {inp:stats(f(f))}{col 34}{c |} {inp:ff_tp}{col 44}{c |} {inp:r(F)} after {inp:testparm}{col 69}{c |}
+{col 4}{c |} p{col 14}{c |} {inp:stats(f(p))}{col 34}{c |} {inp:fp_tp}{col 44}{c |} {inp:r(p)} after {inp:testparm}{col 69}{c |}
+{col 4}{c BLC}{hline 9}{c BT}{hline 19}{c BT}{hline 9}{c BT}{hline 24}{c BRC}
 
 {dlgtab:F-test statistics for balance across all groups}
 
@@ -488,13 +539,13 @@ and where {it:x2}, {it:x3} ... {it:xn},
 represents all group codes apart from the first code.
 {p_end}
 
-{pstd}{it:basic form:}
+{pstd}Basic form:
 {p_end}
 
 {input}{space 8}reg balancevar i.groupvar
 {space 8}test feqtestinput
 {text}
-{pstd}{it:all options:}
+{pstd}All options:
 {p_end}
 
 {input}{space 8}reg balancevar i.groupvar covariates i.fixedeffect weights, vce(vce_option)
@@ -504,6 +555,15 @@ represents all group codes apart from the first code.
 These statistics are stored in
 a the result matrix called {inp:r(iebtab_fmat)}. 
 {p_end}
+
+{col 4}{c TLC}{hline 9}{c TT}{hline 19}{c TT}{hline 9}{c TT}{hline 24}{c TRC}
+{col 4}{c |} Stat{col 14}{c |} Display option{col 34}{c |} Mat col{col 44}{c |} Estimation/calculation{col 69}{c |}
+{col 4}{c LT}{hline 9}{c +}{hline 19}{c +}{hline 9}{c +}{hline 24}{c RT}
+{col 4}{c |} # obs{col 14}{c |} Always displayed{col 34}{c |} {inp:feq_n}{col 44}{c |} {inp:e(N)} after {inp:reg}{col 69}{c |}
+{col 4}{c |} cluster{col 14}{c |} Displayed if used{col 34}{c |} {inp:feq_cl}{col 44}{c |} {inp:e(N_clust)} after {inp:reg}{col 69}{c |}
+{col 4}{c |} f *{col 14}{c |} {inp:stats(feq(f))}{col 34}{c |} {inp:feq_f}{col 44}{c |} {inp:r(F)} after {inp:test}{col 69}{c |}
+{col 4}{c |} p{col 14}{c |} {inp:stats(feq(p))}{col 34}{c |} {inp:feq_p}{col 44}{c |} {inp:r(p)} after {inp:test}{col 69}{c |}
+{col 4}{c BLC}{hline 9}{c BT}{hline 19}{c BT}{hline 9}{c BT}{hline 24}{c BRC}
 
 {title:Result matrices}
 
@@ -635,7 +695,7 @@ Here are a few examples:
 {pstd}The variance in variable {it:region2} is perfectly explained
 by the group variable {it:region} for each test pair
 and the R-squared is 1 in all pair-wise regressions and no statistics are reported.
-Similarly, {it:pop}neg{it: that is included as a covariate control variable
+Similarly, {it:pop_neg} that is included as a covariate control variable
 has prefect negative correlation with the balance variable {it:pop} in test pair 1{it:2.
 The R-squared is 1 in the regression for pair 1{it:2 and no pair-wise statistics are reported for that pair.
 {p_end}
@@ -682,7 +742,7 @@ The option {inp:control()} overrides this behavior so that the category indicate
 in this options are tested against all other groups,
 but the other groups are not tested against each other.
 For statistics where the direction matters (for example {it:diff} or {it:beta})
-the order is changed so that the test is ({it:other}group{it: - }control{it:)
+the order is changed so that the test is ({it:other_group} - {it:control})
 such that a positive value indicates that the other group has a higher
 mean in the balance variable.
 {p_end}
