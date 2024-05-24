@@ -9,7 +9,7 @@
 {phang}{bf:iegitaddmd} - Creates a placeholder file in subfolders of a GitHub repository folder, which allows committing folder structures with empty folders.
 {p_end}
 
-{phang} For a more descriptive discussion on the intended usage and work flow of this command please see the {browse "https://dimewiki.worldbank.org/Iegitaddmd":DIME Wiki}.
+{phang}For a more descriptive discussion on the intended usage and work flow of this command please see the {browse "https://dimewiki.worldbank.org/Iegitaddmd":DIME Wiki}.
 {p_end}
 
 {title:Syntax}
