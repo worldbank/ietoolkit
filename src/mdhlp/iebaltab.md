@@ -9,6 +9,8 @@ __iebaltab__ _balance_varlist_ [if] [in] [weight], __**group**var__(_varname_) [
 where _balance_varlist_ is one or several continuous or binary variables (from here on called balance variables) for which the command
 will test for differences across the categories in __groupvar__(_varname_).
 
+For a more descriptive discussion on the intended usage and work flow of this command please see the [DIME Wiki](https://dimewiki.worldbank.org/Iebaltab).
+
 ## Required options
 
 | _options_ | Description |

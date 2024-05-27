@@ -9,7 +9,7 @@
 {phang}{bf:ietoolkit} - Returns information on the version of {inp:ietoolkit} installed 
 {p_end}
 
-{phang}For a more descriptive discussion on the intended usage and work flow of this command please see the DIME Wiki.
+{phang}For a more descriptive discussion on the intended usage and work flow of this command please see the {browse "https://dimewiki.worldbank.org/Ietoolkit":DIME Wiki}.
 {p_end}
 
 {title:Syntax}

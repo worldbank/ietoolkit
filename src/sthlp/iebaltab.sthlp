@@ -18,6 +18,9 @@
 will test for differences across the categories in {bf:groupvar}({it:varname}).
 {p_end}
 
+{phang}For a more descriptive discussion on the intended usage and work flow of this command please see the {browse "https://dimewiki.worldbank.org/Iebaltab":DIME Wiki}.
+{p_end}
+
 {dlgtab:Required options}
 
 {synoptset 17}{...}

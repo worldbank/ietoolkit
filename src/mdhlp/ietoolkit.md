@@ -2,7 +2,7 @@
 
 __ietoolkit__ - Returns information on the version of `ietoolkit` installed
 
-For a more descriptive discussion on the intended usage and work flow of this command please see the DIME Wiki.
+For a more descriptive discussion on the intended usage and work flow of this command please see the [DIME Wiki](https://dimewiki.worldbank.org/Ietoolkit).
 
 # Syntax
 
