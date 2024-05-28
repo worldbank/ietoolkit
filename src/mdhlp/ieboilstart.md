@@ -8,17 +8,21 @@ __DISCLAIMER__ - One objective of this command is to harmonize settings across u
 
 # Syntax
 
-Note that one important feature of this command requires that  __r(version)__ is written on the first do-file line after __ieboilstart__ , as this setting cannot be done inside a user-command. This will set the Stata version to the correct setting.
+__ieboilstart__ , __**v**ersionnumber__( _Stata_version_ ) [__**ado**path__(_"path/to/folder"_, {_strict_ | _nostrict_}) __noclear__ __**q**uietly__ __veryquietly__ _memory_options_ ]
 
-__ieboilstart__ , __**v**ersionnumber__( _StataVersion_ ) [__**ado**path__(_"path/to/folder"_, {_strict_ | _nostrict_}) __noclear__ __**q**uietly__ __veryquietly__ _memoryoptions_ ]
+Note that one important feature of this command requires that  __r(version)__ is written on the first do-file after __ieboilstart__. This setting cannot be specified within a user command and ensures that the Stata version is set correctly. For example:
 
-__r(version)__
+``` 
+ieboilstart , options 
+`r(version)'
+```
+
 
 
 | _options_ | Description |
 |-----------|-------------|
-| __**v**ersionnumber__(_StataVersion_)                      | Sets the Stata version for all subsequent code execution (required) |
-| __**ado**path__(_"path/to/folder"_, {_strict_ \| _nostrict_}) | Sets the folder where this project's ado-files or user-written commands are stored (required for standalone reproducibility packages) |
+| __**v**ersionnumber__(_Stata_version_)                      | Sets the Stata version for all subsequent code execution (required) |
+| __**ado**path__(_"path/to/folder"_, {_strict_ / _nostrict_}) | Sets the folder where this project's ado-files or user-written commands are stored (required for standalone reproducibility packages) |
 | __noclear__                                             | Makes the command not start by clearing all data                    |
 | __**q**uietly__                                             | Suppresses most of the command's output                             |
 | __veryquietly__                                         | Suppresses all of the command's output                              |
@@ -30,6 +34,7 @@ __r(version)__
 | __maxvar__(_numlist_) | Manually specify maximum number of variables allowed |
 | __matsize__(_numlist_) | Manually specify maximum number of variables allowed in estimation commands |
 | __**noperm**anently__ | Disable the default to permanently set some best practice memory settings |
+
 
 # Description 
 
@@ -82,10 +87,10 @@ See the tables below for a discussion of which settings used and why certain def
 
 ## Basic Memory Settings
 
-|  _Other Settings_ | Description |
-|---------------------|-----------------|                   
-| __set maxvar__      | sets the maximum number of variables allowed. The default value is the maximum allowed in the version of Stata. A lower maximum number can manually be set by the option __maxvar()__. This value is fixed in Stata Small or IC, so this setting is ignored when any of those versions of Stata is used. See set maxvar (`help set maxvar`). |
-| __set matsize__     | sets the maximum number of variables that can be included in estimation commands such as __regress__. The default value used in this command is 400 which is the default value for Stata. A higher value is often allowed but it slows down Stata and is only needed when running very complex analysis. This option can be used to set a higher value, as long as the value does not violate the limitations in the versions of Stata this code will be used in. See set matsize  (`help set matsize`). |
+| _Other Settings_ | Explanation |
+|------------------|-------------|                  
+| __set maxvar__ | sets the maximum number of variables allowed. The default value is the maximum allowed in the version of Stata. A lower maximum number can manually be set by the option __maxvar()__. This value is fixed in Stata Small or IC, so this setting is ignored when any of those versions of Stata is used. See set maxvar (`help set maxvar`). |
+| __set matsize__ | sets the maximum number of variables that can be included in estimation commands such as __regress__. The default value used in this command is 400 which is the default value for Stata. A higher value is often allowed but it slows down Stata and is only needed when running very complex analysis. This option can be used to set a higher value, as long as the value does not violate the limitations in the versions of Stata this code will be used in. See set matsize  (`help set matsize`). |
 
 ## Dynamic Memory Settings 
 see memory (`help memory`) for default values 
@@ -113,7 +118,7 @@ see memory (`help memory`) for default values
 
 # Options
 
-__**v**ersionnumber__(_string_) sets a stable version of Stata for all users. Stata does not (for good reasons) allow a user-written command to alter the version setting from inside a command. Therefore, this option does _nothing_ unless r(version) is included as described in the Syntax section. While the version number cannot be set inside the command code, __ieboilstart__ does two things. First it reminds the user to set the version since it is a required command. Second, it makes sure that the version number used is not too old. A too old version might risk that there are far too big a difference in many commands. Best practice is therefore to keep the same version number throughout a project, unless there is something specific to a newer version that is required for any dofile. Only major and recent versions are allowed in order to reduce errors and complexity. All versions of Stata can be set to run any older version of Stata but not a newer.
+__**v**ersionnumber__(_string_) sets a stable version of Stata for all users. Stata does not (for good reasons) allow a user-written command to alter the version setting from inside a command. Therefore, this option does _nothing_ unless __r(version)__ is included as described in the Syntax section. While the version number cannot be set inside the command code, __ieboilstart__ does two things. First it reminds the user to set the version since it is a required command. Second, it makes sure that the version number used is not too old. A too old version might risk that there are far too big a difference in many commands. Best practice is therefore to keep the same version number throughout a project, unless there is something specific to a newer version that is required for any dofile. Only major and recent versions are allowed in order to reduce errors and complexity. All versions of Stata can be set to run any older version of Stata but not a newer.
 
 __**ado**path__(_"path/to/folder"_ [, _strict_]) adds the folder specified in this option to the ado-file paths (see `help sysdir`). When _strict_ is not used this option sets the _PERSONAL_ path to the path specified in this command. When _strict_ is used then this option instead sets that path to the _PLUS_ path. Read more in `help sysdir` about the _PERSONAL_ and _PLUS_ paths. When _strict_ is used the all other ado-paths are removed apart from the _BASE_ path where the built-in Stata commands are stored. When preparing a reproducibility package one should use the _strict_ to make sure that all user-written commands are saved in the project ado-folder. If a project should eventually be turned into a reproducibility package, then it is easier to use _strict_ from the beginning and continuously add user-written commands as they are introduced to the project's code. This is easier compared to, in the very end making sure that the correct versions of all user-written commands are installed in the project ado-folder.
 

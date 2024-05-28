@@ -17,20 +17,20 @@
 
 {title:Syntax}
 
-{phang}Note that one important feature of this command requires that  {bf:r(version)} is written on the first do-file line after {bf:ieboilstart} , as this setting cannot be done inside a user-command. This will set the Stata version to the correct setting.
+{phang}{bf:ieboilstart} , {bf:{ul:v}ersionnumber}( {it:Stata_version} ) [{bf:{ul:ado}path}({it:{c 34}path/to/folder{c 34}}, {c -(}{it:strict} | {it:nostrict}{c )-}) {bf:noclear} {bf:{ul:q}uietly} {bf:veryquietly} {it:memory_options} ]
 {p_end}
 
-{phang}{bf:ieboilstart} , {bf:{ul:v}ersionnumber}( {it:StataVersion} ) [{bf:{ul:ado}path}({it:{c 34}path/to/folder{c 34}}, {c -(}{it:strict} | {it:nostrict}{c )-}) {bf:noclear} {bf:{ul:q}uietly} {bf:veryquietly} {it:memoryoptions} ]
+{phang}Note that one important feature of this command requires that  {bf:r(version)} is written on the first do-file after {bf:ieboilstart}. This setting cannot be specified within a user command and ensures that the Stata version is set correctly. For example:
 {p_end}
 
-{phang}{bf:r(version)}
-{p_end}
-
-{synoptset 64}{...}
+{input}{space 8}ieboilstart , options 
+{space 8}`r(version)' 
+{text}
+{synoptset 66}{...}
 {synopthdr:options}
 {synoptline}
-{synopt: {bf:{ul:v}ersionnumber}({it:StataVersion})}Sets the Stata version for all subsequent code execution (required){p_end}
-{synopt: {bf:{ul:ado}path}({it:{c 34}path/to/folder{c 34}}, {c -(}{it:strict}   {it:nostrict}{c )-})}Sets the folder where this project{c 39}s ado-files or user-written commands are stored (required for standalone reproducibility packages){p_end}
+{synopt: {bf:{ul:v}ersionnumber}({it:Stata_version})}Sets the Stata version for all subsequent code execution (required){p_end}
+{synopt: {bf:{ul:ado}path}({it:{c 34}path/to/folder{c 34}}, {c -(}{it:strict} / {it:nostrict}{c )-})}Sets the folder where this project{c 39}s ado-files or user-written commands are stored (required for standalone reproducibility packages){p_end}
 {synopt: {bf:noclear}}Makes the command not start by clearing all data{p_end}
 {synopt: {bf:{ul:q}uietly}}Suppresses most of the command{c 39}s output{p_end}
 {synopt: {bf:veryquietly}}Suppresses all of the command{c 39}s output{p_end}
@@ -94,7 +94,7 @@
 {pstd}In order to guarantee that no user use any command other than the commands in the project{c 39}s {it:ado-folder}, the option {it:adopath()} in strict mode, makes all commands the user have installed in their Stata installation unavailable. This setting is restored when the user restarts Stata so nothing is uninstalled or made permanently unavailable. The purpose of this functionality is to make sure that no-one forgets to include any user-written command that the project needs in the {it:ado-folder}.
 {p_end}
 
-{pstd}The {bf:nostrict} sub-option, as in {bf:adopath}({it:{c 34}path{c 34}}, {it:nostrict}), exists to temporarily disable the functionality in strict mode. For example, if someone wants to test using a command installed in their Stata installation before installing it in the project {it:ado-folder} then this option can be used. When {bf:nostrict} is used, when the commands installed in the user{c 39}s Stata installation, are available in addition to the commands in the project{c 39}s {it:ado-folder}. If a user has a command installed in their Stata installation with the same name as a command installed in the {it:ado-folder}, then the version installed in the {it:ado-folder}* will always be used. While using the {bf:nostrict} option can perhaps be seen as more convenient, it would defy the purpose of {bf:adopath()} to use {it:nostrict} as a projects standard mode.
+{pstd}The {bf:nostrict} sub-option, as in {bf:adopath}({it:{c 34}path{c 34}}, {it:nostrict}), exists to temporarily disable the functionality in strict mode. For example, if someone wants to test using a command installed in their Stata installation before installing it in the project {it:ado-folder} then this option can be used. When {bf:nostrict} is used, when the commands installed in the user{c 39}s Stata installation, are available in addition to the commands in the project{c 39}s {it:ado-folder}. If a user has a command installed in their Stata installation with the same name as a command installed in the {it:ado-folder}, then the version installed in the {it:ado-folder_* will always be used. While using the {bf:nostrict} option can perhaps be seen as more convenient, it would defy the purpose of {bf:adopath()} to use _nostrict} as a projects standard mode.
 {p_end}
 
 {pstd}A in-depth technical presentation on how this feature works can be found in a recording found {browse "https://osf.io/6tg3b":here}. The slides used in that presentation can be found {browse "https://osf.io/wa3tr":here}. Note that in this presentation {bf:nostrict} was called {it:default mode}. While the option {bf:adopath()} makes one component needed for a gold-standard level reproducibility easy to use, it is not the only thing needed for reproducibility. Other practices such as setting the seed if using randomization is still as important.
@@ -111,17 +111,55 @@
 {pstd}See the tables below for a discussion of which settings used and why certain default values were used.
 {p_end}
 
-{dlgtab:Memory options}
+{dlgtab:Basic Memory Settings}
+
+{col 4}{c TLC}{hline 20}{c TT}{hline 483}{c TRC}
+{col 4}{c |} {it:Other Settings}{col 25}{c |} Explanation{col 509}{c |}
+{col 4}{c LT}{hline 20}{c +}{hline 483}{c RT}
+{col 4}{c |} {bf:set maxvar}{col 25}{c |} sets the maximum number of variables allowed. The default value is the maximum allowed in the version of Stata. A lower maximum number can manually be set by the option {bf:maxvar()}. This value is fixed in Stata Small or IC, so this setting is ignored when any of those versions of Stata is used. See set maxvar ({inp:help set maxvar}).{col 509}{c |}
+{col 4}{c |} {bf:set matsize}{col 25}{c |} sets the maximum number of variables that can be included in estimation commands such as {bf:regress}. The default value used in this command is 400 which is the default value for Stata. A higher value is often allowed but it slows down Stata and is only needed when running very complex analysis. This option can be used to set a higher value, as long as the value does not violate the limitations in the versions of Stata this code will be used in. See set matsize  ({inp:help set matsize}).{col 509}{c |}
+{col 4}{c BLC}{hline 20}{c BT}{hline 483}{c BRC}
+
+{dlgtab:Dynamic Memory Settings}
+{pstd}see memory ({inp:help memory}) for default values  
+{p_end}
+
+{col 4}{c TLC}{hline 20}{c TT}{hline 345}{c TRC}
+{col 4}{c |} {it:Other Settings}{col 25}{c |} Explanation{col 371}{c |}
+{col 4}{c LT}{hline 20}{c +}{hline 345}{c RT}
+{col 4}{c |} {bf:set min_memory}{col 25}{c |} sets a lower bound for the amount of memory assigned to Stata. The default value is no lower bound.{col 371}{c |}
+{col 4}{c |} {bf:set max_memory}{col 25}{c |} sets an upper bound for the amount of memory assigned to Stata. The default is as much as the hardware of the computer allows.{col 371}{c |}
+{col 4}{c |} {bf:set niceness}{col 25}{c |} defines how quickly Stata releases unused memory back to the computer{col 371}{c |}
+{col 4}{c |} {bf:set segmentsize}{col 25}{c |} defines how large bundles of data is assigned each time Stata request more memory. Too large bundles make Stata occupy an unnecessary large part of the computer{c 39}s memory (that otherwise could have been used by other applications), and too small bundles makes Stata have to interrupt itself to request more bundles of memory too frequently{col 371}{c |}
+{col 4}{c BLC}{hline 20}{c BT}{hline 345}{c BRC}
+
+{dlgtab:Code Flow Settings}
+
+{col 4}{c TLC}{hline 20}{c TT}{hline 335}{c TRC}
+{col 4}{c |} {it:Other Settings}{col 25}{c |} Explanation{col 361}{c |}
+{col 4}{c LT}{hline 20}{c +}{hline 335}{c RT}
+{col 4}{c |} {bf:set more off}{col 25}{c |} disables the default setting that Stata stops and waits for the user to press any key each time the output window is full. Long dofiles would take a very long time to run and require constant attention from the user without this setting. Most Stata users always disable the default which is {bf:set more on}. See set more ({inp:help set more}).{col 361}{c |}
+{col 4}{c |} {bf:pause on}{col 25}{c |} allows the usage of the command {bf:pause} which can be very useful during debugging. See pause ({inp:help pause}).{col 361}{c |}
+{col 4}{c BLC}{hline 20}{c BT}{hline 335}{c BRC}
+
+{dlgtab:Variable Settings:}
+
+{col 4}{c TLC}{hline 20}{c TT}{hline 562}{c TRC}
+{col 4}{c |} {it:Other Settings}{col 25}{c |} Explanation{col 588}{c |}
+{col 4}{c LT}{hline 20}{c +}{hline 562}{c RT}
+{col 4}{c |} {bf:set varabbrev off}{col 25}{c |} allows users to abbreviate variable names. Somewhat similarly to command names abbreviation such as {bf:gen} for {bf:generate} and {bf:reg} for {bf:regress}. However, command name abbreviations are set up to make sure there is no name conflicts that makes the abbreviations ambiguous. This is not true for variable name abbreviation and code that relies on variable name abbreviations tend to be error prone. See set varabbrev ({inp:help set varabbrev}) for more details and carefully consider these words of caution before enabling variable name abbreviation in a collaborative dofile.{col 588}{c |}
+{col 4}{c |} {bf:set type float}{col 25}{c |} sets the default variable type to {it:float} when creating a new variable and no type is specified. Different default types can lead to differences in randomization as this setting affects the precision in the randomization. For extremely large dataset the type {it:double} might be required, when generating random numbers that is expected to be unique. But since that type is twice as storage intensive, this command use {it:float} as default, and users need to specify {it:double} in the rare cases it makes a difference.{col 588}{c |}
+{col 4}{c BLC}{hline 20}{c BT}{hline 562}{c BRC}
 
 {title:Options}
 
-{pstd}{bf:{ul:v}ersionnumber}({it:string}) sets a stable version of Stata for all users. Stata does not (for good reasons) allow a user-written command to alter the version setting from inside a command. Therefore, this option does {it:nothing} unless r(version) is included as described in the Syntax section. While the version number cannot be set inside the command code, {bf:ieboilstart} does two things. First it reminds the user to set the version since it is a required command. Second, it makes sure that the version number used is not too old. A too old version might risk that there are far too big a difference in many commands. Best practice is therefore to keep the same version number throughout a project, unless there is something specific to a newer version that is required for any dofile. Only major and recent versions are allowed in order to reduce errors and complexity. All versions of Stata can be set to run any older version of Stata but not a newer.
+{pstd}{bf:{ul:v}ersionnumber}({it:string}) sets a stable version of Stata for all users. Stata does not (for good reasons) allow a user-written command to alter the version setting from inside a command. Therefore, this option does {it:nothing} unless {bf:r(version)} is included as described in the Syntax section. While the version number cannot be set inside the command code, {bf:ieboilstart} does two things. First it reminds the user to set the version since it is a required command. Second, it makes sure that the version number used is not too old. A too old version might risk that there are far too big a difference in many commands. Best practice is therefore to keep the same version number throughout a project, unless there is something specific to a newer version that is required for any dofile. Only major and recent versions are allowed in order to reduce errors and complexity. All versions of Stata can be set to run any older version of Stata but not a newer.
 {p_end}
 
 {pstd}{bf:{ul:ado}path}({it:{c 34}path/to/folder{c 34}} [, {it:strict}]) adds the folder specified in this option to the ado-file paths (see {inp:help sysdir}). When {it:strict} is not used this option sets the {it:PERSONAL} path to the path specified in this command. When {it:strict} is used then this option instead sets that path to the {it:PLUS} path. Read more in {inp:help sysdir} about the {it:PERSONAL} and {it:PLUS} paths. When {it:strict} is used the all other ado-paths are removed apart from the {it:BASE} path where the built-in Stata commands are stored. When preparing a reproducibility package one should use the {it:strict} to make sure that all user-written commands are saved in the project ado-folder. If a project should eventually be turned into a reproducibility package, then it is easier to use {it:strict} from the beginning and continuously add user-written commands as they are introduced to the project{c 39}s code. This is easier compared to, in the very end making sure that the correct versions of all user-written commands are installed in the project ado-folder. 
 {p_end}
 
-{pstd}{bf:noclear} prevents the command from clearing any data set currently loaded into Stata{c 39}s working memory. The default is to clear data as the working memory needs to be empty in order to modify settings for maxvar, min{it:memory, max}memory and segmentsize. Nothing saved to hard drive memory will ever be deleted by this command. This command is intended to be placed at the very top of a dofile, before any data is loaded into working memory. For these reasons, {bf:noclear} and {bf:maxvar()} cannot be used together.
+{pstd}{bf:noclear} prevents the command from clearing any data set currently loaded into Stata{c 39}s working memory. The default is to clear data as the working memory needs to be empty in order to modify settings for maxvar, min{it:memory, max_memory and segmentsize. Nothing saved to hard drive memory will ever be deleted by this command. This command is intended to be placed at the very top of a dofile, before any data is loaded into working memory. For these reasons, {bf:noclear} and {bf:maxvar()} cannot be used together.
 {p_end}
 
 {pstd}{bf:{ul:q}uietly} suppresses the most verbose outputs from this command, but not the most important outputs.
