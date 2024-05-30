@@ -86,7 +86,7 @@ regress outcome_var `time' `covariates' if `treatment' == 1 & regsample == 1
 
 # Options
 
-__**Required options:**__
+## Required options:
 
 __t__(_varname_) indicates which variable should be used as the time dummy to use in diff-in-diff regression. This must be a dummy variable, i.e., only have 0, 1, or missing as values, where 0 is baseline and 1 is follow-up.
 
@@ -104,7 +104,7 @@ __stardrop__ suppresses all significance stars in all tables and removes the not
 
 __**err**ortype__(_string_) sets the type of error to display. Allowed values for this option are __se__ for standard errors, __sd__ for standard deviation, and __errhide__ for not displaying any errors in the table. The default is to display standard errors.
 
-__**Output options:**__
+## Output options:
 
 __**rowl**abtype__(_string_) indicates what to use as row titles. The allowed values are __varname__ using the variable name as row titles, __varlab__ using the variable labels as row titles (varname will still be used if the variable does not have a variable label). The default is to use the variable name.
 
@@ -120,7 +120,7 @@ __format__(_%fmt_) sets the number formatting/rounding rule for all calculated s
 
 __replace__ if an option is used that outputs a file and a file with that name already exists at that location, then Stata will throw an error unless this option is used. If this option is used then Stata overwrites the file on disk with the new output. This option has no effect if no option with file path is used.
 
-__**LaTeX options:**__
+## LaTeX options:
 
 __**savet**ex__(_filepath_) saves the table in TeX format to the location of the file path.
 
@@ -154,10 +154,10 @@ replace marriage = 100 * marriage / pop
 replace divorce = 100 * divorce / pop
 ```
 
-* Randomly assign time and treatment dummies 
+* Randomly assign time and treatment dummies
 
 ```
-gen t = (runiform()<.5) 
+gen t = (runiform()<.5)
 gen treatment = (runiform()<.5)
 ```  
 
@@ -225,6 +225,3 @@ history of the code, and submit additions or edits to the code through [GitHub r
 All commands in ietoolkit are developed by DIME Analytics at DECIE, The World Bank's unit for Development Impact Evaluations.
 
 Main authors: Kristoffer Bjarkefur, Luiza Cardoso De Andrade, DIME Analytics, The World Bank Group
-
-
-

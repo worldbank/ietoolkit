@@ -95,8 +95,7 @@
 {text}
 {title:Options}
 
-{pstd}{bf:{ul:Required options:}}
-{p_end}
+{dlgtab:Required options:}
 
 {pstd}{bf:t}({it:varname}) indicates which variable should be used as the time dummy to use in diff-in-diff regression. This must be a dummy variable, i.e., only have 0, 1, or missing as values, where 0 is baseline and 1 is follow-up.
 {p_end}
@@ -122,8 +121,7 @@
 {pstd}{bf:{ul:err}ortype}({it:string}) sets the type of error to display. Allowed values for this option are {bf:se} for standard errors, {bf:sd} for standard deviation, and {bf:errhide} for not displaying any errors in the table. The default is to display standard errors.
 {p_end}
 
-{pstd}{bf:{ul:Output options:}}
-{p_end}
+{dlgtab:Output options:}
 
 {pstd}{bf:{ul:rowl}abtype}({it:string}) indicates what to use as row titles. The allowed values are {bf:varname} using the variable name as row titles, {bf:varlab} using the variable labels as row titles (varname will still be used if the variable does not have a variable label). The default is to use the variable name.
 {p_end}
@@ -146,8 +144,7 @@
 {pstd}{bf:replace} if an option is used that outputs a file and a file with that name already exists at that location, then Stata will throw an error unless this option is used. If this option is used then Stata overwrites the file on disk with the new output. This option has no effect if no option with file path is used.
 {p_end}
 
-{pstd}{bf:{ul:LaTeX options:}}
-{p_end}
+{dlgtab:LaTeX options:}
 
 {pstd}{bf:{ul:savet}ex}({it:filepath}) saves the table in TeX format to the location of the file path.
 {p_end}
@@ -187,10 +184,10 @@
 {space 8}replace marriage = 100 * marriage / pop  
 {space 8}replace divorce = 100 * divorce / pop
 {text}
-{pstd}* Randomly assign time and treatment dummies 
+{pstd}* Randomly assign time and treatment dummies
 {p_end}
 
-{input}{space 8}gen t = (runiform()<.5) 
+{input}{space 8}gen t = (runiform()<.5)
 {space 8}gen treatment = (runiform()<.5)
 {text}
 {dlgtab:Example 1.}
@@ -269,4 +266,3 @@ history of the code, and submit additions or edits to the code through {browse "
 
 {pstd}Main authors: Kristoffer Bjarkefur, Luiza Cardoso De Andrade, DIME Analytics, The World Bank Group
 {p_end}
-
