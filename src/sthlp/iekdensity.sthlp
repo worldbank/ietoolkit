@@ -11,8 +11,8 @@
 
 {title:Syntax}
 
-{phang}{bf:iekdensity} {it:yvar} [if] [in] [weight] , {bf:by}({it:treatmentvar}) 
-  [ {bf:stat}({it:string}) {bf:statstyle}({it:string}) {bf:effect} {bf:control}({it:numlist}) {bf:effectformat}({it:%fmt}) {bf:{ul:abs}orb}({it:varname}) {bf:{ul:reg}ressionoptions}({it:string}) {bf:{ul:kdensity}options}({it:string}) {bf:color}({it:string}) 
+{phang}{bf:iekdensity} {it:yvar} [if] [in] [weight] , {bf:by}({it:treatmentvar})
+  [ {bf:stat}({it:string}) {bf:statstyle}({it:string}) {bf:effect} {bf:control}({it:numlist}) {bf:effectformat}({it:%fmt}) {bf:{ul:abs}orb}({it:varname}) {bf:{ul:reg}ressionoptions}({it:string}) {bf:{ul:kdensity}options}({it:string}) {bf:color}({it:string})
             {it:twoway_options} ]
 {p_end}
 
@@ -61,14 +61,12 @@
 
 {title:Options}
 
-{pstd}{bf:{ul:Required options:}}
-{p_end}
+{dlgtab:Required options:}
 
 {pstd}{bf:by}(treatmentvar) indicates which variable should be used to idenfity the treatment assignment. This can be a dummy variable (0/1) or a factor variable, when there are multiple treatments.
 {p_end}
 
-{pstd}{bf:{ul:Content options}} 
-{p_end}
+{dlgtab:Content options}
 
 {pstd}{bf:stat}({it:string}) specifies a descriptive statitistic to be plotted over the kernel density graph. In particular, vertical lines for each treatment group are added. Accepted statistics are: {it:mean, p1, p5, p50, p75, p90, p95, p99, min} and {it:max}.
 {p_end}
@@ -85,8 +83,7 @@
 {pstd}{bf:effectformat}({it:%fmt}) specify the format in which treatment effect point estimate and standard error should be displayed in the graph note.
 {p_end}
 
-{pstd}{bf:{ul:Estimation options:}}
-{p_end}
+{dlgtab:Estimation options:}
 
 {pstd}{bf:{ul:abs}orb}({it:varname}) indicates the fixed effects variable (for example, the experimental strata when the treatment was stratified) to be included in the estimation. This variable must be numerical.
 {p_end}
@@ -97,8 +94,7 @@
 {pstd}{bf:{ul:kdensity}options}({it:string}) specifies kernel estimation options, such as kernel function and half-width of kernel. The default kernel function is {bf:kernel}({it:epanechnikov}). Many options accepted by kdensity are : {bf:kernel}({it:kernel}), {bf:bwidth}({it:#}), {bf:n}({it:#}), and all the {it:cline_options} (see {inp:help cline_options}) for univariate kernel density estimation. 
 {p_end}
 
-{pstd}{bf:{ul:Graphic options:}}
-{p_end}
+{dlgtab:Graphic options:}
 
 {pstd}{bf:color}({it:string}) indicates the colors to be used for each treatment arm. The colors should come in the order of the values in {bf:by}({it:treatmentvar}). For instance, if the treatment is binary, you can set the line colors (color1 color2). See {it:colorstyle} ({inp:help colorstyle}). 
 {p_end}
@@ -212,4 +208,3 @@ Luiza Andrade
 
 {pstd}Main author: Matteo Ruzzante, DIME, The World Bank Group.
 {p_end}
-

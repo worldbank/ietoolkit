@@ -4,8 +4,8 @@ __iekdensity__ - This command plots univariate kernel density estimates by treat
 
 # Syntax
 
-__iekdensity__ _yvar_ [if] [in] [weight] , __by__(_treatmentvar_) 
-  [ __stat__(_string_) __statstyle__(_string_) __effect__ __control__(_numlist_) __effectformat__(_%fmt_) __**abs**orb__(_varname_) __**reg**ressionoptions__(_string_) __**kdensity**options__(_string_) __color__(_string_) 
+__iekdensity__ _yvar_ [if] [in] [weight] , __by__(_treatmentvar_)
+  [ __stat__(_string_) __statstyle__(_string_) __effect__ __control__(_numlist_) __effectformat__(_%fmt_) __**abs**orb__(_varname_) __**reg**ressionoptions__(_string_) __**kdensity**options__(_string_) __color__(_string_)
             _twoway_options_ ]
 
 Where _yvar_ is a numeric continuous outcome variable, whose distribution is to be plotted by treatment assignment.
@@ -28,13 +28,13 @@ Where _yvar_ is a numeric continuous outcome variable, whose distribution is to 
 | _options_ | Description |
 |-----------|-------------|
 | __**abs**orb__(_varname_) | Specify fixed effects variable, if any. |
-| __**reg**ressionoptions__(_string_) | Specify regression options. | 
+| __**reg**ressionoptions__(_string_) | Specify regression options. |
 | __**kdensity**options__(_string_) | Specify kernel estimation options. |
 
 ## Graphic options:
 | _options_ | Description |
 |-----------|-------------|
-| __color__(_string_) | Specify colors for each group. | 
+| __color__(_string_) | Specify colors for each group. |
 | _twoway_options_ | Specify graph options. |
 
 
@@ -44,11 +44,11 @@ __iekdensity__ is a command that allows to easily plot the distribution of a var
 
 # Options
 
-__**Required options:**__
+## Required options:
 
 __by__(treatmentvar) indicates which variable should be used to idenfity the treatment assignment. This can be a dummy variable (0/1) or a factor variable, when there are multiple treatments.
 
-__**Content options**__ 
+## Content options
 
 __stat__(_string_) specifies a descriptive statitistic to be plotted over the kernel density graph. In particular, vertical lines for each treatment group are added. Accepted statistics are: _mean, p1, p5, p50, p75, p90, p95, p99, min_ and _max_.
 
@@ -60,7 +60,7 @@ __control__(_numlist_) indicates which value the variable __by__(_treatmentvar_)
 
 __effectformat__(_%fmt_) specify the format in which treatment effect point estimate and standard error should be displayed in the graph note.
 
-__**Estimation options:**__
+## Estimation options:
 
 __**abs**orb__(_varname_) indicates the fixed effects variable (for example, the experimental strata when the treatment was stratified) to be included in the estimation. This variable must be numerical.
 
@@ -68,7 +68,7 @@ __**reg**ressionoptions__(_string_) indicates other options to be employed for t
 
 __**kdensity**options__(_string_) specifies kernel estimation options, such as kernel function and half-width of kernel. The default kernel function is __kernel__(_epanechnikov_). Many options accepted by kdensity are : __kernel__(_kernel_), __bwidth__(_#_), __n__(_#_), and all the _cline_options_ (see `help cline_options`) for univariate kernel density estimation.
 
-__**Graphic options:**__
+## Graphic options:
 
 __color__(_string_) indicates the colors to be used for each treatment arm. The colors should come in the order of the values in __by__(_treatmentvar_). For instance, if the treatment is binary, you can set the line colors (color1 color2). See _colorstyle_ (`help colorstyle`).
 
@@ -181,15 +181,11 @@ Luiza Andrade
 
 Please send bug-reports, suggestions and requests for clarifications writing "ietoolkit iekdensity" in the subject line to: dimeanalytics@worldbank.org
 
-        
+
 You can also see the code, make comments to the code, see the version history of the code, and submit additions or edits to the code through  [GitHub repository](https://github.com/worldbank/ietoolkit) for `ietoolkit`.
 
 # Authors
 
 All commands in `ietoolkit` are developed by DIME Analytics at DIME, The World Bank's department for Development Impact Evaluations.
-        
+
 Main author: Matteo Ruzzante, DIME, The World Bank Group.
-
-        
-
-
