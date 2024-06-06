@@ -23,14 +23,14 @@
 {phang}Note that one important feature of this command requires that  {bf:r(version)} is written on the first do-file after {bf:ieboilstart}. This setting cannot be specified within a user command and ensures that the Stata version is set correctly. For example:
 {p_end}
 
-{input}{space 8}ieboilstart , options 
+{input}{space 8}ieboilstart , options
 {space 8}`r(version)' 
 {text}
-{synoptset 66}{...}
-{synopthdr:options}
+{synoptset 44}{...}
+{p2coldent:{it:options}}Description{p_end}
 {synoptline}
 {synopt: {bf:{ul:v}ersionnumber}({it:Stata_version})}Sets the Stata version for all subsequent code execution (required){p_end}
-{synopt: {bf:{ul:ado}path}({it:{c 34}path/to/folder{c 34}}, {c -(}{it:strict} / {it:nostrict}{c )-})}Sets the folder where this project{c 39}s ado-files or user-written commands are stored (required for standalone reproducibility packages){p_end}
+{synopt: {bf:{ul:ado}path}({it:{c 34}path/to/folder{c 34}}, {c -(}{it:strict}/{it:nostrict}{c )-})}Sets the folder where this project{c 39}s ado-files or user-written commands are stored (required for standalone reproducibility packages){p_end}
 {synopt: {bf:noclear}}Makes the command not start by clearing all data{p_end}
 {synopt: {bf:{ul:q}uietly}}Suppresses most of the command{c 39}s output{p_end}
 {synopt: {bf:veryquietly}}Suppresses all of the command{c 39}s output{p_end}
@@ -39,7 +39,7 @@
 {dlgtab:Memory options}
 
 {synoptset 16}{...}
-{synopthdr:options}
+{p2coldent:{it:options}}Description{p_end}
 {synoptline}
 {synopt: {bf:maxvar}({it:numlist})}Manually specify maximum number of variables allowed{p_end}
 {synopt: {bf:matsize}({it:numlist})}Manually specify maximum number of variables allowed in estimation commands{p_end}
@@ -68,7 +68,7 @@
 {pstd}This command uses the Stata command {bf:version} (see {inp:help version}) to version control all built-in commands. For some good technical reasons, it is not possible for {bf:ieboilstart} to set the version for the rest of the project{c 39}s code from inside the command. This means that all {bf:ieboilstart} start is preparing the line of code you need to run to version control all built-in commands. You need to run this line of code on the immediate subsequent line after {bf:ieboilstart}. Like this: 
 {p_end}
 
-{input}{space 8}ieboilstart , options 
+{input}{space 8}ieboilstart , options
 {space 8}`r(version)' 
 {text}
 {pstd}The version setting has the scope of a local, meaning that it expires when a do-file and all sub-dofiles it is calling are completed. If {browse "https://dimewiki.worldbank.org/Master_Do-files":main/master do-files} are used, then the version should be set in the main file, and only results generated when running all code from the main file should be considered reproducible.
@@ -113,43 +113,44 @@
 
 {dlgtab:Basic Memory Settings}
 
-{col 4}{c TLC}{hline 20}{c TT}{hline 483}{c TRC}
-{col 4}{c |} {it:Other Settings}{col 25}{c |} Explanation{col 509}{c |}
-{col 4}{c LT}{hline 20}{c +}{hline 483}{c RT}
-{col 4}{c |} {bf:set maxvar}{col 25}{c |} sets the maximum number of variables allowed. The default value is the maximum allowed in the version of Stata. A lower maximum number can manually be set by the option {bf:maxvar()}. This value is fixed in Stata Small or IC, so this setting is ignored when any of those versions of Stata is used. See set maxvar ({inp:help set maxvar}).{col 509}{c |}
-{col 4}{c |} {bf:set matsize}{col 25}{c |} sets the maximum number of variables that can be included in estimation commands such as {bf:regress}. The default value used in this command is 400 which is the default value for Stata. A higher value is often allowed but it slows down Stata and is only needed when running very complex analysis. This option can be used to set a higher value, as long as the value does not violate the limitations in the versions of Stata this code will be used in. See set matsize  ({inp:help set matsize}).{col 509}{c |}
-{col 4}{c BLC}{hline 20}{c BT}{hline 483}{c BRC}
+{synoptset 11}{...}
+{p2coldent:{it:Other Settings}}Explanation{p_end}
+{synoptline}
+{synopt: {bf:set maxvar}}sets the maximum number of variables allowed. The default value is the maximum allowed in the version of Stata. A lower maximum number can manually be set by the option {bf:maxvar()}. This value is fixed in Stata Small or IC, so this setting is ignored when any of those versions of Stata is used. See set maxvar ({inp:help set maxvar}).{p_end}
+{synopt: {bf:set matsize}}sets the maximum number of variables that can be included in estimation commands such as {bf:regress}. The default value used in this command is 400 which is the default value for Stata. A higher value is often allowed but it slows down Stata and is only needed when running very complex analysis. This option can be used to set a higher value, as long as the value does not violate the limitations in the versions of Stata this code will be used in. See set matsize  ({inp:help set matsize}).{p_end}
+{synoptline}
 
 {dlgtab:Dynamic Memory Settings}
-{pstd}see memory ({inp:help memory}) for default values  
+
+{pstd}See memory ({inp:help memory}) for default values. 
 {p_end}
 
-{col 4}{c TLC}{hline 20}{c TT}{hline 345}{c TRC}
-{col 4}{c |} {it:Other Settings}{col 25}{c |} Explanation{col 371}{c |}
-{col 4}{c LT}{hline 20}{c +}{hline 345}{c RT}
-{col 4}{c |} {bf:set min_memory}{col 25}{c |} sets a lower bound for the amount of memory assigned to Stata. The default value is no lower bound.{col 371}{c |}
-{col 4}{c |} {bf:set max_memory}{col 25}{c |} sets an upper bound for the amount of memory assigned to Stata. The default is as much as the hardware of the computer allows.{col 371}{c |}
-{col 4}{c |} {bf:set niceness}{col 25}{c |} defines how quickly Stata releases unused memory back to the computer{col 371}{c |}
-{col 4}{c |} {bf:set segmentsize}{col 25}{c |} defines how large bundles of data is assigned each time Stata request more memory. Too large bundles make Stata occupy an unnecessary large part of the computer{c 39}s memory (that otherwise could have been used by other applications), and too small bundles makes Stata have to interrupt itself to request more bundles of memory too frequently{col 371}{c |}
-{col 4}{c BLC}{hline 20}{c BT}{hline 345}{c BRC}
+{synoptset 15}{...}
+{p2coldent:{it:Other Settings}}Explanation{p_end}
+{synoptline}
+{synopt: {bf:set min_memory}}sets a lower bound for the amount of memory assigned to Stata. The default value is no lower bound.{p_end}
+{synopt: {bf:set max_memory}}sets an upper bound for the amount of memory assigned to Stata. The default is as much as the hardware of the computer allows.{p_end}
+{synopt: {bf:set niceness}}defines how quickly Stata releases unused memory back to the computer{p_end}
+{synopt: {bf:set segmentsize}}defines how large bundles of data is assigned each time Stata request more memory. Too large bundles make Stata occupy an unnecessary large part of the computer{c 39}s memory (that otherwise could have been used by other applications), and too small bundles makes Stata have to interrupt itself to request more bundles of memory too frequently{p_end}
+{synoptline}
 
 {dlgtab:Code Flow Settings}
 
-{col 4}{c TLC}{hline 20}{c TT}{hline 335}{c TRC}
-{col 4}{c |} {it:Other Settings}{col 25}{c |} Explanation{col 361}{c |}
-{col 4}{c LT}{hline 20}{c +}{hline 335}{c RT}
-{col 4}{c |} {bf:set more off}{col 25}{c |} disables the default setting that Stata stops and waits for the user to press any key each time the output window is full. Long dofiles would take a very long time to run and require constant attention from the user without this setting. Most Stata users always disable the default which is {bf:set more on}. See set more ({inp:help set more}).{col 361}{c |}
-{col 4}{c |} {bf:pause on}{col 25}{c |} allows the usage of the command {bf:pause} which can be very useful during debugging. See pause ({inp:help pause}).{col 361}{c |}
-{col 4}{c BLC}{hline 20}{c BT}{hline 335}{c BRC}
+{synoptset 12}{...}
+{p2coldent:{it:Other Settings}}Explanation{p_end}
+{synoptline}
+{synopt: {bf:set more off}}disables the default setting that Stata stops and waits for the user to press any key each time the output window is full. Long dofiles would take a very long time to run and require constant attention from the user without this setting. Most Stata users always disable the default which is {bf:set more on}. See set more ({inp:help set more}).{p_end}
+{synopt: {bf:pause on}}allows the usage of the command {bf:pause} which can be very useful during debugging. See pause ({inp:help pause}).{p_end}
+{synoptline}
 
 {dlgtab:Variable Settings:}
 
-{col 4}{c TLC}{hline 20}{c TT}{hline 562}{c TRC}
-{col 4}{c |} {it:Other Settings}{col 25}{c |} Explanation{col 588}{c |}
-{col 4}{c LT}{hline 20}{c +}{hline 562}{c RT}
-{col 4}{c |} {bf:set varabbrev off}{col 25}{c |} allows users to abbreviate variable names. Somewhat similarly to command names abbreviation such as {bf:gen} for {bf:generate} and {bf:reg} for {bf:regress}. However, command name abbreviations are set up to make sure there is no name conflicts that makes the abbreviations ambiguous. This is not true for variable name abbreviation and code that relies on variable name abbreviations tend to be error prone. See set varabbrev ({inp:help set varabbrev}) for more details and carefully consider these words of caution before enabling variable name abbreviation in a collaborative dofile.{col 588}{c |}
-{col 4}{c |} {bf:set type float}{col 25}{c |} sets the default variable type to {it:float} when creating a new variable and no type is specified. Different default types can lead to differences in randomization as this setting affects the precision in the randomization. For extremely large dataset the type {it:double} might be required, when generating random numbers that is expected to be unique. But since that type is twice as storage intensive, this command use {it:float} as default, and users need to specify {it:double} in the rare cases it makes a difference.{col 588}{c |}
-{col 4}{c BLC}{hline 20}{c BT}{hline 562}{c BRC}
+{synoptset 17}{...}
+{p2coldent:{it:Other Settings}}Explanation{p_end}
+{synoptline}
+{synopt: {bf:set varabbrev off}}allows users to abbreviate variable names. Somewhat similarly to command names abbreviation such as {bf:gen} for {bf:generate} and {bf:reg} for {bf:regress}. However, command name abbreviations are set up to make sure there is no name conflicts that makes the abbreviations ambiguous. This is not true for variable name abbreviation and code that relies on variable name abbreviations tend to be error prone. See set varabbrev ({inp:help set varabbrev}) for more details and carefully consider these words of caution before enabling variable name abbreviation in a collaborative dofile.{p_end}
+{synopt: {bf:set type float}}sets the default variable type to {it:float} when creating a new variable and no type is specified. Different default types can lead to differences in randomization as this setting affects the precision in the randomization. For extremely large dataset the type {it:double} might be required, when generating random numbers that is expected to be unique. But since that type is twice as storage intensive, this command use {it:float} as default, and users need to specify {it:double} in the rare cases it makes a difference.{p_end}
+{synoptline}
 
 {title:Options}
 
@@ -179,20 +180,18 @@
 
 {title:Examples}
 
-{pstd}{bf:Example 1.}
-{p_end}
+{dlgtab:Example 1}
 
-{input}{space 8}ieboilstart, versionnumber(12.1) 
+{input}{space 8}ieboilstart, versionnumber(12.1)
 {space 8}`r(version)' 
 {text}
 {pstd}After running the two lines of code above all users will run their version of Stata as if the version was 12.1. That means that anyone who bought or upgraded their Stata to version 12.1 or a more recent version can run this code and will behave as identical as possible.
 {p_end}
 
-{pstd}{bf:Example 2.}
-{p_end}
+{dlgtab:Example 2}
 
-{input}{space 8}local proj_ado "/path/to/project/code/ado" 
-{space 8}ieboilstart, opt versionnumber(15.1) adopath_("`proj_ado'", strict)  
+{input}{space 8}local proj_ado "/path/to/project/code/ado"
+{space 8}ieboilstart, opt versionnumber(15.1) adopath_("`proj_ado'", strict) 
 {space 8}`r(version)' 
 {space 8}
 {text}

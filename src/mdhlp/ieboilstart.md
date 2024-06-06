@@ -12,17 +12,15 @@ __ieboilstart__ , __**v**ersionnumber__( _Stata_version_ ) [__**ado**path__(_"pa
 
 Note that one important feature of this command requires that  __r(version)__ is written on the first do-file after __ieboilstart__. This setting cannot be specified within a user command and ensures that the Stata version is set correctly. For example:
 
-``` 
-ieboilstart , options 
+```
+ieboilstart , options
 `r(version)'
 ```
-
-
 
 | _options_ | Description |
 |-----------|-------------|
 | __**v**ersionnumber__(_Stata_version_)                      | Sets the Stata version for all subsequent code execution (required) |
-| __**ado**path__(_"path/to/folder"_, {_strict_ / _nostrict_}) | Sets the folder where this project's ado-files or user-written commands are stored (required for standalone reproducibility packages) |
+| __**ado**path__(_"path/to/folder"_, {_strict_/_nostrict_}) | Sets the folder where this project's ado-files or user-written commands are stored (required for standalone reproducibility packages) |
 | __noclear__                                             | Makes the command not start by clearing all data                    |
 | __**q**uietly__                                             | Suppresses most of the command's output                             |
 | __veryquietly__                                         | Suppresses all of the command's output                              |
@@ -35,8 +33,7 @@ ieboilstart , options
 | __matsize__(_numlist_) | Manually specify maximum number of variables allowed in estimation commands |
 | __**noperm**anently__ | Disable the default to permanently set some best practice memory settings |
 
-
-# Description 
+# Description
 
 __ieboilstart__ applies best practices for collaboration and reproducibility within a research project. Making the same Stata code consistently generate the same results when run on other people's computers is harder than what it first might seem. This is especially true in order to ensure that Stata code will function identically in the future, even if new versions of Stata and user-written commands (such as those on SSC) have been released. The objective of this command is to reduce the risk that a research project's code changes its results when running the same code on different computers or in different points in the future. However, note that it is not technically possible to fully eliminate this risk.
 
@@ -52,8 +49,8 @@ One example where this becomes important is reproducible randomization. Sometime
 
 This command uses the Stata command __version__ (see `help version`) to version control all built-in commands. For some good technical reasons, it is not possible for __ieboilstart__ to set the version for the rest of the project's code from inside the command. This means that all __ieboilstart__ start is preparing the line of code you need to run to version control all built-in commands. You need to run this line of code on the immediate subsequent line after __ieboilstart__. Like this:
 
-``` 
-ieboilstart , options 
+```
+ieboilstart , options
 `r(version)'
 ```
 
@@ -92,8 +89,9 @@ See the tables below for a discussion of which settings used and why certain def
 | __set maxvar__ | sets the maximum number of variables allowed. The default value is the maximum allowed in the version of Stata. A lower maximum number can manually be set by the option __maxvar()__. This value is fixed in Stata Small or IC, so this setting is ignored when any of those versions of Stata is used. See set maxvar (`help set maxvar`). |
 | __set matsize__ | sets the maximum number of variables that can be included in estimation commands such as __regress__. The default value used in this command is 400 which is the default value for Stata. A higher value is often allowed but it slows down Stata and is only needed when running very complex analysis. This option can be used to set a higher value, as long as the value does not violate the limitations in the versions of Stata this code will be used in. See set matsize  (`help set matsize`). |
 
-## Dynamic Memory Settings 
-see memory (`help memory`) for default values 
+## Dynamic Memory Settings
+
+See memory (`help memory`) for default values.
 
 | _Other Settings_ | Explanation |
 |------------------|-------------|   
@@ -101,7 +99,7 @@ see memory (`help memory`) for default values
 | __set max_memory__ | sets an upper bound for the amount of memory assigned to Stata. The default is as much as the hardware of the computer allows. |
 | __set niceness__ | defines how quickly Stata releases unused memory back to the computer |
 | __set segmentsize__ | defines how large bundles of data is assigned each time Stata request more memory. Too large bundles make Stata occupy an unnecessary large part of the computer's memory (that otherwise could have been used by other applications), and too small bundles makes Stata have to interrupt itself to request more bundles of memory too frequently   |
-                                                                                                                                                                                                      
+
 ## Code Flow Settings
 
 | _Other Settings_ | Explanation |
@@ -136,20 +134,20 @@ __**noperm**anently__ is used to disable that this command updates any default s
 
 # Examples
 
-__Example 1.__
+## Example 1
 
 ```
-ieboilstart, versionnumber(12.1) 
+ieboilstart, versionnumber(12.1)
 `r(version)'
 ```
 
 After running the two lines of code above all users will run their version of Stata as if the version was 12.1. That means that anyone who bought or upgraded their Stata to version 12.1 or a more recent version can run this code and will behave as identical as possible.
 
-__Example 2.__
+## Example 2
 
 ```
-local proj_ado "/path/to/project/code/ado" 
-ieboilstart, opt versionnumber(15.1) adopath_("`proj_ado'", strict) 
+local proj_ado "/path/to/project/code/ado"
+ieboilstart, opt versionnumber(15.1) adopath_("`proj_ado'", strict)
 `r(version)'
 
 ```
@@ -162,6 +160,6 @@ All commands in ietoolkit is developed by DIME Analytics at DIME, The World Bank
 
 Main author: Kristoffer Bjarkefur, DIME Analytics, The World Bank Group
 
-Please send bug-reports, suggestions and requests for clarifications writing "ietoolkit ieboilstart" in the subject line to: [dimeanalytics\@worldbank.org](mailto:dimeanalytics@worldbank.org){.email}
+Please send bug-reports, suggestions and requests for clarifications writing "ietoolkit ieboilstart" in the subject line to: [dimeanalytics\@worldbank.org](mailto:dimeanalytics@worldbank.org)
 
-You can also see the code, make comments to the code, see the version history of the code, and submit additions or edits to the code through [the GitHub repository of ietoolkit](%22https://github.com/worldbank/ietoolkit%22).
+You can also see the code, make comments to the code, see the version history of the code, and submit additions or edits to the code through [the GitHub repository of ietoolkit](https://github.com/worldbank/ietoolkit).
