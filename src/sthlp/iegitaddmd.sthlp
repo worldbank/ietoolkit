@@ -1,5 +1,5 @@
 {smcl}
-{* *! version 0.0 20240404}{...}
+{* *! version 7.3 20240404}{...}
 {hline}
 {pstd}help file for {hi:iegitaddmd}{p_end}
 {hline}
