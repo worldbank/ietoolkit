@@ -18,7 +18,7 @@
 {p_end}
 
 {synoptset 29}{...}
-{synopthdr:options}
+{p2coldent:{it:options}}Description{p_end}
 {synoptline}
 {synopt: {bf:folder}({it:full_file_path})}Specifies the folder path to the project folder clone where placeholder files will be created{p_end}
 {synopt: {bf:comparefolder}({it:full_file_path})}Specifies the top folder of a folder tree to be compared with {inp:folder()}{p_end}

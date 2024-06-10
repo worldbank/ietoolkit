@@ -18,7 +18,7 @@
 {p_end}
 
 {synoptset 20}{...}
-{synopthdr:options}
+{p2coldent:{it:options}}Description{p_end}
 {synoptline}
 {synopt: {bf:{ul:n}umobs}({it:integer})}Number of observations that is allowed to be dropped - default is 1{p_end}
 {synopt: {bf:mvar}({it:varname})}Allows that no observation is dropped{p_end}

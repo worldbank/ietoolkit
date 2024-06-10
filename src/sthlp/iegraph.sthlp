@@ -18,7 +18,7 @@
 {p_end}
 
 {synoptset 27}{...}
-{synopthdr:options}
+{p2coldent:{it:options}}Description{p_end}
 {synoptline}
 {synopt: {bf:{ul:basicti}tle}({it:string})}Manually sets the title of the graph{p_end}
 {synopt: {bf:{ul:varl}abels}}Uses variable labels for legends instead of variable names{p_end}

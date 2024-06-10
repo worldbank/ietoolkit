@@ -20,7 +20,7 @@
 {p_end}
 
 {synoptset 16}{...}
-{synopthdr:options}
+{p2coldent:{it:options}}Description{p_end}
 {synoptline}
 {synopt: {bf:by}({it:treatmentvar})}Treatment (dummy or factor) variable.{p_end}
 {synoptline}
@@ -28,7 +28,7 @@
 {dlgtab:Content options:}
 
 {synoptset 18}{...}
-{synopthdr:options}
+{p2coldent:{it:options}}Description{p_end}
 {synoptline}
 {synopt: {bf:stat}({it:string})}Add vertical lines for each treatment group with statistic specified.{p_end}
 {synopt: {bf:statstyle}({it:string})}Specify graphic style of statistic lines.{p_end}
@@ -39,7 +39,7 @@
 
 {dlgtab:Estimation options:}
 {synoptset 25}{...}
-{synopthdr:options}
+{p2coldent:{it:options}}Description{p_end}
 {synoptline}
 {synopt: {bf:{ul:abs}orb}({it:varname})}Specify fixed effects variable, if any.{p_end}
 {synopt: {bf:{ul:reg}ressionoptions}({it:string})}Specify regression options.{p_end}
@@ -48,7 +48,7 @@
 
 {dlgtab:Graphic options:}
 {synoptset 14}{...}
-{synopthdr:options}
+{p2coldent:{it:options}}Description{p_end}
 {synoptline}
 {synopt: {bf:color}({it:string})}Specify colors for each group.{p_end}
 {synopt: {it:twoway_options}}Specify graph options.{p_end}

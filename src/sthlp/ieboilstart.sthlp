@@ -206,8 +206,8 @@
 {pstd}Main author: Kristoffer Bjarkefur, DIME Analytics, The World Bank Group
 {p_end}
 
-{pstd}Please send bug-reports, suggestions and requests for clarifications writing {c 34}ietoolkit ieboilstart{c 34} in the subject line to: {browse "mailto:dimeanalytics@worldbank.org":dimeanalyticswworldbank.org}{c -(}.email{c )-}
+{pstd}Please send bug-reports, suggestions and requests for clarifications writing {c 34}ietoolkit ieboilstart{c 34} in the subject line to: {browse "mailto:dimeanalytics@worldbank.org":dimeanalyticswworldbank.org}
 {p_end}
 
-{pstd}You can also see the code, make comments to the code, see the version history of the code, and submit additions or edits to the code through {browse "%22https://github.com/worldbank/ietoolkit%22":the GitHub repository of ietoolkit}.
+{pstd}You can also see the code, make comments to the code, see the version history of the code, and submit additions or edits to the code through {browse "https://github.com/worldbank/ietoolkit":the GitHub repository of ietoolkit}.
 {p_end}

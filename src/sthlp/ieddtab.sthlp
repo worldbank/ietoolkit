@@ -23,7 +23,7 @@
 {dlgtab:Required options:}
 
 {synoptset 18}{...}
-{synopthdr:options}
+{p2coldent:{it:Options}}Description{p_end}
 {synoptline}
 {synopt: {bf:{ul:t}ime}({it:varname})}Time dummy to use in diff-in-diff regression{p_end}
 {synopt: {bf:{ul:treat}ment}({it:varname})}Treatment dummy to use in diff-in-diff regression{p_end}
@@ -32,7 +32,7 @@
 {dlgtab:Statistics options:}
 
 {synoptset 19}{...}
-{synopthdr:options}
+{p2coldent:{it:Options}}Description{p_end}
 {synoptline}
 {synopt: {bf:{ul:covar}iates}({it:varlist})}Covariates to use in diff-in-diff regression{p_end}
 {synopt: {bf:{ul:vce}}({it:vce_types})}Options for variance estimation. {bf:Robust}, {bf:cluster} {it:clustervar} or {bf:bootstrap}{p_end}
@@ -44,7 +44,7 @@
 {dlgtab:Output options:}
 
 {synoptset 24}{...}
-{synopthdr:options}
+{p2coldent:{it:Options}}Description{p_end}
 {synoptline}
 {synopt: {bf:{ul:rowl}abtype}({it:string})}Indicate what to use as row titles, default is variable name.{p_end}
 {synopt: {bf:rowlabtext}({it:label_string})}Manually enter the row titles using label strings (see below).{p_end}
@@ -58,7 +58,7 @@
 {dlgtab:LaTeX options:}
 
 {synoptset 21}{...}
-{synopthdr:options}
+{p2coldent:{it:Options}}Description{p_end}
 {synoptline}
 {synopt: {bf:{ul:savet}ex}({it:filepath})}Generate a LaTeX table of the result and save to the location of the file path.{p_end}
 {synopt: {bf:{ul:texdoc}ument}}Creates a stand-alone TeX document.{p_end}
@@ -251,17 +251,17 @@
 
 {title:Feedback, bug reports and contributions}
 
-{pstd}Please send bug-reports, suggestions, and requests for clarifications writing {c 34}ietoolkit ieddtab{c 34} in the subject line to:  
-dimeanalytics@worldbank.org
+{pstd}Please send bug-reports, suggestions and requests for clarifications
+writing {c 34}ietoolkit ieddtab{c 34} in the subject line to: dimeanalytics@worldbank.org
 {p_end}
 
 {pstd}You can also see the code, make comments to the code, see the version
-history of the code, and submit additions or edits to the code through {browse "https://github.com/worldbank/ietoolkit":GitHub repository} for {bf:ietoolkit}.
+history of the code, and submit additions or edits to the code through {browse "https://github.com/worldbank/ietoolkit":GitHub repository} for {inp:ietoolkit}. 
 {p_end}
 
 {title:Author}
 
-{pstd}All commands in ietoolkit are developed by DIME Analytics at DECIE, The World Bank{c 39}s unit for Development Impact Evaluations.
+{pstd}All commands in {inp:ietoolkit} are developed by DIME Analytics at DIME, The World Bank{c 39}s department for Development Impact Evaluations. 
 {p_end}
 
 {pstd}Main authors: Kristoffer Bjarkefur, Luiza Cardoso De Andrade, DIME Analytics, The World Bank Group

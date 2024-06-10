@@ -18,7 +18,7 @@
 {p_end}
 
 {synoptset 23}{...}
-{synopthdr:options}
+{p2coldent:{it:options}}Description{p_end}
 {synoptline}
 {synopt: {bf:{ul:grp}dummy}({it:varname})}The group dummy variable where 1 indicates base observations and 0 target observations{p_end}
 {synopt: {bf:{ul:match}var}({it:varname})}The variable with a continous value to match on{p_end}

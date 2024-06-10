@@ -24,7 +24,7 @@ will test for differences across the categories in {bf:groupvar}({it:varname}).
 {dlgtab:Required options}
 
 {synoptset 17}{...}
-{synopthdr:options}
+{p2coldent:{it:options}}Description{p_end}
 {synoptline}
 {synopt: {bf:{ul:group}var}({it:varname})}Variable indicating the groups (ex. treatment arms) to test across{p_end}
 {synoptline}
@@ -32,7 +32,7 @@ will test for differences across the categories in {bf:groupvar}({it:varname}).
 {dlgtab:Column and row option}
 
 {synoptset 22}{...}
-{synopthdr:options}
+{p2coldent:{it:options}}Description{p_end}
 {synoptline}
 {synopt: {bf:{ul:co}ntrol}({it:group_code})}Indicate a single group that all other groups are tested against. Default is all groups are tested against each other{p_end}
 {synopt: {bf:{ul:or}der}({it:group_code_list})}Manually set the order the groups appear in the table. Default is ascending. See details on {it:group_code_list} below{p_end}
@@ -43,7 +43,7 @@ will test for differences across the categories in {bf:groupvar}({it:varname}).
 {dlgtab:Estimation options}
 
 {synoptset 20}{...}
-{synopthdr:options}
+{p2coldent:{it:options}}Description{p_end}
 {synoptline}
 {synopt: {bf:vce}({it:vce_types})}Options for estimating variance. See below and {inp:help vce_options} for supported options{p_end}
 {synopt: {bf:{ul:fix}edeffect}({it:varname})}Include fixed effects in the pair-wise regressions (and for F-tests if applicable){p_end}
@@ -55,7 +55,7 @@ will test for differences across the categories in {bf:groupvar}({it:varname}).
 {dlgtab:Statistics display options}
 
 {synoptset 19}{...}
-{synopthdr:options}
+{p2coldent:{it:options}}Description{p_end}
 {synoptline}
 {synopt: {bf:stats}({it:stats_string})}Specify which statistics to display in the tables. See options for {it:stats_string} below{p_end}
 {synopt: {bf:{ul:star}levels}({it:numlist})}Manually set the three significance levels used for significance stars{p_end}
@@ -66,7 +66,7 @@ will test for differences across the categories in {bf:groupvar}({it:varname}).
 {dlgtab:Label/notes option}
 
 {synoptset 24}{...}
-{synopthdr:options}
+{p2coldent:{it:options}}Description{p_end}
 {synoptline}
 {synopt: {bf:{ul:groupc}odes}}Use the values in the {inp:groupvar()} variable as column titles. Default is to use value labels if any{p_end}
 {synopt: {bf:{ul:groupl}abels}({it:code_titles})}Manually set the group column titles. See details on {it:code_titles} below{p_end}
@@ -80,7 +80,7 @@ will test for differences across the categories in {bf:groupvar}({it:varname}).
 {dlgtab:Export options}
 
 {synoptset 21}{...}
-{synopthdr:options}
+{p2coldent:{it:options}}Description{p_end}
 {synoptline}
 {synopt: {bf:browse}}View table in the data browser{p_end}
 {synopt: {bf:{ul:savex}lsx}({it:filename})}Save table to Excel file on disk{p_end}
@@ -93,7 +93,7 @@ will test for differences across the categories in {bf:groupvar}({it:varname}).
 {dlgtab:LaTeX options}
 
 {synoptset 21}{...}
-{synopthdr:options}
+{p2coldent:{it:options}}Description{p_end}
 {synoptline}
 {synopt: {bf:{ul:texn}otewidth}({it:numlist})}Manually adjust width of note{p_end}
 {synopt: {bf:{ul:texc}aption}({it:string})}Specify LaTeX table caption{p_end}
@@ -230,14 +230,14 @@ See the estimation definition section
 for exact definitions of these values and how they are estimated/calculated.
 {p_end}
 
-{col 4}{c TLC}{hline 13}{c TT}{hline 36}{c TRC}
-{col 4}{c |} Type{col 18}{c |} Options{col 55}{c |}
-{col 4}{c LT}{hline 13}{c +}{hline 36}{c RT}
-{col 4}{c |} {it:desc_stats}{col 18}{c |} {inp:se} {inp:var} {inp:sd}{col 55}{c |}
-{col 4}{c |} {it:pair_stats}{col 18}{c |} {inp:diff} {inp:beta} {inp:t} {inp:p} {inp:nrmd} {inp:nrmb} {inp:se} {inp:sd} {inp:none}{col 55}{c |}
-{col 4}{c |} {it:f_stats}{col 18}{c |} {inp:f} {inp:p}{col 55}{c |}
-{col 4}{c |} {it:feq_stats}{col 18}{c |} {inp:f} {inp:p}{col 55}{c |}
-{col 4}{c BLC}{hline 13}{c BT}{hline 36}{c BRC}
+{synoptset 10}{...}
+{p2coldent:Type}Options{p_end}
+{synoptline}
+{synopt: {it:desc_stats}}{inp:se} {inp:var} {inp:sd}{p_end}
+{synopt: {it:pair_stats}}{inp:diff} {inp:beta} {inp:t} {inp:p} {inp:nrmd} {inp:nrmb} {inp:se} {inp:sd} {inp:none}{p_end}
+{synopt: {it:f_stats}}{inp:f} {inp:p}{p_end}
+{synopt: {it:feq_stats}}{inp:f} {inp:p}{p_end}
+{synoptline}
 
 {pstd}{bf:{ul:star}levels}({it:numlist}) manually sets the
 three significance levels used for significance stars.
@@ -401,15 +401,15 @@ and an {c 34}all options{c 34} example that shows exactly how all options are ap
 Here is a glossary for the terms used in this section:
 {p_end}
 
-{col 4}{c TLC}{hline 18}{c TT}{hline 181}{c TRC}
-{col 4}{c |} Term{col 23}{c |} Definition{col 205}{c |}
-{col 4}{c LT}{hline 18}{c +}{hline 181}{c RT}
-{col 4}{c |} {it:balance variable}{col 23}{c |} The variables listed as {it:balance_varlist}{col 205}{c |}
-{col 4}{c |} {it:groupvar}{col 23}{c |} The variable specified in {inp:groupvar()}{col 205}{c |}
-{col 4}{c |} {it:group_code}{col 23}{c |} Each value in {it:groupvar}{col 205}{c |}
-{col 4}{c |} {it:test_pair}{col 23}{c |} Combination of {it:group codes} to be used in pair wise tests{col 205}{c |}
-{col 4}{c |} {it:tp_dummy}{col 23}{c |} A dummy variable where 1 means that the obs{c 39} value in {inp:groupvar()} equals the first value in {it:test_pair}, 0 means it equals the second value, and missing means is matches neither{col 205}{c |}
-{col 4}{c BLC}{hline 18}{c BT}{hline 181}{c BRC}
+{synoptset 16}{...}
+{p2coldent:Term}Definition{p_end}
+{synoptline}
+{synopt: {it:balance variable}}The variables listed as {it:balance_varlist}{p_end}
+{synopt: {it:groupvar}}The variable specified in {inp:groupvar()}{p_end}
+{synopt: {it:group_code}}Each value in {it:groupvar}{p_end}
+{synopt: {it:test_pair}}Combination of {it:group codes} to be used in pair wise tests{p_end}
+{synopt: {it:tp_dummy}}A dummy variable where 1 means that the obs{c 39} value in {inp:groupvar()} equals the first value in {it:test_pair}, 0 means it equals the second value, and missing means is matches neither{p_end}
+{synoptline}
 
 {pstd}Each section below has a table that shows how the stats are estimated/calculated for each type of statistics. This is what each column means.
 A star (*) in the {it:Stat} column indicate that is the optional statistics displayed by default if the {inp:stats()} option is not used. 

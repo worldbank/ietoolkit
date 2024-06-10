@@ -213,15 +213,14 @@ Leonardo Viotti
 
 # Feedback, bug reports and contributions
 
-Please send bug-reports, suggestions, and requests for clarifications writing "ietoolkit ieddtab" in the subject line to:  
-dimeanalytics@worldbank.org
+Please send bug-reports, suggestions and requests for clarifications
+writing "ietoolkit ieddtab" in the subject line to: dimeanalytics@worldbank.org
 
 You can also see the code, make comments to the code, see the version
-history of the code, and submit additions or edits to the code through [GitHub repository](https://github.com/worldbank/ietoolkit) for __ietoolkit__.
-
+history of the code, and submit additions or edits to the code through [GitHub repository](https://github.com/worldbank/ietoolkit) for `ietoolkit`.
 
 # Author
 
-All commands in ietoolkit are developed by DIME Analytics at DECIE, The World Bank's unit for Development Impact Evaluations.
+All commands in `ietoolkit` are developed by DIME Analytics at DIME, The World Bank's department for Development Impact Evaluations.
 
 Main authors: Kristoffer Bjarkefur, Luiza Cardoso De Andrade, DIME Analytics, The World Bank Group

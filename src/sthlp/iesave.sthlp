@@ -17,7 +17,7 @@
 {dlgtab:Save options:}
 
 {synoptset 23}{...}
-{synopthdr:options}
+{p2coldent:{it:options}}Description{p_end}
 {synoptline}
 {synopt: {bf:{ul:id}vars}({it:varlist})}The variable(s) that should identify the data set{p_end}
 {synopt: {bf:{ul:v}ersion}({it:version_number})}Specify which {bf:.dta} version to use when saving{p_end}
@@ -31,8 +31,8 @@
 {phang}These options are only to be used inside {bf:report()}
 {p_end}
 
-{synoptset 36}{...}
-{synopthdr:options}
+{synoptset 26}{...}
+{p2coldent:{it:options}}Description{p_end}
 {synoptline}
 {synopt: {bf:path}({it:{c 34}/path/to/report.md{c 34}})}Save the report using another name and location than the data file{p_end}
 {synopt: {bf:replace}}Replace report file if it already exists{p_end}
