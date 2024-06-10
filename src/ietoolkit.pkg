@@ -29,7 +29,6 @@ f ado/iefolder.ado
 f ado/iedropone.ado
 f ado/ieddtab.ado
 f ado/ieboilstart.ado
-f ado/ieboilsave.ado
 f ado/iebaltab.ado
 f ado/ietoolkit.ado
 
@@ -43,7 +42,6 @@ f sthlp/iefolder.sthlp
 f sthlp/iedropone.sthlp
 f sthlp/ieddtab.sthlp
 f sthlp/ieboilstart.sthlp
-f sthlp/ieboilsave.sthlp
 f sthlp/iebaltab.sthlp
 f sthlp/ietoolkit.sthlp
 
