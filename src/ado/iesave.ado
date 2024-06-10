@@ -1,7 +1,10 @@
-*! version 7.3 01FEB2024 DIME Analytics dimeanalytics@worldbank.org
+*! version 7.3 20240404 - DIME Analytics - dimeanalytics@worldbank.org
 
 capture program drop iesave
 		program      iesave , rclass
+
+qui {
+    version 12.0
 
 	syntax anything,           ///
 		/* Required options */ ///
@@ -41,13 +44,9 @@ capture program drop iesave
 	* is standardized for this command
 	local version_char "c(stata_version):`c(stata_version)' c(version):`c(version)' c(userversion):`c(userversion)'"
 
-	version 12
-
 /*******************************************************************************
 	Test input
 *******************************************************************************/
-qui {
-
 
 	* Get target versions from ietoolkit command
 	ietoolkit

@@ -1,7 +1,12 @@
-*! version 7.3 01FEB2024 DIME Analytics dimeanalytics@worldbank.org
+*! version 7.3 20240404 - DIME Analytics - dimeanalytics@worldbank.org
 
-	cap prog drop    iekdensity
+cap prog drop    iekdensity
 		prog define  iekdensity
+
+qui {
+
+		// Set minimum version for this command
+    version 12.0
 
 		syntax 		 varname(numeric) [if] [in] [aw fw iw] , 	/// Specify outcome variable (only fweights, aweights, and iweights are allowed in original [kdensity] command)
 																///
@@ -26,11 +31,6 @@
 /*******************************************************************************
 	Prepare settings
 *******************************************************************************/
-
-		qui {
-
-			// Set minimum version for this command
-			version 12
 
 			// Preserve current dataset
 			preserve

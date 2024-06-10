@@ -1,9 +1,10 @@
-*! version XX XXXXXXXXX ADAUTHORNAME ADCONTACTINFO
+*! version 7.3 20240404 - DIME Analytics - dimeanalytics@worldbank.org
 
 	capture program drop   iebaltab,
 	        program define iebaltab, rclass
 
-    version /* ADD VERSION NUMBER HERE */
+qui {
+    version 12.0
 
 		syntax varlist(numeric) [if] [in] [aw fw pw iw],                    ///
                                                                         ///
@@ -54,9 +55,7 @@
 
   *Add space between code and output
   noi di ""
-
   preserve
-qui {
 
 	*Set minimum version for this command
 	version 12

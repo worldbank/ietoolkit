@@ -1,11 +1,11 @@
-*! version XX XXXXXXXXX ADAUTHORNAME ADCONTACTINFO
+*! version 7.3 20240404 - DIME Analytics - dimeanalytics@worldbank.org
 
 cap program drop   iegitaddmd
     program define iegitaddmd
 
 qui {
 
-  version 12
+    version 12.0
 
   syntax , folder(string) [comparefolder(string) customfile(string) all skip replace AUTOmatic DRYrun skipfolders(string)]
 

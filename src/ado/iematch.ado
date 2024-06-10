@@ -1,7 +1,12 @@
-*! version 7.3 01FEB2024 DIME Analytics dimeanalytics@worldbank.org
+*! version 7.3 20240404 - DIME Analytics - dimeanalytics@worldbank.org
 
 	cap program drop 	iematch
 	    program define	iematch
+
+qui {
+
+	  * Set version
+    version 12.0
 
 		syntax  [if] [in]  , 					///
 			GRPdummy(varname) 					///
@@ -21,10 +26,7 @@
 
 		*****
 
-	qui {
 
-		* Set version
-		version 12
 
 		********************************
 		*

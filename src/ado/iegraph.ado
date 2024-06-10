@@ -1,11 +1,11 @@
-*! version XX XXXXXXXXX ADAUTHORNAME ADCONTACTINFO
+*! version 7.3 20240404 - DIME Analytics - dimeanalytics@worldbank.org
 
 cap	program drop	  iegraph
 	  program define 	iegraph, rclass
 
 qui {
 
-    version /* ADD VERSION NUMBER HERE */
+    version 12.0
 
 	syntax varlist, 							///
  	   [noconfbars 								///

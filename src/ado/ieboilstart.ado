@@ -1,7 +1,9 @@
-*! version 7.3 01FEB2024 DIME Analytics dimeanalytics@worldbank.org
+*! version 7.3 20240404 - DIME Analytics - dimeanalytics@worldbank.org
 
   capture program drop ieboilstart
   program ieboilstart , rclass
+
+    version 12.0
 
   qui {
 
@@ -21,8 +23,6 @@
       setmem(string)              ///
       Custom(string)              ///
       ]
-
-    version 12
 
     /***************************************************************************
       Handle deprecated options
@@ -314,4 +314,4 @@
 
     }
   }
-  end
+end

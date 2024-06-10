@@ -1,11 +1,11 @@
-*! version XX XXXXXXXXX ADAUTHORNAME ADCONTACTINFO
+*! version 7.3 20240404 - DIME Analytics - dimeanalytics@worldbank.org
 
 cap program drop   iefolder
     program define iefolder
 
 qui {
 
-  version 12
+    version 12.0
 
   syntax anything, PROJectfolder(string) [ABBreviation(string) SUBfolder(string)]
 

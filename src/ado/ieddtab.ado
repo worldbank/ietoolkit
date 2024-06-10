@@ -1,7 +1,9 @@
-*! version 7.3 01FEB2024 DIME Analytics dimeanalytics@worldbank.org
+*! version 7.3 20240404 - DIME Analytics - dimeanalytics@worldbank.org
 
 cap program drop 	ieddtab
 	program define	ieddtab, rclass
+
+    version 12.0
 
 	syntax varlist(numeric) [if] [in] [aw fw iw pw], ///
 					///
@@ -32,9 +34,6 @@ cap program drop 	ieddtab
 		texvspace(string)									///
 		nonumbers											///
 		]
-
-		*Set minimum version for this command
-		version 12
 
 	/*************
 

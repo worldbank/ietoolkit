@@ -1,11 +1,11 @@
-*! version XX XXXXXXXXX ADAUTHORNAME ADCONTACTINFO
+*! version 7.3 20240404 - DIME Analytics - dimeanalytics@worldbank.org
 
 cap program drop   iedropone
     program define iedropone
 
 qui {
 
-    version 12
+    version 12.0
 
     syntax [if] ,  [Numobs(numlist int min=1 max=1 >0) mvar(varname) mval(string) zerook]
 
