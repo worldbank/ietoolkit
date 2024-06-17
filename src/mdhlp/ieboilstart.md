@@ -2,11 +2,11 @@
 
 __ieboilstart__ - applies best practices for collaboration and reproducibility within a project.
 
+# Syntax
+
 For a more descriptive discussion on the intended usage and workflow of this command please see the [DIME Wiki](https://dimewiki.worldbank.org/wiki/Ieboilstart).
 
 __DISCLAIMER__ - One objective of this command is to harmonize settings across users. However, it is impossible to guarantee that different types of Stata (version number, Small/IC/SE/MP or PC/Mac/Linux) will work exactly the same in every possible context. This command does not guarantee against any version discrepancies in Stata or in user-contributed commands. This command is solely a collection of common practices to reduce the risk that the same code generates different outputs when running on different computers. See more details below.
-
-# Syntax
 
 __ieboilstart__ , __**v**ersionnumber__( _Stata_version_ ) [__**ado**path__(_"path/to/folder"_, {_strict_ | _nostrict_}) __noclear__ __**q**uietly__ __veryquietly__ _memory_options_ ]
 

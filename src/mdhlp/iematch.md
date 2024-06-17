@@ -2,9 +2,9 @@
 
 __iematch__ - Matching base observations towards target observations using on a single continous variable.
 
-For a more descriptive discussion on the intended usage and work flow of this command please see the [DIME Wiki](https://dimewiki.worldbank.org/Iematch).
-
 # Syntax
+
+For a more descriptive discussion on the intended usage and work flow of this command please see the [DIME Wiki](https://dimewiki.worldbank.org/Iematch).
 
 __iematch__ [if] [in] , __**grp**dummy__(_varname_) __**match**var__(_varname_) [ __**id**var__(_varname_) __m1__ __maxdiff__(_numlist_) __maxmatch__(_integer_) __seedok__ __**matchid**name__(_string_) __**matchdi**ffname__(_string_) __**matchre**sultname__(_string_) __**matchco**untname__(_string_) __replace__ ]
 
@@ -116,7 +116,7 @@ In the example above, the observations with value 1 in tmt will be matched towar
 
 In the example above, the observations with value 1 in tmt will be matched towards the nearest, in terms of p_hat, observations with value 0 in tmt as long as the difference in p_hat is less than .001. Only observations that has the value 1 in variable baseline will be included in the match.
 
-## Example 3 
+## Example 3
 
 ```
  iematch , grpdummy(tmt) m1 maxmatch(5) matchvar(p_hat) maxdiff(.001)

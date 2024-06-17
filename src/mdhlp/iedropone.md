@@ -2,9 +2,9 @@
 
 __iedropone__ - an extension of the command `drop` with features preventing additional observations are unintentionally dropped.
 
-For a more descriptive discussion on the intended usage and work flow of this command please see the [DIME Wiki](https://dimewiki.worldbank.org/Iedropone).
-
 # Syntax
+
+For a more descriptive discussion on the intended usage and work flow of this command please see the [DIME Wiki](https://dimewiki.worldbank.org/Iedropone).
 
 __iedropone__ [__if__] , [ __**n**umobs__(_integer_) __mvar__(_varname_) __mval__(_list of values_) __zerook__ ]
 

@@ -2,9 +2,9 @@
 
 __iegitaddmd__ - Creates a placeholder file in subfolders of a GitHub repository folder, which allows committing folder structures with empty folders.
 
-For a more descriptive discussion on the intended usage and work flow of this command please see the [DIME Wiki](https://dimewiki.worldbank.org/Iegitaddmd).
-
 # Syntax
+
+For a more descriptive discussion on the intended usage and work flow of this command please see the [DIME Wiki](https://dimewiki.worldbank.org/Iegitaddmd).
 
 __iegitaddmd__ , __folder__(_full_file_path_) [ __comparefolder__(_full_file_path_) __customfile__(_filename_) __all__ __skip__ __replace__ __skipfolders__(_folder_name_) __**auto**matic__ __**dry**run__ ]
 

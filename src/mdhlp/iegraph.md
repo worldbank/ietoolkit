@@ -2,9 +2,9 @@
 
 __iegraph__ - Generates graphs based on regressions with treatment dummies common in impact evaluations.
 
-For a more descriptive discussion on the intended usage and work flow of this command please see the [DIME Wiki](https://dimewiki.worldbank.org/Ietoolkit).
-
 # Syntax
+
+For a more descriptive discussion on the intended usage and work flow of this command please see the [DIME Wiki](https://dimewiki.worldbank.org/Ietoolkit).
 
 __iegraph__ , _varlist_ , [ __**basicti**tle__(_string_) __**varl**abels__ __save__(_string_) __**gray**scale__ __yzero__ __**barl**abel__ __**mlabc**olor__(_colorname_) __**mlabp**osition__(_clockpos_) __**mlabs**ize__(_size_) __barlabelformat__ __noconfbars__ __confbarsnone__(_varlist_) __confintval__(_numlist_) __norestore__ __**baropt**ions__(_string_) __ignoredummytest__ _twoway_scatter_options_ ]
 

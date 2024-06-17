@@ -2,10 +2,9 @@
 
 __ieddtab__ - This command runs a Diff-in-Diff regression and displays the baseline values, the two 1st differences and the 2nd difference.
 
-For a more descriptive discussion on the intended usage and work flow of this command please see the [DIME Wiki](https://dimewiki.worldbank.org/Ieddtab)
-
-
 # Syntax
+
+For a more descriptive discussion on the intended usage and work flow of this command please see the [DIME Wiki](https://dimewiki.worldbank.org/Ieddtab)
 
 __ieddtab__ _varlist_ [if] [in] [weight], __**t**ime__(_varname_) __**treat**ment__(_varname_) [ __**covar**iates__(_varlist_) __**vce**__(_vce_types_) __**star**levels__(_numlist_) __stardrop__ __**err**ortype__(_string_) __**rowl**abtype__(_string_) __rowlabtext__(_label_string_) __format__(_%fmt_) __replace__ __**savet**ex__(_filepath_) __onerow__ __nonumbers__  __nonotes__ __**addn**otes__(_string_)  __**texdoc**ument__ __**texc**aption__(_string_) __**texl**abel__(_string_) __**texn**otewidth__(_numlist_) __texvspace__(_string_) ]  
 

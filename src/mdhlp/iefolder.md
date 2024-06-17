@@ -2,9 +2,9 @@
 
 __iefolder__ - sets up project folders and master do-files according to World Bank DIME's standards.
 
-For a more descriptive discussion on the intended usage and work flow of this command please see the [DIME Wiki](https://dimewiki.worldbank.org/Iefolder)
-
 # Syntax
+
+For a more descriptive discussion on the intended usage and work flow of this command please see the [DIME Wiki](https://dimewiki.worldbank.org/Iefolder)
 
 _When initially setting up the `DataWork` folder in a new project_:
 
