@@ -1,7 +1,7 @@
 ########################################################################
 #
-# This .gitignore file is based on DIME's template
-# https://github.com/worldbank/DIMEwiki/tree/master/Topics/GitHub
+# Created using adodown https://lsms-worldbank.github.io/adodown/, based on DIME .gitignore template:
+# https://github.com/worldbank/dime-github-trainings/tree/main/GitHub-resources/DIME-GitHub-Templates
 #
 ########################################################################
 
@@ -17,14 +17,18 @@
 # These files include GitHub settings
 !.gitignore
 !.gitattributes
-#.io page
-_config.yml
-!reproot.yaml
+!.github/**/*.yaml
+
+# Git placeholder file (to commit empty folders)
+!/**/*.gitkeep
 
 # Keep markdown files used for documentation on GitHub
 !README.md
 !CONTRIBUTING.md
-!LICENSE
+!LICENSE*
+
+* Unignore reproot files
+!reproot*.yaml
 
 #######################
 # For performance reasons, if a folder is already ignored, then
@@ -36,44 +40,28 @@ _config.yml
 
 #######################
 # The following file types are code that should always be
-# included no matter where in the DataWork folder they are
-# located unless that folder is explicitly ignored. See example
-# with EncryptedData folder below.
+# included no matter where in the repository folder they are
+# located unless you explicitly ignore that folder
 
 # Stata
 !/**/*.do
 !/**/*.ado
-!/**/*.sthlp
-!/**/*.stpr
+!/**/sthlp/*.sthlp
+!src/stata.toc
+!src/*.pkg
 
-# R
-!/**/*.R
-
-# Outputs
-!/**/*.tex
-!/**/*.csv
-
-# Python
-!/**/*.py
-
-# Matlab
-!/**/*.m
-
-# Markdown
+# Markdown and web docs files
 !/**/*.md
+!src/dev/**/*.png
+!src/dev/**/*.css
 
-# The folder test/ is used for peoples individual testing,
-# this is different from the test scripts in the folder run/
-test/
+####################################
+# Ignore ssc outputs
+src/dev/ssc
 
-###########
-# Outputs in the run/outputs folder
-!/**/outputs/**/*.csv
-
-# ignore all iegitaddmd output, results tested with checksums
-/**/iegitaddmd/outputs/
+# Ignore test inputs and outputs
+src/tests/**/inputs/
+src/tests/**/outputs/
 
 * Ignore the local dev env set up by repado
-run/dev-env/
-
-run/ieboilstart/ado-test/
+src/tests/dev-env/
