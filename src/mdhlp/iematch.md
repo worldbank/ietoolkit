@@ -1,6 +1,6 @@
 # Title
 
-__iematch__ - Matching base observations towards target observations using on a single continous variable.
+__iematch__ - Matching base observations towards target observations using on a single continuous variable.
 
 # Syntax
 
@@ -58,17 +58,20 @@ this variable can be used to include a pair/group fixed effect in a regression.
 
 `_matchCount`: In a many-to-one match, this variable indicates how many base observations were matched towards each matched target observation. This variable can be used as regression weights when controlling for the fact that some observations are matched towards multiple observations.
 
-
-
 # Options
 
-__**grp**dummy__(_varname_) is used for xyz. Longer description (paragraph length) of all options, their intended use case and best practices related to them.
+__**grp**dummy__(_varname_) is the dummy variable that indicates if
+an observation is a base or target observation.
+This variable, must be numeric and is only allowed to have the values 1, 0 or missing.
+1 indicates a base observation, 0 indicates a target observation,
+and observations with a missing value will be excluded from the matching.
+
 
 __**matc**hvar__(_varname_) is the variable used to compare observations when matching. This must be a numeric variable, and it is typically a continuous variable. Observations with a missing value will be excluded from the matching.
 
 __**id**var__(_varname_) indicates the variable that uniquely and fully identifies the data set. The values in this variable is the values that will be used in the variable that indicates which target observation each base observations matched against. If this option is omitted, a variable called _ID will be generated. The observation in the first row is given the value 1, the second row value 2 and so fourth.
 
-This command assumes only one ID variable as that is the best practice this command follows (see next paragraph for the exception of panel data sets). Here follows two suggested solutions if a data set this command will be used on has more than one ID variable. 1. Do not use the idvar() option and after the matching copy the multiple ID variables yourself. 2. Combine your ID variables into one ID variable. Here are two examples on how that can be done (the examples below work just as well when combining more than two ID variables to one.):
+This command assumes only one ID variable as that is the best practice this command follows (see next paragraph for the exception of panel data sets). Here follows two suggested solutions if a data set this command will be used on has more than one ID variable. 1. Do not use the `idvar()` option and after the matching copy the multiple ID variables yourself. 2. Combine your ID variables into one ID variable. Here are two examples on how that can be done (the examples below work just as well when combining more than two ID variables to one.):
 
 ```
 egen new_ID_var = group(old_ID_var1 old_ID_var2)
