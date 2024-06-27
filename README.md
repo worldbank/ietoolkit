@@ -1,6 +1,26 @@
 **ietoolkit - Stata Commands for Impact Evaluations**
 =====
 
+### Content
+
+### **Content**
+**ietoolkit** provides a set of commands that address different aspects of data management and data analysis in relation to Impact Evaluations. The list of commands will be extended continuously, and suggestions for new commands are greatly appreciated. Some of the commands are related to standardized best practices developed at DIME (The World Bank’s unit for Impact Evaluations). For these commands, the corresponding help files provide justifications for the standardized best practices applied.
+
+
+| Command | Description |
+| --- | --- |
+| [iebaltab](https://worldbank.github.io/ietoolkit/reference/iebaltab.html) | Produces balance tables with multiple groups or treatment arms |
+| [ieboilstart](https://worldbank.github.io/ietoolkit/reference/ieboilstart.html) | Applies best practices for collaboration and reproducibility within a project |
+| [ieddtab](https://worldbank.github.io/ietoolkit/reference/ieddtab.html) | This command runs a Diff-in-Diff regression and displays the baseline values, the two 1st differences and the 2nd difference |
+| [iedropone](https://worldbank.github.io/ietoolkit/reference/iedropone.html) | An extension of the command `drop` with features preventing additional observations are unintentionally dropped |
+| [iefolder](https://worldbank.github.io/ietoolkit/reference/iefolder.html) | Sets up project folders and master do-files according to World Bank DIME's standards |
+| [iegitaddmd](https://worldbank.github.io/ietoolkit/reference/iegitaddmd.html) | Creates a placeholder file in subfolders of a GitHub repository folder, which allows committing folder structures with empty folders |
+| [iegraph](https://worldbank.github.io/ietoolkit/reference/iegraph.html) | Generates graphs based on regressions with treatment dummies common in impact evaluations |
+| [iekdensity](https://worldbank.github.io/ietoolkit/reference/iekdensity.html) |  This command plots univariate kernel density estimates by treatment assignment |
+| [iematch](https://worldbank.github.io/ietoolkit/reference/iematch.html) | Matching base observations towards target observations using on a single continuous variable |
+| [iesave](https://worldbank.github.io/ietoolkit/reference/iesave.html) | Applies best practices before saving data, with option to save meta data report about the data saved |
+| [ietoolkit](https://worldbank.github.io/ietoolkit/reference/ietoolkit.html) | Returns information on the version of `ietoolkit` installed |
+
 ### **Install and Update**
 
 #### Installing published versions of `ietoolkit`
@@ -30,19 +50,6 @@ An easy but still very efficient way to provide any feedback on these commands i
 
 While we have a slight preference for receiving feedback here on GitHub, you are still very welcome to send a regular email with your feedback to [dimeanalytics@worldbank.org](mailto:dimeanalytics@worldbank.org).
 
-### **Content**
-**ietoolkit** provides a set of commands that address different aspects of data management and data analysis in relation to Impact Evaluations. The list of commands will be extended continuously, and suggestions for new commands are greatly appreciated. Some of the commands are related to standardized best practices developed at DIME (The World Bank’s unit for Impact Evaluations). For these commands, the corresponding help files provide justifications for the standardized best practices applied.
-
- - **ietoolkit** returns meta info on the version of _ietoolkit_ installed. Can be used to ensure that the team uses the same version.
- - **iebaltab** is a tool for multiple treatment arm balance tables
- - **ieddtab** is a tool for difference-in-difference regression tables
- - **ieboilstart** standardizes the boilerplate code at the top of all do-files
- - **iefolder** sets up project folders and master do-files according to DIME's recommended folder structure
- - **iegitaddmd** adds placeholder README.md files to all empty subfolders allowing them to be synced on GitHub
- - **iematch** is an algorithm for matching observations in one group to the "most similar" observations in another group
- - **iegraph** produces graphs of estimation results in common impact evaluation regression models
- - **iedropone** drops observations and controls that the correct number was dropped
- - **ieboilsave** performs checks before saving a data set
 
 ### **Contributions**
 If you are not familiar with GitHub see the **Bug reports and feature requests** section above for a less technical but still very helpful way to contribute to **ietoolkit**.
