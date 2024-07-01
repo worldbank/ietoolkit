@@ -1,10 +1,8 @@
-**ietoolkit - Stata Commands for Impact Evaluations**
+**ietoolkit - Stata toolkit for analysis**
 =====
 
-### Content
-
 ### **Content**
-**ietoolkit** provides a set of commands that address different aspects of data management and data analysis in relation to Impact Evaluations. The list of commands will be extended continuously, and suggestions for new commands are greatly appreciated. Some of the commands are related to standardized best practices developed at DIME (The World Bank’s unit for Impact Evaluations). For these commands, the corresponding help files provide justifications for the standardized best practices applied.
+**ietoolkit** provides a set of commands that address different aspects of data management and data analysis. Many of the commands are initially conceived in the context of primary data and impact evaluations, but implemented to be general and applicable to many other fields. Some of the commands are related to standardized best practices developed at DIME (The World Bank’s department for Impact Evaluations). For these commands, the corresponding help files provide justifications for the standardized best practices applied.
 
 
 | Command | Description |
@@ -50,7 +48,6 @@ An easy but still very efficient way to provide any feedback on these commands i
 
 While we have a slight preference for receiving feedback here on GitHub, you are still very welcome to send a regular email with your feedback to [dimeanalytics@worldbank.org](mailto:dimeanalytics@worldbank.org).
 
-
 ### **Contributions**
 If you are not familiar with GitHub see the **Bug reports and feature requests** section above for a less technical but still very helpful way to contribute to **ietoolkit**.
 
@@ -67,11 +64,8 @@ If you wish to make a contribution by making *forks and pull requests* but are n
 ### **License**
 **ietoolkit** is developed under MIT license. See http://adampritchard.mit-license.org/ or see [the `LICENSE` file](https://github.com/worldbank/ietoolkit/blob/master/LICENSE) for details.
 
-### **Main Contact**
-Luiza Cardoso de Andrade ([dimeanalytics@worldbank.org](mailto:dimeanalytics@worldbank.org))
-
-### **Authors**
-Kristoffer Bjärkefur, Luiza Cardoso de Andrade, Benjamin Daniels, Mrijan Rimal
+### **Contact**
+DIME Analytics ([dimeanalytics@worldbank.org](mailto:dimeanalytics@worldbank.org))
 
 ### **About us**
 [DIME](https://www.worldbank.org/en/research/dime) is the World Bank's impact evaluation department. Part of DIME’s mission is to intensify the production of and access to public goods that improve the quantity and quality of global development research, while lowering the costs of doing IE for the entire research community. This Library is developed and maintained by [DIME Analytics](https://www.worldbank.org/en/research/dime/data-and-analytics). DIME Analytics supports quality research processes across the DIME portfolio, offers public trainings, and develops tools for the global community of development researchers.
