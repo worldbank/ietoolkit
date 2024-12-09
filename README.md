@@ -35,6 +35,21 @@ Follow the instructions above if you want the most recent published version of *
     net install ietoolkit , from("https://raw.githubusercontent.com/worldbank/ietoolkit/master/src") replace
 ```
 
+#### Install older versions
+
+You can install older versions of `ietoolkit` directly from the GitHub repository.
+To do so, start by finding the tag corresponding to
+the version you want to install here:
+https://github.com/worldbank/ietoolkit/tags.
+Update the local "tag" in the code below with the value of the tag you picked,
+and then run the code.
+
+```
+local tag "v5.0"
+net install ietoolkit, ///
+  from("https://raw.githubusercontent.com/worldbank/ietoolkit/`tag'/src")
+```
+
 #### Requirements
 Stata version 11 or later is required for this package of commands.
 
