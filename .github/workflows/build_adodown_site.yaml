@@ -1,6 +1,6 @@
 on:
   push:
-    branches: [main, dev]
+    branches: [main]
 
 name: Build Site
 
@@ -18,7 +18,7 @@ jobs:
 
       - name: Setup Pages
         id: pages
-        uses: actions/configure-pages@v3
+        uses: actions/configure-pages@v5
 
       - name: Setup R
         uses: r-lib/actions/setup-r@v2
@@ -51,7 +51,7 @@ jobs:
         shell: Rscript {0}
 
       - name: Upload artifact
-        uses: actions/upload-pages-artifact@v2
+        uses: actions/upload-pages-artifact@v3
         with:
           path: ./docs
 
@@ -68,4 +68,4 @@ jobs:
     steps:
         - name: Deploy to GitHub Pages
           id: deployment
-          uses: actions/deploy-pages@v2
+          uses: actions/deploy-pages@v4
