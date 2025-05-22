@@ -45,13 +45,18 @@ Update the local "tag" in the code below with the value of the tag you picked,
 and then run the code.
 
 ```
-local tag "v5.0"
+local tag "v6.2"
 net install ietoolkit, ///
   from("https://raw.githubusercontent.com/worldbank/ietoolkit/`tag'/src")
 ```
 
+`v6.2` is the oldest version that can be installed with exactly this code. 
+Older versions back to version `v2.0` may still be installed but not exactly like this.
+View the source code in this repository to see how to update the code.
+Please get in touch if you are not able to solve it.
+
 #### Requirements
-Stata version 11 or later is required for this package of commands.
+Different versions of this package requires a different minimum version of Stata. See the pkg-file or the ado-file for the version you want to use.
 
 ### **Background**
 These commands are developed by people that work at or with the Development Impact Evaluations (DIME) unit at the World Bank. While the commands are developed with best practices for impact evaluations in mind, these commands can be useful outside that field as well.
