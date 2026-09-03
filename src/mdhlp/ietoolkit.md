@@ -20,7 +20,7 @@ This command does not take any options.
 
 # Examples
 
-The code below is an example code that can be added to the top of any do-file.  The example code first tests if the command is installed, and install it if not. If it is installed, it tests if the version is less than version 5.0. If it is, it replaces the `ietoolkit` file with the latest version. In your code you can skip the second part if you are not sure which version is required. But you should always have the first part testing that `r(version)` has a value before using it in less than or greater than expressions.
+The code below is an example code that can be added to the top of any do-file.  The example code first tests if the command is installed, and installs it if not. If it is installed, it tests if the version is less than version 5.0. If it is, it replaces the `ietoolkit` file with the latest version. In your code you can skip the second part if you are not sure which version is required. But you should always have the first part testing that `r(version)` has a value before using it in less than or greater than expressions.
 
 ```
 cap ietoolkit
@@ -42,7 +42,7 @@ We would like to acknowledge the help in testing and proofreading we received in
 
 # Author
 
-All commands in `ietoolkit` is developed by DIME Analytics at DIME, the World Bank's department for Development Impact.
+All commands in `ietoolkit` are developed by DIME Analytics at DIME, the World Bank's department for Development Impact.
 
 Main author: DIME Analytics, The World Bank
 

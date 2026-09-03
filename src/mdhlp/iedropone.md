@@ -1,6 +1,6 @@
 # Title
 
-__iedropone__ - an extension of the command `drop` with features preventing additional observations are unintentionally dropped.
+__iedropone__ - an extension of the command `drop` with features preventing additional observations from being unintentionally dropped.
 
 # Syntax
 
@@ -19,7 +19,7 @@ __iedropone__ [__if__] , [ __**n**umobs__(_integer_) __mvar__(_varname_) __mval_
 <!-- Longer description of the intended use of the command and best practices related to the usage -->
 
 
-This commands might be easier to understand by following the examples below before reading the description or the explanations of the options.
+This command might be easier to understand by following the examples below before reading the description or the explanations of the options.
 
 `iedropone` has the same purpose as the Stata built-in command `drop` when dropping observations.
 However, `iedropone` safeguards that no additional observations are unintentionally dropped,
@@ -31,13 +31,13 @@ then we want to make sure that when re-running the do-file no other observations
 even if more observations are added to that data set or changed in any other way.
 
 While the default is 1,
-`iedropone` allows the user to set any another number of observation that should be dropped.
+`iedropone` allows the user to set any other number of observations that should be dropped.
 If the number of observations that fit the drop condition is different,
 then the command will throw an error.
 
 # Options
 
-__**n**umobs__(_integer_) this allows the user to set the number of observation that should be dropped.
+__**n**umobs__(_integer_) this allows the user to set the number of observations that should be dropped.
 The default is 1 but any positive integer can be used.
 The command throws an error if any other number of observations match the drop condition.
 
@@ -64,7 +64,7 @@ iedropone if village == 100 & household_id == 23
 
 The default is that exactly one observation should be dropped for each value in `mval()`
 unless `numobs()` or `zerook` is used.
-If those options are used then, then they apply to all values in `mval()` separately.
+If those options are used then they apply to all values in `mval()` separately.
 
 __mval__(_list of values_) - see __mvar__(_varname_) above.
 
@@ -87,10 +87,10 @@ no observation is dropped if someone makes a change to the ID.
 Otherwise we would unknowingly keep this incorrect observation in our data set.
 
 Similarly, if a new observation is added that is the correct household with ID 712047,
-then both observation would be dropped without warning if we would have used `drop if household_id == 712047`.
-`iedropone` can be used as below to make sure that only that one observations is dropped.
+then both observations would be dropped without warning if we would have used `drop if household_id == 712047`.
+`iedropone` can be used as below to make sure that only that one observation is dropped.
 And if the data changes such that two observations are dropped,
-then the command will throw and error.
+then the command will throw an error.
 
 ```
 iedropone if household_id == 712047
@@ -123,7 +123,7 @@ Please send bug-reports, suggestions and requests for clarifications
 writing "ietoolkit iedropone" in the subject line to: dimeanalytics@worldbank.org
 
 You can also see the code, make comments to the code, see the version
-history of the code, and submit additions or edits to the code through [GitHub repository](https://github.com/worldbank/ietoolkit) for `ietoolkit`.
+history of the code, and submit additions or edits to the code through the [GitHub repository](https://github.com/worldbank/ietoolkit) for `ietoolkit`.
 
 # Author
 
