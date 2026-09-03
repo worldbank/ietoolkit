@@ -1,9 +1,9 @@
 # Markdown help files
 
 In the `adodown` workflow you should not create any files in this folder.
-Files in this folder is intended to be created using the command `ad_command`.
+Files in this folder are intended to be created using the command `ad_command`.
 The markdown files here are then converted into Stata help files in `.sthlp` format using `ad_publish` or `ad_sthlp`.
-Those commands saves the converted helpfiles in the `stlhp` folder.
+Those commands saves the converted helpfiles in the `sthlp` folder.
 
 For syntax rules on how to write Stata helpfiles in markdown syntax in the `adodown` workflow, see [this article](https://lsms-worldbank.github.io/adodown/articles/mdhlp-syntax.html).
 
